@@ -8408,4 +8408,7 @@ I'm unironically bad at coding and it kills me inside
 because I tie so much of my self worth to my problem solving abilities.
 Like "I got acne and etc... but I can write a... linked list or somethin ya know"
 
+But the reason I thought I was good at coding was that I was writing "easy" things that
+weren't challenging much to me. And my ego is being crushed every day.
+
 */

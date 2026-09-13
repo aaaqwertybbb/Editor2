@@ -8417,4 +8417,10 @@ I feel like garbage and I'm very anxious all the time
 "Google AI: what is the chain rule"
 "I gotta go I forgot something I gotta do..."
 
+that repo is perfect because I think back to when I was ontop of my math skills.
+And if someone told me it'd been 7 years since they took math classes and listed
+them out in the way I did.
+
+I'd for sure be thinkin: "This dude ain't even gonna remember the chain rule"
+
 */

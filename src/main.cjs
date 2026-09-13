@@ -296,7 +296,7 @@ function MAIN_initializeLanguageServer() {
 	//languageServer = spawn('node', [
 	//	'C:\\Users\\hunte\\AppData\\Roaming\\npm\\node_modules\\typescript-language-server\\lib\\cli.mjs',
 	//	'--stdio']);
-	languageServer = spawn('C:\\Users\\hunte\\Repos\\New folder (6)\\LanguageServer\\JSLSApp\\bin\\Release\\net10.0\\publish\\JSLSApp.exe');
+	languageServer = spawn('C:\\Users\\hunte\\Repos\\New folder (7)\\LanguageServer2\\JSLSApp\\bin\\Release\\net10.0\\publish\\JSLSApp.exe');
 
 	/*
 	interface RequestMessage extends Message {

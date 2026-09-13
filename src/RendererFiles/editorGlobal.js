@@ -8375,4 +8375,14 @@ and this person won't ever look at the new repo, they're done.
 
 This just shows me thought process a bit^
 
+I had this in my notes:
+"belt index calculation explicit inline virtual - virtual"
+
+I have a separate place I keep notes sometimes.
+Just for myself.
+
+And I completely forgot about this lol I knew for the longest time
+that I have code that says 'virtualIndex - virtualIndex' or something somewhere
+but I completely forgot.
+
 */

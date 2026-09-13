@@ -8413,4 +8413,8 @@ weren't challenging much to me. And my ego is being crushed every day.
 
 I feel like garbage and I'm very anxious all the time
 
+"I got an A in calc 3 I'm kind of a big deal in the calc scene"
+"Google AI: what is the chain rule"
+"I gotta go I forgot something I gotta do..."
+
 */

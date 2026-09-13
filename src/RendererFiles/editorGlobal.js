@@ -8395,4 +8395,8 @@ and I always have them open in the background.
 I look back at the comments I made in the git history,
 and I think I say some pretty funny things sometimes.
 
+btw I'm extremely out of it.
+I literally typed "This just shows me thought process a bit^"
+and didn't realize I said 'me'.
+
 */

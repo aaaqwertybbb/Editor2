@@ -8391,4 +8391,8 @@ in order to make my non-performant code maybe run better? How do computers work?
 I use Notepad++ for my private notes.
 and I always have them open in the background.
 
+"what hurts the most" about privating my old code is that
+I look back at the comments I made in the git history,
+and I think I say some pretty funny things sometimes.
+
 */

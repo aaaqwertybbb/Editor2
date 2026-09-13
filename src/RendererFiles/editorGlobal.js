@@ -8399,4 +8399,9 @@ btw I'm extremely out of it.
 I literally typed "This just shows me thought process a bit^"
 and didn't realize I said 'me'.
 
+On a scale of anxiety out of anxiety
+I'm like a 9 or 10 out of 10
+I can't think straight as a result like
+even just like typing things I feel completely out of it
+
 */

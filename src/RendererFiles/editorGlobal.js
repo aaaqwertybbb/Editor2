@@ -8388,4 +8388,7 @@ but I completely forgot.
 I'm going through my private notes to try and reduce the overall overhead that my laptop has as a whole
 in order to make my non-performant code maybe run better? How do computers work? Is this a thing?
 
+I use Notepad++ for my private notes.
+and I always have them open in the background.
+
 */

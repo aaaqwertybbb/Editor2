@@ -8385,4 +8385,7 @@ And I completely forgot about this lol I knew for the longest time
 that I have code that says 'virtualIndex - virtualIndex' or something somewhere
 but I completely forgot.
 
+I'm going through my private notes to try and reduce the overall overhead that my laptop has as a whole
+in order to make my non-performant code maybe run better? How do computers work? Is this a thing?
+
 */

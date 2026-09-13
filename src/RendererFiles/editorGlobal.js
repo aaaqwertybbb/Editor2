@@ -8404,4 +8404,8 @@ I'm like a 9 or 10 out of 10
 I can't think straight as a result like
 even just like typing things I feel completely out of it
 
+I'm unironically bad at coding and it kills me inside
+because I tie so much of my self worth to my problem solving abilities.
+Like "I got acne and etc... but I can write a... linked list or somethin ya know"
+
 */

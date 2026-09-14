@@ -85,19 +85,6 @@ function EDI_textByteList_insert(index, byte) {
 
     EDI_textByteList_count++;
 }
-function EDI_textByteList_insertString(index, string, encoder) {
-    EDI_textByteList_ensureCapacityForInsertion(index, string.length);
-
-    if (index !== EDI_textByteList_count) {
-        EDI_textByteList_copyTo(EDI_textByteList_bytes, index, EDI_textByteList_bytes, index + string.length, EDI_textByteList_count - index);
-    }
-
-    for (var i = 0; i < string.length; i++) {
-        EDI_textByteList_bytes[index + i] = encoder.encode(string[i]);
-    }
-
-    EDI_textByteList_count += string.length;
-}
 /**
  * @param {number} index 
  * @param {Uint8Array} incomingBs the incoming bytes, name avoids confusion with EDI_textByteList_bytes

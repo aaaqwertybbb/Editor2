@@ -8471,6 +8471,9 @@ I'm seeing songs that use it as footage popping up in my youtube recommendations
 
 ====
 
-omg why am I saying things
+
+I feel a deep sense of regret everytime I speak.
+
+
 
 */

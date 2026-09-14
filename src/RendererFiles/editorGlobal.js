@@ -8520,4 +8520,11 @@ or multiple lines to a single line. Because that'd probably invalidate your cach
 Although it messes up the endLineSelectionWidth but the endLineSelectionWidth
 is just the endColumnVisualOfSelection which is always known and doesn't need cached lol
 
+I been just so anxious lately.
+I think about the movie Manic and Chad.
+He was 1 day away from being released from a psych ward, and then he freaked out and threw it all away.
+And not only that but the character (minus what he did when freaked out) I relate to him a lot given the
+fact that he has the book "The Myth of Sisyphus" and all. He's literally just reading it while he cuts himself
+and it is so funny to me in a weird way cause I'm just like heck yeah
+
 */

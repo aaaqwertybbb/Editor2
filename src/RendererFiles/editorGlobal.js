@@ -8574,4 +8574,9 @@ And not only that but the character (minus what he did when freaked out) I relat
 fact that he has the book "The Myth of Sisyphus" and all. He's literally just reading it while he cuts himself
 and it is so funny to me in a weird way cause I'm just like heck yeah
 
+I understand that saying these things is bad in terms of mass appeal.
+More people are turned off by such a statement than turned on.
+I do hope that I'm being tasteful though in the way I say these things if I do mention them on occassion
+not just as a matter of shock but just reality of how I'm feeling.
+
 */

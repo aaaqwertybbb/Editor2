@@ -8500,5 +8500,16 @@ and they give me a panic
 I threw away the iron supplement
 
 omg I just realized the start and end of the selection is so much "easier" than I thought
+The reason it "was difficult" is I was thinking I'd have to track the startLineSelectionWidth
+and endInclusiveLineSelectionWidth such that every logic that could select
+had to have an if statement to determine if they were causing the width of either the 'startLineSelectionWidth' or 'endInclusiveLineSelectionWidth'
+to change. And that everyone who modified a selection would have to handle this case.
+
+The initial thought process was:
+if I track the startColumnVisualOfSelection and endColumnVisualOfSelection
+I know the width of the selection when it spans a single line because 'endColumnVisualOfSelection - startColumnVisualOfSelection'
+But if I span more than one lines 'endColumnVisualOfSelection - startColumnVisualOfSelection' is no longer correct.
+But it just means you have a startLineSelectionWidth of 'startLineEntireVisualWidth - (startColumnVisualOfSelection * charWidth)'
+and the endLineSelectionWidth is 'endColumnVisualOfSelection'.
 
 */

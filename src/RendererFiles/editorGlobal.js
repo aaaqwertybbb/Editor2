@@ -8469,4 +8469,10 @@ Google AI:
 Is 500 days of summer a good movie?
 I'm seeing songs that use it as footage popping up in my youtube recommendations.
 
+====
+
+Wt* I'm looking at my youtube recommendations and they're going crazy.
+The most of note thing is that I posted a short to youtube.
+And now I'm seeing "LOOK, AN IDIOT!" all of a sudden get recommended to me again I haven't seen that in a while.
+
 */

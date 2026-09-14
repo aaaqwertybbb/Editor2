@@ -8483,5 +8483,19 @@ and because I didn't start the dryer yesterday
 I have to wear the pants that are left when I don't do laundry
 and they give me a panic
 
+> iron supplement cognitive decline
+
+< ...
+<
+< The Danger of Excess Iron in the Brain
+< - Iron buildup: Accumulating iron in specific brain areas occurs naturally with age and links to lower scores in executive function and memory.
+< - Oxidative stress: Too much iron causes cell damage through oxidative stress, which may speed up neurodegenerative issues. Research discussed by Medical News Today shows that brain iron accumulation over time is cognitively significant.
+< - Dementia connection: Studies tracking iron and brain changes note that high iron levels can worsen symptoms in degenerative conditions, as detailed by Alzheimer's Research UK.
+<
+< ...
+< ...
+<
+< - Avoid extra iron: Never take high-dose iron supplements without a confirmed deficiency, as excess iron builds up in organs and the brain
+
 
 */

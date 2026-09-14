@@ -8499,4 +8499,6 @@ and they give me a panic
 
 I threw away the iron supplement
 
+omg I just realized the start and end of the selection is so much "easier" than I thought
+
 */

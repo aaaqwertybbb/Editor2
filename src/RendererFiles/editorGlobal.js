@@ -2971,10 +2971,10 @@ function EDI_createStyleForSelection() {
             lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
             lineSelectionDiv.className = 'EDI_selection';
             lineSelectionDiv.style.left = gutterWidthTotal_withPxUnits;
-            lineSelectionDiv.style.transform = `translate(${startColumn * EDI_characterWidth}px, ${INTS[fEDI_lineHeight] * startLine}px)`;
+            lineSelectionDiv.style.transform = `translate(${start_visualColumnStart * EDI_characterWidth}px, ${INTS[fEDI_lineHeight] * startLine}px)`;
             EDI_getLineBoundaryPositions(startLine);
-            let lineLength = INTS[fEDI_getLineBoundaryPositions_end] - INTS[fEDI_getLineBoundaryPositions_start];
-            lineSelectionDiv.style.width = (lineLength + 1 - startColumn) * EDI_characterWidth + 'px';
+            let lineVisualWidth = fEDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
+            lineSelectionDiv.style.width = (lineVisualWidth + 1 - start_visualColumnStart) * EDI_characterWidth + 'px';
 
             // between lines
             for (var lineI = startLine + 1; lineI < INCLUSIVEendLine; lineI++) {
@@ -2983,8 +2983,8 @@ function EDI_createStyleForSelection() {
                 lineSelectionDiv.style.left = gutterWidthTotal_withPxUnits;
                 lineSelectionDiv.style.transform = `translateY(${INTS[fEDI_lineHeight] * lineI}px)`;
                 EDI_getLineBoundaryPositions(lineI);
-                let lineLength = INTS[fEDI_getLineBoundaryPositions_end] - INTS[fEDI_getLineBoundaryPositions_start];
-                lineSelectionDiv.style.width = (lineLength + 1) * EDI_characterWidth + 'px';
+                let lineVisualWidth = fEDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
+                lineSelectionDiv.style.width = (lineVisualWidth + 1) * EDI_characterWidth + 'px';
             }
 
             // end line
@@ -2992,7 +2992,7 @@ function EDI_createStyleForSelection() {
             lineSelectionDiv.className = 'EDI_selection';
             lineSelectionDiv.style.left = gutterWidthTotal_withPxUnits;
             lineSelectionDiv.style.transform = `translateY(${INTS[fEDI_lineHeight] * INCLUSIVEendLine}px)`;
-            lineSelectionDiv.style.width = INCLUSIVEendColumn * EDI_characterWidth + 'px';
+            lineSelectionDiv.style.width = end_visualColumnStart * EDI_characterWidth + 'px';
         }
     }
 }
@@ -4908,7 +4908,6 @@ function fEDI_getEntireLineVisualWidth(lineStart, lineEnd) {
         // Calculate pixel boundaries for the current character
         const charLeftX = visualColumns * charWidth;
         const charRightX = (visualColumns + charLength) * charWidth;
-        const charMidpointX = charLeftX + (charRightX - charLeftX) / 2;
 
         visualColumns += charLength;
         positionIndex++;

@@ -8498,4 +8498,8 @@ Make sure you log out before watching my short or it connects us hard in the rec
 "I don't love you" a song by MCR
 This makes me very self concious
 
+
+I gotta get to sleep I might be being weird it was just funny how inundated my recommendations were
+like they in the blink of an eye completely changed.
+
 */

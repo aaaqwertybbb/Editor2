@@ -8520,6 +8520,8 @@ List of classes in the app
             - [ ] Looping this seems very odd.
             - [ ] I almost feel like you can just replace all of it with
                 - [ ] subarray for 'EDI_cursor_enterKey_newLinePlusIndentation_byteList'
+                    - [ ] 'subarray' I think is correct because you're delaying your edits until they're "finalized"
+                    - [ ] Nevertheless a middle-man approach for now would be if there is another API to get a copy of the memory?
                 - [ ] decode   for 'EDI_cursor_cached_indentation_string'
 - [ ] UInt32List
     - [ ] const EDI_lineEndPositionList_PENDING

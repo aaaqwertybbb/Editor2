@@ -8477,5 +8477,11 @@ this isn't the only cognitive decline I've noticed lately and I'm extremely worr
 
 all you need to do is get one thing to work today that didn't work yesterday
 
+so it's justa  non-zero amount of progress
+
+and because I didn't start the dryer yesterday
+I have to wear the pants that are left when I don't do laundry
+and they give me a panic
+
 
 */

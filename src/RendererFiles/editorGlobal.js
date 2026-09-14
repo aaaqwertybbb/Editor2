@@ -8511,5 +8511,7 @@ I know the width of the selection when it spans a single line because 'endColumn
 But if I span more than one lines 'endColumnVisualOfSelection - startColumnVisualOfSelection' is no longer correct.
 But it just means you have a startLineSelectionWidth of 'startLineEntireVisualWidth - (startColumnVisualOfSelection * charWidth)'
 and the endLineSelectionWidth is 'endColumnVisualOfSelection'.
+Which makes sense given that I wrote the selection logic prior to the tab width and that was the same answer lol
+but sometimes you just get confuzzled in complexity.
 
 */

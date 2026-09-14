@@ -8486,7 +8486,8 @@ you came up to me and said "nobody cares."
 I haven't seen the video but (I'm not lonely)
 
 Possession,
-Songs from the band Dauger,
+Songs from the band Daughter,
+Clips from the movie Pearl
 ...
 
 */

@@ -8513,5 +8513,8 @@ But it just means you have a startLineSelectionWidth of 'startLineEntireVisualWi
 and the endLineSelectionWidth is 'endColumnVisualOfSelection'.
 Which makes sense given that I wrote the selection logic prior to the tab width and that was the same answer lol
 but sometimes you just get confuzzled in complexity.
+And then you could cache the 'startLineEntireVisualWidth' and 'endLineSelectionWidth' "if you wanted to"
+and you'd just need to track whether the selection changed from spanning a single line to multiple lines
+or multiple lines to a single line. Because that'd probably invalidate your cache.
 
 */

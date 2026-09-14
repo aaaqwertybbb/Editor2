@@ -1129,6 +1129,11 @@ function EDI_onScroll_TrailingEdge() {
  * ===
 */
 function EDI_render_do_SyntaxHighlighting() {
+
+    if (EDI_cursor_hasSelection()){
+        EDI_render_do_RedrawSelection();
+    }
+
     const local_sum_diffNegative = INTS[fEDI_sum_diffNegative];
     const local_sum_diffPositive = INTS[fEDI_sum_diffPositive];
     let total_diff = local_sum_diffNegative + local_sum_diffPositive;
@@ -1217,6 +1222,13 @@ function EDI_render_do_SyntaxHighlighting() {
         INTS[fEDI_sum_diffPositive] = local_sum_diffPositive;
         EDI_render_do_SyntaxHighlighting();
     }
+}
+
+/**
+ * TODO: This is currently just invoked from EDI_render_do_SyntaxHighlighting, so it probably should be moved at some point.
+ */
+function EDI_render_do_RedrawSelection() {
+    EDI_createStyleForSelection();
 }
 
 function EDI_state_clear() {

@@ -105,16 +105,37 @@ function EDI_textByteList_insertString(index, string, encoder) {
  * @param {number} length the amount of bytes to read
  */
 function EDI_textByteList_insertBytes(index, incomingBs, offset, length) {
+    // 1. Validate that the source parameters are within the actual bounds of incomingBs
+    if (offset < 0 || length < 0 || offset + length > incomingBs.length) {
+        throw new RangeError(
+            //`Invalid source bounds: offset ${offset} and length ${length} exceed incomingBs.length of ${incomingBs.length}.`
+        );
+    }
+
+    // 2. Validate that the target insertion index makes sense
+    if (index < 0 || index > EDI_textByteList_count) {
+        throw new RangeError(
+            //`Invalid insertion index: index ${index} must be between 0 and current count ${EDI_textByteList_count}.`
+        );
+    }
+
     EDI_textByteList_ensureCapacityForInsertion(index, length);
 
     if (index !== EDI_textByteList_count) {
         EDI_textByteList_copyTo(EDI_textByteList_bytes, index, EDI_textByteList_bytes, index + length, EDI_textByteList_count - index);
     }
 
-    // TODO: this is wrong use set
-    for (var i = 0; i < length; i++) {
-        EDI_textByteList_bytes[index + i] = incomingBs[offset + i];
-    }
+    // TODO: Google AI is telling me:
+    // < In JavaScript, calling .subarray(0, incomingBs.length) on a TypedArray does not duplicate memory or create a heavy object.
+    // < It is already optimized under the hood.
+    // < ...
+    // < You can simplify your code back down to a single line without losing any performance:
+    // < ...
+    //
+    const segmentToInsert = (offset === 0 && offset + length === incomingBs.length)
+        ? incomingBs
+        : incomingBs.subarray(offset, offset + length);
+    EDI_textByteList_bytes.set(segmentToInsert, index);
 
     EDI_textByteList_count += length;
 }

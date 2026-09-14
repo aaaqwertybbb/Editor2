@@ -8517,4 +8517,7 @@ And then you could cache the 'startLineEntireVisualWidth' and 'endLineSelectionW
 and you'd just need to track whether the selection changed from spanning a single line to multiple lines
 or multiple lines to a single line. Because that'd probably invalidate your cache.
 
+Although it messes up the endLineSelectionWidth but the endLineSelectionWidth
+is just the endColumnVisualOfSelection which is always known and doesn't need cached lol
+
 */

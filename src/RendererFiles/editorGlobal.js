@@ -8497,5 +8497,6 @@ and they give me a panic
 <
 < - Avoid extra iron: Never take high-dose iron supplements without a confirmed deficiency, as excess iron builds up in organs and the brain
 
+I threw away the iron supplement
 
 */

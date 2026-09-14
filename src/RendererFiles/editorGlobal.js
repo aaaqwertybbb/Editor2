@@ -4284,6 +4284,7 @@ function EDI_editEvent_checkFor_NOTcanBatch_Enter(event) {
         return true;
     }
     else {
+        // Enter key doesn't batch with itself?
         if (EDI_NOTcanBatch_enter()) {
             return true;
         }

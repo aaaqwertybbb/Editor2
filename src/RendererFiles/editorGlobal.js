@@ -1228,6 +1228,8 @@ function EDI_render_do_SyntaxHighlighting() {
  * TODO: This is currently just invoked from EDI_render_do_SyntaxHighlighting, so it probably should be moved at some point.
  */
 function EDI_render_do_RedrawSelection() {
+    // TODO: I don't know why this works the first thing the function invoked does is check whether the selection changed which it didn't so...
+    // ...that being said I don't feel well so I didn't actually but in any effort to read the if statement in question I just glanced at it.
     EDI_createStyleForSelection();
 }
 

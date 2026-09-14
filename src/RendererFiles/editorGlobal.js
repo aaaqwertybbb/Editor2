@@ -8475,5 +8475,7 @@ last night you flipped laundry from washer to dryer and never started the dryer
 
 this isn't the only cognitive decline I've noticed lately and I'm extremely worried
 
+all you need to do is get one thing to work today that didn't work yesterday
+
 
 */

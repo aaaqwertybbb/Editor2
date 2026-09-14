@@ -2954,6 +2954,11 @@ function EDI_createStyleForSelection() {
         // everything static-ly will "fall at a left of gutterWidthTotal_withPxUnits"...
         // ...but you cannot rely on that as it causes layout shifting, you need to make it clear to the renderering engine.
 
+        /*
+        But it just means you have a startLineSelectionWidth of 'startLineEntireVisualWidth - (startColumnVisualOfSelection * charWidth)'
+        and the endLineSelectionWidth is 'endColumnVisualOfSelection'.
+        */
+
         if (startLine === INCLUSIVEendLine) {
             lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
             lineSelectionDiv.className = 'EDI_selection';
@@ -4882,6 +4887,35 @@ async function EDI_onKeyDown_keyLengthEqualsOne_ctrlKey(event) {
 
 function EDI_onKeyDown_keyLengthEqualsOne_altKey(event) {
     
+}
+
+/**
+ * TODO: Reduce the amount of redundant drawing of lines that haven't changed in the selection logic.
+*/
+function fEDI_getEntireLineVisualWidth(lineStart, lineEnd) {
+    let indexColumn = 0;
+    let visualColumns = 0;
+    let positionIndex = lineStart;
+    let charWidth = EDI_characterWidth;
+
+    while (positionIndex < lineEnd) {
+        let charLength = 1;
+        
+        if (getCharacter(positionIndex) === '\t') {
+            charLength = 4 - (visualColumns % 4);
+        }
+
+        // Calculate pixel boundaries for the current character
+        const charLeftX = visualColumns * charWidth;
+        const charRightX = (visualColumns + charLength) * charWidth;
+        const charMidpointX = charLeftX + (charRightX - charLeftX) / 2;
+
+        visualColumns += charLength;
+        positionIndex++;
+        indexColumn++;
+    }
+
+    return visualColumns;
 }
 
 /**

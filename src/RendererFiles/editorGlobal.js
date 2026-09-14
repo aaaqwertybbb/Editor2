@@ -8471,37 +8471,6 @@ I'm seeing songs that use it as footage popping up in my youtube recommendations
 
 ====
 
-Wt* I'm looking at my youtube recommendations and they're going crazy.
-The most of note thing is that I posted a short to youtube.
-And now I'm seeing "LOOK, AN IDIOT!" all of a sudden get recommended to me again I haven't seen that in a while.
-
-cry of fear - sophie scene lol
-
-"Taylor Swift - We Are Never Ever Getting Back Together"
-
-Some video named "nobody cares." I haven't watched it but I feel like as I was typing this
-you came up to me and said "nobody cares."
-
-"David Foster Wallace and the problem of loneliness"
-I haven't seen the video but (I'm not lonely)
-
-Possession,
-Songs from the band Daughter,
-Clips from the movie Pearl
-...
-harvester
-The Quiet
-
-It's almost 9 PM I gotta go to bed.
-Make sure you log out before watching my short or it connects us hard in the recommendation algorithm and I see what you're doing it seems.
-
-"I don't love you" a song by MCR
-This makes me very self concious
-
-
-I gotta get to sleep I might be being weird it was just funny how inundated my recommendations were
-like they in the blink of an eye completely changed.
-
-The heaven knows what trailer was there too
+omg why am I saying things
 
 */

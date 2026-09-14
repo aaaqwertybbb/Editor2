@@ -8513,6 +8513,14 @@ List of classes in the app
     - [ ] explorerGlobal.js
 - [ ] ByteList
     - [ ] EDI_cacheIndentation()
+        - [ ] Used API:
+            - [ ] new ByteList(32);
+            - [ ] insert
+        - [ ] Notes:
+            - [ ] Looping this seems very odd.
+            - [ ] I almost feel like you can just replace all of it with
+                - [ ] subarray for 'EDI_cursor_enterKey_newLinePlusIndentation_byteList'
+                - [ ] decode   for 'EDI_cursor_cached_indentation_string'
 - [ ] UInt32List
     - [ ] const EDI_lineEndPositionList_PENDING
     - [ ] EDI_findOverlay_searchResultPositionList

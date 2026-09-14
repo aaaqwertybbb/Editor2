@@ -8502,4 +8502,21 @@ More people are turned off by such a statement than turned on.
 I do hope that I'm being tasteful though in the way I say these things if I do mention them on occassion
 not just as a matter of shock but just reality of how I'm feeling.
 
+=====
+
+List of classes in the app
+(that I'd like to remove if sensible
+    (and it is currently believed to be sensible but I just mean you gotta double check if these are truly sensible to be removed)):
+
+- [ ] TreeViewNodeList (the usages of 'new TreeViewNodeList':)
+    - [ ] dialogImplementationsGlobal.js
+    - [ ] explorerGlobal.js
+- [ ] ByteList
+    - [ ] EDI_cacheIndentation()
+- [ ] UInt32List
+    - [ ] const EDI_lineEndPositionList_PENDING
+    - [ ] EDI_findOverlay_searchResultPositionList
+- [ ] TrackedSyntaxList
+    - [ ] const EDI_trackedSyntaxList
+
 */

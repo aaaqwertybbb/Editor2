@@ -179,44 +179,6 @@ function EDI_textByteList_duplicateWithin(sourceStart, destinationStart, length)
 
     EDI_textByteList_count += length;
 }
-/**
- * - If the size asked for cannot be allocated, an exception will be thrown. (presumably the wording "thrown by the runtime" is involved.)
- * - JavaScript numbers do not wrap around to negative values when the value is very large.
- *       They instead approach infinity and lose precision.
- *       - There still is a check for whether the new, expected to be larger, capacity is smaller for whatever reason.
- *         Since this ought to be a negligible check for this method to perform.
- *         And failure to catch that case if it happens is an infinite loop.
- */
-//function EDI_textByteList_ensureCapacityForInsertion(index, count) {
-//    let capacityPrevious = EDI_textByteList_capacity;
-//    while (true) {
-//        if (EDI_textByteList_count + count > EDI_textByteList_capacity) {
-//            EDI_textByteList_doubleCapacity();
-//        }
-//        else if (index >= EDI_textByteList_capacity) {
-//            EDI_textByteList_doubleCapacity();
-//        }
-//        else {
-//            break;
-//        }
-//
-//        if (EDI_textByteList_capacity === capacityPrevious) {
-//            break;
-//        }
-//        if (EDI_textByteList_capacity < capacityPrevious) {
-//            throw new Error('ensureCapacityForInsertion(...): EDI_textByteList_capacity < capacityPrevious');
-//        }
-//
-//        capacityPrevious = EDI_textByteList_capacity;
-//    }
-//}
-//function EDI_textByteList_doubleCapacity() {
-//    let capacityNew = EDI_textByteList_capacity * 2;
-//    let bytesNew = new Uint8Array(capacityNew);
-//    EDI_textByteList_copyTo(EDI_textByteList_bytes, 0, bytesNew, 0, EDI_textByteList_count);
-//    EDI_textByteList_bytes = bytesNew;
-//    EDI_textByteList_capacity = capacityNew;
-//}
 function EDI_textByteList_ensureCapacityForInsertion(index, count) {
     // TODO: sparse insertions?
     const requiredCapacity = Math.max(EDI_textByteList_count + count, index);
@@ -404,45 +366,6 @@ function EDI_lineEndPositionList_removeAt(index, count) {
 
     EDI_lineEndPositionList_count -= count;
 }
-/**
- * - If the size asked for cannot be allocated, an exception will be thrown. (presumably the wording "thrown by the runtime" is involved.)
- * - JavaScript numbers do not wrap around to negative values when the value is very large.
- *       They instead approach infinity and lose precision.
- *       - There still is a check for whether the new, expected to be larger, capacity is smaller for whatever reason.
- *         Since this ought to be a negligible check for this method to perform.
- *         And failure to catch that case if it happens is an infinite loop.
- */
-//function EDI_lineEndPositionList_ensureCapacityForInsertion(index, count) {
-//    let capacityPrevious = EDI_lineEndPositionList_capacity;
-//    // TODO: what??? do you have to allocate and copy over and over like this? can you make a variable and check if the variable hits > and only then you allocate and copy?
-//    while (true) {
-//        if (EDI_lineEndPositionList_count + count > EDI_lineEndPositionList_capacity) {
-//            EDI_lineEndPositionList_doubleCapacity();
-//        }
-//        else if (index >= EDI_lineEndPositionList_capacity) {
-//            EDI_lineEndPositionList_doubleCapacity();
-//        }
-//        else {
-//            break;
-//        }
-//
-//        if (EDI_lineEndPositionList_capacity === capacityPrevious) {
-//            break;
-//        }
-//        if (EDI_lineEndPositionList_capacity < capacityPrevious) {
-//            throw new Error('ensureCapacityForInsertion(...): EDI_lineEndPositionList_capacity < capacityPrevious');
-//        }
-//
-//        capacityPrevious = EDI_lineEndPositionList_capacity;
-//    }
-//}
-//function EDI_lineEndPositionList_doubleCapacity() {
-//    let capacityNew = EDI_lineEndPositionList_capacity * 2;
-//    let bytesNew = new Uint32Array(capacityNew);
-//    EDI_lineEndPositionList_copyTo(EDI_lineEndPositionList_data, 0, bytesNew, 0, EDI_lineEndPositionList_count);
-//    EDI_lineEndPositionList_data = bytesNew;
-//    EDI_lineEndPositionList_capacity = capacityNew;
-//}
 function EDI_lineEndPositionList_ensureCapacityForInsertion(index, count) {
     // TODO: sparse insertions?
     const requiredCapacity = Math.max(EDI_lineEndPositionList_count + count, index);

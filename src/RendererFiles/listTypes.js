@@ -132,45 +132,6 @@ class ByteList {
         this.count -= count;
     }
 
-    /**
-     * - If the size asked for cannot be allocated, an exception will be thrown. (presumably the wording "thrown by the runtime" is involved.)
-     * - JavaScript numbers do not wrap around to negative values when the value is very large.
-     *       They instead approach infinity and lose precision.
-     *       - There still is a check for whether the new, expected to be larger, capacity is smaller for whatever reason.
-     *         Since this ought to be a negligible check for this method to perform.
-     *         And failure to catch that case if it happens is an infinite loop.
-     */
-    //ensureCapacityForInsertion(index, count) {
-    //    let capacityPrevious = this.capacity;
-    //    while (true) {
-    //        if (this.count + count > this.capacity) {
-    //            this.doubleCapacity();
-    //        }
-    //        else if (index >= this.capacity) {
-    //            this.doubleCapacity();
-    //        }
-    //        else {
-    //            break;
-    //        }
-//
-    //        if (this.capacity === capacityPrevious) {
-    //            break;
-    //        }
-    //        if (this.capacity < capacityPrevious) {
-    //            throw new Error('ensureCapacityForInsertion(...): this.capacity < capacityPrevious');
-    //        }
-//
-    //        capacityPrevious = this.capacity;
-    //    }
-    //}
-//
-    //doubleCapacity() {
-    //    let capacityNew = this.capacity * 2;
-    //    let bytesNew = new Uint8Array(capacityNew);
-    //    this.copyTo(this.bytes, 0, bytesNew, 0, this.count);
-    //    this.bytes = bytesNew;
-    //    this.capacity = capacityNew;
-    //}
     ensureCapacityForInsertion(index, count) {
         // TODO: sparse insertions?
         const requiredCapacity = Math.max(this.count + count, index);
@@ -288,45 +249,6 @@ class UInt32List {
         this.count -= count;
     }
 
-    /**
-     * - If the size asked for cannot be allocated, an exception will be thrown. (presumably the wording "thrown by the runtime" is involved.)
-     * - JavaScript numbers do not wrap around to negative values when the value is very large.
-     *       They instead approach infinity and lose precision.
-     *       - There still is a check for whether the new, expected to be larger, capacity is smaller for whatever reason.
-     *         Since this ought to be a negligible check for this method to perform.
-     *         And failure to catch that case if it happens is an infinite loop.
-     */
-    //ensureCapacityForInsertion(index, count) {
-    //    let capacityPrevious = this.capacity;
-    //    while (true) {
-    //        if (this.count + count > this.capacity) {
-    //            this.doubleCapacity();
-    //        }
-    //        else if (index >= this.capacity) {
-    //            this.doubleCapacity();
-    //        }
-    //        else {
-    //            break;
-    //        }
-//
-    //        if (this.capacity === capacityPrevious) {
-    //            break;
-    //        }
-    //        if (this.capacity < capacityPrevious) {
-    //            throw new Error('ensureCapacityForInsertion(...): this.capacity < capacityPrevious');
-    //        }
-//
-    //        capacityPrevious = this.capacity;
-    //    }
-    //}
-//
-    //doubleCapacity() {
-    //    let capacityNew = this.capacity * 2;
-    //    let bytesNew = new Uint32Array(capacityNew);
-    //    this.copyTo(this.data, 0, bytesNew, 0, this.count);
-    //    this.data = bytesNew;
-    //    this.capacity = capacityNew;
-    //}
     ensureCapacityForInsertion(index, count) {
         // TODO: sparse insertions?
         const requiredCapacity = Math.max(this.count + count, index);

@@ -8471,8 +8471,4 @@ I'm seeing songs that use it as footage popping up in my youtube recommendations
 
 ====
 
-I'm getting krewella scissors I gotta go to be.
-I'm just super anxious.
-I don't listen to that song much but I know what it is about.
-
 */

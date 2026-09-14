@@ -8479,4 +8479,7 @@ cry of fear - sophie scene lol
 
 "Taylor Swift - We Are Never Ever Getting Back Together"
 
+Some video named "nobody cares." I haven't watched it but I feel like as I was typing this
+you came up to me and said "nobody cares."
+
 */

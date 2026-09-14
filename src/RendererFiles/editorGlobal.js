@@ -8482,4 +8482,7 @@ cry of fear - sophie scene lol
 Some video named "nobody cares." I haven't watched it but I feel like as I was typing this
 you came up to me and said "nobody cares."
 
+"David Foster Wallace and the problem of loneliness"
+I haven't seen the video but (I'm not lonely)
+
 */

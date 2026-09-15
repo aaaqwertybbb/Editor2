@@ -6507,13 +6507,18 @@ function EDI_cacheIndentation() {
     }
 
     let count = 0;
+    let indentation_string_visualWidth = 0;
 
     // Currently an enter key press only batches with other enter key presses so either the edit is finalized or the indentation was already cached and thus this code wouldn't run,
     // i.e.: you can read directly from the byte array without worrying about a pending edit.
     outer: for (var i = 0; i < upperLimitIndexColumn; i++) {
         switch (EDI_textByteList_bytes[line_start + i]) {
             case CONST_EDI_ASCII_SPACE:
+                indentation_string_visualWidth++;
+                count++;
+                break;
             case CONST_EDI_ASCII_TAB:
+                indentation_string_visualWidth += 4;
                 count++;
                 break;
             default:
@@ -6523,6 +6528,8 @@ function EDI_cacheIndentation() {
 
     EDI_cursor_enterKey_newLinePlusIndentation_byteList = new Uint8Array(1 + count); // '1 +' for the '\n'. This might not always exist in the byte array for example if pressing enter key on the 0th index line there is no existing '\n' to copy from the byte array so just always make it.
     EDI_cursor_enterKey_newLinePlusIndentation_byteList[0] = CONST_EDI_ASCII_LINE_FEED;
+
+    INTS[fEDI_cursor_cached_indentation_string_visualWidth] = indentation_string_visualWidth;
 
     if (count > 0) {
         let subarray = EDI_textByteList_bytes.subarray(line_start, line_start + count);
@@ -6806,8 +6813,8 @@ function EDI_EnterKey(ctrlKey, shiftKey) {
         INTS[fEDI_cursor_indexLine]++;
     }
 
-    INTS[fEDI_cursor_indexColumn] = insertionCount - 1;
-    INTS[fEDI_cursorVisualColumnIndex] = insertionCount - 1;
+    INTS[fEDI_cursor_indexColumn] = insertionCount - 1; // minus the newline
+    INTS[fEDI_cursorVisualColumnIndex] = INTS[fEDI_cursor_cached_indentation_string_visualWidth]; // the indentation_string doesn't include the newline
     INTS[fEDI_cursor_editLength] += insertionCount;
     INTS[fEDI_cursor_editLineFeedCount]++;
 
@@ -8570,5 +8577,8 @@ List of classes in the app
 		- [ ] data
 - [ ] TrackedSyntaxList
     - [ ] const EDI_trackedSyntaxList
+
+- [ ] Enter key when indentation is tab you need to draw correctly.
+- [ ] I think the clearing of movement things can be greatly simplified.
 
 */

@@ -576,6 +576,8 @@ module.exports = function (babel) {
 
     "byteEXPLORER_boundingClientRect_isValid",
 
+    "fEDI_cursor_cached_indentation_string_visualWidth",
+
   ];
 
   return {

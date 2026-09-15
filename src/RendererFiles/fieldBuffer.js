@@ -321,7 +321,7 @@ const CONST_EDI_cursor_htmlId = "EDI_cursor-1";
  * because ES6 modules are expected (and thus module scopes remove the usefulness of making a local variable):
  *     index.html the script tag: 'type="module" src="..."'
  */
-const INTS = new Uint32Array(186);
+const INTS = new Uint32Array(187);
 
 const fEDI_lineHeight = 0;
 INTS[fEDI_lineHeight] = 20;
@@ -761,6 +761,8 @@ const fEDI_selectionEndWidth = 183;
 
 const fEDI_detail_smallColumnVisual = 184;
 const fEDI_detail_largeColumnVisual = 185;
+
+const fEDI_cursor_cached_indentation_string_visualWidth = 186;
 
 // INTS[fEDI_cursorVisualColumnIndex]
 

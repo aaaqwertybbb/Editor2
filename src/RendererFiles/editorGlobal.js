@@ -4663,11 +4663,23 @@ function EDI_onKeyDown_End(event) {
 
     EDI_movementBasedCacheInvalidation();
     EDI_preKeyboardMovementSelectionLogic(event.shiftKey);
+
+    const originalLine = INTS[fEDI_cursor_indexLine];
+    const originalColumn = INTS[fEDI_cursor_indexColumn];
+
     if (event.ctrlKey) {
         INTS[fEDI_cursor_indexLine] = EDI_lineEndPositionList_count - 1;
     }
     INTS[fEDI_cursor_indexColumn] = EDI_getLastValidIndexColumn(INTS[fEDI_cursor_indexLine]);
-    INTS[fEDI_cursorVisualColumnIndex] = INTS[fEDI_cursor_indexColumn];
+
+    // TODO: if 'originalLine === INTS[fEDI_cursor_indexLine]' but 'originalColumn !== INTS[fEDI_cursor_indexColumn]'...
+    // ...then you should determine the remaining visual width of the line given your current column prior to moving to the lastValidIndexColumn.
+    //
+    if (originalLine !== INTS[fEDI_cursor_indexLine] || originalColumn !== INTS[fEDI_cursor_indexColumn]) {
+        EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+        INTS[fEDI_cursorVisualColumnIndex] = fEDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
+    }
+
     EDI_postKeyboardMovementSelectionLogic(event.shiftKey);
     INTS[fEDI_cursor_STORED_indexColumn] = INTS[fEDI_cursor_indexColumn];
     EDI_render_request(RenderKind_Cursor_n);

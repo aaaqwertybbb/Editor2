@@ -8581,4 +8581,9 @@ List of classes in the app
 - [ ] Enter key when indentation is tab you need to draw correctly.
 - [ ] I think the clearing of movement things can be greatly simplified.
 
+=========
+
+Extreme feelings of anxiety I spent an hour maybe even longer
+just changing colors in the Visual Studio Code settings / downloading addon-themes
+
 */

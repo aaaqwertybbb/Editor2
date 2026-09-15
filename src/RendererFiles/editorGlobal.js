@@ -4603,7 +4603,7 @@ function EDI_onKeyDown_ArrowRight(event) {
         }
         EDI_postKeyboardMovementSelectionLogic(event.shiftKey);
     }
-    INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursor_indexColumn];
+    INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
     EDI_render_request(RenderKind_Cursor_n);
     if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
         EDI_cursorBlink_startChecking();

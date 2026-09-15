@@ -465,7 +465,7 @@ function EDI_cursor_clear() {
     INTS[fEDI_cursor_indexColumn] = 0;
     INTS[fEDI_cursorVisualColumnIndex] = 0;
     INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = 0;
-    INTS[fEDI_cursor_STORED_indexColumn] = 0;
+    INTS[fEDI_cursor_STORED_visualWidth] = 0;
     INTS[fEDI_cursor_cursorTranslateYValue] = 0;
     INTS[fEDI_cursor_cursorTranslateXValue] = 0;
     INTS[fEDI_cursor_selectionAnchor] = 0;
@@ -3536,7 +3536,7 @@ function EDI_onMouseDownDetailRankOne(event_button, event_shiftKey, indexLineCli
         INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
         INTS[fEDI_cursorVisualColumnIndex] = indexColumnVisual;
         INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
-        INTS[fEDI_cursor_STORED_indexColumn] = INTS[fEDI_cursor_indexColumn];
+        INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursor_indexColumn];
     
         INTS[fEDI_cursor_selectionEnd] = EDI_getPositionIndex_cursor();
         INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
@@ -3869,13 +3869,13 @@ function EDI_arrowDown(shiftKey) {
     if (INTS[fEDI_cursor_indexLine] < EDI_lineEndPositionList_count - 1) {
         INTS[fEDI_cursor_indexLine]++;
         let lastValidIndexColumn = EDI_getLastValidIndexColumn(INTS[fEDI_cursor_indexLine]);
-        if (INTS[fEDI_cursor_STORED_indexColumn] > lastValidIndexColumn) {
+        if (INTS[fEDI_cursor_STORED_visualWidth] > lastValidIndexColumn) {
             INTS[fEDI_cursor_indexColumn] = lastValidIndexColumn;
             INTS[fEDI_cursorVisualColumnIndex] = lastValidIndexColumn;
         }
         else {
-            INTS[fEDI_cursor_indexColumn] = INTS[fEDI_cursor_STORED_indexColumn];
-            INTS[fEDI_cursorVisualColumnIndex] = INTS[fEDI_cursor_STORED_indexColumn];
+            INTS[fEDI_cursor_indexColumn] = INTS[fEDI_cursor_STORED_visualWidth];
+            INTS[fEDI_cursorVisualColumnIndex] = INTS[fEDI_cursor_STORED_visualWidth];
         }
     }
     EDI_postKeyboardMovementSelectionLogic(shiftKey);
@@ -4035,7 +4035,7 @@ function EDI_editEvent_theEditIself_InsertLtr(event) {
         EDI_startEdit(EditKind_InsertLtr, EDI_getPositionIndex_raw_cursor(), /*editLength*/ 0);
     }
     EDI_insertDo(event.key);
-    INTS[fEDI_cursor_STORED_indexColumn] = INTS[fEDI_cursor_indexColumn];
+    INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursor_indexColumn];
     EDI_render_request(RenderKind_Cursor_n);
     EDI_render_request(RenderKind_InsertLtr);
 }
@@ -4064,7 +4064,7 @@ function EDI_editEvent_theEditIself_BackspaceRtl(event) {
             EDI_startEdit(EditKind_BackspaceRtl, EDI_getPositionIndex_raw_cursor(), /*editLength*/ 0);
         }
         EDI_backspaceDo(event);
-        INTS[fEDI_cursor_STORED_indexColumn] = INTS[fEDI_cursor_indexColumn];
+        INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursor_indexColumn];
     }
     EDI_render_request(RenderKind_Cursor_n);
 }
@@ -4112,7 +4112,7 @@ function EDI_editEvent_theEditIself_Enter(event) {
         EDI_startEdit(EditKind_Enter, EDI_getPositionIndex_raw_cursor(), /*editLength*/ 0);
     }
     EDI_EnterKey(event.ctrlKey, event.shiftKey);
-    INTS[fEDI_cursor_STORED_indexColumn] = INTS[fEDI_cursor_indexColumn];
+    INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursor_indexColumn];
     EDI_render_request(RenderKind_Cursor_n);
 }
 
@@ -4121,7 +4121,7 @@ function EDI_editEvent_theEditIself_Paste(clipboardContent) {
         EDI_startEdit(EditKind_Paste, EDI_getPositionIndex_raw_cursor(), /*editLength*/ 0);
     }
     EDI_paste(clipboardContent);
-    INTS[fEDI_cursor_STORED_indexColumn] = INTS[fEDI_cursor_indexColumn];
+    INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursor_indexColumn];
     EDI_render_request(RenderKind_Cursor_n);
 }
 
@@ -4130,7 +4130,7 @@ function EDI_editEvent_theEditIself_Duplicate() {
         EDI_startEdit(EditKind_Duplicate, EDI_getPositionIndex_raw_cursor(), /*editLength*/ 0);
     }
     EDI_duplicateSelection();
-    INTS[fEDI_cursor_STORED_indexColumn] = INTS[fEDI_cursor_indexColumn];
+    INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursor_indexColumn];
     EDI_render_request(RenderKind_Cursor_n);
 }
 
@@ -4483,7 +4483,7 @@ function EDI_onKeyDown_ArrowLeft(event) {
         }
         EDI_postKeyboardMovementSelectionLogic(event.shiftKey);
     }
-    INTS[fEDI_cursor_STORED_indexColumn] = INTS[fEDI_cursor_indexColumn];
+    INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursor_indexColumn];
     EDI_render_request(RenderKind_Cursor_n);
     if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
         EDI_cursorBlink_startChecking();
@@ -4522,13 +4522,13 @@ function EDI_onKeyDown_ArrowUp(event) {
         if (INTS[fEDI_cursor_indexLine] > 0) {
             INTS[fEDI_cursor_indexLine]--;
             let lastValidIndexColumn = EDI_getLastValidIndexColumn(INTS[fEDI_cursor_indexLine]);
-            if (INTS[fEDI_cursor_STORED_indexColumn] > lastValidIndexColumn) {
+            if (INTS[fEDI_cursor_STORED_visualWidth] > lastValidIndexColumn) {
                 INTS[fEDI_cursor_indexColumn] = lastValidIndexColumn;
                 INTS[fEDI_cursorVisualColumnIndex] = lastValidIndexColumn;
             }
             else {
-                INTS[fEDI_cursor_indexColumn] = INTS[fEDI_cursor_STORED_indexColumn];
-                INTS[fEDI_cursorVisualColumnIndex] = INTS[fEDI_cursor_STORED_indexColumn];
+                INTS[fEDI_cursor_indexColumn] = INTS[fEDI_cursor_STORED_visualWidth];
+                INTS[fEDI_cursorVisualColumnIndex] = INTS[fEDI_cursor_STORED_visualWidth];
             }
         }
         EDI_postKeyboardMovementSelectionLogic(event.shiftKey);
@@ -4617,7 +4617,7 @@ function EDI_onKeyDown_ArrowRight(event) {
         }
         EDI_postKeyboardMovementSelectionLogic(event.shiftKey);
     }
-    INTS[fEDI_cursor_STORED_indexColumn] = INTS[fEDI_cursor_indexColumn];
+    INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursor_indexColumn];
     EDI_render_request(RenderKind_Cursor_n);
     if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
         EDI_cursorBlink_startChecking();
@@ -4649,7 +4649,7 @@ function EDI_onKeyDown_Home(event) {
         }
     }
     EDI_postKeyboardMovementSelectionLogic(event.shiftKey);
-    INTS[fEDI_cursor_STORED_indexColumn] = INTS[fEDI_cursor_indexColumn];
+    INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursor_indexColumn];
     EDI_render_request(RenderKind_Cursor_n);
     if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
         EDI_cursorBlink_startChecking();
@@ -4682,7 +4682,7 @@ function EDI_onKeyDown_End(event) {
     }
 
     EDI_postKeyboardMovementSelectionLogic(event.shiftKey);
-    INTS[fEDI_cursor_STORED_indexColumn] = INTS[fEDI_cursor_indexColumn];
+    INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursor_indexColumn];
     EDI_render_request(RenderKind_Cursor_n);
     if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
         EDI_cursorBlink_startChecking();
@@ -7115,7 +7115,7 @@ function EDI_removeSelection() {
 
     INTS[fEDI_cursor_editLength] = editLength;
     
-    INTS[fEDI_cursor_STORED_indexColumn] = INTS[fEDI_cursor_indexColumn];
+    INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursor_indexColumn];
 
     EDI_render_request(RenderKind_RemoveSelection);
 }

@@ -447,7 +447,7 @@ const fEDI_cursor_indexColumn = 38;
  * When moving cursor vertically, if the current column index cannot be matched due to the upcoming line being too short,
  * then this will allow a later vertical movement to a line that is long enough to match the original column rather than the minimized one.
  */
-const fEDI_cursor_STORED_indexColumn = 39;
+const fEDI_cursor_STORED_visualWidth = 39;
 
 const fEDI_cursor_cursorTranslateYValue = 40;
 const fEDI_cursor_cursorTranslateXValue = 41;

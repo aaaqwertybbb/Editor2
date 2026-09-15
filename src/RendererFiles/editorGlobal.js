@@ -4637,14 +4637,14 @@ function EDI_onKeyDown_Home(event) {
         INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = 0;
     }
     else {
-        let endExclusiveIndentationIndexColumn = EDI_findEndExclusiveIndentationIndexColumn();
-        if (INTS[fEDI_cursor_indexColumn] == endExclusiveIndentationIndexColumn) {
+        let endExclusiveIndentationIndexColumn = EDI_cacheIndentation(/*shouldCountAndVisualWidthOnly*/ true);
+        if (INTS[fEDI_cursor_indexColumn] === endExclusiveIndentationIndexColumn) {
             INTS[fEDI_cursor_indexColumn] = 0;
             INTS[fEDI_cursorVisualColumnIndex] = 0;
         }
         else {
             INTS[fEDI_cursor_indexColumn] = endExclusiveIndentationIndexColumn;
-            INTS[fEDI_cursorVisualColumnIndex] = endExclusiveIndentationIndexColumn;
+            INTS[fEDI_cursorVisualColumnIndex] = INTS[fEDI_cursor_cached_indentation_string_visualWidth];
         }
     }
     EDI_postKeyboardMovementSelectionLogic(event.shiftKey);
@@ -6474,42 +6474,30 @@ function EDI_tabKey() {
 }
 
 /**
- * @returns the COLUMN index that exclusively ends the indentation.
- */
-function EDI_findEndExclusiveIndentationIndexColumn() {
-    let lastValidIndexColumn = EDI_getLastValidIndexColumn(INTS[fEDI_cursor_indexLine]);
-    EDI_getLineBoundaryPositions(INTS[fEDI_cursor_indexLine]);
-    const line_start = INTS[fEDI_getLineBoundaryPositions_start];
-
-    for (var i = 0; i < lastValidIndexColumn; i++) {
-        let c = getCharacter(line_start + i);
-        switch (c) {
-            case ' ':
-            case '\t':
-                break;
-            default:
-                return i;
-        }
-    }
-
-    return 0;
-}
-
-/**
  * If a line has an indentation of 4 space characters, but the user's cursor is positioned after the second space character,
  * then only the first 2 space characters will be used as indentation.
  * 
  * This is intentional, it seems like the more expected behavior in my mind.
- *
- * @returns 
+ * 
+ * if 'shouldCountAndVisualWidthOnly' is passed as 'true' or truthy' then the behavior I just described is no longer true. It will read the entire indentation regardless of cursor column position.
+ * TODO: ^the parameter 'shouldCountAndVisualWidthOnly' is a bit confusing...
+ * ...I'm trying to shove the logic of the 'home' key into this function, and maybe I should just not.
+ * 
+ * Returns the 'endExclusiveIndentationIndexColumn' of the indentation i.e.: "the column index that exclusively ends the indentation.".
+ * Sets the state for:
+ * - INTS[fEDI_cursor_cached_indentation_string_visualWidth]
+ *     - not set if 'countAndVisualWidthOnly' is passed as 'true' or a truthy
+ * - EDI_cursor_enterKey_newLinePlusIndentation_byteList
+ *     - not set if 'countAndVisualWidthOnly' is passed as 'true' or a truthy
+ * - EDI_cursor_cached_indentation_string
  */
-function EDI_cacheIndentation() {
+function EDI_cacheIndentation(shouldCountAndVisualWidthOnly) {
     let lastValidIndexColumn = EDI_getLastValidIndexColumn(INTS[fEDI_cursor_indexLine]);
     EDI_getLineBoundaryPositions(INTS[fEDI_cursor_indexLine]);
     const line_start = INTS[fEDI_getLineBoundaryPositions_start];
 
     let upperLimitIndexColumn = lastValidIndexColumn;
-    if (INTS[fEDI_cursor_indexColumn] < lastValidIndexColumn) {
+    if (!shouldCountAndVisualWidthOnly && INTS[fEDI_cursor_indexColumn] < lastValidIndexColumn) {
         upperLimitIndexColumn = INTS[fEDI_cursor_indexColumn];
     }
 
@@ -6533,19 +6521,23 @@ function EDI_cacheIndentation() {
         }
     }
 
-    EDI_cursor_enterKey_newLinePlusIndentation_byteList = new Uint8Array(1 + count); // '1 +' for the '\n'. This might not always exist in the byte array for example if pressing enter key on the 0th index line there is no existing '\n' to copy from the byte array so just always make it.
-    EDI_cursor_enterKey_newLinePlusIndentation_byteList[0] = CONST_EDI_ASCII_LINE_FEED;
-
     INTS[fEDI_cursor_cached_indentation_string_visualWidth] = indentation_string_visualWidth;
 
-    if (count > 0) {
-        let subarray = EDI_textByteList_bytes.subarray(line_start, line_start + count);
-        EDI_cursor_enterKey_newLinePlusIndentation_byteList.set(subarray, 1);
-        EDI_cursor_cached_indentation_string = EDI_decoder.decode(subarray);
+    if (!shouldCountAndVisualWidthOnly) {
+        EDI_cursor_enterKey_newLinePlusIndentation_byteList = new Uint8Array(1 + count); // '1 +' for the '\n'. This might not always exist in the byte array for example if pressing enter key on the 0th index line there is no existing '\n' to copy from the byte array so just always make it.
+        EDI_cursor_enterKey_newLinePlusIndentation_byteList[0] = CONST_EDI_ASCII_LINE_FEED;
+    
+        if (count > 0) {
+            let subarray = EDI_textByteList_bytes.subarray(line_start, line_start + count);
+            EDI_cursor_enterKey_newLinePlusIndentation_byteList.set(subarray, 1);
+            EDI_cursor_cached_indentation_string = EDI_decoder.decode(subarray);
+        }
+        else {
+            EDI_cursor_cached_indentation_string = '';
+        }
     }
-    else {
-        EDI_cursor_cached_indentation_string = '';
-    }
+
+    return count;
 }
 
 function EDI_lineWasInsertedValidateGutter() {

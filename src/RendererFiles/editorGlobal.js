@@ -4476,7 +4476,8 @@ function EDI_onKeyDown_ArrowLeft(event) {
             else if (INTS[fEDI_cursor_indexLine] > 0) {
                 INTS[fEDI_cursor_indexLine]--;
                 INTS[fEDI_cursor_indexColumn] = EDI_getLastValidIndexColumn(INTS[fEDI_cursor_indexLine]);
-                INTS[fEDI_cursorVisualColumnIndex] = INTS[fEDI_cursor_indexColumn];
+                EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+                INTS[fEDI_cursorVisualColumnIndex] = fEDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
                 INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex]--;
             }
         }

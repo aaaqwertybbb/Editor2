@@ -3536,7 +3536,7 @@ function EDI_onMouseDownDetailRankOne(event_button, event_shiftKey, indexLineCli
         INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
         INTS[fEDI_cursorVisualColumnIndex] = indexColumnVisual;
         INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
-        INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursor_indexColumn];
+        INTS[fEDI_cursor_STORED_visualWidth] = indexColumnVisual;
     
         INTS[fEDI_cursor_selectionEnd] = EDI_getPositionIndex_cursor();
         INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
@@ -3868,15 +3868,8 @@ function EDI_arrowDown(shiftKey) {
     EDI_preKeyboardMovementSelectionLogic(shiftKey);
     if (INTS[fEDI_cursor_indexLine] < EDI_lineEndPositionList_count - 1) {
         INTS[fEDI_cursor_indexLine]++;
-        let lastValidIndexColumn = EDI_getLastValidIndexColumn(INTS[fEDI_cursor_indexLine]);
-        if (INTS[fEDI_cursor_STORED_visualWidth] > lastValidIndexColumn) {
-            INTS[fEDI_cursor_indexColumn] = lastValidIndexColumn;
-            INTS[fEDI_cursorVisualColumnIndex] = lastValidIndexColumn;
-        }
-        else {
-            INTS[fEDI_cursor_indexColumn] = INTS[fEDI_cursor_STORED_visualWidth];
-            INTS[fEDI_cursorVisualColumnIndex] = INTS[fEDI_cursor_STORED_visualWidth];
-        }
+        EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+        EDI_set_indexColumn_and_visualColumn_relativeTo_storedVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
     }
     EDI_postKeyboardMovementSelectionLogic(shiftKey);
 }
@@ -4885,8 +4878,9 @@ function EDI_set_indexColumn_and_visualColumn_relativeTo_storedVisualWidth(lineS
 
         // If the click is before the midpoint of this character/tab, target this index
         if (rx < charMidpointX) {
-            INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
-            INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
+            INTS[fEDI_cursor_indexColumn] = indexColumn;
+            INTS[fEDI_cursorVisualColumnIndex] = visualColumns;
+            // TODO: fEDI_cursorVisualColumnIndex_relativeToThisLineIndex
             return;
         }
 
@@ -4896,8 +4890,9 @@ function EDI_set_indexColumn_and_visualColumn_relativeTo_storedVisualWidth(lineS
     }
 
     // If clicked past the end of the line text
-    INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
-    INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
+    INTS[fEDI_cursor_indexColumn] = indexColumn;
+    INTS[fEDI_cursorVisualColumnIndex] = visualColumns;
+    // TODO: fEDI_cursorVisualColumnIndex_relativeToThisLineIndex
 }
 
 /**

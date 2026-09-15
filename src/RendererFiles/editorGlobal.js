@@ -8619,4 +8619,9 @@ like incrementing by 4 for the space case rather than the tab case.
     - [ ] arrowleft
     - [ ] arrowright
 
+- [ ] deleteKey tab
+- [ ] backspaceKey tab
+- [ ] removeSelection tab
+
+
 */

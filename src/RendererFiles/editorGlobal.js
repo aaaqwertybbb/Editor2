@@ -4854,7 +4854,6 @@ function fEDI_getEntireLineVisualWidth(lineStart, lineEnd) {
     let indexColumn = 0;
     let visualColumns = 0;
     let positionIndex = lineStart;
-    let charWidth = EDI_characterWidth;
 
     while (positionIndex < lineEnd) {
         let charLength = 1;
@@ -4862,10 +4861,6 @@ function fEDI_getEntireLineVisualWidth(lineStart, lineEnd) {
         if (getCharacter(positionIndex) === '\t') {
             charLength = 4 - (visualColumns % 4);
         }
-
-        // Calculate pixel boundaries for the current character
-        const charLeftX = visualColumns * charWidth;
-        const charRightX = (visualColumns + charLength) * charWidth;
 
         visualColumns += charLength;
         positionIndex++;

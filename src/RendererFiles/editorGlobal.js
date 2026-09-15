@@ -8620,8 +8620,26 @@ like incrementing by 4 for the space case rather than the tab case.
     - [ ] arrowright
 
 - [ ] deleteKey tab
+    - [ ] single tab
+    - [ ] multiple tab (ctrl key)
+        - [ ] only tabs were deleted
+        - [ ] a mixture of tabs and spaces were deleted
 - [ ] backspaceKey tab
+    - [ ] single tab
+    - [ ] multiple tab (ctrl key)
+        - [ ] only tabs were deleted
+        - [ ] a mixture of tabs and spaces were deleted
 - [ ] removeSelection tab
+    - [ ] removeSelection spanned a single line
+        - [ ] single tab
+        - [ ] multiple tab (ctrl key)
+            - [ ] only tabs were deleted
+            - [ ] a mixture of tabs and spaces were deleted
+    - [ ] removeSelection spanned more than a single line
+        - [ ] single tab
+        - [ ] multiple tab (ctrl key)
+            - [ ] only tabs were deleted
+            - [ ] a mixture of tabs and spaces were deleted
 
 
 */

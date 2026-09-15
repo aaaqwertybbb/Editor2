@@ -6479,7 +6479,7 @@ function EDI_tabKey() {
  * 
  * This is intentional, it seems like the more expected behavior in my mind.
  * 
- * if 'shouldCountAndVisualWidthOnly' is passed as 'true' or truthy' then the behavior I just described is no longer true. It will read the entire indentation regardless of cursor column position.
+ * if 'shouldCountAndVisualWidthOnly' is passed as 'true' or 'truthy' then the behavior I just described is no longer true. It will read the entire indentation regardless of cursor column position.
  * TODO: ^the parameter 'shouldCountAndVisualWidthOnly' is a bit confusing...
  * ...I'm trying to shove the logic of the 'home' key into this function, and maybe I should just not.
  * 

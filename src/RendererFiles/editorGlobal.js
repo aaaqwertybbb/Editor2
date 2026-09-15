@@ -8589,4 +8589,10 @@ just changing colors in the Visual Studio Code settings / downloading addon-them
 And then as I typed out the previous change, I had to retype it over and over cause I made stupid mistakes
 like incrementing by 4 for the space case rather than the tab case.
 
+- [ ] home
+- [ ] end
+- [ ] wrap line
+    - [ ] arrowleft
+    - [ ] arrowright
+
 */

@@ -7726,29 +7726,50 @@ function EDI_state_do_Backspace(event) {
             // INTS[fEDI_cursor_editPosition] is intended to be equal due to the batch requirements / a new edit would also be equal.
 
             let originalCharacterKind = getCharacter_kind_raw(INTS[fEDI_cursor_editPosition] - 1);
-            INTS[fEDI_cursor_indexColumn]--;
-            INTS[fEDI_cursorVisualColumnIndex]--;
             INTS[fEDI_cursor_editPosition]--;
             INTS[fEDI_cursor_editIndexColumn]--;
             INTS[fEDI_cursor_editLength]++;
+            INTS[fEDI_cursor_indexColumn]--;
+            // TODO: Reduce branching
+            if (originalCharacterKind === CharacterKind_Whitespace &&
+                EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
+                    INTS[fEDI_cursorVisualColumnIndex] -= 4;
+            }
+            else {
+                INTS[fEDI_cursorVisualColumnIndex]--;
+            }
 
             while (INTS[fEDI_cursor_indexColumn] > 0) {
                 if (getCharacter_kind_raw(INTS[fEDI_cursor_editPosition] - 1) !== originalCharacterKind) {
                     break;
                 }
-                INTS[fEDI_cursor_indexColumn]--;
-                INTS[fEDI_cursorVisualColumnIndex]--;
                 INTS[fEDI_cursor_editPosition]--;
                 INTS[fEDI_cursor_editIndexColumn]--;
                 INTS[fEDI_cursor_editLength]++;
+                INTS[fEDI_cursor_indexColumn]--;
+                // TODO: Reduce branching
+                if (originalCharacterKind === CharacterKind_Whitespace &&
+                    EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
+                        INTS[fEDI_cursorVisualColumnIndex] -= 4;
+                }
+                else {
+                    INTS[fEDI_cursorVisualColumnIndex]--;
+                }
             }
         }
         else {
-            INTS[fEDI_cursor_indexColumn] -= 1;
-            INTS[fEDI_cursorVisualColumnIndex] -= 1;
             INTS[fEDI_cursor_editPosition] -= 1;
             INTS[fEDI_cursor_editIndexColumn] -= 1;
             INTS[fEDI_cursor_editLength]++;
+
+            INTS[fEDI_cursor_indexColumn] -= 1;
+            // TODO: Reduce branching
+            if (EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
+                INTS[fEDI_cursorVisualColumnIndex] -= 4;
+            }
+            else {
+                INTS[fEDI_cursorVisualColumnIndex]--;
+            }
         }
     }
 
@@ -8641,5 +8662,10 @@ like incrementing by 4 for the space case rather than the tab case.
             - [ ] only tabs were deleted
             - [ ] a mixture of tabs and spaces were deleted
 
+- [ ] duplicate
+- [ ] paste
+
+- [ ] TODO: Why is moving to larger column index past a tab wrong for cases where you have more than 1 tab
+    - [ ] like two tabs at the start of a line I hit arrow right I go right of the first tab I hit it again and I'm "past the second one" but in reality I'm 1 visual column short I think?s
 
 */

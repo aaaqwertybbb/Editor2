@@ -4521,15 +4521,8 @@ function EDI_onKeyDown_ArrowUp(event) {
         EDI_preKeyboardMovementSelectionLogic(event.shiftKey);
         if (INTS[fEDI_cursor_indexLine] > 0) {
             INTS[fEDI_cursor_indexLine]--;
-            let lastValidIndexColumn = EDI_getLastValidIndexColumn(INTS[fEDI_cursor_indexLine]);
-            if (INTS[fEDI_cursor_STORED_visualWidth] > lastValidIndexColumn) {
-                INTS[fEDI_cursor_indexColumn] = lastValidIndexColumn;
-                INTS[fEDI_cursorVisualColumnIndex] = lastValidIndexColumn;
-            }
-            else {
-                INTS[fEDI_cursor_indexColumn] = INTS[fEDI_cursor_STORED_visualWidth];
-                INTS[fEDI_cursorVisualColumnIndex] = INTS[fEDI_cursor_STORED_visualWidth];
-            }
+            EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+            EDI_set_indexColumn_and_visualColumn_relativeTo_storedVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
         }
         EDI_postKeyboardMovementSelectionLogic(event.shiftKey);
         EDI_render_request(RenderKind_Cursor_n);
@@ -4869,6 +4862,42 @@ function fEDI_getEntireLineVisualWidth(lineStart, lineEnd) {
     }
 
     return visualColumns;
+}
+
+function EDI_set_indexColumn_and_visualColumn_relativeTo_storedVisualWidth(lineStart, lineEnd) {
+    let indexColumn = 0;
+    let visualColumns = 0;
+    let positionIndex = lineStart;
+    let charWidth = EDI_characterWidth;
+    let rx = INTS[fEDI_cursor_STORED_visualWidth] * charWidth;
+
+    while (positionIndex < lineEnd) {
+        let charLength = 1;
+        
+        if (getCharacter(positionIndex) === '\t') {
+            charLength = 4 - (visualColumns % 4);
+        }
+
+        // Calculate pixel boundaries for the current character
+        const charLeftX = visualColumns * charWidth;
+        const charRightX = (visualColumns + charLength) * charWidth;
+        const charMidpointX = charLeftX + (charRightX - charLeftX) / 2;
+
+        // If the click is before the midpoint of this character/tab, target this index
+        if (rx < charMidpointX) {
+            INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
+            INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
+            return;
+        }
+
+        visualColumns += charLength;
+        positionIndex++;
+        indexColumn++;
+    }
+
+    // If clicked past the end of the line text
+    INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
+    INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
 }
 
 /**

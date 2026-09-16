@@ -2636,10 +2636,12 @@ INTS[fEDI_cursor_indexLine]
         else if (current === '\t') current = '\\t';
         text += ' | (' + previous + ', ' + current + ')';
     }
+
+    text += ' | (' + INTS[fEDI_cursorVisualColumnIndex] + ')';
     
     text += ' | (' + INTS[fEDI_cursor_editLength] + ')';
 
-    text += ' | (' + INTS[fEDI_longestLine_indexLine] + ', ' + INTS[fEDI_longestLine_length] + ')';
+    //text += ' | (' + INTS[fEDI_longestLine_indexLine] + ', ' + INTS[fEDI_longestLine_length] + ')';
 
     EDI_debug.replaceChildren(text);
 
@@ -8672,6 +8674,9 @@ like incrementing by 4 for the space case rather than the tab case.
 
 - [ ] MANDATORY:
     - [ ] You need 1 "PR" with respect to handling tabs being a visual width of 4.
+        - [ ] "\t\taaa"
+            - [ ] Clicking gets you visual width 4 and 8 foreach tab
+            - [ ] ArrowRight gets you visual width 4 and 7 foreach tab?
 - [ ] OPTIONAL Side things:
     - [ ] 1 "optimization PR"
     - [ ] 1 "feature PR" unrelated to tabs

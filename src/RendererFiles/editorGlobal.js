@@ -4562,7 +4562,7 @@ function EDI_onKeyDown_ArrowRight(event) {
             let indexPosition = INTS[fEDI_getLineBoundaryPositions_start] + INTS[fEDI_cursor_indexColumn];
             let originalCharacterKind = EDI_getCharacterCurrent_KIND(INTS[fEDI_cursor_indexColumn], indexPosition, line_end);
             if (originalCharacterKind === CharacterKind_Whitespace && getCharacter(EDI_getPositionIndex_cursor()) === '\t') {
-                INTS[fEDI_cursorVisualColumnIndex] += (4 - (INTS[fEDI_cursor_indexColumn] % 4)); // (tabLength)
+                INTS[fEDI_cursorVisualColumnIndex] += (4 - (INTS[fEDI_cursorVisualColumnIndex] % 4)); // (tabLength)
             }
             else {
                 INTS[fEDI_cursorVisualColumnIndex]++;
@@ -4573,7 +4573,7 @@ function EDI_onKeyDown_ArrowRight(event) {
             while (INTS[fEDI_cursor_indexColumn] < lastValidIndexColumn) {
                 if (EDI_getCharacterCurrent_KIND(INTS[fEDI_cursor_indexColumn], indexPosition, line_end) === originalCharacterKind) {
                     if (originalCharacterKind === CharacterKind_Whitespace && getCharacter(EDI_getPositionIndex_cursor()) === '\t') {
-                        INTS[fEDI_cursorVisualColumnIndex] += (4 - (INTS[fEDI_cursor_indexColumn] % 4)); // (tabLength)
+                        INTS[fEDI_cursorVisualColumnIndex] += (4 - (INTS[fEDI_cursorVisualColumnIndex] % 4)); // (tabLength)
                     }
                     else {
                         INTS[fEDI_cursorVisualColumnIndex]++;
@@ -4589,7 +4589,7 @@ function EDI_onKeyDown_ArrowRight(event) {
         else {
             if (INTS[fEDI_cursor_indexColumn] < lastValidIndexColumn) {
                 if (getCharacter(EDI_getPositionIndex_cursor()) === '\t') {
-                    INTS[fEDI_cursorVisualColumnIndex] += (4 - (INTS[fEDI_cursor_indexColumn] % 4)); // (tabLength)
+                    INTS[fEDI_cursorVisualColumnIndex] += (4 - (INTS[fEDI_cursorVisualColumnIndex] % 4)); // (tabLength)
                 }
                 else {
                     INTS[fEDI_cursorVisualColumnIndex]++;

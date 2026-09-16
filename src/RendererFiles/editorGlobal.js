@@ -4406,6 +4406,10 @@ function EDI_onKeyDown_ArrowLeft(event) {
     event.preventDefault();
     event.stopPropagation();
 
+    // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
+    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+        EDI_finalizeEdit();
+    }
     EDI_movementBasedCacheInvalidation();
 
     if (EDI_cursor_hasSelection() && !event.shiftKey) {

@@ -8726,4 +8726,102 @@ Checkout my settings.json for the theme (inside the main top level '{}' you'd pu
     }
 }
 
+
+I made one for light theme too just now:
+
+{
+    "editor.fontSize": 12,
+    "references.preferredLocation": "view",
+    "editor.gotoLocation.multipleReferences": "gotoAndPeek",
+    "workbench.colorTheme": "Dark+",
+    "editor.bracketPairColorization.enabled": false,
+    "editor.tokenColorCustomizations": {
+        "[Dark+]": {
+            "textMateRules": [
+                {
+                    "name": "Target dot property/member access (excluding methods)",
+                    "scope": [
+                        "variable.other.property",
+                        "variable.other.object.property",
+                        "support.type.property-name",
+                        "support.variable.property.js",
+                        "entity.name.variable.field",
+                        "entity.name.variable.property",
+                        "variable.other.constant.property.js",
+                        "support.variable.property",
+                    ],
+                    "settings": {
+                        "foreground": "#4FC1FF",
+                    }
+                },
+                {
+                    "scope": [
+                        "variable.other.constant"
+                    ],
+                    "settings": {
+                        "foreground": "#9CDCFE",
+                    }
+                },
+                {
+                    "scope": [
+                        "entity.name.function.js",
+                        "meta.function-call.js",
+                        "entity.name.function.js",
+                        "meta.function-call.js",
+                        "support.function",
+                        "entity.name.function.member",
+
+                    ],
+                    "settings": {
+                        "foreground": "#cece84",
+                    }
+                },
+            ]
+        },
+        "[Light+]": {
+            "textMateRules": [
+                {
+                    "name": "Target dot property/member access (excluding methods)",
+                    "scope": [
+                        "variable.other.property",
+                        "variable.other.object.property",
+                        "support.type.property-name",
+                        "support.variable.property.js",
+                        "entity.name.variable.field",
+                        "entity.name.variable.property",
+                        "variable.other.constant.property.js",
+                        "support.variable.property",
+                    ],
+                    "settings": {
+                        "foreground": "#0070C1",
+                    }
+                },
+                {
+                    "scope": [
+                        "variable.other.constant"
+                    ],
+                    "settings": {
+                        "foreground": "#001080",
+                    }
+                },
+                {
+                    "scope": [
+                        "entity.name.function.js",
+                        "meta.function-call.js",
+                        "entity.name.function.js",
+                        "meta.function-call.js",
+                        "support.function",
+                        "entity.name.function.member",
+
+                    ],
+                    "settings": {
+                        "foreground": "#af7700",
+                    }
+                },
+            ]
+        }
+    }
+}
+
+
 */

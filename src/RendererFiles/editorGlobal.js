@@ -4410,6 +4410,7 @@ function EDI_onKeyDown_ArrowLeft(event) {
     if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
         EDI_finalizeEdit();
     }
+
     EDI_movementBasedCacheInvalidation();
 
     if (EDI_cursor_hasSelection() && !event.shiftKey) {
@@ -8849,5 +8850,7 @@ I made one for light theme too just now:
 },
 
 I can tell that someone is mocking me due to my youtube recommendations
+
+TODO: make a decision about aaa and aaaRAW etc...
 
 */

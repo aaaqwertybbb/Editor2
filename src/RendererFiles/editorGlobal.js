@@ -8668,4 +8668,13 @@ like incrementing by 4 for the space case rather than the tab case.
 - [ ] TODO: Why is moving to larger column index past a tab wrong for cases where you have more than 1 tab
     - [ ] like two tabs at the start of a line I hit arrow right I go right of the first tab I hit it again and I'm "past the second one" but in reality I'm 1 visual column short I think?s
 
+=============
+
+- [ ] You need 1 "PR" with respect to handling tabs being a visual width of 4.
+- [ ] Side things:
+    - [ ] 1 "optimization PR"
+    - [ ] 1 "feature PR" unrelated to tabs
+
+
+
 */

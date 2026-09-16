@@ -4435,7 +4435,7 @@ function EDI_onKeyDown_ArrowLeft(event) {
             let originalCharacterKind = EDI_getCharacterPrevious_KIND(INTS[fEDI_cursor_indexColumn], indexPosition);
             INTS[fEDI_cursor_indexColumn]--;
             if (originalCharacterKind === CharacterKind_Whitespace && getCharacter(EDI_getPositionIndex_cursor()) === '\t') {
-                INTS[fEDI_cursorVisualColumnIndex] -= (4 - (INTS[fEDI_cursor_indexColumn] % 4)); // (tabLength)
+                INTS[fEDI_cursorVisualColumnIndex] -= (4 - (INTS[fEDI_cursorVisualColumnIndex] % 4)); // (tabLength)
             }
             else {
                 INTS[fEDI_cursorVisualColumnIndex]--;
@@ -4446,7 +4446,7 @@ function EDI_onKeyDown_ArrowLeft(event) {
                 if (EDI_getCharacterPrevious_KIND(INTS[fEDI_cursor_indexColumn], indexPosition) === originalCharacterKind) {
                     INTS[fEDI_cursor_indexColumn]--;
                     if (originalCharacterKind === CharacterKind_Whitespace && getCharacter(EDI_getPositionIndex_cursor()) === '\t') {
-                        INTS[fEDI_cursorVisualColumnIndex] -= (4 - (INTS[fEDI_cursor_indexColumn] % 4)); // (tabLength)
+                        INTS[fEDI_cursorVisualColumnIndex] -= (4 - (INTS[fEDI_cursorVisualColumnIndex] % 4)); // (tabLength)
                     }
                     else {
                         INTS[fEDI_cursorVisualColumnIndex]--;
@@ -4462,7 +4462,7 @@ function EDI_onKeyDown_ArrowLeft(event) {
             if (INTS[fEDI_cursor_indexColumn] > 0) {
                 INTS[fEDI_cursor_indexColumn]--;
                 if (getCharacter(EDI_getPositionIndex_cursor()) === '\t') {
-                    INTS[fEDI_cursorVisualColumnIndex] -= (4 - (INTS[fEDI_cursor_indexColumn] % 4)); // (tabLength)
+                    INTS[fEDI_cursorVisualColumnIndex] -= (4 - (INTS[fEDI_cursorVisualColumnIndex] % 4)); // (tabLength)
                 }
                 else {
                     INTS[fEDI_cursorVisualColumnIndex]--;
@@ -6488,7 +6488,7 @@ function EDI_tabKey() {
         // thus match visual width of the insertion to the next tab-stop.
 
         // Tab Length (L) = 4 - (col (mod 4));
-        let tabLengthL = 4 - (INTS[fEDI_cursor_indexColumn] % 4);
+        let tabLengthL = 4 - (INTS[fEDI_cursorVisualColumnIndex] % 4);
         INTS[fEDI_cursorVisualColumnIndex] += tabLengthL;
     }
 

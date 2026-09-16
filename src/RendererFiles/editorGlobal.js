@@ -8676,6 +8676,54 @@ like incrementing by 4 for the space case rather than the tab case.
     - [ ] 1 "optimization PR"
     - [ ] 1 "feature PR" unrelated to tabs
 
+Checkout my settings.json for the theme (inside the main top level '{}' you'd put this with 1 further indentation):
+"workbench.colorTheme": "Dark+",
+"editor.bracketPairColorization.enabled": false,
+"editor.tokenColorCustomizations": {
+    "[*]": {
+        "textMateRules": [
+            {
+                "name": "Target dot property/member access (excluding methods)",
+                "scope": [
+                    "variable.other.property",
+                    "variable.other.object.property",
+                    "support.type.property-name",
+                    "support.variable.property.js",
+                    "entity.name.variable.field",
+                    "entity.name.variable.property",
+                    "variable.other.constant.property.js",
+                    "support.variable.property",
+                ],
+                "settings": {
+                    "foreground": "#4FC1FF",
+                }
+            },
+            {
+                "scope": [
+                    "variable.other.constant"
+                ],
+                "settings": {
+                    "foreground": "#9CDCFE",
+                }
+            },
+            {
+                "scope": [
+                    "entity.name.function.js",
+                    "meta.function-call.js",
+                    //"meta.function.js",
+                    "entity.name.function.js",
+                    "meta.function-call.js",
+                    //"meta.function.js",
+                    "support.function",
+                    "entity.name.function.member",
 
+                ],
+                "settings": {
+                    "foreground": "#cece84",
+                }
+            },
+        ]
+    }
+}
 
 */

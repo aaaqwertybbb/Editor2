@@ -8670,8 +8670,9 @@ like incrementing by 4 for the space case rather than the tab case.
 
 =============
 
-- [ ] You need 1 "PR" with respect to handling tabs being a visual width of 4.
-- [ ] Side things:
+- [ ] MANDATORY:
+    - [ ] You need 1 "PR" with respect to handling tabs being a visual width of 4.
+- [ ] OPTIONAL Side things:
     - [ ] 1 "optimization PR"
     - [ ] 1 "feature PR" unrelated to tabs
 

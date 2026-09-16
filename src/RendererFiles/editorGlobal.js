@@ -8853,4 +8853,6 @@ I can tell that someone is mocking me due to my youtube recommendations
 
 TODO: make a decision about aaa and aaaRAW etc...
 
+don't speak is the key answer here actuallys
+
 */

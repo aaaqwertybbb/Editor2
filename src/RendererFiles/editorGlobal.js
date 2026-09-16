@@ -8823,5 +8823,21 @@ I made one for light theme too just now:
     }
 }
 
+"workbench.colorCustomizations": {
+    "[Light+]": {
+        //"sideBar.background": "#f3f3f3",
+        //"sideBar.foreground": "#333333",
+        //"sideBarSectionHeader.background": "#e8e8e8",
+        //"activityBar.background": "#f3f3f3",
+        //"activityBar.foreground": "#333333",
+        "activityBar.background": "#f3f3f3",
+        "activityBar.foreground": "#333333",
+        "activityBar.inactiveForeground": "#33333399",
+        "modernActivityBarItem.hoverForeground": "#2b88f9",
+        "modernActivityBarItem.activeForeground": "#2b88f9",
+        "activityBar.border": "#e4e4e4"
+    }
+},
+
 
 */

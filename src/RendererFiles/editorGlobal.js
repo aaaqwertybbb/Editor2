@@ -8855,4 +8855,26 @@ TODO: make a decision about aaa and aaaRAW etc...
 
 don't speak is the key answer here actuallys
 
+=====
+
+I've never "smoked" something before, but I figured I should know how this works
+in case it is a jeopardy question one day or something.
+
+Google AI:
+
+> when someone "smokes" are they breathing/sucking or are they blowing
+
+< When someone takes a hit from a cigarette, pipe, or vape, they are
+< breathing and sucking (drawing air in) to pull the smoke into their mouth and lungs.
+<
+< How Smoking Works
+< - The Pull (Sucking/Inhaling): To get the smoke out of the product,
+<   the person uses their mouth and chest muscles to create a vacuum. This draws air in through the lit end, causing the tobacco or material to burn and produce smoke.
+< - The Hold: The smoke is briefly kept in the mouth or drawn down into the lungs to absorb the nicotine or chemicals.
+< - The Push (Blowing/Exhaling): Blowing only happens at the very end of the process when the person exhales the remaining smoke back out into the air.
+<
+< If you want to know more about how the body processes smoke, would you like details on how inhalation affects the bloodstream or the difference between mouth puffing and lung inhaling?
+
+
+
 */

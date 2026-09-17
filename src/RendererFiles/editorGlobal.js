@@ -453,60 +453,6 @@ let EDI_ringBuffer_text = [];
 
 let EDI_language_line_lex = null;
 
-function EDI_cursor_hasSelection() {
-    return INTS[fEDI_cursor_selectionAnchor] >= 0 &&
-            INTS[fEDI_cursor_selectionEnd] >= 0 &&
-            INTS[fEDI_cursor_selectionAnchor] != INTS[fEDI_cursor_selectionEnd];
-}
-
-/**
- * The code that clears the editor is dependent on this method NOT clearing 'BYTES[byteEDI_cursor_selectionDivExists]'
- * 
- * Somewhat duplicated code: This messes with the language features if I invoke clear() in the constructor, it puts "| undefined" on all the types.
- */
-function EDI_cursor_clear() {
-    INTS[fEDI_cursor_indexLine] = 0;
-    INTS[fEDI_cursor_indexColumn] = 0;
-    INTS[fEDI_cursorVisualColumnIndex] = 0;
-    INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = 0;
-    INTS[fEDI_cursor_STORED_visualWidth] = 0;
-    INTS[fEDI_cursor_cursorTranslateYValue] = 0;
-    INTS[fEDI_cursor_cursorTranslateXValue] = 0;
-    INTS[fEDI_cursor_selectionAnchor] = 0;
-    INTS[fEDI_cursor_selectionEnd] = 0;
-    INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = 0;
-    INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = 0;
-    INTS[fEDI_cursor_DRAWN_selectionAnchor] = 0;
-    INTS[fEDI_cursor_DRAWN_selectionEnd] = 0;
-    INTS[fEDI_cursor_DRAWN_selection_virtualIndexLine] = 0;
-    INTS[fEDI_cursor_DRAWN_selection_virtualCount] = 0;
-    INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL_DRAWN] = 0;
-    INTS[fEDI_cursor_selectionIndexEndColumnVISUAL_DRAWN] = 0;
-    INTS[fEDI_cursor_editKind] = EditKind_None;
-    INTS[fEDI_cursor_editLength] = 0;
-    INTS[fEDI_cursor_editPosition] = 0;
-    INTS[fEDI_cursor_editIndexLine] = 0;
-    INTS[fEDI_cursor_editIndexColumn] = 0;
-    INTS[fEDI_cursor_editRenderedDisplacement] = 0;
-    INTS[fEDI_cursor_editRenderedDisplacement_INDEX_LINE_OFFSET] = 0;
-    INTS[fEDI_cursor_END_editIndexLine] = 0;
-    INTS[fEDI_cursor_END_editIndexColumn] = 0;
-
-    INTS[fEDI_cursor_gapBufferCount] = 0;
-
-    EDI_cursor_enterKey_newLinePlusIndentation_byteList = null;
-    EDI_cursor_cached_indentation_string = null;
-    BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_None;
-
-    INTS[fEDI_cursor_editLineFeedCount] = 0;
-    EDI_cursor_edit_flagLineChanged = -1;
-
-    EDI_cursor_EDI_paste_clipboardContent = null;
-
-    INTS[fEDI_cursor_EDI_duplicate_small] = 0;
-    INTS[fEDI_cursor_EDI_duplicate_length] = 0;
-}
-
 function EDI_init() {
     EDI_horizontal_scrollbar.style.left = '0px';
     INTS[fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left] = 0;
@@ -613,33 +559,6 @@ function EDI_render_do(timestamp) {
     BYTES[byteEDI_isRenderPending] = 0;
 }
 
-function EDI_render_do_cursor(timestamp) {
-    INTS[fEDI_EDI_cursorBlinkLastTimestamp] = timestamp;
-    EDI_drawCursor();
-}
-
-/** obsolete-ish */
-function EDI_render_do_cursor_flag_scrollIntoViewExplicit(timestamp) {
-    INTS[fEDI_EDI_cursorBlinkLastTimestamp] = timestamp;
-    let notShouldScrollIntoView = false;
-    let flag_scrollIntoViewExplicit = false;
-
-    flag_scrollIntoViewExplicit = true;
-
-    if (flag_scrollIntoViewExplicit) {
-        // TODO: consider setting 'notShouldScrollIntoView' to false to avoid two scroll into views redundantly?
-        EDI_scrollCursorIntoView();
-    }
-    EDI_drawCursor(notShouldScrollIntoView);
-}
-
-function EDI_render_do_cursor_flag_doNotScrollIntoView(timestamp) {
-    INTS[fEDI_EDI_cursorBlinkLastTimestamp] = timestamp;
-    EDI_drawCursor(true);
-}
-
-
-
 function EDI_render_do_Clear() {
     EDI_drawCursor();
     EDI_clearSelectionStyle();
@@ -653,23 +572,6 @@ function EDI_render_do_Clear() {
     // TODO: Duplicated setting of scrolltop; this case and just baseline everytime vertical scrolls it is done in this method elsewhere
     INTS[fEDI_ONSCROLLscrollTop] = INTS[fEDI_lastReadNumber_scrollTop];
     EDI_render_do_CreateViewport();
-}
-
-function EDI_render_do_SetText(timestamp) {
-    EDI_render_do_Clear();
-    update_VirtualIndexLine();
-    EDI_render_do_Scroll(timestamp);
-
-    // TODO: what is paragraph this doing?
-    INTS[fEDI_prevVli] = INTS[fEDI_ONSCROLLvirtualIndexLine];
-    INTS[fEDI_currVli] = INTS[fEDI_virtualIndexLine];
-    INTS[fEDI_ONSCROLLvirtualIndexLine] = INTS[fEDI_virtualIndexLine];
-
-    INTS[fEDI_scrollEndDeadline] = timestamp + 1000;
-    if (!BYTES[byteisCheckingTrailingEdge]) {
-        BYTES[byteisCheckingTrailingEdge] = 1;
-        requestAnimationFrame(EDI_render_do_ScrollTrailingEdgeCheck);
-    }
 }
 
 /** All DOM manipulation needs to be done through this function. */
@@ -1173,6 +1075,23 @@ function EDI_state_clear() {
 function EDI_clear() {
     EDI_state_clear();
     EDI_render_request(RenderKind_Clear);
+}
+
+function EDI_render_do_SetText(timestamp) {
+    EDI_render_do_Clear();
+    update_VirtualIndexLine();
+    EDI_render_do_Scroll(timestamp);
+
+    // TODO: what is paragraph this doing?
+    INTS[fEDI_prevVli] = INTS[fEDI_ONSCROLLvirtualIndexLine];
+    INTS[fEDI_currVli] = INTS[fEDI_virtualIndexLine];
+    INTS[fEDI_ONSCROLLvirtualIndexLine] = INTS[fEDI_virtualIndexLine];
+
+    INTS[fEDI_scrollEndDeadline] = timestamp + 1000;
+    if (!BYTES[byteisCheckingTrailingEdge]) {
+        BYTES[byteisCheckingTrailingEdge] = 1;
+        requestAnimationFrame(EDI_render_do_ScrollTrailingEdgeCheck);
+    }
 }
 
 function EDI_state_setText(text, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString) {
@@ -2513,6 +2432,85 @@ function positiveNumbersOnly_countDigitsLoop(number) {
   }
 
   return count;
+}
+
+function EDI_render_do_cursor(timestamp) {
+    INTS[fEDI_EDI_cursorBlinkLastTimestamp] = timestamp;
+    EDI_drawCursor();
+}
+
+/** obsolete-ish */
+function EDI_render_do_cursor_flag_scrollIntoViewExplicit(timestamp) {
+    INTS[fEDI_EDI_cursorBlinkLastTimestamp] = timestamp;
+    let notShouldScrollIntoView = false;
+    let flag_scrollIntoViewExplicit = false;
+
+    flag_scrollIntoViewExplicit = true;
+
+    if (flag_scrollIntoViewExplicit) {
+        // TODO: consider setting 'notShouldScrollIntoView' to false to avoid two scroll into views redundantly?
+        EDI_scrollCursorIntoView();
+    }
+    EDI_drawCursor(notShouldScrollIntoView);
+}
+
+function EDI_render_do_cursor_flag_doNotScrollIntoView(timestamp) {
+    INTS[fEDI_EDI_cursorBlinkLastTimestamp] = timestamp;
+    EDI_drawCursor(true);
+}
+
+function EDI_cursor_hasSelection() {
+    return INTS[fEDI_cursor_selectionAnchor] >= 0 &&
+            INTS[fEDI_cursor_selectionEnd] >= 0 &&
+            INTS[fEDI_cursor_selectionAnchor] != INTS[fEDI_cursor_selectionEnd];
+}
+
+/**
+ * The code that clears the editor is dependent on this method NOT clearing 'BYTES[byteEDI_cursor_selectionDivExists]'
+ * 
+ * Somewhat duplicated code: This messes with the language features if I invoke clear() in the constructor, it puts "| undefined" on all the types.
+ */
+function EDI_cursor_clear() {
+    INTS[fEDI_cursor_indexLine] = 0;
+    INTS[fEDI_cursor_indexColumn] = 0;
+    INTS[fEDI_cursorVisualColumnIndex] = 0;
+    INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = 0;
+    INTS[fEDI_cursor_STORED_visualWidth] = 0;
+    INTS[fEDI_cursor_cursorTranslateYValue] = 0;
+    INTS[fEDI_cursor_cursorTranslateXValue] = 0;
+    INTS[fEDI_cursor_selectionAnchor] = 0;
+    INTS[fEDI_cursor_selectionEnd] = 0;
+    INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = 0;
+    INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = 0;
+    INTS[fEDI_cursor_DRAWN_selectionAnchor] = 0;
+    INTS[fEDI_cursor_DRAWN_selectionEnd] = 0;
+    INTS[fEDI_cursor_DRAWN_selection_virtualIndexLine] = 0;
+    INTS[fEDI_cursor_DRAWN_selection_virtualCount] = 0;
+    INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL_DRAWN] = 0;
+    INTS[fEDI_cursor_selectionIndexEndColumnVISUAL_DRAWN] = 0;
+    INTS[fEDI_cursor_editKind] = EditKind_None;
+    INTS[fEDI_cursor_editLength] = 0;
+    INTS[fEDI_cursor_editPosition] = 0;
+    INTS[fEDI_cursor_editIndexLine] = 0;
+    INTS[fEDI_cursor_editIndexColumn] = 0;
+    INTS[fEDI_cursor_editRenderedDisplacement] = 0;
+    INTS[fEDI_cursor_editRenderedDisplacement_INDEX_LINE_OFFSET] = 0;
+    INTS[fEDI_cursor_END_editIndexLine] = 0;
+    INTS[fEDI_cursor_END_editIndexColumn] = 0;
+
+    INTS[fEDI_cursor_gapBufferCount] = 0;
+
+    EDI_cursor_enterKey_newLinePlusIndentation_byteList = null;
+    EDI_cursor_cached_indentation_string = null;
+    BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_None;
+
+    INTS[fEDI_cursor_editLineFeedCount] = 0;
+    EDI_cursor_edit_flagLineChanged = -1;
+
+    EDI_cursor_EDI_paste_clipboardContent = null;
+
+    INTS[fEDI_cursor_EDI_duplicate_small] = 0;
+    INTS[fEDI_cursor_EDI_duplicate_length] = 0;
 }
 
 /**

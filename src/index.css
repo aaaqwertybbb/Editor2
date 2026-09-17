@@ -709,7 +709,7 @@ functions: rgb(85, 193, 85)
 
 .dark-theme {
   --primary-background-color: rgb(30, 30, 30);
-  --primary-foreground-color: rgb(187, 187, 187);
+  --primary-foreground-color: rgb(212, 212, 212);
   --secondary-background-color: rgb(38, 38, 40);
   --secondary-foreground-color: rgb(212, 212, 212);
   --primary-border-color: rgb(212, 212, 212);

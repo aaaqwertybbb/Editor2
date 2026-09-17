@@ -248,6 +248,7 @@ body {
   font-family: monospace;
   cursor: text;
   display: flex;
+  transform: translate3d(0px, 0px, 0px);
 }
 
 	/*#EDITOR:focus {

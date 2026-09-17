@@ -482,9 +482,9 @@ function EDI_render_do_Scroll(timestamp) {
             div.removeChild(div.lastChild);
         }
 
-        const translateY = `translateY(${vertical}px)`;
-        gutter.style.transform = translateY;
-        div.style.transform = translateY;
+        const translateY = `${vertical}px`;
+        gutter.style.top = translateY;
+        div.style.top = translateY;
 
         vertical += local_lineHeight;
     }
@@ -5815,8 +5815,8 @@ INTS[fEDI_cursor_indexLine]
 
     INTS[fEDI_cursor_cursorTranslateXValue] = INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth;
 
-    EDI_cursor_caretRow.style.transform = `translateY(${INTS[fEDI_cursor_cursorTranslateYValue]}px)`;
-    EDI_cursor_cursorElement.style.transform = `translateX(${INTS[fEDI_cursor_cursorTranslateXValue]}px)`;
+    EDI_cursor_caretRow.style.top = `${INTS[fEDI_cursor_cursorTranslateYValue]}px`;
+    EDI_cursor_cursorElement.style.left = `${INTS[fEDI_cursor_cursorTranslateXValue]}px`;
 
     EDI_createStyleForSelection();
 
@@ -6004,16 +6004,16 @@ function EDI_createStyleForSelection() {
         if (startLine === INCLUSIVEendLine) {
             lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
             lineSelectionDiv.className = 'EDI_selection';
-            lineSelectionDiv.style.left = gutterWidthTotal_withPxUnits;
-            lineSelectionDiv.style.transform = `translate(${start_visualColumnStart * EDI_characterWidth}px, ${INTS[fEDI_lineHeight] * startLine}px)`;
+            lineSelectionDiv.style.left = `${INTS[fEDI_gutterWidthTotal] + (start_visualColumnStart * EDI_characterWidth)}px`;
+            lineSelectionDiv.style.top = `${INTS[fEDI_lineHeight] * startLine}px`;
             lineSelectionDiv.style.width = (end_visualColumnStart - start_visualColumnStart) * EDI_characterWidth + 'px';
         }
         else {
             // start line
             lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
             lineSelectionDiv.className = 'EDI_selection';
-            lineSelectionDiv.style.left = gutterWidthTotal_withPxUnits;
-            lineSelectionDiv.style.transform = `translate(${start_visualColumnStart * EDI_characterWidth}px, ${INTS[fEDI_lineHeight] * startLine}px)`;
+            lineSelectionDiv.style.left = `${INTS[fEDI_gutterWidthTotal] + (start_visualColumnStart * EDI_characterWidth)}px`;
+            lineSelectionDiv.style.top = `${INTS[fEDI_lineHeight] * startLine}px`;
             EDI_getLineBoundaryPositions_raw(startLine);
             let lineVisualWidth = fEDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
             lineSelectionDiv.style.width = (lineVisualWidth + 1 - start_visualColumnStart) * EDI_characterWidth + 'px';
@@ -6023,7 +6023,7 @@ function EDI_createStyleForSelection() {
                 lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
                 lineSelectionDiv.className = 'EDI_selection';
                 lineSelectionDiv.style.left = gutterWidthTotal_withPxUnits;
-                lineSelectionDiv.style.transform = `translateY(${INTS[fEDI_lineHeight] * lineI}px)`;
+                lineSelectionDiv.style.top = `${INTS[fEDI_lineHeight] * lineI}px`;
                 EDI_getLineBoundaryPositions_raw(lineI);
                 let lineVisualWidth = fEDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
                 lineSelectionDiv.style.width = (lineVisualWidth + 1) * EDI_characterWidth + 'px';
@@ -6033,7 +6033,7 @@ function EDI_createStyleForSelection() {
             lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
             lineSelectionDiv.className = 'EDI_selection';
             lineSelectionDiv.style.left = gutterWidthTotal_withPxUnits;
-            lineSelectionDiv.style.transform = `translateY(${INTS[fEDI_lineHeight] * INCLUSIVEendLine}px)`;
+            lineSelectionDiv.style.top = `${INTS[fEDI_lineHeight] * INCLUSIVEendLine}px`;
             lineSelectionDiv.style.width = end_visualColumnStart * EDI_characterWidth + 'px';
         }
     }

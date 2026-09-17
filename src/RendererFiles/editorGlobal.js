@@ -528,6 +528,7 @@ function EDI_init() {
     INTS[fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar] = 1; // necessary for the first render, otherwise the if statement sees 0 !== 0.
     EDI_drawHorizontalScrollbar();
     EDI_render_request(RenderKind_Cursor_n);
+    requestAnimationFrame(EDI_draw_cursor_debug);
 
     EDI_registerHandlers();
 }
@@ -2612,6 +2613,12 @@ INTS[fEDI_cursor_indexLine]
 
     EDI_createStyleForSelection();
 
+    if (!NOTscrollCursorIntoView) {
+        EDI_scrollCursorIntoView();
+    }
+}
+
+function EDI_draw_cursor_debug() {
     // TODO: This logic has way too much overhead to be in this function.
     let text = '';
 
@@ -2635,10 +2642,6 @@ INTS[fEDI_cursor_indexLine]
     //text += ' | (' + INTS[fEDI_longestLine_indexLine] + ', ' + INTS[fEDI_longestLine_length] + ')';
 
     EDI_debug.replaceChildren(text);
-
-    if (!NOTscrollCursorIntoView) {
-        EDI_scrollCursorIntoView();
-    }
 }
 
 /**
@@ -4159,6 +4162,7 @@ function EDI_cursorBlink_trailingEdge(timestamp) {
         BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] = 0;
         // TODO: This is a timing issue of the rAF vs you losing focus on the editor.
         EDI_cursor_cursorElement.classList.add('EDI_cursor_focus');
+        EDI_draw_cursor_debug();
         INTS[fEDI_EDI_cursorBlinkLastTimestamp] = 0;
     }
     else {

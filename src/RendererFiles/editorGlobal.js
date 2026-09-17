@@ -8913,4 +8913,16 @@ Google AI:
         - [ ] but moreso I wonder about single line lexing where the period is one some line, and the identifier is on the next
             - [ ] But "whatever" for the time being, I'll figure it out later
             - [ ] And once I do I'll fix both described cases at the same time.
+
+
+I find that iron supplements are extremely high in "dose".
+I got a gentle iron supplement that had 126% of my daily iron (from what I remember).
+
+If you go to the supermarket daily, you can get these 1 of containers of plain cheerios.
+They have just 1 serving and are 99 cents each.
+These have 60% of the daily iron intake.
+
+So then, you watch what you eat and think "ah I'm only gonna hit like 30% iron today I'll have the cheerios to bump it up to 90%"
+or "I'm at 100% without the cheerios I won't eat them today then."
+
 */

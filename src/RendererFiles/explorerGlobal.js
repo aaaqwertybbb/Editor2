@@ -211,7 +211,7 @@ function EXPLORER_drawItem_BATCH(start, length, onePositiveDiff_twoNegativeDiff_
             let textNode = divItem.lastChild;
             textNode.nodeValue = '...';//entry.basename;
             textNode.title = '...';//entry.absolutePath;
-            divItem.className = 'eN';
+            divItem.className = 'tvnN';
 
             //let isDirectory = nodeKind === TreeViewNodeKind_isExpandable_isExpanded ||
             //                  nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded;
@@ -339,7 +339,7 @@ async function EXPLORER_drawItem_BATCH_pullData() {
 
     for (let i = 0; i < localRingBufferLength; i++) {
 
-        if (localEXPLORER_ringBuffer[ringBufferIndex_current].className === 'eN') {
+        if (localEXPLORER_ringBuffer[ringBufferIndex_current].className === 'tvnN') {
             let indexItem = INTS[fEXPLORER_scrollFetchData_virtualIndex] + i;
             
             // The index of the actual dom element within EXPLORER_itemListElement.children
@@ -380,7 +380,7 @@ function EXPLORER_drawItem_BATCH_PullDataDrawResult() {
             const ringBufferIndexItem = packedInteger >> CONST_EXPLORER_KEY_BITS;
 
             let nodeElement = itemListElement_children[ringBufferIndexItem];
-            nodeElement.className = '';
+            nodeElement.className = 'tvn';
             let textNode = nodeElement.lastChild;
             let entry = EXPLORER_arrayEntries[i];
             textNode.nodeValue = entry.basename;
@@ -909,12 +909,31 @@ function EXPLORER_render_do_FullReset(timestamp) {
 
         // this is zero'd, could use change for clarity of algorithm and match patterns but focus elsewhere first
         for (let i = 0; i < INTS[fEXPLORER_virtualCount]; i++) {
-            
+
+/*
+Google AI:
+
+> in a javascript for loop that creates HTML elements, would it faster to use javascript to give that newly created HTML element a class, which is then defined in a CSS file, or to assign each style using javascript?
+> 
+> divItem.style.whiteSpace = 'nowrap';
+> divItem.style.position = 'absolute';
+
+< It is significantly faster and better practice to assign a CSS class in Javascript rather than applying individual styles inline.
+<
+< ...
+<
+< Optimization Tip for Loops
+< If you are creating many elements inside a loop, the absolute fastest way to render them is to avoid appending them to the live DOM one by one.
+< Instead, append them to a DocumentFragment in memory first, and then append that fragment to the DOM once the loop is finished:
+< ...
+< 
+< ...
+*/
+
             let divItem = document.createElement('div');
+            divItem.className = 'tvn';
             divItem.style.width = widthAttributeValueString;
             divItem.style.height = EXPLORER_itemHeightStyleAttributeValueString;
-            divItem.style.whiteSpace = 'nowrap';
-            divItem.style.position = 'absolute';
             EXPLORER_itemListElement.appendChild(divItem);
             let iconSpan = document.createElement('span');
             iconSpan.style.width = EXPLORER_firstSpanWidth;

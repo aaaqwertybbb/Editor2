@@ -197,6 +197,18 @@ body {
 
 .TREEVIEW_itemList {
   display: contents;
+}
+
+/* .tvn => TreeViewNode...SEE 'tvnN' (this is super hacky I need to mark a node for change...) */
+.tvn {
+  white-space: nowrap;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+/* .tvnN => TreeViewNode (but NOT "syntax highlighted") (this is super hacky I need to mark a node for change...)*/
+.tvnN {
+  white-space: nowrap;
   position: absolute;
   left: 0;
   top: 0;

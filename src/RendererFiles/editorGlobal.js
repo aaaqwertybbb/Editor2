@@ -2698,6 +2698,36 @@ function EDI_createStyleForSelection_indentMore() {
     INTS[fEDI_cursor_DRAWN_selectionAnchor] = INTS[fEDI_cursor_selectionAnchor];
     INTS[fEDI_cursor_DRAWN_selectionEnd] = INTS[fEDI_cursor_selectionEnd];
 }
+
+/**
+ * Any code that wants to stop then start the cursor blinking again needs to:
+ * - enqueue rAF for drawing the cursor
+ * - *optional* check if statement for 'BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]' to avoid redundant invocations of 'EDI_cursorBlink_startChecking'
+ * - invoke 'EDI_cursorBlink_startChecking'
+ * - downstream trigger the rAF for drawing the cursor wherein 'INTS[fEDI_EDI_cursorBlinkLastTimestamp]' gets set to the rAF timestamp.
+ *     - or, modify some other part of the rAF pipeline (only if necessary) / etc...
+ * 
+ * NOTE: the draw cursor rAF needs to be enqueued prior to the 'EDI_cursorBlink_startChecking' invocation.
+ */
+function EDI_cursorBlink_trailingEdge(timestamp) {
+    const time = timestamp - INTS[fEDI_EDI_cursorBlinkLastTimestamp];
+    if (time >= 500) {
+        BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] = 0;
+        // TODO: This is a timing issue of the rAF vs you losing focus on the editor.
+        EDI_cursor_cursorElement.classList.add('EDI_cursor_focus');
+        EDI_draw_cursor_debug();
+        INTS[fEDI_EDI_cursorBlinkLastTimestamp] = 0;
+    }
+    else {
+        requestAnimationFrame(EDI_cursorBlink_trailingEdge);
+    }
+}
+
+function EDI_cursorBlink_startChecking() {
+    BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] = 1;
+    EDI_cursor_cursorElement.classList.remove('EDI_cursor_focus');
+    requestAnimationFrame(EDI_cursorBlink_trailingEdge);
+}
 //#endregion
 
 //#region mousedown
@@ -4114,36 +4144,6 @@ function EDI_editEvent_checkFor_NOTcanBatch_Enter(event) {
         }
     }
     return false;
-}
-
-/**
- * Any code that wants to stop then start the cursor blinking again needs to:
- * - enqueue rAF for drawing the cursor
- * - *optional* check if statement for 'BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]' to avoid redundant invocations of 'EDI_cursorBlink_startChecking'
- * - invoke 'EDI_cursorBlink_startChecking'
- * - downstream trigger the rAF for drawing the cursor wherein 'INTS[fEDI_EDI_cursorBlinkLastTimestamp]' gets set to the rAF timestamp.
- *     - or, modify some other part of the rAF pipeline (only if necessary) / etc...
- * 
- * NOTE: the draw cursor rAF needs to be enqueued prior to the 'EDI_cursorBlink_startChecking' invocation.
- */
-function EDI_cursorBlink_trailingEdge(timestamp) {
-    const time = timestamp - INTS[fEDI_EDI_cursorBlinkLastTimestamp];
-    if (time >= 500) {
-        BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] = 0;
-        // TODO: This is a timing issue of the rAF vs you losing focus on the editor.
-        EDI_cursor_cursorElement.classList.add('EDI_cursor_focus');
-        EDI_draw_cursor_debug();
-        INTS[fEDI_EDI_cursorBlinkLastTimestamp] = 0;
-    }
-    else {
-        requestAnimationFrame(EDI_cursorBlink_trailingEdge);
-    }
-}
-
-function EDI_cursorBlink_startChecking() {
-    BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] = 1;
-    EDI_cursor_cursorElement.classList.remove('EDI_cursor_focus');
-    requestAnimationFrame(EDI_cursorBlink_trailingEdge);
 }
 
 /**

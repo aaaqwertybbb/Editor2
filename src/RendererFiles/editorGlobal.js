@@ -3896,6 +3896,103 @@ function EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_la
 }
 
 /**
+ * See comment above 'EXPLORER_measureBaseElement'
+ * for explanation why this code is a bad idea.
+ * 
+ * I can't get rid of it because I don't fully understand my mistake yet.
+ * When I get around to it I'm gonna end up looking into this more.
+ */
+function EDI_measureBaseElement() {
+    INTS[fEDI_lastReadNumber_offsetWidth] = Math.floor(EDI_baseElement.offsetWidth);
+    INTS[fEDI_lastReadNumber_offsetHeight] = Math.floor(EDI_baseElement.offsetHeight);
+    
+    EDI_baseElement.style.width = INTS[fEDI_lastReadNumber_offsetWidth] + 'px';
+    EDI_baseElement.style.height = INTS[fEDI_lastReadNumber_offsetHeight] + 'px';
+
+    EDI_baseElement.style.contain = 'layout';
+
+    INTS[fEDI_lastReadNumber_offsetWidth] = EDI_baseElement.offsetWidth;
+    INTS[fEDI_lastReadNumber_offsetHeight] = EDI_baseElement.offsetHeight;
+
+/*
+> what does css "contain = 'layout'" do
+
+< ...
+< The CSS declaration contain: layout isolates the internal layout of an element from the rest of the web page, ensuring that changes inside the element do not trigger layout calculations outside of it, and vice versa
+< ...
+
+< ...
+< Independent Layout Trees: The browser treats the element as an isolated layout island. If JavaScript alters content or styles inside this element, the browser only recalculates the layout for this specific subtree rather than reflowing the entire document
+< ...
+< New Stacking Context: A new stacking context is generated. Any z-index properties used on child elements are completely scoped to this element and will not interact with elements outside of it.
+< ...
+
+I think I agree with this all... That's why I added it originally.
+I'm modifying the content and stacking context is good for all the absolute positioning I can ensure to the browser that nothing will happen?
+The AI code drops it so I gotta watch out perhaps not to just paste that over.
+
+But if I truly added it for these reasons, why did I not add it to the TreeView which is similar.
+And if the answer to that is just "lots of things to do".
+Then, "would you add it now?"
+"are you really sure that this is useful?"
+
+and I don't know...
+
+
+< function EDI_measureBaseElement() {
+<     // 1. Read once, accurately capturing subpixels
+<     const rect = EDI_baseElement.getBoundingClientRect();
+<     
+<     INTS[fEDI_lastReadNumber_offsetWidth] = rect.width;
+<     INTS[fEDI_lastReadNumber_offsetHeight] = rect.height;
+< 
+<     // 2. Calculate lines safely without modifying the DOM
+<     const rawLineCount = INTS[fEDI_lastReadNumber_offsetHeight] / KNOWN_LINE_HEIGHT;
+<     
+<     // Math.floor gives you ONLY fully visible lines
+<     const fullyVisibleLines = Math.floor(rawLineCount); 
+<     
+<     // Math.ceil includes a line even if it is partially cut off at the bottom
+<     const totalRenderedLines = Math.ceil(rawLineCount); 
+< }
+
+> When it comes to the 'Floor Trap'.
+> 
+> What if I had my current code, but I just didn't read after setting the floored values.
+> 
+> The reason I did the read was because I feared that "some boogieman" might cause my setting of the attribute value to 500px,
+> that this would be ignored for some reason that I'm not aware of and perhaps be taken as 501px due to some obscure piece of information that
+> I don't understand. It is just superstitious reading of the value.
+
+< no response
+
+:( I can probably reword that lol
+
+wtf is going on
+
+I said
+
+> When it comes to the 'Floor Trap'.
+> 
+> What if I had my current code, but I just didn't read after setting the floored values.
+
+which was 2/3rd of the previous prompt.
+
+And then I got response of
+
+< If you keep your current code but completely remove that second read, you successfully eliminate the second layout calculation. That is a great performance win!
+< 
+< However, your superstitious fear about the "boogieman" changing 500px to 501px is actually technically justified—though not for the reason you think. The real boogieman isn't a browser bug; it is display scaling (like a 125% zoom on a laptop, or a high-DPI Retina screen).
+<
+< ...
+<
+< The Scaling Boogieman is Real
+< ...
+
+*/
+}
+
+/**
  * TODO: repeated duplications of the same extremely large selection might benefit from temporary caching of this functions result.
  * 
  * textonly is in reference to conversion of the raw storage of the text editor such that all line feeds get returned as as EDI_lineEndString rather than the internal representation of '\n'.
@@ -6474,103 +6571,6 @@ function EDI_onResize_startThrottleTimeout() {
             INTS[fEDI_onResize_timer] = 0;
         }
     }, 500);
-}
-
-/**
- * See comment above 'EXPLORER_measureBaseElement'
- * for explanation why this code is a bad idea.
- * 
- * I can't get rid of it because I don't fully understand my mistake yet.
- * When I get around to it I'm gonna end up looking into this more.
- */
-function EDI_measureBaseElement() {
-    INTS[fEDI_lastReadNumber_offsetWidth] = Math.floor(EDI_baseElement.offsetWidth);
-    INTS[fEDI_lastReadNumber_offsetHeight] = Math.floor(EDI_baseElement.offsetHeight);
-    
-    EDI_baseElement.style.width = INTS[fEDI_lastReadNumber_offsetWidth] + 'px';
-    EDI_baseElement.style.height = INTS[fEDI_lastReadNumber_offsetHeight] + 'px';
-
-    EDI_baseElement.style.contain = 'layout';
-
-    INTS[fEDI_lastReadNumber_offsetWidth] = EDI_baseElement.offsetWidth;
-    INTS[fEDI_lastReadNumber_offsetHeight] = EDI_baseElement.offsetHeight;
-
-/*
-> what does css "contain = 'layout'" do
-
-< ...
-< The CSS declaration contain: layout isolates the internal layout of an element from the rest of the web page, ensuring that changes inside the element do not trigger layout calculations outside of it, and vice versa
-< ...
-
-< ...
-< Independent Layout Trees: The browser treats the element as an isolated layout island. If JavaScript alters content or styles inside this element, the browser only recalculates the layout for this specific subtree rather than reflowing the entire document
-< ...
-< New Stacking Context: A new stacking context is generated. Any z-index properties used on child elements are completely scoped to this element and will not interact with elements outside of it.
-< ...
-
-I think I agree with this all... That's why I added it originally.
-I'm modifying the content and stacking context is good for all the absolute positioning I can ensure to the browser that nothing will happen?
-The AI code drops it so I gotta watch out perhaps not to just paste that over.
-
-But if I truly added it for these reasons, why did I not add it to the TreeView which is similar.
-And if the answer to that is just "lots of things to do".
-Then, "would you add it now?"
-"are you really sure that this is useful?"
-
-and I don't know...
-
-
-< function EDI_measureBaseElement() {
-<     // 1. Read once, accurately capturing subpixels
-<     const rect = EDI_baseElement.getBoundingClientRect();
-<     
-<     INTS[fEDI_lastReadNumber_offsetWidth] = rect.width;
-<     INTS[fEDI_lastReadNumber_offsetHeight] = rect.height;
-< 
-<     // 2. Calculate lines safely without modifying the DOM
-<     const rawLineCount = INTS[fEDI_lastReadNumber_offsetHeight] / KNOWN_LINE_HEIGHT;
-<     
-<     // Math.floor gives you ONLY fully visible lines
-<     const fullyVisibleLines = Math.floor(rawLineCount); 
-<     
-<     // Math.ceil includes a line even if it is partially cut off at the bottom
-<     const totalRenderedLines = Math.ceil(rawLineCount); 
-< }
-
-> When it comes to the 'Floor Trap'.
-> 
-> What if I had my current code, but I just didn't read after setting the floored values.
-> 
-> The reason I did the read was because I feared that "some boogieman" might cause my setting of the attribute value to 500px,
-> that this would be ignored for some reason that I'm not aware of and perhaps be taken as 501px due to some obscure piece of information that
-> I don't understand. It is just superstitious reading of the value.
-
-< no response
-
-:( I can probably reword that lol
-
-wtf is going on
-
-I said
-
-> When it comes to the 'Floor Trap'.
-> 
-> What if I had my current code, but I just didn't read after setting the floored values.
-
-which was 2/3rd of the previous prompt.
-
-And then I got response of
-
-< If you keep your current code but completely remove that second read, you successfully eliminate the second layout calculation. That is a great performance win!
-< 
-< However, your superstitious fear about the "boogieman" changing 500px to 501px is actually technically justified—though not for the reason you think. The real boogieman isn't a browser bug; it is display scaling (like a 125% zoom on a laptop, or a high-DPI Retina screen).
-<
-< ...
-<
-< The Scaling Boogieman is Real
-< ...
-
-*/
 }
 
 /**

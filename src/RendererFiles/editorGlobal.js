@@ -389,22 +389,20 @@ function EDI_render_do_Scroll(timestamp) {
     
     let local_prevVli = INTS[fEDI_ONSCROLLvirtualIndexLine];
     const local_currVli = INTS[fEDI_virtualIndexLine];
-    INTS[fEDI_ONSCROLLvirtualIndexLine] = local_currVli;
 
     INTS[fEDI_scrollEndDeadline] = timestamp + 1000;
+    
+    let diff = local_currVli - local_prevVli;
+    if (diff === 0) return;
+
+    INTS[fEDI_ONSCROLLvirtualIndexLine] = local_currVli;
 
     if (INTS[fEDI_intFalsey_isScrolling] === 0) {
         // (Comment group ID: 'do_Scroll/LeadingEdge')...and here the locals are passed to the LeadingEdge because only when performing the LeadingEdge do you need to use the global versions. (part 1 of 3)
         if (EDI_onScroll_LeadingEdge(local_prevVli, local_currVli)) return; // This if statement reads poorly. You return for a reason that isn't gleaned by reading the function name alone.
         // (Comment group ID: 'do_Scroll/LeadingEdge')...and here the locals assigned the same value as the "globals" in case 'EDI_onScroll_LeadingEdge' modified the globals. (part 3 of 3)
-        local_prevVli = INTS[fEDI_prevVli];
+        diff = local_currVli - INTS[fEDI_prevVli];
     }
-
-    INTS[fEDI_ONSCROLLscrollTop] = INTS[fEDI_lastReadNumber_scrollTop];
-
-    // TODO: Consider moving the 0 diff case to the soonest possible line to skip as much code as possible.
-    let diff = local_currVli - local_prevVli;
-    if (diff === 0) return;
 
     let lowerBound = 0;
     let upperBound = 0;
@@ -516,8 +514,7 @@ function EDI_onScroll_LeadingEdge(local_prevVli, local_currVli) {
 
     EDI_finalizeEdit();
 
-    if (INTS[fEDI_ONSCROLLscrollTop] === INTS[fEDI_lastReadNumber_scrollTop] &&
-        INTS[fEDI_prevVli] === INTS[fEDI_virtualIndexLine] &&
+    if (INTS[fEDI_prevVli] === INTS[fEDI_virtualIndexLine] &&
         INTS[fEDI_ONSCROLLvirtualCount] === INTS[fEDI_virtualCount]) {
             // TODO: this is directly tied to a scroll event on EDI_baseElement so handle it from there perhaps?
             // TODO: this code is duplicated inside EDI_drawHorizontalScrollbar, reduce duplication?
@@ -599,8 +596,6 @@ function EDI_render_do_Clear() {
     // Force case 3
     INTS[fEDI_prevVli] = 0;
     INTS[fEDI_currVli] = INTS[fEDI_virtualCount];
-    // TODO: Duplicated setting of scrolltop; this case and just baseline everytime vertical scrolls it is done in this method elsewhere
-    INTS[fEDI_ONSCROLLscrollTop] = INTS[fEDI_lastReadNumber_scrollTop];
     EDI_render_do_CreateViewport();
 }
 

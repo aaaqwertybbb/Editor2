@@ -55,10 +55,10 @@ module.exports = function (babel) {
     "fEDI_gutterWidthTotal",
     
 
-    "fEDI_virtualIndexLine",
+    
     
 
-    "fEDI_virtualCount",
+    
     
 
     "F_didChangeTextDocument_version",
@@ -82,18 +82,13 @@ module.exports = function (babel) {
     //"fEDI_offsetWithinSpan",
     
 
-    "fEDI_ONSCROLLvirtualIndexLine",
+    
     
 
     
-
-    "fEDI_ONSCROLLscrollTop",
-    
-
-    "fEDI_longestLine_indexLine",
     
     
-    "fEDI_longestLine_length",
+    
     
 
     "fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar",
@@ -141,7 +136,7 @@ module.exports = function (babel) {
     "fEDI_findOverlay_options_matchWord",
     
 
-    "fEDI_scrollEndDeadline",
+    
 
     "fEDI_intFalsey_isScrolling",
     
@@ -155,7 +150,6 @@ module.exports = function (babel) {
     "fEDI_virtualCount",
     "fEDI_ONSCROLLvirtualIndexLine",
     "fEDI_ONSCROLLvirtualCount",
-    "fEDI_ONSCROLLscrollTop",
     "fEDI_longestLine_indexLine",
     "fEDI_longestLine_length",
     "fEDI_scrollEndDeadline",

@@ -62,7 +62,7 @@ const EDI_trackedSyntaxList = new TrackedSyntaxList(32);
  */
 let EDI_findOverlay_searchResultPositionList = null;
 
-// #region textByteList
+//#region textByteList
 let EDI_textByteList_capacity = 1024;
 let EDI_textByteList_bytes = new Uint8Array(EDI_textByteList_capacity);
 let EDI_textByteList_count = 0;
@@ -234,7 +234,7 @@ function EDI_textByteList_copyTo(bytesSource, sourceStart, bytesDestination, des
         }
     }
 }
-// #endregion
+//#endregion
 
 const EDI_encoder = new TextEncoder();
 const EDI_decoder = new TextDecoder();
@@ -317,7 +317,7 @@ INTS[fEDI_ontab_visualWidth_perCharacter] = 4;
  */
 const EDI_lineEndPositionList_PENDING = new UInt32List(128);
 
-// #region lineEndPositionList
+//#region lineEndPositionList
 let EDI_lineEndPositionList_capacity = 128;
 /**
  * IMPORTANT: use EDI_readLineEndPositionList(...) rather than indexing into this directly...
@@ -423,7 +423,7 @@ function EDI_lineEndPositionList_copyTo(bytesSource, sourceStart, bytesDestinati
         }
     }
 }
-// #endregion
+//#endregion
 
 let EDI_textSourceIdentifier = '';
 let EDI_FORMATTED_textSourceIdentifier = '';
@@ -3501,7 +3501,7 @@ function EDI_editEvent_checkFor_NOTcanBatch_Enter(event) {
 }
 //#endregion
 
-// #region finalize
+//#region finalize
 /**
  * TODO: Exception during finalize softlocks the editor because you can't even clear to reset the state: 'Uncaught (in promise) Error: removeAt(...): index > this.count'
  * 
@@ -4286,7 +4286,7 @@ function EDI_finalizeEdit_ClearEditState() {
     INTS[fEDI_cursor_editLineFeedCount] = 0;
     EDI_lineEndPositionList_PENDING.clear();
 }
-// #endregion
+//#endregion
 
 //#region ancillary
 function enqueueLSPNotification(payload) {

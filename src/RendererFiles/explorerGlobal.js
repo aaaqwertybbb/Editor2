@@ -1278,6 +1278,11 @@ TODO: The TreeView after you resize it, you can continually scroll down and it k
 /** 8px by default or the measured value with px */
 let EXPLORER_firstSpanWidth = '8px';
 
+/**
+ * TODO: Only use a single menuOptionCut_object that is located in "MENU_" to reduce the chance of memory leaks due to a 'cut' that never gets
+ * followed up with a paste or etc... then you have like 3 active menu cut objects sitting around eventually, you probably want them to overwrite eachother.
+ * You'd need to track the source of the cut menu object though if you were to do this.
+ */
 let EXPLORER_menuOptionCut_object = null;
 
 function EXPLORER_init() {

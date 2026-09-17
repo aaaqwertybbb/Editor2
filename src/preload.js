@@ -44,6 +44,8 @@ contextBridge.exposeInMainWorld('myAPI', {
   editorCompletionRequest: (indexLine, indexColumn) => ipcRenderer.invoke('editor-completion-request', indexLine, indexColumn),
   // I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
   editorCompletionRequest_slice: (indexStart, indexEnd) => ipcRenderer.invoke('editor-completion-request-slice', indexStart, indexEnd),
+  // LSP specification might have something defined for this I'll check later I just don't feel like it right now I'm pushing to force myself to get this typed out rather than procrastinate.
+  editorVerifyLspTextAgainstEditorText: () => ipcRenderer.invoke('editor-verify-lsp-text-against-editor-text'),
   // I've seen people saying you can access the clipboard the same way as the main process from renderer process
   // but I'm not touching that at the moment.
   setClipboard: text => ipcRenderer.invoke('set-clipboard', text),

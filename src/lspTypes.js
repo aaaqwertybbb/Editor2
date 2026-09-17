@@ -134,6 +134,17 @@ export function MAIN_message_construct_CompletionRequest_slice(textDocumentIdent
     };
 }
 
+/** TODO: This is possibly better described as a notification than request I don't think any response is needed to be involved. */
+export function MAIN_message_construct_CustomEditorVerifyLspTextAgainstEditorTextRequest(textDocumentIdentifier) {
+    return {
+        id: messageId++,
+        method: 'textDocument/CustomEditorVerifyLspTextAgainstEditorTextRequest',
+        params: {
+            textDocument: textDocumentIdentifier
+        },
+    };
+}
+
 export function MAIN_message_construct_CustomFullFileLexRequest(textDocumentIdentifier) {
     return {
         id: messageId++,

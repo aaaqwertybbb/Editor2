@@ -451,7 +451,7 @@ function DIALOG_buttonTheme_onclick() {
 }
 
 function DIALOG_buttonVerifyLspTextAgainstEditorText_onclick() {
-    console.log('DIALOG_buttonVerifyLspTextAgainstEditorText_onclick');
+    window.myAPI.editorVerifyLspTextAgainstEditorText();
 }
 
 function DIALOG_checkboxTrueTabsFalseSpaces_onchange() {

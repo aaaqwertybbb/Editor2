@@ -124,8 +124,6 @@ function AUTOCOMPLETE_render_RESET_lines(AUTOCOMPLETE_itemList) {
     AUTOCOMPLETEElement.addEventListener('scroll', AUTOCOMPLETE_events_scroll_receive, { passive: true });
     INTS[fAUTOCOMPLETE_cursorIndex] = 0;
 
-    let appHeightCssAttributeValue = `${INTS[fAPP_lineHeight]}px`;
-
     let verticalOffset = CONST_AUTOCOMPLETE_topPadding;
 
     for (let i = 0; i < INTS[fAUTOCOMPLETE_virtualCount]; i++) {

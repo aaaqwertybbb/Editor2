@@ -380,6 +380,8 @@ function EDI_render_do_Scroll(timestamp) {
     // High-performance CPU truncation (Bypasses Math.floor)
     INTS[fEDI_virtualIndexLine] = (INTS[fEDI_lastReadNumber_scrollTop] / local_lineHeight) | 0;
     < ```
+
+    I looked into it I get it.
     */
     // High-performance CPU truncation (Bypasses Math.floor)
     INTS[fEDI_virtualIndexLine] = (INTS[fEDI_lastReadNumber_scrollTop] / local_lineHeight) | 0;

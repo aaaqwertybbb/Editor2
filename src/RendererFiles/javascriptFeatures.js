@@ -180,7 +180,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'const';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 325: // let
                         if (wordlength === 3 &&
@@ -191,7 +191,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'let';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 870: // function
                         if (wordlength === 8 &&
@@ -207,7 +207,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'function';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 207: // if
                         if (wordlength === 2 &&
@@ -217,7 +217,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'if';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 351: // try
                         if (wordlength === 3 &&
@@ -228,7 +228,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'try';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 327: // for
                         if (wordlength === 3 &&
@@ -239,7 +239,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'for';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 329: // var
                         if (wordlength === 3 &&
@@ -250,7 +250,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'var';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 515: // catch
                         if (wordlength === 5 &&
@@ -263,7 +263,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'catch';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 672: // return
                         if (wordlength === 6 &&
@@ -277,7 +277,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'return';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 658: // switch
                         if (wordlength === 6 &&
@@ -291,7 +291,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'switch';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 412: // case
                         if (wordlength === 4 &&
@@ -303,7 +303,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'case';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 542: // async
                         if (wordlength === 5 &&
@@ -316,7 +316,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'async';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 425: // else
                         if (wordlength === 4 &&
@@ -328,7 +328,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'else';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 741: // default
                         if (wordlength === 7 &&
@@ -343,7 +343,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'default';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 564: // throw
                         if (wordlength === 5 &&
@@ -356,7 +356,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'throw';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 330: // new
                         if (wordlength === 3 &&
@@ -367,7 +367,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'new';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 534: // class
                         if (wordlength === 5) {
@@ -392,7 +392,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                     break;
                             }
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 1222: // constructor
                         if (wordlength === 11 &&
@@ -411,7 +411,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'constructor';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 667: // import
                         if (wordlength === 6 &&
@@ -425,7 +425,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'import';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 436: // from
                         if (wordlength === 4 &&
@@ -437,7 +437,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'from';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 674: // export
                         if (wordlength === 6 &&
@@ -451,7 +451,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'export';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 440: // this
                         if (wordlength === 4 &&
@@ -463,7 +463,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'this';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 537: // while
                         if (wordlength === 5 &&
@@ -476,7 +476,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'while';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 517: // break
                         if (wordlength === 5 &&
@@ -489,7 +489,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'break';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 869: // continue
                         if (wordlength === 8 &&
@@ -505,7 +505,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'continue';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 448: // true
                         if (wordlength === 4 &&
@@ -517,7 +517,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'true';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 523: // false
                         if (wordlength === 5 &&
@@ -530,7 +530,7 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'false';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     case 443: // null
                         if (wordlength === 4 &&
@@ -542,10 +542,10 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                                 textContent = 'null';
                                 break;
                         }
-                        className = '';
+                        className = 'eI';
                         break;
                     default:
-                        className = '';
+                        className = 'eI';
                         break;
                 }
                 if (className) {
@@ -565,6 +565,9 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                         }
                     }
 
+                    if (className === 'eI') {
+                        textContent = divSpanTextContent.substring(substart, substart + wordlength);
+                    }
                     if (childIndex < div.children.length) {
                         span = div.children[childIndex++];
                         span.className = className;
@@ -843,246 +846,6 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                     childIndex++;
                 }
                 continue;
-            case CONST_js_EQUALS_num:
-                // I think I actually want to handle the '==', '===', and '===...=' cases just so I can skip over the text quickly.
-                // Otherwise every time I see '=' I have to check the left and right side and it is quite redundant?
-                //
-                // I also have to consider anything of the form '+=' then typing '=' after it for '+=='. I don't think this is valid but I need to consider it I'll probably skip over any '=' that appear after the first '+=' text and is contiguous?
-                // No that doesn't work because you're adding this step to every syntax that ends in '=' that it has to understand the '=' case.
-                // What you want is a left check, but that the left check only happens once per contiguous block of '=' incase the left '=' isn't part of your syntax.
-                //
-                
-                // NOTE: A presumption is being made here that "any multiline syntax that spans multiple lines, won't end in ="...
-                // ...this presumption permits checking only the text that is in bounds of substart and lineEnd.
-                
-                // TODO: This contiguous skipping logic isn't working for every switch case?
-                //
-                // TODO: If this contiguous skipping logic works for the '=' it will handle both '!=' and '!==' solely by checking for '!='
-                //
-                // let shouldSkipContiguous;... sneaky uninitialized variable conversion to a falsey or something was going on?
-                shouldSkipContiguous = false;
-                if (pos > substart) {
-                    if (bytes[pos - 1] === CONST_js_EQUALS_num) {
-                        shouldSkipContiguous = true;
-                    }
-                    else if (bytes[pos - 1] === CONST_js_BANG_num) {
-                        shouldSkipContiguous = true;
-                    }
-                    else if (bytes[pos - 1] === CONST_js_OPENBRACKET_num) {
-                        shouldSkipContiguous = true;
-                    }
-                    else if (bytes[pos - 1] === CONST_js_CLOSEBRACKET_num) {
-                        shouldSkipContiguous = true;
-                    }
-                }
-                else {
-                    shouldSkipContiguous = false;
-                }
-                if (!shouldSkipContiguous) {
-                    if (pos < lineEnd && bytes[pos + 1] === CONST_js_EQUALS_num) {
-                        shouldSkipContiguous = true;
-                    }
-                }
-                
-                if (shouldSkipContiguous) {
-                    // skip current
-                    pos++;
-                    // skip contiguous
-                    while (pos < lineEnd && bytes[pos] === CONST_js_EQUALS_num) {
-                        pos++;
-                    }
-                    continue;
-                }
-                else {
-                    if (substart < pos) { // write any text that came prior, and on the same line.
-                        flushTextContent = EDI_decoder.decode(bytes.subarray(substart, substart = pos));
-                        if (childIndex < div.children.length) {
-                            span = div.children[childIndex++];
-                            span.className = '';
-                            span.textContent = flushTextContent;
-                        }
-                        else {
-                            span = document.createElement('span');
-                            span.textContent = flushTextContent;
-                            div.appendChild(span);
-                            childIndex++;
-                        }
-                    }
-                    // I don't know if I would count '=>' as an "assignment operator"... maybe I would but I'm too focused on whether I'd count it as such that I can't figure out the way to make it work. So I need to just make it work first.
-                    pos++;
-                    substart++;
-                    if (pos < lineEnd && bytes[pos] === CONST_js_CLOSEBRACKET_num) {
-                        textContent = '=>';
-                        pos++;
-                        substart++;
-                    }
-                    else {
-                        textContent = '=';
-                    }
-                    if (childIndex < div.children.length) {
-                        span = div.children[childIndex++];
-                        span.className = 'eOA';
-                        span.textContent = textContent;
-                    }
-                    else {
-                        span = document.createElement('span');
-                        span.className = 'eOA';
-                        span.textContent = textContent;
-                        div.appendChild(span);
-                        childIndex++;
-                    }
-                    continue;
-                }
-                
-                // TODO: you don't understand how code caching or like instruction caching etc works with respect to whether inlining interupts things
-                break;
-            case CONST_js_PLUS_num:
-                // ++
-                // +=
-                
-                // If "some syntax that I don't actually think exists" such as '=+' were to exist I'd need to care for '=+' then a '+' making '=++'
-                // this should cause a skipping of contiguous '+' in my initial opinion so that's what I'll probably do.
-                // 
-                // I have a better example now... '++' then you type '+' causing '+++', the first two '++' are syntax highlighted and the third isn't.
-                // Some might say you should not syntax highlight any of the plus in that case because you're reading the operator as '++'
-                // rather than the combination of '++' and '+'. I think I'm somewhat indifferent but I lean towards syntax highlighting
-                // the two plus characters and not doing so for the final '+' (at least my initial opinion is that).
-                //
-                // ++++
-                // It doesn't actually work... I tried it and '+++' works but then '++++' is two '++' rather than one '++' and then just the "text of '++'".
-                //
-                
-                // NOTE: A presumption is being made here that "any multiline syntax that spans multiple lines, won't end in +"...
-                // ...this presumption permits checking only the text that is in bounds of substart and lineEnd.
-                
-                // TODO: This contiguous skipping logic isn't working for every switch case?
-                shouldSkipContiguous = pos > substart && bytes[pos - 1] === CONST_js_PLUS_num;
-                if (!shouldSkipContiguous) {
-                    if (pos < lineEnd) {
-                        if (bytes[pos + 1] === CONST_js_PLUS_num) {
-                            textContent = '++';
-                        }
-                        else if (bytes[pos + 1] === CONST_js_EQUALS_num) {
-                            textContent = '+=';
-                        }
-                        else {
-                            shouldSkipContiguous = true;
-                        }
-                    }
-                    else {
-                        shouldSkipContiguous = true;
-                    }
-                }
-                
-                if (shouldSkipContiguous) {
-                    // skip current
-                    pos++;
-                    // skip contiguous
-                    while (pos < lineEnd && bytes[pos] === CONST_js_PLUS_num) {
-                        pos++;
-                    }
-                    continue;
-                }
-                else {
-                    if (substart < pos) { // write any text that came prior, and on the same line.
-                        flushTextContent = EDI_decoder.decode(bytes.subarray(substart, substart = pos));
-                        if (childIndex < div.children.length) {
-                            span = div.children[childIndex++];
-                            span.className = '';
-                            span.textContent = flushTextContent;
-                        }
-                        else {
-                            span = document.createElement('span');
-                            span.textContent = flushTextContent;
-                            div.appendChild(span);
-                            childIndex++;
-                        }
-                    }
-                    pos += 2;
-                    substart += 2;
-                    if (childIndex < div.children.length) {
-                        span = div.children[childIndex++];
-                        span.className = 'eOA';
-                        span.textContent = textContent;
-                    }
-                    else {
-                        span = document.createElement('span');
-                        span.className = 'eOA';
-                        span.textContent = textContent;
-                        div.appendChild(span);
-                        childIndex++;
-                    }
-                    continue;
-                }
-            case CONST_js_MINUS_num:
-                // --
-                // -=
-                
-                // NOTE: A presumption is being made here that "any multiline syntax that spans multiple lines, won't end in -"...
-                // ...this presumption permits checking only the text that is in bounds of substart and lineEnd.
-                
-                // When you switch on '+' then check for '-' or '+'... should you do something relating to NOT invoking the decode function and instead
-                // you just "know" the text that goes there based on your conditional branching?
-                    
-                // TODO: This contiguous skipping logic isn't working for every switch case?
-                shouldSkipContiguous = pos > substart && bytes[pos - 1] === CONST_js_MINUS_num;
-                if (!shouldSkipContiguous) {
-                    if (pos < lineEnd) {
-                        if (bytes[pos + 1] === CONST_js_MINUS_num) {
-                            textContent = '--';
-                        }
-                        else if (bytes[pos + 1] === CONST_js_EQUALS_num) {
-                            textContent = '-=';
-                        }
-                        else {
-                            shouldSkipContiguous = true;
-                        }
-                    }
-                    else {
-                        shouldSkipContiguous = true;
-                    }
-                }
-                
-                if (shouldSkipContiguous) {
-                    // skip current
-                    pos++;
-                    // skip contiguous
-                    while (pos < lineEnd && bytes[pos] === CONST_js_MINUS_num) {
-                        pos++;
-                    }
-                    continue;
-                }
-                else {
-                    if (substart < pos) { // write any text that came prior, and on the same line.
-                        flushTextContent = EDI_decoder.decode(bytes.subarray(substart, substart = pos));
-                        if (childIndex < div.children.length) {
-                            span = div.children[childIndex++];
-                            span.className = '';
-                            span.textContent = flushTextContent;
-                        }
-                        else {
-                            span = document.createElement('span');
-                            span.textContent = flushTextContent;
-                            div.appendChild(span);
-                            childIndex++;
-                        }
-                    }
-                    pos += 2;
-                    substart += 2;
-                    if (childIndex < div.children.length) {
-                        span = div.children[childIndex++];
-                        span.className = 'eOA';
-                        span.textContent = textContent;
-                    }
-                    else {
-                        span = document.createElement('span');
-                        span.className = 'eOA';
-                        span.textContent = textContent;
-                        div.appendChild(span);
-                        childIndex++;
-                    }
-                    continue;
-                }
         }
         pos++;
     }

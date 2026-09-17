@@ -1410,7 +1410,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'const';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case 107035: // let
                                 if (wordlength === 3 && divSpanTextContent.substring(wordstart, pos) === 'let') {
@@ -1418,7 +1418,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'let';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case 1380938712: // function
                                 if (wordlength === 8 && divSpanTextContent.substring(wordstart, pos) === 'function') {
@@ -1426,7 +1426,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'function';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case 3357: // if
                                 if (wordlength === 2 && divSpanTextContent.substring(wordstart, pos) === 'if') {
@@ -1434,7 +1434,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'if';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case 115131: // try
                                 if (wordlength === 3 && divSpanTextContent.substring(wordstart, pos) === 'try') {
@@ -1442,7 +1442,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'try';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case 101577: // for
                                 if (wordlength === 3 && divSpanTextContent.substring(wordstart, pos) === 'for') {
@@ -1450,7 +1450,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'for';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case 116519: // var
                                 if (wordlength === 3 && divSpanTextContent.substring(wordstart, pos) === 'var') {
@@ -1458,7 +1458,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'var';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case 94432955: // catch
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'catch') {
@@ -1466,7 +1466,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'catch';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case -934396624: // return
                                 if (wordlength === 6 && divSpanTextContent.substring(wordstart, pos) === 'return') {
@@ -1474,7 +1474,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'return';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case -889473228: // switch
                                 if (wordlength === 6 && divSpanTextContent.substring(wordstart, pos) === 'switch') {
@@ -1482,7 +1482,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'switch';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case 3046192: // case
                                 if (wordlength === 4 && divSpanTextContent.substring(wordstart, pos) === 'case') {
@@ -1490,7 +1490,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'case';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case 93127292: // async
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'async') {
@@ -1498,7 +1498,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'async';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case 3116345: // else
                                 if (wordlength === 4 && divSpanTextContent.substring(wordstart, pos) === 'else') {
@@ -1506,7 +1506,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'else';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case 1544803905: // default
                                 if (wordlength === 7 && divSpanTextContent.substring(wordstart, pos) === 'default') {
@@ -1514,7 +1514,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'default';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case 110339814: // throw
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'throw') {
@@ -1522,7 +1522,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'throw';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case 108960: // new
                                 if (wordlength === 3 && divSpanTextContent.substring(wordstart, pos) === 'new') {
@@ -1530,7 +1530,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'new';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case 93223254: // await
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'await') {
@@ -1538,7 +1538,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'await';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case 94742904: // class
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'class') {
@@ -1546,7 +1546,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'class';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case -1588406278: // constructor
                                 if (wordlength === 11 && divSpanTextContent.substring(wordstart, pos) === 'constructor') {
@@ -1554,7 +1554,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'constructor';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case -1184795739: // import
                                 if (wordlength === 6 && divSpanTextContent.substring(wordstart, pos) === 'import') {
@@ -1562,7 +1562,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'import';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case 3151786: // from
                                 if (wordlength === 4 && divSpanTextContent.substring(wordstart, pos) === 'from') {
@@ -1570,7 +1570,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'from';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case -1289153612: // export
                                 if (wordlength === 6 && divSpanTextContent.substring(wordstart, pos) === 'export') {
@@ -1578,7 +1578,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'export';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case 3559070: // this
                                 if (wordlength === 4 && divSpanTextContent.substring(wordstart, pos) === 'this') {
@@ -1586,7 +1586,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'this';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case 113101617: // while
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'while') {
@@ -1594,7 +1594,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'while';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case 94001407: // break
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'break') {
@@ -1602,7 +1602,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'break';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case -567202649: // continue
                                 if (wordlength === 8 && divSpanTextContent.substring(wordstart, pos) === 'continue') {
@@ -1610,7 +1610,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'continue';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case 3569038: // true
                                 if (wordlength === 4 && divSpanTextContent.substring(wordstart, pos) === 'true') {
@@ -1618,7 +1618,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'true';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case 97196323: // false
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'false') {
@@ -1626,7 +1626,7 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'false';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             case 3392903: // null
                                 if (wordlength === 4 && divSpanTextContent.substring(wordstart, pos) === 'null') {
@@ -1634,10 +1634,10 @@ I did some exercises then about an hour long walk then showered...
                                         textContent = 'null';
                                         break;
                                 }
-                                className = '';
+                                className = 'eI';
                                 break;
                             default:
-                                className = '';
+                                className = 'eI';
                                 break;
                         }
                         if (className) {
@@ -1660,6 +1660,9 @@ I did some exercises then about an hour long walk then showered...
                                 }
                             }
 
+                            if (className === 'eI') {
+                                textContent = divSpanTextContent.substring(substart, substart + wordlength);
+                            }
                             if (childIndex < divChildrenInitialLength) {
                                 span = div.children[childIndex++];
                                 span.className = className;
@@ -1928,240 +1931,6 @@ I did some exercises then about an hour long walk then showered...
                             div.appendChild(span);
                         }
                         continue;
-                    case CONST_js_EQUALS_str:
-                        // I think I actually want to handle the '==', '===', and '===...=' cases just so I can skip over the text quickly.
-                        // Otherwise every time I see '=' I have to check the left and right side and it is quite redundant?
-                        //
-                        // I also have to consider anything of the form '+=' then typing '=' after it for '+=='. I don't think this is valid but I need to consider it I'll probably skip over any '=' that appear after the first '+=' text and is contiguous?
-                        // No that doesn't work because you're adding this step to every syntax that ends in '=' that it has to understand the '=' case.
-                        // What you want is a left check, but that the left check only happens once per contiguous block of '=' incase the left '=' isn't part of your syntax.
-                        //
-                        
-                        // NOTE: A presumption is being made here that "any multiline syntax that spans multiple lines, won't end in ="...
-                        // ...this presumption permits checking only the text that is in bounds of substart and subend.
-                        
-                        // TODO: This contiguous skipping logic isn't working for every switch case?
-                        //
-                        // TODO: If this contiguous skipping logic works for the '=' it will handle both '!=' and '!==' solely by checking for '!='
-                        //
-                        // let shouldSkipContiguous;... sneaky uninitialized variable conversion to a falsey or something was going on?
-                        shouldSkipContiguous = false;
-                        if (pos > substart) {
-                            if (divSpanTextContent[pos - 1] === CONST_js_EQUALS_str) {
-                                shouldSkipContiguous = true;
-                            }
-                            else if (divSpanTextContent[pos - 1] === CONST_js_BANG_str) {
-                                shouldSkipContiguous = true;
-                            }
-                            else if (divSpanTextContent[pos - 1] === CONST_js_OPENBRACKET_str) {
-                                shouldSkipContiguous = true;
-                            }
-                            else if (divSpanTextContent[pos - 1] === CONST_js_CLOSEBRACKET_str) {
-                                shouldSkipContiguous = true;
-                            }
-                        }
-                        else {
-                            shouldSkipContiguous = false;
-                        }
-                        if (!shouldSkipContiguous) {
-                            if (pos < subend && divSpanTextContent[pos + 1] === CONST_js_EQUALS_str) {
-                                shouldSkipContiguous = true;
-                            }
-                        }
-                        
-                        if (shouldSkipContiguous) {
-                            // skip current
-                            pos++;
-                            // skip contiguous
-                            while (pos < subend && divSpanTextContent[pos] === CONST_js_EQUALS_str) {
-                                pos++;
-                            }
-                            continue;
-                        }
-                        else {
-                            if (substart < pos) { // write any text that came prior, and on the same line.
-                                flushTextContent = divSpanTextContent.substring(substart, substart = pos);
-                                if (childIndex < divChildrenInitialLength) {
-                                    span = div.children[childIndex++];
-                                    span.className = '';
-                                    span.textContent = flushTextContent;
-                                }
-                                else {
-                                    span = document.createElement('span');
-                                    span.textContent = flushTextContent;
-                                    div.appendChild(span);
-                                }
-                            }
-                            // I don't know if I would count '=>' as an "assignment operator"... maybe I would but I'm too focused on whether I'd count it as such that I can't figure out the way to make it work. So I need to just make it work first.
-                            pos++;
-                            substart++;
-                            if (pos < subend && divSpanTextContent[pos] === CONST_js_CLOSEBRACKET_str) {
-                                textContent = '=>';
-                                pos++;
-                                substart++;
-                            }
-                            else {
-                                textContent = '=';
-                            }
-                            if (childIndex < divChildrenInitialLength) {
-                                span = div.children[childIndex++];
-                                span.className = 'eOA';
-                                span.textContent = textContent;
-                            }
-                            else {
-                                span = document.createElement('span');
-                                span.className = 'eOA';
-                                span.textContent = textContent;
-                                div.appendChild(span);
-                            }
-                            continue;
-                        }
-                        
-                        // TODO: you don't understand how code caching or like instruction caching etc works with respect to whether inlining interupts things
-                        break;
-                    case CONST_js_PLUS_str:
-                        // ++
-                        // +=
-                        
-                        // If "some syntax that I don't actually think exists" such as '=+' were to exist I'd need to care for '=+' then a '+' making '=++'
-                        // this should cause a skipping of contiguous '+' in my initial opinion so that's what I'll probably do.
-                        // 
-                        // I have a better example now... '++' then you type '+' causing '+++', the first two '++' are syntax highlighted and the third isn't.
-                        // Some might say you should not syntax highlight any of the plus in that case because you're reading the operator as '++'
-                        // rather than the combination of '++' and '+'. I think I'm somewhat indifferent but I lean towards syntax highlighting
-                        // the two plus characters and not doing so for the final '+' (at least my initial opinion is that).
-                        //
-                        // ++++
-                        // It doesn't actually work... I tried it and '+++' works but then '++++' is two '++' rather than one '++' and then just the "text of '++'".
-                        //
-                        
-                        // NOTE: A presumption is being made here that "any multiline syntax that spans multiple lines, won't end in +"...
-                        // ...this presumption permits checking only the text that is in bounds of substart and subend.
-                        
-                        // TODO: This contiguous skipping logic isn't working for every switch case?
-                        shouldSkipContiguous = pos > substart && divSpanTextContent[pos - 1] === CONST_js_PLUS_str;
-                        if (!shouldSkipContiguous) {
-                            if (pos < subend) {
-                                if (divSpanTextContent[pos + 1] === CONST_js_PLUS_str) {
-                                    textContent = '++';
-                                }
-                                else if (divSpanTextContent[pos + 1] === CONST_js_EQUALS_str) {
-                                    textContent = '+=';
-                                }
-                                else {
-                                    shouldSkipContiguous = true;
-                                }
-                            }
-                            else {
-                                shouldSkipContiguous = true;
-                            }
-                        }
-                        
-                        if (shouldSkipContiguous) {
-                            // skip current
-                            pos++;
-                            // skip contiguous
-                            while (pos < subend && divSpanTextContent[pos] === CONST_js_PLUS_str) {
-                                pos++;
-                            }
-                            continue;
-                        }
-                        else {
-                            if (substart < pos) { // write any text that came prior, and on the same line.
-                                flushTextContent = divSpanTextContent.substring(substart, substart = pos);
-                                if (childIndex < divChildrenInitialLength) {
-                                    span = div.children[childIndex++];
-                                    span.className = '';
-                                    span.textContent = flushTextContent;
-                                }
-                                else {
-                                    span = document.createElement('span');
-                                    span.textContent = flushTextContent;
-                                    div.appendChild(span);
-                                }
-                            }
-                            pos += 2;
-                            substart += 2;
-                            if (childIndex < divChildrenInitialLength) {
-                                span = div.children[childIndex++];
-                                span.className = 'eOA';
-                                span.textContent = textContent;
-                            }
-                            else {
-                                span = document.createElement('span');
-                                span.className = 'eOA';
-                                span.textContent = textContent;
-                                div.appendChild(span);
-                            }
-                            continue;
-                        }
-                    case CONST_js_MINUS_str:
-                        // --
-                        // -=
-                        
-                        // NOTE: A presumption is being made here that "any multiline syntax that spans multiple lines, won't end in -"...
-                        // ...this presumption permits checking only the text that is in bounds of substart and subend.
-                        
-                        // When you switch on '+' then check for '-' or '+'... should you do something relating to NOT invoking the decode function and instead
-                        // you just "know" the text that goes there based on your conditional branching?
-                            
-                        // TODO: This contiguous skipping logic isn't working for every switch case?
-                        shouldSkipContiguous = pos > substart && divSpanTextContent[pos - 1] === CONST_js_MINUS_str;
-                        if (!shouldSkipContiguous) {
-                            if (pos < subend) {
-                                if (divSpanTextContent[pos + 1] === CONST_js_MINUS_str) {
-                                    textContent = '--';
-                                }
-                                else if (divSpanTextContent[pos + 1] === CONST_js_EQUALS_str) {
-                                    textContent = '-=';
-                                }
-                                else {
-                                    shouldSkipContiguous = true;
-                                }
-                            }
-                            else {
-                                shouldSkipContiguous = true;
-                            }
-                        }
-                        
-                        if (shouldSkipContiguous) {
-                            // skip current
-                            pos++;
-                            // skip contiguous
-                            while (pos < subend && divSpanTextContent[pos] === CONST_js_MINUS_str) {
-                                pos++;
-                            }
-                            continue;
-                        }
-                        else {
-                            if (substart < pos) { // write any text that came prior, and on the same line.
-                                flushTextContent = divSpanTextContent.substring(substart, substart = pos);
-                                if (childIndex < divChildrenInitialLength) {
-                                    span = div.children[childIndex++];
-                                    span.className = '';
-                                    span.textContent = flushTextContent;
-                                }
-                                else {
-                                    span = document.createElement('span');
-                                    span.textContent = flushTextContent;
-                                    div.appendChild(span);
-                                }
-                            }
-                            pos += 2;
-                            substart += 2;
-                            if (childIndex < divChildrenInitialLength) {
-                                span = div.children[childIndex++];
-                                span.className = 'eOA';
-                                span.textContent = textContent;
-                            }
-                            else {
-                                span = document.createElement('span');
-                                span.className = 'eOA';
-                                span.textContent = textContent;
-                                div.appendChild(span);
-                            }
-                            continue;
-                        }
                 }
                 pos++;
             }

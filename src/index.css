@@ -294,6 +294,11 @@ the class names that linearly scale in usage as you show more and more text.
   color: var(--editor-syntax-keywordControl-color);
 }
 
+/* (i.e.: Editor Identifier) */
+.eI {
+  color: var(--editor-syntax-identifier-color);
+}
+
 /* .eP (i.e.: Editor Parenthesis) */
 .eP {
   color: var(--editor-syntax-parenthesis-color);

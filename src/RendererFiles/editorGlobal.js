@@ -3246,1142 +3246,6 @@ function EDI_onMouseMoveDetailRankThree(indexLineClicked, indexColumnClicked) {
 }
 //#endregion
 
-function enqueueLSPNotification(payload) {
-    lspQueue.push(payload);
-    processLspQueue(); // Fire-and-forget processing loop
-}
-
-async function processLspQueue() {
-    if (BYTES[byteisProcessingLspQueue]) return;
-    BYTES[byteisProcessingLspQueue] = 1;
-
-    while (lspQueue.length > 0) {
-        const item = lspQueue.shift(); // Guarantees strict FIFO order
-        
-        try {
-            // Await the Electron IPC and LSP stdin write
-            await window.myAPI.didChangeTextDocumentNotification(
-                item.absolutePath,
-                item.version,
-                item.startLine,
-                item.startCharacter,
-                item.endLine,
-                item.endCharacter,
-                item.text
-            );
-        } catch (error) {
-            console.error("LSP IPC notification failed:", error);
-        }
-    }
-
-    BYTES[byteisProcessingLspQueue] = 0;
-}
-
-/**
- * if (trackedSyntax_StartingIndex === NaN || trackedSyntax_StartingIndex === -1) { trackedSyntax_StartingIndex = EDI_trackedSyntaxList.count_abstract; }
- * @param {*} indexLineAaa 
- * @returns 
- */
-function EDI_drawViewPort_FindTrackedSyntax_StartingIndex(indexLineAaa) {
-
-    // TODO: 'indexLineAaa' and 'indexLineBbb'; babel compiler error when both were named indexLine.
-
-    let local_EDI_trackedSyntaxList = EDI_trackedSyntaxList;
-
-    EDI_getLineBoundaryPositions_raw(indexLineAaa);
-    const positionIndex = INTS[fEDI_getLineBoundaryPositions_start];
-
-    let left = 0;
-    let right = local_EDI_trackedSyntaxList.count_abstract - 1;
-
-    let indexLineBbb = -1;
-
-    while (left <= right) {
-        const mid = Math.floor((left + right) / 2);
-
-        local_EDI_trackedSyntaxList.getElementAt(mid);
-        
-        if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] > positionIndex) {
-            indexLineBbb = mid;
-
-            if (INTS[fEDI_pooledTrackedSyntax_start] === positionIndex) {
-                break;
-            }
-            
-            right = mid - 1;
-        }
-        else if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] <= positionIndex) {
-            left = mid + 1;
-        }
-        else {
-            return; // NaN
-        }
-    }
-
-    return indexLineBbb;
-}
-
-/**
- * if (trackedSyntax_StartingIndex === NaN || trackedSyntax_StartingIndex === -1) { trackedSyntax_StartingIndex = EDI_trackedSyntaxList.count_abstract; }
- * Probably should make 1 of these and accept a predicate.
- */
-function EDI_trackedSyntaxReposition_find(positionIndex) {
-
-    let local_EDI_trackedSyntaxList = EDI_trackedSyntaxList;
-
-    let left = 0;
-    let right = local_EDI_trackedSyntaxList.count_abstract - 1;
-
-    let indexLine = -1;
-
-    while (left <= right) {
-        const mid = Math.floor((left + right) / 2);
-
-        let start = local_EDI_trackedSyntaxList.getStart(mid);
-        
-        if (positionIndex <= start) {
-            indexLine = mid;
-
-            if (positionIndex === start) {
-                break;
-            }
-            
-            right = mid - 1;
-        }
-        else if (positionIndex > start) {
-            left = mid + 1;
-        }
-        else {
-            return; // NaN
-        }
-    }
-
-    return indexLine;
-}
-
-/** modification of Google AI Overview "javascript count of digits" */
-function positiveNumbersOnly_countDigitsLoop(number) {
-  if (number <= 0) return 1;
-  let count = 0;
-
-  while (number > 0) {
-    number = Math.floor(number / 10); // Remove the last digit
-    count++;
-  }
-
-  return count;
-}
-
-function EDI_getCharacterPrevious_KIND(indexColumn, positionIndex) {
-    if (indexColumn !== 0) {
-        return EDI_getCharacterKind(String.fromCharCode(EDI_textByteList_bytes[positionIndex - 1]));
-    }
-    else {
-        return CharacterKind_None;
-    }
-}
-
-function EDI_getCharacterCurrent_KIND(indexColumn, positionIndex, lineEnd) {
-    if (indexColumn < lineEnd) {
-        return EDI_getCharacterKind(String.fromCharCode(EDI_textByteList_bytes[positionIndex]));
-    }
-    else {
-        return CharacterKind_None;
-    }
-}
-
-/**
- * Returns 'true' if success otherwise 'false' the "return" values are indexLine, and indexColumn; which are stored in 'fieldBuffer.js'
- * as 'INTS[fEDI_getLineAndColumnIndices_indexLine] = indexLine;' and 'INTS[fEDI_getLineAndColumnIndices_indexColumn] = indexColumn;'.
- * 
- * TODO: Local variables for this looping logic?
- */
-function EDI_getLineAndColumnIndices_raw(positionIndex) {
-    let left = 0;
-    let right = EDI_lineEndPositionList_count - 1;
-
-    let indexLine = -1;
-    let indexColumn = -1;
-
-    const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
-
-    while (left <= right) {
-        const mid = Math.floor((left + right) / 2);
-        
-        if (local_EDI_lineEndPositionList_data[mid] >= positionIndex) {
-            indexLine = mid;
-
-            if (local_EDI_lineEndPositionList_data[mid] === positionIndex) {
-                break;
-            }
-            
-            right = mid - 1;
-        }
-        else if (local_EDI_lineEndPositionList_data[mid] < positionIndex) {
-            left = mid + 1;
-        }
-        else {
-            return false; // NaN
-        }
-    }
-
-    if (indexLine === -1) {
-        return false;
-        //return {
-        //  indexLine: 0,
-        //  indexColumn: 0,  
-        //};
-    }
-
-    if (indexLine === 0) {
-        indexColumn = positionIndex;
-    }
-    else {
-        indexColumn = positionIndex - (local_EDI_lineEndPositionList_data[indexLine - 1] + 1);
-    }
-
-    INTS[fEDI_getLineAndColumnIndices_indexLine] = indexLine;
-    INTS[fEDI_getLineAndColumnIndices_indexColumn] = indexColumn;
-    return true;
-}
-
-function EDI_getLastValidIndexColumn_raw(indexLine) {
-    if (indexLine < EDI_lineEndPositionList_count) {
-        if (indexLine === 0) {
-            return EDI_lineEndPositionList_data[indexLine] - 0;
-        }
-        else {
-            return EDI_lineEndPositionList_data[indexLine] - (EDI_lineEndPositionList_data[indexLine - 1] + 1);
-        }
-    }
-    return 0;
-}
-
-/**
- * 'INTS[fEDI_getLineBoundaryPositions_start]' is the position of the first character on that line.
- * 
- * 'INTS[fEDI_getLineBoundaryPositions_end]' is the position of the "line end" (i.e.: ascii code for '\n' or EOF).
- * 
- * The inclusivity/exclusivity is in reference to whether the position
- * points to non-line-end-text that exists on the line
- * 
- * NOTE: In performance critical sections this code is explicitly inlined and modified to be as performant as it seemingly can get for that specific section of code.
- * 
- * @returns nothing: the results are stored in 'INTS[fEDI_getLineBoundaryPositions_start]' inclusive and 'INTS[fEDI_getLineBoundaryPositions_end]' exclusive.
- */
-function EDI_getLineBoundaryPositions_raw(indexLine) {
-    if (indexLine < EDI_lineEndPositionList_count) {
-        if (indexLine === 0) {
-            INTS[fEDI_getLineBoundaryPositions_start] = 0;
-            INTS[fEDI_getLineBoundaryPositions_end] = EDI_lineEndPositionList_data[indexLine] - 0;
-            return;
-        }
-        else {
-            INTS[fEDI_getLineBoundaryPositions_start] = EDI_lineEndPositionList_data[indexLine - 1] + 1;
-            INTS[fEDI_getLineBoundaryPositions_end] = EDI_lineEndPositionList_data[indexLine];
-            return;
-        }
-    }
-    INTS[fEDI_getLineBoundaryPositions_start] = 0;
-    INTS[fEDI_getLineBoundaryPositions_end] = 0;
-}
-
-function EDI_getLineStart_pos_raw(indexLine) {
-    if (indexLine < EDI_lineEndPositionList_count) {
-        if (indexLine === 0) {
-            return 0;
-        }
-        else {
-            return (EDI_lineEndPositionList_data[indexLine - 1] + 1);
-        }
-    }
-    return 0;
-}
-
-function EDI_getLineEnd_pos_raw(indexLine) {
-    if (indexLine < EDI_lineEndPositionList_count) {
-        if (indexLine === 0) {
-            return EDI_lineEndPositionList_data[indexLine] - 0;
-        }
-        else {
-            return EDI_lineEndPositionList_data[indexLine];
-        }
-    }
-    return 0;
-}
-
-function EDI_getPositionIndex_Overload(indexLine, indexColumn) {
-    return EDI_getLineStart_pos_raw(indexLine) + indexColumn;
-}
-
-/**
- * @returns 
- */
-function EDI_getPositionIndex_cursor_raw() {
-    return EDI_getLineStart_pos_raw(INTS[fEDI_cursor_indexLine]) + INTS[fEDI_cursor_indexColumn];
-}
-
-/**
- * TODO: Reduce the amount of redundant drawing of lines that haven't changed in the selection logic.
-*/
-function fEDI_getEntireLineVisualWidth(lineStart, lineEnd) {
-    let indexColumn = 0;
-    let visualColumns = 0;
-    let positionIndex = lineStart;
-
-    while (positionIndex < lineEnd) {
-        let charLength = 1;
-        
-        if (String.fromCharCode(EDI_textByteList_bytes[positionIndex]) === '\t') {
-            charLength = 4 - (visualColumns % 4);
-        }
-
-        visualColumns += charLength;
-        positionIndex++;
-        indexColumn++;
-    }
-
-    return visualColumns;
-}
-
-function EDI_set_indexColumn_and_visualColumn_relativeTo_storedVisualWidth(lineStart, lineEnd) {
-    let indexColumn = 0;
-    let visualColumns = 0;
-    let positionIndex = lineStart;
-    let charWidth = EDI_characterWidth;
-    let rx = INTS[fEDI_cursor_STORED_visualWidth] * charWidth;
-
-    while (positionIndex < lineEnd) {
-        let charLength = 1;
-        
-        if (String.fromCharCode(EDI_textByteList_bytes[positionIndex]) === '\t') {
-            charLength = 4 - (visualColumns % 4);
-        }
-
-        // Calculate pixel boundaries for the current character
-        const charLeftX = visualColumns * charWidth;
-        const charRightX = (visualColumns + charLength) * charWidth;
-        const charMidpointX = charLeftX + (charRightX - charLeftX) / 2;
-
-        // If the click is before the midpoint of this character/tab, target this index
-        if (rx < charMidpointX) {
-            INTS[fEDI_cursor_indexColumn] = indexColumn;
-            INTS[fEDI_cursorVisualColumnIndex] = visualColumns;
-            // TODO: fEDI_cursorVisualColumnIndex_relativeToThisLineIndex
-            return;
-        }
-
-        visualColumns += charLength;
-        positionIndex++;
-        indexColumn++;
-    }
-
-    // If clicked past the end of the line text
-    INTS[fEDI_cursor_indexColumn] = indexColumn;
-    INTS[fEDI_cursorVisualColumnIndex] = visualColumns;
-    // TODO: fEDI_cursorVisualColumnIndex_relativeToThisLineIndex
-}
-
-/**
- * 'INTS[fEDI_getIndexFromX_indexColumn]'
- * 
- * 'INTS[fEDI_getIndexFromX_visualColumns]'
- * 
- * @returns nothing: the results are stored in 'INTS[fEDI_getIndexFromX_indexColumn]' and 'INTS[fEDI_getIndexFromX_visualColumns]'.
- */
-function getIndexFromX_RESET(rx, lineStart, lineEnd) {
-    let indexColumn = 0;
-    let visualColumns = 0;
-    let positionIndex = lineStart;
-    let charWidth = EDI_characterWidth;
-
-    while (positionIndex < lineEnd) {
-        let charLength = 1;
-        
-        if (String.fromCharCode(EDI_textByteList_bytes[positionIndex]) === '\t') {
-            charLength = 4 - (visualColumns % 4);
-        }
-
-        // Calculate pixel boundaries for the current character
-        const charLeftX = visualColumns * charWidth;
-        const charRightX = (visualColumns + charLength) * charWidth;
-        const charMidpointX = charLeftX + (charRightX - charLeftX) / 2;
-
-        // If the click is before the midpoint of this character/tab, target this index
-        if (rx < charMidpointX) {
-            INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
-            INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
-            return;
-        }
-
-        visualColumns += charLength;
-        positionIndex++;
-        indexColumn++;
-    }
-
-    // If clicked past the end of the line text
-    INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
-    INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
-}
-
-function getIndexFromX_sameLine_newRxIsLarger(goalRx, lineStart, lineEnd, startColumn, startVisualColumns) {
-    let indexColumn = startColumn;
-    let visualColumns = startVisualColumns;
-    let positionIndex = lineStart + startColumn;
-    let charWidth = EDI_characterWidth;
-
-    while (positionIndex < lineEnd) {
-        let charLength = 1;
-        
-        if (String.fromCharCode(EDI_textByteList_bytes[positionIndex]) === '\t') {
-            charLength = 4 - (visualColumns % 4);
-        }
-
-        // Calculate pixel boundaries for the current character
-        const charLeftX = visualColumns * charWidth;
-        const charRightX = (visualColumns + charLength) * charWidth;
-        const charMidpointX = charLeftX + (charRightX - charLeftX) / 2;
-
-        // If the click is before the midpoint of this character/tab, target this index
-        if (goalRx < charMidpointX) {
-            INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
-            INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
-            return;
-        }
-
-        visualColumns += charLength;
-        positionIndex++;
-        indexColumn++;
-    }
-
-    // If clicked past the end of the line text
-    INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
-    INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
-}
-
-/**
- * 'INTS[fEDI_getIndexFromX_indexColumn]'
- * 
- * 'INTS[fEDI_getIndexFromX_visualColumns]'
- * 
- * @returns nothing: the results are stored in 'INTS[fEDI_getIndexFromX_indexColumn]' and 'INTS[fEDI_getIndexFromX_visualColumns]'.
- */
-function getIndexFromX_sameLine_newRxIsSmaller(goalRx, lineStart, startColumn, startVisualColumns) {
-    let indexColumn = startColumn;
-    let visualColumns = startVisualColumns;
-    let positionIndex = lineStart + startColumn;
-    let charWidth = EDI_characterWidth;
-
-    while (positionIndex >= lineStart && positionIndex > 0) {
-        let charLength = 1;
-        
-        if (String.fromCharCode(EDI_textByteList_bytes[positionIndex - 1]) === '\t') {
-            charLength = 4 - (visualColumns % 4);
-        }
-
-        // Calculate pixel boundaries for the current character
-        const charLeftX = (visualColumns - charLength) * charWidth;
-        const charRightX = (visualColumns) * charWidth;
-        const charMidpointX = charLeftX + (charRightX - charLeftX) / 2;
-
-        // If the click is before the midpoint of this character/tab, target this index
-        if (goalRx >= charMidpointX) {
-            INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
-            INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
-            return;
-        }
-
-        visualColumns -= charLength;
-        positionIndex--;
-        indexColumn--;
-    }
-
-    // If clicked past the end of the line text
-    INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
-    INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
-}
-
-/**
- * You may want to update the vertical virtualization boundary prior to actually updating the EDI_lineEndPositionList_
- * Thus this function takes a 'lineCount' which defaults to EDI_lineEndPositionList_count if falsey.
- * @param {number | null | undefined} lineCount In order to permit arbitrarily updating the vertical virtualization boundary, this takes a lineCount. If falsey, then EDI_lineEndPositionList_count is used.
- */
-function update_verticalVirtualizationBoundary(lineCount) {
-    if (!lineCount) lineCount = EDI_lineEndPositionList_count;
-    EDI_virtualization_vertical.style.height = ((lineCount + INTS[fEDI_virtualCount] - 1) * INTS[fEDI_lineHeight]) + 'px';
-}
-
-/**
- * EDI_render_do_Scroll() has this function explicitly inlined (duplicated) within the source code.
- */
-function update_VirtualIndexLine() {
-    // If scrollTop were to cause synchronous layout calculation, then scrollLeft wouldn't have one because it'd already be calculated.
-    // and vice versa.
-    // thus it is thought you might as well touch scrollLeft too here, if you're going down this path.
-    //
-    INTS[fEDI_lastReadNumber_scrollLeft] = EDI_baseElement.scrollLeft;
-    INTS[fEDI_lastReadNumber_scrollTop] = EDI_baseElement.scrollTop;
-    // TODO: This floor logic seems very odd. Because given the previous and the current you can determine it without dividing maybe I think?
-    INTS[fEDI_virtualIndexLine] = Math.floor(INTS[fEDI_lastReadNumber_scrollTop] / INTS[fEDI_lineHeight]);
-}
-
-function update_virtualCount() {
-    INTS[fEDI_virtualCount] = Math.ceil(INTS[fEDI_lastReadNumber_offsetHeight] / INTS[fEDI_lineHeight]);
-}
-
-/**
- * This clears the cursor's selection.
- */
-function EDI_moveCursor_position(intValue) {
-    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
-        // TODO: Timing issue, someone typing while they scroll
-        EDI_finalizeEdit();
-    }
-    EDI_getLineAndColumnIndices_raw(intValue);
-    let lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
-    let lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
-    EDI_moveCursor_indexLine_indexColumn(lineAndColumnIndices_indexLine, lineAndColumnIndices_indexColumn);
-}
-
-/**
- * This clears the cursor's selection.
- */
-function EDI_moveCursor_indexLine_indexColumn(indexLine, indexColumn) {
-    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
-        // TODO: Timing issue, someone typing while they scroll
-        EDI_finalizeEdit();
-    }
-    let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(indexLine);
-
-    if (indexColumn > lastValidIndexColumn) {
-        INTS[fEDI_cursor_indexColumn] = lastValidIndexColumn;
-        INTS[fEDI_cursorVisualColumnIndex] = lastValidIndexColumn;
-    }
-    else {
-        INTS[fEDI_cursor_indexColumn] = indexColumn;
-        INTS[fEDI_cursorVisualColumnIndex] = indexColumn;
-    }
-
-    INTS[fEDI_cursor_indexLine] = indexLine;
-    
-    // TODO: selectionAnchor = selectionEnd; EDI_drawCursor(); # being the way to clear a selection should be documented / wrapped by a method for ease of use / readability?
-    INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_cursor_selectionEnd];
-    EDI_render_request(RenderKind_Cursor_n);
-}
-
-/**
- * If a line has an indentation of 4 space characters, but the user's cursor is positioned after the second space character,
- * then only the first 2 space characters will be used as indentation.
- * 
- * This is intentional, it seems like the more expected behavior in my mind.
- * 
- * if 'shouldCountAndVisualWidthOnly' is passed as 'true' or 'truthy' then the behavior I just described is no longer true. It will read the entire indentation regardless of cursor column position.
- * TODO: ^the parameter 'shouldCountAndVisualWidthOnly' is a bit confusing...
- * ...I'm trying to shove the logic of the 'home' key into this function, and maybe I should just not.
- * 
- * Returns the 'endExclusiveIndentationIndexColumn' of the indentation i.e.: "the column index that exclusively ends the indentation.".
- * Sets the state for:
- * - INTS[fEDI_cursor_cached_indentation_string_visualWidth]
- *     - not set if 'countAndVisualWidthOnly' is passed as 'true' or a truthy
- * - EDI_cursor_enterKey_newLinePlusIndentation_byteList
- *     - not set if 'countAndVisualWidthOnly' is passed as 'true' or a truthy
- * - EDI_cursor_cached_indentation_string
- */
-function EDI_cacheIndentation(shouldCountAndVisualWidthOnly) {
-    let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
-    EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
-    const line_start = INTS[fEDI_getLineBoundaryPositions_start];
-
-    let upperLimitIndexColumn = lastValidIndexColumn;
-    if (!shouldCountAndVisualWidthOnly && INTS[fEDI_cursor_indexColumn] < lastValidIndexColumn) {
-        upperLimitIndexColumn = INTS[fEDI_cursor_indexColumn];
-    }
-
-    let count = 0;
-    let indentation_string_visualWidth = 0;
-
-    // Currently an enter key press only batches with other enter key presses so either the edit is finalized or the indentation was already cached and thus this code wouldn't run,
-    // i.e.: you can read directly from the byte array without worrying about a pending edit.
-    outer: for (var i = 0; i < upperLimitIndexColumn; i++) {
-        switch (EDI_textByteList_bytes[line_start + i]) {
-            case CONST_EDI_ASCII_SPACE:
-                indentation_string_visualWidth++;
-                count++;
-                break;
-            case CONST_EDI_ASCII_TAB:
-                indentation_string_visualWidth += 4;
-                count++;
-                break;
-            default:
-                break outer;
-        }
-    }
-
-    INTS[fEDI_cursor_cached_indentation_string_visualWidth] = indentation_string_visualWidth;
-
-    if (!shouldCountAndVisualWidthOnly) {
-        EDI_cursor_enterKey_newLinePlusIndentation_byteList = new Uint8Array(1 + count); // '1 +' for the '\n'. This might not always exist in the byte array for example if pressing enter key on the 0th index line there is no existing '\n' to copy from the byte array so just always make it.
-        EDI_cursor_enterKey_newLinePlusIndentation_byteList[0] = CONST_EDI_ASCII_LINE_FEED;
-    
-        if (count > 0) {
-            let subarray = EDI_textByteList_bytes.subarray(line_start, line_start + count);
-            EDI_cursor_enterKey_newLinePlusIndentation_byteList.set(subarray, 1);
-            EDI_cursor_cached_indentation_string = EDI_decoder.decode(subarray);
-        }
-        else {
-            EDI_cursor_cached_indentation_string = '';
-        }
-    }
-
-    return count;
-}
-
-function EDI_lineWasInsertedValidateGutter() {
-    if (EDI_drawGutter_Width()) {
-        // If true then you need to also draw the dependent UI
-        EDI_render_request(RenderKind_Cursor_n);
-        EDI_drawHorizontalScrollbar();
-    }
-}
-
-/**
- * TODO: This uses a linear search and likely can be optimized.
- * 
- * @param {*} indexPosition 
- * @param {*} insertionCount 
- */
-function EDI_trackedSyntaxList_inefficientUpdateStartAndLength(indexPosition, insertionCount) {
-    for (var i = 0; i < EDI_trackedSyntaxList.count_abstract; i++) {
-        EDI_trackedSyntaxList.getElementAt(i);
-        if (indexPosition <= INTS[fEDI_pooledTrackedSyntax_start]) {
-            EDI_trackedSyntaxList.setStart(i, INTS[fEDI_pooledTrackedSyntax_start] + insertionCount);
-        }
-        else if (indexPosition > INTS[fEDI_pooledTrackedSyntax_start] && indexPosition < INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length]) {
-            EDI_trackedSyntaxList.setLength(i, INTS[fEDI_pooledTrackedSyntax_length] + insertionCount);
-        }
-    }
-}
-
-/**
- * CORRUPT_STATE: The invoker needs to ensure there is at least one empty span on the 'inclusiveSmallestRingBufferIndexToShift' after they invoke this function.
- * 
- * TODO: implement this but by an arbitrary distance
- */
-function EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, inclusiveSmallestRingBufferIndexToShift) {
-    // TODO: This remove logic for the last line wasn't written with the correct understanding...
-    // ...
-    // It appears that this logic for 99% of cases is NOT needed.
-    // But that if you:
-    // - "Were at ringBuffer index zero" (I'm not sure what I'm thinking by this I need to focus on my task at hand but this edge case is being slightly-considered in my mind while typing this)
-    //     - I think the correct wording is if you were at 'PREVIOUS(ringBuffer_indexZero)' then you'd be the last line
-    //     - i.e.: if 'ringBufferIndex_last === inclusiveSmallestRingBufferIndexToShift'
-    // - for some reason only had a virtualization count of '1',
-    // you might need to run this logic otherwise an enter key at column index 0 of a line wouldn't show any changes.
-    // 
-    let local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
-
-    let lastDiv = EDI_textElement.children[ringBufferIndex_last];
-    for (let i = lastDiv.children.length - 1; i >= 0; i--) {
-        lastDiv.removeChild(lastDiv.children[i]);
-    }
-
-    for (let i = ringBufferIndex_last; i !== inclusiveSmallestRingBufferIndexToShift;) {
-        let destinationDiv = EDI_textElement.children[i];
-        i = (i - 1 + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
-        let sourceDiv = EDI_textElement.children[i];
-        destinationDiv.replaceChildren(...sourceDiv.childNodes);
-    }
-}
-
-/**
- * 'smallestRingBufferIndexToReceive' somewhat 'exclusive' in that it doesn't get shifted. It is the smallest line that receives the shift of the next line, and thus all content on this line is lost in the process.
- * 
- * TODO: an idea that you might be able to short circuit if you start shifting 'out of bounds lines of text' into 'out of bounds lines of text'?
- * */
-function EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_last, smallestRingBufferIndexToReceive, distance, local_virtualIndexLine, local_virtualCount) {
-
-    // TODO: Does 'coalesce assignment' exist, and is it equivalent?
-    if (!local_virtualIndexLine) local_virtualIndexLine = INTS[fEDI_virtualIndexLine];
-    if (!local_virtualCount) local_virtualCount = INTS[fEDI_virtualCount];
-
-    // TODO: if smallestRingBufferIndexToReceive < 0 throw an error?
-
-    let local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
-
-    let breakingPoint = ringBufferIndex_last;
-    for (let i = 1 /*starts at one*/; i < distance; i++) {
-        breakingPoint = (breakingPoint - 1 + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
-    }
-
-    for (let destinationIndex = smallestRingBufferIndexToReceive; destinationIndex !== breakingPoint;) {
-        let destinationDiv = EDI_textElement.children[destinationIndex];
-        let sourceIndex = destinationIndex;
-        for (let i = 0; i < distance; i++) {
-            sourceIndex = (sourceIndex + 1) % local_ArrayFrom_textElement_children_length;
-        }
-        destinationDiv.replaceChildren(...EDI_textElement.children[sourceIndex].childNodes);
-        if (EDI_gutter.children[sourceIndex].textContent === '~') {
-            EDI_gutter.children[destinationIndex].textContent = '~';
-        }
-        destinationIndex = (destinationIndex + 1) % local_ArrayFrom_textElement_children_length;
-    }
-
-    let ringBufferIndex = breakingPoint;
-    for (let i = 0; ; i++) {
-        EDI_drawLine(local_virtualIndexLine + local_virtualCount - (distance - i), EDI_gutter.children[ringBufferIndex], EDI_textElement.children[ringBufferIndex]);
-        if (ringBufferIndex === ringBufferIndex_last) break; // awkward positioning of this break, it seems somewhat necessary but need to take time to read the code further and try to have it moved somewhere more sensible.
-        ringBufferIndex = (ringBufferIndex + 1) % local_ArrayFrom_textElement_children_length;
-    }
-}
-
-function EDI_stopTrackingIfTrackedSyntaxMadeToSpanSingleLine() {
-    // binary search for 'if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] > positionIndex)'
-    let indexTrackedSyntax = EDI_drawViewPort_FindTrackedSyntax_StartingIndex(INTS[fEDI_cursor_indexLine]);
-    if (indexTrackedSyntax === NaN || indexTrackedSyntax === -1) {
-        indexTrackedSyntax = EDI_trackedSyntaxList.count_abstract;
-    }
-    if (indexTrackedSyntax < EDI_trackedSyntaxList.count_abstract) {
-        EDI_trackedSyntaxList.getElementAt(indexTrackedSyntax);
-        if (INTS[fEDI_pooledTrackedSyntax_start] < INTS[fEDI_cursor_editPosition]) {
-            let moreThanOneLineEndPositionIsEncompassed = false;
-
-            // TODO: This has no reason to be a for loop
-            for (let i = INTS[fEDI_cursor_indexLine] - 1; i >= 0; i--) {
-                let lineEndPosition = EDI_lineEndPositionList_data[i];
-                if (INTS[fEDI_pooledTrackedSyntax_start] < lineEndPosition &&
-                    INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] > lineEndPosition) {
-                        moreThanOneLineEndPositionIsEncompassed = true;
-                        break;
-                }
-                else {
-                    break;
-                }
-            }
-            
-            if (!moreThanOneLineEndPositionIsEncompassed) {
-                // TODO: This has no reason to be a for loop
-                for (let i = INTS[fEDI_cursor_indexLine] + 1; i < EDI_lineEndPositionList_count; i++) {
-                    let lineEndPosition = EDI_lineEndPositionList_data[i];
-                    if (INTS[fEDI_pooledTrackedSyntax_start] < lineEndPosition &&
-                        INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] > lineEndPosition) {
-                            moreThanOneLineEndPositionIsEncompassed = true;
-                            break;
-                    }
-                    else {
-                        break;
-                    }
-                }
-
-                if (!moreThanOneLineEndPositionIsEncompassed) {
-                    EDI_trackedSyntaxList.removeAt(indexTrackedSyntax, 1);
-                }
-            }
-        }
-    }
-}
-
-
-
-function EDI_getCharacterKind(character) {
-    switch (character) {
-        case 'a':
-        case 'b':
-        case 'c':
-        case 'd':
-        case 'e':
-        case 'f':
-        case 'g':
-        case 'h':
-        case 'i':
-        case 'j':
-        case 'k':
-        case 'l':
-        case 'm':
-        case 'n':
-        case 'o':
-        case 'p':
-        case 'q':
-        case 'r':
-        case 's':
-        case 't':
-        case 'u':
-        case 'v':
-        case 'w':
-        case 'x':
-        case 'y':
-        case 'z':
-        case 'A':
-        case 'B':
-        case 'C':
-        case 'D':
-        case 'E':
-        case 'F':
-        case 'G':
-        case 'H':
-        case 'I':
-        case 'J':
-        case 'K':
-        case 'L':
-        case 'M':
-        case 'N':
-        case 'O':
-        case 'P':
-        case 'Q':
-        case 'R':
-        case 'S':
-        case 'T':
-        case 'U':
-        case 'V':
-        case 'W':
-        case 'X':
-        case 'Y':
-        case 'Z':
-        case '_':
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-            return CharacterKind_LetterOrDigit;
-        case ' ':
-        case '\t':
-        case '\r':
-        case '\n':
-            return CharacterKind_Whitespace;
-        default:
-            return CharacterKind_Punctuation;
-    }
-}
-
-/**
- * See comment above 'EXPLORER_measureBaseElement'
- * for explanation why this code is a bad idea.
- * 
- * I can't get rid of it because I don't fully understand my mistake yet.
- * When I get around to it I'm gonna end up looking into this more.
- */
-function EDI_measureBaseElement() {
-    INTS[fEDI_lastReadNumber_offsetWidth] = Math.floor(EDI_baseElement.offsetWidth);
-    INTS[fEDI_lastReadNumber_offsetHeight] = Math.floor(EDI_baseElement.offsetHeight);
-    
-    EDI_baseElement.style.width = INTS[fEDI_lastReadNumber_offsetWidth] + 'px';
-    EDI_baseElement.style.height = INTS[fEDI_lastReadNumber_offsetHeight] + 'px';
-
-    EDI_baseElement.style.contain = 'layout';
-
-    INTS[fEDI_lastReadNumber_offsetWidth] = EDI_baseElement.offsetWidth;
-    INTS[fEDI_lastReadNumber_offsetHeight] = EDI_baseElement.offsetHeight;
-
-/*
-> what does css "contain = 'layout'" do
-
-< ...
-< The CSS declaration contain: layout isolates the internal layout of an element from the rest of the web page, ensuring that changes inside the element do not trigger layout calculations outside of it, and vice versa
-< ...
-
-< ...
-< Independent Layout Trees: The browser treats the element as an isolated layout island. If JavaScript alters content or styles inside this element, the browser only recalculates the layout for this specific subtree rather than reflowing the entire document
-< ...
-< New Stacking Context: A new stacking context is generated. Any z-index properties used on child elements are completely scoped to this element and will not interact with elements outside of it.
-< ...
-
-I think I agree with this all... That's why I added it originally.
-I'm modifying the content and stacking context is good for all the absolute positioning I can ensure to the browser that nothing will happen?
-The AI code drops it so I gotta watch out perhaps not to just paste that over.
-
-But if I truly added it for these reasons, why did I not add it to the TreeView which is similar.
-And if the answer to that is just "lots of things to do".
-Then, "would you add it now?"
-"are you really sure that this is useful?"
-
-and I don't know...
-
-
-< function EDI_measureBaseElement() {
-<     // 1. Read once, accurately capturing subpixels
-<     const rect = EDI_baseElement.getBoundingClientRect();
-<     
-<     INTS[fEDI_lastReadNumber_offsetWidth] = rect.width;
-<     INTS[fEDI_lastReadNumber_offsetHeight] = rect.height;
-< 
-<     // 2. Calculate lines safely without modifying the DOM
-<     const rawLineCount = INTS[fEDI_lastReadNumber_offsetHeight] / KNOWN_LINE_HEIGHT;
-<     
-<     // Math.floor gives you ONLY fully visible lines
-<     const fullyVisibleLines = Math.floor(rawLineCount); 
-<     
-<     // Math.ceil includes a line even if it is partially cut off at the bottom
-<     const totalRenderedLines = Math.ceil(rawLineCount); 
-< }
-
-> When it comes to the 'Floor Trap'.
-> 
-> What if I had my current code, but I just didn't read after setting the floored values.
-> 
-> The reason I did the read was because I feared that "some boogieman" might cause my setting of the attribute value to 500px,
-> that this would be ignored for some reason that I'm not aware of and perhaps be taken as 501px due to some obscure piece of information that
-> I don't understand. It is just superstitious reading of the value.
-
-< no response
-
-:( I can probably reword that lol
-
-wtf is going on
-
-I said
-
-> When it comes to the 'Floor Trap'.
-> 
-> What if I had my current code, but I just didn't read after setting the floored values.
-
-which was 2/3rd of the previous prompt.
-
-And then I got response of
-
-< If you keep your current code but completely remove that second read, you successfully eliminate the second layout calculation. That is a great performance win!
-< 
-< However, your superstitious fear about the "boogieman" changing 500px to 501px is actually technically justified—though not for the reason you think. The real boogieman isn't a browser bug; it is display scaling (like a 125% zoom on a laptop, or a high-DPI Retina screen).
-<
-< ...
-<
-< The Scaling Boogieman is Real
-< ...
-
-*/
-}
-
-/**
- * TODO: repeated duplications of the same extremely large selection might benefit from temporary caching of this functions result.
- * 
- * textonly is in reference to conversion of the raw storage of the text editor such that all line feeds get returned as as EDI_lineEndString rather than the internal representation of '\n'.
- * 
- * @returns {string}
- */
-function EDI_decode_textonly(start, length) {
-    if (length <= 0) {
-		return '';
-	}
-
-	let end = start + length;
-
-	let decodedText = EDI_decoder.decode(EDI_textByteList_bytes.subarray(start, end));
-	if (!EDI_lineEndString) {
-		EDI_lineEndString = '\n';
-	}
-	if (EDI_lineEndString !== '\n') {
-		decodedText = decodedText.replaceAll('\n', EDI_lineEndString);
-	}
-	
-	return decodedText;
-}
-
-/**
- * If the 'INTS[fEDI_drawn_count_of_digits_longest_line_number] === positiveNumbersOnly_countDigitsLoop(EDI_lineEndPositionList_count)'
- * then the function does nothing.
- * 
- * TODO: Track the min and max until length changes and then only 2 operations at worst case than while
- * 
- * @returns a bool indicating whether the gutter was drawn (if 'INTS[fEDI_drawn_count_of_digits_longest_line_number]' has not changed then false is returned because the gutter didn't need to be "re-" drawn)
- * 
- * Dependent UI: EDI_render_request(RenderKind_Cursor_n); EDI_drawHorizontalScrollbar();
- * 
- * You either guarantee the dependent UI to run by invoking them regardless of this function's result 'EDI_drawGutter_Width(); EDI_render_request(RenderKind_Cursor_n); EDI_drawHorizontalScrollbar();'
- * Or you capture the return value to know whether the gutter was "re-" drawn, because if so, you need to invoke 'EDI_render_request(RenderKind_Cursor_n); EDI_drawHorizontalScrollbar();'
- * for the dependent UI.
- * The confusion, if there is any, comes from the dependent UI in some scenarios being required independently of whether drawGutter changes. And at other times they're solely dependent on whether drawGutter changes.
- */
-function EDI_drawGutter_Width() {
-    let count = EDI_lineEndPositionList_count;
-    if (BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_None) {
-        count += 1;
-    }
-    let digitCountOfLargestLineNumber = positiveNumbersOnly_countDigitsLoop(count);
-    if (INTS[fEDI_drawn_count_of_digits_longest_line_number] === digitCountOfLargestLineNumber) return false;
-
-    INTS[fEDI_drawn_count_of_digits_longest_line_number] = digitCountOfLargestLineNumber;
-
-    INTS[fEDI_gutterWidthStyleValue] = Math.ceil(digitCountOfLargestLineNumber * EDI_characterWidth);
-    INTS[fEDI_gutterWidthTotal] = INTS[fEDI_gutterWidthStyleValue] + CONST_EDI_gutterPaddingLeft + CONST_EDI_gutterPaddingRight;
-    gutterWidthTotal_withPxUnits = `${INTS[fEDI_gutterWidthTotal]}px`;
-
-    let gutterWidth = INTS[fEDI_gutterWidthStyleValue] + 'px';
-    EDI_gutter.style.width = gutterWidth;
-    EDI_gutterBackgroundColor.style.width = gutterWidth;
-
-    for (let i = 0; i < INTS[fEDI_ArrayFrom_textElement_children_length]/*a 'ArrayFrom_gutter_children_length' would always be equal to the textElement equivalent*/; i++) {
-        EDI_ringBuffer_gutter[i].style.width = gutterWidth;
-    }
-    
-    for (let i = 0; i < INTS[fEDI_ArrayFrom_textElement_children_length]; i++) {
-        EDI_ringBuffer_text[i].style.left = gutterWidthTotal_withPxUnits;
-    }
-
-    EDI_cursor_caretRow.style.left = gutterWidthTotal_withPxUnits;
-
-    return true;
-}
-
-/**
- * You need to change this logic to know the longest line.
- * Then when the longest line changes or some such likely related to finalization of an edit (not pending edits).
- * then at that point you redraw this.
- */
-function EDI_drawHorizontalScrollbar() {
-    if (INTS[fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left] !== INTS[fEDI_gutterWidthTotal]) {
-        EDI_horizontal_scrollbar.style.left = gutterWidthTotal_withPxUnits;
-        INTS[fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left] = INTS[fEDI_gutterWidthTotal];
-    }
-
-    if (INTS[fEDI_EDI_horizontal_scrollbar_widthValue] !== (EDI_baseElement.clientWidth - INTS[fEDI_gutterWidthTotal])) {
-        INTS[fEDI_EDI_horizontal_scrollbar_widthValue] = EDI_baseElement.clientWidth - INTS[fEDI_gutterWidthTotal];
-        EDI_horizontal_scrollbar.style.width = INTS[fEDI_EDI_horizontal_scrollbar_widthValue] + 'px';
-    }
-
-    if (INTS[fEDI_longestLine_length] !== INTS[fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar]) {
-        
-        INTS[fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar] = INTS[fEDI_longestLine_length];
-
-        INTS[fEDI_contentWidth] = Math.ceil(INTS[fEDI_longestLine_length] * EDI_characterWidth);
-
-        if ((INTS[fEDI_contentWidth] < (EDI_baseElement.clientWidth - INTS[fEDI_gutterWidthTotal])) && (EDI_baseElement.clientWidth - INTS[fEDI_gutterWidthTotal] > 0)) {
-            INTS[fEDI_contentWidth] = Math.floor(EDI_baseElement.clientWidth - INTS[fEDI_gutterWidthTotal]);
-        }
-
-        let local_EDI_horizontal_scrollbar_virtualization_boundary_style_width = INTS[fEDI_contentWidth] + 'px';
-
-        EDI_horizontal_scrollbar_virtualization_boundary.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
-        EDI_virtualization_horizontal.style.width = INTS[fEDI_contentWidth] + INTS[fEDI_gutterWidthTotal] + 'px';
-
-        for (let i = 0; i < INTS[fEDI_ArrayFrom_textElement_children_length]; i++) {
-            EDI_ringBuffer_text[i].style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
-        }
-
-        EDI_cursor_caretRow.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
-    }
-    
-    // TODO: this is directly tied to a scroll event on EDI_baseElement so handle it from there perhaps?
-    // TODO: this code is duplicated inside EDI_onScroll_WRAPIT when it returns early due to nothing vertically having changed, reduce duplication?
-    // TODO: 'INTS[fEDI_lastReadNumber_scrollLeft]' here?
-    if (EDI_horizontal_scrollbar.scrollLeft !== EDI_baseElement.scrollLeft) {
-        EDI_horizontal_scrollbar.scrollLeft = EDI_baseElement.scrollLeft;
-    }
-}
-
-/**
- * @returns 
- */
-function EDI_insertGapBufferSpan() {
-    walkLineUntilIndexColumn();
-    if (!w_span || !w_div) {
-        EDI_cursor_gapBufferWriteToSpanElement = null;
-        INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = 0;
-        return;
-    }
-
-    if (INTS[fEDI_w_indexColumn_Goal] == 0) {
-        // TODO: Ensure 'w_div.children[0]' is equal to the 'w_span' and then change this line to use 'w_span'
-        EDI_cursor_gapBufferWriteToSpanElement = w_span;
-        INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = 0;
-    }
-    else {
-        EDI_cursor_gapBufferWriteToSpanElement = w_div.children[INTS[fEDI_w_indexSpan]];
-
-        if (INTS[fEDI_w_indexColumn_Goal] === INTS[fEDI_w_indexColumn_Sum] + EDI_cursor_gapBufferWriteToSpanElement.textContent.length) {
-            INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = EDI_cursor_gapBufferWriteToSpanElement.textContent.length;
-        }
-        else {
-            INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = INTS[fEDI_w_indexColumn_SpanTextContentRelative];
-        }
-    }
-}
-
-/**
- * @param {*} editKind 
- * @param {*} editPosition 
- * @param {*} editLength 
- */
-function EDI_startEdit(editKind, editPosition, editLength) {
-    INTS[fEDI_cursor_editKind] = editKind;
-    INTS[fEDI_cursor_editPosition] = editPosition;
-    INTS[fEDI_cursor_editIndexLine] = INTS[fEDI_cursor_indexLine];
-    INTS[fEDI_cursor_editIndexColumn] = INTS[fEDI_cursor_indexColumn];
-    INTS[fEDI_cursor_editLength] = editLength;
-
-    switch (editKind) {
-        case EditKind_InsertLtr:
-            EDI_insertGapBufferSpan();
-            break;
-    }
-}
-
-/**
- * @param {*} shiftKey 
- */
-function EDI_preKeyboardMovementSelectionLogic(shiftKey) {
-    if (shiftKey) {
-        if (!EDI_cursor_hasSelection()) {
-            INTS[fEDI_cursor_selectionAnchor] = EDI_getPositionIndex_cursor_raw();
-            INTS[fEDI_cursor_selectionIndexAnchorLine] = INTS[fEDI_cursor_indexLine];
-            INTS[fEDI_cursor_selectionIndexAnchorColumn] = INTS[fEDI_cursor_indexColumn];
-            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-        }
-    }
-    else {
-        if (EDI_cursor_hasSelection()) {
-            INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_cursor_selectionEnd];
-            INTS[fEDI_cursor_selectionIndexAnchorLine] = INTS[fEDI_cursor_selectionIndexEndLine];
-            INTS[fEDI_cursor_selectionIndexAnchorColumn] = INTS[fEDI_cursor_selectionIndexEndColumn];
-            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-        }
-    }
-}
-
-/**
- * @param {*} shiftKey 
- */
-function EDI_postKeyboardMovementSelectionLogic(shiftKey) {
-    if (shiftKey) {
-        INTS[fEDI_cursor_selectionEnd] = EDI_getPositionIndex_cursor_raw();
-        INTS[fEDI_cursor_selectionIndexEndLine] = INTS[fEDI_cursor_indexLine];
-        INTS[fEDI_cursor_selectionIndexEndColumn] = INTS[fEDI_cursor_indexColumn];
-        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-    }
-}
-
-/**
- * This function is expected to be used for a variety of scenarios,
- * but the initial use-case is caching the indentation when holding the 'enter' key, so that each consecutive event can know what the indentation was on the previous
- * event and not have to re-calculate it.
- * 
- * Then, the idea is that when the cursor moves you invoke this to invalidate that indentation cache so it gets recalculated.
- * 
- * TODO: I am quite certain that there are cases where this should be invoked but it isn't currently.
- * 
- * TODO: I believe this function to be an unoptimized solution, just that there are more pressing matters to attend to.
- */
-function EDI_movementBasedCacheInvalidation() {
-    if (INTS[fEDI_cursor_editKind] === EditKind_Enter) {
-        //
-        // this only happens once even if you have many cursors because the next cursor that enters this function would be and editKind of None.
-        //
-        // The main concern is when a user holds down the Enter key, so while this change causes any cursor movement to finalize a pending Enter edit, it won't be nearly as detrimental as if holding down the Enter key were to not be optimized.
-        //
-        // TODO: Permit more than one Enter key edit event to batch
-        // TODO: Cap the amount of enter key edit events that can batch as was done with the insertion.
-        // TODO: Having Enter be an insertion, instead of its own EditKind, sounds like the better long term goal but it is believed that this change is trainsitionally helpful in getting to that final best solution.
-        //
-        EDI_finalizeEdit();
-    }
-    EDI_cursor_enterKey_newLinePlusIndentation_byteList = null;
-    EDI_cursor_cached_indentation_string = null;
-    set_EDI_findOverlay_isBeingShownDueToMultiCursorMatching(false);
-}
-
 /**
  * @param {*} clipboardContent This is a temporary hack to help in transitioning paste to an edit.
  */
@@ -7603,6 +6467,1142 @@ function EDI_onfocus() {
 function EDI_onblur() {
     EDI_cursor_cursorElement.classList.remove('EDI_cursor_focus');
 }
+
+//#region ancillary
+function enqueueLSPNotification(payload) {
+    lspQueue.push(payload);
+    processLspQueue(); // Fire-and-forget processing loop
+}
+
+async function processLspQueue() {
+    if (BYTES[byteisProcessingLspQueue]) return;
+    BYTES[byteisProcessingLspQueue] = 1;
+
+    while (lspQueue.length > 0) {
+        const item = lspQueue.shift(); // Guarantees strict FIFO order
+        
+        try {
+            // Await the Electron IPC and LSP stdin write
+            await window.myAPI.didChangeTextDocumentNotification(
+                item.absolutePath,
+                item.version,
+                item.startLine,
+                item.startCharacter,
+                item.endLine,
+                item.endCharacter,
+                item.text
+            );
+        } catch (error) {
+            console.error("LSP IPC notification failed:", error);
+        }
+    }
+
+    BYTES[byteisProcessingLspQueue] = 0;
+}
+
+/**
+ * if (trackedSyntax_StartingIndex === NaN || trackedSyntax_StartingIndex === -1) { trackedSyntax_StartingIndex = EDI_trackedSyntaxList.count_abstract; }
+ * @param {*} indexLineAaa 
+ * @returns 
+ */
+function EDI_drawViewPort_FindTrackedSyntax_StartingIndex(indexLineAaa) {
+
+    // TODO: 'indexLineAaa' and 'indexLineBbb'; babel compiler error when both were named indexLine.
+
+    let local_EDI_trackedSyntaxList = EDI_trackedSyntaxList;
+
+    EDI_getLineBoundaryPositions_raw(indexLineAaa);
+    const positionIndex = INTS[fEDI_getLineBoundaryPositions_start];
+
+    let left = 0;
+    let right = local_EDI_trackedSyntaxList.count_abstract - 1;
+
+    let indexLineBbb = -1;
+
+    while (left <= right) {
+        const mid = Math.floor((left + right) / 2);
+
+        local_EDI_trackedSyntaxList.getElementAt(mid);
+        
+        if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] > positionIndex) {
+            indexLineBbb = mid;
+
+            if (INTS[fEDI_pooledTrackedSyntax_start] === positionIndex) {
+                break;
+            }
+            
+            right = mid - 1;
+        }
+        else if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] <= positionIndex) {
+            left = mid + 1;
+        }
+        else {
+            return; // NaN
+        }
+    }
+
+    return indexLineBbb;
+}
+
+/**
+ * if (trackedSyntax_StartingIndex === NaN || trackedSyntax_StartingIndex === -1) { trackedSyntax_StartingIndex = EDI_trackedSyntaxList.count_abstract; }
+ * Probably should make 1 of these and accept a predicate.
+ */
+function EDI_trackedSyntaxReposition_find(positionIndex) {
+
+    let local_EDI_trackedSyntaxList = EDI_trackedSyntaxList;
+
+    let left = 0;
+    let right = local_EDI_trackedSyntaxList.count_abstract - 1;
+
+    let indexLine = -1;
+
+    while (left <= right) {
+        const mid = Math.floor((left + right) / 2);
+
+        let start = local_EDI_trackedSyntaxList.getStart(mid);
+        
+        if (positionIndex <= start) {
+            indexLine = mid;
+
+            if (positionIndex === start) {
+                break;
+            }
+            
+            right = mid - 1;
+        }
+        else if (positionIndex > start) {
+            left = mid + 1;
+        }
+        else {
+            return; // NaN
+        }
+    }
+
+    return indexLine;
+}
+
+/** modification of Google AI Overview "javascript count of digits" */
+function positiveNumbersOnly_countDigitsLoop(number) {
+  if (number <= 0) return 1;
+  let count = 0;
+
+  while (number > 0) {
+    number = Math.floor(number / 10); // Remove the last digit
+    count++;
+  }
+
+  return count;
+}
+
+function EDI_getCharacterPrevious_KIND(indexColumn, positionIndex) {
+    if (indexColumn !== 0) {
+        return EDI_getCharacterKind(String.fromCharCode(EDI_textByteList_bytes[positionIndex - 1]));
+    }
+    else {
+        return CharacterKind_None;
+    }
+}
+
+function EDI_getCharacterCurrent_KIND(indexColumn, positionIndex, lineEnd) {
+    if (indexColumn < lineEnd) {
+        return EDI_getCharacterKind(String.fromCharCode(EDI_textByteList_bytes[positionIndex]));
+    }
+    else {
+        return CharacterKind_None;
+    }
+}
+
+/**
+ * Returns 'true' if success otherwise 'false' the "return" values are indexLine, and indexColumn; which are stored in 'fieldBuffer.js'
+ * as 'INTS[fEDI_getLineAndColumnIndices_indexLine] = indexLine;' and 'INTS[fEDI_getLineAndColumnIndices_indexColumn] = indexColumn;'.
+ * 
+ * TODO: Local variables for this looping logic?
+ */
+function EDI_getLineAndColumnIndices_raw(positionIndex) {
+    let left = 0;
+    let right = EDI_lineEndPositionList_count - 1;
+
+    let indexLine = -1;
+    let indexColumn = -1;
+
+    const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
+
+    while (left <= right) {
+        const mid = Math.floor((left + right) / 2);
+        
+        if (local_EDI_lineEndPositionList_data[mid] >= positionIndex) {
+            indexLine = mid;
+
+            if (local_EDI_lineEndPositionList_data[mid] === positionIndex) {
+                break;
+            }
+            
+            right = mid - 1;
+        }
+        else if (local_EDI_lineEndPositionList_data[mid] < positionIndex) {
+            left = mid + 1;
+        }
+        else {
+            return false; // NaN
+        }
+    }
+
+    if (indexLine === -1) {
+        return false;
+        //return {
+        //  indexLine: 0,
+        //  indexColumn: 0,  
+        //};
+    }
+
+    if (indexLine === 0) {
+        indexColumn = positionIndex;
+    }
+    else {
+        indexColumn = positionIndex - (local_EDI_lineEndPositionList_data[indexLine - 1] + 1);
+    }
+
+    INTS[fEDI_getLineAndColumnIndices_indexLine] = indexLine;
+    INTS[fEDI_getLineAndColumnIndices_indexColumn] = indexColumn;
+    return true;
+}
+
+function EDI_getLastValidIndexColumn_raw(indexLine) {
+    if (indexLine < EDI_lineEndPositionList_count) {
+        if (indexLine === 0) {
+            return EDI_lineEndPositionList_data[indexLine] - 0;
+        }
+        else {
+            return EDI_lineEndPositionList_data[indexLine] - (EDI_lineEndPositionList_data[indexLine - 1] + 1);
+        }
+    }
+    return 0;
+}
+
+/**
+ * 'INTS[fEDI_getLineBoundaryPositions_start]' is the position of the first character on that line.
+ * 
+ * 'INTS[fEDI_getLineBoundaryPositions_end]' is the position of the "line end" (i.e.: ascii code for '\n' or EOF).
+ * 
+ * The inclusivity/exclusivity is in reference to whether the position
+ * points to non-line-end-text that exists on the line
+ * 
+ * NOTE: In performance critical sections this code is explicitly inlined and modified to be as performant as it seemingly can get for that specific section of code.
+ * 
+ * @returns nothing: the results are stored in 'INTS[fEDI_getLineBoundaryPositions_start]' inclusive and 'INTS[fEDI_getLineBoundaryPositions_end]' exclusive.
+ */
+function EDI_getLineBoundaryPositions_raw(indexLine) {
+    if (indexLine < EDI_lineEndPositionList_count) {
+        if (indexLine === 0) {
+            INTS[fEDI_getLineBoundaryPositions_start] = 0;
+            INTS[fEDI_getLineBoundaryPositions_end] = EDI_lineEndPositionList_data[indexLine] - 0;
+            return;
+        }
+        else {
+            INTS[fEDI_getLineBoundaryPositions_start] = EDI_lineEndPositionList_data[indexLine - 1] + 1;
+            INTS[fEDI_getLineBoundaryPositions_end] = EDI_lineEndPositionList_data[indexLine];
+            return;
+        }
+    }
+    INTS[fEDI_getLineBoundaryPositions_start] = 0;
+    INTS[fEDI_getLineBoundaryPositions_end] = 0;
+}
+
+function EDI_getLineStart_pos_raw(indexLine) {
+    if (indexLine < EDI_lineEndPositionList_count) {
+        if (indexLine === 0) {
+            return 0;
+        }
+        else {
+            return (EDI_lineEndPositionList_data[indexLine - 1] + 1);
+        }
+    }
+    return 0;
+}
+
+function EDI_getLineEnd_pos_raw(indexLine) {
+    if (indexLine < EDI_lineEndPositionList_count) {
+        if (indexLine === 0) {
+            return EDI_lineEndPositionList_data[indexLine] - 0;
+        }
+        else {
+            return EDI_lineEndPositionList_data[indexLine];
+        }
+    }
+    return 0;
+}
+
+function EDI_getPositionIndex_Overload(indexLine, indexColumn) {
+    return EDI_getLineStart_pos_raw(indexLine) + indexColumn;
+}
+
+/**
+ * @returns 
+ */
+function EDI_getPositionIndex_cursor_raw() {
+    return EDI_getLineStart_pos_raw(INTS[fEDI_cursor_indexLine]) + INTS[fEDI_cursor_indexColumn];
+}
+
+/**
+ * TODO: Reduce the amount of redundant drawing of lines that haven't changed in the selection logic.
+*/
+function fEDI_getEntireLineVisualWidth(lineStart, lineEnd) {
+    let indexColumn = 0;
+    let visualColumns = 0;
+    let positionIndex = lineStart;
+
+    while (positionIndex < lineEnd) {
+        let charLength = 1;
+        
+        if (String.fromCharCode(EDI_textByteList_bytes[positionIndex]) === '\t') {
+            charLength = 4 - (visualColumns % 4);
+        }
+
+        visualColumns += charLength;
+        positionIndex++;
+        indexColumn++;
+    }
+
+    return visualColumns;
+}
+
+function EDI_set_indexColumn_and_visualColumn_relativeTo_storedVisualWidth(lineStart, lineEnd) {
+    let indexColumn = 0;
+    let visualColumns = 0;
+    let positionIndex = lineStart;
+    let charWidth = EDI_characterWidth;
+    let rx = INTS[fEDI_cursor_STORED_visualWidth] * charWidth;
+
+    while (positionIndex < lineEnd) {
+        let charLength = 1;
+        
+        if (String.fromCharCode(EDI_textByteList_bytes[positionIndex]) === '\t') {
+            charLength = 4 - (visualColumns % 4);
+        }
+
+        // Calculate pixel boundaries for the current character
+        const charLeftX = visualColumns * charWidth;
+        const charRightX = (visualColumns + charLength) * charWidth;
+        const charMidpointX = charLeftX + (charRightX - charLeftX) / 2;
+
+        // If the click is before the midpoint of this character/tab, target this index
+        if (rx < charMidpointX) {
+            INTS[fEDI_cursor_indexColumn] = indexColumn;
+            INTS[fEDI_cursorVisualColumnIndex] = visualColumns;
+            // TODO: fEDI_cursorVisualColumnIndex_relativeToThisLineIndex
+            return;
+        }
+
+        visualColumns += charLength;
+        positionIndex++;
+        indexColumn++;
+    }
+
+    // If clicked past the end of the line text
+    INTS[fEDI_cursor_indexColumn] = indexColumn;
+    INTS[fEDI_cursorVisualColumnIndex] = visualColumns;
+    // TODO: fEDI_cursorVisualColumnIndex_relativeToThisLineIndex
+}
+
+/**
+ * 'INTS[fEDI_getIndexFromX_indexColumn]'
+ * 
+ * 'INTS[fEDI_getIndexFromX_visualColumns]'
+ * 
+ * @returns nothing: the results are stored in 'INTS[fEDI_getIndexFromX_indexColumn]' and 'INTS[fEDI_getIndexFromX_visualColumns]'.
+ */
+function getIndexFromX_RESET(rx, lineStart, lineEnd) {
+    let indexColumn = 0;
+    let visualColumns = 0;
+    let positionIndex = lineStart;
+    let charWidth = EDI_characterWidth;
+
+    while (positionIndex < lineEnd) {
+        let charLength = 1;
+        
+        if (String.fromCharCode(EDI_textByteList_bytes[positionIndex]) === '\t') {
+            charLength = 4 - (visualColumns % 4);
+        }
+
+        // Calculate pixel boundaries for the current character
+        const charLeftX = visualColumns * charWidth;
+        const charRightX = (visualColumns + charLength) * charWidth;
+        const charMidpointX = charLeftX + (charRightX - charLeftX) / 2;
+
+        // If the click is before the midpoint of this character/tab, target this index
+        if (rx < charMidpointX) {
+            INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
+            INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
+            return;
+        }
+
+        visualColumns += charLength;
+        positionIndex++;
+        indexColumn++;
+    }
+
+    // If clicked past the end of the line text
+    INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
+    INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
+}
+
+function getIndexFromX_sameLine_newRxIsLarger(goalRx, lineStart, lineEnd, startColumn, startVisualColumns) {
+    let indexColumn = startColumn;
+    let visualColumns = startVisualColumns;
+    let positionIndex = lineStart + startColumn;
+    let charWidth = EDI_characterWidth;
+
+    while (positionIndex < lineEnd) {
+        let charLength = 1;
+        
+        if (String.fromCharCode(EDI_textByteList_bytes[positionIndex]) === '\t') {
+            charLength = 4 - (visualColumns % 4);
+        }
+
+        // Calculate pixel boundaries for the current character
+        const charLeftX = visualColumns * charWidth;
+        const charRightX = (visualColumns + charLength) * charWidth;
+        const charMidpointX = charLeftX + (charRightX - charLeftX) / 2;
+
+        // If the click is before the midpoint of this character/tab, target this index
+        if (goalRx < charMidpointX) {
+            INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
+            INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
+            return;
+        }
+
+        visualColumns += charLength;
+        positionIndex++;
+        indexColumn++;
+    }
+
+    // If clicked past the end of the line text
+    INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
+    INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
+}
+
+/**
+ * 'INTS[fEDI_getIndexFromX_indexColumn]'
+ * 
+ * 'INTS[fEDI_getIndexFromX_visualColumns]'
+ * 
+ * @returns nothing: the results are stored in 'INTS[fEDI_getIndexFromX_indexColumn]' and 'INTS[fEDI_getIndexFromX_visualColumns]'.
+ */
+function getIndexFromX_sameLine_newRxIsSmaller(goalRx, lineStart, startColumn, startVisualColumns) {
+    let indexColumn = startColumn;
+    let visualColumns = startVisualColumns;
+    let positionIndex = lineStart + startColumn;
+    let charWidth = EDI_characterWidth;
+
+    while (positionIndex >= lineStart && positionIndex > 0) {
+        let charLength = 1;
+        
+        if (String.fromCharCode(EDI_textByteList_bytes[positionIndex - 1]) === '\t') {
+            charLength = 4 - (visualColumns % 4);
+        }
+
+        // Calculate pixel boundaries for the current character
+        const charLeftX = (visualColumns - charLength) * charWidth;
+        const charRightX = (visualColumns) * charWidth;
+        const charMidpointX = charLeftX + (charRightX - charLeftX) / 2;
+
+        // If the click is before the midpoint of this character/tab, target this index
+        if (goalRx >= charMidpointX) {
+            INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
+            INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
+            return;
+        }
+
+        visualColumns -= charLength;
+        positionIndex--;
+        indexColumn--;
+    }
+
+    // If clicked past the end of the line text
+    INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
+    INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
+}
+
+/**
+ * You may want to update the vertical virtualization boundary prior to actually updating the EDI_lineEndPositionList_
+ * Thus this function takes a 'lineCount' which defaults to EDI_lineEndPositionList_count if falsey.
+ * @param {number | null | undefined} lineCount In order to permit arbitrarily updating the vertical virtualization boundary, this takes a lineCount. If falsey, then EDI_lineEndPositionList_count is used.
+ */
+function update_verticalVirtualizationBoundary(lineCount) {
+    if (!lineCount) lineCount = EDI_lineEndPositionList_count;
+    EDI_virtualization_vertical.style.height = ((lineCount + INTS[fEDI_virtualCount] - 1) * INTS[fEDI_lineHeight]) + 'px';
+}
+
+/**
+ * EDI_render_do_Scroll() has this function explicitly inlined (duplicated) within the source code.
+ */
+function update_VirtualIndexLine() {
+    // If scrollTop were to cause synchronous layout calculation, then scrollLeft wouldn't have one because it'd already be calculated.
+    // and vice versa.
+    // thus it is thought you might as well touch scrollLeft too here, if you're going down this path.
+    //
+    INTS[fEDI_lastReadNumber_scrollLeft] = EDI_baseElement.scrollLeft;
+    INTS[fEDI_lastReadNumber_scrollTop] = EDI_baseElement.scrollTop;
+    // TODO: This floor logic seems very odd. Because given the previous and the current you can determine it without dividing maybe I think?
+    INTS[fEDI_virtualIndexLine] = Math.floor(INTS[fEDI_lastReadNumber_scrollTop] / INTS[fEDI_lineHeight]);
+}
+
+function update_virtualCount() {
+    INTS[fEDI_virtualCount] = Math.ceil(INTS[fEDI_lastReadNumber_offsetHeight] / INTS[fEDI_lineHeight]);
+}
+
+/**
+ * This clears the cursor's selection.
+ */
+function EDI_moveCursor_position(intValue) {
+    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+        // TODO: Timing issue, someone typing while they scroll
+        EDI_finalizeEdit();
+    }
+    EDI_getLineAndColumnIndices_raw(intValue);
+    let lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
+    let lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
+    EDI_moveCursor_indexLine_indexColumn(lineAndColumnIndices_indexLine, lineAndColumnIndices_indexColumn);
+}
+
+/**
+ * This clears the cursor's selection.
+ */
+function EDI_moveCursor_indexLine_indexColumn(indexLine, indexColumn) {
+    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+        // TODO: Timing issue, someone typing while they scroll
+        EDI_finalizeEdit();
+    }
+    let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(indexLine);
+
+    if (indexColumn > lastValidIndexColumn) {
+        INTS[fEDI_cursor_indexColumn] = lastValidIndexColumn;
+        INTS[fEDI_cursorVisualColumnIndex] = lastValidIndexColumn;
+    }
+    else {
+        INTS[fEDI_cursor_indexColumn] = indexColumn;
+        INTS[fEDI_cursorVisualColumnIndex] = indexColumn;
+    }
+
+    INTS[fEDI_cursor_indexLine] = indexLine;
+    
+    // TODO: selectionAnchor = selectionEnd; EDI_drawCursor(); # being the way to clear a selection should be documented / wrapped by a method for ease of use / readability?
+    INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_cursor_selectionEnd];
+    EDI_render_request(RenderKind_Cursor_n);
+}
+
+/**
+ * If a line has an indentation of 4 space characters, but the user's cursor is positioned after the second space character,
+ * then only the first 2 space characters will be used as indentation.
+ * 
+ * This is intentional, it seems like the more expected behavior in my mind.
+ * 
+ * if 'shouldCountAndVisualWidthOnly' is passed as 'true' or 'truthy' then the behavior I just described is no longer true. It will read the entire indentation regardless of cursor column position.
+ * TODO: ^the parameter 'shouldCountAndVisualWidthOnly' is a bit confusing...
+ * ...I'm trying to shove the logic of the 'home' key into this function, and maybe I should just not.
+ * 
+ * Returns the 'endExclusiveIndentationIndexColumn' of the indentation i.e.: "the column index that exclusively ends the indentation.".
+ * Sets the state for:
+ * - INTS[fEDI_cursor_cached_indentation_string_visualWidth]
+ *     - not set if 'countAndVisualWidthOnly' is passed as 'true' or a truthy
+ * - EDI_cursor_enterKey_newLinePlusIndentation_byteList
+ *     - not set if 'countAndVisualWidthOnly' is passed as 'true' or a truthy
+ * - EDI_cursor_cached_indentation_string
+ */
+function EDI_cacheIndentation(shouldCountAndVisualWidthOnly) {
+    let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
+    EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+    const line_start = INTS[fEDI_getLineBoundaryPositions_start];
+
+    let upperLimitIndexColumn = lastValidIndexColumn;
+    if (!shouldCountAndVisualWidthOnly && INTS[fEDI_cursor_indexColumn] < lastValidIndexColumn) {
+        upperLimitIndexColumn = INTS[fEDI_cursor_indexColumn];
+    }
+
+    let count = 0;
+    let indentation_string_visualWidth = 0;
+
+    // Currently an enter key press only batches with other enter key presses so either the edit is finalized or the indentation was already cached and thus this code wouldn't run,
+    // i.e.: you can read directly from the byte array without worrying about a pending edit.
+    outer: for (var i = 0; i < upperLimitIndexColumn; i++) {
+        switch (EDI_textByteList_bytes[line_start + i]) {
+            case CONST_EDI_ASCII_SPACE:
+                indentation_string_visualWidth++;
+                count++;
+                break;
+            case CONST_EDI_ASCII_TAB:
+                indentation_string_visualWidth += 4;
+                count++;
+                break;
+            default:
+                break outer;
+        }
+    }
+
+    INTS[fEDI_cursor_cached_indentation_string_visualWidth] = indentation_string_visualWidth;
+
+    if (!shouldCountAndVisualWidthOnly) {
+        EDI_cursor_enterKey_newLinePlusIndentation_byteList = new Uint8Array(1 + count); // '1 +' for the '\n'. This might not always exist in the byte array for example if pressing enter key on the 0th index line there is no existing '\n' to copy from the byte array so just always make it.
+        EDI_cursor_enterKey_newLinePlusIndentation_byteList[0] = CONST_EDI_ASCII_LINE_FEED;
+    
+        if (count > 0) {
+            let subarray = EDI_textByteList_bytes.subarray(line_start, line_start + count);
+            EDI_cursor_enterKey_newLinePlusIndentation_byteList.set(subarray, 1);
+            EDI_cursor_cached_indentation_string = EDI_decoder.decode(subarray);
+        }
+        else {
+            EDI_cursor_cached_indentation_string = '';
+        }
+    }
+
+    return count;
+}
+
+function EDI_lineWasInsertedValidateGutter() {
+    if (EDI_drawGutter_Width()) {
+        // If true then you need to also draw the dependent UI
+        EDI_render_request(RenderKind_Cursor_n);
+        EDI_drawHorizontalScrollbar();
+    }
+}
+
+/**
+ * TODO: This uses a linear search and likely can be optimized.
+ * 
+ * @param {*} indexPosition 
+ * @param {*} insertionCount 
+ */
+function EDI_trackedSyntaxList_inefficientUpdateStartAndLength(indexPosition, insertionCount) {
+    for (var i = 0; i < EDI_trackedSyntaxList.count_abstract; i++) {
+        EDI_trackedSyntaxList.getElementAt(i);
+        if (indexPosition <= INTS[fEDI_pooledTrackedSyntax_start]) {
+            EDI_trackedSyntaxList.setStart(i, INTS[fEDI_pooledTrackedSyntax_start] + insertionCount);
+        }
+        else if (indexPosition > INTS[fEDI_pooledTrackedSyntax_start] && indexPosition < INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length]) {
+            EDI_trackedSyntaxList.setLength(i, INTS[fEDI_pooledTrackedSyntax_length] + insertionCount);
+        }
+    }
+}
+
+/**
+ * CORRUPT_STATE: The invoker needs to ensure there is at least one empty span on the 'inclusiveSmallestRingBufferIndexToShift' after they invoke this function.
+ * 
+ * TODO: implement this but by an arbitrary distance
+ */
+function EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, inclusiveSmallestRingBufferIndexToShift) {
+    // TODO: This remove logic for the last line wasn't written with the correct understanding...
+    // ...
+    // It appears that this logic for 99% of cases is NOT needed.
+    // But that if you:
+    // - "Were at ringBuffer index zero" (I'm not sure what I'm thinking by this I need to focus on my task at hand but this edge case is being slightly-considered in my mind while typing this)
+    //     - I think the correct wording is if you were at 'PREVIOUS(ringBuffer_indexZero)' then you'd be the last line
+    //     - i.e.: if 'ringBufferIndex_last === inclusiveSmallestRingBufferIndexToShift'
+    // - for some reason only had a virtualization count of '1',
+    // you might need to run this logic otherwise an enter key at column index 0 of a line wouldn't show any changes.
+    // 
+    let local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
+
+    let lastDiv = EDI_textElement.children[ringBufferIndex_last];
+    for (let i = lastDiv.children.length - 1; i >= 0; i--) {
+        lastDiv.removeChild(lastDiv.children[i]);
+    }
+
+    for (let i = ringBufferIndex_last; i !== inclusiveSmallestRingBufferIndexToShift;) {
+        let destinationDiv = EDI_textElement.children[i];
+        i = (i - 1 + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
+        let sourceDiv = EDI_textElement.children[i];
+        destinationDiv.replaceChildren(...sourceDiv.childNodes);
+    }
+}
+
+/**
+ * 'smallestRingBufferIndexToReceive' somewhat 'exclusive' in that it doesn't get shifted. It is the smallest line that receives the shift of the next line, and thus all content on this line is lost in the process.
+ * 
+ * TODO: an idea that you might be able to short circuit if you start shifting 'out of bounds lines of text' into 'out of bounds lines of text'?
+ * */
+function EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_last, smallestRingBufferIndexToReceive, distance, local_virtualIndexLine, local_virtualCount) {
+
+    // TODO: Does 'coalesce assignment' exist, and is it equivalent?
+    if (!local_virtualIndexLine) local_virtualIndexLine = INTS[fEDI_virtualIndexLine];
+    if (!local_virtualCount) local_virtualCount = INTS[fEDI_virtualCount];
+
+    // TODO: if smallestRingBufferIndexToReceive < 0 throw an error?
+
+    let local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
+
+    let breakingPoint = ringBufferIndex_last;
+    for (let i = 1 /*starts at one*/; i < distance; i++) {
+        breakingPoint = (breakingPoint - 1 + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
+    }
+
+    for (let destinationIndex = smallestRingBufferIndexToReceive; destinationIndex !== breakingPoint;) {
+        let destinationDiv = EDI_textElement.children[destinationIndex];
+        let sourceIndex = destinationIndex;
+        for (let i = 0; i < distance; i++) {
+            sourceIndex = (sourceIndex + 1) % local_ArrayFrom_textElement_children_length;
+        }
+        destinationDiv.replaceChildren(...EDI_textElement.children[sourceIndex].childNodes);
+        if (EDI_gutter.children[sourceIndex].textContent === '~') {
+            EDI_gutter.children[destinationIndex].textContent = '~';
+        }
+        destinationIndex = (destinationIndex + 1) % local_ArrayFrom_textElement_children_length;
+    }
+
+    let ringBufferIndex = breakingPoint;
+    for (let i = 0; ; i++) {
+        EDI_drawLine(local_virtualIndexLine + local_virtualCount - (distance - i), EDI_gutter.children[ringBufferIndex], EDI_textElement.children[ringBufferIndex]);
+        if (ringBufferIndex === ringBufferIndex_last) break; // awkward positioning of this break, it seems somewhat necessary but need to take time to read the code further and try to have it moved somewhere more sensible.
+        ringBufferIndex = (ringBufferIndex + 1) % local_ArrayFrom_textElement_children_length;
+    }
+}
+
+function EDI_stopTrackingIfTrackedSyntaxMadeToSpanSingleLine() {
+    // binary search for 'if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] > positionIndex)'
+    let indexTrackedSyntax = EDI_drawViewPort_FindTrackedSyntax_StartingIndex(INTS[fEDI_cursor_indexLine]);
+    if (indexTrackedSyntax === NaN || indexTrackedSyntax === -1) {
+        indexTrackedSyntax = EDI_trackedSyntaxList.count_abstract;
+    }
+    if (indexTrackedSyntax < EDI_trackedSyntaxList.count_abstract) {
+        EDI_trackedSyntaxList.getElementAt(indexTrackedSyntax);
+        if (INTS[fEDI_pooledTrackedSyntax_start] < INTS[fEDI_cursor_editPosition]) {
+            let moreThanOneLineEndPositionIsEncompassed = false;
+
+            // TODO: This has no reason to be a for loop
+            for (let i = INTS[fEDI_cursor_indexLine] - 1; i >= 0; i--) {
+                let lineEndPosition = EDI_lineEndPositionList_data[i];
+                if (INTS[fEDI_pooledTrackedSyntax_start] < lineEndPosition &&
+                    INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] > lineEndPosition) {
+                        moreThanOneLineEndPositionIsEncompassed = true;
+                        break;
+                }
+                else {
+                    break;
+                }
+            }
+            
+            if (!moreThanOneLineEndPositionIsEncompassed) {
+                // TODO: This has no reason to be a for loop
+                for (let i = INTS[fEDI_cursor_indexLine] + 1; i < EDI_lineEndPositionList_count; i++) {
+                    let lineEndPosition = EDI_lineEndPositionList_data[i];
+                    if (INTS[fEDI_pooledTrackedSyntax_start] < lineEndPosition &&
+                        INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] > lineEndPosition) {
+                            moreThanOneLineEndPositionIsEncompassed = true;
+                            break;
+                    }
+                    else {
+                        break;
+                    }
+                }
+
+                if (!moreThanOneLineEndPositionIsEncompassed) {
+                    EDI_trackedSyntaxList.removeAt(indexTrackedSyntax, 1);
+                }
+            }
+        }
+    }
+}
+
+function EDI_getCharacterKind(character) {
+    switch (character) {
+        case 'a':
+        case 'b':
+        case 'c':
+        case 'd':
+        case 'e':
+        case 'f':
+        case 'g':
+        case 'h':
+        case 'i':
+        case 'j':
+        case 'k':
+        case 'l':
+        case 'm':
+        case 'n':
+        case 'o':
+        case 'p':
+        case 'q':
+        case 'r':
+        case 's':
+        case 't':
+        case 'u':
+        case 'v':
+        case 'w':
+        case 'x':
+        case 'y':
+        case 'z':
+        case 'A':
+        case 'B':
+        case 'C':
+        case 'D':
+        case 'E':
+        case 'F':
+        case 'G':
+        case 'H':
+        case 'I':
+        case 'J':
+        case 'K':
+        case 'L':
+        case 'M':
+        case 'N':
+        case 'O':
+        case 'P':
+        case 'Q':
+        case 'R':
+        case 'S':
+        case 'T':
+        case 'U':
+        case 'V':
+        case 'W':
+        case 'X':
+        case 'Y':
+        case 'Z':
+        case '_':
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            return CharacterKind_LetterOrDigit;
+        case ' ':
+        case '\t':
+        case '\r':
+        case '\n':
+            return CharacterKind_Whitespace;
+        default:
+            return CharacterKind_Punctuation;
+    }
+}
+
+/**
+ * See comment above 'EXPLORER_measureBaseElement'
+ * for explanation why this code is a bad idea.
+ * 
+ * I can't get rid of it because I don't fully understand my mistake yet.
+ * When I get around to it I'm gonna end up looking into this more.
+ */
+function EDI_measureBaseElement() {
+    INTS[fEDI_lastReadNumber_offsetWidth] = Math.floor(EDI_baseElement.offsetWidth);
+    INTS[fEDI_lastReadNumber_offsetHeight] = Math.floor(EDI_baseElement.offsetHeight);
+    
+    EDI_baseElement.style.width = INTS[fEDI_lastReadNumber_offsetWidth] + 'px';
+    EDI_baseElement.style.height = INTS[fEDI_lastReadNumber_offsetHeight] + 'px';
+
+    EDI_baseElement.style.contain = 'layout';
+
+    INTS[fEDI_lastReadNumber_offsetWidth] = EDI_baseElement.offsetWidth;
+    INTS[fEDI_lastReadNumber_offsetHeight] = EDI_baseElement.offsetHeight;
+
+/*
+> what does css "contain = 'layout'" do
+
+< ...
+< The CSS declaration contain: layout isolates the internal layout of an element from the rest of the web page, ensuring that changes inside the element do not trigger layout calculations outside of it, and vice versa
+< ...
+
+< ...
+< Independent Layout Trees: The browser treats the element as an isolated layout island. If JavaScript alters content or styles inside this element, the browser only recalculates the layout for this specific subtree rather than reflowing the entire document
+< ...
+< New Stacking Context: A new stacking context is generated. Any z-index properties used on child elements are completely scoped to this element and will not interact with elements outside of it.
+< ...
+
+I think I agree with this all... That's why I added it originally.
+I'm modifying the content and stacking context is good for all the absolute positioning I can ensure to the browser that nothing will happen?
+The AI code drops it so I gotta watch out perhaps not to just paste that over.
+
+But if I truly added it for these reasons, why did I not add it to the TreeView which is similar.
+And if the answer to that is just "lots of things to do".
+Then, "would you add it now?"
+"are you really sure that this is useful?"
+
+and I don't know...
+
+
+< function EDI_measureBaseElement() {
+<     // 1. Read once, accurately capturing subpixels
+<     const rect = EDI_baseElement.getBoundingClientRect();
+<     
+<     INTS[fEDI_lastReadNumber_offsetWidth] = rect.width;
+<     INTS[fEDI_lastReadNumber_offsetHeight] = rect.height;
+< 
+<     // 2. Calculate lines safely without modifying the DOM
+<     const rawLineCount = INTS[fEDI_lastReadNumber_offsetHeight] / KNOWN_LINE_HEIGHT;
+<     
+<     // Math.floor gives you ONLY fully visible lines
+<     const fullyVisibleLines = Math.floor(rawLineCount); 
+<     
+<     // Math.ceil includes a line even if it is partially cut off at the bottom
+<     const totalRenderedLines = Math.ceil(rawLineCount); 
+< }
+
+> When it comes to the 'Floor Trap'.
+> 
+> What if I had my current code, but I just didn't read after setting the floored values.
+> 
+> The reason I did the read was because I feared that "some boogieman" might cause my setting of the attribute value to 500px,
+> that this would be ignored for some reason that I'm not aware of and perhaps be taken as 501px due to some obscure piece of information that
+> I don't understand. It is just superstitious reading of the value.
+
+< no response
+
+:( I can probably reword that lol
+
+wtf is going on
+
+I said
+
+> When it comes to the 'Floor Trap'.
+> 
+> What if I had my current code, but I just didn't read after setting the floored values.
+
+which was 2/3rd of the previous prompt.
+
+And then I got response of
+
+< If you keep your current code but completely remove that second read, you successfully eliminate the second layout calculation. That is a great performance win!
+< 
+< However, your superstitious fear about the "boogieman" changing 500px to 501px is actually technically justified—though not for the reason you think. The real boogieman isn't a browser bug; it is display scaling (like a 125% zoom on a laptop, or a high-DPI Retina screen).
+<
+< ...
+<
+< The Scaling Boogieman is Real
+< ...
+
+*/
+}
+
+/**
+ * TODO: repeated duplications of the same extremely large selection might benefit from temporary caching of this functions result.
+ * 
+ * textonly is in reference to conversion of the raw storage of the text editor such that all line feeds get returned as as EDI_lineEndString rather than the internal representation of '\n'.
+ * 
+ * @returns {string}
+ */
+function EDI_decode_textonly(start, length) {
+    if (length <= 0) {
+		return '';
+	}
+
+	let end = start + length;
+
+	let decodedText = EDI_decoder.decode(EDI_textByteList_bytes.subarray(start, end));
+	if (!EDI_lineEndString) {
+		EDI_lineEndString = '\n';
+	}
+	if (EDI_lineEndString !== '\n') {
+		decodedText = decodedText.replaceAll('\n', EDI_lineEndString);
+	}
+	
+	return decodedText;
+}
+
+/**
+ * If the 'INTS[fEDI_drawn_count_of_digits_longest_line_number] === positiveNumbersOnly_countDigitsLoop(EDI_lineEndPositionList_count)'
+ * then the function does nothing.
+ * 
+ * TODO: Track the min and max until length changes and then only 2 operations at worst case than while
+ * 
+ * @returns a bool indicating whether the gutter was drawn (if 'INTS[fEDI_drawn_count_of_digits_longest_line_number]' has not changed then false is returned because the gutter didn't need to be "re-" drawn)
+ * 
+ * Dependent UI: EDI_render_request(RenderKind_Cursor_n); EDI_drawHorizontalScrollbar();
+ * 
+ * You either guarantee the dependent UI to run by invoking them regardless of this function's result 'EDI_drawGutter_Width(); EDI_render_request(RenderKind_Cursor_n); EDI_drawHorizontalScrollbar();'
+ * Or you capture the return value to know whether the gutter was "re-" drawn, because if so, you need to invoke 'EDI_render_request(RenderKind_Cursor_n); EDI_drawHorizontalScrollbar();'
+ * for the dependent UI.
+ * The confusion, if there is any, comes from the dependent UI in some scenarios being required independently of whether drawGutter changes. And at other times they're solely dependent on whether drawGutter changes.
+ */
+function EDI_drawGutter_Width() {
+    let count = EDI_lineEndPositionList_count;
+    if (BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_None) {
+        count += 1;
+    }
+    let digitCountOfLargestLineNumber = positiveNumbersOnly_countDigitsLoop(count);
+    if (INTS[fEDI_drawn_count_of_digits_longest_line_number] === digitCountOfLargestLineNumber) return false;
+
+    INTS[fEDI_drawn_count_of_digits_longest_line_number] = digitCountOfLargestLineNumber;
+
+    INTS[fEDI_gutterWidthStyleValue] = Math.ceil(digitCountOfLargestLineNumber * EDI_characterWidth);
+    INTS[fEDI_gutterWidthTotal] = INTS[fEDI_gutterWidthStyleValue] + CONST_EDI_gutterPaddingLeft + CONST_EDI_gutterPaddingRight;
+    gutterWidthTotal_withPxUnits = `${INTS[fEDI_gutterWidthTotal]}px`;
+
+    let gutterWidth = INTS[fEDI_gutterWidthStyleValue] + 'px';
+    EDI_gutter.style.width = gutterWidth;
+    EDI_gutterBackgroundColor.style.width = gutterWidth;
+
+    for (let i = 0; i < INTS[fEDI_ArrayFrom_textElement_children_length]/*a 'ArrayFrom_gutter_children_length' would always be equal to the textElement equivalent*/; i++) {
+        EDI_ringBuffer_gutter[i].style.width = gutterWidth;
+    }
+    
+    for (let i = 0; i < INTS[fEDI_ArrayFrom_textElement_children_length]; i++) {
+        EDI_ringBuffer_text[i].style.left = gutterWidthTotal_withPxUnits;
+    }
+
+    EDI_cursor_caretRow.style.left = gutterWidthTotal_withPxUnits;
+
+    return true;
+}
+
+/**
+ * You need to change this logic to know the longest line.
+ * Then when the longest line changes or some such likely related to finalization of an edit (not pending edits).
+ * then at that point you redraw this.
+ */
+function EDI_drawHorizontalScrollbar() {
+    if (INTS[fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left] !== INTS[fEDI_gutterWidthTotal]) {
+        EDI_horizontal_scrollbar.style.left = gutterWidthTotal_withPxUnits;
+        INTS[fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left] = INTS[fEDI_gutterWidthTotal];
+    }
+
+    if (INTS[fEDI_EDI_horizontal_scrollbar_widthValue] !== (EDI_baseElement.clientWidth - INTS[fEDI_gutterWidthTotal])) {
+        INTS[fEDI_EDI_horizontal_scrollbar_widthValue] = EDI_baseElement.clientWidth - INTS[fEDI_gutterWidthTotal];
+        EDI_horizontal_scrollbar.style.width = INTS[fEDI_EDI_horizontal_scrollbar_widthValue] + 'px';
+    }
+
+    if (INTS[fEDI_longestLine_length] !== INTS[fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar]) {
+        
+        INTS[fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar] = INTS[fEDI_longestLine_length];
+
+        INTS[fEDI_contentWidth] = Math.ceil(INTS[fEDI_longestLine_length] * EDI_characterWidth);
+
+        if ((INTS[fEDI_contentWidth] < (EDI_baseElement.clientWidth - INTS[fEDI_gutterWidthTotal])) && (EDI_baseElement.clientWidth - INTS[fEDI_gutterWidthTotal] > 0)) {
+            INTS[fEDI_contentWidth] = Math.floor(EDI_baseElement.clientWidth - INTS[fEDI_gutterWidthTotal]);
+        }
+
+        let local_EDI_horizontal_scrollbar_virtualization_boundary_style_width = INTS[fEDI_contentWidth] + 'px';
+
+        EDI_horizontal_scrollbar_virtualization_boundary.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
+        EDI_virtualization_horizontal.style.width = INTS[fEDI_contentWidth] + INTS[fEDI_gutterWidthTotal] + 'px';
+
+        for (let i = 0; i < INTS[fEDI_ArrayFrom_textElement_children_length]; i++) {
+            EDI_ringBuffer_text[i].style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
+        }
+
+        EDI_cursor_caretRow.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
+    }
+    
+    // TODO: this is directly tied to a scroll event on EDI_baseElement so handle it from there perhaps?
+    // TODO: this code is duplicated inside EDI_onScroll_WRAPIT when it returns early due to nothing vertically having changed, reduce duplication?
+    // TODO: 'INTS[fEDI_lastReadNumber_scrollLeft]' here?
+    if (EDI_horizontal_scrollbar.scrollLeft !== EDI_baseElement.scrollLeft) {
+        EDI_horizontal_scrollbar.scrollLeft = EDI_baseElement.scrollLeft;
+    }
+}
+
+/**
+ * @returns 
+ */
+function EDI_insertGapBufferSpan() {
+    walkLineUntilIndexColumn();
+    if (!w_span || !w_div) {
+        EDI_cursor_gapBufferWriteToSpanElement = null;
+        INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = 0;
+        return;
+    }
+
+    if (INTS[fEDI_w_indexColumn_Goal] == 0) {
+        // TODO: Ensure 'w_div.children[0]' is equal to the 'w_span' and then change this line to use 'w_span'
+        EDI_cursor_gapBufferWriteToSpanElement = w_span;
+        INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = 0;
+    }
+    else {
+        EDI_cursor_gapBufferWriteToSpanElement = w_div.children[INTS[fEDI_w_indexSpan]];
+
+        if (INTS[fEDI_w_indexColumn_Goal] === INTS[fEDI_w_indexColumn_Sum] + EDI_cursor_gapBufferWriteToSpanElement.textContent.length) {
+            INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = EDI_cursor_gapBufferWriteToSpanElement.textContent.length;
+        }
+        else {
+            INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = INTS[fEDI_w_indexColumn_SpanTextContentRelative];
+        }
+    }
+}
+
+/**
+ * @param {*} editKind 
+ * @param {*} editPosition 
+ * @param {*} editLength 
+ */
+function EDI_startEdit(editKind, editPosition, editLength) {
+    INTS[fEDI_cursor_editKind] = editKind;
+    INTS[fEDI_cursor_editPosition] = editPosition;
+    INTS[fEDI_cursor_editIndexLine] = INTS[fEDI_cursor_indexLine];
+    INTS[fEDI_cursor_editIndexColumn] = INTS[fEDI_cursor_indexColumn];
+    INTS[fEDI_cursor_editLength] = editLength;
+
+    switch (editKind) {
+        case EditKind_InsertLtr:
+            EDI_insertGapBufferSpan();
+            break;
+    }
+}
+
+/**
+ * @param {*} shiftKey 
+ */
+function EDI_preKeyboardMovementSelectionLogic(shiftKey) {
+    if (shiftKey) {
+        if (!EDI_cursor_hasSelection()) {
+            INTS[fEDI_cursor_selectionAnchor] = EDI_getPositionIndex_cursor_raw();
+            INTS[fEDI_cursor_selectionIndexAnchorLine] = INTS[fEDI_cursor_indexLine];
+            INTS[fEDI_cursor_selectionIndexAnchorColumn] = INTS[fEDI_cursor_indexColumn];
+            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+        }
+    }
+    else {
+        if (EDI_cursor_hasSelection()) {
+            INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_cursor_selectionEnd];
+            INTS[fEDI_cursor_selectionIndexAnchorLine] = INTS[fEDI_cursor_selectionIndexEndLine];
+            INTS[fEDI_cursor_selectionIndexAnchorColumn] = INTS[fEDI_cursor_selectionIndexEndColumn];
+            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+        }
+    }
+}
+
+/**
+ * @param {*} shiftKey 
+ */
+function EDI_postKeyboardMovementSelectionLogic(shiftKey) {
+    if (shiftKey) {
+        INTS[fEDI_cursor_selectionEnd] = EDI_getPositionIndex_cursor_raw();
+        INTS[fEDI_cursor_selectionIndexEndLine] = INTS[fEDI_cursor_indexLine];
+        INTS[fEDI_cursor_selectionIndexEndColumn] = INTS[fEDI_cursor_indexColumn];
+        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+    }
+}
+
+/**
+ * This function is expected to be used for a variety of scenarios,
+ * but the initial use-case is caching the indentation when holding the 'enter' key, so that each consecutive event can know what the indentation was on the previous
+ * event and not have to re-calculate it.
+ * 
+ * Then, the idea is that when the cursor moves you invoke this to invalidate that indentation cache so it gets recalculated.
+ * 
+ * TODO: I am quite certain that there are cases where this should be invoked but it isn't currently.
+ * 
+ * TODO: I believe this function to be an unoptimized solution, just that there are more pressing matters to attend to.
+ */
+function EDI_movementBasedCacheInvalidation() {
+    if (INTS[fEDI_cursor_editKind] === EditKind_Enter) {
+        //
+        // this only happens once even if you have many cursors because the next cursor that enters this function would be and editKind of None.
+        //
+        // The main concern is when a user holds down the Enter key, so while this change causes any cursor movement to finalize a pending Enter edit, it won't be nearly as detrimental as if holding down the Enter key were to not be optimized.
+        //
+        // TODO: Permit more than one Enter key edit event to batch
+        // TODO: Cap the amount of enter key edit events that can batch as was done with the insertion.
+        // TODO: Having Enter be an insertion, instead of its own EditKind, sounds like the better long term goal but it is believed that this change is trainsitionally helpful in getting to that final best solution.
+        //
+        EDI_finalizeEdit();
+    }
+    EDI_cursor_enterKey_newLinePlusIndentation_byteList = null;
+    EDI_cursor_cached_indentation_string = null;
+    set_EDI_findOverlay_isBeingShownDueToMultiCursorMatching(false);
+}
+//#endregion
 
 function EDI_measureLineHeightAndCharacterWidth() {
     let measureElement = document.createElement('div');

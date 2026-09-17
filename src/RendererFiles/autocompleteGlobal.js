@@ -97,7 +97,7 @@ function AUTOCOMPLETE_render_create_lines(AUTOCOMPLETE_itemList) {
         div.style.width = widthAttributeValueString;
         AUTOCOMPLETE_itemList.append(div);
 
-        div.style.transform = `translateY(${verticalOffset}px)`;
+        div.style.top = `${verticalOffset}px`;
         verticalOffset += INTS[fAPP_lineHeight];
     }
 
@@ -136,7 +136,7 @@ function AUTOCOMPLETE_render_RESET_lines(AUTOCOMPLETE_itemList) {
         // |
         // for the nodes, it needs to even if 0 so the browser receives explicit instructions rather than trying to static place and it "happens" to end up at 0,0.
 
-        div.style.transform = `translateY(${verticalOffset}px)`;
+        div.style.top = `${verticalOffset}px`;
         verticalOffset += INTS[fAPP_lineHeight];
     }
 }
@@ -335,7 +335,7 @@ function AUTOCOMPLETE_cursor_render_set() {
     }
 
     // transform last for optimal state flagging of the modified DOM element
-    cursorElement.style.transform = `translateY(${cursorTranslateYNumber}px)`;
+    cursorElement.style.top = `${cursorTranslateYNumber}px`;
 }
 
 function AUTOCOMPLETE_cursor_do_set(cursorIndex) {
@@ -465,7 +465,7 @@ function AUTOCOMPLETE_events_scroll_render(timestamp) {
             div.textContent = '...';
         }
         
-        div.style.transform = `translateY(${verticalOffset}px)`;
+        div.style.top = `${verticalOffset}px`;
         verticalOffset += INTS[fAPP_lineHeight];
     }
 }

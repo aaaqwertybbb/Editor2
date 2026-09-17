@@ -133,6 +133,7 @@ body {
   padding-top: 4px;
   padding-bottom: 1px;
   overflow: scroll;
+  transform: translate3d(0px, 0px, 0px);
 }
 
   #AUTOCOMPLETE:focus #AUTOCOMPLETE_cursor {
@@ -158,9 +159,6 @@ body {
 
 #AUTOCOMPLETE_itemList {
   display: contents;
-  position: absolute;
-  left: 0;
-  top: 0;
 }
 
 /*#AUTOCOMPLETE_ITEM {

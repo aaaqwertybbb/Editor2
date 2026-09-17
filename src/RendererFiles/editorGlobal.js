@@ -261,7 +261,6 @@ function EDI_render_do_CreateViewport() {
     EDI_textElement.innerHTML = '';
 
     INTS[fEDI_ringBuffer_indexZero] = 0;
-    const translateY = `translateY(0px)`;
     const left = gutterWidthTotal_withPxUnits;
     const gutterWidth = `${INTS[fEDI_gutterWidthStyleValue]}px`;
     const local_EDI_horizontal_scrollbar_virtualization_boundary_style_width = EDI_horizontal_scrollbar_virtualization_boundary.style.width;
@@ -272,24 +271,25 @@ function EDI_render_do_CreateViewport() {
         const indexLine = i + INTS[fEDI_virtualIndexLine];
 
         const gutterLineElement = document.createElement('div');
+        gutterLineElement.className = 'eG';
+        gutterLineElement.style.width = gutterWidth;
         if (indexLine >= EDI_lineEndPositionList_count) {
             gutterLineElement.textContent = '~';
         }
         else {
             gutterLineElement.textContent = indexLine + 1;
         }
-        gutterLineElement.className = 'eG';
         EDI_gutter.appendChild(gutterLineElement);
-        gutterLineElement.style.width = gutterWidth;
 
         const div = document.createElement('div');
         div.className = 'eT';
-        EDI_textElement.appendChild(div);
-        div.style.transform = translateY;
         div.style.left = left;
         div.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
-
+        // will translate css is good?
+        //div.style.transform = translateY;
+        
         div.appendChild(document.createElement('span'));
+        EDI_textElement.appendChild(div);
     }
 
     EDI_ringBuffer_gutter = Array.from(EDI_gutter.children);

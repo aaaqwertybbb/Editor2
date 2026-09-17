@@ -385,6 +385,12 @@ async function DIALOG_Settings_Create_async() {
     buttonTheme.textContent = 'Theme';
     buttonTheme.addEventListener('click', DIALOG_buttonTheme_onclick);
     dialogBody.appendChild(buttonTheme);
+    
+    const buttonVerifyLspTextAgainstEditorText = document.createElement('button');
+    buttonVerifyLspTextAgainstEditorText.id = 'SETTINGS_verifyLspTextAgainstEditorText';
+    buttonVerifyLspTextAgainstEditorText.textContent = 'VerifyLspTextAgainstEditorText';
+    buttonVerifyLspTextAgainstEditorText.addEventListener('click', DIALOG_buttonVerifyLspTextAgainstEditorText_onclick);
+    dialogBody.appendChild(buttonVerifyLspTextAgainstEditorText);
 
     let checkboxTrueTabsFalseSpaces = document.createElement('input');
     checkboxTrueTabsFalseSpaces.type = 'checkbox';
@@ -442,6 +448,10 @@ function DIALOG_buttonTheme_onclick() {
         document.body.classList.remove('light-theme');
         document.body.classList.add('dark-theme');
     }
+}
+
+function DIALOG_buttonVerifyLspTextAgainstEditorText_onclick() {
+    console.log('DIALOG_buttonVerifyLspTextAgainstEditorText_onclick');
 }
 
 function DIALOG_checkboxTrueTabsFalseSpaces_onchange() {

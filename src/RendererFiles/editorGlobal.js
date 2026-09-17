@@ -3286,13 +3286,6 @@ function EDI_getLineEnd_pos_raw(indexLine) {
     return 0;
 }
 
-/**
- * @returns 
- */
-function EDI_getPositionIndex_cursor() {
-    return EDI_getLineStart_pos_raw(INTS[fEDI_cursor_indexLine]) + INTS[fEDI_cursor_indexColumn];
-}
-
 function EDI_getPositionIndex_Overload(indexLine, indexColumn) {
     return EDI_getLineStart_pos_raw(indexLine) + indexColumn;
 }

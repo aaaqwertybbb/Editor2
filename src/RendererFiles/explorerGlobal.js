@@ -91,7 +91,7 @@ let EXPLORER_arrayEntries = null;
 
 // Google AI'd the bit logic
 // Configuration matching our table above
-let EXPLORER_KEY_MASK = (1 << CONST_EXPLORER_KEY_BITS) - 1; // Binary: 00000000000000000000111111111111 (0xFFF)
+//let EXPLORER_KEY_MASK = (1 << CONST_EXPLORER_KEY_BITS) - 1; // Binary: 00000000000000000000111111111111 (0xFFF)
 // end CONSTRUCTOR
 
 /** // Invoke this?: 'this.draw_render_fullReset_request();' */

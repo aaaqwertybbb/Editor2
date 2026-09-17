@@ -62,7 +62,7 @@ const EDI_trackedSyntaxList = new TrackedSyntaxList(32);
  */
 let EDI_findOverlay_searchResultPositionList = null;
 
-// #region EDI_textByteList
+// #region textByteList
 let EDI_textByteList_capacity = 1024;
 let EDI_textByteList_bytes = new Uint8Array(EDI_textByteList_capacity);
 let EDI_textByteList_count = 0;
@@ -317,7 +317,7 @@ INTS[fEDI_ontab_visualWidth_perCharacter] = 4;
  */
 const EDI_lineEndPositionList_PENDING = new UInt32List(128);
 
-// #region EDI_lineEndPositionList
+// #region lineEndPositionList
 let EDI_lineEndPositionList_capacity = 128;
 /**
  * IMPORTANT: use EDI_readLineEndPositionList(...) rather than indexing into this directly...
@@ -557,21 +557,6 @@ function EDI_render_do(timestamp) {
     }
     
     BYTES[byteEDI_isRenderPending] = 0;
-}
-
-function EDI_render_do_Clear() {
-    EDI_drawCursor();
-    EDI_clearSelectionStyle();
-    EDI_textElement.innerHTML = '';
-    EDI_gutter.innerHTML = '';
-    // TODO: Clear the ring buffer state?
-
-    // Force case 3
-    INTS[fEDI_prevVli] = 0;
-    INTS[fEDI_currVli] = INTS[fEDI_virtualCount];
-    // TODO: Duplicated setting of scrolltop; this case and just baseline everytime vertical scrolls it is done in this method elsewhere
-    INTS[fEDI_ONSCROLLscrollTop] = INTS[fEDI_lastReadNumber_scrollTop];
-    EDI_render_do_CreateViewport();
 }
 
 /** All DOM manipulation needs to be done through this function. */
@@ -1053,6 +1038,21 @@ function EDI_render_do_RedrawSelection() {
     // TODO: I don't know why this works the first thing the function invoked does is check whether the selection changed which it didn't so...
     // ...that being said I don't feel well so I didn't actually but in any effort to read the if statement in question I just glanced at it.
     EDI_createStyleForSelection();
+}
+
+function EDI_render_do_Clear() {
+    EDI_drawCursor();
+    EDI_clearSelectionStyle();
+    EDI_textElement.innerHTML = '';
+    EDI_gutter.innerHTML = '';
+    // TODO: Clear the ring buffer state?
+
+    // Force case 3
+    INTS[fEDI_prevVli] = 0;
+    INTS[fEDI_currVli] = INTS[fEDI_virtualCount];
+    // TODO: Duplicated setting of scrolltop; this case and just baseline everytime vertical scrolls it is done in this method elsewhere
+    INTS[fEDI_ONSCROLLscrollTop] = INTS[fEDI_lastReadNumber_scrollTop];
+    EDI_render_do_CreateViewport();
 }
 
 function EDI_state_clear() {

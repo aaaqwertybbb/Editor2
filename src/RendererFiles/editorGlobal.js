@@ -5287,7 +5287,7 @@ function EDI_onKeyDown_ArrowDown(event) {
             EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
             EDI_set_indexColumn_and_visualColumn_relativeTo_storedVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
         }
-        EDI_postKeyboardMovementSelectionLogic(shiftKey);
+        EDI_postKeyboardMovementSelectionLogic(event.shiftKey);
 
         EDI_render_request(RenderKind_Cursor_n);
         if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {

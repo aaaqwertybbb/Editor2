@@ -3691,6 +3691,71 @@ function update_virtualCount() {
 }
 
 /**
+ * This clears the cursor's selection.
+ */
+function EDI_moveCursor_position(intValue) {
+    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+        // TODO: Timing issue, someone typing while they scroll
+        EDI_finalizeEdit();
+    }
+    EDI_getLineAndColumnIndices_raw(intValue);
+    let lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
+    let lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
+    EDI_moveCursor_indexLine_indexColumn(lineAndColumnIndices_indexLine, lineAndColumnIndices_indexColumn);
+}
+
+/**
+ * This clears the cursor's selection.
+ */
+function EDI_moveCursor_indexLine_indexColumn(indexLine, indexColumn) {
+    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+        // TODO: Timing issue, someone typing while they scroll
+        EDI_finalizeEdit();
+    }
+    let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(indexLine);
+
+    if (indexColumn > lastValidIndexColumn) {
+        INTS[fEDI_cursor_indexColumn] = lastValidIndexColumn;
+        INTS[fEDI_cursorVisualColumnIndex] = lastValidIndexColumn;
+    }
+    else {
+        INTS[fEDI_cursor_indexColumn] = indexColumn;
+        INTS[fEDI_cursorVisualColumnIndex] = indexColumn;
+    }
+
+    INTS[fEDI_cursor_indexLine] = indexLine;
+    
+    // TODO: selectionAnchor = selectionEnd; EDI_drawCursor(); # being the way to clear a selection should be documented / wrapped by a method for ease of use / readability?
+    INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_cursor_selectionEnd];
+    EDI_render_request(RenderKind_Cursor_n);
+}
+
+/**
+ * TODO: repeated duplications of the same extremely large selection might benefit from temporary caching of this functions result.
+ * 
+ * textonly is in reference to conversion of the raw storage of the text editor such that all line feeds get returned as as EDI_lineEndString rather than the internal representation of '\n'.
+ * 
+ * @returns {string}
+ */
+function EDI_decode_textonly(start, length) {
+    if (length <= 0) {
+		return '';
+	}
+
+	let end = start + length;
+
+	let decodedText = EDI_decoder.decode(EDI_textByteList_bytes.subarray(start, end));
+	if (!EDI_lineEndString) {
+		EDI_lineEndString = '\n';
+	}
+	if (EDI_lineEndString !== '\n') {
+		decodedText = decodedText.replaceAll('\n', EDI_lineEndString);
+	}
+	
+	return decodedText;
+}
+
+/**
  * If the 'INTS[fEDI_drawn_count_of_digits_longest_line_number] === positiveNumbersOnly_countDigitsLoop(EDI_lineEndPositionList_count)'
  * then the function does nothing.
  * 
@@ -7445,71 +7510,6 @@ async function EDI_MenuOnClick(indexClicked, elementClicked) {
             EDI_findOverlay_showSetter(!get_EDI_findOverlay_show());
             return;
     }
-}
-
-/**
- * This clears the cursor's selection.
- */
-function EDI_moveCursor_position(intValue) {
-    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
-        // TODO: Timing issue, someone typing while they scroll
-        EDI_finalizeEdit();
-    }
-    EDI_getLineAndColumnIndices_raw(intValue);
-    let lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
-    let lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
-    EDI_moveCursor_indexLine_indexColumn(lineAndColumnIndices_indexLine, lineAndColumnIndices_indexColumn);
-}
-
-/**
- * This clears the cursor's selection.
- */
-function EDI_moveCursor_indexLine_indexColumn(indexLine, indexColumn) {
-    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
-        // TODO: Timing issue, someone typing while they scroll
-        EDI_finalizeEdit();
-    }
-    let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(indexLine);
-
-    if (indexColumn > lastValidIndexColumn) {
-        INTS[fEDI_cursor_indexColumn] = lastValidIndexColumn;
-        INTS[fEDI_cursorVisualColumnIndex] = lastValidIndexColumn;
-    }
-    else {
-        INTS[fEDI_cursor_indexColumn] = indexColumn;
-        INTS[fEDI_cursorVisualColumnIndex] = indexColumn;
-    }
-
-    INTS[fEDI_cursor_indexLine] = indexLine;
-    
-    // TODO: selectionAnchor = selectionEnd; EDI_drawCursor(); # being the way to clear a selection should be documented / wrapped by a method for ease of use / readability?
-    INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_cursor_selectionEnd];
-    EDI_render_request(RenderKind_Cursor_n);
-}
-
-/**
- * TODO: repeated duplications of the same extremely large selection might benefit from temporary caching of this functions result.
- * 
- * textonly is in reference to conversion of the raw storage of the text editor such that all line feeds get returned as as EDI_lineEndString rather than the internal representation of '\n'.
- * 
- * @returns {string}
- */
-function EDI_decode_textonly(start, length) {
-    if (length <= 0) {
-		return '';
-	}
-
-	let end = start + length;
-
-	let decodedText = EDI_decoder.decode(EDI_textByteList_bytes.subarray(start, end));
-	if (!EDI_lineEndString) {
-		EDI_lineEndString = '\n';
-	}
-	if (EDI_lineEndString !== '\n') {
-		decodedText = decodedText.replaceAll('\n', EDI_lineEndString);
-	}
-	
-	return decodedText;
 }
 
 /**

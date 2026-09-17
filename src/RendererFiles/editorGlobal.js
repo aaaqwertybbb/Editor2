@@ -2824,6 +2824,7 @@ function EDI_createStyleForSelection_indentMore() {
     INTS[fEDI_cursor_DRAWN_selectionEnd] = INTS[fEDI_cursor_selectionEnd];
 }
 
+//#region mousedown
 function EDI_onMouseDown(event) {
     // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
     if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
@@ -3127,7 +3128,9 @@ function EDI_onMouseDownDetailRankThree(event_button, event_shiftKey, indexLineC
         INTS[fEDI_detail_largeColumnVisual] = INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL];
     }
 }
+//#endregion
 
+//#region mousemove
 function EDI_onMouseMove_WRAPIT(event) {
     if ((event.buttons & 1) && !get_EDI_recentBoundingClientRect_isNull_intFalsey()) {
         // TODO: Consider short circuiting at via event.clientX and clientY by tracking the necessary thresholds for the cursor position to pass rather than the previous and current indices. (you can possibly thereby skip the calculation of the indices entirely for the redundant events).
@@ -3416,6 +3419,7 @@ function EDI_onMouseMoveDetailRankThree(indexLineClicked, indexColumnClicked) {
         EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
     }
 }
+//#endregion
 
 function EDI_getCharacterPrevious_KIND(indexColumn, positionIndex) {
     if (indexColumn !== 0) {

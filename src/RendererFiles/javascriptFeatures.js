@@ -1430,7 +1430,7 @@ I did some exercises then about an hour long walk then showered...
                             if (divSpanTextContent[pos] === '(') {
                                 className = 'eF';
                             }
-                            else if (divSpanTextContent[pos] === '.') {
+                            else if (substart > 0 && divSpanTextContent[substart - 1] === '.') {
                                 className = 'eM';
                             }
 

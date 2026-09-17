@@ -1427,38 +1427,30 @@ async function EXPLORER_MenuOnClick(indexClicked, elementClicked) {
         EXPLORER_menuOptionCut_object = null;
     }
 
+    if (!MENU_target.id) return;
+
+    const entry = await window.myAPI.getFilesystemEntryById(MENU_target.id);
+    if (!entry) return;
+
     switch (commandKind) {
         case CommandKind_Copy:
-            if (MENU_target.id) {
-                // TODO: optimize this?
-                const entry = await window.myAPI.getFilesystemEntryById(MENU_target.id);
-                if (!entry) return;
-                await window.myAPI.setClipboard('file:///' + entry.absolutePath);
-            }
+            // TODO: optimize this?
+            await window.myAPI.setClipboard('file:///' + entry.absolutePath);
             break;
         case CommandKind_Cut:
             // they don't fully work but I'm not feeling overly interested in anything at the moment I wanna just lay down and do nothing so I'm pleased that I did something at all
-            if (MENU_target.id) {
-                // TODO: optimize this?
-                const entry = await window.myAPI.getFilesystemEntryById(MENU_target.id);
-                if (!entry) return;
-                let text = 'file:///' + entry.absolutePath;
-                EXPLORER_menuOptionCut_object = {
-                    id: text,
-                    indexItem: MENU_target.indexItem,
-                    divRelativeIndex: MENU_target.divRelativeIndex
-                };
-
-                await window.myAPI.setClipboard(text);
-            }
+            // TODO: optimize this?
+            let text = 'file:///' + entry.absolutePath;
+            EXPLORER_menuOptionCut_object = {
+                id: text,
+                indexItem: MENU_target.indexItem,
+                divRelativeIndex: MENU_target.divRelativeIndex
+            };
+            await window.myAPI.setClipboard(text);
             break;
         case CommandKind_CopyAbsolutePath:
-            if (MENU_target.id) {
-                // TODO: optimize this?
-                const entry = await window.myAPI.getFilesystemEntryById(MENU_target.id);
-                if (!entry) return;
-                await window.myAPI.setClipboard(entry.absolutePath);
-            }
+            // TODO: optimize this?
+            await window.myAPI.setClipboard(entry.absolutePath);
             break;
         case CommandKind_Paste:
             {
@@ -1470,8 +1462,6 @@ async function EXPLORER_MenuOnClick(indexClicked, elementClicked) {
                 let local_EXPLORER_menuOptionCut_object = EXPLORER_menuOptionCut_object;
                 EXPLORER_menuOptionCut_object = null;
                 // TODO: optimize this?
-                const entry = await window.myAPI.getFilesystemEntryById(MENU_target.id);
-                if (!entry) return;
                 let pasteResult = await window.myAPI.copyClipboardAbsolutePathToDirectory(entry.absolutePath, local_EXPLORER_menuOptionCut_object?.id);
                 if (pasteResult.success) {
                         /*
@@ -1609,82 +1599,48 @@ async function EXPLORER_MenuOnClick(indexClicked, elementClicked) {
                 break;
             }
         case CommandKind_NewFile_Directory:
-            {
-                if (!MENU_target.id) return;
-                // TODO: optimize this?
-                const entry = await window.myAPI.getFilesystemEntryById(MENU_target.id);
-                if (!entry) return;
-                BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
-                WIDGET_restoreFocusToElementOverride = MENU_restoreFocusToElement;
-                await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'filename', entry, MENU_target, NewFile_Directory_WIDGET_InputText_callback);
-                break;
-            }
+            // TODO: optimize this?
+            BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
+            WIDGET_restoreFocusToElementOverride = MENU_restoreFocusToElement;
+            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'filename', entry, MENU_target, NewFile_Directory_WIDGET_InputText_callback);
+            break;
         case CommandKind_NewFile_File:
-            {
-                if (!MENU_target.id) return;
-                // TODO: optimize this?
-                const entry = await window.myAPI.getFilesystemEntryById(MENU_target.id);
-                if (!entry) return;
-                BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
-                WIDGET_restoreFocusToElementOverride = MENU_restoreFocusToElement;
-                await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'filename', entry, MENU_target, NewFile_File_WIDGET_InputText_callback);
-                break;
-            }
+            // TODO: optimize this?
+            BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
+            WIDGET_restoreFocusToElementOverride = MENU_restoreFocusToElement;
+            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'filename', entry, MENU_target, NewFile_File_WIDGET_InputText_callback);
+            break;
         case CommandKind_DeleteFile_Directory:
-            {
-                if (!MENU_target.id) return;
-                // TODO: optimize this?
-                const entry = await window.myAPI.getFilesystemEntryById(MENU_target.id);
-                if (!entry) return;
-                let filename = entry.basename;
-                BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
-                WIDGET_restoreFocusToElementOverride = MENU_restoreFocusToElement;
-                await WIDGET_show(WidgetKind_YesCancel, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'delete ' + filename, entry, MENU_target, DeleteFile_Directory_YesCancel_callback);
-                break;
-            }
+            // TODO: optimize this?
+            BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
+            WIDGET_restoreFocusToElementOverride = MENU_restoreFocusToElement;
+            await WIDGET_show(WidgetKind_YesCancel, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'delete ' + entry.basename, entry, MENU_target, DeleteFile_Directory_YesCancel_callback);
+            break;
         case CommandKind_DeleteFile_File:
-            {
-                if (!MENU_target.id) return;
-                // TODO: optimize this?
-                const entry = await window.myAPI.getFilesystemEntryById(MENU_target.id);
-                if (!entry) return;
-                let filename = entry.basename;
-                BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
-                WIDGET_restoreFocusToElementOverride = MENU_restoreFocusToElement;
-                await WIDGET_show(WidgetKind_YesCancel, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'delete ' + filename, entry, MENU_target, DeleteFile_File_YesCancel_callback);
-                break;
-            }
+            // TODO: optimize this?
+            BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
+            WIDGET_restoreFocusToElementOverride = MENU_restoreFocusToElement;
+            await WIDGET_show(WidgetKind_YesCancel, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'delete ' + entry.basename, entry, MENU_target, DeleteFile_File_YesCancel_callback);
+            break;
         case CommandKind_RenameFile_Directory:
-            {
-                if (!MENU_target.id) return;
-                // TODO: optimize this?
-                const entry = await window.myAPI.getFilesystemEntryById(MENU_target.id);
-                if (!entry) return;
-                let filename = entry.basename;
-                BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
-                WIDGET_restoreFocusToElementOverride = MENU_restoreFocusToElement;
-                await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'rename', filename, {MENU_target:MENU_target, entry:entry}, RenameFile_Directory_InputText_callback);
-                break;
-            }
+            // TODO: optimize this?
+            BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
+            WIDGET_restoreFocusToElementOverride = MENU_restoreFocusToElement;
+            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'rename', entry.basename, {MENU_target:MENU_target, entry:entry}, RenameFile_Directory_InputText_callback);
+            break;
         case CommandKind_RenameFile_File:
-            {
-                /*
-                Maybe the only difference between the _Directory and _File cases for each ..._...
-                is the bool for isDirectory.
+            /*
+            Maybe the only difference between the _Directory and _File cases for each ..._...
+            is the bool for isDirectory.
 
-                But I'm exhausted and I cannot reduce the code duplication here because my head doesn't function.
-                */
+            But I'm exhausted and I cannot reduce the code duplication here because my head doesn't function.
+            */
 
-                if (!MENU_target.id) return;
-                // TODO: optimize this?
-                const entry = await window.myAPI.getFilesystemEntryById(MENU_target.id);
-                if (!entry) return;
-                let filename = entry.basename;
-                BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
-                WIDGET_restoreFocusToElementOverride = MENU_restoreFocusToElement;
-                await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'rename', filename, {MENU_target: MENU_target, entry: entry}, RenameFile_File_InputText_callback);
-                break;
-            }
+            // TODO: optimize this?
+            BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
+            WIDGET_restoreFocusToElementOverride = MENU_restoreFocusToElement;
+            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'rename', entry.basename, {MENU_target: MENU_target, entry: entry}, RenameFile_File_InputText_callback);
+            break;
     }
 }
 

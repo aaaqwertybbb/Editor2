@@ -3731,6 +3731,99 @@ function EDI_moveCursor_indexLine_indexColumn(indexLine, indexColumn) {
 }
 
 /**
+ * If a line has an indentation of 4 space characters, but the user's cursor is positioned after the second space character,
+ * then only the first 2 space characters will be used as indentation.
+ * 
+ * This is intentional, it seems like the more expected behavior in my mind.
+ * 
+ * if 'shouldCountAndVisualWidthOnly' is passed as 'true' or 'truthy' then the behavior I just described is no longer true. It will read the entire indentation regardless of cursor column position.
+ * TODO: ^the parameter 'shouldCountAndVisualWidthOnly' is a bit confusing...
+ * ...I'm trying to shove the logic of the 'home' key into this function, and maybe I should just not.
+ * 
+ * Returns the 'endExclusiveIndentationIndexColumn' of the indentation i.e.: "the column index that exclusively ends the indentation.".
+ * Sets the state for:
+ * - INTS[fEDI_cursor_cached_indentation_string_visualWidth]
+ *     - not set if 'countAndVisualWidthOnly' is passed as 'true' or a truthy
+ * - EDI_cursor_enterKey_newLinePlusIndentation_byteList
+ *     - not set if 'countAndVisualWidthOnly' is passed as 'true' or a truthy
+ * - EDI_cursor_cached_indentation_string
+ */
+function EDI_cacheIndentation(shouldCountAndVisualWidthOnly) {
+    let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
+    EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+    const line_start = INTS[fEDI_getLineBoundaryPositions_start];
+
+    let upperLimitIndexColumn = lastValidIndexColumn;
+    if (!shouldCountAndVisualWidthOnly && INTS[fEDI_cursor_indexColumn] < lastValidIndexColumn) {
+        upperLimitIndexColumn = INTS[fEDI_cursor_indexColumn];
+    }
+
+    let count = 0;
+    let indentation_string_visualWidth = 0;
+
+    // Currently an enter key press only batches with other enter key presses so either the edit is finalized or the indentation was already cached and thus this code wouldn't run,
+    // i.e.: you can read directly from the byte array without worrying about a pending edit.
+    outer: for (var i = 0; i < upperLimitIndexColumn; i++) {
+        switch (EDI_textByteList_bytes[line_start + i]) {
+            case CONST_EDI_ASCII_SPACE:
+                indentation_string_visualWidth++;
+                count++;
+                break;
+            case CONST_EDI_ASCII_TAB:
+                indentation_string_visualWidth += 4;
+                count++;
+                break;
+            default:
+                break outer;
+        }
+    }
+
+    INTS[fEDI_cursor_cached_indentation_string_visualWidth] = indentation_string_visualWidth;
+
+    if (!shouldCountAndVisualWidthOnly) {
+        EDI_cursor_enterKey_newLinePlusIndentation_byteList = new Uint8Array(1 + count); // '1 +' for the '\n'. This might not always exist in the byte array for example if pressing enter key on the 0th index line there is no existing '\n' to copy from the byte array so just always make it.
+        EDI_cursor_enterKey_newLinePlusIndentation_byteList[0] = CONST_EDI_ASCII_LINE_FEED;
+    
+        if (count > 0) {
+            let subarray = EDI_textByteList_bytes.subarray(line_start, line_start + count);
+            EDI_cursor_enterKey_newLinePlusIndentation_byteList.set(subarray, 1);
+            EDI_cursor_cached_indentation_string = EDI_decoder.decode(subarray);
+        }
+        else {
+            EDI_cursor_cached_indentation_string = '';
+        }
+    }
+
+    return count;
+}
+
+function EDI_lineWasInsertedValidateGutter() {
+    if (EDI_drawGutter_Width()) {
+        // If true then you need to also draw the dependent UI
+        EDI_render_request(RenderKind_Cursor_n);
+        EDI_drawHorizontalScrollbar();
+    }
+}
+
+/**
+ * TODO: This uses a linear search and likely can be optimized.
+ * 
+ * @param {*} indexPosition 
+ * @param {*} insertionCount 
+ */
+function EDI_trackedSyntaxList_inefficientUpdateStartAndLength(indexPosition, insertionCount) {
+    for (var i = 0; i < EDI_trackedSyntaxList.count_abstract; i++) {
+        EDI_trackedSyntaxList.getElementAt(i);
+        if (indexPosition <= INTS[fEDI_pooledTrackedSyntax_start]) {
+            EDI_trackedSyntaxList.setStart(i, INTS[fEDI_pooledTrackedSyntax_start] + insertionCount);
+        }
+        else if (indexPosition > INTS[fEDI_pooledTrackedSyntax_start] && indexPosition < INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length]) {
+            EDI_trackedSyntaxList.setLength(i, INTS[fEDI_pooledTrackedSyntax_length] + insertionCount);
+        }
+    }
+}
+
+/**
  * TODO: repeated duplications of the same extremely large selection might benefit from temporary caching of this functions result.
  * 
  * textonly is in reference to conversion of the raw storage of the text editor such that all line feeds get returned as as EDI_lineEndString rather than the internal representation of '\n'.
@@ -5991,99 +6084,6 @@ function EDI_tabKey() {
     // oh wait lol tab-stops
 
     EDI_render_request(RenderKind_TabKey);
-}
-
-/**
- * If a line has an indentation of 4 space characters, but the user's cursor is positioned after the second space character,
- * then only the first 2 space characters will be used as indentation.
- * 
- * This is intentional, it seems like the more expected behavior in my mind.
- * 
- * if 'shouldCountAndVisualWidthOnly' is passed as 'true' or 'truthy' then the behavior I just described is no longer true. It will read the entire indentation regardless of cursor column position.
- * TODO: ^the parameter 'shouldCountAndVisualWidthOnly' is a bit confusing...
- * ...I'm trying to shove the logic of the 'home' key into this function, and maybe I should just not.
- * 
- * Returns the 'endExclusiveIndentationIndexColumn' of the indentation i.e.: "the column index that exclusively ends the indentation.".
- * Sets the state for:
- * - INTS[fEDI_cursor_cached_indentation_string_visualWidth]
- *     - not set if 'countAndVisualWidthOnly' is passed as 'true' or a truthy
- * - EDI_cursor_enterKey_newLinePlusIndentation_byteList
- *     - not set if 'countAndVisualWidthOnly' is passed as 'true' or a truthy
- * - EDI_cursor_cached_indentation_string
- */
-function EDI_cacheIndentation(shouldCountAndVisualWidthOnly) {
-    let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
-    EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
-    const line_start = INTS[fEDI_getLineBoundaryPositions_start];
-
-    let upperLimitIndexColumn = lastValidIndexColumn;
-    if (!shouldCountAndVisualWidthOnly && INTS[fEDI_cursor_indexColumn] < lastValidIndexColumn) {
-        upperLimitIndexColumn = INTS[fEDI_cursor_indexColumn];
-    }
-
-    let count = 0;
-    let indentation_string_visualWidth = 0;
-
-    // Currently an enter key press only batches with other enter key presses so either the edit is finalized or the indentation was already cached and thus this code wouldn't run,
-    // i.e.: you can read directly from the byte array without worrying about a pending edit.
-    outer: for (var i = 0; i < upperLimitIndexColumn; i++) {
-        switch (EDI_textByteList_bytes[line_start + i]) {
-            case CONST_EDI_ASCII_SPACE:
-                indentation_string_visualWidth++;
-                count++;
-                break;
-            case CONST_EDI_ASCII_TAB:
-                indentation_string_visualWidth += 4;
-                count++;
-                break;
-            default:
-                break outer;
-        }
-    }
-
-    INTS[fEDI_cursor_cached_indentation_string_visualWidth] = indentation_string_visualWidth;
-
-    if (!shouldCountAndVisualWidthOnly) {
-        EDI_cursor_enterKey_newLinePlusIndentation_byteList = new Uint8Array(1 + count); // '1 +' for the '\n'. This might not always exist in the byte array for example if pressing enter key on the 0th index line there is no existing '\n' to copy from the byte array so just always make it.
-        EDI_cursor_enterKey_newLinePlusIndentation_byteList[0] = CONST_EDI_ASCII_LINE_FEED;
-    
-        if (count > 0) {
-            let subarray = EDI_textByteList_bytes.subarray(line_start, line_start + count);
-            EDI_cursor_enterKey_newLinePlusIndentation_byteList.set(subarray, 1);
-            EDI_cursor_cached_indentation_string = EDI_decoder.decode(subarray);
-        }
-        else {
-            EDI_cursor_cached_indentation_string = '';
-        }
-    }
-
-    return count;
-}
-
-function EDI_lineWasInsertedValidateGutter() {
-    if (EDI_drawGutter_Width()) {
-        // If true then you need to also draw the dependent UI
-        EDI_render_request(RenderKind_Cursor_n);
-        EDI_drawHorizontalScrollbar();
-    }
-}
-
-/**
- * TODO: This uses a linear search and likely can be optimized.
- * 
- * @param {*} indexPosition 
- * @param {*} insertionCount 
- */
-function EDI_trackedSyntaxList_inefficientUpdateStartAndLength(indexPosition, insertionCount) {
-    for (var i = 0; i < EDI_trackedSyntaxList.count_abstract; i++) {
-        EDI_trackedSyntaxList.getElementAt(i);
-        if (indexPosition <= INTS[fEDI_pooledTrackedSyntax_start]) {
-            EDI_trackedSyntaxList.setStart(i, INTS[fEDI_pooledTrackedSyntax_start] + insertionCount);
-        }
-        else if (indexPosition > INTS[fEDI_pooledTrackedSyntax_start] && indexPosition < INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length]) {
-            EDI_trackedSyntaxList.setLength(i, INTS[fEDI_pooledTrackedSyntax_length] + insertionCount);
-        }
-    }
 }
 
 function EDI_render_do_EnterKey() {

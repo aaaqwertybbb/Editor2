@@ -224,10 +224,10 @@ function EDI_render_do(timestamp) {
                 EDI_render_do_cursor_flag_scrollIntoViewExplicit(timestamp);
                 break;
             case RenderKind_Cursor_flag_doNotScrollIntoView:
-                EDI_render_do_cursor_flag_doNotScrollIntoView(timestamp);
+                EDI_drawCursor(timestamp, /*NOTscrollCursorIntoView*/ true);
                 break;
             case RenderKind_Cursor_n:
-                EDI_render_do_cursor(timestamp);
+                EDI_drawCursor(timestamp, /*NOTscrollCursorIntoView*/ false);
                 break;
         }
     }
@@ -572,7 +572,7 @@ function EDI_onScroll_TrailingEdge() {
 }
 
 function EDI_render_do_Clear() {
-    EDI_drawCursor();
+    EDI_drawCursor(/*timestamp*/ 0, /*NOTscrollCursorIntoView*/ false);
     EDI_clearSelectionStyle();
     EDI_textElement.innerHTML = '';
     EDI_gutter.innerHTML = '';
@@ -4483,7 +4483,7 @@ function EDI_moveCursor_indexLine_indexColumn(indexLine, indexColumn) {
 
     INTS[fEDI_cursor_indexLine] = indexLine;
     
-    // TODO: selectionAnchor = selectionEnd; EDI_drawCursor(); # being the way to clear a selection should be documented / wrapped by a method for ease of use / readability?
+    // TODO: selectionAnchor = selectionEnd; EDI_drawCursor(/*timestamp*/ 0, /*NOTscrollCursorIntoView*/ false); # being the way to clear a selection should be documented / wrapped by a method for ease of use / readability?
     INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_cursor_selectionEnd];
     EDI_render_request(RenderKind_Cursor_n);
 }
@@ -5648,11 +5648,6 @@ function EDI_onKeyDown_keyLengthEqualsOne_altKey(event) {
 //#endregion
 
 //#region cursorDrawing
-function EDI_render_do_cursor(timestamp) {
-    INTS[fEDI_EDI_cursorBlinkLastTimestamp] = timestamp;
-    EDI_drawCursor();
-}
-
 /** obsolete-ish */
 function EDI_render_do_cursor_flag_scrollIntoViewExplicit(timestamp) {
     INTS[fEDI_EDI_cursorBlinkLastTimestamp] = timestamp;
@@ -5665,12 +5660,7 @@ function EDI_render_do_cursor_flag_scrollIntoViewExplicit(timestamp) {
         // TODO: consider setting 'notShouldScrollIntoView' to false to avoid two scroll into views redundantly?
         EDI_scrollCursorIntoView();
     }
-    EDI_drawCursor(notShouldScrollIntoView);
-}
-
-function EDI_render_do_cursor_flag_doNotScrollIntoView(timestamp) {
-    INTS[fEDI_EDI_cursorBlinkLastTimestamp] = timestamp;
-    EDI_drawCursor(true);
+    EDI_drawCursor(timestamp, notShouldScrollIntoView);
 }
 
 function EDI_cursor_hasSelection() {
@@ -5737,7 +5727,10 @@ function EDI_cursor_clear() {
  * 
  * @param {boolean} NOTscrollCursorIntoView 
  */
-function EDI_drawCursor(NOTscrollCursorIntoView) {
+function EDI_drawCursor(timestamp, NOTscrollCursorIntoView) {
+
+    INTS[fEDI_EDI_cursorBlinkLastTimestamp] = timestamp;
+
     INTS[fEDI_cursor_cursorTranslateYValue] = INTS[fEDI_cursor_indexLine] * INTS[fEDI_lineHeight];
 
 

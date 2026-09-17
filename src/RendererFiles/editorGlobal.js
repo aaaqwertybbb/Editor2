@@ -3095,7 +3095,7 @@ function EDI_onMouseMoveDetailRankThree(indexLineClicked, indexColumnClicked) {
         // You could attach to I think it is window? but then I'm wondering if a race condition could ever occur.
         // so you'd probably want to do both attach to window and protect against large movements that skip the exact threshold when transitioning.
         //
-        if (EDI_getPositionIndex_raw_cursor() !== INTS[fEDI_detail_smallPosition]) {
+        if (EDI_getPositionIndex_cursor_raw() !== INTS[fEDI_detail_smallPosition]) {
             EDI_getLineAndColumnIndices_raw(INTS[fEDI_detail_smallPosition]);
             let smallLineAndColumnPositionIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
             let smallLineAndColumnPositionIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
@@ -3256,7 +3256,7 @@ function EDI_getPositionIndex_Overload(indexLine, indexColumn) {
 /**
  * @returns 
  */
-function EDI_getPositionIndex_raw_cursor() {
+function EDI_getPositionIndex_cursor_raw() {
     return EDI_getLineStart_pos_raw(INTS[fEDI_cursor_indexLine]) + INTS[fEDI_cursor_indexColumn];
 }
 
@@ -3769,7 +3769,7 @@ function EDI_editEvent_theEditIself_InsertLtr(event) {
     // You can do this because the function 'EDI_NOTcanBatch_insert' was already checked for all the cursors, if it is possible to batch, the editKind will stay InsertLtr otherwise it is finalized and set to None.
     // TODO: Use if === EditKind_None for copy and paste safety / it might just even be more readable
     if (INTS[fEDI_cursor_editKind] !== EditKind_InsertLtr) {
-        EDI_startEdit(EditKind_InsertLtr, EDI_getPositionIndex_raw_cursor(), /*editLength*/ 0);
+        EDI_startEdit(EditKind_InsertLtr, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
     }
     EDI_insertDo(event.key);
     INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
@@ -3784,7 +3784,7 @@ function EDI_editEvent_theEditIself_DeleteLtr(event) {
     }
     else {
         if (INTS[fEDI_cursor_editKind] !== EditKind_DeleteLtr) {
-            EDI_startEdit(EditKind_DeleteLtr, EDI_getPositionIndex_raw_cursor(), /*editLength*/ 0);
+            EDI_startEdit(EditKind_DeleteLtr, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
         }
         EDI_deleteDo(event);
     }
@@ -3798,7 +3798,7 @@ function EDI_editEvent_theEditIself_BackspaceRtl(event) {
     }
     else {
         if (INTS[fEDI_cursor_editKind] !== EditKind_BackspaceRtl) {
-            EDI_startEdit(EditKind_BackspaceRtl, EDI_getPositionIndex_raw_cursor(), /*editLength*/ 0);
+            EDI_startEdit(EditKind_BackspaceRtl, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
         }
         EDI_backspaceDo(event);
         INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
@@ -3811,13 +3811,13 @@ function EDI_editEvent_theEditIself_Tab(event) {
     if (EDI_cursor_hasSelection()) {
         if (event.shiftKey) {
             if (INTS[fEDI_cursor_editKind] !== EditKind_IndentLess) {
-                EDI_startEdit(EditKind_IndentLess, EDI_getPositionIndex_raw_cursor(), /*editLength*/ 0);
+                EDI_startEdit(EditKind_IndentLess, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
             }
             EDI_indentLess();
         }
         else {
             if (INTS[fEDI_cursor_editKind] !== EditKind_IndentMore) {
-                EDI_startEdit(EditKind_IndentMore, EDI_getPositionIndex_raw_cursor(), /*editLength*/ 0);
+                EDI_startEdit(EditKind_IndentMore, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
             }
             EDI_indentMore();
         }
@@ -3830,13 +3830,13 @@ function EDI_editEvent_theEditIself_Tab(event) {
             // towards a useable editor all the features are coming together but there's this awkward phase of "I can start using it but also not really" or something I just idk.
             EDI_onMouseDownDetailRankThree(0, false, INTS[fEDI_cursor_indexLine], INTS[fEDI_cursor_indexColumn]);
             if (INTS[fEDI_cursor_editKind] !== EditKind_IndentLess) {
-                EDI_startEdit(EditKind_IndentLess, EDI_getPositionIndex_raw_cursor(), /*editLength*/ 0);
+                EDI_startEdit(EditKind_IndentLess, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
             }
             EDI_indentLess();
         }
         else {
             if (INTS[fEDI_cursor_editKind] !== EditKind_Tab) {
-                EDI_startEdit(EditKind_Tab, EDI_getPositionIndex_raw_cursor(), /*editLength*/ 0);
+                EDI_startEdit(EditKind_Tab, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
             }
             EDI_tabKey();
         }
@@ -3846,7 +3846,7 @@ function EDI_editEvent_theEditIself_Tab(event) {
 
 function EDI_editEvent_theEditIself_Enter(event) {
     if (INTS[fEDI_cursor_editKind] !== EditKind_Enter) {
-        EDI_startEdit(EditKind_Enter, EDI_getPositionIndex_raw_cursor(), /*editLength*/ 0);
+        EDI_startEdit(EditKind_Enter, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
     }
     EDI_EnterKey(event.ctrlKey, event.shiftKey);
     INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
@@ -3855,7 +3855,7 @@ function EDI_editEvent_theEditIself_Enter(event) {
 
 function EDI_editEvent_theEditIself_Paste(clipboardContent) {
     if (INTS[fEDI_cursor_editKind] !== EditKind_Enter) {
-        EDI_startEdit(EditKind_Paste, EDI_getPositionIndex_raw_cursor(), /*editLength*/ 0);
+        EDI_startEdit(EditKind_Paste, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
     }
     EDI_paste(clipboardContent);
     INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
@@ -3864,7 +3864,7 @@ function EDI_editEvent_theEditIself_Paste(clipboardContent) {
 
 function EDI_editEvent_theEditIself_Duplicate() {
     if (INTS[fEDI_cursor_editKind] !== EditKind_Duplicate) {
-        EDI_startEdit(EditKind_Duplicate, EDI_getPositionIndex_raw_cursor(), /*editLength*/ 0);
+        EDI_startEdit(EditKind_Duplicate, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
     }
     EDI_duplicateSelection();
     INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
@@ -5676,7 +5676,7 @@ function EDI_render_do_DuplicateOrPaste() {
             byteArray = EDI_textByteList_bytes.subarray(small, large);
         }
         else if (INTS[fEDI_cursor_editKind] === EditKind_Paste) {
-            large = EDI_getPositionIndex_raw_cursor();
+            large = EDI_getPositionIndex_cursor_raw();
             let clipboardContent = EDI_cursor_EDI_paste_clipboardContent;
             let clipboardContentLength = clipboardContent.length;
 
@@ -6487,7 +6487,7 @@ function EDI_render_do_EnterKey() {
                         case 'eCm':
                             if (INTS[fEDI_w_indexColumn_SpanTextContentRelative] >= 2 && (INTS[fEDI_w_indexColumn_SpanTextContentRelative] <= w_span.textContent.length - 2)) {
                                 w_span.className = 'eCM';
-                                let indexPosition = EDI_getPositionIndex_raw_cursor();
+                                let indexPosition = EDI_getPositionIndex_cursor_raw();
                                 let indexOfGreaterThanOrEqual = EDI_trackedSyntaxReposition_find(indexPosition);
                                 EDI_trackedSyntaxList.insert(indexOfGreaterThanOrEqual, TrackedSyntaxKind_Comment, indexPosition - INTS[fEDI_cursor_indexColumn] + INTS[fEDI_w_indexColumn_Sum], w_span.textContent.length);
                                 shouldPreserveCssClassWhenSplittingAmongLine = true;
@@ -6499,7 +6499,7 @@ function EDI_render_do_EnterKey() {
                         case 'eSm':
                             if (INTS[fEDI_w_indexColumn_SpanTextContentRelative] >= 1 && (INTS[fEDI_w_indexColumn_SpanTextContentRelative] <= w_span.textContent.length - 1)) {
                                 w_span.className = 'eSM';
-                                let indexPosition = EDI_getPositionIndex_raw_cursor();
+                                let indexPosition = EDI_getPositionIndex_cursor_raw();
                                 let indexOfGreaterThanOrEqual = EDI_trackedSyntaxReposition_find(indexPosition);
                                 EDI_trackedSyntaxList.insert(indexOfGreaterThanOrEqual, TrackedSyntaxKind_String, indexPosition - INTS[fEDI_cursor_indexColumn] + INTS[fEDI_w_indexColumn_Sum], w_span.textContent.length);
                                 shouldPreserveCssClassWhenSplittingAmongLine = true;
@@ -6581,7 +6581,7 @@ function EDI_EnterKey(ctrlKey, shiftKey) {
 
         BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_None;
 
-        INTS[fEDI_cursor_editPosition] = EDI_getPositionIndex_raw_cursor();
+        INTS[fEDI_cursor_editPosition] = EDI_getPositionIndex_cursor_raw();
         INTS[fEDI_cursor_editIndexLine] = INTS[fEDI_cursor_indexLine];
         INTS[fEDI_cursor_editIndexColumn] = INTS[fEDI_cursor_indexColumn];
     }

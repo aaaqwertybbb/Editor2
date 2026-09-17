@@ -1029,1086 +1029,6 @@ function EDI_setText(text, fileStartsWithBom, textSourceIdentifier, FORMATTED_te
     EDI_render_request(RenderKind_SetText);
 }
 
-//#region cursorDrawing
-function EDI_render_do_cursor(timestamp) {
-    INTS[fEDI_EDI_cursorBlinkLastTimestamp] = timestamp;
-    EDI_drawCursor();
-}
-
-/** obsolete-ish */
-function EDI_render_do_cursor_flag_scrollIntoViewExplicit(timestamp) {
-    INTS[fEDI_EDI_cursorBlinkLastTimestamp] = timestamp;
-    let notShouldScrollIntoView = false;
-    let flag_scrollIntoViewExplicit = false;
-
-    flag_scrollIntoViewExplicit = true;
-
-    if (flag_scrollIntoViewExplicit) {
-        // TODO: consider setting 'notShouldScrollIntoView' to false to avoid two scroll into views redundantly?
-        EDI_scrollCursorIntoView();
-    }
-    EDI_drawCursor(notShouldScrollIntoView);
-}
-
-function EDI_render_do_cursor_flag_doNotScrollIntoView(timestamp) {
-    INTS[fEDI_EDI_cursorBlinkLastTimestamp] = timestamp;
-    EDI_drawCursor(true);
-}
-
-function EDI_cursor_hasSelection() {
-    return INTS[fEDI_cursor_selectionAnchor] >= 0 &&
-            INTS[fEDI_cursor_selectionEnd] >= 0 &&
-            INTS[fEDI_cursor_selectionAnchor] != INTS[fEDI_cursor_selectionEnd];
-}
-
-/**
- * The code that clears the editor is dependent on this method NOT clearing 'BYTES[byteEDI_cursor_selectionDivExists]'
- * 
- * Somewhat duplicated code: This messes with the language features if I invoke clear() in the constructor, it puts "| undefined" on all the types.
- */
-function EDI_cursor_clear() {
-    INTS[fEDI_cursor_indexLine] = 0;
-    INTS[fEDI_cursor_indexColumn] = 0;
-    INTS[fEDI_cursorVisualColumnIndex] = 0;
-    INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = 0;
-    INTS[fEDI_cursor_STORED_visualWidth] = 0;
-    INTS[fEDI_cursor_cursorTranslateYValue] = 0;
-    INTS[fEDI_cursor_cursorTranslateXValue] = 0;
-    INTS[fEDI_cursor_selectionAnchor] = 0;
-    INTS[fEDI_cursor_selectionEnd] = 0;
-    INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = 0;
-    INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = 0;
-    INTS[fEDI_cursor_DRAWN_selectionAnchor] = 0;
-    INTS[fEDI_cursor_DRAWN_selectionEnd] = 0;
-    INTS[fEDI_cursor_DRAWN_selection_virtualIndexLine] = 0;
-    INTS[fEDI_cursor_DRAWN_selection_virtualCount] = 0;
-    INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL_DRAWN] = 0;
-    INTS[fEDI_cursor_selectionIndexEndColumnVISUAL_DRAWN] = 0;
-    INTS[fEDI_cursor_editKind] = EditKind_None;
-    INTS[fEDI_cursor_editLength] = 0;
-    INTS[fEDI_cursor_editPosition] = 0;
-    INTS[fEDI_cursor_editIndexLine] = 0;
-    INTS[fEDI_cursor_editIndexColumn] = 0;
-    INTS[fEDI_cursor_editRenderedDisplacement] = 0;
-    INTS[fEDI_cursor_editRenderedDisplacement_INDEX_LINE_OFFSET] = 0;
-    INTS[fEDI_cursor_END_editIndexLine] = 0;
-    INTS[fEDI_cursor_END_editIndexColumn] = 0;
-
-    INTS[fEDI_cursor_gapBufferCount] = 0;
-
-    EDI_cursor_enterKey_newLinePlusIndentation_byteList = null;
-    EDI_cursor_cached_indentation_string = null;
-    BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_None;
-
-    INTS[fEDI_cursor_editLineFeedCount] = 0;
-    EDI_cursor_edit_flagLineChanged = -1;
-
-    EDI_cursor_EDI_paste_clipboardContent = null;
-
-    INTS[fEDI_cursor_EDI_duplicate_small] = 0;
-    INTS[fEDI_cursor_EDI_duplicate_length] = 0;
-}
-
-/**
- * This method will NOT "put a cursor on screen". You need to ensure
- * your cursor exists as a child by appendChild'ing to EDTIOR_cursorListElement.
- * This method instead only moves a cursor that ALREADY is being shown on screen.
- * 
- * If the 'cursor' is not EDI_primaryCursor, then the 'NOTscrollCursorIntoView' parameter has no effect.
- * i.e.: only the EDI_primaryCursor will ever be scrolled into view via this method.
- * 
- * @param {boolean} NOTscrollCursorIntoView 
- */
-function EDI_drawCursor(NOTscrollCursorIntoView) {
-    INTS[fEDI_cursor_cursorTranslateYValue] = INTS[fEDI_cursor_indexLine] * INTS[fEDI_lineHeight];
-
-
-// cursor should store visual column then
-// and relative to line index
-
-
-/*
-TODO:
-INTS[fEDI_cursor_indexLine]
-
-- [ ] Resets:
-    - [ ] ArrowDown
-    - [ ] ArrowUp
-    - [ ] MouseDown where 'cursorVisualColumnIndex_relativeToThisLineIndex' !== the line index mouse down-ed on.
-    - [ ] MouseMove where 'cursorVisualColumnIndex_relativeToThisLineIndex' !== the line index mouse move-ed on.
-- [ ] Updates:
-    - [ ] All edits where 'cursorVisualColumnIndex_relativeToThisLineIndex' === the line index edited, and the edit comes at or a lower column index than that of the cursor need to update the cursorVisualColumnIndex
-    - [ ] MouseDown where 'cursorVisualColumnIndex_relativeToThisLineIndex' === the same line index that the cursor is on, determine the 'characters traveled' to go from initial position to mouse down position and modify by how many chars/tabs etc... you traveled over
-    - [ ] ArrowLeft where 'cursorVisualColumnIndex_relativeToThisLineIndex' === the same line index that the cursor is on, determine the 'characters traveled' to go from initial position to ending position and modify by how many chars/tabs etc... you traveled over
-        - [ ] No modifiers
-        - [ ] CtrlKey
-        - [ ] When NOT holding shift, but you have an active selection
-    - [ ] ArrowRight where 'cursorVisualColumnIndex_relativeToThisLineIndex' === the same line index that the cursor is on, determine the 'characters traveled' to go from initial position to ending position and modify by how many chars/tabs etc... you traveled over
-        - [ ] No modifiers
-        - [ ] CtrlKey
-        - [ ] When NOT holding shift, but you have an active selection
-- [ ] Further necessary details:
-    - [ ] I... does MouseDown need to finalize the edits?
-    - [ ] Do other things need to finalize the edits?
-    - [ ] ArrowLeft/ArrowRight?
-    - [ ] Preferably if you insert text, then remove text, but the removed text is part of the text that you inserted
-          that you'd just modify the "gap buffer" and avoid:
-          - insert
-          - remove triggers finalize of insert
-          - start remove
-          - eventually finalize remove
-          ============================
-          versus
-          - insert
-          - remove just modifies the inserted text
-          - eventually finalize insert
-        - [ ] But from an order of implementations I don't necessarily know if it is a good idea for me to concern myself with these details or not.
-        - [ ] (i.e.: not yet?)
-        - [ ] Thus you get the simple batching of edits 100% correct first
-        - [ ] And do the other complex batching later.
-- [ ] A thought for checking the answer:
-    - [ ] Ctrl+Shift+F for 'INTS[fEDI_cursor_indexColumn]' and make sure any modifications to it (eventually) result in a modification to 'fEDI_cursorVisualColumnIndex'.
-        - [ ] I say eventually because maybe you'd in some cases save the 'fEDI_cursorVisualColumnIndex' part until the end I'm not sure I just consider that maybe there'd be a case where that's done.
-    - [ ] Ctrl+Shift+F for 'INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex]' and make sure any modifications to it (eventually) result in a modification to 'fEDI_cursorVisualColumnIndex_relativeToThisLineIndex' and then if this changes update 'fEDI_cursor_indexColumn' accordingly.
-*/
-
-
-    ////getXFromIndex(lineText, targetIndex, charWidth, paddingLeft = 0)
-    //let visualColumns = 0;
-    ////// Clamp target index to string boundaries
-    ////const end = Math.min(targetIndex, lineText.length);
-    //const end = INTS[fEDI_cursor_indexColumn];
-    //for (let i = 0; i < end; i++) {
-    //    if (lineText[i] === '\t') {
-    //        // Calculate spaces to next tab stop
-    //        visualColumns += 4 - (visualColumns % 4);
-    //    } else {
-    //        visualColumns += 1;
-    //    }
-    //}
-    //return paddingLeft + (visualColumns * charWidth);
-
-
-    INTS[fEDI_cursor_cursorTranslateXValue] = INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth;
-
-    EDI_cursor_caretRow.style.transform = `translateY(${INTS[fEDI_cursor_cursorTranslateYValue]}px)`;
-    EDI_cursor_cursorElement.style.transform = `translateX(${INTS[fEDI_cursor_cursorTranslateXValue]}px)`;
-
-    EDI_createStyleForSelection();
-
-    if (!NOTscrollCursorIntoView) {
-        EDI_scrollCursorIntoView();
-    }
-}
-
-function EDI_draw_cursor_debug() {
-    // TODO: This logic has way too much overhead to be in this function.
-    let text = '';
-
-    text += '(' + INTS[fEDI_cursor_indexLine] + ', ' + INTS[fEDI_cursor_indexColumn] + ')';
-    
-    if (BYTES[byteDIALOG_Settings_editorDebugShowAdjacentCharacters]) {
-        //let previous = EDI_getCharacterPrevious(INTS[fEDI_cursor_indexColumn], EDI_getPositionIndex_cursor_raw());
-        //if (previous === '\n') previous = '\\n';
-        //else if (previous === '\t') previous = '\\t';
-        //let current = EDI_getCharacterCurrent(INTS[fEDI_cursor_indexColumn], EDI_getPositionIndex_cursor_raw(), EDI_getLineEnd_pos_raw(INTS[fEDI_cursor_indexLine]));
-        //if (current === '\n') current = '\\n';
-        //else if (current === '\t') current = '\\t';
-        //text += ' | (' + previous + ', ' + current + ')';
-        text += 'byteDIALOG_Settings_editorDebugShowAdjacentCharacters_is_not_implemented';
-    }
-
-    text += ' | (' + INTS[fEDI_cursorVisualColumnIndex] + ')';
-    
-    text += ' | (' + INTS[fEDI_cursor_editLength] + ')';
-
-    //text += ' | (' + INTS[fEDI_longestLine_indexLine] + ', ' + INTS[fEDI_longestLine_length] + ')';
-
-    EDI_debug.replaceChildren(text);
-}
-
-/**
- * This function only clears both the 'BYTES[byteEDI_cursor_selectionDivExists]' and the HTML associated with the selection NOT the actual selection position properties of the cursor.
- */
-function EDI_clearSelectionStyle() {
-    let shouldExistSelectionDiv = false;
-    if (BYTES[byteEDI_cursor_selectionDivExists]) {
-        for (var i = 0; i < EDI_presentation.children.length; i++) {
-            if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
-                let textSelectionDiv = EDI_presentation.children[i];
-                if (!shouldExistSelectionDiv) {
-                    EDI_presentation.removeChild(textSelectionDiv);
-                    BYTES[byteEDI_cursor_selectionDivExists] = 0;
-                }
-                break;
-            }
-        }
-    }
-}
-
-/**
- * TODO: This needs to be a ring buffer of its own
- * ...
- * dynamic ring buffer that scales as your selection requires more and more horizontal divs?
- * Otherwise you have the ring buffer sitting around in the background all the time.
- * And if you only select 1 line of text you probably don't want to fill the screen with empty divs foreach line
- * just to select text on a single line.
- * So as you keep selecting you build a larger and larger ring buffer that is capped at max to be the amount of lines that fit the viewport.
- * 
- * As you scroll determine the lines that need to be redrawn
-*/
-function EDI_createStyleForSelection() {
-    if (INTS[fEDI_cursor_DRAWN_selectionAnchor] !== INTS[fEDI_cursor_selectionAnchor] ||
-        INTS[fEDI_cursor_DRAWN_selectionEnd] !== INTS[fEDI_cursor_selectionEnd] ||
-        INTS[fEDI_cursor_DRAWN_selection_virtualCount] !== INTS[fEDI_virtualCount] ||
-        INTS[fEDI_cursor_DRAWN_selection_virtualIndexLine] !== INTS[fEDI_virtualIndexLine] ||
-        INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL_DRAWN] !== INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] ||
-        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL_DRAWN] !== INTS[fEDI_cursor_selectionIndexEndColumnVISUAL]) {
-
-        INTS[fEDI_cursor_DRAWN_selectionAnchor] = INTS[fEDI_cursor_selectionAnchor];
-        INTS[fEDI_cursor_DRAWN_selectionEnd] = INTS[fEDI_cursor_selectionEnd];
-        INTS[fEDI_cursor_DRAWN_selection_virtualCount] = INTS[fEDI_virtualCount];
-        INTS[fEDI_cursor_DRAWN_selection_virtualIndexLine] = INTS[fEDI_virtualIndexLine];
-
-        INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL_DRAWN] = INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL];
-        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL_DRAWN] = INTS[fEDI_cursor_selectionIndexEndColumnVISUAL];
-
-        let shouldExistSelectionDiv = false;
-        if (INTS[fEDI_cursor_DRAWN_selectionAnchor] === INTS[fEDI_cursor_DRAWN_selectionEnd]) {
-            shouldExistSelectionDiv = false;
-        }
-        else {
-            shouldExistSelectionDiv = true;
-        }
-
-        let textSelectionDiv;
-
-        if (BYTES[byteEDI_cursor_selectionDivExists]) {
-            for (var i = 0; i < EDI_presentation.children.length; i++) {
-                if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
-                    textSelectionDiv = EDI_presentation.children[i];
-                    if (!shouldExistSelectionDiv) {
-                        EDI_presentation.removeChild(textSelectionDiv);
-                        BYTES[byteEDI_cursor_selectionDivExists] = 0;
-                    }
-                    break;
-                }
-            }
-        }
-        else if (shouldExistSelectionDiv) {
-            textSelectionDiv = document.createElement('div');
-            textSelectionDiv.id = CONST_EDI_cursor_htmlId;
-            textSelectionDiv.style.display = 'contents';
-            EDI_presentation.appendChild(textSelectionDiv);
-            BYTES[byteEDI_cursor_selectionDivExists] = 1;
-        }
-
-        if (!BYTES[byteEDI_cursor_selectionDivExists]) return;
-
-        // TODO: only somewhat simple viewport based virtualization is implemented from what I remember. i.e.: I think the divs are re-used, but every div is redrawn for the viewport, rather than only recalculating the css for the divs that came or left the viewport.
-
-        let start = INTS[fEDI_cursor_selectionAnchor];
-        EDI_getLineAndColumnIndices_raw(start);
-        let startLineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
-        let startLineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
-        let startLine = startLineAndColumnIndices_indexLine;
-        let startColumn = startLineAndColumnIndices_indexColumn;
-        let start_visualColumnStart = INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL];
-
-        let end = INTS[fEDI_cursor_selectionEnd];
-        EDI_getLineAndColumnIndices_raw(end);
-        let endLineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
-        let endLineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
-        let INCLUSIVEendLine = endLineAndColumnIndices_indexLine;
-        let INCLUSIVEendColumn = endLineAndColumnIndices_indexColumn;
-        let end_visualColumnStart = INTS[fEDI_cursor_selectionIndexEndColumnVISUAL];
-
-        // # Virtualization
-        if (startLine < INTS[fEDI_virtualIndexLine]) {
-            startLine = INTS[fEDI_virtualIndexLine];
-            startColumn = 0;
-        }
-        let lastIndexLineBeingShown = INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1;
-        if (INCLUSIVEendLine > lastIndexLineBeingShown) {
-            INCLUSIVEendLine = lastIndexLineBeingShown;
-            INCLUSIVEendColumn = EDI_getLastValidIndexColumn_raw(INCLUSIVEendLine);
-        }
-
-        if (start > end) {
-            let temp = end;
-            let tempLine = INCLUSIVEendLine;
-            let tempColumn = INCLUSIVEendColumn;
-            let tempVisualColumn;
-            end = start;
-            INCLUSIVEendLine = startLine;
-            INCLUSIVEendColumn = startColumn;
-            start = temp;
-            startLine = tempLine;
-            startColumn = tempColumn;
-
-            tempVisualColumn = start_visualColumnStart;
-            start_visualColumnStart = end_visualColumnStart;
-            end_visualColumnStart = tempVisualColumn;
-        }
-        //
-        // I do not want to fill the screen with display:none divs for when there is a selection to be shown there (I do it all the time but it doesn't seem sensible here).
-        // Thus the first step is to ensure there are a matching amount of divs for the selections to apply their style to.
-        //
-        let selectedLineCount = INCLUSIVEendLine - startLine + 1;
-        if (textSelectionDiv.children.length < selectedLineCount) {
-            for (let i = textSelectionDiv.children.length; i < selectedLineCount; i++) {
-                textSelectionDiv.appendChild(document.createElement('div'));
-            }
-        }
-        else if (textSelectionDiv.children.length > selectedLineCount) {
-            for (let i = selectedLineCount; i < textSelectionDiv.children.length; i++) {
-                textSelectionDiv.removeChild(textSelectionDiv.children[i]);
-            }
-        }
-
-        let lineSelectionDiv;
-        let childDivIndex = 0;
-
-        // everything static-ly will "fall at a left of gutterWidthTotal_withPxUnits"...
-        // ...but you cannot rely on that as it causes layout shifting, you need to make it clear to the renderering engine.
-
-        /*
-        But it just means you have a startLineSelectionWidth of 'startLineEntireVisualWidth - (startColumnVisualOfSelection * charWidth)'
-        and the endLineSelectionWidth is 'endColumnVisualOfSelection'.
-        */
-
-        if (startLine === INCLUSIVEendLine) {
-            lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
-            lineSelectionDiv.className = 'EDI_selection';
-            lineSelectionDiv.style.left = gutterWidthTotal_withPxUnits;
-            lineSelectionDiv.style.transform = `translate(${start_visualColumnStart * EDI_characterWidth}px, ${INTS[fEDI_lineHeight] * startLine}px)`;
-            lineSelectionDiv.style.width = (end_visualColumnStart - start_visualColumnStart) * EDI_characterWidth + 'px';
-        }
-        else {
-            // start line
-            lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
-            lineSelectionDiv.className = 'EDI_selection';
-            lineSelectionDiv.style.left = gutterWidthTotal_withPxUnits;
-            lineSelectionDiv.style.transform = `translate(${start_visualColumnStart * EDI_characterWidth}px, ${INTS[fEDI_lineHeight] * startLine}px)`;
-            EDI_getLineBoundaryPositions_raw(startLine);
-            let lineVisualWidth = fEDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
-            lineSelectionDiv.style.width = (lineVisualWidth + 1 - start_visualColumnStart) * EDI_characterWidth + 'px';
-
-            // between lines
-            for (var lineI = startLine + 1; lineI < INCLUSIVEendLine; lineI++) {
-                lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
-                lineSelectionDiv.className = 'EDI_selection';
-                lineSelectionDiv.style.left = gutterWidthTotal_withPxUnits;
-                lineSelectionDiv.style.transform = `translateY(${INTS[fEDI_lineHeight] * lineI}px)`;
-                EDI_getLineBoundaryPositions_raw(lineI);
-                let lineVisualWidth = fEDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
-                lineSelectionDiv.style.width = (lineVisualWidth + 1) * EDI_characterWidth + 'px';
-            }
-
-            // end line
-            lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
-            lineSelectionDiv.className = 'EDI_selection';
-            lineSelectionDiv.style.left = gutterWidthTotal_withPxUnits;
-            lineSelectionDiv.style.transform = `translateY(${INTS[fEDI_lineHeight] * INCLUSIVEendLine}px)`;
-            lineSelectionDiv.style.width = end_visualColumnStart * EDI_characterWidth + 'px';
-        }
-    }
-}
-
-function EDI_createStyleForSelection_indentMore() {
-    let textSelectionDiv;
-    if (BYTES[byteEDI_cursor_selectionDivExists]) {
-        for (var i = 0; i < EDI_presentation.children.length; i++) {
-            if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
-                textSelectionDiv = EDI_presentation.children[i];
-                break;
-            }
-        }
-    }
-    else {
-        // TODO: Silent error confusing bad idea
-        return;
-    }
-
-    let extraWidth = 4 * EDI_characterWidth;
-    for (let i = 0; i < textSelectionDiv.children.length; i++) {
-        let lineSelectionDiv = textSelectionDiv.children[i];
-        let widthNumberValue = parseFloat(lineSelectionDiv.style.width, 10);
-        widthNumberValue += extraWidth;
-        lineSelectionDiv.style.width = widthNumberValue + 'px';
-    }
-
-    INTS[fEDI_cursor_DRAWN_selectionAnchor] = INTS[fEDI_cursor_selectionAnchor];
-    INTS[fEDI_cursor_DRAWN_selectionEnd] = INTS[fEDI_cursor_selectionEnd];
-}
-
-/**
- * Any code that wants to stop then start the cursor blinking again needs to:
- * - enqueue rAF for drawing the cursor
- * - *optional* check if statement for 'BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]' to avoid redundant invocations of 'EDI_cursorBlink_startChecking'
- * - invoke 'EDI_cursorBlink_startChecking'
- * - downstream trigger the rAF for drawing the cursor wherein 'INTS[fEDI_EDI_cursorBlinkLastTimestamp]' gets set to the rAF timestamp.
- *     - or, modify some other part of the rAF pipeline (only if necessary) / etc...
- * 
- * NOTE: the draw cursor rAF needs to be enqueued prior to the 'EDI_cursorBlink_startChecking' invocation.
- */
-function EDI_cursorBlink_trailingEdge(timestamp) {
-    const time = timestamp - INTS[fEDI_EDI_cursorBlinkLastTimestamp];
-    if (time >= 500) {
-        BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] = 0;
-        // TODO: This is a timing issue of the rAF vs you losing focus on the editor.
-        EDI_cursor_cursorElement.classList.add('EDI_cursor_focus');
-        EDI_draw_cursor_debug();
-        INTS[fEDI_EDI_cursorBlinkLastTimestamp] = 0;
-    }
-    else {
-        requestAnimationFrame(EDI_cursorBlink_trailingEdge);
-    }
-}
-
-function EDI_cursorBlink_startChecking() {
-    BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] = 1;
-    EDI_cursor_cursorElement.classList.remove('EDI_cursor_focus');
-    requestAnimationFrame(EDI_cursorBlink_trailingEdge);
-}
-
-function EDI_scrollCursorIntoView() {
-    let scrollX = 0;
-    let scrollY = 0;
-
-    let local_lastReadNumber_scrollTop = INTS[fEDI_lastReadNumber_scrollTop];
-
-    if (INTS[fEDI_cursor_cursorTranslateYValue] < local_lastReadNumber_scrollTop) {
-        scrollY = INTS[fEDI_cursor_cursorTranslateYValue] - local_lastReadNumber_scrollTop;
-    }
-    else if (INTS[fEDI_cursor_cursorTranslateYValue] >= local_lastReadNumber_scrollTop + INTS[fEDI_lastReadNumber_offsetHeight]) {
-        // I want to use clientHeight but I don't have any logic for no scrollbar thus single page fitting text might bug out and trigger
-        // scrollBy over and over.
-
-        // make the bottom touch then add lineHeight is probably the algorithm to get a perfect fill maybe do lineHeight * 2 skip an event when spamming arrowDown?
-        let currentBottom = local_lastReadNumber_scrollTop + INTS[fEDI_lastReadNumber_offsetHeight];
-        let changeToMakeBottomTouch = INTS[fEDI_cursor_cursorTranslateYValue] - currentBottom;
-        scrollY = changeToMakeBottomTouch + (2 * INTS[fEDI_lineHeight]);
-    }
-
-    if (INTS[fEDI_cursor_cursorTranslateXValue] < INTS[fEDI_lastReadNumber_scrollLeft]) {
-        scrollX = INTS[fEDI_cursor_cursorTranslateXValue] - INTS[fEDI_lastReadNumber_scrollLeft];
-    }
-    else if (INTS[fEDI_cursor_cursorTranslateXValue] >= INTS[fEDI_lastReadNumber_scrollLeft] + INTS[fEDI_lastReadNumber_offsetWidth]) {
-        // I want to use clientWidth but I don't have any logic for no scrollbar thus single page fitting text might bug out and trigger
-        // scrollBy over and over.
-
-        // make the right touch then add characterWidth is probably the algorithm to get a perfect fill maybe do characterWidth * 2 skip an event when spamming arrowRight?
-        let currentRight = INTS[fEDI_lastReadNumber_scrollLeft] + INTS[fEDI_lastReadNumber_offsetWidth];
-        let changeToMakeRightTouch = INTS[fEDI_cursor_cursorTranslateXValue] - currentRight;
-        scrollX = changeToMakeRightTouch + (4 * EDI_characterWidth);
-    }
-
-    // This is asynchronous, this is the bug cause
-    // (SPECIFICALLY: the scroll event is async)
-    if (scrollX !== 0 || scrollY !== 0) {
-        EDI_baseElement.scrollBy(scrollX, scrollY);
-    }
-}
-//#endregion
-
-//#region mousedown
-function EDI_onMouseDown(event) {
-    // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
-    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
-        EDI_finalizeEdit();
-    }
-
-    EDI_movementBasedCacheInvalidation();
-
-    if (get_EDI_recentBoundingClientRect_isNull_intFalsey()) {
-        let boundingClientRect = EDI_baseElement.getBoundingClientRect();
-        INTS[fEDI_recentBoundingClientRect_left] = boundingClientRect.left;
-        INTS[fEDI_recentBoundingClientRect_top] = boundingClientRect.top;
-        set_EDI_recentBoundingClientRect_isNull_intFalsey(0);
-    }
-
-    if (event.button === 0) {
-        BYTES[byteEDI_mousemove_eventListener_isActive] = 1;
-        EDI_baseElement.addEventListener('mousemove', EDI_onMouseMove_WRAPIT);
-    }
-
-    let rY = event.clientY - INTS[fEDI_recentBoundingClientRect_top] + INTS[fEDI_lastReadNumber_scrollTop];
-    let rX = event.clientX - INTS[fEDI_recentBoundingClientRect_left] - INTS[fEDI_gutterWidthTotal] + INTS[fEDI_lastReadNumber_scrollLeft];
-    
-    let indexLine = Math.floor(rY / INTS[fEDI_lineHeight]);
-    let indexColumn = Math.round(rX / EDI_characterWidth);
-    let indexColumnVisual = indexColumn;
-
-    if (indexLine < 0) {
-        indexLine = 0;
-    }
-
-    if (indexColumn < 0) {
-        indexColumn = 0;
-        indexColumnVisual = indexColumn;
-    }
-
-    if (indexLine >= EDI_lineEndPositionList_count) {
-        indexLine = EDI_lineEndPositionList_count - 1;
-    }
-
-    EDI_getLineBoundaryPositions_raw(indexLine);
-
-    if (INTS[fEDI_cursor_indexLine] === indexLine) {
-        if (rX >= INTS[fEDI_cursor_cursorTranslateXValue]) {
-            getIndexFromX_sameLine_newRxIsLarger(rX, INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
-        }
-        else {
-            getIndexFromX_sameLine_newRxIsSmaller(rX, INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
-        }
-    }
-    else {
-        getIndexFromX_RESET(rX, INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
-    }
-    indexColumn = INTS[fEDI_getIndexFromX_indexColumn];
-    indexColumnVisual = INTS[fEDI_getIndexFromX_visualColumns];
-
-    let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(indexLine);
-    if (indexColumn > lastValidIndexColumn) {
-        indexColumn = lastValidIndexColumn;
-        indexColumnVisual = indexColumn;
-    }
-
-    if (rX < -1 * CONST_EDI_gutterPaddingRight) {
-        set_EDI_detailRank(3);
-        EDI_onMouseDownDetailRankThree(event.button, event.shiftKey, indexLine, indexColumn);
-        if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
-            EDI_cursorBlink_startChecking();
-        }
-        return;
-    }
-
-    if (event.detail % 3 === 0) {
-        set_EDI_detailRank(3);
-        EDI_onMouseDownDetailRankThree(event.button, event.shiftKey, indexLine, indexColumn);
-    }
-    else if (event.detail % 2 === 0) {
-        set_EDI_detailRank(2);
-        EDI_onMouseDownDetailRankTwo(event.button, event.shiftKey, indexLine, indexColumn, indexColumnVisual);
-    }
-    else {
-        set_EDI_detailRank(1);
-        EDI_onMouseDownDetailRankOne(event.button, event.shiftKey, indexLine, indexColumn, indexColumnVisual);
-    }
-
-    if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
-        EDI_cursorBlink_startChecking();
-    }
-}
-
-function EDI_onMouseDownDetailRankOne(event_button, event_shiftKey, indexLineClicked, indexColumnClicked, indexColumnVisual) {
-
-    let selectionPlusContextMenuCase = event_button === 2 && EDI_cursor_hasSelection();
-
-    if (event_shiftKey && !selectionPlusContextMenuCase) {
-        if (!EDI_cursor_hasSelection()) {
-            INTS[fEDI_cursor_selectionAnchor] = EDI_getPositionIndex_cursor_raw();
-            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = indexColumnVisual;
-        }
-    }
-
-    if (!selectionPlusContextMenuCase) {
-        INTS[fEDI_cursor_indexLine] = indexLineClicked;
-        INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
-        INTS[fEDI_cursorVisualColumnIndex] = indexColumnVisual;
-        INTS[fEDI_cursor_STORED_visualWidth] = indexColumnVisual;
-        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
-    
-        INTS[fEDI_cursor_selectionEnd] = EDI_getPositionIndex_cursor_raw();
-        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-
-        if (!event_shiftKey) {
-            INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_cursor_selectionEnd];
-            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-        }
-    }
-
-    EDI_render_request(RenderKind_Cursor_n);
-}
-
-function EDI_onMouseDownDetailRankTwo(event_button, event_shiftKey, indexLineClicked, indexColumnClicked, indexColumnVisual) {
-    if (event_shiftKey) {
-        EDI_onMouseDownDetailRankOne(event_button, event_shiftKey, indexLineClicked, indexColumnClicked);
-        return;
-    }
-
-    INTS[fEDI_cursor_indexLine] = indexLineClicked;
-    INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
-    INTS[fEDI_cursorVisualColumnIndex] = indexColumnVisual;
-    INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
-    let positionIndex = EDI_getPositionIndex_cursor_raw();
-    
-    EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
-    const line_start = INTS[fEDI_getLineBoundaryPositions_start];
-    const line_end = INTS[fEDI_getLineBoundaryPositions_end];
-
-    let leftCharacterKind = EDI_getCharacterPrevious_KIND(INTS[fEDI_cursor_indexColumn], positionIndex);
-    let rightCharacterKind = EDI_getCharacterCurrent_KIND(INTS[fEDI_cursor_indexColumn], positionIndex, line_end);
-
-    if (leftCharacterKind === rightCharacterKind) {
-        let goalCharacterKind = rightCharacterKind;
-
-        let tempIndexColumn = INTS[fEDI_cursor_indexColumn];
-        let tempIndexColumnVisual = INTS[fEDI_cursorVisualColumnIndex];
-        let tempPositionIndex = EDI_getPositionIndex_Overload(INTS[fEDI_cursor_indexLine], tempIndexColumn);
-        while (tempIndexColumn > 0) {
-            tempIndexColumn--;
-            tempIndexColumnVisual--; // TODO: if '\t'
-            tempPositionIndex--;
-            leftCharacterKind = EDI_getCharacterPrevious_KIND(tempIndexColumn, tempPositionIndex);
-            if (leftCharacterKind !== goalCharacterKind) {
-                INTS[fEDI_cursor_selectionAnchor] = tempPositionIndex;
-                INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = tempIndexColumnVisual;
-                break;
-            }
-        }
-
-        let lineLength = line_end - line_start;
-        let rightWasFound = false;
-        tempIndexColumn = INTS[fEDI_cursor_indexColumn];
-        tempIndexColumnVisual = INTS[fEDI_cursorVisualColumnIndex];
-        tempPositionIndex = EDI_getPositionIndex_Overload(INTS[fEDI_cursor_indexLine], tempIndexColumn);
-        while (tempIndexColumn < lineLength) {
-            tempIndexColumn++;
-            tempIndexColumnVisual++; // TODO: if '\t'
-            tempPositionIndex++;
-            rightCharacterKind = EDI_getCharacterCurrent_KIND(tempIndexColumn, tempPositionIndex, line_end);
-            if (rightCharacterKind !== goalCharacterKind) {
-                INTS[fEDI_cursor_indexColumn] = tempIndexColumn;
-                INTS[fEDI_cursor_selectionEnd] = tempPositionIndex;
-                INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = tempIndexColumnVisual;
-                INTS[fEDI_cursorVisualColumnIndex] = tempIndexColumnVisual;
-                rightWasFound = true;
-                break;
-            }
-        }
-
-        if (!rightWasFound) {
-            // end of line
-            INTS[fEDI_cursor_indexColumn] = tempIndexColumn;
-            INTS[fEDI_cursor_selectionEnd] = tempPositionIndex;
-            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = tempIndexColumnVisual;
-            INTS[fEDI_cursorVisualColumnIndex] = tempIndexColumnVisual;
-        }
-
-        EDI_render_request(RenderKind_Cursor_n);
-    }
-    else if (leftCharacterKind > rightCharacterKind) {
-        let goalCharacterKind = leftCharacterKind;
-
-        let tempIndexColumn = INTS[fEDI_cursor_indexColumn];
-        let tempIndexColumnVisual = INTS[fEDI_cursorVisualColumnIndex];
-        let originalPositionIndex = EDI_getPositionIndex_Overload(INTS[fEDI_cursor_indexLine], tempIndexColumn);
-        let tempPositionIndex = originalPositionIndex;
-
-        while (INTS[fEDI_cursor_indexColumn] > 0) {
-            tempIndexColumn--;
-            tempIndexColumnVisual--; // TODO: if '\t'
-            tempPositionIndex--;
-            leftCharacterKind = EDI_getCharacterPrevious_KIND(tempIndexColumn, tempPositionIndex);
-            if (leftCharacterKind !== goalCharacterKind) {
-                INTS[fEDI_cursor_selectionAnchor] = tempPositionIndex;
-                INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = tempIndexColumnVisual;
-                break;
-            }
-        }
-
-        INTS[fEDI_cursor_selectionEnd] = originalPositionIndex;
-        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-
-        EDI_render_request(RenderKind_Cursor_n);
-    }
-    else {
-        let goalCharacterKind = rightCharacterKind;
-
-        let positionIndex = EDI_getPositionIndex_Overload(INTS[fEDI_cursor_indexLine], INTS[fEDI_cursor_indexColumn]);
-        INTS[fEDI_cursor_selectionAnchor] = positionIndex;
-        INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-
-        let lineLength = line_end - line_start;
-        let rightWasFound = false;
-
-        while (INTS[fEDI_cursor_indexColumn] < lineLength) {
-            INTS[fEDI_cursor_indexColumn]++;
-            INTS[fEDI_cursorVisualColumnIndex]++;
-            positionIndex++;
-            rightCharacterKind = EDI_getCharacterCurrent_KIND(INTS[fEDI_cursor_indexColumn], positionIndex, line_end);
-            if (rightCharacterKind !== goalCharacterKind) {
-                INTS[fEDI_cursor_selectionEnd] = positionIndex;
-                INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-                rightWasFound = true;
-                break;
-            }
-        }
-
-        if (!rightWasFound) {
-            // end of line
-            INTS[fEDI_cursor_selectionEnd] = positionIndex;
-            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-        }
-
-        EDI_render_request(RenderKind_Cursor_n);
-    }
-
-    if (INTS[fEDI_cursor_selectionAnchor] < INTS[fEDI_cursor_selectionEnd]) {
-        INTS[fEDI_detail_smallPosition] = INTS[fEDI_cursor_selectionAnchor];
-        INTS[fEDI_detail_largePosition] = INTS[fEDI_cursor_selectionEnd];
-        INTS[fEDI_detail_smallColumnVisual] = INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL];
-        INTS[fEDI_detail_largeColumnVisual] = INTS[fEDI_cursor_selectionIndexEndColumnVISUAL];
-    }
-    else {
-        INTS[fEDI_detail_smallPosition] = INTS[fEDI_cursor_selectionEnd];
-        INTS[fEDI_detail_largePosition] = INTS[fEDI_cursor_selectionAnchor];
-        INTS[fEDI_detail_smallColumnVisual] = INTS[fEDI_cursor_selectionIndexEndColumnVISUAL];
-        INTS[fEDI_detail_largeColumnVisual] = INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL];
-    }
-}
-
-function EDI_onMouseDownDetailRankThree(event_button, event_shiftKey, indexLineClicked, indexColumnClicked) {
-    if (event_shiftKey) {
-        EDI_onMouseDownDetailRankOne(event_button, event_shiftKey, indexLineClicked, indexColumnClicked);
-        return;
-    }
-
-    INTS[fEDI_cursor_indexLine] = indexLineClicked;
-    INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
-    INTS[fEDI_cursorVisualColumnIndex] = indexColumnClicked;
-    INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
-    
-    INTS[fEDI_cursor_selectionAnchor] = EDI_getPositionIndex_Overload(INTS[fEDI_cursor_indexLine], 0);
-    INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-    
-    INTS[fEDI_detailRank3OriginLine] = INTS[fEDI_cursor_indexLine];
-
-    if (INTS[fEDI_cursor_indexLine] === EDI_lineEndPositionList_count - 1) {
-        EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
-        INTS[fEDI_cursor_selectionEnd] = INTS[fEDI_getLineBoundaryPositions_end];
-        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-        EDI_render_request(RenderKind_Cursor_n);
-    }
-    else {
-        INTS[fEDI_cursor_indexLine]++;
-        INTS[fEDI_cursor_indexColumn] = 0;
-        INTS[fEDI_cursorVisualColumnIndex] = 0;
-        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex]++;
-        EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
-        INTS[fEDI_cursor_selectionEnd] = INTS[fEDI_getLineBoundaryPositions_start];
-        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-        EDI_render_request(RenderKind_Cursor_n);
-    }
-
-    if (INTS[fEDI_cursor_selectionAnchor] < INTS[fEDI_cursor_selectionEnd]) {
-        INTS[fEDI_detail_smallPosition] = INTS[fEDI_cursor_selectionAnchor];
-        INTS[fEDI_detail_largePosition] = INTS[fEDI_cursor_selectionEnd];
-        INTS[fEDI_detail_smallColumnVisual] = INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL];
-        INTS[fEDI_detail_largeColumnVisual] = INTS[fEDI_cursor_selectionIndexEndColumnVISUAL];
-    }
-    else {
-        INTS[fEDI_detail_smallPosition] = INTS[fEDI_cursor_selectionEnd];
-        INTS[fEDI_detail_largePosition] = INTS[fEDI_cursor_selectionAnchor];
-        INTS[fEDI_detail_smallColumnVisual] = INTS[fEDI_cursor_selectionIndexEndColumnVISUAL];
-        INTS[fEDI_detail_largeColumnVisual] = INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL];
-    }
-}
-//#endregion
-
-//#region mousemove
-function EDI_onMouseMove_WRAPIT(event) {
-    if ((event.buttons & 1) && !get_EDI_recentBoundingClientRect_isNull_intFalsey()) {
-        // TODO: Consider short circuiting at via event.clientX and clientY by tracking the necessary thresholds for the cursor position to pass rather than the previous and current indices. (you can possibly thereby skip the calculation of the indices entirely for the redundant events).
-        // TODO: Is it correct to use the cursor's indexLine and indexColumn directly as a means of determining redundancy? I worry about odd interactions, but I have no proof that such an odd interaction could exist.
-
-        let rX = event.clientX - INTS[fEDI_recentBoundingClientRect_left] - INTS[fEDI_gutterWidthTotal] + INTS[fEDI_lastReadNumber_scrollLeft];
-        let rY = event.clientY - INTS[fEDI_recentBoundingClientRect_top] + INTS[fEDI_lastReadNumber_scrollTop];
-
-        let indexColumn = Math.round(rX / EDI_characterWidth);
-        let indexLine = Math.floor(rY / INTS[fEDI_lineHeight]);
-        let indexColumnVisual = indexColumn;
-
-        if (indexColumn < 0) {
-            indexColumn = 0;
-        }
-        
-        if (indexLine < 0) {
-            indexLine = 0;
-        }
-
-        if (indexLine >= EDI_lineEndPositionList_count) {
-            indexLine = EDI_lineEndPositionList_count - 1;
-        }
-
-        EDI_getLineBoundaryPositions_raw(indexLine);
-
-        if (INTS[fEDI_cursor_indexLine] === indexLine) {
-            if (rX >= INTS[fEDI_cursor_cursorTranslateXValue]) {
-                getIndexFromX_sameLine_newRxIsLarger(rX, INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
-            }
-            else {
-                getIndexFromX_sameLine_newRxIsSmaller(rX, INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
-            }
-        }
-        else {
-            getIndexFromX_RESET(rX, INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
-        }
-        indexColumn = INTS[fEDI_getIndexFromX_indexColumn];
-        indexColumnVisual = INTS[fEDI_getIndexFromX_visualColumns];
-
-        let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(indexLine);
-        if (indexColumn > lastValidIndexColumn) {
-            indexColumn = lastValidIndexColumn;
-        }
-
-        if (INTS[fEDI_cursor_indexLine] === indexLine && INTS[fEDI_cursor_indexColumn] === indexColumn) {
-            return;
-        }
-        
-        INTS[fEDI_cursor_indexLine] = indexLine;
-        INTS[fEDI_cursor_indexColumn] = indexColumn;
-        INTS[fEDI_cursorVisualColumnIndex] = indexColumnVisual;
-        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLine;
-
-        if (get_EDI_detailRank() === 3) {
-            EDI_onMouseMoveDetailRankThree(indexLine, indexColumn);
-        }
-        else if (get_EDI_detailRank() === 2) {
-            EDI_onMouseMoveDetailRankTwo(indexLine, indexColumn, indexColumnVisual);
-        }
-        else if (get_EDI_detailRank() === 1) {
-            EDI_onMouseMoveDetailRankOne(indexLine, indexColumn, indexColumnVisual);
-        }
-
-        if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
-            EDI_cursorBlink_startChecking();
-        }
-    }
-    else {
-        BYTES[byteEDI_mousemove_eventListener_isActive] = 0;
-        EDI_baseElement.removeEventListener('mousemove', EDI_onMouseMove_WRAPIT);
-    }
-}
-
-function EDI_onMouseMoveDetailRankOne(indexLineClicked, indexColumnClicked, indexColumnVisual) {
-    // TODO: These two sets the ones to line and column seem redundant weren't these just done by the original EDI_onMouseMove_WRAPIT?
-    INTS[fEDI_cursor_indexLine] = indexLineClicked;
-    INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
-    INTS[fEDI_cursorVisualColumnIndex] = indexColumnVisual;
-    INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
-
-    INTS[fEDI_cursor_selectionEnd] = EDI_getPositionIndex_cursor_raw();
-    INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-
-    EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
-}
-
-function EDI_onMouseMoveDetailRankTwo(indexLineClicked, indexColumnClicked, indexColumnVisual) {
-    let nextPositionIndex = EDI_getPositionIndex_Overload(indexLineClicked, indexColumnClicked);
-
-    if (nextPositionIndex < INTS[fEDI_detail_smallPosition]) {
-        if (INTS[fEDI_cursor_selectionAnchor] < INTS[fEDI_cursor_selectionEnd]) {
-            INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_detail_largePosition];
-            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_detail_largeColumnVisual];
-        }
-
-        INTS[fEDI_cursor_indexLine] = indexLineClicked;
-        INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
-        INTS[fEDI_cursorVisualColumnIndex] = indexColumnClicked;
-        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
-        let positionIndex = nextPositionIndex;
-
-        INTS[fEDI_cursor_selectionEnd] = positionIndex;
-        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-
-        let goalCharacterKind = EDI_getCharacterCurrent_KIND(INTS[fEDI_cursor_indexColumn], positionIndex, EDI_getLineEnd_pos_raw(INTS[fEDI_cursor_indexLine]));
-        let leftWasFound = false;
-        let tempPositionIndex = positionIndex;
-
-        while (INTS[fEDI_cursor_indexColumn] > 0) {
-            let leftCharacterKind = EDI_getCharacterPrevious_KIND(INTS[fEDI_cursor_indexColumn], tempPositionIndex);
-            if (leftCharacterKind !== goalCharacterKind) {
-                INTS[fEDI_cursor_selectionEnd] = tempPositionIndex;
-                INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-                leftWasFound = true;
-                break;
-            }
-            tempPositionIndex--;
-            INTS[fEDI_cursor_indexColumn]--;
-            INTS[fEDI_cursorVisualColumnIndex]--;
-        }
-
-        if (!leftWasFound) {
-            INTS[fEDI_cursor_selectionEnd] = tempPositionIndex;
-            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-        }
-    }
-    else if (nextPositionIndex > INTS[fEDI_detail_largePosition]) {
-        if (INTS[fEDI_cursor_selectionAnchor] > INTS[fEDI_cursor_selectionEnd]) {
-            INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_detail_smallPosition];
-            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_detail_smallColumnVisual];
-        }
-
-        INTS[fEDI_cursor_indexLine] = indexLineClicked;
-        INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
-        INTS[fEDI_cursorVisualColumnIndex] = indexColumnVisual;
-        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
-        let positionIndex = nextPositionIndex;
-
-        INTS[fEDI_cursor_selectionEnd] = positionIndex;
-        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-
-        let leftCharacterKind = EDI_getCharacterPrevious_KIND(INTS[fEDI_cursor_indexColumn], positionIndex);
-        let goalCharacterKind = leftCharacterKind;
-
-        EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
-        const line_end = INTS[fEDI_getLineBoundaryPositions_end];
-        let lineLength = line_end - INTS[fEDI_getLineBoundaryPositions_start];
-        let rightWasFound = false;
-
-        let tempPositionIndex = positionIndex;
-        while (INTS[fEDI_cursor_indexColumn] < lineLength) {
-            let rightCharacterKind = EDI_getCharacterCurrent_KIND(INTS[fEDI_cursor_indexColumn], tempPositionIndex, line_end);
-            if (rightCharacterKind !== goalCharacterKind) {
-                INTS[fEDI_cursor_selectionEnd] = tempPositionIndex;
-                //INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-                rightWasFound = true;
-                break;
-            }
-            tempPositionIndex++;
-            INTS[fEDI_cursor_indexColumn]++;
-            INTS[fEDI_cursorVisualColumnIndex]++;
-            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL]++; // TODO: '\t'
-        }
-
-        if (!rightWasFound) {
-            // end of line
-            INTS[fEDI_cursor_selectionEnd] = tempPositionIndex;
-            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-        }
-    }
-    else {
-        if (INTS[fEDI_cursor_selectionAnchor] > INTS[fEDI_cursor_selectionEnd]) {
-            INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_detail_smallPosition];
-            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_detail_smallColumnVisual];
-        }
-
-        EDI_getLineAndColumnIndices_raw(INTS[fEDI_detail_largePosition]);
-        let largeLineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
-        let largeLineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
-        INTS[fEDI_cursor_indexLine] = largeLineAndColumnIndices_indexLine;
-        INTS[fEDI_cursor_indexColumn] = largeLineAndColumnIndices_indexColumn;
-        INTS[fEDI_cursorVisualColumnIndex] = INTS[fEDI_detail_largeColumnVisual];
-        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = largeLineAndColumnIndices_indexLine;
-        INTS[fEDI_cursor_selectionEnd] = INTS[fEDI_detail_largePosition];
-        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-    }
-
-    EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
-}
-
-function EDI_onMouseMoveDetailRankThree(indexLineClicked, indexColumnClicked) {
-    // TODO: I remember this being bugged I think it makes sense why. You're checking if the cursor is exactly at the threshold rather than determining if the distance from previous event to this one puts you past the threshold.
-    if (indexLineClicked === INTS[fEDI_detailRank3OriginLine]) {
-        // TODO: 'cursor.positionIndex' is incorrect there is no such field, but was this referring to the clicked position or the position that the cursor currently is at...
-        // ...it is presumed to be the position that the cursor is currently at because it would explain the bug where if you move the cursor somewhere that the mouse move events don't get
-        // sent then bring your mouse back into a place where they do you'll snap ahead by some indices and skip the threshold and it visually bugs.
-        // You could attach to I think it is window? but then I'm wondering if a race condition could ever occur.
-        // so you'd probably want to do both attach to window and protect against large movements that skip the exact threshold when transitioning.
-        //
-        if (EDI_getPositionIndex_cursor_raw() !== INTS[fEDI_detail_smallPosition]) {
-            EDI_getLineAndColumnIndices_raw(INTS[fEDI_detail_smallPosition]);
-            let smallLineAndColumnPositionIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
-            let smallLineAndColumnPositionIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
-            INTS[fEDI_cursor_indexLine] = smallLineAndColumnPositionIndices_indexLine;
-            INTS[fEDI_cursor_indexColumn] = smallLineAndColumnPositionIndices_indexColumn;
-            INTS[fEDI_cursorVisualColumnIndex] = smallLineAndColumnPositionIndices_indexColumn;
-            INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = smallLineAndColumnPositionIndices_indexLine;
-        }
-
-        if (INTS[fEDI_cursor_selectionEnd] !== INTS[fEDI_detail_smallPosition]) {
-            INTS[fEDI_cursor_selectionEnd] = INTS[fEDI_detail_smallPosition];
-            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-        }
-
-        if (INTS[fEDI_cursor_selectionAnchor] !== INTS[fEDI_detail_largePosition]) {
-            INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_detail_largePosition];
-            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-        }
-
-        EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
-    }
-    else if (indexLineClicked < INTS[fEDI_detailRank3OriginLine]) {
-        if (INTS[fEDI_cursor_selectionAnchor] < INTS[fEDI_cursor_selectionEnd]) {
-            EDI_getLineAndColumnIndices_raw(INTS[fEDI_detail_smallPosition]);
-            let smallLineAndColumnPositionIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
-            let smallLineAndColumnPositionIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
-
-            INTS[fEDI_cursor_indexLine] = smallLineAndColumnPositionIndices_indexLine;
-            INTS[fEDI_cursor_indexColumn] = smallLineAndColumnPositionIndices_indexColumn;
-            INTS[fEDI_cursorVisualColumnIndex] = smallLineAndColumnPositionIndices_indexColumn;
-            INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = smallLineAndColumnPositionIndices_indexLine;
-
-            INTS[fEDI_cursor_selectionEnd] = INTS[fEDI_detail_smallPosition];
-            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-
-            EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
-        }
-
-        INTS[fEDI_cursor_indexLine] = indexLineClicked;
-        INTS[fEDI_cursor_indexColumn] = 0;
-        INTS[fEDI_cursorVisualColumnIndex] = 0;
-        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
-
-        INTS[fEDI_cursor_selectionEnd] = EDI_getPositionIndex_Overload(indexLineClicked, 0);
-        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-
-        EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
-    }
-    else if (indexLineClicked > INTS[fEDI_detailRank3OriginLine]) {
-
-        if (INTS[fEDI_cursor_selectionAnchor] !== INTS[fEDI_detail_smallPosition]) {
-            INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_detail_smallPosition];
-            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-        }
-
-        INTS[fEDI_cursor_indexLine] = indexLineClicked;
-        INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
-        INTS[fEDI_cursorVisualColumnIndex] = indexColumnClicked;
-        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
-        let positionIndex = EDI_getPositionIndex_Overload(indexLineClicked, indexColumnClicked);
-
-        // move to end of line...
-        EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
-        let lineLength = INTS[fEDI_getLineBoundaryPositions_end] - INTS[fEDI_getLineBoundaryPositions_start];
-        positionIndex += lineLength - INTS[fEDI_cursor_indexColumn];
-
-        if (INTS[fEDI_cursor_indexLine] === EDI_lineEndPositionList_count - 1) {
-            INTS[fEDI_cursor_indexColumn] = lineLength;
-            INTS[fEDI_cursorVisualColumnIndex] = lineLength;
-            INTS[fEDI_cursor_selectionEnd] = positionIndex;
-            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-        }
-        else {
-            // wrap to the next line
-            INTS[fEDI_cursor_indexLine]++;
-            INTS[fEDI_cursor_indexColumn] = 0;
-            INTS[fEDI_cursorVisualColumnIndex] = 0;
-            INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex]++;
-            positionIndex++;
-
-            INTS[fEDI_cursor_selectionEnd] = positionIndex;
-            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-        }
-
-        EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
-    }
-}
-//#endregion
-
 //#region keydown
 /**
  * < The browser's event listener engine ignores the return value of event handlers.
@@ -2655,32 +1575,6 @@ function EDI_onKeyDown_keyLengthEqualsOne_altKey(event) {
     
 }
 //#endregion
-
-function EDI_onContextMenu() {
-    let optionList = [
-        new MenuOption(CommandKind_Cut, 'Cut', null),
-        new MenuOption(CommandKind_Copy, 'Copy', null),
-        new MenuOption(CommandKind_Paste, 'Paste', null),
-        new MenuOption(CommandKind_Find, 'Find', null),
-    ];
-
-    let menuLeft = INTS[fEDI_recentBoundingClientRect_left] + INTS[fEDI_gutterWidthTotal] + INTS[fEDI_cursor_cursorTranslateXValue] - INTS[fEDI_lastReadNumber_scrollLeft];
-    let menuTop = INTS[fEDI_recentBoundingClientRect_top] + INTS[fEDI_cursor_cursorTranslateYValue] + INTS[fEDI_lineHeight] - INTS[fEDI_lastReadNumber_scrollTop];
-
-    return menuSet('EDITOR', null, optionList, menuLeft, menuTop);
-}
-
-function EDI_onWheel(event) {
-    if (event.shiftKey) {
-        EDI_baseElement.scrollBy(event.deltaY, 0);
-        // TODO: 'INTS[fEDI_lastReadNumber_scrollLeft]' here?
-        EDI_horizontal_scrollbar.scrollLeft = EDI_baseElement.scrollLeft;
-    }
-}
-
-function EDI_horizontal_scrollbar_onScroll() {
-    EDI_baseElement.scrollLeft = EDI_horizontal_scrollbar.scrollLeft;
-}
 
 function EDI_render_do_IndentMore() {
     // When you're done with IndentLess batch editing correctly.
@@ -5245,6 +4139,1112 @@ function EDI_drawLine(indexLine, gutterLineElement, textLineElement) {
     }
     EDI_getLineBoundaryPositions_raw(indexLine);
     EDI_createSpansForLineOfText(textLineElement, INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end], trackedSyntax_StartingIndex);
+}
+
+//#region cursorDrawing
+function EDI_render_do_cursor(timestamp) {
+    INTS[fEDI_EDI_cursorBlinkLastTimestamp] = timestamp;
+    EDI_drawCursor();
+}
+
+/** obsolete-ish */
+function EDI_render_do_cursor_flag_scrollIntoViewExplicit(timestamp) {
+    INTS[fEDI_EDI_cursorBlinkLastTimestamp] = timestamp;
+    let notShouldScrollIntoView = false;
+    let flag_scrollIntoViewExplicit = false;
+
+    flag_scrollIntoViewExplicit = true;
+
+    if (flag_scrollIntoViewExplicit) {
+        // TODO: consider setting 'notShouldScrollIntoView' to false to avoid two scroll into views redundantly?
+        EDI_scrollCursorIntoView();
+    }
+    EDI_drawCursor(notShouldScrollIntoView);
+}
+
+function EDI_render_do_cursor_flag_doNotScrollIntoView(timestamp) {
+    INTS[fEDI_EDI_cursorBlinkLastTimestamp] = timestamp;
+    EDI_drawCursor(true);
+}
+
+function EDI_cursor_hasSelection() {
+    return INTS[fEDI_cursor_selectionAnchor] >= 0 &&
+            INTS[fEDI_cursor_selectionEnd] >= 0 &&
+            INTS[fEDI_cursor_selectionAnchor] != INTS[fEDI_cursor_selectionEnd];
+}
+
+/**
+ * The code that clears the editor is dependent on this method NOT clearing 'BYTES[byteEDI_cursor_selectionDivExists]'
+ * 
+ * Somewhat duplicated code: This messes with the language features if I invoke clear() in the constructor, it puts "| undefined" on all the types.
+ */
+function EDI_cursor_clear() {
+    INTS[fEDI_cursor_indexLine] = 0;
+    INTS[fEDI_cursor_indexColumn] = 0;
+    INTS[fEDI_cursorVisualColumnIndex] = 0;
+    INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = 0;
+    INTS[fEDI_cursor_STORED_visualWidth] = 0;
+    INTS[fEDI_cursor_cursorTranslateYValue] = 0;
+    INTS[fEDI_cursor_cursorTranslateXValue] = 0;
+    INTS[fEDI_cursor_selectionAnchor] = 0;
+    INTS[fEDI_cursor_selectionEnd] = 0;
+    INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = 0;
+    INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = 0;
+    INTS[fEDI_cursor_DRAWN_selectionAnchor] = 0;
+    INTS[fEDI_cursor_DRAWN_selectionEnd] = 0;
+    INTS[fEDI_cursor_DRAWN_selection_virtualIndexLine] = 0;
+    INTS[fEDI_cursor_DRAWN_selection_virtualCount] = 0;
+    INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL_DRAWN] = 0;
+    INTS[fEDI_cursor_selectionIndexEndColumnVISUAL_DRAWN] = 0;
+    INTS[fEDI_cursor_editKind] = EditKind_None;
+    INTS[fEDI_cursor_editLength] = 0;
+    INTS[fEDI_cursor_editPosition] = 0;
+    INTS[fEDI_cursor_editIndexLine] = 0;
+    INTS[fEDI_cursor_editIndexColumn] = 0;
+    INTS[fEDI_cursor_editRenderedDisplacement] = 0;
+    INTS[fEDI_cursor_editRenderedDisplacement_INDEX_LINE_OFFSET] = 0;
+    INTS[fEDI_cursor_END_editIndexLine] = 0;
+    INTS[fEDI_cursor_END_editIndexColumn] = 0;
+
+    INTS[fEDI_cursor_gapBufferCount] = 0;
+
+    EDI_cursor_enterKey_newLinePlusIndentation_byteList = null;
+    EDI_cursor_cached_indentation_string = null;
+    BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_None;
+
+    INTS[fEDI_cursor_editLineFeedCount] = 0;
+    EDI_cursor_edit_flagLineChanged = -1;
+
+    EDI_cursor_EDI_paste_clipboardContent = null;
+
+    INTS[fEDI_cursor_EDI_duplicate_small] = 0;
+    INTS[fEDI_cursor_EDI_duplicate_length] = 0;
+}
+
+/**
+ * This method will NOT "put a cursor on screen". You need to ensure
+ * your cursor exists as a child by appendChild'ing to EDTIOR_cursorListElement.
+ * This method instead only moves a cursor that ALREADY is being shown on screen.
+ * 
+ * If the 'cursor' is not EDI_primaryCursor, then the 'NOTscrollCursorIntoView' parameter has no effect.
+ * i.e.: only the EDI_primaryCursor will ever be scrolled into view via this method.
+ * 
+ * @param {boolean} NOTscrollCursorIntoView 
+ */
+function EDI_drawCursor(NOTscrollCursorIntoView) {
+    INTS[fEDI_cursor_cursorTranslateYValue] = INTS[fEDI_cursor_indexLine] * INTS[fEDI_lineHeight];
+
+
+// cursor should store visual column then
+// and relative to line index
+
+
+/*
+TODO:
+INTS[fEDI_cursor_indexLine]
+
+- [ ] Resets:
+    - [ ] ArrowDown
+    - [ ] ArrowUp
+    - [ ] MouseDown where 'cursorVisualColumnIndex_relativeToThisLineIndex' !== the line index mouse down-ed on.
+    - [ ] MouseMove where 'cursorVisualColumnIndex_relativeToThisLineIndex' !== the line index mouse move-ed on.
+- [ ] Updates:
+    - [ ] All edits where 'cursorVisualColumnIndex_relativeToThisLineIndex' === the line index edited, and the edit comes at or a lower column index than that of the cursor need to update the cursorVisualColumnIndex
+    - [ ] MouseDown where 'cursorVisualColumnIndex_relativeToThisLineIndex' === the same line index that the cursor is on, determine the 'characters traveled' to go from initial position to mouse down position and modify by how many chars/tabs etc... you traveled over
+    - [ ] ArrowLeft where 'cursorVisualColumnIndex_relativeToThisLineIndex' === the same line index that the cursor is on, determine the 'characters traveled' to go from initial position to ending position and modify by how many chars/tabs etc... you traveled over
+        - [ ] No modifiers
+        - [ ] CtrlKey
+        - [ ] When NOT holding shift, but you have an active selection
+    - [ ] ArrowRight where 'cursorVisualColumnIndex_relativeToThisLineIndex' === the same line index that the cursor is on, determine the 'characters traveled' to go from initial position to ending position and modify by how many chars/tabs etc... you traveled over
+        - [ ] No modifiers
+        - [ ] CtrlKey
+        - [ ] When NOT holding shift, but you have an active selection
+- [ ] Further necessary details:
+    - [ ] I... does MouseDown need to finalize the edits?
+    - [ ] Do other things need to finalize the edits?
+    - [ ] ArrowLeft/ArrowRight?
+    - [ ] Preferably if you insert text, then remove text, but the removed text is part of the text that you inserted
+          that you'd just modify the "gap buffer" and avoid:
+          - insert
+          - remove triggers finalize of insert
+          - start remove
+          - eventually finalize remove
+          ============================
+          versus
+          - insert
+          - remove just modifies the inserted text
+          - eventually finalize insert
+        - [ ] But from an order of implementations I don't necessarily know if it is a good idea for me to concern myself with these details or not.
+        - [ ] (i.e.: not yet?)
+        - [ ] Thus you get the simple batching of edits 100% correct first
+        - [ ] And do the other complex batching later.
+- [ ] A thought for checking the answer:
+    - [ ] Ctrl+Shift+F for 'INTS[fEDI_cursor_indexColumn]' and make sure any modifications to it (eventually) result in a modification to 'fEDI_cursorVisualColumnIndex'.
+        - [ ] I say eventually because maybe you'd in some cases save the 'fEDI_cursorVisualColumnIndex' part until the end I'm not sure I just consider that maybe there'd be a case where that's done.
+    - [ ] Ctrl+Shift+F for 'INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex]' and make sure any modifications to it (eventually) result in a modification to 'fEDI_cursorVisualColumnIndex_relativeToThisLineIndex' and then if this changes update 'fEDI_cursor_indexColumn' accordingly.
+*/
+
+
+    ////getXFromIndex(lineText, targetIndex, charWidth, paddingLeft = 0)
+    //let visualColumns = 0;
+    ////// Clamp target index to string boundaries
+    ////const end = Math.min(targetIndex, lineText.length);
+    //const end = INTS[fEDI_cursor_indexColumn];
+    //for (let i = 0; i < end; i++) {
+    //    if (lineText[i] === '\t') {
+    //        // Calculate spaces to next tab stop
+    //        visualColumns += 4 - (visualColumns % 4);
+    //    } else {
+    //        visualColumns += 1;
+    //    }
+    //}
+    //return paddingLeft + (visualColumns * charWidth);
+
+
+    INTS[fEDI_cursor_cursorTranslateXValue] = INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth;
+
+    EDI_cursor_caretRow.style.transform = `translateY(${INTS[fEDI_cursor_cursorTranslateYValue]}px)`;
+    EDI_cursor_cursorElement.style.transform = `translateX(${INTS[fEDI_cursor_cursorTranslateXValue]}px)`;
+
+    EDI_createStyleForSelection();
+
+    if (!NOTscrollCursorIntoView) {
+        EDI_scrollCursorIntoView();
+    }
+}
+
+function EDI_draw_cursor_debug() {
+    // TODO: This logic has way too much overhead to be in this function.
+    let text = '';
+
+    text += '(' + INTS[fEDI_cursor_indexLine] + ', ' + INTS[fEDI_cursor_indexColumn] + ')';
+    
+    if (BYTES[byteDIALOG_Settings_editorDebugShowAdjacentCharacters]) {
+        //let previous = EDI_getCharacterPrevious(INTS[fEDI_cursor_indexColumn], EDI_getPositionIndex_cursor_raw());
+        //if (previous === '\n') previous = '\\n';
+        //else if (previous === '\t') previous = '\\t';
+        //let current = EDI_getCharacterCurrent(INTS[fEDI_cursor_indexColumn], EDI_getPositionIndex_cursor_raw(), EDI_getLineEnd_pos_raw(INTS[fEDI_cursor_indexLine]));
+        //if (current === '\n') current = '\\n';
+        //else if (current === '\t') current = '\\t';
+        //text += ' | (' + previous + ', ' + current + ')';
+        text += 'byteDIALOG_Settings_editorDebugShowAdjacentCharacters_is_not_implemented';
+    }
+
+    text += ' | (' + INTS[fEDI_cursorVisualColumnIndex] + ')';
+    
+    text += ' | (' + INTS[fEDI_cursor_editLength] + ')';
+
+    //text += ' | (' + INTS[fEDI_longestLine_indexLine] + ', ' + INTS[fEDI_longestLine_length] + ')';
+
+    EDI_debug.replaceChildren(text);
+}
+
+/**
+ * This function only clears both the 'BYTES[byteEDI_cursor_selectionDivExists]' and the HTML associated with the selection NOT the actual selection position properties of the cursor.
+ */
+function EDI_clearSelectionStyle() {
+    let shouldExistSelectionDiv = false;
+    if (BYTES[byteEDI_cursor_selectionDivExists]) {
+        for (var i = 0; i < EDI_presentation.children.length; i++) {
+            if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
+                let textSelectionDiv = EDI_presentation.children[i];
+                if (!shouldExistSelectionDiv) {
+                    EDI_presentation.removeChild(textSelectionDiv);
+                    BYTES[byteEDI_cursor_selectionDivExists] = 0;
+                }
+                break;
+            }
+        }
+    }
+}
+
+/**
+ * TODO: This needs to be a ring buffer of its own
+ * ...
+ * dynamic ring buffer that scales as your selection requires more and more horizontal divs?
+ * Otherwise you have the ring buffer sitting around in the background all the time.
+ * And if you only select 1 line of text you probably don't want to fill the screen with empty divs foreach line
+ * just to select text on a single line.
+ * So as you keep selecting you build a larger and larger ring buffer that is capped at max to be the amount of lines that fit the viewport.
+ * 
+ * As you scroll determine the lines that need to be redrawn
+*/
+function EDI_createStyleForSelection() {
+    if (INTS[fEDI_cursor_DRAWN_selectionAnchor] !== INTS[fEDI_cursor_selectionAnchor] ||
+        INTS[fEDI_cursor_DRAWN_selectionEnd] !== INTS[fEDI_cursor_selectionEnd] ||
+        INTS[fEDI_cursor_DRAWN_selection_virtualCount] !== INTS[fEDI_virtualCount] ||
+        INTS[fEDI_cursor_DRAWN_selection_virtualIndexLine] !== INTS[fEDI_virtualIndexLine] ||
+        INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL_DRAWN] !== INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] ||
+        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL_DRAWN] !== INTS[fEDI_cursor_selectionIndexEndColumnVISUAL]) {
+
+        INTS[fEDI_cursor_DRAWN_selectionAnchor] = INTS[fEDI_cursor_selectionAnchor];
+        INTS[fEDI_cursor_DRAWN_selectionEnd] = INTS[fEDI_cursor_selectionEnd];
+        INTS[fEDI_cursor_DRAWN_selection_virtualCount] = INTS[fEDI_virtualCount];
+        INTS[fEDI_cursor_DRAWN_selection_virtualIndexLine] = INTS[fEDI_virtualIndexLine];
+
+        INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL_DRAWN] = INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL];
+        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL_DRAWN] = INTS[fEDI_cursor_selectionIndexEndColumnVISUAL];
+
+        let shouldExistSelectionDiv = false;
+        if (INTS[fEDI_cursor_DRAWN_selectionAnchor] === INTS[fEDI_cursor_DRAWN_selectionEnd]) {
+            shouldExistSelectionDiv = false;
+        }
+        else {
+            shouldExistSelectionDiv = true;
+        }
+
+        let textSelectionDiv;
+
+        if (BYTES[byteEDI_cursor_selectionDivExists]) {
+            for (var i = 0; i < EDI_presentation.children.length; i++) {
+                if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
+                    textSelectionDiv = EDI_presentation.children[i];
+                    if (!shouldExistSelectionDiv) {
+                        EDI_presentation.removeChild(textSelectionDiv);
+                        BYTES[byteEDI_cursor_selectionDivExists] = 0;
+                    }
+                    break;
+                }
+            }
+        }
+        else if (shouldExistSelectionDiv) {
+            textSelectionDiv = document.createElement('div');
+            textSelectionDiv.id = CONST_EDI_cursor_htmlId;
+            textSelectionDiv.style.display = 'contents';
+            EDI_presentation.appendChild(textSelectionDiv);
+            BYTES[byteEDI_cursor_selectionDivExists] = 1;
+        }
+
+        if (!BYTES[byteEDI_cursor_selectionDivExists]) return;
+
+        // TODO: only somewhat simple viewport based virtualization is implemented from what I remember. i.e.: I think the divs are re-used, but every div is redrawn for the viewport, rather than only recalculating the css for the divs that came or left the viewport.
+
+        let start = INTS[fEDI_cursor_selectionAnchor];
+        EDI_getLineAndColumnIndices_raw(start);
+        let startLineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
+        let startLineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
+        let startLine = startLineAndColumnIndices_indexLine;
+        let startColumn = startLineAndColumnIndices_indexColumn;
+        let start_visualColumnStart = INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL];
+
+        let end = INTS[fEDI_cursor_selectionEnd];
+        EDI_getLineAndColumnIndices_raw(end);
+        let endLineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
+        let endLineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
+        let INCLUSIVEendLine = endLineAndColumnIndices_indexLine;
+        let INCLUSIVEendColumn = endLineAndColumnIndices_indexColumn;
+        let end_visualColumnStart = INTS[fEDI_cursor_selectionIndexEndColumnVISUAL];
+
+        // # Virtualization
+        if (startLine < INTS[fEDI_virtualIndexLine]) {
+            startLine = INTS[fEDI_virtualIndexLine];
+            startColumn = 0;
+        }
+        let lastIndexLineBeingShown = INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1;
+        if (INCLUSIVEendLine > lastIndexLineBeingShown) {
+            INCLUSIVEendLine = lastIndexLineBeingShown;
+            INCLUSIVEendColumn = EDI_getLastValidIndexColumn_raw(INCLUSIVEendLine);
+        }
+
+        if (start > end) {
+            let temp = end;
+            let tempLine = INCLUSIVEendLine;
+            let tempColumn = INCLUSIVEendColumn;
+            let tempVisualColumn;
+            end = start;
+            INCLUSIVEendLine = startLine;
+            INCLUSIVEendColumn = startColumn;
+            start = temp;
+            startLine = tempLine;
+            startColumn = tempColumn;
+
+            tempVisualColumn = start_visualColumnStart;
+            start_visualColumnStart = end_visualColumnStart;
+            end_visualColumnStart = tempVisualColumn;
+        }
+        //
+        // I do not want to fill the screen with display:none divs for when there is a selection to be shown there (I do it all the time but it doesn't seem sensible here).
+        // Thus the first step is to ensure there are a matching amount of divs for the selections to apply their style to.
+        //
+        let selectedLineCount = INCLUSIVEendLine - startLine + 1;
+        if (textSelectionDiv.children.length < selectedLineCount) {
+            for (let i = textSelectionDiv.children.length; i < selectedLineCount; i++) {
+                textSelectionDiv.appendChild(document.createElement('div'));
+            }
+        }
+        else if (textSelectionDiv.children.length > selectedLineCount) {
+            for (let i = selectedLineCount; i < textSelectionDiv.children.length; i++) {
+                textSelectionDiv.removeChild(textSelectionDiv.children[i]);
+            }
+        }
+
+        let lineSelectionDiv;
+        let childDivIndex = 0;
+
+        // everything static-ly will "fall at a left of gutterWidthTotal_withPxUnits"...
+        // ...but you cannot rely on that as it causes layout shifting, you need to make it clear to the renderering engine.
+
+        /*
+        But it just means you have a startLineSelectionWidth of 'startLineEntireVisualWidth - (startColumnVisualOfSelection * charWidth)'
+        and the endLineSelectionWidth is 'endColumnVisualOfSelection'.
+        */
+
+        if (startLine === INCLUSIVEendLine) {
+            lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
+            lineSelectionDiv.className = 'EDI_selection';
+            lineSelectionDiv.style.left = gutterWidthTotal_withPxUnits;
+            lineSelectionDiv.style.transform = `translate(${start_visualColumnStart * EDI_characterWidth}px, ${INTS[fEDI_lineHeight] * startLine}px)`;
+            lineSelectionDiv.style.width = (end_visualColumnStart - start_visualColumnStart) * EDI_characterWidth + 'px';
+        }
+        else {
+            // start line
+            lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
+            lineSelectionDiv.className = 'EDI_selection';
+            lineSelectionDiv.style.left = gutterWidthTotal_withPxUnits;
+            lineSelectionDiv.style.transform = `translate(${start_visualColumnStart * EDI_characterWidth}px, ${INTS[fEDI_lineHeight] * startLine}px)`;
+            EDI_getLineBoundaryPositions_raw(startLine);
+            let lineVisualWidth = fEDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
+            lineSelectionDiv.style.width = (lineVisualWidth + 1 - start_visualColumnStart) * EDI_characterWidth + 'px';
+
+            // between lines
+            for (var lineI = startLine + 1; lineI < INCLUSIVEendLine; lineI++) {
+                lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
+                lineSelectionDiv.className = 'EDI_selection';
+                lineSelectionDiv.style.left = gutterWidthTotal_withPxUnits;
+                lineSelectionDiv.style.transform = `translateY(${INTS[fEDI_lineHeight] * lineI}px)`;
+                EDI_getLineBoundaryPositions_raw(lineI);
+                let lineVisualWidth = fEDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
+                lineSelectionDiv.style.width = (lineVisualWidth + 1) * EDI_characterWidth + 'px';
+            }
+
+            // end line
+            lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
+            lineSelectionDiv.className = 'EDI_selection';
+            lineSelectionDiv.style.left = gutterWidthTotal_withPxUnits;
+            lineSelectionDiv.style.transform = `translateY(${INTS[fEDI_lineHeight] * INCLUSIVEendLine}px)`;
+            lineSelectionDiv.style.width = end_visualColumnStart * EDI_characterWidth + 'px';
+        }
+    }
+}
+
+function EDI_createStyleForSelection_indentMore() {
+    let textSelectionDiv;
+    if (BYTES[byteEDI_cursor_selectionDivExists]) {
+        for (var i = 0; i < EDI_presentation.children.length; i++) {
+            if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
+                textSelectionDiv = EDI_presentation.children[i];
+                break;
+            }
+        }
+    }
+    else {
+        // TODO: Silent error confusing bad idea
+        return;
+    }
+
+    let extraWidth = 4 * EDI_characterWidth;
+    for (let i = 0; i < textSelectionDiv.children.length; i++) {
+        let lineSelectionDiv = textSelectionDiv.children[i];
+        let widthNumberValue = parseFloat(lineSelectionDiv.style.width, 10);
+        widthNumberValue += extraWidth;
+        lineSelectionDiv.style.width = widthNumberValue + 'px';
+    }
+
+    INTS[fEDI_cursor_DRAWN_selectionAnchor] = INTS[fEDI_cursor_selectionAnchor];
+    INTS[fEDI_cursor_DRAWN_selectionEnd] = INTS[fEDI_cursor_selectionEnd];
+}
+
+/**
+ * Any code that wants to stop then start the cursor blinking again needs to:
+ * - enqueue rAF for drawing the cursor
+ * - *optional* check if statement for 'BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]' to avoid redundant invocations of 'EDI_cursorBlink_startChecking'
+ * - invoke 'EDI_cursorBlink_startChecking'
+ * - downstream trigger the rAF for drawing the cursor wherein 'INTS[fEDI_EDI_cursorBlinkLastTimestamp]' gets set to the rAF timestamp.
+ *     - or, modify some other part of the rAF pipeline (only if necessary) / etc...
+ * 
+ * NOTE: the draw cursor rAF needs to be enqueued prior to the 'EDI_cursorBlink_startChecking' invocation.
+ */
+function EDI_cursorBlink_trailingEdge(timestamp) {
+    const time = timestamp - INTS[fEDI_EDI_cursorBlinkLastTimestamp];
+    if (time >= 500) {
+        BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] = 0;
+        // TODO: This is a timing issue of the rAF vs you losing focus on the editor.
+        EDI_cursor_cursorElement.classList.add('EDI_cursor_focus');
+        EDI_draw_cursor_debug();
+        INTS[fEDI_EDI_cursorBlinkLastTimestamp] = 0;
+    }
+    else {
+        requestAnimationFrame(EDI_cursorBlink_trailingEdge);
+    }
+}
+
+function EDI_cursorBlink_startChecking() {
+    BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] = 1;
+    EDI_cursor_cursorElement.classList.remove('EDI_cursor_focus');
+    requestAnimationFrame(EDI_cursorBlink_trailingEdge);
+}
+
+function EDI_scrollCursorIntoView() {
+    let scrollX = 0;
+    let scrollY = 0;
+
+    let local_lastReadNumber_scrollTop = INTS[fEDI_lastReadNumber_scrollTop];
+
+    if (INTS[fEDI_cursor_cursorTranslateYValue] < local_lastReadNumber_scrollTop) {
+        scrollY = INTS[fEDI_cursor_cursorTranslateYValue] - local_lastReadNumber_scrollTop;
+    }
+    else if (INTS[fEDI_cursor_cursorTranslateYValue] >= local_lastReadNumber_scrollTop + INTS[fEDI_lastReadNumber_offsetHeight]) {
+        // I want to use clientHeight but I don't have any logic for no scrollbar thus single page fitting text might bug out and trigger
+        // scrollBy over and over.
+
+        // make the bottom touch then add lineHeight is probably the algorithm to get a perfect fill maybe do lineHeight * 2 skip an event when spamming arrowDown?
+        let currentBottom = local_lastReadNumber_scrollTop + INTS[fEDI_lastReadNumber_offsetHeight];
+        let changeToMakeBottomTouch = INTS[fEDI_cursor_cursorTranslateYValue] - currentBottom;
+        scrollY = changeToMakeBottomTouch + (2 * INTS[fEDI_lineHeight]);
+    }
+
+    if (INTS[fEDI_cursor_cursorTranslateXValue] < INTS[fEDI_lastReadNumber_scrollLeft]) {
+        scrollX = INTS[fEDI_cursor_cursorTranslateXValue] - INTS[fEDI_lastReadNumber_scrollLeft];
+    }
+    else if (INTS[fEDI_cursor_cursorTranslateXValue] >= INTS[fEDI_lastReadNumber_scrollLeft] + INTS[fEDI_lastReadNumber_offsetWidth]) {
+        // I want to use clientWidth but I don't have any logic for no scrollbar thus single page fitting text might bug out and trigger
+        // scrollBy over and over.
+
+        // make the right touch then add characterWidth is probably the algorithm to get a perfect fill maybe do characterWidth * 2 skip an event when spamming arrowRight?
+        let currentRight = INTS[fEDI_lastReadNumber_scrollLeft] + INTS[fEDI_lastReadNumber_offsetWidth];
+        let changeToMakeRightTouch = INTS[fEDI_cursor_cursorTranslateXValue] - currentRight;
+        scrollX = changeToMakeRightTouch + (4 * EDI_characterWidth);
+    }
+
+    // This is asynchronous, this is the bug cause
+    // (SPECIFICALLY: the scroll event is async)
+    if (scrollX !== 0 || scrollY !== 0) {
+        EDI_baseElement.scrollBy(scrollX, scrollY);
+    }
+}
+//#endregion
+
+//#region mousedown
+function EDI_onMouseDown(event) {
+    // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
+    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+        EDI_finalizeEdit();
+    }
+
+    EDI_movementBasedCacheInvalidation();
+
+    if (get_EDI_recentBoundingClientRect_isNull_intFalsey()) {
+        let boundingClientRect = EDI_baseElement.getBoundingClientRect();
+        INTS[fEDI_recentBoundingClientRect_left] = boundingClientRect.left;
+        INTS[fEDI_recentBoundingClientRect_top] = boundingClientRect.top;
+        set_EDI_recentBoundingClientRect_isNull_intFalsey(0);
+    }
+
+    if (event.button === 0) {
+        BYTES[byteEDI_mousemove_eventListener_isActive] = 1;
+        EDI_baseElement.addEventListener('mousemove', EDI_onMouseMove_WRAPIT);
+    }
+
+    let rY = event.clientY - INTS[fEDI_recentBoundingClientRect_top] + INTS[fEDI_lastReadNumber_scrollTop];
+    let rX = event.clientX - INTS[fEDI_recentBoundingClientRect_left] - INTS[fEDI_gutterWidthTotal] + INTS[fEDI_lastReadNumber_scrollLeft];
+    
+    let indexLine = Math.floor(rY / INTS[fEDI_lineHeight]);
+    let indexColumn = Math.round(rX / EDI_characterWidth);
+    let indexColumnVisual = indexColumn;
+
+    if (indexLine < 0) {
+        indexLine = 0;
+    }
+
+    if (indexColumn < 0) {
+        indexColumn = 0;
+        indexColumnVisual = indexColumn;
+    }
+
+    if (indexLine >= EDI_lineEndPositionList_count) {
+        indexLine = EDI_lineEndPositionList_count - 1;
+    }
+
+    EDI_getLineBoundaryPositions_raw(indexLine);
+
+    if (INTS[fEDI_cursor_indexLine] === indexLine) {
+        if (rX >= INTS[fEDI_cursor_cursorTranslateXValue]) {
+            getIndexFromX_sameLine_newRxIsLarger(rX, INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
+        }
+        else {
+            getIndexFromX_sameLine_newRxIsSmaller(rX, INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
+        }
+    }
+    else {
+        getIndexFromX_RESET(rX, INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
+    }
+    indexColumn = INTS[fEDI_getIndexFromX_indexColumn];
+    indexColumnVisual = INTS[fEDI_getIndexFromX_visualColumns];
+
+    let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(indexLine);
+    if (indexColumn > lastValidIndexColumn) {
+        indexColumn = lastValidIndexColumn;
+        indexColumnVisual = indexColumn;
+    }
+
+    if (rX < -1 * CONST_EDI_gutterPaddingRight) {
+        set_EDI_detailRank(3);
+        EDI_onMouseDownDetailRankThree(event.button, event.shiftKey, indexLine, indexColumn);
+        if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
+            EDI_cursorBlink_startChecking();
+        }
+        return;
+    }
+
+    if (event.detail % 3 === 0) {
+        set_EDI_detailRank(3);
+        EDI_onMouseDownDetailRankThree(event.button, event.shiftKey, indexLine, indexColumn);
+    }
+    else if (event.detail % 2 === 0) {
+        set_EDI_detailRank(2);
+        EDI_onMouseDownDetailRankTwo(event.button, event.shiftKey, indexLine, indexColumn, indexColumnVisual);
+    }
+    else {
+        set_EDI_detailRank(1);
+        EDI_onMouseDownDetailRankOne(event.button, event.shiftKey, indexLine, indexColumn, indexColumnVisual);
+    }
+
+    if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
+        EDI_cursorBlink_startChecking();
+    }
+}
+
+function EDI_onMouseDownDetailRankOne(event_button, event_shiftKey, indexLineClicked, indexColumnClicked, indexColumnVisual) {
+
+    let selectionPlusContextMenuCase = event_button === 2 && EDI_cursor_hasSelection();
+
+    if (event_shiftKey && !selectionPlusContextMenuCase) {
+        if (!EDI_cursor_hasSelection()) {
+            INTS[fEDI_cursor_selectionAnchor] = EDI_getPositionIndex_cursor_raw();
+            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = indexColumnVisual;
+        }
+    }
+
+    if (!selectionPlusContextMenuCase) {
+        INTS[fEDI_cursor_indexLine] = indexLineClicked;
+        INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
+        INTS[fEDI_cursorVisualColumnIndex] = indexColumnVisual;
+        INTS[fEDI_cursor_STORED_visualWidth] = indexColumnVisual;
+        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
+    
+        INTS[fEDI_cursor_selectionEnd] = EDI_getPositionIndex_cursor_raw();
+        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+
+        if (!event_shiftKey) {
+            INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_cursor_selectionEnd];
+            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+        }
+    }
+
+    EDI_render_request(RenderKind_Cursor_n);
+}
+
+function EDI_onMouseDownDetailRankTwo(event_button, event_shiftKey, indexLineClicked, indexColumnClicked, indexColumnVisual) {
+    if (event_shiftKey) {
+        EDI_onMouseDownDetailRankOne(event_button, event_shiftKey, indexLineClicked, indexColumnClicked);
+        return;
+    }
+
+    INTS[fEDI_cursor_indexLine] = indexLineClicked;
+    INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
+    INTS[fEDI_cursorVisualColumnIndex] = indexColumnVisual;
+    INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
+    let positionIndex = EDI_getPositionIndex_cursor_raw();
+    
+    EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+    const line_start = INTS[fEDI_getLineBoundaryPositions_start];
+    const line_end = INTS[fEDI_getLineBoundaryPositions_end];
+
+    let leftCharacterKind = EDI_getCharacterPrevious_KIND(INTS[fEDI_cursor_indexColumn], positionIndex);
+    let rightCharacterKind = EDI_getCharacterCurrent_KIND(INTS[fEDI_cursor_indexColumn], positionIndex, line_end);
+
+    if (leftCharacterKind === rightCharacterKind) {
+        let goalCharacterKind = rightCharacterKind;
+
+        let tempIndexColumn = INTS[fEDI_cursor_indexColumn];
+        let tempIndexColumnVisual = INTS[fEDI_cursorVisualColumnIndex];
+        let tempPositionIndex = EDI_getPositionIndex_Overload(INTS[fEDI_cursor_indexLine], tempIndexColumn);
+        while (tempIndexColumn > 0) {
+            tempIndexColumn--;
+            tempIndexColumnVisual--; // TODO: if '\t'
+            tempPositionIndex--;
+            leftCharacterKind = EDI_getCharacterPrevious_KIND(tempIndexColumn, tempPositionIndex);
+            if (leftCharacterKind !== goalCharacterKind) {
+                INTS[fEDI_cursor_selectionAnchor] = tempPositionIndex;
+                INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = tempIndexColumnVisual;
+                break;
+            }
+        }
+
+        let lineLength = line_end - line_start;
+        let rightWasFound = false;
+        tempIndexColumn = INTS[fEDI_cursor_indexColumn];
+        tempIndexColumnVisual = INTS[fEDI_cursorVisualColumnIndex];
+        tempPositionIndex = EDI_getPositionIndex_Overload(INTS[fEDI_cursor_indexLine], tempIndexColumn);
+        while (tempIndexColumn < lineLength) {
+            tempIndexColumn++;
+            tempIndexColumnVisual++; // TODO: if '\t'
+            tempPositionIndex++;
+            rightCharacterKind = EDI_getCharacterCurrent_KIND(tempIndexColumn, tempPositionIndex, line_end);
+            if (rightCharacterKind !== goalCharacterKind) {
+                INTS[fEDI_cursor_indexColumn] = tempIndexColumn;
+                INTS[fEDI_cursor_selectionEnd] = tempPositionIndex;
+                INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = tempIndexColumnVisual;
+                INTS[fEDI_cursorVisualColumnIndex] = tempIndexColumnVisual;
+                rightWasFound = true;
+                break;
+            }
+        }
+
+        if (!rightWasFound) {
+            // end of line
+            INTS[fEDI_cursor_indexColumn] = tempIndexColumn;
+            INTS[fEDI_cursor_selectionEnd] = tempPositionIndex;
+            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = tempIndexColumnVisual;
+            INTS[fEDI_cursorVisualColumnIndex] = tempIndexColumnVisual;
+        }
+
+        EDI_render_request(RenderKind_Cursor_n);
+    }
+    else if (leftCharacterKind > rightCharacterKind) {
+        let goalCharacterKind = leftCharacterKind;
+
+        let tempIndexColumn = INTS[fEDI_cursor_indexColumn];
+        let tempIndexColumnVisual = INTS[fEDI_cursorVisualColumnIndex];
+        let originalPositionIndex = EDI_getPositionIndex_Overload(INTS[fEDI_cursor_indexLine], tempIndexColumn);
+        let tempPositionIndex = originalPositionIndex;
+
+        while (INTS[fEDI_cursor_indexColumn] > 0) {
+            tempIndexColumn--;
+            tempIndexColumnVisual--; // TODO: if '\t'
+            tempPositionIndex--;
+            leftCharacterKind = EDI_getCharacterPrevious_KIND(tempIndexColumn, tempPositionIndex);
+            if (leftCharacterKind !== goalCharacterKind) {
+                INTS[fEDI_cursor_selectionAnchor] = tempPositionIndex;
+                INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = tempIndexColumnVisual;
+                break;
+            }
+        }
+
+        INTS[fEDI_cursor_selectionEnd] = originalPositionIndex;
+        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+
+        EDI_render_request(RenderKind_Cursor_n);
+    }
+    else {
+        let goalCharacterKind = rightCharacterKind;
+
+        let positionIndex = EDI_getPositionIndex_Overload(INTS[fEDI_cursor_indexLine], INTS[fEDI_cursor_indexColumn]);
+        INTS[fEDI_cursor_selectionAnchor] = positionIndex;
+        INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+
+        let lineLength = line_end - line_start;
+        let rightWasFound = false;
+
+        while (INTS[fEDI_cursor_indexColumn] < lineLength) {
+            INTS[fEDI_cursor_indexColumn]++;
+            INTS[fEDI_cursorVisualColumnIndex]++;
+            positionIndex++;
+            rightCharacterKind = EDI_getCharacterCurrent_KIND(INTS[fEDI_cursor_indexColumn], positionIndex, line_end);
+            if (rightCharacterKind !== goalCharacterKind) {
+                INTS[fEDI_cursor_selectionEnd] = positionIndex;
+                INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+                rightWasFound = true;
+                break;
+            }
+        }
+
+        if (!rightWasFound) {
+            // end of line
+            INTS[fEDI_cursor_selectionEnd] = positionIndex;
+            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+        }
+
+        EDI_render_request(RenderKind_Cursor_n);
+    }
+
+    if (INTS[fEDI_cursor_selectionAnchor] < INTS[fEDI_cursor_selectionEnd]) {
+        INTS[fEDI_detail_smallPosition] = INTS[fEDI_cursor_selectionAnchor];
+        INTS[fEDI_detail_largePosition] = INTS[fEDI_cursor_selectionEnd];
+        INTS[fEDI_detail_smallColumnVisual] = INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL];
+        INTS[fEDI_detail_largeColumnVisual] = INTS[fEDI_cursor_selectionIndexEndColumnVISUAL];
+    }
+    else {
+        INTS[fEDI_detail_smallPosition] = INTS[fEDI_cursor_selectionEnd];
+        INTS[fEDI_detail_largePosition] = INTS[fEDI_cursor_selectionAnchor];
+        INTS[fEDI_detail_smallColumnVisual] = INTS[fEDI_cursor_selectionIndexEndColumnVISUAL];
+        INTS[fEDI_detail_largeColumnVisual] = INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL];
+    }
+}
+
+function EDI_onMouseDownDetailRankThree(event_button, event_shiftKey, indexLineClicked, indexColumnClicked) {
+    if (event_shiftKey) {
+        EDI_onMouseDownDetailRankOne(event_button, event_shiftKey, indexLineClicked, indexColumnClicked);
+        return;
+    }
+
+    INTS[fEDI_cursor_indexLine] = indexLineClicked;
+    INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
+    INTS[fEDI_cursorVisualColumnIndex] = indexColumnClicked;
+    INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
+    
+    INTS[fEDI_cursor_selectionAnchor] = EDI_getPositionIndex_Overload(INTS[fEDI_cursor_indexLine], 0);
+    INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+    
+    INTS[fEDI_detailRank3OriginLine] = INTS[fEDI_cursor_indexLine];
+
+    if (INTS[fEDI_cursor_indexLine] === EDI_lineEndPositionList_count - 1) {
+        EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+        INTS[fEDI_cursor_selectionEnd] = INTS[fEDI_getLineBoundaryPositions_end];
+        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+        EDI_render_request(RenderKind_Cursor_n);
+    }
+    else {
+        INTS[fEDI_cursor_indexLine]++;
+        INTS[fEDI_cursor_indexColumn] = 0;
+        INTS[fEDI_cursorVisualColumnIndex] = 0;
+        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex]++;
+        EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+        INTS[fEDI_cursor_selectionEnd] = INTS[fEDI_getLineBoundaryPositions_start];
+        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+        EDI_render_request(RenderKind_Cursor_n);
+    }
+
+    if (INTS[fEDI_cursor_selectionAnchor] < INTS[fEDI_cursor_selectionEnd]) {
+        INTS[fEDI_detail_smallPosition] = INTS[fEDI_cursor_selectionAnchor];
+        INTS[fEDI_detail_largePosition] = INTS[fEDI_cursor_selectionEnd];
+        INTS[fEDI_detail_smallColumnVisual] = INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL];
+        INTS[fEDI_detail_largeColumnVisual] = INTS[fEDI_cursor_selectionIndexEndColumnVISUAL];
+    }
+    else {
+        INTS[fEDI_detail_smallPosition] = INTS[fEDI_cursor_selectionEnd];
+        INTS[fEDI_detail_largePosition] = INTS[fEDI_cursor_selectionAnchor];
+        INTS[fEDI_detail_smallColumnVisual] = INTS[fEDI_cursor_selectionIndexEndColumnVISUAL];
+        INTS[fEDI_detail_largeColumnVisual] = INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL];
+    }
+}
+//#endregion
+
+//#region mousemove
+function EDI_onMouseMove_WRAPIT(event) {
+    if ((event.buttons & 1) && !get_EDI_recentBoundingClientRect_isNull_intFalsey()) {
+        // TODO: Consider short circuiting at via event.clientX and clientY by tracking the necessary thresholds for the cursor position to pass rather than the previous and current indices. (you can possibly thereby skip the calculation of the indices entirely for the redundant events).
+        // TODO: Is it correct to use the cursor's indexLine and indexColumn directly as a means of determining redundancy? I worry about odd interactions, but I have no proof that such an odd interaction could exist.
+
+        let rX = event.clientX - INTS[fEDI_recentBoundingClientRect_left] - INTS[fEDI_gutterWidthTotal] + INTS[fEDI_lastReadNumber_scrollLeft];
+        let rY = event.clientY - INTS[fEDI_recentBoundingClientRect_top] + INTS[fEDI_lastReadNumber_scrollTop];
+
+        let indexColumn = Math.round(rX / EDI_characterWidth);
+        let indexLine = Math.floor(rY / INTS[fEDI_lineHeight]);
+        let indexColumnVisual = indexColumn;
+
+        if (indexColumn < 0) {
+            indexColumn = 0;
+        }
+        
+        if (indexLine < 0) {
+            indexLine = 0;
+        }
+
+        if (indexLine >= EDI_lineEndPositionList_count) {
+            indexLine = EDI_lineEndPositionList_count - 1;
+        }
+
+        EDI_getLineBoundaryPositions_raw(indexLine);
+
+        if (INTS[fEDI_cursor_indexLine] === indexLine) {
+            if (rX >= INTS[fEDI_cursor_cursorTranslateXValue]) {
+                getIndexFromX_sameLine_newRxIsLarger(rX, INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
+            }
+            else {
+                getIndexFromX_sameLine_newRxIsSmaller(rX, INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
+            }
+        }
+        else {
+            getIndexFromX_RESET(rX, INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
+        }
+        indexColumn = INTS[fEDI_getIndexFromX_indexColumn];
+        indexColumnVisual = INTS[fEDI_getIndexFromX_visualColumns];
+
+        let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(indexLine);
+        if (indexColumn > lastValidIndexColumn) {
+            indexColumn = lastValidIndexColumn;
+        }
+
+        if (INTS[fEDI_cursor_indexLine] === indexLine && INTS[fEDI_cursor_indexColumn] === indexColumn) {
+            return;
+        }
+        
+        INTS[fEDI_cursor_indexLine] = indexLine;
+        INTS[fEDI_cursor_indexColumn] = indexColumn;
+        INTS[fEDI_cursorVisualColumnIndex] = indexColumnVisual;
+        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLine;
+
+        if (get_EDI_detailRank() === 3) {
+            EDI_onMouseMoveDetailRankThree(indexLine, indexColumn);
+        }
+        else if (get_EDI_detailRank() === 2) {
+            EDI_onMouseMoveDetailRankTwo(indexLine, indexColumn, indexColumnVisual);
+        }
+        else if (get_EDI_detailRank() === 1) {
+            EDI_onMouseMoveDetailRankOne(indexLine, indexColumn, indexColumnVisual);
+        }
+
+        if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
+            EDI_cursorBlink_startChecking();
+        }
+    }
+    else {
+        BYTES[byteEDI_mousemove_eventListener_isActive] = 0;
+        EDI_baseElement.removeEventListener('mousemove', EDI_onMouseMove_WRAPIT);
+    }
+}
+
+function EDI_onMouseMoveDetailRankOne(indexLineClicked, indexColumnClicked, indexColumnVisual) {
+    // TODO: These two sets the ones to line and column seem redundant weren't these just done by the original EDI_onMouseMove_WRAPIT?
+    INTS[fEDI_cursor_indexLine] = indexLineClicked;
+    INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
+    INTS[fEDI_cursorVisualColumnIndex] = indexColumnVisual;
+    INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
+
+    INTS[fEDI_cursor_selectionEnd] = EDI_getPositionIndex_cursor_raw();
+    INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+
+    EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
+}
+
+function EDI_onMouseMoveDetailRankTwo(indexLineClicked, indexColumnClicked, indexColumnVisual) {
+    let nextPositionIndex = EDI_getPositionIndex_Overload(indexLineClicked, indexColumnClicked);
+
+    if (nextPositionIndex < INTS[fEDI_detail_smallPosition]) {
+        if (INTS[fEDI_cursor_selectionAnchor] < INTS[fEDI_cursor_selectionEnd]) {
+            INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_detail_largePosition];
+            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_detail_largeColumnVisual];
+        }
+
+        INTS[fEDI_cursor_indexLine] = indexLineClicked;
+        INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
+        INTS[fEDI_cursorVisualColumnIndex] = indexColumnClicked;
+        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
+        let positionIndex = nextPositionIndex;
+
+        INTS[fEDI_cursor_selectionEnd] = positionIndex;
+        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+
+        let goalCharacterKind = EDI_getCharacterCurrent_KIND(INTS[fEDI_cursor_indexColumn], positionIndex, EDI_getLineEnd_pos_raw(INTS[fEDI_cursor_indexLine]));
+        let leftWasFound = false;
+        let tempPositionIndex = positionIndex;
+
+        while (INTS[fEDI_cursor_indexColumn] > 0) {
+            let leftCharacterKind = EDI_getCharacterPrevious_KIND(INTS[fEDI_cursor_indexColumn], tempPositionIndex);
+            if (leftCharacterKind !== goalCharacterKind) {
+                INTS[fEDI_cursor_selectionEnd] = tempPositionIndex;
+                INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+                leftWasFound = true;
+                break;
+            }
+            tempPositionIndex--;
+            INTS[fEDI_cursor_indexColumn]--;
+            INTS[fEDI_cursorVisualColumnIndex]--;
+        }
+
+        if (!leftWasFound) {
+            INTS[fEDI_cursor_selectionEnd] = tempPositionIndex;
+            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+        }
+    }
+    else if (nextPositionIndex > INTS[fEDI_detail_largePosition]) {
+        if (INTS[fEDI_cursor_selectionAnchor] > INTS[fEDI_cursor_selectionEnd]) {
+            INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_detail_smallPosition];
+            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_detail_smallColumnVisual];
+        }
+
+        INTS[fEDI_cursor_indexLine] = indexLineClicked;
+        INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
+        INTS[fEDI_cursorVisualColumnIndex] = indexColumnVisual;
+        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
+        let positionIndex = nextPositionIndex;
+
+        INTS[fEDI_cursor_selectionEnd] = positionIndex;
+        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+
+        let leftCharacterKind = EDI_getCharacterPrevious_KIND(INTS[fEDI_cursor_indexColumn], positionIndex);
+        let goalCharacterKind = leftCharacterKind;
+
+        EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+        const line_end = INTS[fEDI_getLineBoundaryPositions_end];
+        let lineLength = line_end - INTS[fEDI_getLineBoundaryPositions_start];
+        let rightWasFound = false;
+
+        let tempPositionIndex = positionIndex;
+        while (INTS[fEDI_cursor_indexColumn] < lineLength) {
+            let rightCharacterKind = EDI_getCharacterCurrent_KIND(INTS[fEDI_cursor_indexColumn], tempPositionIndex, line_end);
+            if (rightCharacterKind !== goalCharacterKind) {
+                INTS[fEDI_cursor_selectionEnd] = tempPositionIndex;
+                //INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+                rightWasFound = true;
+                break;
+            }
+            tempPositionIndex++;
+            INTS[fEDI_cursor_indexColumn]++;
+            INTS[fEDI_cursorVisualColumnIndex]++;
+            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL]++; // TODO: '\t'
+        }
+
+        if (!rightWasFound) {
+            // end of line
+            INTS[fEDI_cursor_selectionEnd] = tempPositionIndex;
+            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+        }
+    }
+    else {
+        if (INTS[fEDI_cursor_selectionAnchor] > INTS[fEDI_cursor_selectionEnd]) {
+            INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_detail_smallPosition];
+            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_detail_smallColumnVisual];
+        }
+
+        EDI_getLineAndColumnIndices_raw(INTS[fEDI_detail_largePosition]);
+        let largeLineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
+        let largeLineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
+        INTS[fEDI_cursor_indexLine] = largeLineAndColumnIndices_indexLine;
+        INTS[fEDI_cursor_indexColumn] = largeLineAndColumnIndices_indexColumn;
+        INTS[fEDI_cursorVisualColumnIndex] = INTS[fEDI_detail_largeColumnVisual];
+        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = largeLineAndColumnIndices_indexLine;
+        INTS[fEDI_cursor_selectionEnd] = INTS[fEDI_detail_largePosition];
+        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+    }
+
+    EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
+}
+
+function EDI_onMouseMoveDetailRankThree(indexLineClicked, indexColumnClicked) {
+    // TODO: I remember this being bugged I think it makes sense why. You're checking if the cursor is exactly at the threshold rather than determining if the distance from previous event to this one puts you past the threshold.
+    if (indexLineClicked === INTS[fEDI_detailRank3OriginLine]) {
+        // TODO: 'cursor.positionIndex' is incorrect there is no such field, but was this referring to the clicked position or the position that the cursor currently is at...
+        // ...it is presumed to be the position that the cursor is currently at because it would explain the bug where if you move the cursor somewhere that the mouse move events don't get
+        // sent then bring your mouse back into a place where they do you'll snap ahead by some indices and skip the threshold and it visually bugs.
+        // You could attach to I think it is window? but then I'm wondering if a race condition could ever occur.
+        // so you'd probably want to do both attach to window and protect against large movements that skip the exact threshold when transitioning.
+        //
+        if (EDI_getPositionIndex_cursor_raw() !== INTS[fEDI_detail_smallPosition]) {
+            EDI_getLineAndColumnIndices_raw(INTS[fEDI_detail_smallPosition]);
+            let smallLineAndColumnPositionIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
+            let smallLineAndColumnPositionIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
+            INTS[fEDI_cursor_indexLine] = smallLineAndColumnPositionIndices_indexLine;
+            INTS[fEDI_cursor_indexColumn] = smallLineAndColumnPositionIndices_indexColumn;
+            INTS[fEDI_cursorVisualColumnIndex] = smallLineAndColumnPositionIndices_indexColumn;
+            INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = smallLineAndColumnPositionIndices_indexLine;
+        }
+
+        if (INTS[fEDI_cursor_selectionEnd] !== INTS[fEDI_detail_smallPosition]) {
+            INTS[fEDI_cursor_selectionEnd] = INTS[fEDI_detail_smallPosition];
+            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+        }
+
+        if (INTS[fEDI_cursor_selectionAnchor] !== INTS[fEDI_detail_largePosition]) {
+            INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_detail_largePosition];
+            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+        }
+
+        EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
+    }
+    else if (indexLineClicked < INTS[fEDI_detailRank3OriginLine]) {
+        if (INTS[fEDI_cursor_selectionAnchor] < INTS[fEDI_cursor_selectionEnd]) {
+            EDI_getLineAndColumnIndices_raw(INTS[fEDI_detail_smallPosition]);
+            let smallLineAndColumnPositionIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
+            let smallLineAndColumnPositionIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
+
+            INTS[fEDI_cursor_indexLine] = smallLineAndColumnPositionIndices_indexLine;
+            INTS[fEDI_cursor_indexColumn] = smallLineAndColumnPositionIndices_indexColumn;
+            INTS[fEDI_cursorVisualColumnIndex] = smallLineAndColumnPositionIndices_indexColumn;
+            INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = smallLineAndColumnPositionIndices_indexLine;
+
+            INTS[fEDI_cursor_selectionEnd] = INTS[fEDI_detail_smallPosition];
+            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+
+            EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
+        }
+
+        INTS[fEDI_cursor_indexLine] = indexLineClicked;
+        INTS[fEDI_cursor_indexColumn] = 0;
+        INTS[fEDI_cursorVisualColumnIndex] = 0;
+        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
+
+        INTS[fEDI_cursor_selectionEnd] = EDI_getPositionIndex_Overload(indexLineClicked, 0);
+        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+
+        EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
+    }
+    else if (indexLineClicked > INTS[fEDI_detailRank3OriginLine]) {
+
+        if (INTS[fEDI_cursor_selectionAnchor] !== INTS[fEDI_detail_smallPosition]) {
+            INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_detail_smallPosition];
+            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+        }
+
+        INTS[fEDI_cursor_indexLine] = indexLineClicked;
+        INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
+        INTS[fEDI_cursorVisualColumnIndex] = indexColumnClicked;
+        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
+        let positionIndex = EDI_getPositionIndex_Overload(indexLineClicked, indexColumnClicked);
+
+        // move to end of line...
+        EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+        let lineLength = INTS[fEDI_getLineBoundaryPositions_end] - INTS[fEDI_getLineBoundaryPositions_start];
+        positionIndex += lineLength - INTS[fEDI_cursor_indexColumn];
+
+        if (INTS[fEDI_cursor_indexLine] === EDI_lineEndPositionList_count - 1) {
+            INTS[fEDI_cursor_indexColumn] = lineLength;
+            INTS[fEDI_cursorVisualColumnIndex] = lineLength;
+            INTS[fEDI_cursor_selectionEnd] = positionIndex;
+            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+        }
+        else {
+            // wrap to the next line
+            INTS[fEDI_cursor_indexLine]++;
+            INTS[fEDI_cursor_indexColumn] = 0;
+            INTS[fEDI_cursorVisualColumnIndex] = 0;
+            INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex]++;
+            positionIndex++;
+
+            INTS[fEDI_cursor_selectionEnd] = positionIndex;
+            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+        }
+
+        EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
+    }
+}
+//#endregion
+
+function EDI_onContextMenu() {
+    let optionList = [
+        new MenuOption(CommandKind_Cut, 'Cut', null),
+        new MenuOption(CommandKind_Copy, 'Copy', null),
+        new MenuOption(CommandKind_Paste, 'Paste', null),
+        new MenuOption(CommandKind_Find, 'Find', null),
+    ];
+
+    let menuLeft = INTS[fEDI_recentBoundingClientRect_left] + INTS[fEDI_gutterWidthTotal] + INTS[fEDI_cursor_cursorTranslateXValue] - INTS[fEDI_lastReadNumber_scrollLeft];
+    let menuTop = INTS[fEDI_recentBoundingClientRect_top] + INTS[fEDI_cursor_cursorTranslateYValue] + INTS[fEDI_lineHeight] - INTS[fEDI_lastReadNumber_scrollTop];
+
+    return menuSet('EDITOR', null, optionList, menuLeft, menuTop);
+}
+
+function EDI_onWheel(event) {
+    if (event.shiftKey) {
+        EDI_baseElement.scrollBy(event.deltaY, 0);
+        // TODO: 'INTS[fEDI_lastReadNumber_scrollLeft]' here?
+        EDI_horizontal_scrollbar.scrollLeft = EDI_baseElement.scrollLeft;
+    }
+}
+
+function EDI_horizontal_scrollbar_onScroll() {
+    EDI_baseElement.scrollLeft = EDI_horizontal_scrollbar.scrollLeft;
 }
 
 //#region editEvent

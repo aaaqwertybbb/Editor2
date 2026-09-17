@@ -447,7 +447,6 @@ async function EXPLORER_onkeydown(divItem, indexItem, eventKey) {
 async function EXPLORER_ondblclick(divItem, indexItem) {
     EXPLORER_treeViewNodes.getElementAt(indexItem);
     let key = INTS[fTreeView_pooledNode_key];
-    let depth = INTS[fTreeView_pooledNode_depth];
     let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
 
     if (nodeKind === TreeViewNodeKind_NOTisExpandable_NOTisExpanded) {
@@ -557,7 +556,6 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem) {
 function EXPLORER_arrowRight(divItem, indexItem) {
     // TODO: !!!! You might need to be careful with async and the TreeView_pooledNode; I'm not certain whether you do or don't have to be careful, and I don't feel like looking into it at the moment.
     EXPLORER_treeViewNodes.getElementAt(indexItem);
-    let key = INTS[fTreeView_pooledNode_key];
     let depth = INTS[fTreeView_pooledNode_depth];
     let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
     
@@ -579,7 +577,6 @@ function EXPLORER_arrowRight(divItem, indexItem) {
 function EXPLORER_arrowLeft(divItem, indexItem) {
     // TODO: !!!! You might need to be careful with async and the TreeView_pooledNode; I'm not certain whether you do or don't have to be careful, and I don't feel like looking into it at the moment.
     EXPLORER_treeViewNodes.getElementAt(indexItem);
-    let key = INTS[fTreeView_pooledNode_key];
     let depth = INTS[fTreeView_pooledNode_depth];
     let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
     
@@ -618,7 +615,6 @@ function EXPLORER_arrowLeft(divItem, indexItem) {
  */
 function EXPLORER_removeFromNodeList(indexItem) {
     EXPLORER_treeViewNodes.getElementAt(indexItem);
-    let key = INTS[fTreeView_pooledNode_key];
     let depth = INTS[fTreeView_pooledNode_depth];
     let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
 
@@ -855,8 +851,6 @@ function EXPLORER_render_do_Scroll(timestamp) {
 
             let diff = currVli - prevVli;
 
-            let totalCount = EXPLORER_treeViewNodes.count_abstract;
-
             if (diff > 0 && diff < INTS[fEXPLORER_virtualCount]) {
                 EXPLORER_drawItem_BATCH(prevVli + INTS[fEXPLORER_ONSCROLLvirtualCount], diff, 1, undefined, timestamp);
             }
@@ -896,8 +890,6 @@ function EXPLORER_render_do_FullReset(timestamp) {
 
     INTS[fEXPLORER_virtualIndex_ofScrollTop] = Math.floor(INTS[fEXPLORER_lastReadNumber_scrollTop] / INTS[fEXPLORER_itemHeightNumber]);
     INTS[fEXPLORER_ringBufferIndexZero] = 0;
-
-    let totalCount = EXPLORER_treeViewNodes.count_abstract;
 
     if (EXPLORER_itemListElement.children.length !== INTS[fEXPLORER_virtualCount]) {
         EXPLORER_itemListElement.innerHTML = '';

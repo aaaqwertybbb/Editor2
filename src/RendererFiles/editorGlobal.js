@@ -8929,4 +8929,35 @@ after initialization:
 "The two texts are identical"
 when using diffchecker website
 
+> Is it possible to replicate my visual studio code color theme in visual studio?
+> 
+> ...
+
+< ...
+
+> In visual studio I am using C#.
+> 
+> (the visual studio code color theme was made while using javascript)
+
+< ...
+
+> One of my concerns is: I'd prefer if properties and fields were only syntax highlighted if part of a "member access expression".
+> i.e.: do not syntax highlight the standard properties.
+> 
+> The idea of the color theme is to have the initial identifier in a chain of member access be some color,
+> and any member access that chains off the initial is a different color, in order to allow me to quickly look through my code.
+
+< ...
+<
+< Why this works in VS Code but not Visual Studio
+<
+< ...
+<
+< The Closest Alternative: Use a Third-Party Extension
+< ...
+< 
+< ...
+
+
+
 */

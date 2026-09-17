@@ -62,6 +62,7 @@ const EDI_trackedSyntaxList = new TrackedSyntaxList(32);
  */
 let EDI_findOverlay_searchResultPositionList = null;
 
+// #region EDI_textByteList
 let EDI_textByteList_capacity = 1024;
 let EDI_textByteList_bytes = new Uint8Array(EDI_textByteList_capacity);
 let EDI_textByteList_count = 0;
@@ -233,6 +234,7 @@ function EDI_textByteList_copyTo(bytesSource, sourceStart, bytesDestination, des
         }
     }
 }
+// #endregion
 
 const EDI_encoder = new TextEncoder();
 const EDI_decoder = new TextDecoder();
@@ -315,6 +317,7 @@ INTS[fEDI_ontab_visualWidth_perCharacter] = 4;
  */
 const EDI_lineEndPositionList_PENDING = new UInt32List(128);
 
+// #region EDI_lineEndPositionList
 let EDI_lineEndPositionList_capacity = 128;
 /**
  * IMPORTANT: use EDI_readLineEndPositionList(...) rather than indexing into this directly...
@@ -420,6 +423,7 @@ function EDI_lineEndPositionList_copyTo(bytesSource, sourceStart, bytesDestinati
         }
     }
 }
+// #endregion
 
 let EDI_textSourceIdentifier = '';
 let EDI_FORMATTED_textSourceIdentifier = '';
@@ -634,22 +638,7 @@ function EDI_render_do_cursor_flag_doNotScrollIntoView(timestamp) {
     EDI_drawCursor(true);
 }
 
-function EDI_render_do_InsertLtr() {
-    if (INTS[fEDI_cursor_editKind] !== EditKind_InsertLtr) {
-        return;
-    }
-    if (INTS[fEDI_cursor_editRenderedDisplacement] < INTS[fEDI_cursor_editLength]) {
-        if (EDI_cursor_gapBufferWriteToSpanElement) {
 
-            EDI_cursor_gapBufferWriteToSpanElement.textContent = 
-                EDI_cursor_gapBufferWriteToSpanElement.textContent.slice(0, (INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex]) + INTS[fEDI_cursor_editRenderedDisplacement]) +
-                EDI_decoder.decode(EDI_cursor_gapBuffer.subarray(INTS[fEDI_cursor_editRenderedDisplacement], INTS[fEDI_cursor_editLength])) +
-                EDI_cursor_gapBufferWriteToSpanElement.textContent.slice((INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex]) + INTS[fEDI_cursor_editRenderedDisplacement]);
-
-            INTS[fEDI_cursor_editRenderedDisplacement] = INTS[fEDI_cursor_editLength];
-        }
-    }
-}
 
 function EDI_render_do_Clear() {
     EDI_drawCursor();
@@ -2227,7 +2216,7 @@ function EDI_getFinalizedEditsAndRawSaveFileData(NOTfinalizePendingEdits) {
         fileStartsWithBom: Boolean(get_EDI_fileStartsWithBom())
     };
 }
-
+//aaaaaaaaaaaaaaaaaaaa
 /**
  * @param {*} indexLine
  * @returns {number} the last valid POSITION index on the line, but with respect to any pending edits.
@@ -7596,6 +7585,23 @@ function EDI_backspaceDo(event) {
     // first.
 
     // I'm exhausted I'll probably do non-lineEnd delete key then be done
+}
+
+function EDI_render_do_InsertLtr() {
+    if (INTS[fEDI_cursor_editKind] !== EditKind_InsertLtr) {
+        return;
+    }
+    if (INTS[fEDI_cursor_editRenderedDisplacement] < INTS[fEDI_cursor_editLength]) {
+        if (EDI_cursor_gapBufferWriteToSpanElement) {
+
+            EDI_cursor_gapBufferWriteToSpanElement.textContent = 
+                EDI_cursor_gapBufferWriteToSpanElement.textContent.slice(0, (INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex]) + INTS[fEDI_cursor_editRenderedDisplacement]) +
+                EDI_decoder.decode(EDI_cursor_gapBuffer.subarray(INTS[fEDI_cursor_editRenderedDisplacement], INTS[fEDI_cursor_editLength])) +
+                EDI_cursor_gapBufferWriteToSpanElement.textContent.slice((INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex]) + INTS[fEDI_cursor_editRenderedDisplacement]);
+
+            INTS[fEDI_cursor_editRenderedDisplacement] = INTS[fEDI_cursor_editLength];
+        }
+    }
 }
 
 /**

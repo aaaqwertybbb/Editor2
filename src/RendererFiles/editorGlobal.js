@@ -3065,7 +3065,6 @@ function EDI_insertDo(character) {
     INTS[fEDI_cursorVisualColumnIndex]++;
 }
 
-
 //#region editEvent
 /**
  * @param {*} clipboardContent This is a temporary hack to help in transitioning paste to an edit.
@@ -5425,7 +5424,6 @@ function EDI_movementBasedCacheInvalidation() {
 }
 //#endregion
 
-
 //#region keydown
 /**
  * < The browser's event listener engine ignores the return value of event handlers.
@@ -5973,536 +5971,6 @@ function EDI_onKeyDown_keyLengthEqualsOne_altKey(event) {
 }
 //#endregion
 
-
-function EDI_render_do_Resize(timestamp) {
-    EDI_baseElement.style.width = '';
-    EDI_baseElement.style.height = '';
-    EDI_baseElement.style.contain = '';
-
-    EDI_measureBaseElement();
-
-    let remember_virtualCount = INTS[fEDI_virtualCount];
-    update_virtualCount();
-    if (INTS[fEDI_virtualCount] !== remember_virtualCount) {
-        // why 'update_verticalVirtualizationBoundary' here???
-        update_verticalVirtualizationBoundary(EDI_lineEndPositionList_count + 1);
-
-        INTS[fEDI_intFalsey_isScrolling] = 0;
-
-        INTS[fEDI_scrollEndDeadline] = timestamp + 1000;
-
-        EDI_render_do_Scroll(timestamp); //EDI_onScroll_WRAPIT();
-        // # Redraw cursor selection virtualization
-        // Code Duplication: # Redraw cursor selection virtualization... TODO: This is using 'EDI_primaryCursor' rather than 'EDI_cursorList[i]' so it is surely incorrect?
-        EDI_createStyleForSelection();
-    }
-
-    set_EDI_recentBoundingClientRect_isNull_intFalsey(1);
-
-    EDI_drawHorizontalScrollbar();
-}
-
-function EDI_onResize() {
-    EDI_render_request(RenderKind_Resize);
-}
-
-// 1. The Entry Point (Replaces WRAPIT)
-function EDI_onResize_WRAPIT() {
-    // If timer is running, just note that a trailing call is needed
-    if (INTS[fEDI_onResize_timer]) {
-        BYTES[byteEDI_onResize_hasTrailingCall] = 1;
-        return;
-    }
-
-    // Leading edge: Execute immediately
-    EDI_onResize();
-
-    // Start the throttle window
-    EDI_onResize_startThrottleTimeout();
-}
-
-// 2. The Gatekeeper
-function EDI_onResize_startThrottleTimeout() {
-    INTS[fEDI_onResize_timer] = setTimeout(() => {
-        if (BYTES[byteEDI_onResize_hasTrailingCall]) {
-            BYTES[byteEDI_onResize_hasTrailingCall] = 0;
-            EDI_onResize();
-            
-            EDI_onResize_startThrottleTimeout();
-        } else {
-            INTS[fEDI_onResize_timer] = 0;
-        }
-    }, 500);
-}
-
-async function EDI_MenuOnClick(indexClicked, elementClicked) {
-    const commandKind = parseInt(elementClicked.dataset.commandKind, 10);
-    if (!commandKind) {
-        return;
-    }
-
-    switch (commandKind) {
-        case CommandKind_Cut:
-            EDI_finalizeEdit();
-            await EDI_copySelection();
-            EDI_removeSelection();
-            EDI_render_request(RenderKind_Cursor_n);
-            return;
-        case CommandKind_Copy:
-            EDI_finalizeEdit();
-            return EDI_copySelection();
-        case CommandKind_Paste:
-            EDI_finalizeEdit();
-            let clipboard = await window.myAPI.readClipboard();
-            EDI_paste(clipboard);
-            EDI_render_request(RenderKind_Cursor_n);
-            return;
-        case CommandKind_Find:
-            EDI_findOverlay_showSetter(!get_EDI_findOverlay_show());
-            return;
-    }
-}
-
-/**
- * < Thanks to a browser feature called Event Bubbling, when the mouse enters a tiny token span, the event bubbles up to the parent container
- */
-function EDI_mouseOver(e) {
-    INTS[fEDI_EDI_mouseOver_event_clientY] = e.clientY;
-    INTS[fEDI_EDI_mouseOver_event_clientX] = e.clientX;
-
-    clearTimeout(INTS[fEDI_hoverTimeout]);
-    INTS[fEDI_hoverTimeout] = setTimeout(EDI_requestLspHover, 1000);
-}
-
-function EDI_mouseLeave() {
-    clearTimeout(INTS[fEDI_hoverTimeout]);
-    INTS[fEDI_hoverTimeout] = 0;
-    EDI_hideTooltip();
-}
-
-function EDI_requestLspComplete() {
-    // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
-    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
-        EDI_finalizeEdit();
-    }
-    window.myAPI.editorCompletionRequest(INTS[fEDI_cursor_indexLine], INTS[fEDI_cursor_indexColumn]);
-}
-
-function EDI_doEditorGoToDefinitionRequest() {
-    // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
-    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
-        EDI_finalizeEdit();
-    }
-    window.myAPI.editorGoToDefinitionRequest(INTS[fEDI_cursor_indexLine], INTS[fEDI_cursor_indexColumn]);
-}
-
-function EDI_requestLspHover() {
-    // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
-    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
-        EDI_finalizeEdit();
-    }
-    let event_clientY = INTS[fEDI_EDI_mouseOver_event_clientY];
-    let event_clientX = INTS[fEDI_EDI_mouseOver_event_clientX];
-
-    ///////////
-    ///////////
-    // # GET INDICES
-    ///////////
-    ///////////
-    if (get_EDI_recentBoundingClientRect_isNull_intFalsey()) {
-        let boundingClientRect = EDI_baseElement.getBoundingClientRect();
-        INTS[fEDI_recentBoundingClientRect_left] = boundingClientRect.left;
-        INTS[fEDI_recentBoundingClientRect_top] = boundingClientRect.top;
-        set_EDI_recentBoundingClientRect_isNull_intFalsey(0);
-    }
-
-    let rY = event_clientY - INTS[fEDI_recentBoundingClientRect_top] + INTS[fEDI_lastReadNumber_scrollTop];
-    let rX = event_clientX - INTS[fEDI_recentBoundingClientRect_left] - INTS[fEDI_gutterWidthTotal] + INTS[fEDI_lastReadNumber_scrollLeft];
-    
-    let indexLine = Math.floor(rY / INTS[fEDI_lineHeight]);
-    let indexColumn = Math.round(rX / EDI_characterWidth);
-
-    if (indexLine < 0) return;
-    if (indexColumn < 0) return;
-    if (indexLine >= EDI_lineEndPositionList_count) return;
-    // ----
-    let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(indexLine);
-    if (indexColumn > lastValidIndexColumn) return;
-    
-    ///////////
-    ///////////
-    // # GET INDICES
-    ///////////
-    ///////////
-
-    // Indices are wrong... they're likely outdated
-    if (!BYTES[byteEDI_mousemove_eventListener_isActive]) {
-        window.myAPI.editorHoverRequest(indexLine, indexColumn);
-    }
-}
-
-function EDI_hideTooltip() {
-    TOOLTIP_hide();
-}
-
-function EDI_onfocus() {
-    EDI_cursor_cursorElement.classList.add('EDI_cursor_focus');
-}
-
-function EDI_onblur() {
-    EDI_cursor_cursorElement.classList.remove('EDI_cursor_focus');
-}
-
-/**
- * TODO: for this function, you need to determine whether you will lex the
- * - [ ] textContent on the span,
- * - [ ] or if you will decode from the bytes again.
- * 
- * I'm going to do
- * - [ ] textContent on the span,
- * 
- * but there is 0 reasoning, understanding, or measurements behind my decision.
- * 
- * ===
- * 
- * TODO: Instead of having two counters 'fEDI_sum_diffNegative' and 'fEDI_sum_diffPositive' could you do this with just one counter?
- * TODO: Avoid checking for the CSS class that indicates whether a line is not syntax highlighted.
- * This comment of mine refers to one of the previously listed TODO's but I don't know which one. Furthermore I need to decide whether what I'm saying in this comment is even worth while keeping but that's a TODO for another day.
- * "it's wrong wait I see what's going on. You can't just sum them because overlap cancels out sometimes. If you have both but no full the larger side is cancelled out by the smaller amount I think... I'm gonna rain check that one... I'm thinking about more than 1 instance of an overlap breaking that math"
- * 
- * TODO: I believe that the 'EDI_drawViewPort_FindTrackedSyntax_StartingIndex' is actually wrong when you have a multiline comment that spans multiple lines and, after the closing of that syntax you on the same line start typing anything that isn't supposed to receive the comment syntax highlighting, you'll find that it erroneously receives the comment syntax highlighting.
- * 
- * ===
- * 
- * TODO: My concern is with a scroll to a larger scrollY, then a scroll to a smaller scrollY
- * such that either scrollY are not equal, and that there is at least a difference of 1 lineHeight between both scrollY to ensure the changes aren't cancelling out.
- * |
- * I think then you'd need to edge check 'INTS[fEDI_ringBuffer_indexZero]' find a hit, loop until you no longer see the not syntax highlighted css class
- * then this tells you to edge check PREVIOUS('INTS[fEDI_ringBuffer_indexZero]') and the remainder of your 'diff' to loop is in reverse.
- * |
- * I'm trying to think about whether the scroll function could leave behind data that indicates to this function
- * whether it is a 'INTS[fEDI_ringBuffer_indexZero]', PREVIOUS('INTS[fEDI_ringBuffer_indexZero]'), or both case without checking the edge divs whether they have the not syntax highlighted css class.
- * 
- * ===
- * 
- * - [ ] TODO: There is something in this method that is decently pointless overhead relating to...:
- *     - An empty line, a line only consisting of whitespace, or a line that is indented.
- *         - ...this one is perhaps less obvious from a non-branching perspective. And perhaps even just adding a conditional branch that avoids invoking 'JS_line_lex_newVersion' in this case is worthwhile.
- *     - A line that is out of bounds of 'indexLine < EDI_lineEndPositionList_count'
- *         - ...consider separating the loop bounds in some way to remove conditional branches related to 'if (indexLine < EDI_lineEndPositionList_count)'
- * 
- * ===
-*/
-function EDI_render_do_SyntaxHighlighting() {
-
-    if (EDI_cursor_hasSelection()){
-        EDI_render_do_RedrawSelection();
-    }
-
-    const local_sum_diffNegative = INTS[fEDI_sum_diffNegative];
-    const local_sum_diffPositive = INTS[fEDI_sum_diffPositive];
-    let total_diff = local_sum_diffNegative + local_sum_diffPositive;
-    
-    INTS[fEDI_sum_diffNegative] = 0;
-    INTS[fEDI_sum_diffPositive] = 0;
-
-    if (total_diff === 0) return;
-
-    let i = 0;
-    
-    let ringBufferIndexCurrent = INTS[fEDI_ringBuffer_indexZero];
-    let indexLine = INTS[fEDI_virtualIndexLine];
-
-    let i_bounded = 0;
-
-    let bothButNotFull = false;
-
-    if (total_diff >= INTS[fEDI_virtualCount]) {
-        total_diff = INTS[fEDI_virtualCount];
-        i_bounded = total_diff;
-    }
-    else {
-        bothButNotFull = local_sum_diffPositive > 0 && local_sum_diffNegative > 0;
-
-        if (bothButNotFull || local_sum_diffNegative > 0) {
-            i_bounded = local_sum_diffNegative;
-        }
-        else if (local_sum_diffPositive > 0) {
-            let originalI = i;
-            let local_sum_diffPositive_MINUS_ONE = local_sum_diffPositive - 1; // I want to end on the inclusive lower bound dom element.
-
-            ringBufferIndexCurrent = (ringBufferIndexCurrent - 1 + INTS[fEDI_ArrayFrom_textElement_children_length]) % INTS[fEDI_ArrayFrom_textElement_children_length];
-            indexLine = indexLine + INTS[fEDI_virtualCount] - 1;
-            
-            for (; i < local_sum_diffPositive_MINUS_ONE; i++) {
-                ringBufferIndexCurrent = (ringBufferIndexCurrent - 1 + INTS[fEDI_ArrayFrom_textElement_children_length]) % INTS[fEDI_ArrayFrom_textElement_children_length];
-                indexLine--;
-            }
-
-            i = originalI;
-            i_bounded = local_sum_diffPositive;
-        }
-    }
-
-    const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
-    const local_EDI_lineEndPositionList_count = EDI_lineEndPositionList_count;
-
-    // If you intend to use the variables 'lineStart' or 'lineEnd': Important detail to consider: the lines that are >= EDI_lineEndPositionList_count will continually increment lineStart by 1 So if you expect this to accurately represent the EOF position when it is in view, it probably does NOT.
-    let lineStart = 0;
-    let lineEnd = -1;
-    // TODO: 'let lineEnd = -1; if (lowerBound < count && lowerBound !== 0) { lineEnd = data[lowerBound - 1]; }
-    if (indexLine < local_EDI_lineEndPositionList_count && indexLine !== 0) {
-        lineEnd = local_EDI_lineEndPositionList_data[indexLine - 1];
-    }
-
-    let trackedSyntax_I = EDI_drawViewPort_FindTrackedSyntax_StartingIndex(indexLine);
-    if (trackedSyntax_I === NaN || trackedSyntax_I === -1)
-        trackedSyntax_I = EDI_trackedSyntaxList.count_abstract;
-    
-    for (; i < i_bounded; i++) {
-        //
-        // TODO: Would in some way reading 'EDI_ringBuffer_text[ringBufferIndexCurrent].children[0]' into a variable be beneficial to avoid the double read.
-        //
-        // short circuit avoid double dipping of c++ internals, only the 'bothButNotFull' is inaccurate at the moment.
-        if (!bothButNotFull || EDI_ringBuffer_text[ringBufferIndexCurrent].children[0].className === 'eN') {
-            EDI_ringBuffer_text[ringBufferIndexCurrent].children[0].className = '';
-    
-            lineStart = lineEnd + 1;
-            if (indexLine < local_EDI_lineEndPositionList_count) {
-                lineEnd = local_EDI_lineEndPositionList_data[indexLine];
-            }
-            else {
-                lineEnd = lineStart;
-            }
-    
-            trackedSyntax_I = JS_line_lex_newVersion(EDI_ringBuffer_text[ringBufferIndexCurrent], ringBufferIndexCurrent, trackedSyntax_I, lineStart);
-        }
-
-        ringBufferIndexCurrent = (ringBufferIndexCurrent + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
-
-        indexLine++;
-    }
-
-    if (bothButNotFull) {
-        INTS[fEDI_sum_diffPositive] = local_sum_diffPositive;
-        EDI_render_do_SyntaxHighlighting();
-    }
-}
-
-/**
- * TODO: This is currently just invoked from EDI_render_do_SyntaxHighlighting, so it probably should be moved at some point.
- */
-function EDI_render_do_RedrawSelection() {
-    // TODO: I don't know why this works the first thing the function invoked does is check whether the selection changed which it didn't so...
-    // ...that being said I don't feel well so I didn't actually but in any effort to read the if statement in question I just glanced at it.
-    EDI_createStyleForSelection();
-}
-
-/**
- * Returns the underlying uint8array that contains the encoded characters for the text.
- * The uint8array's capacity (i.e.: length) is not what should be saved out.
- * Instead only save the countOfBytesInUse.
- * 
- * The editor stores all line endings as '\n'.
- * When saving the bytes, swap out any '\n' for the 'lineEndString' which may or may not be '\n' (i.e.: it could be '\r\n' or '\r').
- * 
- * A '\0' character does NOT terminate the subarray's bytes that are in use.
- * You need to iterate specifically for 'countOfBytesInUse'.
- * 
- * @param {*} NOTfinalizePendingEdits if there is a pending edit, it needs to be finalized in order to see the updated text. The default behavior is to finalize the pending edits. To use default behavior, do NOT provide the parameter, or provide a falsey expression like 'null'.
- * @returns
- */
-function EDI_getFinalizedEditsAndRawSaveFileData(NOTfinalizePendingEdits) {
-    if (!NOTfinalizePendingEdits) {
-        EDI_finalizeEdit();
-    }
-    return {
-        uint8arrayTextBytes: EDI_textByteList_bytes,
-        countOfBytesInUse: EDI_textByteList_count,
-        lineEndString: EDI_lineEndString,
-        fileStartsWithBom: Boolean(get_EDI_fileStartsWithBom())
-    };
-}
-
-/**
- * If you were to make a function for this logic, it presumably would look like this.
- * I'm not sure if I like the idea of having a function for this though, given it is inside a loop, I'd want to investigate whether it has any performance impacts.
- * TODO: make a decision
- * 
- * @returns trackedSyntax_I the index that was left off on
- */
-function EDI_createSpansForLineOfText(div, lineStart, lineEnd, trackedSyntax_I) {
-	let childIndex = 0;
-
-    if (lineStart === lineEnd) {
-    	if (childIndex < div.children.length) {
-            let span = div.children[childIndex++];
-			span.textContent = '';
-            span.className = '';
-		}
-		else {
-			div.appendChild(document.createElement('span'));
-            childIndex++;
-		}
-    }
-    else {
-        let substart = lineStart;
-        for (; trackedSyntax_I < EDI_trackedSyntaxList.count_abstract;) {
-            EDI_trackedSyntaxList.getElementAt(trackedSyntax_I);
-    
-            if (substart >= lineEnd) {
-                break;
-            }
-    
-            if (INTS[fEDI_pooledTrackedSyntax_start] >= lineEnd) {
-                break;
-            }
-    
-            if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] < lineStart) {
-                trackedSyntax_I++;
-                continue;
-            }
-    
-            if (INTS[fEDI_pooledTrackedSyntax_start] > substart) {
-                let subend = INTS[fEDI_pooledTrackedSyntax_start] > lineEnd ? lineEnd : INTS[fEDI_pooledTrackedSyntax_start]; // probably a nonsense line of code given the previous if statements
-                childIndex = EDI_language_line_lex(div, substart, subend, childIndex);
-                substart += (subend - substart);
-            }
-    
-            {
-                let span;
-                if (childIndex < div.children.length) {
-					span = div.children[childIndex++];
-                    //span.className = ''; className is guaranteed to be set in this specific case
-				}
-				else {
-					span = document.createElement('span');
-                    div.appendChild(span);
-                    childIndex++;
-				}
-                let trackedSyntaxEnd = INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length];
-                let subend = trackedSyntaxEnd > lineEnd ? lineEnd : trackedSyntaxEnd;
-                span.textContent = EDI_decoder.decode(EDI_textByteList_bytes.subarray(substart, subend));
-                substart += (subend - substart);
-                switch (BYTES[byteEDI_pooledTrackedSyntax_trackedSyntaxKind]) {
-                    case TrackedSyntaxKind_Comment:
-                        span.className = 'eCM';
-                        break;
-                    case TrackedSyntaxKind_String:
-                        span.className = 'eSM';
-                        break;
-                    default:
-                        span.className = '';
-                        break;
-                }
-            }
-    
-            if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] <= lineEnd) {
-                trackedSyntax_I++;
-                continue;
-            }
-    
-            break;
-        }
-    
-        if (substart < lineEnd) {
-            childIndex = EDI_language_line_lex(div, substart, lineEnd, childIndex);
-        }
-    }
-
-    let aaa = div.children.length - childIndex;
-    for (let i = 0; i < aaa; i++) {
-        div.removeChild(div.children[childIndex]);
-    }
-
-    return trackedSyntax_I;
-}
-
-function walkLineUntilIndexColumn() {
-    // TODO: delete key until you delete a linefeed and join the next line onto your own then press backspace everything breaks.
-
-    // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
-    INTS[fEDI_w_ringBufferIndex] = INTS[fEDI_cursor_indexLine] - INTS[fEDI_virtualIndexLine];
-    if (INTS[fEDI_w_ringBufferIndex] >= INTS[fEDI_ArrayFrom_textElement_children_length] || INTS[fEDI_w_ringBufferIndex] < 0) INTS[fEDI_w_ringBufferIndex] = -1;
-    else INTS[fEDI_w_ringBufferIndex] = (INTS[fEDI_w_ringBufferIndex] + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
-    
-    if (INTS[fEDI_w_ringBufferIndex] < 0) {
-        INTS[fEDI_w_indexColumn_Goal] = 0;
-        INTS[fEDI_w_indexColumn_Sum] = 0;
-        INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
-        INTS[fEDI_w_indexSpan] = 0;
-        w_span = null;
-        w_div = null;
-        INTS[fEDI_w_ringBufferIndex] = INTS[fEDI_w_ringBufferIndex]; // double assignment but not all that pressing of a matter at the moment I think it reads better to just set it / avoid the temporary 'let' local variable each invocation.
-        return;
-    }
-    
-    let div = EDI_ringBuffer_text[INTS[fEDI_w_ringBufferIndex]];
-    let indexColumn_Goal = INTS[fEDI_cursor_indexColumn];
-    let indexColumn_Sum = 0;
-
-    for (var indexSpan = 0; indexSpan < div.children.length; indexSpan++) {
-        let span = div.children[indexSpan];
-        if (indexColumn_Goal <= indexColumn_Sum + span.textContent.length) {
-            // '<=' because end-of-line text insertion (end of line but prior to the line ending itself).
-            // The line ending isn't written to the span, it is represented by the encompassing div itself.
-            INTS[fEDI_w_indexColumn_Goal] = indexColumn_Goal;
-            INTS[fEDI_w_indexColumn_Sum] = indexColumn_Sum;
-            INTS[fEDI_w_indexColumn_SpanTextContentRelative] = indexColumn_Goal - indexColumn_Sum;
-            INTS[fEDI_w_indexSpan] = indexSpan;
-            w_span = span;
-            w_div = div;
-            INTS[fEDI_w_ringBufferIndex] = INTS[fEDI_w_ringBufferIndex];
-            return;
-        }
-        else {
-            indexColumn_Sum += span.textContent.length;
-        }
-    }
-
-    // TODO: When the column index is too large, how should this be handled?
-    INTS[fEDI_w_indexColumn_Goal] = 0;
-    INTS[fEDI_w_indexColumn_Sum] = 0;
-    INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
-    INTS[fEDI_w_indexSpan] = 0;
-    w_span = null;
-    w_div = null;
-    INTS[fEDI_w_ringBufferIndex] = INTS[fEDI_w_ringBufferIndex];
-    return;
-}
-
-/**
- * Use case: HTML was previously rendered, but the content of the line was modified
- * and logic to more efficiently manipulate the existing HTML is not yet written.
- * 
- * Example modifications:
- * - The same line index had its contents modified.
- * - Visually the line index that virtually appears as that child element is not the same as it previously was
- *   due to various reasons, perhaps a change in scroll position.
- * 
- * Prior to invoking this function ensure the provided elements's innerHTML is empty:
- * - "gutterLineElement.innerHTML = '';"
- * - "divElement.innerHTML = '';"
- * @param {number} indexLine 
- * @param {HTMLElement} gutterLineElement 
- * @param {HTMLElement} divElement 
- */
-function EDI_drawLine(indexLine, gutterLineElement, textLineElement) {
-    if (indexLine >= EDI_lineEndPositionList_count) {
-        gutterLineElement.textContent = '~';
-    }
-    else {
-        gutterLineElement.textContent = indexLine + 1;
-    }
-
-    let trackedSyntax_StartingIndex = EDI_drawViewPort_FindTrackedSyntax_StartingIndex(indexLine);
-    if (trackedSyntax_StartingIndex === NaN || trackedSyntax_StartingIndex === -1) {
-        trackedSyntax_StartingIndex = EDI_trackedSyntaxList.count_abstract;
-    }
-    EDI_getLineBoundaryPositions_raw(indexLine);
-    EDI_createSpansForLineOfText(textLineElement, INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end], trackedSyntax_StartingIndex);
-}
-
 //#region cursorDrawing
 function EDI_render_do_cursor(timestamp) {
     INTS[fEDI_EDI_cursorBlinkLastTimestamp] = timestamp;
@@ -6984,7 +6452,536 @@ function EDI_scrollCursorIntoView() {
         EDI_baseElement.scrollBy(scrollX, scrollY);
     }
 }
+
+/**
+ * TODO: This is currently just invoked from EDI_render_do_SyntaxHighlighting, so it probably should be moved at some point.
+ */
+function EDI_render_do_RedrawSelection() {
+    // TODO: I don't know why this works the first thing the function invoked does is check whether the selection changed which it didn't so...
+    // ...that being said I don't feel well so I didn't actually but in any effort to read the if statement in question I just glanced at it.
+    EDI_createStyleForSelection();
+}
 //#endregion
+
+function EDI_render_do_Resize(timestamp) {
+    EDI_baseElement.style.width = '';
+    EDI_baseElement.style.height = '';
+    EDI_baseElement.style.contain = '';
+
+    EDI_measureBaseElement();
+
+    let remember_virtualCount = INTS[fEDI_virtualCount];
+    update_virtualCount();
+    if (INTS[fEDI_virtualCount] !== remember_virtualCount) {
+        // why 'update_verticalVirtualizationBoundary' here???
+        update_verticalVirtualizationBoundary(EDI_lineEndPositionList_count + 1);
+
+        INTS[fEDI_intFalsey_isScrolling] = 0;
+
+        INTS[fEDI_scrollEndDeadline] = timestamp + 1000;
+
+        EDI_render_do_Scroll(timestamp); //EDI_onScroll_WRAPIT();
+        // # Redraw cursor selection virtualization
+        // Code Duplication: # Redraw cursor selection virtualization... TODO: This is using 'EDI_primaryCursor' rather than 'EDI_cursorList[i]' so it is surely incorrect?
+        EDI_createStyleForSelection();
+    }
+
+    set_EDI_recentBoundingClientRect_isNull_intFalsey(1);
+
+    EDI_drawHorizontalScrollbar();
+}
+
+function EDI_onResize() {
+    EDI_render_request(RenderKind_Resize);
+}
+
+// 1. The Entry Point (Replaces WRAPIT)
+function EDI_onResize_WRAPIT() {
+    // If timer is running, just note that a trailing call is needed
+    if (INTS[fEDI_onResize_timer]) {
+        BYTES[byteEDI_onResize_hasTrailingCall] = 1;
+        return;
+    }
+
+    // Leading edge: Execute immediately
+    EDI_onResize();
+
+    // Start the throttle window
+    EDI_onResize_startThrottleTimeout();
+}
+
+// 2. The Gatekeeper
+function EDI_onResize_startThrottleTimeout() {
+    INTS[fEDI_onResize_timer] = setTimeout(() => {
+        if (BYTES[byteEDI_onResize_hasTrailingCall]) {
+            BYTES[byteEDI_onResize_hasTrailingCall] = 0;
+            EDI_onResize();
+            
+            EDI_onResize_startThrottleTimeout();
+        } else {
+            INTS[fEDI_onResize_timer] = 0;
+        }
+    }, 500);
+}
+
+async function EDI_MenuOnClick(indexClicked, elementClicked) {
+    const commandKind = parseInt(elementClicked.dataset.commandKind, 10);
+    if (!commandKind) {
+        return;
+    }
+
+    switch (commandKind) {
+        case CommandKind_Cut:
+            EDI_finalizeEdit();
+            await EDI_copySelection();
+            EDI_removeSelection();
+            EDI_render_request(RenderKind_Cursor_n);
+            return;
+        case CommandKind_Copy:
+            EDI_finalizeEdit();
+            return EDI_copySelection();
+        case CommandKind_Paste:
+            EDI_finalizeEdit();
+            let clipboard = await window.myAPI.readClipboard();
+            EDI_paste(clipboard);
+            EDI_render_request(RenderKind_Cursor_n);
+            return;
+        case CommandKind_Find:
+            EDI_findOverlay_showSetter(!get_EDI_findOverlay_show());
+            return;
+    }
+}
+
+/**
+ * < Thanks to a browser feature called Event Bubbling, when the mouse enters a tiny token span, the event bubbles up to the parent container
+ */
+function EDI_mouseOver(e) {
+    INTS[fEDI_EDI_mouseOver_event_clientY] = e.clientY;
+    INTS[fEDI_EDI_mouseOver_event_clientX] = e.clientX;
+
+    clearTimeout(INTS[fEDI_hoverTimeout]);
+    INTS[fEDI_hoverTimeout] = setTimeout(EDI_requestLspHover, 1000);
+}
+
+function EDI_mouseLeave() {
+    clearTimeout(INTS[fEDI_hoverTimeout]);
+    INTS[fEDI_hoverTimeout] = 0;
+    EDI_hideTooltip();
+}
+
+function EDI_requestLspComplete() {
+    // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
+    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+        EDI_finalizeEdit();
+    }
+    window.myAPI.editorCompletionRequest(INTS[fEDI_cursor_indexLine], INTS[fEDI_cursor_indexColumn]);
+}
+
+function EDI_doEditorGoToDefinitionRequest() {
+    // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
+    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+        EDI_finalizeEdit();
+    }
+    window.myAPI.editorGoToDefinitionRequest(INTS[fEDI_cursor_indexLine], INTS[fEDI_cursor_indexColumn]);
+}
+
+function EDI_requestLspHover() {
+    // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
+    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+        EDI_finalizeEdit();
+    }
+    let event_clientY = INTS[fEDI_EDI_mouseOver_event_clientY];
+    let event_clientX = INTS[fEDI_EDI_mouseOver_event_clientX];
+
+    ///////////
+    ///////////
+    // # GET INDICES
+    ///////////
+    ///////////
+    if (get_EDI_recentBoundingClientRect_isNull_intFalsey()) {
+        let boundingClientRect = EDI_baseElement.getBoundingClientRect();
+        INTS[fEDI_recentBoundingClientRect_left] = boundingClientRect.left;
+        INTS[fEDI_recentBoundingClientRect_top] = boundingClientRect.top;
+        set_EDI_recentBoundingClientRect_isNull_intFalsey(0);
+    }
+
+    let rY = event_clientY - INTS[fEDI_recentBoundingClientRect_top] + INTS[fEDI_lastReadNumber_scrollTop];
+    let rX = event_clientX - INTS[fEDI_recentBoundingClientRect_left] - INTS[fEDI_gutterWidthTotal] + INTS[fEDI_lastReadNumber_scrollLeft];
+    
+    let indexLine = Math.floor(rY / INTS[fEDI_lineHeight]);
+    let indexColumn = Math.round(rX / EDI_characterWidth);
+
+    if (indexLine < 0) return;
+    if (indexColumn < 0) return;
+    if (indexLine >= EDI_lineEndPositionList_count) return;
+    // ----
+    let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(indexLine);
+    if (indexColumn > lastValidIndexColumn) return;
+    
+    ///////////
+    ///////////
+    // # GET INDICES
+    ///////////
+    ///////////
+
+    // Indices are wrong... they're likely outdated
+    if (!BYTES[byteEDI_mousemove_eventListener_isActive]) {
+        window.myAPI.editorHoverRequest(indexLine, indexColumn);
+    }
+}
+
+function EDI_hideTooltip() {
+    TOOLTIP_hide();
+}
+
+function EDI_onfocus() {
+    EDI_cursor_cursorElement.classList.add('EDI_cursor_focus');
+}
+
+function EDI_onblur() {
+    EDI_cursor_cursorElement.classList.remove('EDI_cursor_focus');
+}
+
+/**
+ * TODO: for this function, you need to determine whether you will lex the
+ * - [ ] textContent on the span,
+ * - [ ] or if you will decode from the bytes again.
+ * 
+ * I'm going to do
+ * - [ ] textContent on the span,
+ * 
+ * but there is 0 reasoning, understanding, or measurements behind my decision.
+ * 
+ * ===
+ * 
+ * TODO: Instead of having two counters 'fEDI_sum_diffNegative' and 'fEDI_sum_diffPositive' could you do this with just one counter?
+ * TODO: Avoid checking for the CSS class that indicates whether a line is not syntax highlighted.
+ * This comment of mine refers to one of the previously listed TODO's but I don't know which one. Furthermore I need to decide whether what I'm saying in this comment is even worth while keeping but that's a TODO for another day.
+ * "it's wrong wait I see what's going on. You can't just sum them because overlap cancels out sometimes. If you have both but no full the larger side is cancelled out by the smaller amount I think... I'm gonna rain check that one... I'm thinking about more than 1 instance of an overlap breaking that math"
+ * 
+ * TODO: I believe that the 'EDI_drawViewPort_FindTrackedSyntax_StartingIndex' is actually wrong when you have a multiline comment that spans multiple lines and, after the closing of that syntax you on the same line start typing anything that isn't supposed to receive the comment syntax highlighting, you'll find that it erroneously receives the comment syntax highlighting.
+ * 
+ * ===
+ * 
+ * TODO: My concern is with a scroll to a larger scrollY, then a scroll to a smaller scrollY
+ * such that either scrollY are not equal, and that there is at least a difference of 1 lineHeight between both scrollY to ensure the changes aren't cancelling out.
+ * |
+ * I think then you'd need to edge check 'INTS[fEDI_ringBuffer_indexZero]' find a hit, loop until you no longer see the not syntax highlighted css class
+ * then this tells you to edge check PREVIOUS('INTS[fEDI_ringBuffer_indexZero]') and the remainder of your 'diff' to loop is in reverse.
+ * |
+ * I'm trying to think about whether the scroll function could leave behind data that indicates to this function
+ * whether it is a 'INTS[fEDI_ringBuffer_indexZero]', PREVIOUS('INTS[fEDI_ringBuffer_indexZero]'), or both case without checking the edge divs whether they have the not syntax highlighted css class.
+ * 
+ * ===
+ * 
+ * - [ ] TODO: There is something in this method that is decently pointless overhead relating to...:
+ *     - An empty line, a line only consisting of whitespace, or a line that is indented.
+ *         - ...this one is perhaps less obvious from a non-branching perspective. And perhaps even just adding a conditional branch that avoids invoking 'JS_line_lex_newVersion' in this case is worthwhile.
+ *     - A line that is out of bounds of 'indexLine < EDI_lineEndPositionList_count'
+ *         - ...consider separating the loop bounds in some way to remove conditional branches related to 'if (indexLine < EDI_lineEndPositionList_count)'
+ * 
+ * ===
+*/
+function EDI_render_do_SyntaxHighlighting() {
+
+    if (EDI_cursor_hasSelection()){
+        EDI_render_do_RedrawSelection();
+    }
+
+    const local_sum_diffNegative = INTS[fEDI_sum_diffNegative];
+    const local_sum_diffPositive = INTS[fEDI_sum_diffPositive];
+    let total_diff = local_sum_diffNegative + local_sum_diffPositive;
+    
+    INTS[fEDI_sum_diffNegative] = 0;
+    INTS[fEDI_sum_diffPositive] = 0;
+
+    if (total_diff === 0) return;
+
+    let i = 0;
+    
+    let ringBufferIndexCurrent = INTS[fEDI_ringBuffer_indexZero];
+    let indexLine = INTS[fEDI_virtualIndexLine];
+
+    let i_bounded = 0;
+
+    let bothButNotFull = false;
+
+    if (total_diff >= INTS[fEDI_virtualCount]) {
+        total_diff = INTS[fEDI_virtualCount];
+        i_bounded = total_diff;
+    }
+    else {
+        bothButNotFull = local_sum_diffPositive > 0 && local_sum_diffNegative > 0;
+
+        if (bothButNotFull || local_sum_diffNegative > 0) {
+            i_bounded = local_sum_diffNegative;
+        }
+        else if (local_sum_diffPositive > 0) {
+            let originalI = i;
+            let local_sum_diffPositive_MINUS_ONE = local_sum_diffPositive - 1; // I want to end on the inclusive lower bound dom element.
+
+            ringBufferIndexCurrent = (ringBufferIndexCurrent - 1 + INTS[fEDI_ArrayFrom_textElement_children_length]) % INTS[fEDI_ArrayFrom_textElement_children_length];
+            indexLine = indexLine + INTS[fEDI_virtualCount] - 1;
+            
+            for (; i < local_sum_diffPositive_MINUS_ONE; i++) {
+                ringBufferIndexCurrent = (ringBufferIndexCurrent - 1 + INTS[fEDI_ArrayFrom_textElement_children_length]) % INTS[fEDI_ArrayFrom_textElement_children_length];
+                indexLine--;
+            }
+
+            i = originalI;
+            i_bounded = local_sum_diffPositive;
+        }
+    }
+
+    const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
+    const local_EDI_lineEndPositionList_count = EDI_lineEndPositionList_count;
+
+    // If you intend to use the variables 'lineStart' or 'lineEnd': Important detail to consider: the lines that are >= EDI_lineEndPositionList_count will continually increment lineStart by 1 So if you expect this to accurately represent the EOF position when it is in view, it probably does NOT.
+    let lineStart = 0;
+    let lineEnd = -1;
+    // TODO: 'let lineEnd = -1; if (lowerBound < count && lowerBound !== 0) { lineEnd = data[lowerBound - 1]; }
+    if (indexLine < local_EDI_lineEndPositionList_count && indexLine !== 0) {
+        lineEnd = local_EDI_lineEndPositionList_data[indexLine - 1];
+    }
+
+    let trackedSyntax_I = EDI_drawViewPort_FindTrackedSyntax_StartingIndex(indexLine);
+    if (trackedSyntax_I === NaN || trackedSyntax_I === -1)
+        trackedSyntax_I = EDI_trackedSyntaxList.count_abstract;
+    
+    for (; i < i_bounded; i++) {
+        //
+        // TODO: Would in some way reading 'EDI_ringBuffer_text[ringBufferIndexCurrent].children[0]' into a variable be beneficial to avoid the double read.
+        //
+        // short circuit avoid double dipping of c++ internals, only the 'bothButNotFull' is inaccurate at the moment.
+        if (!bothButNotFull || EDI_ringBuffer_text[ringBufferIndexCurrent].children[0].className === 'eN') {
+            EDI_ringBuffer_text[ringBufferIndexCurrent].children[0].className = '';
+    
+            lineStart = lineEnd + 1;
+            if (indexLine < local_EDI_lineEndPositionList_count) {
+                lineEnd = local_EDI_lineEndPositionList_data[indexLine];
+            }
+            else {
+                lineEnd = lineStart;
+            }
+    
+            trackedSyntax_I = JS_line_lex_newVersion(EDI_ringBuffer_text[ringBufferIndexCurrent], ringBufferIndexCurrent, trackedSyntax_I, lineStart);
+        }
+
+        ringBufferIndexCurrent = (ringBufferIndexCurrent + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
+
+        indexLine++;
+    }
+
+    if (bothButNotFull) {
+        INTS[fEDI_sum_diffPositive] = local_sum_diffPositive;
+        EDI_render_do_SyntaxHighlighting();
+    }
+}
+
+/**
+ * Returns the underlying uint8array that contains the encoded characters for the text.
+ * The uint8array's capacity (i.e.: length) is not what should be saved out.
+ * Instead only save the countOfBytesInUse.
+ * 
+ * The editor stores all line endings as '\n'.
+ * When saving the bytes, swap out any '\n' for the 'lineEndString' which may or may not be '\n' (i.e.: it could be '\r\n' or '\r').
+ * 
+ * A '\0' character does NOT terminate the subarray's bytes that are in use.
+ * You need to iterate specifically for 'countOfBytesInUse'.
+ * 
+ * @param {*} NOTfinalizePendingEdits if there is a pending edit, it needs to be finalized in order to see the updated text. The default behavior is to finalize the pending edits. To use default behavior, do NOT provide the parameter, or provide a falsey expression like 'null'.
+ * @returns
+ */
+function EDI_getFinalizedEditsAndRawSaveFileData(NOTfinalizePendingEdits) {
+    if (!NOTfinalizePendingEdits) {
+        EDI_finalizeEdit();
+    }
+    return {
+        uint8arrayTextBytes: EDI_textByteList_bytes,
+        countOfBytesInUse: EDI_textByteList_count,
+        lineEndString: EDI_lineEndString,
+        fileStartsWithBom: Boolean(get_EDI_fileStartsWithBom())
+    };
+}
+
+/**
+ * If you were to make a function for this logic, it presumably would look like this.
+ * I'm not sure if I like the idea of having a function for this though, given it is inside a loop, I'd want to investigate whether it has any performance impacts.
+ * TODO: make a decision
+ * 
+ * @returns trackedSyntax_I the index that was left off on
+ */
+function EDI_createSpansForLineOfText(div, lineStart, lineEnd, trackedSyntax_I) {
+	let childIndex = 0;
+
+    if (lineStart === lineEnd) {
+    	if (childIndex < div.children.length) {
+            let span = div.children[childIndex++];
+			span.textContent = '';
+            span.className = '';
+		}
+		else {
+			div.appendChild(document.createElement('span'));
+            childIndex++;
+		}
+    }
+    else {
+        let substart = lineStart;
+        for (; trackedSyntax_I < EDI_trackedSyntaxList.count_abstract;) {
+            EDI_trackedSyntaxList.getElementAt(trackedSyntax_I);
+    
+            if (substart >= lineEnd) {
+                break;
+            }
+    
+            if (INTS[fEDI_pooledTrackedSyntax_start] >= lineEnd) {
+                break;
+            }
+    
+            if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] < lineStart) {
+                trackedSyntax_I++;
+                continue;
+            }
+    
+            if (INTS[fEDI_pooledTrackedSyntax_start] > substart) {
+                let subend = INTS[fEDI_pooledTrackedSyntax_start] > lineEnd ? lineEnd : INTS[fEDI_pooledTrackedSyntax_start]; // probably a nonsense line of code given the previous if statements
+                childIndex = EDI_language_line_lex(div, substart, subend, childIndex);
+                substart += (subend - substart);
+            }
+    
+            {
+                let span;
+                if (childIndex < div.children.length) {
+					span = div.children[childIndex++];
+                    //span.className = ''; className is guaranteed to be set in this specific case
+				}
+				else {
+					span = document.createElement('span');
+                    div.appendChild(span);
+                    childIndex++;
+				}
+                let trackedSyntaxEnd = INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length];
+                let subend = trackedSyntaxEnd > lineEnd ? lineEnd : trackedSyntaxEnd;
+                span.textContent = EDI_decoder.decode(EDI_textByteList_bytes.subarray(substart, subend));
+                substart += (subend - substart);
+                switch (BYTES[byteEDI_pooledTrackedSyntax_trackedSyntaxKind]) {
+                    case TrackedSyntaxKind_Comment:
+                        span.className = 'eCM';
+                        break;
+                    case TrackedSyntaxKind_String:
+                        span.className = 'eSM';
+                        break;
+                    default:
+                        span.className = '';
+                        break;
+                }
+            }
+    
+            if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] <= lineEnd) {
+                trackedSyntax_I++;
+                continue;
+            }
+    
+            break;
+        }
+    
+        if (substart < lineEnd) {
+            childIndex = EDI_language_line_lex(div, substart, lineEnd, childIndex);
+        }
+    }
+
+    let aaa = div.children.length - childIndex;
+    for (let i = 0; i < aaa; i++) {
+        div.removeChild(div.children[childIndex]);
+    }
+
+    return trackedSyntax_I;
+}
+
+function walkLineUntilIndexColumn() {
+    // TODO: delete key until you delete a linefeed and join the next line onto your own then press backspace everything breaks.
+
+    // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
+    INTS[fEDI_w_ringBufferIndex] = INTS[fEDI_cursor_indexLine] - INTS[fEDI_virtualIndexLine];
+    if (INTS[fEDI_w_ringBufferIndex] >= INTS[fEDI_ArrayFrom_textElement_children_length] || INTS[fEDI_w_ringBufferIndex] < 0) INTS[fEDI_w_ringBufferIndex] = -1;
+    else INTS[fEDI_w_ringBufferIndex] = (INTS[fEDI_w_ringBufferIndex] + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
+    
+    if (INTS[fEDI_w_ringBufferIndex] < 0) {
+        INTS[fEDI_w_indexColumn_Goal] = 0;
+        INTS[fEDI_w_indexColumn_Sum] = 0;
+        INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
+        INTS[fEDI_w_indexSpan] = 0;
+        w_span = null;
+        w_div = null;
+        INTS[fEDI_w_ringBufferIndex] = INTS[fEDI_w_ringBufferIndex]; // double assignment but not all that pressing of a matter at the moment I think it reads better to just set it / avoid the temporary 'let' local variable each invocation.
+        return;
+    }
+    
+    let div = EDI_ringBuffer_text[INTS[fEDI_w_ringBufferIndex]];
+    let indexColumn_Goal = INTS[fEDI_cursor_indexColumn];
+    let indexColumn_Sum = 0;
+
+    for (var indexSpan = 0; indexSpan < div.children.length; indexSpan++) {
+        let span = div.children[indexSpan];
+        if (indexColumn_Goal <= indexColumn_Sum + span.textContent.length) {
+            // '<=' because end-of-line text insertion (end of line but prior to the line ending itself).
+            // The line ending isn't written to the span, it is represented by the encompassing div itself.
+            INTS[fEDI_w_indexColumn_Goal] = indexColumn_Goal;
+            INTS[fEDI_w_indexColumn_Sum] = indexColumn_Sum;
+            INTS[fEDI_w_indexColumn_SpanTextContentRelative] = indexColumn_Goal - indexColumn_Sum;
+            INTS[fEDI_w_indexSpan] = indexSpan;
+            w_span = span;
+            w_div = div;
+            INTS[fEDI_w_ringBufferIndex] = INTS[fEDI_w_ringBufferIndex];
+            return;
+        }
+        else {
+            indexColumn_Sum += span.textContent.length;
+        }
+    }
+
+    // TODO: When the column index is too large, how should this be handled?
+    INTS[fEDI_w_indexColumn_Goal] = 0;
+    INTS[fEDI_w_indexColumn_Sum] = 0;
+    INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
+    INTS[fEDI_w_indexSpan] = 0;
+    w_span = null;
+    w_div = null;
+    INTS[fEDI_w_ringBufferIndex] = INTS[fEDI_w_ringBufferIndex];
+    return;
+}
+
+/**
+ * Use case: HTML was previously rendered, but the content of the line was modified
+ * and logic to more efficiently manipulate the existing HTML is not yet written.
+ * 
+ * Example modifications:
+ * - The same line index had its contents modified.
+ * - Visually the line index that virtually appears as that child element is not the same as it previously was
+ *   due to various reasons, perhaps a change in scroll position.
+ * 
+ * Prior to invoking this function ensure the provided elements's innerHTML is empty:
+ * - "gutterLineElement.innerHTML = '';"
+ * - "divElement.innerHTML = '';"
+ * @param {number} indexLine 
+ * @param {HTMLElement} gutterLineElement 
+ * @param {HTMLElement} divElement 
+ */
+function EDI_drawLine(indexLine, gutterLineElement, textLineElement) {
+    if (indexLine >= EDI_lineEndPositionList_count) {
+        gutterLineElement.textContent = '~';
+    }
+    else {
+        gutterLineElement.textContent = indexLine + 1;
+    }
+
+    let trackedSyntax_StartingIndex = EDI_drawViewPort_FindTrackedSyntax_StartingIndex(indexLine);
+    if (trackedSyntax_StartingIndex === NaN || trackedSyntax_StartingIndex === -1) {
+        trackedSyntax_StartingIndex = EDI_trackedSyntaxList.count_abstract;
+    }
+    EDI_getLineBoundaryPositions_raw(indexLine);
+    EDI_createSpansForLineOfText(textLineElement, INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end], trackedSyntax_StartingIndex);
+}
 
 //#region mousedown
 function EDI_onMouseDown(event) {

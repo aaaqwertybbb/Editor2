@@ -481,7 +481,8 @@ class TreeViewComponent {
 
             if (ringBufferIndexItem < 0) return;
             return this.director.tvd_oncontextmenu_async(this.TREEVIEW_ArrayFrom_itemListElement_children[ringBufferIndexItem], this.cursorIndex, event_button, event_clientX, event_clientY, ringBufferIndexItem);
-        } else {
+        }
+        else {
             if (this.cursorIndex >= this.director.tvd_getTotalCount()) {
                 return;
             }

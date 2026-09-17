@@ -6187,7 +6187,8 @@ function EDI_onResize_startThrottleTimeout() {
             EDI_onResize();
             
             EDI_onResize_startThrottleTimeout();
-        } else {
+        }
+        else {
             INTS[fEDI_onResize_timer] = 0;
         }
     }, 500);

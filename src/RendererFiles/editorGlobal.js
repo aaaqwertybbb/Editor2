@@ -1711,7 +1711,7 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
     for (var lineI = SMALL_lineAndColumnIndices_indexLine; lineI <= startingIndex; lineI++) {
         EDI_getLineBoundaryPositions(lineI);
         const line_start = INTS[fEDI_getLineBoundaryPositions_start];
-        let lastValidIndexColumn = EDI_getLastValidIndexColumn(lineI);
+        let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(lineI);
         let upperLimitIndexColumn;
         if (lastValidIndexColumn > maxVirtualColumnIndex) {
             upperLimitIndexColumn = maxVirtualColumnIndex;
@@ -1766,7 +1766,7 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
     //{
     //    let linePos = EDI_getLineBoundaryPositions(SMALL_lineAndColumnIndices_indexLine);
     //    let line = linePos;
-    //    let lastValidIndexColumn = EDI_getLastValidIndexColumn(SMALL_lineAndColumnIndices_indexLine);
+    //    let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(SMALL_lineAndColumnIndices_indexLine);
     //    let upperLimitIndexColumn;
     //    if (lastValidIndexColumn > 4) {
     //        upperLimitIndexColumn = 4;
@@ -1814,7 +1814,7 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
     //if (INTS[fEDI_cursor_indexLine] !== SMALL_lineAndColumnIndices_indexLine) {
     //    let linePos = EDI_getLineBoundaryPositions(INTS[fEDI_cursor_indexLine]);
     //    let line = linePos;
-    //    let lastValidIndexColumn = EDI_getLastValidIndexColumn(INTS[fEDI_cursor_indexLine]);
+    //    let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
     //    let upperLimitIndexColumn;
     //    if (lastValidIndexColumn > that_four) {
     //        upperLimitIndexColumn = that_four;
@@ -1871,7 +1871,7 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
         let innerRemoveCount = 0;
         EDI_getLineBoundaryPositions(lineI);
         const line_start = INTS[fEDI_getLineBoundaryPositions_start];
-        let lastValidIndexColumn = EDI_getLastValidIndexColumn(lineI);
+        let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(lineI);
         let upperLimitIndexColumn;
         if (lastValidIndexColumn > maxVirtualColumnIndex) {
             upperLimitIndexColumn = maxVirtualColumnIndex;
@@ -2803,7 +2803,7 @@ function EDI_createStyleForSelection() {
         let lastIndexLineBeingShown = INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1;
         if (INCLUSIVEendLine > lastIndexLineBeingShown) {
             INCLUSIVEendLine = lastIndexLineBeingShown;
-            INCLUSIVEendColumn = EDI_getLastValidIndexColumn(INCLUSIVEendLine);
+            INCLUSIVEendColumn = EDI_getLastValidIndexColumn_raw(INCLUSIVEendLine);
         }
 
         if (start > end) {
@@ -2912,18 +2912,6 @@ function EDI_createStyleForSelection_indentMore() {
 
     INTS[fEDI_cursor_DRAWN_selectionAnchor] = INTS[fEDI_cursor_selectionAnchor];
     INTS[fEDI_cursor_DRAWN_selectionEnd] = INTS[fEDI_cursor_selectionEnd];
-}
-
-function EDI_getLastValidIndexColumn(indexLine) {
-    if (indexLine < EDI_lineEndPositionList_count) {
-        if (indexLine === 0) {
-            return EDI_readLineEndPositionList(indexLine) - 0;
-        }
-        else {
-            return EDI_readLineEndPositionList(indexLine) - (EDI_readLineEndPositionList(indexLine - 1) + 1);
-        }
-    }
-    return 0;
 }
 
 function EDI_getLastValidIndexColumn_raw(indexLine) {
@@ -3084,7 +3072,7 @@ function EDI_onMouseMove_WRAPIT(event) {
         indexColumn = INTS[fEDI_getIndexFromX_indexColumn];
         indexColumnVisual = INTS[fEDI_getIndexFromX_visualColumns];
 
-        let lastValidIndexColumn = EDI_getLastValidIndexColumn(indexLine);
+        let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(indexLine);
         if (indexColumn > lastValidIndexColumn) {
             indexColumn = lastValidIndexColumn;
         }
@@ -4327,7 +4315,7 @@ function EDI_onKeyDown_ArrowLeft(event) {
             }
             else if (INTS[fEDI_cursor_indexLine] > 0) {
                 INTS[fEDI_cursor_indexLine]--;
-                INTS[fEDI_cursor_indexColumn] = EDI_getLastValidIndexColumn(INTS[fEDI_cursor_indexLine]);
+                INTS[fEDI_cursor_indexColumn] = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
                 EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
                 INTS[fEDI_cursorVisualColumnIndex] = fEDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
                 INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex]--;
@@ -4420,7 +4408,7 @@ function EDI_onKeyDown_ArrowRight(event) {
     }
     else {
         EDI_preKeyboardMovementSelectionLogic(event.shiftKey);
-        let lastValidIndexColumn = EDI_getLastValidIndexColumn(INTS[fEDI_cursor_indexLine]);
+        let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
         if (event.ctrlKey && INTS[fEDI_cursor_indexColumn] < lastValidIndexColumn) {
             EDI_getLineBoundaryPositions(INTS[fEDI_cursor_indexLine]);
             const line_end = INTS[fEDI_getLineBoundaryPositions_end];
@@ -4532,7 +4520,7 @@ function EDI_onKeyDown_End(event) {
     if (event.ctrlKey) {
         INTS[fEDI_cursor_indexLine] = EDI_lineEndPositionList_count - 1;
     }
-    INTS[fEDI_cursor_indexColumn] = EDI_getLastValidIndexColumn(INTS[fEDI_cursor_indexLine]);
+    INTS[fEDI_cursor_indexColumn] = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
 
     // TODO: if 'originalLine === INTS[fEDI_cursor_indexLine]' but 'originalColumn !== INTS[fEDI_cursor_indexColumn]'...
     // ...then you should determine the remaining visual width of the line given your current column prior to moving to the lastValidIndexColumn.
@@ -4945,7 +4933,7 @@ function EDI_onMouseDown(event) {
     indexColumn = INTS[fEDI_getIndexFromX_indexColumn];
     indexColumnVisual = INTS[fEDI_getIndexFromX_visualColumns];
 
-    let lastValidIndexColumn = EDI_getLastValidIndexColumn(indexLine);
+    let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(indexLine);
     if (indexColumn > lastValidIndexColumn) {
         indexColumn = lastValidIndexColumn;
         indexColumnVisual = indexColumn;
@@ -5555,7 +5543,7 @@ function EDI_render_do_IndentLess() {
             let innerRemoveCount = 0;
             EDI_getLineBoundaryPositions(lineI);
             const line_start = INTS[fEDI_getLineBoundaryPositions_start];
-            let lastValidIndexColumn = EDI_getLastValidIndexColumn(lineI);
+            let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(lineI);
             let upperLimitIndexColumn;
             if (lastValidIndexColumn > 4) {
                 upperLimitIndexColumn = 4;
@@ -5894,7 +5882,7 @@ function EDI_render_do_DuplicateOrPaste() {
         else ringBufferIndex_last = (ringBufferIndex_last + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
 
 
-        let last_valid_indexColumn_currentLine = EDI_getLastValidIndexColumn(INTS[fEDI_cursor_indexLine]);
+        let last_valid_indexColumn_currentLine = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
 
         // TODO: An optimization to check whether you even need to redraw any lines perhaps is possible but it would add too much complexity at the moment and so it isn't being considered...
         // ...i.e.: if you're inserting so many lines that you know you'll scroll or that only a small amount of lines need to be redrawn due to predicting a scroll event.
@@ -6175,7 +6163,7 @@ function EDI_paste(content) {
     if (ringBufferIndex_last >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_last < 0) ringBufferIndex_last = -1;
     else ringBufferIndex_last = (ringBufferIndex_last + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
 
-    let last_valid_indexColumn_currentLine = EDI_getLastValidIndexColumn(INTS[fEDI_cursor_indexLine]);
+    let last_valid_indexColumn_currentLine = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
 
     // TODO: An optimization to check whether you even need to redraw any lines perhaps is possible but it would add too much complexity at the moment and so it isn't being considered...
     // ...i.e.: if you're inserting so many lines that you know you'll scroll or that only a small amount of lines need to be redrawn due to predicting a scroll event.
@@ -6397,7 +6385,7 @@ function EDI_tabKey() {
  * - EDI_cursor_cached_indentation_string
  */
 function EDI_cacheIndentation(shouldCountAndVisualWidthOnly) {
-    let lastValidIndexColumn = EDI_getLastValidIndexColumn(INTS[fEDI_cursor_indexLine]);
+    let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
     EDI_getLineBoundaryPositions(INTS[fEDI_cursor_indexLine]);
     const line_start = INTS[fEDI_getLineBoundaryPositions_start];
 
@@ -6554,7 +6542,7 @@ function EDI_render_do_EnterKey() {
         else {
             if (!shouldRenderEntireViewport) {
                 // ensure this conditional branch returns if handled, otherwise it will execute the fallback case erroneously
-                let lastValidIndexColumn = EDI_getLastValidIndexColumn(INTS[fEDI_cursor_editIndexLine]);
+                let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_editIndexLine]);
 
                 if (lastValidIndexColumn === INTS[fEDI_cursor_editIndexColumn]) { // end of line
                     
@@ -6682,7 +6670,7 @@ function EDI_EnterKey(ctrlKey, shiftKey) {
         INTS[fEDI_cursorVisualColumnIndex] = 0;
     }
     else if (shiftKey) {
-        INTS[fEDI_cursor_indexColumn] = EDI_getLastValidIndexColumn(INTS[fEDI_cursor_indexLine]);
+        INTS[fEDI_cursor_indexColumn] = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
         INTS[fEDI_cursorVisualColumnIndex] = INTS[fEDI_cursor_indexColumn];
     }
 
@@ -6706,7 +6694,7 @@ function EDI_EnterKey(ctrlKey, shiftKey) {
             INTS[fEDI_cursor_indexLine]++;
     }
     else {
-        let lastValidIndexColumn = EDI_getLastValidIndexColumn(INTS[fEDI_cursor_indexLine]);
+        let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
 
         if (BYTES[byteEDI_cursor_enterKeyEventKind] === 0) {
             BYTES[byteEDI_cursor_enterKeyEventKind] = lastValidIndexColumn === INTS[fEDI_cursor_indexColumn]
@@ -7584,7 +7572,7 @@ function EDI_state_do_Backspace(event) {
             //
             // wrap to previous line
             INTS[fEDI_cursor_indexLine]--;
-            INTS[fEDI_cursor_indexColumn] = EDI_getLastValidIndexColumn(INTS[fEDI_cursor_indexLine]);
+            INTS[fEDI_cursor_indexColumn] = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
             INTS[fEDI_cursorVisualColumnIndex] = INTS[fEDI_cursor_indexColumn];
             INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex]--;
             INTS[fEDI_cursor_editPosition]--;
@@ -7902,7 +7890,7 @@ function EDI_moveCursor_indexLine_indexColumn(indexLine, indexColumn) {
         // TODO: Timing issue, someone typing while they scroll
         EDI_finalizeEdit();
     }
-    let lastValidIndexColumn = EDI_getLastValidIndexColumn(indexLine);
+    let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(indexLine);
 
     if (indexColumn > lastValidIndexColumn) {
         INTS[fEDI_cursor_indexColumn] = lastValidIndexColumn;
@@ -8128,7 +8116,7 @@ function EDI_requestLspHover() {
     if (indexColumn < 0) return;
     if (indexLine >= EDI_lineEndPositionList_count) return;
     // ----
-    let lastValidIndexColumn = EDI_getLastValidIndexColumn(indexLine);
+    let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(indexLine);
     if (indexColumn > lastValidIndexColumn) return;
     
     ///////////

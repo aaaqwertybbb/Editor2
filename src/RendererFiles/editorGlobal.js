@@ -1029,793 +1029,6 @@ function EDI_setText(text, fileStartsWithBom, textSourceIdentifier, FORMATTED_te
     EDI_render_request(RenderKind_SetText);
 }
 
-// #region finalize
-/**
- * TODO: Exception during finalize softlocks the editor because you can't even clear to reset the state: 'Uncaught (in promise) Error: removeAt(...): index > this.count'
- * 
- * Retrospectively I'd say... I imagine there'd be more than one scenario of this I have a lot of 'critical booleans'.
- * i.e.: if you enter the 'critical boolean guarded code path' then throw an exception in the middle of that code path with bad state for the 'critical boolean guarded code path' you might never be able to enter it again.
- * i.e.: I don't see this happen myself unless I'm messing with new code and running the code that I am in progress of writing. But I don't have a try catch so if an error were to occur it'd completely softlock things.
- */
-function EDI_finalizeEdit() {
-    /**
-     * Later code needs to know the line index that the removal occurred on.
-     * In a naive approach, presume every edit only spans a single line.
-     * Then reversing backwards gets you the first line index that "fits" the edit and thus the line index the edit occurred on.
-     * 
-     * If for whatever reason the first time around this loop fails, then you never decremented so you wouldn't increment to restore
-     * the iteration variable to the previous loop's state.
-     */
-    let indexLine_editOccurredOn = -1;
-
-    switch (INTS[fEDI_cursor_editKind]) {
-        case EditKind_InsertLtr:
-            indexLine_editOccurredOn = EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn);
-            break;
-        case EditKind_Enter:
-            indexLine_editOccurredOn = EDI_finalizeEdit_Enter(indexLine_editOccurredOn);
-            return;
-        case EditKind_Tab:
-            indexLine_editOccurredOn = EDI_finalizeEdit_Tab(indexLine_editOccurredOn);
-            return;
-        case EditKind_IndentMore:
-            indexLine_editOccurredOn = EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn);
-            return;
-        case EditKind_IndentLess:
-            indexLine_editOccurredOn = EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn);
-            break;
-        case EditKind_Paste:
-            indexLine_editOccurredOn = EDI_finalizeEdit_Paste(indexLine_editOccurredOn);
-            return;
-        case EditKind_Duplicate:
-            indexLine_editOccurredOn = EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn);
-            return;
-        case EditKind_DeleteLtr:
-        case EditKind_BackspaceRtl:
-        case EditKind_RemoveTextNoBatching:
-            indexLine_editOccurredOn = EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_editOccurredOn);
-            break;
-    }
-
-    // indexLine_editOccurredOn is initialized to -1
-    //
-    // When gap buffer is finalized editor tries to redraw the line in order to lex it again.
-    // You need to NOT do this when you are working with multiple cursors however, because it bugs everything out.
-    // 
-    if (indexLine_editOccurredOn >= 0 && indexLine_editOccurredOn < EDI_lineEndPositionList_count) {
-        if (EDI_gutter.children.length === INTS[fEDI_virtualCount] &&
-            EDI_textElement.children.length === INTS[fEDI_virtualCount]) {
-                
-                // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
-                let ringBufferIndex = indexLine_editOccurredOn - INTS[fEDI_virtualIndexLine];
-                if (ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex < 0) ringBufferIndex = -1;
-                else ringBufferIndex = (ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
-
-                if (ringBufferIndex >= 0) {
-                    let gutterLineElement = EDI_gutter.children[ringBufferIndex];
-                    gutterLineElement.innerHTML = '';
-                    let textLineElement = EDI_textElement.children[ringBufferIndex];
-                    textLineElement.innerHTML = '';
-                    EDI_drawLine(indexLine_editOccurredOn, gutterLineElement, textLineElement);
-                }
-                else {
-                    // TODO: Consider what to do in this case.
-                }
-        }
-        else {
-            // TODO: Consider what to do in this case.
-        }
-    }
-}
-
-function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
-    for (let i = EDI_lineEndPositionList_count - 1; i >= 0; i--) {
-        if (INTS[fEDI_cursor_editPosition] <= EDI_lineEndPositionList_data[i]) {
-            EDI_lineEndPositionList_data[i] += INTS[fEDI_cursor_editLength];
-        }
-        else {
-            if (i === EDI_lineEndPositionList_count - 1) {
-                indexLine_editOccurredOn = i;
-            }
-            else {
-                indexLine_editOccurredOn = i + 1;
-            }
-            break;
-        }
-    }
-    for (var i = 0; i < EDI_trackedSyntaxList.count_abstract; i++) {
-        EDI_trackedSyntaxList.getElementAt(i);
-        if (INTS[fEDI_cursor_editPosition] <= INTS[fEDI_pooledTrackedSyntax_start]) {
-            EDI_trackedSyntaxList.setStart(i, INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_cursor_editLength]);
-        }
-        else if (BYTES[byteEDI_pooledTrackedSyntax_trackedSyntaxKind] === TrackedSyntaxKind_Comment &&
-                INTS[fEDI_cursor_editPosition] === INTS[fEDI_pooledTrackedSyntax_start] + 1) {
-
-            // TODO: Insertion of '*' probably shouldn't remove.
-            EDI_trackedSyntaxList.removeAt(i, 1);
-        }
-        else if (INTS[fEDI_cursor_editPosition] > INTS[fEDI_pooledTrackedSyntax_start] && INTS[fEDI_cursor_editPosition] < INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length]) {
-            EDI_trackedSyntaxList.setLength(i, INTS[fEDI_pooledTrackedSyntax_length] + INTS[fEDI_cursor_editLength]);
-        }
-    }
-    EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition], EDI_cursor_gapBuffer, /*offset*/ 0, /*length*/ INTS[fEDI_cursor_gapBufferCount]);
-
-    let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
-    EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
-    let lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
-    let lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
-    let text = EDI_decoder.decode(EDI_cursor_gapBuffer.subarray(0, INTS[fEDI_cursor_gapBufferCount]));
-    INTS[F_didChangeTextDocument_version] = INTS[F_didChangeTextDocument_version] + 1;
-    let version = INTS[F_didChangeTextDocument_version];
-
-    // --- CLEAN INTEGRATION ---
-    enqueueLSPNotification({
-        absolutePath: textSourceIdentifier,
-        version: version,
-        startLine: lineAndColumnIndices_indexLine,
-        startCharacter: lineAndColumnIndices_indexColumn,
-        endLine: lineAndColumnIndices_indexLine,
-        endCharacter: lineAndColumnIndices_indexColumn,
-        text: text
-    });
-    // -------------------------
-
-    if (indexLine_editOccurredOn === INTS[fEDI_longestLine_indexLine]) {
-        INTS[fEDI_longestLine_length] = INTS[fEDI_longestLine_length] + INTS[fEDI_cursor_editLength];
-    }
-
-    EDI_finalizeEdit_ClearEditState();
-
-    return indexLine_editOccurredOn;
-}
-
-function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
-    if (INTS[fEDI_cursor_editRenderedDisplacement] !== INTS[fEDI_cursor_editLength]) {
-        EDI_render_do_EnterKey();
-    }
-
-    // TODO: A notification needs to sent to the LSP here
-
-    EDI_trackedSyntaxList_inefficientUpdateStartAndLength(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength]);
-
-    // throws an exception if 'EnterKeyEventKind_None' (...or falsey).
-    if (!BYTES[byteEDI_cursor_enterKeyEventKind] || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_None) { EDI_finalizeEdit_ClearEditState(); throw new Error('if (!enterKeyEventKind...)'); }
-
-    EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition], EDI_cursor_enterKey_newLinePlusIndentation_byteList, /*offset*/ 0, EDI_cursor_enterKey_newLinePlusIndentation_byteList.length);
-
-    for (var i = INTS[fEDI_cursor_editIndexLine]; i < EDI_lineEndPositionList_count; i++) {
-        EDI_lineEndPositionList_data[i] += INTS[fEDI_cursor_editLength];
-    }
-
-    // You need to consider if the longest line gets split
-    if (INTS[fEDI_cursor_editIndexLine] <= INTS[fEDI_longestLine_indexLine])
-        INTS[fEDI_longestLine_indexLine] = INTS[fEDI_longestLine_indexLine] + 1;
-
-    EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine], INTS[fEDI_cursor_editPosition]);
-
-    EDI_finalizeEdit_ClearEditState();
-
-    return indexLine_editOccurredOn;
-}
-
-function EDI_finalizeEdit_Tab(indexLine_editOccurredOn) {
-    let bytes = EDI_on_tab_bytes;
-    const per_edit_length = bytes.length;
-    let length = per_edit_length;
-
-    if (INTS[fEDI_cursor_editLength] > 1) {
-        length *= INTS[fEDI_cursor_editLength];
-        const src_bytes = bytes;
-        bytes = new Uint8Array(length);
-        // TODO: typed array function usage
-        for (let i = 0; i < length; i += per_edit_length) {
-            for (let k = 0; k < per_edit_length; k++) {
-                bytes[i + k] = src_bytes[k];
-            }
-        }
-    }
-
-    EDI_trackedSyntaxList_inefficientUpdateStartAndLength(INTS[fEDI_cursor_editPosition], length);
-
-    EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition], bytes, /*offset*/ 0, /*length*/ length);
-
-    for (var i = INTS[fEDI_cursor_editIndexLine]; i < EDI_lineEndPositionList_count; i++) {
-        EDI_lineEndPositionList_data[i] += length;
-    }
-
-    EDI_finalizeEdit_ClearEditState();
-
-    return indexLine_editOccurredOn;
-}
-
-function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
-    let startingIndex = INTS[fEDI_indent_startingIndex];
-    INTS[fEDI_indent_startingIndex] = 0;
-    let SMALL_lineAndColumnIndices_indexLine = INTS[fEDI_indent_SMALL_lineAndColumnIndices_indexLine];
-    INTS[fEDI_indent_SMALL_lineAndColumnIndices_indexLine] = 0;
-
-    let bytes = EDI_on_tab_bytes;
-    const per_edit_length = bytes.length;
-
-    let ORIGINAL_incrementBy = (startingIndex + 1 - SMALL_lineAndColumnIndices_indexLine) * per_edit_length;
-    let incrementBy = ORIGINAL_incrementBy;
-
-    //let ORIGINAL_incrementBy = INTS[fEDI_indent_ORIGINAL_indentBy];
-    //let incrementBy = INTS[fEDI_indent_ORIGINAL_indentBy];
-    //INTS[fEDI_indent_ORIGINAL_indentBy] = 0;
-
-    
-    let bytesLength = per_edit_length;
-
-    if (INTS[fEDI_cursor_editLength] > 1) {
-        ORIGINAL_incrementBy *= INTS[fEDI_cursor_editLength];
-        incrementBy *= INTS[fEDI_cursor_editLength];
-        bytesLength *= INTS[fEDI_cursor_editLength];
-        const src_bytes = bytes;
-        bytes = new Uint8Array(bytesLength);
-        // TODO: typed array function usage
-        for (let i = 0; i < bytesLength; i += per_edit_length) {
-            for (let k = 0; k < per_edit_length; k++) {
-                bytes[i + k] = src_bytes[k];
-            }
-        }
-    }
-
-    let startingLinePos_end = INTS[fEDI_EDI_indentLess_startingLinePos_end];
-    INTS[fEDI_EDI_indentLess_startingLinePos_end] = 0;
-
-    // # Determine the total count of text that will be inserted, prior to actually beginning the edit.
-    // ...
-
-    // # Update the 'START POSITIONS specifically' of the tracked syntax list by the total count of text that will be inserted.
-    let trackedSyntaxReposition_i = EDI_trackedSyntaxReposition_find(startingLinePos_end + 1);
-    if (trackedSyntaxReposition_i === NaN || trackedSyntaxReposition_i === -1) {
-        trackedSyntaxReposition_i = EDI_trackedSyntaxList.count_abstract;
-    }
-    for (var i = trackedSyntaxReposition_i; i < EDI_trackedSyntaxList.count_abstract; i++) {
-        EDI_trackedSyntaxList.setStart(
-            i,
-            EDI_trackedSyntaxList.getStart(i) + ORIGINAL_incrementBy);
-    }
-    trackedSyntaxReposition_i--;
-
-    // # Descending indexLine loop:
-    //     # Insert the text on the respective line.
-    //     # Increment the entry in 'EDI_lineEndPositionList' for the respective line
-    //     # There's a second (relative to this entire function) modification to the start positions of the tracked syntax list
-    //     # Then, you immediately know the trackedSyntax that encompasses the insertion (if it exists), so you increment its length by the text inserted on that respective line.
-    //     # Each loop you reduce incrementBy, because you're initial starting the loop knowing you will eventually insert 4 characters on every line.
-    //         # thus, the first iteration of the loop you're increasing that line's end position by the length of text inserted per line by the amount of lines.
-    //         # The next iteration is a smaller indexLine so you decrement because you have the insertion of one less line to consider.
-    for (var lineI = startingIndex; lineI >= SMALL_lineAndColumnIndices_indexLine; lineI--) {
-        EDI_getLineBoundaryPositions_raw(lineI);
-        const line_start = INTS[fEDI_getLineBoundaryPositions_start];
-
-        for (; trackedSyntaxReposition_i >= 0; trackedSyntaxReposition_i--) {
-            let start = EDI_trackedSyntaxList.getStart(trackedSyntaxReposition_i);
-            if (line_start <= start) {
-                // # There's a second (relative to this entire function) modification to the start positions of the tracked syntax list
-                EDI_trackedSyntaxList.setStart(trackedSyntaxReposition_i, start + incrementBy);
-            }
-            else {
-                break;
-            }
-        }
-        EDI_trackedSyntaxList.getElementAt(trackedSyntaxReposition_i);
-        if (line_start > INTS[fEDI_pooledTrackedSyntax_start] && line_start < INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length]) {
-            // # Then, you immediately know the trackedSyntax that encompasses the insertion (if it exists), so you increment its length by the text inserted on that respective line.
-            EDI_trackedSyntaxList.setLength(trackedSyntaxReposition_i, INTS[fEDI_pooledTrackedSyntax_length] + bytesLength);
-        }
-
-        // # Insert the text on the respective line.
-        EDI_textByteList_insertBytes(line_start, bytes, 0 /*offset*/, bytesLength /*length*/);
-        
-        // # Increment the entry in 'EDI_lineEndPositionList' for the respective line
-        EDI_lineEndPositionList_data[lineI] += incrementBy;
-
-        // # Each loop you reduce incrementBy, because you're initial starting the loop knowing you will eventually insert 4 characters on every line.
-        //     # thus, the first iteration of the loop you're increasing that line's end position by the length of text inserted per line by the amount of lines.
-        //     # The next iteration is a smaller indexLine so you decrement because you have the insertion of one less line to consider.
-        incrementBy -= bytesLength;
-    }
-
-    // # Any line that is not part of the selected set of lines, and is at a greater indexLine, needs to have their line end position entry updated.
-    for (var lineI = startingIndex + 1; lineI < EDI_lineEndPositionList_count; lineI++) {
-        EDI_lineEndPositionList_data[lineI] += ORIGINAL_incrementBy;
-    }
-
-    EDI_finalizeEdit_ClearEditState();
-
-    return indexLine_editOccurredOn;
-}
-
-function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
-    // Both indentMore and indentLess have logic in the initial event that needs to be moved here.
-    // Nevertheless there is a difference between indentLess and indentMore in that you cannot simply
-    // multiply by n to get the decrement because it deals with the existence of whitespace to be removed so you need to actually sum this as you handle each event
-    // so that when you get to the finalize you have it all sum'd up (although yes this logic probably doesn't even belong in the event but it is there and 1 thing at a time).
-
-    //let ORIGINAL_decrementBy = INTS[fEDI_indent_ORIGINAL_indentBy];
-    //let decrementBy = INTS[fEDI_indent_ORIGINAL_indentBy];
-    //INTS[fEDI_indent_ORIGINAL_indentBy] = 0;
-
-    let startingIndex = INTS[fEDI_indent_startingIndex];
-    INTS[fEDI_indent_startingIndex] = 0;
-    let SMALL_lineAndColumnIndices_indexLine = INTS[fEDI_indent_SMALL_lineAndColumnIndices_indexLine];
-    INTS[fEDI_indent_SMALL_lineAndColumnIndices_indexLine] = 0;
-
-    // !!!!!! watch out for the big breaks when hitting a tab presuming that_four is 4
-    // If I could go back in time I'd go back to the day I thought it a good idea to name this variable 'that_four'
-    let maxVirtualColumnIndex = 4;
-    maxVirtualColumnIndex *= INTS[fEDI_cursor_editLength];
-    let largestRank = INTS[fEDI_cursor_editLength];
-
-    // loop over the lines to sum the "amount" of whitespace being removed
-    let DETERMINE_decrementBy = 0;
-    for (var lineI = SMALL_lineAndColumnIndices_indexLine; lineI <= startingIndex; lineI++) {
-        EDI_getLineBoundaryPositions_raw(lineI);
-        const line_start = INTS[fEDI_getLineBoundaryPositions_start];
-        let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(lineI);
-        let upperLimitIndexColumn;
-        if (lastValidIndexColumn > maxVirtualColumnIndex) {
-            upperLimitIndexColumn = maxVirtualColumnIndex;
-        }
-        else {
-            upperLimitIndexColumn = lastValidIndexColumn;
-        }
-        let seenSpaceCount = 0;
-        let rank = 0;
-        outer: for (var i = 0; i < upperLimitIndexColumn; i++) {
-
-            if (rank >= largestRank) break outer; // "case '\t':" has this as well.
-
-            // if you walked the text without hitting the maximum rank it isn't an issue.
-            // rank is just a means of short circuiting any weird combinations of spaces and tabs.
-            // (TODO: maybe I should believe in tab stops.)
-
-            let c = String.fromCharCode(EDI_textByteList_bytes[line_start + i]);
-            switch (c) {
-                case ' ':
-                    seenSpaceCount++;
-                    DETERMINE_decrementBy++;
-                    if (seenSpaceCount % 4 === 0) {
-                        // avoid a number that could approach infinity because I don't understand how machines compute division/modulo
-                        // and I assume that it is easier to keep 'seenSpaceCount' at [0, 4] than compute division/modulo on very large numbers.
-                        seenSpaceCount = 0;
-                        rank++;
-                    }
-                    break;
-                case '\t':
-                    if (seenSpaceCount > 0) {
-                        rank++;
-                        seenSpaceCount = 0;
-                    }
-                    if (rank >= largestRank) break outer;
-                    DETERMINE_decrementBy++;
-                    rank++;
-                    break;
-                default:
-                    break outer;
-            }
-        }
-    }
-
-    // Remember the total whitespace removed
-    let ORIGINAL_decrementBy = DETERMINE_decrementBy;
-    //INTS[fEDI_indent_ORIGINAL_indentBy] = ORIGINAL_decrementBy;
-    let decrementBy = ORIGINAL_decrementBy;
-
-    //// TODO: use better formatting
-    //// TODO: This handles the line that the small-selection-position resides on?
-    //{
-    //    let linePos = EDI_getLineBoundaryPositions_raw(SMALL_lineAndColumnIndices_indexLine);
-    //    let line = linePos;
-    //    let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(SMALL_lineAndColumnIndices_indexLine);
-    //    let upperLimitIndexColumn;
-    //    if (lastValidIndexColumn > 4) {
-    //        upperLimitIndexColumn = 4;
-    //    }
-    //    else {
-    //        upperLimitIndexColumn = lastValidIndexColumn;
-    //    }
-    //    let seenSpace = false;
-    //    let count = 0;
-    //    outer: for (var i = 0; i < upperLimitIndexColumn; i++) {
-    //        let c = getCharacter(line.start + i);
-    //        switch (c) {
-    //            case ' ':
-    //                seenSpace = true;
-    //                count++;
-    //                break;
-    //            case '\t':
-    //                if (!seenSpace) {
-    //                    count+= 4;
-    //                }
-    //                break outer;
-    //            default:
-    //                break outer;
-    //        }
-    //    }
-//
-    //    let smallLinePos = EDI_getLineBoundaryPositions_raw(SMALL_lineAndColumnIndices_indexLine);
-    //    if (SMALL_pos > smallLinePos.start) {
-    //        if (INTS[fEDI_cursor_selectionAnchor] < INTS[fEDI_cursor_selectionEnd]) {
-    //            INTS[fEDI_cursor_selectionAnchor] -= count;
-    //        }
-    //        else {
-    //            INTS[fEDI_cursor_selectionEnd] -= count;
-    //        }
-    //    }
-//
-    //    if (INTS[fEDI_cursor_indexLine] === SMALL_lineAndColumnIndices_indexLine) {
-    //        INTS[fEDI_cursor_indexColumn] -= count;
-    //    }
-    //}
-
-    // TODO: This at a glance seems to not account for when the cursor is small-position-ended and large-position-anchored...
-    // ...this is moving the cursor actually, maybe it is fine? but maybe it is logic that could've been done during a loop but instead you made a new one to separately do this?
-    // Also, this entire function is terribly written. You seemingly hacked something together; the code doesn't feel self explanatory. Furthermore there are both a lack of comments (given the confusing nature of how this is written), and dead comments.
-    //if (INTS[fEDI_cursor_indexLine] !== SMALL_lineAndColumnIndices_indexLine) {
-    //    let linePos = EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
-    //    let line = linePos;
-    //    let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
-    //    let upperLimitIndexColumn;
-    //    if (lastValidIndexColumn > that_four) {
-    //        upperLimitIndexColumn = that_four;
-    //    }
-    //    else {
-    //        upperLimitIndexColumn = lastValidIndexColumn;
-    //    }
-    //    let seenSpace = false;
-    //    let count = 0;
-    //    outer: for (var i = 0; i < upperLimitIndexColumn; i++) {
-    //        let c = getCharacter(line.start + i);
-    //        switch (c) {
-    //            case ' ':
-    //                seenSpace = true;
-    //                count++;
-    //                break;
-    //            case '\t':
-    //                if (!seenSpace) {
-    //                    count+= 4;
-    //                }
-    //                break outer;
-    //            default:
-    //                break outer;
-    //        }
-    //    }
-    //    //let c = EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
-    //    // TODO: git blame the below todo and remind them to delete the dead code
-    //    // TODO: Delete this dead code / use better formatting
-    //    /*if (SMALL_pos > smallLinePos.start) {
-    //        if (INTS[fEDI_cursor_selectionAnchor] < INTS[fEDI_cursor_selectionEnd]) {
-    //            INTS[fEDI_cursor_selectionAnchor] -= count;
-    //        }
-    //        else {
-    //            INTS[fEDI_cursor_selectionEnd] -= count;
-    //        }
-    //    }*/
-    //    //if (INTS[fEDI_cursor_indexLine] === LARGE_lineAndColumnIndices.indexLine) {
-    //    //    INTS[fEDI_cursor_indexColumn] -= count;
-    //    //}
-    //}
-
-    let trackedSyntaxReposition_i = EDI_trackedSyntaxReposition_find(INTS[fEDI_EDI_indentLess_startingLinePos_end] + 1);
-    if (trackedSyntaxReposition_i === NaN || trackedSyntaxReposition_i === -1) {
-        trackedSyntaxReposition_i = EDI_trackedSyntaxList.count_abstract;
-    }
-    for (var i = trackedSyntaxReposition_i; i < EDI_trackedSyntaxList.count_abstract; i++) {
-        EDI_trackedSyntaxList.setStart(
-            i,
-            EDI_trackedSyntaxList.getStart(i) - ORIGINAL_decrementBy);
-    }
-    trackedSyntaxReposition_i--;
-
-    for (var lineI = startingIndex; lineI >= SMALL_lineAndColumnIndices_indexLine; lineI--) {
-        let innerRemoveCount = 0;
-        EDI_getLineBoundaryPositions_raw(lineI);
-        const line_start = INTS[fEDI_getLineBoundaryPositions_start];
-        let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(lineI);
-        let upperLimitIndexColumn;
-        if (lastValidIndexColumn > maxVirtualColumnIndex) {
-            upperLimitIndexColumn = maxVirtualColumnIndex;
-        }
-        else {
-            upperLimitIndexColumn = lastValidIndexColumn;
-        }
-
-        let seenSpaceCount = 0;
-        let rank = 0;
-        outer: for (var i = 0; i < upperLimitIndexColumn; i++) {
-
-            if (rank >= largestRank) break outer; // "case '\t':" has this as well.
-
-            // if you walked the text without hitting the maximum rank it isn't an issue.
-            // rank is just a means of short circuiting any weird combinations of spaces and tabs.
-            // (TODO: maybe I should believe in tab stops.)
-
-            let c = String.fromCharCode(EDI_textByteList_bytes[line_start + i]);
-            switch (c) {
-                case ' ':
-                    seenSpaceCount++;
-                    innerRemoveCount++;
-                    if (seenSpaceCount % 4 === 0) {
-                        // avoid a number that could approach infinity because I don't understand how machines compute division/modulo
-                        // and I assume that it is easier to keep 'seenSpaceCount' at [0, 4] than compute division/modulo on very large numbers.
-                        seenSpaceCount = 0;
-                        rank++;
-                    }
-                    break;
-                case '\t':
-                    if (seenSpaceCount > 0) {
-                        rank++;
-                        seenSpaceCount = 0;
-                    }
-                    if (rank >= largestRank) break outer;
-                    innerRemoveCount++;
-                    rank++;
-                    break;
-                default:
-                    break outer;
-            }
-        }
-
-        for (; trackedSyntaxReposition_i >= 0; trackedSyntaxReposition_i--) {
-            let start = EDI_trackedSyntaxList.getStart(trackedSyntaxReposition_i);
-            if (line_start <= start) {
-                EDI_trackedSyntaxList.setStart(trackedSyntaxReposition_i, start - decrementBy);
-            }
-            else {
-                break;
-            }
-        }
-        EDI_trackedSyntaxList.getElementAt(trackedSyntaxReposition_i);
-        if (line_start > INTS[fEDI_pooledTrackedSyntax_start] && line_start < INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length]) {
-            EDI_trackedSyntaxList.setLength(trackedSyntaxReposition_i, INTS[fEDI_pooledTrackedSyntax_length] - innerRemoveCount);
-        }
-
-        EDI_textByteList_removeAt(line_start, innerRemoveCount);
-	    EDI_lineEndPositionList_data[lineI] -= decrementBy;
-
-        decrementBy -= innerRemoveCount;
-    }
-
-    for (var lineI = startingIndex + 1; lineI < EDI_lineEndPositionList_count; lineI++) {
-        EDI_lineEndPositionList_data[lineI] -= ORIGINAL_decrementBy;
-    }
-
-    EDI_finalizeEdit_ClearEditState();
-
-    return indexLine_editOccurredOn;
-}
-
-function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
-    EDI_trackedSyntaxList_inefficientUpdateStartAndLength(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength]);
-    
-    let content = EDI_cursor_EDI_paste_clipboardContent;
-    EDI_cursor_EDI_paste_clipboardContent = null;
-
-    let linesInsertedCount = 0;
-    let insertionLength = 0;
-
-    for (var sourceI = 0; sourceI < content.length; sourceI++) {
-        const code = content.charCodeAt(sourceI);
-        switch (code) {
-            case CONST_EDI_ASCII_TAB:
-                EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition] + insertionLength, EDI_tab_tabsbytes, /*offset*/ 0, /*length*/ 4);
-                insertionLength += 4;
-                break;
-            case CONST_EDI_ASCII_LINE_FEED:
-                EDI_textByteList_insert(INTS[fEDI_cursor_editPosition] + insertionLength, CONST_EDI_ASCII_LINE_FEED);
-                EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine] + linesInsertedCount, INTS[fEDI_cursor_editPosition] + insertionLength);
-                insertionLength++;
-                linesInsertedCount++;
-                break;
-            case 13 /* carriage return '\r' */:
-                if (sourceI < content.length - 1 && content.charCodeAt(sourceI + 1) === CONST_EDI_ASCII_LINE_FEED) {
-                    sourceI++;
-                }
-                EDI_textByteList_insert(INTS[fEDI_cursor_editPosition] + insertionLength, CONST_EDI_ASCII_LINE_FEED);
-                EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine] + linesInsertedCount, INTS[fEDI_cursor_editPosition] + insertionLength);
-                insertionLength++;
-                linesInsertedCount++;
-                break;
-            default:
-                EDI_textByteList_insert(INTS[fEDI_cursor_editPosition] + insertionLength, code);
-                insertionLength++;
-                break;
-        }
-    }
-
-    for (var i = INTS[fEDI_cursor_editIndexLine] + linesInsertedCount; i < EDI_lineEndPositionList_count; i++) {
-        EDI_lineEndPositionList_data[i] += insertionLength;
-    }
-
-    EDI_finalizeEdit_ClearEditState();
-
-    return indexLine_editOccurredOn;
-}
-
-function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
-    EDI_trackedSyntaxList_inefficientUpdateStartAndLength(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength]);
-
-    let small = INTS[fEDI_cursor_EDI_duplicate_small];
-    let length = INTS[fEDI_cursor_EDI_duplicate_length];
-
-    INTS[fEDI_cursor_EDI_duplicate_small] = 0;
-    INTS[fEDI_cursor_EDI_duplicate_length] = 0;
-
-    let linesInsertedCount = 0;
-    let insertionLength = 0;
-
-    EDI_textByteList_duplicateWithin(small, INTS[fEDI_cursor_editPosition], length);
-
-    // TODO: You should be able to do this much faster than looping over the selected bytes since you know the line end positions that exist and would know whether the selection will insert line endings.
-
-    for (let offset = 0; offset < length; offset++) {
-        switch (EDI_textByteList_bytes[small + offset]) {
-            case CONST_EDI_ASCII_TAB:
-                insertionLength += 4;
-                break;
-            case CONST_EDI_ASCII_LINE_FEED:
-                EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine] + linesInsertedCount, INTS[fEDI_cursor_editPosition] + insertionLength);
-                insertionLength++;
-                linesInsertedCount++;
-                break;
-            default:
-                insertionLength++;
-                break;
-        }
-    }
-
-    for (var i = INTS[fEDI_cursor_editIndexLine] + linesInsertedCount; i < EDI_lineEndPositionList_count; i++) {
-        EDI_lineEndPositionList_data[i] += insertionLength;
-    }
-
-    EDI_finalizeEdit_ClearEditState();
-
-    return indexLine_editOccurredOn;
-}
-
-function EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_editOccurredOn) {
-    // TODO: surely u'd get this before doing the edit?
-    let startLineAndColumnIndices_indexLine;
-    let startLineAndColumnIndices_indexColumn;
-    if (INTS[fEDI_cursor_editKind] === EditKind_RemoveTextNoBatching) {
-        startLineAndColumnIndices_indexLine = INTS[fEDI_cursor_editIndexLine];
-        startLineAndColumnIndices_indexColumn = INTS[fEDI_cursor_editIndexColumn];
-    }
-    else {
-        EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
-        startLineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
-        startLineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
-    }
-    let endLineAndColumnIndices_indexLine;
-    let endLineAndColumnIndices_indexColumn;
-    if (INTS[fEDI_cursor_editKind] === EditKind_RemoveTextNoBatching) {
-        endLineAndColumnIndices_indexLine = INTS[fEDI_cursor_END_editIndexLine];
-        endLineAndColumnIndices_indexColumn = INTS[fEDI_cursor_END_editIndexColumn];
-    }
-    else {
-        EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition] + INTS[fEDI_cursor_editLength]);
-        endLineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
-        endLineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
-    }
-
-    if (INTS[fEDI_cursor_editLineFeedCount] > 0) {
-        let count = 0;
-        let lastMatchedIndexLine = 0;
-        for (let i = EDI_lineEndPositionList_PENDING.count - 1; i >= 0; i--) {
-            let lineEndPos = EDI_lineEndPositionList_PENDING.data[i];
-            if (INTS[fEDI_cursor_editPosition] <= lineEndPos && INTS[fEDI_cursor_editPosition] + INTS[fEDI_cursor_editLength] > lineEndPos) {
-                EDI_getLineAndColumnIndices_raw(lineEndPos);
-                lastMatchedIndexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
-                count++;
-                EDI_lineEndPositionList_PENDING.removeAt(i, 1);
-            }
-            else if (INTS[fEDI_cursor_editPosition] > lineEndPos) {
-                break;
-            }
-        }
-        if (count > 0) {
-            EDI_lineEndPositionList_removeAt(lastMatchedIndexLine, count);
-        }
-    }
-    for (let i = EDI_lineEndPositionList_count - 1; i >= 0; i--) {
-        if (INTS[fEDI_cursor_editPosition] < EDI_lineEndPositionList_data[i]) {
-            EDI_lineEndPositionList_data[i] -= INTS[fEDI_cursor_editLength];
-        }
-        else {
-            if (i === EDI_lineEndPositionList_count - 1) {
-                indexLine_editOccurredOn = i;
-            }
-            else {
-                indexLine_editOccurredOn = i + 1;
-            }
-            break;
-        }
-    }
-    for (var i = EDI_trackedSyntaxList.count_abstract - 1; i >= 0; i--) {
-        EDI_trackedSyntaxList.getElementAt(i);
-        if (INTS[fEDI_cursor_editPosition] < INTS[fEDI_pooledTrackedSyntax_start]) {
-            EDI_trackedSyntaxList.setStart(i, INTS[fEDI_pooledTrackedSyntax_start] - INTS[fEDI_cursor_editLength]);
-        }
-        else if (INTS[fEDI_pooledTrackedSyntax_start] >= INTS[fEDI_cursor_editPosition] && INTS[fEDI_pooledTrackedSyntax_start] < INTS[fEDI_cursor_editPosition] + INTS[fEDI_cursor_editLength]) {
-            // TODO: This needs to remove more than 1 at a time
-            EDI_trackedSyntaxList.removeAt(i, 1);
-        }
-        else if (BYTES[byteEDI_pooledTrackedSyntax_trackedSyntaxKind] === TrackedSyntaxKind_Comment &&
-                (INTS[fEDI_pooledTrackedSyntax_start] + 1) >= INTS[fEDI_cursor_editPosition] && (INTS[fEDI_pooledTrackedSyntax_start] + 1) < INTS[fEDI_cursor_editPosition] + INTS[fEDI_cursor_editLength]) {
-            // TODO: You can invalidate a >1 char long by removing beyond just the first unless a character afterwards falls into place that is valid by chance
-            //
-            // only multi-line-comments that span multiple lines are stored in EDI_trackedSyntaxList with the 'TrackedSyntaxKind_Comment'
-            //
-            EDI_trackedSyntaxList.removeAt(i, 1);
-        }
-        else if (INTS[fEDI_cursor_editPosition] > INTS[fEDI_pooledTrackedSyntax_start] && INTS[fEDI_cursor_editPosition] < INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length]) {
-            EDI_trackedSyntaxList.setLength(i, INTS[fEDI_pooledTrackedSyntax_length] - INTS[fEDI_cursor_editLength]);
-        }
-    }
-
-    EDI_textByteList_removeAt(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength]);
-
-    let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
-    let text = '';
-    INTS[F_didChangeTextDocument_version] = INTS[F_didChangeTextDocument_version] + 1;
-    let version = INTS[F_didChangeTextDocument_version];
-
-    // --- CLEAN INTEGRATION ---
-    enqueueLSPNotification({
-        absolutePath: textSourceIdentifier,
-        version: version,
-        startLine: startLineAndColumnIndices_indexLine,
-        startCharacter: startLineAndColumnIndices_indexColumn,
-        endLine: endLineAndColumnIndices_indexLine,
-        endCharacter: endLineAndColumnIndices_indexColumn,
-        text: text
-    });
-    // -------------------------
-
-    if (indexLine_editOccurredOn === INTS[fEDI_longestLine_indexLine]) {
-        INTS[fEDI_longestLine_length] = INTS[fEDI_longestLine_length] - INTS[fEDI_cursor_editLength];
-    }
-
-    EDI_finalizeEdit_ClearEditState();
-
-    return indexLine_editOccurredOn;
-
-    /*
-    - Syntax is fully encompassed by the removed text  => remove
-    - Syntax's open is encompassed by the removed text => invalidate
-
-    invalidate => remove
-
-    Are these the same thing then?
-
-    If the open is removed then yeah
-    strings are possibly more complex than the multi-line-comment because the same open as close
-
-    TODO: If the open is > 1 characters long then an insertions among those characters is a break too.
-    */
-}
-
-function EDI_finalizeEdit_ClearEditState() {
-    INTS[fEDI_cursor_editKind] = EditKind_None;
-    INTS[fEDI_cursor_editLength] = 0;
-    INTS[fEDI_cursor_editPosition] = 0;
-    INTS[fEDI_cursor_editIndexLine] = 0;
-    INTS[fEDI_cursor_editIndexColumn] = 0;
-    INTS[fEDI_cursor_editRenderedDisplacement] = 0;
-    INTS[fEDI_cursor_END_editIndexLine] = 0;
-    INTS[fEDI_cursor_END_editIndexColumn] = 0;
-    INTS[fEDI_cursor_gapBufferCount] = 0;
-    EDI_cursor_gapBufferWriteToSpanElement = null;
-    INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = 0;
-    INTS[fEDI_cursor_editLineFeedCount] = 0;
-    EDI_lineEndPositionList_PENDING.clear();
-}
-// #endregion
-
 //#region cursorDrawing
 function EDI_render_do_cursor(timestamp) {
     INTS[fEDI_EDI_cursorBlinkLastTimestamp] = timestamp;
@@ -2895,440 +2108,6 @@ function EDI_onMouseMoveDetailRankThree(indexLineClicked, indexColumnClicked) {
     }
 }
 //#endregion
-
-/**
- * @param {*} clipboardContent This is a temporary hack to help in transitioning paste to an edit.
- */
-function EDI_editEvent(editKind, event, clipboardContent) {
-    // check for pending => selection
-    // if so then finalize all current pending
-    // ...this actually is checking for selection, then presuming at least 1 cursor has a pending...
-    let shouldFinalizeAllCursors = false;
-    let atLeastOneCursorHasASelection = false;
-    if (EDI_cursor_hasSelection()) {
-        shouldFinalizeAllCursors = true;
-        atLeastOneCursorHasASelection = true;
-    }
-    if (shouldFinalizeAllCursors) {
-
-        shouldFinalizeAllCursors = false;
-        
-        if ((editKind === EditKind_Tab && INTS[fEDI_cursor_editKind] === EditKind_IndentMore) ||
-            (editKind === EditKind_Tab && INTS[fEDI_cursor_editKind] === EditKind_IndentLess && event.shiftKey)) {
-
-                // TODO: IndentLess when no selection however shiftTab then it does indentLess even still but I haven't gone out of the way to handle that hack...
-                // ...maybe it'll be covered maybe it won't.
-
-                // TODO: Rewrite this if statement (it is a hack for the moment while I get indent more of a single cursor to batch)
-        }
-        else {
-            EDI_finalizeEdit();
-        }
-    }
-
-    // If you have delete/backspace you need to ONLY remove the selection if it exists not remove selection then delete/backspace
-    // but insert needs to remove selection AND insert.
-    if (editKind === EditKind_InsertLtr || editKind === EditKind_Enter || editKind === EditKind_Paste) {
-        // check for EditKind_None => selection
-        // if so then attempt to remove selection foreach cursor
-        // then finalize all those newly made selection removal edits
-        if (atLeastOneCursorHasASelection) {
-            shouldFinalizeAllCursors = true;
-            if (EDI_cursor_hasSelection()) {
-                EDI_removeSelection();
-            }
-        }
-        if (shouldFinalizeAllCursors) {
-            shouldFinalizeAllCursors = false;
-            EDI_finalizeEdit();
-        }
-    }
-
-    // check for NOTcanBatch... I don't want the switch in the for loop... if you have a selection then you have a not can batch?
-    switch (editKind) {
-        case EditKind_InsertLtr:
-            shouldFinalizeAllCursors = EDI_editEvent_checkFor_NOTcanBatch_InsertLtr();
-            break;
-        case EditKind_DeleteLtr:
-            shouldFinalizeAllCursors = EDI_editEvent_checkFor_NOTcanBatch_DeleteLtr();
-            break;
-        case EditKind_BackspaceRtl:
-            shouldFinalizeAllCursors = EDI_editEvent_checkFor_NOTcanBatch_BackspaceRtl();
-            break;
-        case EditKind_Tab:
-            shouldFinalizeAllCursors = EDI_editEvent_checkFor_NOTcanBatch_Tab(event);
-            break;
-        case EditKind_IndentMore:
-            shouldFinalizeAllCursors = EDI_editEvent_checkFor_NOTcanBatch_IndentMore();
-            break;
-        case EditKind_IndentLess:
-            shouldFinalizeAllCursors = EDI_editEvent_checkFor_NOTcanBatch_IndentLess();
-            break;
-        case EditKind_Enter:
-            shouldFinalizeAllCursors = EDI_editEvent_checkFor_NOTcanBatch_Enter(event);
-            break;
-        case EditKind_Paste:
-            shouldFinalizeAllCursors = true;
-            break;
-        case EditKind_Duplicate:
-            shouldFinalizeAllCursors = true;
-            break;
-        default:
-            throw new Error(`The EditKind:${editKind} was not recognized.`);
-    }
-    if (shouldFinalizeAllCursors) {
-        shouldFinalizeAllCursors = false;
-        EDI_finalizeEdit();
-    }
-
-    // start/continue edit... I don't want the switch in the for loop
-    switch (editKind) {
-        case EditKind_InsertLtr:
-            EDI_editEvent_theEditIself_InsertLtr(event);
-            break;
-        case EditKind_DeleteLtr:
-            EDI_editEvent_theEditIself_DeleteLtr(event);
-            break;
-        case EditKind_BackspaceRtl:
-            EDI_editEvent_theEditIself_BackspaceRtl(event);
-            break;
-        case EditKind_Tab:
-            EDI_editEvent_theEditIself_Tab(event);
-            break;
-        case EditKind_Enter:
-            EDI_editEvent_theEditIself_Enter(event);
-            break;
-        case EditKind_Paste:
-            EDI_editEvent_theEditIself_Paste(clipboardContent);
-            break;
-        case EditKind_Duplicate:
-            EDI_editEvent_theEditIself_Duplicate();
-            break;
-        default:
-            throw new Error(`The EditKind:${editKind} was not recognized.`);
-    }
-
-    if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
-        EDI_cursorBlink_startChecking();
-    }
-}
-
-function EDI_editEvent_theEditIself_InsertLtr(event) {
-    EDI_movementBasedCacheInvalidation();
-    // You can do this because the function 'EDI_NOTcanBatch_insert' was already checked for all the cursors, if it is possible to batch, the editKind will stay InsertLtr otherwise it is finalized and set to None.
-    // TODO: Use if === EditKind_None for copy and paste safety / it might just even be more readable
-    if (INTS[fEDI_cursor_editKind] !== EditKind_InsertLtr) {
-        EDI_startEdit(EditKind_InsertLtr, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
-    }
-    EDI_insertDo(event.key);
-    INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
-    EDI_render_request(RenderKind_Cursor_n);
-    EDI_render_request(RenderKind_InsertLtr);
-}
-
-function EDI_editEvent_theEditIself_DeleteLtr(event) {
-    EDI_movementBasedCacheInvalidation();
-    if (EDI_cursor_hasSelection()) {
-        EDI_removeSelection();
-    }
-    else {
-        if (INTS[fEDI_cursor_editKind] !== EditKind_DeleteLtr) {
-            EDI_startEdit(EditKind_DeleteLtr, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
-        }
-        EDI_deleteDo(event);
-    }
-    EDI_render_request(RenderKind_Cursor_n);
-}
-
-function EDI_editEvent_theEditIself_BackspaceRtl(event) {
-    EDI_movementBasedCacheInvalidation();
-    if (EDI_cursor_hasSelection()) {
-        EDI_removeSelection();
-    }
-    else {
-        if (INTS[fEDI_cursor_editKind] !== EditKind_BackspaceRtl) {
-            EDI_startEdit(EditKind_BackspaceRtl, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
-        }
-        EDI_backspaceDo(event);
-        INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
-    }
-    EDI_render_request(RenderKind_Cursor_n);
-}
-
-function EDI_editEvent_theEditIself_Tab(event) {
-    EDI_movementBasedCacheInvalidation();
-    if (EDI_cursor_hasSelection()) {
-        if (event.shiftKey) {
-            if (INTS[fEDI_cursor_editKind] !== EditKind_IndentLess) {
-                EDI_startEdit(EditKind_IndentLess, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
-            }
-            EDI_indentLess();
-        }
-        else {
-            if (INTS[fEDI_cursor_editKind] !== EditKind_IndentMore) {
-                EDI_startEdit(EditKind_IndentMore, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
-            }
-            EDI_indentMore();
-        }
-    }
-    else {
-        if (event.shiftKey) {
-            // TODO: This code has a bug and doesn't work with multicursor... EDI_onMouseDownDetailRankThree needs to accept a cursor rather than acting on EDI_primaryCursor...
-            // ...multi-cursor in and of itself is buggy that's why I'm not overly concerned with adding this in a bugged state...
-            // ...everything is buggy and it is very anxiety inducing and for the time being I guess it just has to be that way as I transition
-            // towards a useable editor all the features are coming together but there's this awkward phase of "I can start using it but also not really" or something I just idk.
-            EDI_onMouseDownDetailRankThree(0, false, INTS[fEDI_cursor_indexLine], INTS[fEDI_cursor_indexColumn]);
-            if (INTS[fEDI_cursor_editKind] !== EditKind_IndentLess) {
-                EDI_startEdit(EditKind_IndentLess, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
-            }
-            EDI_indentLess();
-        }
-        else {
-            if (INTS[fEDI_cursor_editKind] !== EditKind_Tab) {
-                EDI_startEdit(EditKind_Tab, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
-            }
-            EDI_tabKey();
-        }
-    }
-    EDI_render_request(RenderKind_Cursor_n);
-}
-
-function EDI_editEvent_theEditIself_Enter(event) {
-    if (INTS[fEDI_cursor_editKind] !== EditKind_Enter) {
-        EDI_startEdit(EditKind_Enter, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
-    }
-    EDI_EnterKey(event.ctrlKey, event.shiftKey);
-    INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
-    EDI_render_request(RenderKind_Cursor_n);
-}
-
-function EDI_editEvent_theEditIself_Paste(clipboardContent) {
-    if (INTS[fEDI_cursor_editKind] !== EditKind_Enter) {
-        EDI_startEdit(EditKind_Paste, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
-    }
-    EDI_paste(clipboardContent);
-    INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
-    EDI_render_request(RenderKind_Cursor_n);
-}
-
-function EDI_editEvent_theEditIself_Duplicate() {
-    if (INTS[fEDI_cursor_editKind] !== EditKind_Duplicate) {
-        EDI_startEdit(EditKind_Duplicate, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
-    }
-    EDI_duplicateSelection();
-    INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
-    EDI_render_request(RenderKind_Cursor_n);
-}
-
-/**
- * @returns 
- */
-function EDI_NOTcanBatch_insert() {
-    return INTS[fEDI_cursor_editKind] != EditKind_InsertLtr ||
-           INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_editIndexLine] ||
-           INTS[fEDI_cursor_indexColumn] !== INTS[fEDI_cursor_editIndexColumn] + INTS[fEDI_cursor_editLength] ||
-           INTS[fEDI_cursor_editLength] >= CONST_EDI_cursor_GAP_BUFFER_CAPACITY ||
-           EDI_cursor_hasSelection();
-}
-
-/**
- * @returns 
- */
-function EDI_NOTcanBatch_enter() {
-    return true || // turn off batching until it works. The initial enter event is what matters everything else can be recreated based on the amount of lineFeeds that were inserted.
-           INTS[fEDI_cursor_editKind] != EditKind_Enter ||
-           INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_END_editIndexLine] ||
-           INTS[fEDI_cursor_indexColumn] !== INTS[fEDI_cursor_END_editIndexColumn] ||
-           INTS[fEDI_cursor_editLength] >= CONST_EDI_cursor_GAP_BUFFER_CAPACITY ||
-           !EDI_cursor_enterKey_newLinePlusIndentation_byteList ||
-           EDI_cursor_hasSelection();
-}
-
-/**
- * @returns 
- */
-function EDI_NOTcanBatch_backspace() {
-    return INTS[fEDI_cursor_editKind] != EditKind_BackspaceRtl ||
-           INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_editIndexLine] ||
-           INTS[fEDI_cursor_indexColumn] !== INTS[fEDI_cursor_editIndexColumn] ||
-           EDI_cursor_hasSelection();
-}
-
-/**
- * @returns 
- */
-function EDI_NOTcanBatch_delete() {
-    return INTS[fEDI_cursor_editKind] != EditKind_DeleteLtr ||
-           INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_editIndexLine] ||
-           INTS[fEDI_cursor_indexColumn] !== INTS[fEDI_cursor_editIndexColumn] ||
-           EDI_cursor_hasSelection();
-}
-
-/** @returns {boolean} 'shouldFinalizeAllCursors' */
-function EDI_editEvent_checkFor_NOTcanBatch_InsertLtr() {
-    if (EDI_NOTcanBatch_insert()) {
-        return true;
-    }
-    return false;
-}
-
-/** @returns {boolean} 'shouldFinalizeAllCursors' */
-function EDI_editEvent_checkFor_NOTcanBatch_DeleteLtr() {
-    if (EDI_NOTcanBatch_delete()) {
-        return true;
-    }
-    return false;
-}
-
-/** @returns {boolean} 'shouldFinalizeAllCursors' */
-function EDI_editEvent_checkFor_NOTcanBatch_BackspaceRtl() {
-    if (EDI_NOTcanBatch_backspace()) {
-        return true;
-    }
-    return false;
-}
-
-/** @returns {boolean} 'shouldFinalizeAllCursors' */
-function EDI_editEvent_checkFor_NOTcanBatch_Tab(event) {
-    if (EDI_cursor_hasSelection() && !event.shiftKey) {
-        return EDI_editEvent_checkFor_NOTcanBatch_IndentMore();
-    }
-    else if (EDI_cursor_hasSelection() && event.shiftKey) {
-        // TODO: write 'if (EDI_cursor_hasSelection())' then nest these in the same wrapping if statement.
-        return EDI_editEvent_checkFor_NOTcanBatch_IndentLess();
-    }
-    else if (!EDI_cursor_hasSelection()) {
-        if (event.shiftKey) {
-            return EDI_editEvent_checkFor_NOTcanBatch_IndentLess();
-        }
-        else {
-            if (INTS[fEDI_cursor_editIndexLine] === INTS[fEDI_cursor_indexLine] &&
-                INTS[fEDI_cursor_editIndexColumn] + (EDI_on_tab_bytes.length * INTS[fEDI_cursor_editLength]) === INTS[fEDI_cursor_indexColumn]) {
-                    return false;
-            }
-        }
-    }
-
-    return true;
-}
-
-/**
- * @returns {boolean} 'shouldFinalizeAllCursors'
- * 
- * TODO: This function never is "naturally" invoked because all tab keypresses start with a 'Tab' edit event and only convert to indentMore downstream
- * 
- */
-function EDI_editEvent_checkFor_NOTcanBatch_IndentMore() {
-    // TODO: Should this be: 'INTS[fEDI_cursor_editKind] !== EditKind_IndentMore'?
-    if (INTS[fEDI_cursor_editKind] === EditKind_IndentLess) {
-        return true;
-    }
-    
-    let SMALL_pos;
-    let LARGE_pos;
-    if (INTS[fEDI_cursor_selectionAnchor] < INTS[fEDI_cursor_selectionEnd]) {
-        SMALL_pos = INTS[fEDI_cursor_selectionAnchor];
-        LARGE_pos = INTS[fEDI_cursor_selectionEnd];
-    }
-    else {
-        SMALL_pos = INTS[fEDI_cursor_selectionEnd];
-        LARGE_pos = INTS[fEDI_cursor_selectionAnchor];
-    }
-
-    EDI_getLineAndColumnIndices_raw(SMALL_pos);
-    let SMALL_lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
-
-    EDI_getLineAndColumnIndices_raw(LARGE_pos);
-    let LARGE_lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
-
-    // start at the LARGE position
-    let startingIndex = LARGE_lineAndColumnIndices_indexLine;
-    EDI_getLineBoundaryPositions_raw(startingIndex);
-    let startingLinePos_start = INTS[fEDI_getLineBoundaryPositions_start];
-    if (startingLinePos_start === LARGE_pos) {
-        startingIndex -= 1;
-        if (startingIndex >= 0) { // TODO: This if statement is NOT used in this specific case. It was copy and pasted from somewhere that it IS used, i.e.: TODO: remove it from this function?
-            EDI_getLineBoundaryPositions_raw(startingIndex);
-            startingLinePos_start = INTS[fEDI_getLineBoundaryPositions_start]
-        }
-    }
-    if (startingIndex < SMALL_lineAndColumnIndices_indexLine) {
-        return true;
-    }
-
-    if (INTS[fEDI_indent_SMALL_lineAndColumnIndices_indexLine] === SMALL_lineAndColumnIndices_indexLine &&
-        INTS[fEDI_indent_startingIndex] === startingIndex) {
-            return false;
-    }
-
-    return true;
-}
-
-/**
- * @returns {boolean} 'shouldFinalizeAllCursors'
- * 
- * TODO: This function never is "naturally" invoked because all tab keypresses start with a 'Tab' edit event and only convert to indentLess downstream
- * 
- */
-function EDI_editEvent_checkFor_NOTcanBatch_IndentLess() {
-    // TODO: Should this be: 'INTS[fEDI_cursor_editKind] !== EditKind_IndentLess'?
-    if (INTS[fEDI_cursor_editKind] === EditKind_IndentMore) {
-        return true;
-    }
-    
-    let SMALL_pos;
-    let LARGE_pos;
-    if (INTS[fEDI_cursor_selectionAnchor] < INTS[fEDI_cursor_selectionEnd]) {
-        SMALL_pos = INTS[fEDI_cursor_selectionAnchor];
-        LARGE_pos = INTS[fEDI_cursor_selectionEnd];
-    }
-    else {
-        SMALL_pos = INTS[fEDI_cursor_selectionEnd];
-        LARGE_pos = INTS[fEDI_cursor_selectionAnchor];
-    }
-
-    EDI_getLineAndColumnIndices_raw(SMALL_pos);
-    let SMALL_lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
-
-    EDI_getLineAndColumnIndices_raw(LARGE_pos);
-    let LARGE_lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
-
-    // start at the LARGE position
-    let startingIndex = LARGE_lineAndColumnIndices_indexLine;
-    EDI_getLineBoundaryPositions_raw(startingIndex);
-    let startingLinePos_start = INTS[fEDI_getLineBoundaryPositions_start];
-    if (startingLinePos_start === LARGE_pos) {
-        startingIndex -= 1;
-        if (startingIndex >= 0) { // TODO: This if statement is NOT used in this specific case. It was copy and pasted from somewhere that it IS used, i.e.: TODO: remove it from this function?
-            EDI_getLineBoundaryPositions_raw(startingIndex);
-            startingLinePos_start = INTS[fEDI_getLineBoundaryPositions_start];
-        }
-    }
-    if (startingIndex < SMALL_lineAndColumnIndices_indexLine) {
-        return;
-    }
-
-    if (INTS[fEDI_indent_SMALL_lineAndColumnIndices_indexLine] === SMALL_lineAndColumnIndices_indexLine &&
-        INTS[fEDI_indent_startingIndex] === startingIndex) {
-            return false;
-    }
-
-    return true;
-}
-
-/** @returns {boolean} 'shouldFinalizeAllCursors' */
-function EDI_editEvent_checkFor_NOTcanBatch_Enter(event) {
-    if (event.shiftKey || event.ctrlKey) {
-        return true;
-    }
-    else {
-        // Enter key doesn't batch with itself?
-        if (EDI_NOTcanBatch_enter()) {
-            return true;
-        }
-    }
-    return false;
-}
 
 //#region keydown
 /**
@@ -6263,7 +5042,6 @@ function EDI_render_do_RedrawSelection() {
     EDI_createStyleForSelection();
 }
 
-
 /**
  * Returns the underlying uint8array that contains the encoded characters for the text.
  * The uint8array's capacity (i.e.: length) is not what should be saved out.
@@ -6468,6 +5246,1229 @@ function EDI_drawLine(indexLine, gutterLineElement, textLineElement) {
     EDI_getLineBoundaryPositions_raw(indexLine);
     EDI_createSpansForLineOfText(textLineElement, INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end], trackedSyntax_StartingIndex);
 }
+
+//#region editEvent
+/**
+ * @param {*} clipboardContent This is a temporary hack to help in transitioning paste to an edit.
+ */
+function EDI_editEvent(editKind, event, clipboardContent) {
+    // check for pending => selection
+    // if so then finalize all current pending
+    // ...this actually is checking for selection, then presuming at least 1 cursor has a pending...
+    let shouldFinalizeAllCursors = false;
+    let atLeastOneCursorHasASelection = false;
+    if (EDI_cursor_hasSelection()) {
+        shouldFinalizeAllCursors = true;
+        atLeastOneCursorHasASelection = true;
+    }
+    if (shouldFinalizeAllCursors) {
+
+        shouldFinalizeAllCursors = false;
+        
+        if ((editKind === EditKind_Tab && INTS[fEDI_cursor_editKind] === EditKind_IndentMore) ||
+            (editKind === EditKind_Tab && INTS[fEDI_cursor_editKind] === EditKind_IndentLess && event.shiftKey)) {
+
+                // TODO: IndentLess when no selection however shiftTab then it does indentLess even still but I haven't gone out of the way to handle that hack...
+                // ...maybe it'll be covered maybe it won't.
+
+                // TODO: Rewrite this if statement (it is a hack for the moment while I get indent more of a single cursor to batch)
+        }
+        else {
+            EDI_finalizeEdit();
+        }
+    }
+
+    // If you have delete/backspace you need to ONLY remove the selection if it exists not remove selection then delete/backspace
+    // but insert needs to remove selection AND insert.
+    if (editKind === EditKind_InsertLtr || editKind === EditKind_Enter || editKind === EditKind_Paste) {
+        // check for EditKind_None => selection
+        // if so then attempt to remove selection foreach cursor
+        // then finalize all those newly made selection removal edits
+        if (atLeastOneCursorHasASelection) {
+            shouldFinalizeAllCursors = true;
+            if (EDI_cursor_hasSelection()) {
+                EDI_removeSelection();
+            }
+        }
+        if (shouldFinalizeAllCursors) {
+            shouldFinalizeAllCursors = false;
+            EDI_finalizeEdit();
+        }
+    }
+
+    // check for NOTcanBatch... I don't want the switch in the for loop... if you have a selection then you have a not can batch?
+    switch (editKind) {
+        case EditKind_InsertLtr:
+            shouldFinalizeAllCursors = EDI_editEvent_checkFor_NOTcanBatch_InsertLtr();
+            break;
+        case EditKind_DeleteLtr:
+            shouldFinalizeAllCursors = EDI_editEvent_checkFor_NOTcanBatch_DeleteLtr();
+            break;
+        case EditKind_BackspaceRtl:
+            shouldFinalizeAllCursors = EDI_editEvent_checkFor_NOTcanBatch_BackspaceRtl();
+            break;
+        case EditKind_Tab:
+            shouldFinalizeAllCursors = EDI_editEvent_checkFor_NOTcanBatch_Tab(event);
+            break;
+        case EditKind_IndentMore:
+            shouldFinalizeAllCursors = EDI_editEvent_checkFor_NOTcanBatch_IndentMore();
+            break;
+        case EditKind_IndentLess:
+            shouldFinalizeAllCursors = EDI_editEvent_checkFor_NOTcanBatch_IndentLess();
+            break;
+        case EditKind_Enter:
+            shouldFinalizeAllCursors = EDI_editEvent_checkFor_NOTcanBatch_Enter(event);
+            break;
+        case EditKind_Paste:
+            shouldFinalizeAllCursors = true;
+            break;
+        case EditKind_Duplicate:
+            shouldFinalizeAllCursors = true;
+            break;
+        default:
+            throw new Error(`The EditKind:${editKind} was not recognized.`);
+    }
+    if (shouldFinalizeAllCursors) {
+        shouldFinalizeAllCursors = false;
+        EDI_finalizeEdit();
+    }
+
+    // start/continue edit... I don't want the switch in the for loop
+    switch (editKind) {
+        case EditKind_InsertLtr:
+            EDI_editEvent_theEditIself_InsertLtr(event);
+            break;
+        case EditKind_DeleteLtr:
+            EDI_editEvent_theEditIself_DeleteLtr(event);
+            break;
+        case EditKind_BackspaceRtl:
+            EDI_editEvent_theEditIself_BackspaceRtl(event);
+            break;
+        case EditKind_Tab:
+            EDI_editEvent_theEditIself_Tab(event);
+            break;
+        case EditKind_Enter:
+            EDI_editEvent_theEditIself_Enter(event);
+            break;
+        case EditKind_Paste:
+            EDI_editEvent_theEditIself_Paste(clipboardContent);
+            break;
+        case EditKind_Duplicate:
+            EDI_editEvent_theEditIself_Duplicate();
+            break;
+        default:
+            throw new Error(`The EditKind:${editKind} was not recognized.`);
+    }
+
+    if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
+        EDI_cursorBlink_startChecking();
+    }
+}
+
+function EDI_editEvent_theEditIself_InsertLtr(event) {
+    EDI_movementBasedCacheInvalidation();
+    // You can do this because the function 'EDI_NOTcanBatch_insert' was already checked for all the cursors, if it is possible to batch, the editKind will stay InsertLtr otherwise it is finalized and set to None.
+    // TODO: Use if === EditKind_None for copy and paste safety / it might just even be more readable
+    if (INTS[fEDI_cursor_editKind] !== EditKind_InsertLtr) {
+        EDI_startEdit(EditKind_InsertLtr, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
+    }
+    EDI_insertDo(event.key);
+    INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
+    EDI_render_request(RenderKind_Cursor_n);
+    EDI_render_request(RenderKind_InsertLtr);
+}
+
+function EDI_editEvent_theEditIself_DeleteLtr(event) {
+    EDI_movementBasedCacheInvalidation();
+    if (EDI_cursor_hasSelection()) {
+        EDI_removeSelection();
+    }
+    else {
+        if (INTS[fEDI_cursor_editKind] !== EditKind_DeleteLtr) {
+            EDI_startEdit(EditKind_DeleteLtr, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
+        }
+        EDI_deleteDo(event);
+    }
+    EDI_render_request(RenderKind_Cursor_n);
+}
+
+function EDI_editEvent_theEditIself_BackspaceRtl(event) {
+    EDI_movementBasedCacheInvalidation();
+    if (EDI_cursor_hasSelection()) {
+        EDI_removeSelection();
+    }
+    else {
+        if (INTS[fEDI_cursor_editKind] !== EditKind_BackspaceRtl) {
+            EDI_startEdit(EditKind_BackspaceRtl, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
+        }
+        EDI_backspaceDo(event);
+        INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
+    }
+    EDI_render_request(RenderKind_Cursor_n);
+}
+
+function EDI_editEvent_theEditIself_Tab(event) {
+    EDI_movementBasedCacheInvalidation();
+    if (EDI_cursor_hasSelection()) {
+        if (event.shiftKey) {
+            if (INTS[fEDI_cursor_editKind] !== EditKind_IndentLess) {
+                EDI_startEdit(EditKind_IndentLess, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
+            }
+            EDI_indentLess();
+        }
+        else {
+            if (INTS[fEDI_cursor_editKind] !== EditKind_IndentMore) {
+                EDI_startEdit(EditKind_IndentMore, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
+            }
+            EDI_indentMore();
+        }
+    }
+    else {
+        if (event.shiftKey) {
+            // TODO: This code has a bug and doesn't work with multicursor... EDI_onMouseDownDetailRankThree needs to accept a cursor rather than acting on EDI_primaryCursor...
+            // ...multi-cursor in and of itself is buggy that's why I'm not overly concerned with adding this in a bugged state...
+            // ...everything is buggy and it is very anxiety inducing and for the time being I guess it just has to be that way as I transition
+            // towards a useable editor all the features are coming together but there's this awkward phase of "I can start using it but also not really" or something I just idk.
+            EDI_onMouseDownDetailRankThree(0, false, INTS[fEDI_cursor_indexLine], INTS[fEDI_cursor_indexColumn]);
+            if (INTS[fEDI_cursor_editKind] !== EditKind_IndentLess) {
+                EDI_startEdit(EditKind_IndentLess, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
+            }
+            EDI_indentLess();
+        }
+        else {
+            if (INTS[fEDI_cursor_editKind] !== EditKind_Tab) {
+                EDI_startEdit(EditKind_Tab, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
+            }
+            EDI_tabKey();
+        }
+    }
+    EDI_render_request(RenderKind_Cursor_n);
+}
+
+function EDI_editEvent_theEditIself_Enter(event) {
+    if (INTS[fEDI_cursor_editKind] !== EditKind_Enter) {
+        EDI_startEdit(EditKind_Enter, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
+    }
+    EDI_EnterKey(event.ctrlKey, event.shiftKey);
+    INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
+    EDI_render_request(RenderKind_Cursor_n);
+}
+
+function EDI_editEvent_theEditIself_Paste(clipboardContent) {
+    if (INTS[fEDI_cursor_editKind] !== EditKind_Enter) {
+        EDI_startEdit(EditKind_Paste, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
+    }
+    EDI_paste(clipboardContent);
+    INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
+    EDI_render_request(RenderKind_Cursor_n);
+}
+
+function EDI_editEvent_theEditIself_Duplicate() {
+    if (INTS[fEDI_cursor_editKind] !== EditKind_Duplicate) {
+        EDI_startEdit(EditKind_Duplicate, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
+    }
+    EDI_duplicateSelection();
+    INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
+    EDI_render_request(RenderKind_Cursor_n);
+}
+
+/**
+ * @returns 
+ */
+function EDI_NOTcanBatch_insert() {
+    return INTS[fEDI_cursor_editKind] != EditKind_InsertLtr ||
+           INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_editIndexLine] ||
+           INTS[fEDI_cursor_indexColumn] !== INTS[fEDI_cursor_editIndexColumn] + INTS[fEDI_cursor_editLength] ||
+           INTS[fEDI_cursor_editLength] >= CONST_EDI_cursor_GAP_BUFFER_CAPACITY ||
+           EDI_cursor_hasSelection();
+}
+
+/**
+ * @returns 
+ */
+function EDI_NOTcanBatch_enter() {
+    return true || // turn off batching until it works. The initial enter event is what matters everything else can be recreated based on the amount of lineFeeds that were inserted.
+           INTS[fEDI_cursor_editKind] != EditKind_Enter ||
+           INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_END_editIndexLine] ||
+           INTS[fEDI_cursor_indexColumn] !== INTS[fEDI_cursor_END_editIndexColumn] ||
+           INTS[fEDI_cursor_editLength] >= CONST_EDI_cursor_GAP_BUFFER_CAPACITY ||
+           !EDI_cursor_enterKey_newLinePlusIndentation_byteList ||
+           EDI_cursor_hasSelection();
+}
+
+/**
+ * @returns 
+ */
+function EDI_NOTcanBatch_backspace() {
+    return INTS[fEDI_cursor_editKind] != EditKind_BackspaceRtl ||
+           INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_editIndexLine] ||
+           INTS[fEDI_cursor_indexColumn] !== INTS[fEDI_cursor_editIndexColumn] ||
+           EDI_cursor_hasSelection();
+}
+
+/**
+ * @returns 
+ */
+function EDI_NOTcanBatch_delete() {
+    return INTS[fEDI_cursor_editKind] != EditKind_DeleteLtr ||
+           INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_editIndexLine] ||
+           INTS[fEDI_cursor_indexColumn] !== INTS[fEDI_cursor_editIndexColumn] ||
+           EDI_cursor_hasSelection();
+}
+
+/** @returns {boolean} 'shouldFinalizeAllCursors' */
+function EDI_editEvent_checkFor_NOTcanBatch_InsertLtr() {
+    if (EDI_NOTcanBatch_insert()) {
+        return true;
+    }
+    return false;
+}
+
+/** @returns {boolean} 'shouldFinalizeAllCursors' */
+function EDI_editEvent_checkFor_NOTcanBatch_DeleteLtr() {
+    if (EDI_NOTcanBatch_delete()) {
+        return true;
+    }
+    return false;
+}
+
+/** @returns {boolean} 'shouldFinalizeAllCursors' */
+function EDI_editEvent_checkFor_NOTcanBatch_BackspaceRtl() {
+    if (EDI_NOTcanBatch_backspace()) {
+        return true;
+    }
+    return false;
+}
+
+/** @returns {boolean} 'shouldFinalizeAllCursors' */
+function EDI_editEvent_checkFor_NOTcanBatch_Tab(event) {
+    if (EDI_cursor_hasSelection() && !event.shiftKey) {
+        return EDI_editEvent_checkFor_NOTcanBatch_IndentMore();
+    }
+    else if (EDI_cursor_hasSelection() && event.shiftKey) {
+        // TODO: write 'if (EDI_cursor_hasSelection())' then nest these in the same wrapping if statement.
+        return EDI_editEvent_checkFor_NOTcanBatch_IndentLess();
+    }
+    else if (!EDI_cursor_hasSelection()) {
+        if (event.shiftKey) {
+            return EDI_editEvent_checkFor_NOTcanBatch_IndentLess();
+        }
+        else {
+            if (INTS[fEDI_cursor_editIndexLine] === INTS[fEDI_cursor_indexLine] &&
+                INTS[fEDI_cursor_editIndexColumn] + (EDI_on_tab_bytes.length * INTS[fEDI_cursor_editLength]) === INTS[fEDI_cursor_indexColumn]) {
+                    return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+/**
+ * @returns {boolean} 'shouldFinalizeAllCursors'
+ * 
+ * TODO: This function never is "naturally" invoked because all tab keypresses start with a 'Tab' edit event and only convert to indentMore downstream
+ * 
+ */
+function EDI_editEvent_checkFor_NOTcanBatch_IndentMore() {
+    // TODO: Should this be: 'INTS[fEDI_cursor_editKind] !== EditKind_IndentMore'?
+    if (INTS[fEDI_cursor_editKind] === EditKind_IndentLess) {
+        return true;
+    }
+    
+    let SMALL_pos;
+    let LARGE_pos;
+    if (INTS[fEDI_cursor_selectionAnchor] < INTS[fEDI_cursor_selectionEnd]) {
+        SMALL_pos = INTS[fEDI_cursor_selectionAnchor];
+        LARGE_pos = INTS[fEDI_cursor_selectionEnd];
+    }
+    else {
+        SMALL_pos = INTS[fEDI_cursor_selectionEnd];
+        LARGE_pos = INTS[fEDI_cursor_selectionAnchor];
+    }
+
+    EDI_getLineAndColumnIndices_raw(SMALL_pos);
+    let SMALL_lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
+
+    EDI_getLineAndColumnIndices_raw(LARGE_pos);
+    let LARGE_lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
+
+    // start at the LARGE position
+    let startingIndex = LARGE_lineAndColumnIndices_indexLine;
+    EDI_getLineBoundaryPositions_raw(startingIndex);
+    let startingLinePos_start = INTS[fEDI_getLineBoundaryPositions_start];
+    if (startingLinePos_start === LARGE_pos) {
+        startingIndex -= 1;
+        if (startingIndex >= 0) { // TODO: This if statement is NOT used in this specific case. It was copy and pasted from somewhere that it IS used, i.e.: TODO: remove it from this function?
+            EDI_getLineBoundaryPositions_raw(startingIndex);
+            startingLinePos_start = INTS[fEDI_getLineBoundaryPositions_start]
+        }
+    }
+    if (startingIndex < SMALL_lineAndColumnIndices_indexLine) {
+        return true;
+    }
+
+    if (INTS[fEDI_indent_SMALL_lineAndColumnIndices_indexLine] === SMALL_lineAndColumnIndices_indexLine &&
+        INTS[fEDI_indent_startingIndex] === startingIndex) {
+            return false;
+    }
+
+    return true;
+}
+
+/**
+ * @returns {boolean} 'shouldFinalizeAllCursors'
+ * 
+ * TODO: This function never is "naturally" invoked because all tab keypresses start with a 'Tab' edit event and only convert to indentLess downstream
+ * 
+ */
+function EDI_editEvent_checkFor_NOTcanBatch_IndentLess() {
+    // TODO: Should this be: 'INTS[fEDI_cursor_editKind] !== EditKind_IndentLess'?
+    if (INTS[fEDI_cursor_editKind] === EditKind_IndentMore) {
+        return true;
+    }
+    
+    let SMALL_pos;
+    let LARGE_pos;
+    if (INTS[fEDI_cursor_selectionAnchor] < INTS[fEDI_cursor_selectionEnd]) {
+        SMALL_pos = INTS[fEDI_cursor_selectionAnchor];
+        LARGE_pos = INTS[fEDI_cursor_selectionEnd];
+    }
+    else {
+        SMALL_pos = INTS[fEDI_cursor_selectionEnd];
+        LARGE_pos = INTS[fEDI_cursor_selectionAnchor];
+    }
+
+    EDI_getLineAndColumnIndices_raw(SMALL_pos);
+    let SMALL_lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
+
+    EDI_getLineAndColumnIndices_raw(LARGE_pos);
+    let LARGE_lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
+
+    // start at the LARGE position
+    let startingIndex = LARGE_lineAndColumnIndices_indexLine;
+    EDI_getLineBoundaryPositions_raw(startingIndex);
+    let startingLinePos_start = INTS[fEDI_getLineBoundaryPositions_start];
+    if (startingLinePos_start === LARGE_pos) {
+        startingIndex -= 1;
+        if (startingIndex >= 0) { // TODO: This if statement is NOT used in this specific case. It was copy and pasted from somewhere that it IS used, i.e.: TODO: remove it from this function?
+            EDI_getLineBoundaryPositions_raw(startingIndex);
+            startingLinePos_start = INTS[fEDI_getLineBoundaryPositions_start];
+        }
+    }
+    if (startingIndex < SMALL_lineAndColumnIndices_indexLine) {
+        return;
+    }
+
+    if (INTS[fEDI_indent_SMALL_lineAndColumnIndices_indexLine] === SMALL_lineAndColumnIndices_indexLine &&
+        INTS[fEDI_indent_startingIndex] === startingIndex) {
+            return false;
+    }
+
+    return true;
+}
+
+/** @returns {boolean} 'shouldFinalizeAllCursors' */
+function EDI_editEvent_checkFor_NOTcanBatch_Enter(event) {
+    if (event.shiftKey || event.ctrlKey) {
+        return true;
+    }
+    else {
+        // Enter key doesn't batch with itself?
+        if (EDI_NOTcanBatch_enter()) {
+            return true;
+        }
+    }
+    return false;
+}
+//#endregion
+
+// #region finalize
+/**
+ * TODO: Exception during finalize softlocks the editor because you can't even clear to reset the state: 'Uncaught (in promise) Error: removeAt(...): index > this.count'
+ * 
+ * Retrospectively I'd say... I imagine there'd be more than one scenario of this I have a lot of 'critical booleans'.
+ * i.e.: if you enter the 'critical boolean guarded code path' then throw an exception in the middle of that code path with bad state for the 'critical boolean guarded code path' you might never be able to enter it again.
+ * i.e.: I don't see this happen myself unless I'm messing with new code and running the code that I am in progress of writing. But I don't have a try catch so if an error were to occur it'd completely softlock things.
+ */
+function EDI_finalizeEdit() {
+    /**
+     * Later code needs to know the line index that the removal occurred on.
+     * In a naive approach, presume every edit only spans a single line.
+     * Then reversing backwards gets you the first line index that "fits" the edit and thus the line index the edit occurred on.
+     * 
+     * If for whatever reason the first time around this loop fails, then you never decremented so you wouldn't increment to restore
+     * the iteration variable to the previous loop's state.
+     */
+    let indexLine_editOccurredOn = -1;
+
+    switch (INTS[fEDI_cursor_editKind]) {
+        case EditKind_InsertLtr:
+            indexLine_editOccurredOn = EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn);
+            break;
+        case EditKind_Enter:
+            indexLine_editOccurredOn = EDI_finalizeEdit_Enter(indexLine_editOccurredOn);
+            return;
+        case EditKind_Tab:
+            indexLine_editOccurredOn = EDI_finalizeEdit_Tab(indexLine_editOccurredOn);
+            return;
+        case EditKind_IndentMore:
+            indexLine_editOccurredOn = EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn);
+            return;
+        case EditKind_IndentLess:
+            indexLine_editOccurredOn = EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn);
+            break;
+        case EditKind_Paste:
+            indexLine_editOccurredOn = EDI_finalizeEdit_Paste(indexLine_editOccurredOn);
+            return;
+        case EditKind_Duplicate:
+            indexLine_editOccurredOn = EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn);
+            return;
+        case EditKind_DeleteLtr:
+        case EditKind_BackspaceRtl:
+        case EditKind_RemoveTextNoBatching:
+            indexLine_editOccurredOn = EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_editOccurredOn);
+            break;
+    }
+
+    // indexLine_editOccurredOn is initialized to -1
+    //
+    // When gap buffer is finalized editor tries to redraw the line in order to lex it again.
+    // You need to NOT do this when you are working with multiple cursors however, because it bugs everything out.
+    // 
+    if (indexLine_editOccurredOn >= 0 && indexLine_editOccurredOn < EDI_lineEndPositionList_count) {
+        if (EDI_gutter.children.length === INTS[fEDI_virtualCount] &&
+            EDI_textElement.children.length === INTS[fEDI_virtualCount]) {
+                
+                // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
+                let ringBufferIndex = indexLine_editOccurredOn - INTS[fEDI_virtualIndexLine];
+                if (ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex < 0) ringBufferIndex = -1;
+                else ringBufferIndex = (ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
+
+                if (ringBufferIndex >= 0) {
+                    let gutterLineElement = EDI_gutter.children[ringBufferIndex];
+                    gutterLineElement.innerHTML = '';
+                    let textLineElement = EDI_textElement.children[ringBufferIndex];
+                    textLineElement.innerHTML = '';
+                    EDI_drawLine(indexLine_editOccurredOn, gutterLineElement, textLineElement);
+                }
+                else {
+                    // TODO: Consider what to do in this case.
+                }
+        }
+        else {
+            // TODO: Consider what to do in this case.
+        }
+    }
+}
+
+function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
+    for (let i = EDI_lineEndPositionList_count - 1; i >= 0; i--) {
+        if (INTS[fEDI_cursor_editPosition] <= EDI_lineEndPositionList_data[i]) {
+            EDI_lineEndPositionList_data[i] += INTS[fEDI_cursor_editLength];
+        }
+        else {
+            if (i === EDI_lineEndPositionList_count - 1) {
+                indexLine_editOccurredOn = i;
+            }
+            else {
+                indexLine_editOccurredOn = i + 1;
+            }
+            break;
+        }
+    }
+    for (var i = 0; i < EDI_trackedSyntaxList.count_abstract; i++) {
+        EDI_trackedSyntaxList.getElementAt(i);
+        if (INTS[fEDI_cursor_editPosition] <= INTS[fEDI_pooledTrackedSyntax_start]) {
+            EDI_trackedSyntaxList.setStart(i, INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_cursor_editLength]);
+        }
+        else if (BYTES[byteEDI_pooledTrackedSyntax_trackedSyntaxKind] === TrackedSyntaxKind_Comment &&
+                INTS[fEDI_cursor_editPosition] === INTS[fEDI_pooledTrackedSyntax_start] + 1) {
+
+            // TODO: Insertion of '*' probably shouldn't remove.
+            EDI_trackedSyntaxList.removeAt(i, 1);
+        }
+        else if (INTS[fEDI_cursor_editPosition] > INTS[fEDI_pooledTrackedSyntax_start] && INTS[fEDI_cursor_editPosition] < INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length]) {
+            EDI_trackedSyntaxList.setLength(i, INTS[fEDI_pooledTrackedSyntax_length] + INTS[fEDI_cursor_editLength]);
+        }
+    }
+    EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition], EDI_cursor_gapBuffer, /*offset*/ 0, /*length*/ INTS[fEDI_cursor_gapBufferCount]);
+
+    let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
+    EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
+    let lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
+    let lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
+    let text = EDI_decoder.decode(EDI_cursor_gapBuffer.subarray(0, INTS[fEDI_cursor_gapBufferCount]));
+    INTS[F_didChangeTextDocument_version] = INTS[F_didChangeTextDocument_version] + 1;
+    let version = INTS[F_didChangeTextDocument_version];
+
+    // --- CLEAN INTEGRATION ---
+    enqueueLSPNotification({
+        absolutePath: textSourceIdentifier,
+        version: version,
+        startLine: lineAndColumnIndices_indexLine,
+        startCharacter: lineAndColumnIndices_indexColumn,
+        endLine: lineAndColumnIndices_indexLine,
+        endCharacter: lineAndColumnIndices_indexColumn,
+        text: text
+    });
+    // -------------------------
+
+    if (indexLine_editOccurredOn === INTS[fEDI_longestLine_indexLine]) {
+        INTS[fEDI_longestLine_length] = INTS[fEDI_longestLine_length] + INTS[fEDI_cursor_editLength];
+    }
+
+    EDI_finalizeEdit_ClearEditState();
+
+    return indexLine_editOccurredOn;
+}
+
+function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
+    if (INTS[fEDI_cursor_editRenderedDisplacement] !== INTS[fEDI_cursor_editLength]) {
+        EDI_render_do_EnterKey();
+    }
+
+    // TODO: A notification needs to sent to the LSP here
+
+    EDI_trackedSyntaxList_inefficientUpdateStartAndLength(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength]);
+
+    // throws an exception if 'EnterKeyEventKind_None' (...or falsey).
+    if (!BYTES[byteEDI_cursor_enterKeyEventKind] || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_None) { EDI_finalizeEdit_ClearEditState(); throw new Error('if (!enterKeyEventKind...)'); }
+
+    EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition], EDI_cursor_enterKey_newLinePlusIndentation_byteList, /*offset*/ 0, EDI_cursor_enterKey_newLinePlusIndentation_byteList.length);
+
+    for (var i = INTS[fEDI_cursor_editIndexLine]; i < EDI_lineEndPositionList_count; i++) {
+        EDI_lineEndPositionList_data[i] += INTS[fEDI_cursor_editLength];
+    }
+
+    // You need to consider if the longest line gets split
+    if (INTS[fEDI_cursor_editIndexLine] <= INTS[fEDI_longestLine_indexLine])
+        INTS[fEDI_longestLine_indexLine] = INTS[fEDI_longestLine_indexLine] + 1;
+
+    EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine], INTS[fEDI_cursor_editPosition]);
+
+    EDI_finalizeEdit_ClearEditState();
+
+    return indexLine_editOccurredOn;
+}
+
+function EDI_finalizeEdit_Tab(indexLine_editOccurredOn) {
+    let bytes = EDI_on_tab_bytes;
+    const per_edit_length = bytes.length;
+    let length = per_edit_length;
+
+    if (INTS[fEDI_cursor_editLength] > 1) {
+        length *= INTS[fEDI_cursor_editLength];
+        const src_bytes = bytes;
+        bytes = new Uint8Array(length);
+        // TODO: typed array function usage
+        for (let i = 0; i < length; i += per_edit_length) {
+            for (let k = 0; k < per_edit_length; k++) {
+                bytes[i + k] = src_bytes[k];
+            }
+        }
+    }
+
+    EDI_trackedSyntaxList_inefficientUpdateStartAndLength(INTS[fEDI_cursor_editPosition], length);
+
+    EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition], bytes, /*offset*/ 0, /*length*/ length);
+
+    for (var i = INTS[fEDI_cursor_editIndexLine]; i < EDI_lineEndPositionList_count; i++) {
+        EDI_lineEndPositionList_data[i] += length;
+    }
+
+    EDI_finalizeEdit_ClearEditState();
+
+    return indexLine_editOccurredOn;
+}
+
+function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
+    let startingIndex = INTS[fEDI_indent_startingIndex];
+    INTS[fEDI_indent_startingIndex] = 0;
+    let SMALL_lineAndColumnIndices_indexLine = INTS[fEDI_indent_SMALL_lineAndColumnIndices_indexLine];
+    INTS[fEDI_indent_SMALL_lineAndColumnIndices_indexLine] = 0;
+
+    let bytes = EDI_on_tab_bytes;
+    const per_edit_length = bytes.length;
+
+    let ORIGINAL_incrementBy = (startingIndex + 1 - SMALL_lineAndColumnIndices_indexLine) * per_edit_length;
+    let incrementBy = ORIGINAL_incrementBy;
+
+    //let ORIGINAL_incrementBy = INTS[fEDI_indent_ORIGINAL_indentBy];
+    //let incrementBy = INTS[fEDI_indent_ORIGINAL_indentBy];
+    //INTS[fEDI_indent_ORIGINAL_indentBy] = 0;
+
+    
+    let bytesLength = per_edit_length;
+
+    if (INTS[fEDI_cursor_editLength] > 1) {
+        ORIGINAL_incrementBy *= INTS[fEDI_cursor_editLength];
+        incrementBy *= INTS[fEDI_cursor_editLength];
+        bytesLength *= INTS[fEDI_cursor_editLength];
+        const src_bytes = bytes;
+        bytes = new Uint8Array(bytesLength);
+        // TODO: typed array function usage
+        for (let i = 0; i < bytesLength; i += per_edit_length) {
+            for (let k = 0; k < per_edit_length; k++) {
+                bytes[i + k] = src_bytes[k];
+            }
+        }
+    }
+
+    let startingLinePos_end = INTS[fEDI_EDI_indentLess_startingLinePos_end];
+    INTS[fEDI_EDI_indentLess_startingLinePos_end] = 0;
+
+    // # Determine the total count of text that will be inserted, prior to actually beginning the edit.
+    // ...
+
+    // # Update the 'START POSITIONS specifically' of the tracked syntax list by the total count of text that will be inserted.
+    let trackedSyntaxReposition_i = EDI_trackedSyntaxReposition_find(startingLinePos_end + 1);
+    if (trackedSyntaxReposition_i === NaN || trackedSyntaxReposition_i === -1) {
+        trackedSyntaxReposition_i = EDI_trackedSyntaxList.count_abstract;
+    }
+    for (var i = trackedSyntaxReposition_i; i < EDI_trackedSyntaxList.count_abstract; i++) {
+        EDI_trackedSyntaxList.setStart(
+            i,
+            EDI_trackedSyntaxList.getStart(i) + ORIGINAL_incrementBy);
+    }
+    trackedSyntaxReposition_i--;
+
+    // # Descending indexLine loop:
+    //     # Insert the text on the respective line.
+    //     # Increment the entry in 'EDI_lineEndPositionList' for the respective line
+    //     # There's a second (relative to this entire function) modification to the start positions of the tracked syntax list
+    //     # Then, you immediately know the trackedSyntax that encompasses the insertion (if it exists), so you increment its length by the text inserted on that respective line.
+    //     # Each loop you reduce incrementBy, because you're initial starting the loop knowing you will eventually insert 4 characters on every line.
+    //         # thus, the first iteration of the loop you're increasing that line's end position by the length of text inserted per line by the amount of lines.
+    //         # The next iteration is a smaller indexLine so you decrement because you have the insertion of one less line to consider.
+    for (var lineI = startingIndex; lineI >= SMALL_lineAndColumnIndices_indexLine; lineI--) {
+        EDI_getLineBoundaryPositions_raw(lineI);
+        const line_start = INTS[fEDI_getLineBoundaryPositions_start];
+
+        for (; trackedSyntaxReposition_i >= 0; trackedSyntaxReposition_i--) {
+            let start = EDI_trackedSyntaxList.getStart(trackedSyntaxReposition_i);
+            if (line_start <= start) {
+                // # There's a second (relative to this entire function) modification to the start positions of the tracked syntax list
+                EDI_trackedSyntaxList.setStart(trackedSyntaxReposition_i, start + incrementBy);
+            }
+            else {
+                break;
+            }
+        }
+        EDI_trackedSyntaxList.getElementAt(trackedSyntaxReposition_i);
+        if (line_start > INTS[fEDI_pooledTrackedSyntax_start] && line_start < INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length]) {
+            // # Then, you immediately know the trackedSyntax that encompasses the insertion (if it exists), so you increment its length by the text inserted on that respective line.
+            EDI_trackedSyntaxList.setLength(trackedSyntaxReposition_i, INTS[fEDI_pooledTrackedSyntax_length] + bytesLength);
+        }
+
+        // # Insert the text on the respective line.
+        EDI_textByteList_insertBytes(line_start, bytes, 0 /*offset*/, bytesLength /*length*/);
+        
+        // # Increment the entry in 'EDI_lineEndPositionList' for the respective line
+        EDI_lineEndPositionList_data[lineI] += incrementBy;
+
+        // # Each loop you reduce incrementBy, because you're initial starting the loop knowing you will eventually insert 4 characters on every line.
+        //     # thus, the first iteration of the loop you're increasing that line's end position by the length of text inserted per line by the amount of lines.
+        //     # The next iteration is a smaller indexLine so you decrement because you have the insertion of one less line to consider.
+        incrementBy -= bytesLength;
+    }
+
+    // # Any line that is not part of the selected set of lines, and is at a greater indexLine, needs to have their line end position entry updated.
+    for (var lineI = startingIndex + 1; lineI < EDI_lineEndPositionList_count; lineI++) {
+        EDI_lineEndPositionList_data[lineI] += ORIGINAL_incrementBy;
+    }
+
+    EDI_finalizeEdit_ClearEditState();
+
+    return indexLine_editOccurredOn;
+}
+
+function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
+    // Both indentMore and indentLess have logic in the initial event that needs to be moved here.
+    // Nevertheless there is a difference between indentLess and indentMore in that you cannot simply
+    // multiply by n to get the decrement because it deals with the existence of whitespace to be removed so you need to actually sum this as you handle each event
+    // so that when you get to the finalize you have it all sum'd up (although yes this logic probably doesn't even belong in the event but it is there and 1 thing at a time).
+
+    //let ORIGINAL_decrementBy = INTS[fEDI_indent_ORIGINAL_indentBy];
+    //let decrementBy = INTS[fEDI_indent_ORIGINAL_indentBy];
+    //INTS[fEDI_indent_ORIGINAL_indentBy] = 0;
+
+    let startingIndex = INTS[fEDI_indent_startingIndex];
+    INTS[fEDI_indent_startingIndex] = 0;
+    let SMALL_lineAndColumnIndices_indexLine = INTS[fEDI_indent_SMALL_lineAndColumnIndices_indexLine];
+    INTS[fEDI_indent_SMALL_lineAndColumnIndices_indexLine] = 0;
+
+    // !!!!!! watch out for the big breaks when hitting a tab presuming that_four is 4
+    // If I could go back in time I'd go back to the day I thought it a good idea to name this variable 'that_four'
+    let maxVirtualColumnIndex = 4;
+    maxVirtualColumnIndex *= INTS[fEDI_cursor_editLength];
+    let largestRank = INTS[fEDI_cursor_editLength];
+
+    // loop over the lines to sum the "amount" of whitespace being removed
+    let DETERMINE_decrementBy = 0;
+    for (var lineI = SMALL_lineAndColumnIndices_indexLine; lineI <= startingIndex; lineI++) {
+        EDI_getLineBoundaryPositions_raw(lineI);
+        const line_start = INTS[fEDI_getLineBoundaryPositions_start];
+        let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(lineI);
+        let upperLimitIndexColumn;
+        if (lastValidIndexColumn > maxVirtualColumnIndex) {
+            upperLimitIndexColumn = maxVirtualColumnIndex;
+        }
+        else {
+            upperLimitIndexColumn = lastValidIndexColumn;
+        }
+        let seenSpaceCount = 0;
+        let rank = 0;
+        outer: for (var i = 0; i < upperLimitIndexColumn; i++) {
+
+            if (rank >= largestRank) break outer; // "case '\t':" has this as well.
+
+            // if you walked the text without hitting the maximum rank it isn't an issue.
+            // rank is just a means of short circuiting any weird combinations of spaces and tabs.
+            // (TODO: maybe I should believe in tab stops.)
+
+            let c = String.fromCharCode(EDI_textByteList_bytes[line_start + i]);
+            switch (c) {
+                case ' ':
+                    seenSpaceCount++;
+                    DETERMINE_decrementBy++;
+                    if (seenSpaceCount % 4 === 0) {
+                        // avoid a number that could approach infinity because I don't understand how machines compute division/modulo
+                        // and I assume that it is easier to keep 'seenSpaceCount' at [0, 4] than compute division/modulo on very large numbers.
+                        seenSpaceCount = 0;
+                        rank++;
+                    }
+                    break;
+                case '\t':
+                    if (seenSpaceCount > 0) {
+                        rank++;
+                        seenSpaceCount = 0;
+                    }
+                    if (rank >= largestRank) break outer;
+                    DETERMINE_decrementBy++;
+                    rank++;
+                    break;
+                default:
+                    break outer;
+            }
+        }
+    }
+
+    // Remember the total whitespace removed
+    let ORIGINAL_decrementBy = DETERMINE_decrementBy;
+    //INTS[fEDI_indent_ORIGINAL_indentBy] = ORIGINAL_decrementBy;
+    let decrementBy = ORIGINAL_decrementBy;
+
+    //// TODO: use better formatting
+    //// TODO: This handles the line that the small-selection-position resides on?
+    //{
+    //    let linePos = EDI_getLineBoundaryPositions_raw(SMALL_lineAndColumnIndices_indexLine);
+    //    let line = linePos;
+    //    let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(SMALL_lineAndColumnIndices_indexLine);
+    //    let upperLimitIndexColumn;
+    //    if (lastValidIndexColumn > 4) {
+    //        upperLimitIndexColumn = 4;
+    //    }
+    //    else {
+    //        upperLimitIndexColumn = lastValidIndexColumn;
+    //    }
+    //    let seenSpace = false;
+    //    let count = 0;
+    //    outer: for (var i = 0; i < upperLimitIndexColumn; i++) {
+    //        let c = getCharacter(line.start + i);
+    //        switch (c) {
+    //            case ' ':
+    //                seenSpace = true;
+    //                count++;
+    //                break;
+    //            case '\t':
+    //                if (!seenSpace) {
+    //                    count+= 4;
+    //                }
+    //                break outer;
+    //            default:
+    //                break outer;
+    //        }
+    //    }
+//
+    //    let smallLinePos = EDI_getLineBoundaryPositions_raw(SMALL_lineAndColumnIndices_indexLine);
+    //    if (SMALL_pos > smallLinePos.start) {
+    //        if (INTS[fEDI_cursor_selectionAnchor] < INTS[fEDI_cursor_selectionEnd]) {
+    //            INTS[fEDI_cursor_selectionAnchor] -= count;
+    //        }
+    //        else {
+    //            INTS[fEDI_cursor_selectionEnd] -= count;
+    //        }
+    //    }
+//
+    //    if (INTS[fEDI_cursor_indexLine] === SMALL_lineAndColumnIndices_indexLine) {
+    //        INTS[fEDI_cursor_indexColumn] -= count;
+    //    }
+    //}
+
+    // TODO: This at a glance seems to not account for when the cursor is small-position-ended and large-position-anchored...
+    // ...this is moving the cursor actually, maybe it is fine? but maybe it is logic that could've been done during a loop but instead you made a new one to separately do this?
+    // Also, this entire function is terribly written. You seemingly hacked something together; the code doesn't feel self explanatory. Furthermore there are both a lack of comments (given the confusing nature of how this is written), and dead comments.
+    //if (INTS[fEDI_cursor_indexLine] !== SMALL_lineAndColumnIndices_indexLine) {
+    //    let linePos = EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+    //    let line = linePos;
+    //    let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
+    //    let upperLimitIndexColumn;
+    //    if (lastValidIndexColumn > that_four) {
+    //        upperLimitIndexColumn = that_four;
+    //    }
+    //    else {
+    //        upperLimitIndexColumn = lastValidIndexColumn;
+    //    }
+    //    let seenSpace = false;
+    //    let count = 0;
+    //    outer: for (var i = 0; i < upperLimitIndexColumn; i++) {
+    //        let c = getCharacter(line.start + i);
+    //        switch (c) {
+    //            case ' ':
+    //                seenSpace = true;
+    //                count++;
+    //                break;
+    //            case '\t':
+    //                if (!seenSpace) {
+    //                    count+= 4;
+    //                }
+    //                break outer;
+    //            default:
+    //                break outer;
+    //        }
+    //    }
+    //    //let c = EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+    //    // TODO: git blame the below todo and remind them to delete the dead code
+    //    // TODO: Delete this dead code / use better formatting
+    //    /*if (SMALL_pos > smallLinePos.start) {
+    //        if (INTS[fEDI_cursor_selectionAnchor] < INTS[fEDI_cursor_selectionEnd]) {
+    //            INTS[fEDI_cursor_selectionAnchor] -= count;
+    //        }
+    //        else {
+    //            INTS[fEDI_cursor_selectionEnd] -= count;
+    //        }
+    //    }*/
+    //    //if (INTS[fEDI_cursor_indexLine] === LARGE_lineAndColumnIndices.indexLine) {
+    //    //    INTS[fEDI_cursor_indexColumn] -= count;
+    //    //}
+    //}
+
+    let trackedSyntaxReposition_i = EDI_trackedSyntaxReposition_find(INTS[fEDI_EDI_indentLess_startingLinePos_end] + 1);
+    if (trackedSyntaxReposition_i === NaN || trackedSyntaxReposition_i === -1) {
+        trackedSyntaxReposition_i = EDI_trackedSyntaxList.count_abstract;
+    }
+    for (var i = trackedSyntaxReposition_i; i < EDI_trackedSyntaxList.count_abstract; i++) {
+        EDI_trackedSyntaxList.setStart(
+            i,
+            EDI_trackedSyntaxList.getStart(i) - ORIGINAL_decrementBy);
+    }
+    trackedSyntaxReposition_i--;
+
+    for (var lineI = startingIndex; lineI >= SMALL_lineAndColumnIndices_indexLine; lineI--) {
+        let innerRemoveCount = 0;
+        EDI_getLineBoundaryPositions_raw(lineI);
+        const line_start = INTS[fEDI_getLineBoundaryPositions_start];
+        let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(lineI);
+        let upperLimitIndexColumn;
+        if (lastValidIndexColumn > maxVirtualColumnIndex) {
+            upperLimitIndexColumn = maxVirtualColumnIndex;
+        }
+        else {
+            upperLimitIndexColumn = lastValidIndexColumn;
+        }
+
+        let seenSpaceCount = 0;
+        let rank = 0;
+        outer: for (var i = 0; i < upperLimitIndexColumn; i++) {
+
+            if (rank >= largestRank) break outer; // "case '\t':" has this as well.
+
+            // if you walked the text without hitting the maximum rank it isn't an issue.
+            // rank is just a means of short circuiting any weird combinations of spaces and tabs.
+            // (TODO: maybe I should believe in tab stops.)
+
+            let c = String.fromCharCode(EDI_textByteList_bytes[line_start + i]);
+            switch (c) {
+                case ' ':
+                    seenSpaceCount++;
+                    innerRemoveCount++;
+                    if (seenSpaceCount % 4 === 0) {
+                        // avoid a number that could approach infinity because I don't understand how machines compute division/modulo
+                        // and I assume that it is easier to keep 'seenSpaceCount' at [0, 4] than compute division/modulo on very large numbers.
+                        seenSpaceCount = 0;
+                        rank++;
+                    }
+                    break;
+                case '\t':
+                    if (seenSpaceCount > 0) {
+                        rank++;
+                        seenSpaceCount = 0;
+                    }
+                    if (rank >= largestRank) break outer;
+                    innerRemoveCount++;
+                    rank++;
+                    break;
+                default:
+                    break outer;
+            }
+        }
+
+        for (; trackedSyntaxReposition_i >= 0; trackedSyntaxReposition_i--) {
+            let start = EDI_trackedSyntaxList.getStart(trackedSyntaxReposition_i);
+            if (line_start <= start) {
+                EDI_trackedSyntaxList.setStart(trackedSyntaxReposition_i, start - decrementBy);
+            }
+            else {
+                break;
+            }
+        }
+        EDI_trackedSyntaxList.getElementAt(trackedSyntaxReposition_i);
+        if (line_start > INTS[fEDI_pooledTrackedSyntax_start] && line_start < INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length]) {
+            EDI_trackedSyntaxList.setLength(trackedSyntaxReposition_i, INTS[fEDI_pooledTrackedSyntax_length] - innerRemoveCount);
+        }
+
+        EDI_textByteList_removeAt(line_start, innerRemoveCount);
+	    EDI_lineEndPositionList_data[lineI] -= decrementBy;
+
+        decrementBy -= innerRemoveCount;
+    }
+
+    for (var lineI = startingIndex + 1; lineI < EDI_lineEndPositionList_count; lineI++) {
+        EDI_lineEndPositionList_data[lineI] -= ORIGINAL_decrementBy;
+    }
+
+    EDI_finalizeEdit_ClearEditState();
+
+    return indexLine_editOccurredOn;
+}
+
+function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
+    EDI_trackedSyntaxList_inefficientUpdateStartAndLength(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength]);
+    
+    let content = EDI_cursor_EDI_paste_clipboardContent;
+    EDI_cursor_EDI_paste_clipboardContent = null;
+
+    let linesInsertedCount = 0;
+    let insertionLength = 0;
+
+    for (var sourceI = 0; sourceI < content.length; sourceI++) {
+        const code = content.charCodeAt(sourceI);
+        switch (code) {
+            case CONST_EDI_ASCII_TAB:
+                EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition] + insertionLength, EDI_tab_tabsbytes, /*offset*/ 0, /*length*/ 4);
+                insertionLength += 4;
+                break;
+            case CONST_EDI_ASCII_LINE_FEED:
+                EDI_textByteList_insert(INTS[fEDI_cursor_editPosition] + insertionLength, CONST_EDI_ASCII_LINE_FEED);
+                EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine] + linesInsertedCount, INTS[fEDI_cursor_editPosition] + insertionLength);
+                insertionLength++;
+                linesInsertedCount++;
+                break;
+            case 13 /* carriage return '\r' */:
+                if (sourceI < content.length - 1 && content.charCodeAt(sourceI + 1) === CONST_EDI_ASCII_LINE_FEED) {
+                    sourceI++;
+                }
+                EDI_textByteList_insert(INTS[fEDI_cursor_editPosition] + insertionLength, CONST_EDI_ASCII_LINE_FEED);
+                EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine] + linesInsertedCount, INTS[fEDI_cursor_editPosition] + insertionLength);
+                insertionLength++;
+                linesInsertedCount++;
+                break;
+            default:
+                EDI_textByteList_insert(INTS[fEDI_cursor_editPosition] + insertionLength, code);
+                insertionLength++;
+                break;
+        }
+    }
+
+    for (var i = INTS[fEDI_cursor_editIndexLine] + linesInsertedCount; i < EDI_lineEndPositionList_count; i++) {
+        EDI_lineEndPositionList_data[i] += insertionLength;
+    }
+
+    EDI_finalizeEdit_ClearEditState();
+
+    return indexLine_editOccurredOn;
+}
+
+function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
+    EDI_trackedSyntaxList_inefficientUpdateStartAndLength(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength]);
+
+    let small = INTS[fEDI_cursor_EDI_duplicate_small];
+    let length = INTS[fEDI_cursor_EDI_duplicate_length];
+
+    INTS[fEDI_cursor_EDI_duplicate_small] = 0;
+    INTS[fEDI_cursor_EDI_duplicate_length] = 0;
+
+    let linesInsertedCount = 0;
+    let insertionLength = 0;
+
+    EDI_textByteList_duplicateWithin(small, INTS[fEDI_cursor_editPosition], length);
+
+    // TODO: You should be able to do this much faster than looping over the selected bytes since you know the line end positions that exist and would know whether the selection will insert line endings.
+
+    for (let offset = 0; offset < length; offset++) {
+        switch (EDI_textByteList_bytes[small + offset]) {
+            case CONST_EDI_ASCII_TAB:
+                insertionLength += 4;
+                break;
+            case CONST_EDI_ASCII_LINE_FEED:
+                EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine] + linesInsertedCount, INTS[fEDI_cursor_editPosition] + insertionLength);
+                insertionLength++;
+                linesInsertedCount++;
+                break;
+            default:
+                insertionLength++;
+                break;
+        }
+    }
+
+    for (var i = INTS[fEDI_cursor_editIndexLine] + linesInsertedCount; i < EDI_lineEndPositionList_count; i++) {
+        EDI_lineEndPositionList_data[i] += insertionLength;
+    }
+
+    EDI_finalizeEdit_ClearEditState();
+
+    return indexLine_editOccurredOn;
+}
+
+function EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_editOccurredOn) {
+    // TODO: surely u'd get this before doing the edit?
+    let startLineAndColumnIndices_indexLine;
+    let startLineAndColumnIndices_indexColumn;
+    if (INTS[fEDI_cursor_editKind] === EditKind_RemoveTextNoBatching) {
+        startLineAndColumnIndices_indexLine = INTS[fEDI_cursor_editIndexLine];
+        startLineAndColumnIndices_indexColumn = INTS[fEDI_cursor_editIndexColumn];
+    }
+    else {
+        EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
+        startLineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
+        startLineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
+    }
+    let endLineAndColumnIndices_indexLine;
+    let endLineAndColumnIndices_indexColumn;
+    if (INTS[fEDI_cursor_editKind] === EditKind_RemoveTextNoBatching) {
+        endLineAndColumnIndices_indexLine = INTS[fEDI_cursor_END_editIndexLine];
+        endLineAndColumnIndices_indexColumn = INTS[fEDI_cursor_END_editIndexColumn];
+    }
+    else {
+        EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition] + INTS[fEDI_cursor_editLength]);
+        endLineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
+        endLineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
+    }
+
+    if (INTS[fEDI_cursor_editLineFeedCount] > 0) {
+        let count = 0;
+        let lastMatchedIndexLine = 0;
+        for (let i = EDI_lineEndPositionList_PENDING.count - 1; i >= 0; i--) {
+            let lineEndPos = EDI_lineEndPositionList_PENDING.data[i];
+            if (INTS[fEDI_cursor_editPosition] <= lineEndPos && INTS[fEDI_cursor_editPosition] + INTS[fEDI_cursor_editLength] > lineEndPos) {
+                EDI_getLineAndColumnIndices_raw(lineEndPos);
+                lastMatchedIndexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
+                count++;
+                EDI_lineEndPositionList_PENDING.removeAt(i, 1);
+            }
+            else if (INTS[fEDI_cursor_editPosition] > lineEndPos) {
+                break;
+            }
+        }
+        if (count > 0) {
+            EDI_lineEndPositionList_removeAt(lastMatchedIndexLine, count);
+        }
+    }
+    for (let i = EDI_lineEndPositionList_count - 1; i >= 0; i--) {
+        if (INTS[fEDI_cursor_editPosition] < EDI_lineEndPositionList_data[i]) {
+            EDI_lineEndPositionList_data[i] -= INTS[fEDI_cursor_editLength];
+        }
+        else {
+            if (i === EDI_lineEndPositionList_count - 1) {
+                indexLine_editOccurredOn = i;
+            }
+            else {
+                indexLine_editOccurredOn = i + 1;
+            }
+            break;
+        }
+    }
+    for (var i = EDI_trackedSyntaxList.count_abstract - 1; i >= 0; i--) {
+        EDI_trackedSyntaxList.getElementAt(i);
+        if (INTS[fEDI_cursor_editPosition] < INTS[fEDI_pooledTrackedSyntax_start]) {
+            EDI_trackedSyntaxList.setStart(i, INTS[fEDI_pooledTrackedSyntax_start] - INTS[fEDI_cursor_editLength]);
+        }
+        else if (INTS[fEDI_pooledTrackedSyntax_start] >= INTS[fEDI_cursor_editPosition] && INTS[fEDI_pooledTrackedSyntax_start] < INTS[fEDI_cursor_editPosition] + INTS[fEDI_cursor_editLength]) {
+            // TODO: This needs to remove more than 1 at a time
+            EDI_trackedSyntaxList.removeAt(i, 1);
+        }
+        else if (BYTES[byteEDI_pooledTrackedSyntax_trackedSyntaxKind] === TrackedSyntaxKind_Comment &&
+                (INTS[fEDI_pooledTrackedSyntax_start] + 1) >= INTS[fEDI_cursor_editPosition] && (INTS[fEDI_pooledTrackedSyntax_start] + 1) < INTS[fEDI_cursor_editPosition] + INTS[fEDI_cursor_editLength]) {
+            // TODO: You can invalidate a >1 char long by removing beyond just the first unless a character afterwards falls into place that is valid by chance
+            //
+            // only multi-line-comments that span multiple lines are stored in EDI_trackedSyntaxList with the 'TrackedSyntaxKind_Comment'
+            //
+            EDI_trackedSyntaxList.removeAt(i, 1);
+        }
+        else if (INTS[fEDI_cursor_editPosition] > INTS[fEDI_pooledTrackedSyntax_start] && INTS[fEDI_cursor_editPosition] < INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length]) {
+            EDI_trackedSyntaxList.setLength(i, INTS[fEDI_pooledTrackedSyntax_length] - INTS[fEDI_cursor_editLength]);
+        }
+    }
+
+    EDI_textByteList_removeAt(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength]);
+
+    let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
+    let text = '';
+    INTS[F_didChangeTextDocument_version] = INTS[F_didChangeTextDocument_version] + 1;
+    let version = INTS[F_didChangeTextDocument_version];
+
+    // --- CLEAN INTEGRATION ---
+    enqueueLSPNotification({
+        absolutePath: textSourceIdentifier,
+        version: version,
+        startLine: startLineAndColumnIndices_indexLine,
+        startCharacter: startLineAndColumnIndices_indexColumn,
+        endLine: endLineAndColumnIndices_indexLine,
+        endCharacter: endLineAndColumnIndices_indexColumn,
+        text: text
+    });
+    // -------------------------
+
+    if (indexLine_editOccurredOn === INTS[fEDI_longestLine_indexLine]) {
+        INTS[fEDI_longestLine_length] = INTS[fEDI_longestLine_length] - INTS[fEDI_cursor_editLength];
+    }
+
+    EDI_finalizeEdit_ClearEditState();
+
+    return indexLine_editOccurredOn;
+
+    /*
+    - Syntax is fully encompassed by the removed text  => remove
+    - Syntax's open is encompassed by the removed text => invalidate
+
+    invalidate => remove
+
+    Are these the same thing then?
+
+    If the open is removed then yeah
+    strings are possibly more complex than the multi-line-comment because the same open as close
+
+    TODO: If the open is > 1 characters long then an insertions among those characters is a break too.
+    */
+}
+
+function EDI_finalizeEdit_ClearEditState() {
+    INTS[fEDI_cursor_editKind] = EditKind_None;
+    INTS[fEDI_cursor_editLength] = 0;
+    INTS[fEDI_cursor_editPosition] = 0;
+    INTS[fEDI_cursor_editIndexLine] = 0;
+    INTS[fEDI_cursor_editIndexColumn] = 0;
+    INTS[fEDI_cursor_editRenderedDisplacement] = 0;
+    INTS[fEDI_cursor_END_editIndexLine] = 0;
+    INTS[fEDI_cursor_END_editIndexColumn] = 0;
+    INTS[fEDI_cursor_gapBufferCount] = 0;
+    EDI_cursor_gapBufferWriteToSpanElement = null;
+    INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = 0;
+    INTS[fEDI_cursor_editLineFeedCount] = 0;
+    EDI_lineEndPositionList_PENDING.clear();
+}
+// #endregion
 
 //#region ancillary
 function enqueueLSPNotification(payload) {

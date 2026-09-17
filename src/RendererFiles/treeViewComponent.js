@@ -305,8 +305,6 @@ class TreeViewComponent {
 
                 let diff = currVli - prevVli;
 
-                let totalCount = this.director.tvd_getTotalCount();
-
                 if (diff > 0 && diff < this.virtualCount) {
                     this.director.tvd_drawItem_BATCH(prevVli + this._ONSCROLLvirtualCount, diff, 1, undefined, timestamp);
                 }
@@ -346,8 +344,6 @@ class TreeViewComponent {
 
         this.virtualIndex_ofScrollTop = Math.floor(this.lastReadNumber_scrollTop / this.itemHeightNumber);
         this.ringBufferIndexZero = 0;
-
-        let totalCount = this.director.tvd_getTotalCount();
 
         if (this.itemListElement.children.length !== this.virtualCount) {
             this.itemListElement.innerHTML = '';

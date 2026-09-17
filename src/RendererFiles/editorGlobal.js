@@ -4899,351 +4899,6 @@ function EDI_horizontal_scrollbar_onScroll() {
     EDI_baseElement.scrollLeft = EDI_horizontal_scrollbar.scrollLeft;
 }
 
-function EDI_findOverlay_doSearch() {
-	let input = document.getElementById('EDI_findOverlay_input_elementId');
-    if (!input || !input.value) return;
-    
-    let spanCurrent = document.getElementById('EDI_findOverlay_current');
-	if (!spanCurrent) return;
-	
-	let spanTotal = document.getElementById('EDI_findOverlay_total');
-	if (!spanTotal) return;
-    
-    set_EDI_findOverlay_wasSearched(true);
-
-    let searchEncoded = EDI_encoder.encode(input.value);
-
-    EDI_finalizeEdit();
-
-    EDI_findOverlay_searchResultPositionList.clear();
-
-    let offset = 0;
-    let posStartOfMatch = 0;
-
-    /** Given the current EDI_primaryCursor position, which match comes next. */
-    let nextMatchNumber = -1;
-    let nextMatchPos;
-
-    if (EDI_cursor_hasSelection()) {
-        let small = INTS[fEDI_cursor_selectionAnchor];
-        let large = INTS[fEDI_cursor_selectionEnd];
-        if (INTS[fEDI_cursor_selectionAnchor] > INTS[fEDI_cursor_selectionEnd]) {
-            small = INTS[fEDI_cursor_selectionEnd];
-            large = INTS[fEDI_cursor_selectionAnchor];
-        }
-        nextMatchPos = small;
-    }
-    else {
-        nextMatchPos = EDI_getPositionIndex_cursor_raw();
-    }
-    
-    if (get_EDI_findOverlay_options_matchWord() && ((searchEncoded[0] >= 97 && searchEncoded[0] <= 122) || (searchEncoded[0] >= 65 && searchEncoded[0] <= 90) || (searchEncoded[0] >= 48 && searchEncoded[0] <= 57) || (searchEncoded[0] === 95))) {
-		for (let i = 0; i < EDI_textByteList_count; i++) {
-			if ((EDI_textByteList_bytes[i] >= 97 && EDI_textByteList_bytes[i] <= 122) || (EDI_textByteList_bytes[i] >= 65 && EDI_textByteList_bytes[i] <= 90) || (EDI_textByteList_bytes[i] >= 48 && EDI_textByteList_bytes[i] <= 57) || (EDI_textByteList_bytes[i] === 95)) {
-				if (EDI_textByteList_bytes[i] === searchEncoded[0]) {
-    				while (i < EDI_textByteList_count) { // context switch to checking match
-    					if (EDI_textByteList_bytes[i] === searchEncoded[offset]) {
-				            if (offset === 0) {
-				                posStartOfMatch = i;
-				            }
-				            offset++;
-				            if (offset === searchEncoded.length) { // found "possible match"
-				            	if (i + 1 >= EDI_textByteList_count ||
-				            		!((EDI_textByteList_bytes[i + 1] >= 97 && EDI_textByteList_bytes[i + 1] <= 122) || (EDI_textByteList_bytes[i + 1] >= 65 && EDI_textByteList_bytes[i + 1] <= 90) || (EDI_textByteList_bytes[i + 1] >= 48 && EDI_textByteList_bytes[i + 1] <= 57) || (EDI_textByteList_bytes[i + 1] === 95))) { // ends on a word, therefore take match
-					            		EDI_findOverlay_searchResultPositionList.insert(EDI_findOverlay_searchResultPositionList.count, posStartOfMatch);
-                                        if (nextMatchNumber === -1 && posStartOfMatch >= nextMatchPos) {
-                                            nextMatchNumber = EDI_findOverlay_searchResultPositionList.count;
-                                            nextMatchPos = posStartOfMatch;
-                                        }
-				                		offset = 0;
-				                		break;
-				            	}
-				            	else { // does NOT end on a word, therefore ignore match
-				            		offset = 0;
-				            		while (i < EDI_textByteList_count) { // move pos to next NON(letterOrDigit) or EOF
-				            			if (!((EDI_textByteList_bytes[i] >= 97 && EDI_textByteList_bytes[i] <= 122) || (EDI_textByteList_bytes[i] >= 65 && EDI_textByteList_bytes[i] <= 90) || (EDI_textByteList_bytes[i] >= 48 && EDI_textByteList_bytes[i] <= 57) || (EDI_textByteList_bytes[i] === 95))) {
-				            				i--; // backtrack by one due to outer for loop's incrementation step
-				            				break;
-				            			}
-			            				i++;
-				            		}
-				                	break;
-				            	}
-				            }
-				            i++;
-				        }
-				        else {
-				            offset = 0;
-				            while (i < EDI_textByteList_count) { // move pos to next NON(letterOrDigit) or EOF
-		            			if (!((EDI_textByteList_bytes[i] >= 97 && EDI_textByteList_bytes[i] <= 122) || (EDI_textByteList_bytes[i] >= 65 && EDI_textByteList_bytes[i] <= 90) || (EDI_textByteList_bytes[i] >= 48 && EDI_textByteList_bytes[i] <= 57) || (EDI_textByteList_bytes[i] === 95))) {
-		            				i--; // backtrack by one due to outer for loop's incrementation step
-		            				break;
-		            			}
-	            				i++;
-		            		}
-				            break;
-				        }
-					}
-				}
-				else {
-					while (i < EDI_textByteList_count) { // move pos to next NON(letterOrDigit) or EOF
-            			if (!((EDI_textByteList_bytes[i] >= 97 && EDI_textByteList_bytes[i] <= 122) || (EDI_textByteList_bytes[i] >= 65 && EDI_textByteList_bytes[i] <= 90) || (EDI_textByteList_bytes[i] >= 48 && EDI_textByteList_bytes[i] <= 57) || (EDI_textByteList_bytes[i] === 95))) {
-            				i--; // backtrack by one due to outer for loop's incrementation step
-            				break;
-            			}
-        				i++;
-            		}
-				}
-			}
-			else {
-				while (i < EDI_textByteList_count) { // move pos to next letterOrDigit or EOF
-        			if ((EDI_textByteList_bytes[i] >= 97 && EDI_textByteList_bytes[i] <= 122) || (EDI_textByteList_bytes[i] >= 65 && EDI_textByteList_bytes[i] <= 90) || (EDI_textByteList_bytes[i] >= 48 && EDI_textByteList_bytes[i] <= 57) || (EDI_textByteList_bytes[i] === 95)) {
-        				i--; // backtrack by one due to outer for loop's incrementation step
-        				break;
-        			}
-    				i++;
-        		}
-			}
-	    }
-    }
-    else {
-    	for (let i = 0; i < EDI_textByteList_count; i++) {
-	        if (EDI_textByteList_bytes[i] === searchEncoded[offset]) {
-	            if (offset === 0) {
-	                posStartOfMatch = i;
-	            }
-	            offset++;
-	            if (offset === searchEncoded.length) {
-	                EDI_findOverlay_searchResultPositionList.insert(EDI_findOverlay_searchResultPositionList.count, posStartOfMatch);
-                    if (nextMatchNumber === -1 && posStartOfMatch >= nextMatchPos) {
-                        nextMatchNumber = EDI_findOverlay_searchResultPositionList.count;
-                        nextMatchPos = posStartOfMatch;
-                    }
-	                offset = 0;
-	            }
-	        }
-	        else {
-	            // I'm not sure how I like this. It feels wasteful to set this to 0.
-	            // But if I check to see if it is 0, that feels even more wasteful.
-	            offset = 0;
-	        }
-	    }
-    }
-
-    if (nextMatchNumber === -1) {
-        nextMatchNumber = 1;
-    }
-    spanCurrent.textContent = nextMatchNumber;
-    spanTotal.textContent = EDI_findOverlay_searchResultPositionList.count;
-}
-
-function EDI_findOverlay_input_onkeydown(event) {
-    switch (event.key) {
-        case 'Enter':
-            EDI_findOverlay_doSearch();
-            break;
-        case 'Escape':
-        	set_EDI_findOverlay_wasSearched(false);
-            EDI_findOverlay_showSetter(false);
-            EDI_baseElement.focus();
-            break;
-    }
-}
-
-function EDI_findOverlay_input_onblur() {
-	if (!get_EDI_findOverlay_wasSearched()) {
-		EDI_findOverlay_doSearch();
-	}
-}
-
-function EDI_findOverlay_input_onchange() {
-	set_EDI_findOverlay_wasSearched(false);
-}
-
-function EDI_findOverlay_checkboxMatchWord_onchange() {
-	// for an onchange event, event.target might always be precise?
-	let checkboxMatchWord = document.getElementById('EDI_findOverlay_checkboxMatchWord');
-    if (checkboxMatchWord) {
-    	set_EDI_findOverlay_options_matchWord(checkboxMatchWord.checked);
-    	EDI_findOverlay_doSearch();
-    }
-}
-
-function EDI_findOverlay_showSetter(showValue) {
-    EDI_finalizeEdit();
-
-    if (!get_EDI_findOverlay_show() && showValue) {
-        EDI_findOverlay.style.visibility = '';
-        EDI_findOverlay_searchResultPositionList = new UInt32List(256);
-        
-        let input = document.createElement('input');
-        input.id = 'EDI_findOverlay_input_elementId';
-        // 'change' needs to be the first event added so the 'Enter' keydown happens with proper timing
-        input.addEventListener('change', EDI_findOverlay_input_onchange);
-        input.addEventListener('keydown', EDI_findOverlay_input_onkeydown);
-        input.addEventListener('blur', EDI_findOverlay_input_onblur);
-        EDI_findOverlay.appendChild(input);
-        if (!get_EDI_findOverlay_isBeingShownDueToMultiCursorMatching()) {
-            input.focus();
-        }
-        
-        let divCurrentOfTotal = document.createElement('div');
-        let spanBlank = document.createElement('span');
-        spanBlank.textContent = '1';
-        spanBlank.id = 'EDI_findOverlay_current';
-        divCurrentOfTotal.appendChild(spanBlank);
-        let spanBlankOf = document.createElement('span');
-        spanBlankOf.textContent = ' of ';
-        divCurrentOfTotal.appendChild(spanBlankOf);
-        let spanBlankOfBlank = document.createElement('span');
-        spanBlankOfBlank.textContent = '10';
-        spanBlankOfBlank.id = 'EDI_findOverlay_total';
-        divCurrentOfTotal.appendChild(spanBlankOfBlank);
-        EDI_findOverlay.appendChild(divCurrentOfTotal);
-        
-        let divPrevNext = document.createElement('div');
-        let btnPrev = document.createElement('button');
-        btnPrev.textContent = 'prev';
-        btnPrev.id = 'EDI_findOverlay_prev';
-        btnPrev.style.marginRight = '5px';
-        let btnNext = document.createElement('button');
-        btnNext.textContent = 'next';
-        btnNext.id = 'EDI_findOverlay_next';
-        btnPrev.addEventListener('click', EDI_btnPrev_onclick);
-        btnNext.addEventListener('click', EDI_btnNext_onclick); 
-        divPrevNext.appendChild(btnPrev);
-        divPrevNext.appendChild(btnNext);
-        EDI_findOverlay.appendChild(divPrevNext);
-        
-        let divOptions = document.createElement('div');
-        let checkboxMatchWord = document.createElement('input');
-	    checkboxMatchWord.type = 'checkbox';
-	    checkboxMatchWord.id = 'EDI_findOverlay_checkboxMatchWord';
-	    checkboxMatchWord.checked = Boolean(get_EDI_findOverlay_options_matchWord());
-	    checkboxMatchWord.addEventListener('change', EDI_findOverlay_checkboxMatchWord_onchange);
-	    divOptions.appendChild(checkboxMatchWord);
-	    let label_for_checkboxMatchWord = document.createElement('label');
-	    label_for_checkboxMatchWord.htmlFor = 'EDI_findOverlay_checkboxMatchWord';
-	    label_for_checkboxMatchWord.textContent = 'matchWord';
-	    divOptions.appendChild(label_for_checkboxMatchWord);
-	    EDI_findOverlay.appendChild(divOptions);
-        
-        if (EDI_cursor_hasSelection()) {
-        	EDI_finalizeEdit();
-            let selectionAnchor = INTS[fEDI_cursor_selectionAnchor];
-            let selectionEnd = INTS[fEDI_cursor_selectionEnd];
-            let small;
-            let large;
-            if (selectionAnchor < selectionEnd) {
-                small = selectionAnchor;
-                large = selectionEnd;
-            }
-            else {
-                small = selectionEnd;
-                large = selectionAnchor;
-            }
-            let offset = small;
-            let length = large - small;
-            if (length <= 256) {
-                input.value = EDI_decode_textonly(offset, length);
-                EDI_findOverlay_doSearch();
-            }
-        }
-    }
-    else if (get_EDI_findOverlay_show() && !showValue) {
-        EDI_findOverlay.style.visibility = 'hidden';
-        EDI_findOverlay_searchResultPositionList = null;
-        let input = document.getElementById('EDI_findOverlay_input_elementId');
-        if (input && input.parentElement === EDI_findOverlay) {
-        	input.removeEventListener('change', EDI_findOverlay_input_onchange);
-            input.removeEventListener('keydown', EDI_findOverlay_input_onkeydown);
-            input.removeEventListener('blur', EDI_findOverlay_input_onblur);
-            EDI_findOverlay.removeChild(input);
-        }
-        let btnPrev = document.getElementById('EDI_findOverlay_prev');
-        if (btnPrev) {
-        	btnPrev.removeEventListener('click', EDI_btnPrev_onclick);
-        }
-        let btnNext = document.getElementById('EDI_findOverlay_next');
-        if (btnNext) {
-        	btnNext.removeEventListener('click', EDI_btnNext_onclick);
-        }
-        let checkboxMatchWord = document.getElementById('EDI_findOverlay_checkboxMatchWord');
-        if (checkboxMatchWord) {
-        	checkboxMatchWord.removeEventListener('change', EDI_findOverlay_checkboxMatchWord_onchange);
-        }
-        EDI_findOverlay.innerHTML = '';
-        set_EDI_findOverlay_isBeingShownDueToMultiCursorMatching(false);
-    }
-
-    set_EDI_findOverlay_show(showValue);
-}
-
-function EDI_btnPrev_onclick(/*event*/) {
-	let spanCurrent = document.getElementById('EDI_findOverlay_current');
-	if (!spanCurrent) return;
-	
-	let spanTotal = document.getElementById('EDI_findOverlay_total');
-	if (!spanTotal) return;
-	
-	let current = parseInt(spanCurrent.textContent, 10);
-	let total = parseInt(spanTotal.textContent, 10);
-	
-	if (current && total) {
-		current--;
-		if (current < 1 || current >= total) {
-			if (total > 1) {
-				current = total;
-			}
-			else {
-				current = 1;
-			}
-		}
-		spanCurrent.textContent = current;
-	}
-	else {
-		spanCurrent.textContent = 'parseInt not successful?';
-	}
-
-    let index = current - 1;
-    if (index >= 0 && index < total && index < EDI_findOverlay_searchResultPositionList.count) {
-        let pos = EDI_findOverlay_searchResultPositionList.data[index];
-        if (pos <= EDI_textByteList_count) {
-            EDI_moveCursor_position(pos);
-        }
-    }
-}
-
-function EDI_btnNext_onclick() {
-	let spanCurrent = document.getElementById('EDI_findOverlay_current');
-	if (!spanCurrent) return;
-	
-	let spanTotal = document.getElementById('EDI_findOverlay_total');
-	if (!spanTotal) return;
-	
-	let current = parseInt(spanCurrent.textContent, 10);
-	let total = parseInt(spanTotal.textContent, 10);
-	
-	if (current && total) {
-		current++;
-		if (current > total || current < 1) {
-			current = 1;
-		}
-		spanCurrent.textContent = current;
-	}
-	else {
-		spanCurrent.textContent = 'parseInt not successful?';
-	}
-
-    let index = current - 1;
-    if (index >= 0 && index < total && index < EDI_findOverlay_searchResultPositionList.count) {
-        let pos = EDI_findOverlay_searchResultPositionList.data[index];
-        if (pos <= EDI_textByteList_count) {
-            EDI_moveCursor_position(pos);
-        }
-    }
-}
-
 function EDI_render_do_IndentMore() {
     // When you're done with IndentLess batch editing correctly.
     // You still need to come back to the render for
@@ -8066,6 +7721,353 @@ function EDI_onfocus() {
 function EDI_onblur() {
     EDI_cursor_cursorElement.classList.remove('EDI_cursor_focus');
 }
+
+//#region findOverlay
+function EDI_findOverlay_doSearch() {
+	let input = document.getElementById('EDI_findOverlay_input_elementId');
+    if (!input || !input.value) return;
+    
+    let spanCurrent = document.getElementById('EDI_findOverlay_current');
+	if (!spanCurrent) return;
+	
+	let spanTotal = document.getElementById('EDI_findOverlay_total');
+	if (!spanTotal) return;
+    
+    set_EDI_findOverlay_wasSearched(true);
+
+    let searchEncoded = EDI_encoder.encode(input.value);
+
+    EDI_finalizeEdit();
+
+    EDI_findOverlay_searchResultPositionList.clear();
+
+    let offset = 0;
+    let posStartOfMatch = 0;
+
+    /** Given the current EDI_primaryCursor position, which match comes next. */
+    let nextMatchNumber = -1;
+    let nextMatchPos;
+
+    if (EDI_cursor_hasSelection()) {
+        let small = INTS[fEDI_cursor_selectionAnchor];
+        let large = INTS[fEDI_cursor_selectionEnd];
+        if (INTS[fEDI_cursor_selectionAnchor] > INTS[fEDI_cursor_selectionEnd]) {
+            small = INTS[fEDI_cursor_selectionEnd];
+            large = INTS[fEDI_cursor_selectionAnchor];
+        }
+        nextMatchPos = small;
+    }
+    else {
+        nextMatchPos = EDI_getPositionIndex_cursor_raw();
+    }
+    
+    if (get_EDI_findOverlay_options_matchWord() && ((searchEncoded[0] >= 97 && searchEncoded[0] <= 122) || (searchEncoded[0] >= 65 && searchEncoded[0] <= 90) || (searchEncoded[0] >= 48 && searchEncoded[0] <= 57) || (searchEncoded[0] === 95))) {
+		for (let i = 0; i < EDI_textByteList_count; i++) {
+			if ((EDI_textByteList_bytes[i] >= 97 && EDI_textByteList_bytes[i] <= 122) || (EDI_textByteList_bytes[i] >= 65 && EDI_textByteList_bytes[i] <= 90) || (EDI_textByteList_bytes[i] >= 48 && EDI_textByteList_bytes[i] <= 57) || (EDI_textByteList_bytes[i] === 95)) {
+				if (EDI_textByteList_bytes[i] === searchEncoded[0]) {
+    				while (i < EDI_textByteList_count) { // context switch to checking match
+    					if (EDI_textByteList_bytes[i] === searchEncoded[offset]) {
+				            if (offset === 0) {
+				                posStartOfMatch = i;
+				            }
+				            offset++;
+				            if (offset === searchEncoded.length) { // found "possible match"
+				            	if (i + 1 >= EDI_textByteList_count ||
+				            		!((EDI_textByteList_bytes[i + 1] >= 97 && EDI_textByteList_bytes[i + 1] <= 122) || (EDI_textByteList_bytes[i + 1] >= 65 && EDI_textByteList_bytes[i + 1] <= 90) || (EDI_textByteList_bytes[i + 1] >= 48 && EDI_textByteList_bytes[i + 1] <= 57) || (EDI_textByteList_bytes[i + 1] === 95))) { // ends on a word, therefore take match
+					            		EDI_findOverlay_searchResultPositionList.insert(EDI_findOverlay_searchResultPositionList.count, posStartOfMatch);
+                                        if (nextMatchNumber === -1 && posStartOfMatch >= nextMatchPos) {
+                                            nextMatchNumber = EDI_findOverlay_searchResultPositionList.count;
+                                            nextMatchPos = posStartOfMatch;
+                                        }
+				                		offset = 0;
+				                		break;
+				            	}
+				            	else { // does NOT end on a word, therefore ignore match
+				            		offset = 0;
+				            		while (i < EDI_textByteList_count) { // move pos to next NON(letterOrDigit) or EOF
+				            			if (!((EDI_textByteList_bytes[i] >= 97 && EDI_textByteList_bytes[i] <= 122) || (EDI_textByteList_bytes[i] >= 65 && EDI_textByteList_bytes[i] <= 90) || (EDI_textByteList_bytes[i] >= 48 && EDI_textByteList_bytes[i] <= 57) || (EDI_textByteList_bytes[i] === 95))) {
+				            				i--; // backtrack by one due to outer for loop's incrementation step
+				            				break;
+				            			}
+			            				i++;
+				            		}
+				                	break;
+				            	}
+				            }
+				            i++;
+				        }
+				        else {
+				            offset = 0;
+				            while (i < EDI_textByteList_count) { // move pos to next NON(letterOrDigit) or EOF
+		            			if (!((EDI_textByteList_bytes[i] >= 97 && EDI_textByteList_bytes[i] <= 122) || (EDI_textByteList_bytes[i] >= 65 && EDI_textByteList_bytes[i] <= 90) || (EDI_textByteList_bytes[i] >= 48 && EDI_textByteList_bytes[i] <= 57) || (EDI_textByteList_bytes[i] === 95))) {
+		            				i--; // backtrack by one due to outer for loop's incrementation step
+		            				break;
+		            			}
+	            				i++;
+		            		}
+				            break;
+				        }
+					}
+				}
+				else {
+					while (i < EDI_textByteList_count) { // move pos to next NON(letterOrDigit) or EOF
+            			if (!((EDI_textByteList_bytes[i] >= 97 && EDI_textByteList_bytes[i] <= 122) || (EDI_textByteList_bytes[i] >= 65 && EDI_textByteList_bytes[i] <= 90) || (EDI_textByteList_bytes[i] >= 48 && EDI_textByteList_bytes[i] <= 57) || (EDI_textByteList_bytes[i] === 95))) {
+            				i--; // backtrack by one due to outer for loop's incrementation step
+            				break;
+            			}
+        				i++;
+            		}
+				}
+			}
+			else {
+				while (i < EDI_textByteList_count) { // move pos to next letterOrDigit or EOF
+        			if ((EDI_textByteList_bytes[i] >= 97 && EDI_textByteList_bytes[i] <= 122) || (EDI_textByteList_bytes[i] >= 65 && EDI_textByteList_bytes[i] <= 90) || (EDI_textByteList_bytes[i] >= 48 && EDI_textByteList_bytes[i] <= 57) || (EDI_textByteList_bytes[i] === 95)) {
+        				i--; // backtrack by one due to outer for loop's incrementation step
+        				break;
+        			}
+    				i++;
+        		}
+			}
+	    }
+    }
+    else {
+    	for (let i = 0; i < EDI_textByteList_count; i++) {
+	        if (EDI_textByteList_bytes[i] === searchEncoded[offset]) {
+	            if (offset === 0) {
+	                posStartOfMatch = i;
+	            }
+	            offset++;
+	            if (offset === searchEncoded.length) {
+	                EDI_findOverlay_searchResultPositionList.insert(EDI_findOverlay_searchResultPositionList.count, posStartOfMatch);
+                    if (nextMatchNumber === -1 && posStartOfMatch >= nextMatchPos) {
+                        nextMatchNumber = EDI_findOverlay_searchResultPositionList.count;
+                        nextMatchPos = posStartOfMatch;
+                    }
+	                offset = 0;
+	            }
+	        }
+	        else {
+	            // I'm not sure how I like this. It feels wasteful to set this to 0.
+	            // But if I check to see if it is 0, that feels even more wasteful.
+	            offset = 0;
+	        }
+	    }
+    }
+
+    if (nextMatchNumber === -1) {
+        nextMatchNumber = 1;
+    }
+    spanCurrent.textContent = nextMatchNumber;
+    spanTotal.textContent = EDI_findOverlay_searchResultPositionList.count;
+}
+
+function EDI_findOverlay_input_onkeydown(event) {
+    switch (event.key) {
+        case 'Enter':
+            EDI_findOverlay_doSearch();
+            break;
+        case 'Escape':
+        	set_EDI_findOverlay_wasSearched(false);
+            EDI_findOverlay_showSetter(false);
+            EDI_baseElement.focus();
+            break;
+    }
+}
+
+function EDI_findOverlay_input_onblur() {
+	if (!get_EDI_findOverlay_wasSearched()) {
+		EDI_findOverlay_doSearch();
+	}
+}
+
+function EDI_findOverlay_input_onchange() {
+	set_EDI_findOverlay_wasSearched(false);
+}
+
+function EDI_findOverlay_checkboxMatchWord_onchange() {
+	// for an onchange event, event.target might always be precise?
+	let checkboxMatchWord = document.getElementById('EDI_findOverlay_checkboxMatchWord');
+    if (checkboxMatchWord) {
+    	set_EDI_findOverlay_options_matchWord(checkboxMatchWord.checked);
+    	EDI_findOverlay_doSearch();
+    }
+}
+
+function EDI_findOverlay_showSetter(showValue) {
+    EDI_finalizeEdit();
+
+    if (!get_EDI_findOverlay_show() && showValue) {
+        EDI_findOverlay.style.visibility = '';
+        EDI_findOverlay_searchResultPositionList = new UInt32List(256);
+        
+        let input = document.createElement('input');
+        input.id = 'EDI_findOverlay_input_elementId';
+        // 'change' needs to be the first event added so the 'Enter' keydown happens with proper timing
+        input.addEventListener('change', EDI_findOverlay_input_onchange);
+        input.addEventListener('keydown', EDI_findOverlay_input_onkeydown);
+        input.addEventListener('blur', EDI_findOverlay_input_onblur);
+        EDI_findOverlay.appendChild(input);
+        if (!get_EDI_findOverlay_isBeingShownDueToMultiCursorMatching()) {
+            input.focus();
+        }
+        
+        let divCurrentOfTotal = document.createElement('div');
+        let spanBlank = document.createElement('span');
+        spanBlank.textContent = '1';
+        spanBlank.id = 'EDI_findOverlay_current';
+        divCurrentOfTotal.appendChild(spanBlank);
+        let spanBlankOf = document.createElement('span');
+        spanBlankOf.textContent = ' of ';
+        divCurrentOfTotal.appendChild(spanBlankOf);
+        let spanBlankOfBlank = document.createElement('span');
+        spanBlankOfBlank.textContent = '10';
+        spanBlankOfBlank.id = 'EDI_findOverlay_total';
+        divCurrentOfTotal.appendChild(spanBlankOfBlank);
+        EDI_findOverlay.appendChild(divCurrentOfTotal);
+        
+        let divPrevNext = document.createElement('div');
+        let btnPrev = document.createElement('button');
+        btnPrev.textContent = 'prev';
+        btnPrev.id = 'EDI_findOverlay_prev';
+        btnPrev.style.marginRight = '5px';
+        let btnNext = document.createElement('button');
+        btnNext.textContent = 'next';
+        btnNext.id = 'EDI_findOverlay_next';
+        btnPrev.addEventListener('click', EDI_btnPrev_onclick);
+        btnNext.addEventListener('click', EDI_btnNext_onclick); 
+        divPrevNext.appendChild(btnPrev);
+        divPrevNext.appendChild(btnNext);
+        EDI_findOverlay.appendChild(divPrevNext);
+        
+        let divOptions = document.createElement('div');
+        let checkboxMatchWord = document.createElement('input');
+	    checkboxMatchWord.type = 'checkbox';
+	    checkboxMatchWord.id = 'EDI_findOverlay_checkboxMatchWord';
+	    checkboxMatchWord.checked = Boolean(get_EDI_findOverlay_options_matchWord());
+	    checkboxMatchWord.addEventListener('change', EDI_findOverlay_checkboxMatchWord_onchange);
+	    divOptions.appendChild(checkboxMatchWord);
+	    let label_for_checkboxMatchWord = document.createElement('label');
+	    label_for_checkboxMatchWord.htmlFor = 'EDI_findOverlay_checkboxMatchWord';
+	    label_for_checkboxMatchWord.textContent = 'matchWord';
+	    divOptions.appendChild(label_for_checkboxMatchWord);
+	    EDI_findOverlay.appendChild(divOptions);
+        
+        if (EDI_cursor_hasSelection()) {
+        	EDI_finalizeEdit();
+            let selectionAnchor = INTS[fEDI_cursor_selectionAnchor];
+            let selectionEnd = INTS[fEDI_cursor_selectionEnd];
+            let small;
+            let large;
+            if (selectionAnchor < selectionEnd) {
+                small = selectionAnchor;
+                large = selectionEnd;
+            }
+            else {
+                small = selectionEnd;
+                large = selectionAnchor;
+            }
+            let offset = small;
+            let length = large - small;
+            if (length <= 256) {
+                input.value = EDI_decode_textonly(offset, length);
+                EDI_findOverlay_doSearch();
+            }
+        }
+    }
+    else if (get_EDI_findOverlay_show() && !showValue) {
+        EDI_findOverlay.style.visibility = 'hidden';
+        EDI_findOverlay_searchResultPositionList = null;
+        let input = document.getElementById('EDI_findOverlay_input_elementId');
+        if (input && input.parentElement === EDI_findOverlay) {
+        	input.removeEventListener('change', EDI_findOverlay_input_onchange);
+            input.removeEventListener('keydown', EDI_findOverlay_input_onkeydown);
+            input.removeEventListener('blur', EDI_findOverlay_input_onblur);
+            EDI_findOverlay.removeChild(input);
+        }
+        let btnPrev = document.getElementById('EDI_findOverlay_prev');
+        if (btnPrev) {
+        	btnPrev.removeEventListener('click', EDI_btnPrev_onclick);
+        }
+        let btnNext = document.getElementById('EDI_findOverlay_next');
+        if (btnNext) {
+        	btnNext.removeEventListener('click', EDI_btnNext_onclick);
+        }
+        let checkboxMatchWord = document.getElementById('EDI_findOverlay_checkboxMatchWord');
+        if (checkboxMatchWord) {
+        	checkboxMatchWord.removeEventListener('change', EDI_findOverlay_checkboxMatchWord_onchange);
+        }
+        EDI_findOverlay.innerHTML = '';
+        set_EDI_findOverlay_isBeingShownDueToMultiCursorMatching(false);
+    }
+
+    set_EDI_findOverlay_show(showValue);
+}
+
+function EDI_btnPrev_onclick(/*event*/) {
+	let spanCurrent = document.getElementById('EDI_findOverlay_current');
+	if (!spanCurrent) return;
+	
+	let spanTotal = document.getElementById('EDI_findOverlay_total');
+	if (!spanTotal) return;
+	
+	let current = parseInt(spanCurrent.textContent, 10);
+	let total = parseInt(spanTotal.textContent, 10);
+	
+	if (current && total) {
+		current--;
+		if (current < 1 || current >= total) {
+			if (total > 1) {
+				current = total;
+			}
+			else {
+				current = 1;
+			}
+		}
+		spanCurrent.textContent = current;
+	}
+	else {
+		spanCurrent.textContent = 'parseInt not successful?';
+	}
+
+    let index = current - 1;
+    if (index >= 0 && index < total && index < EDI_findOverlay_searchResultPositionList.count) {
+        let pos = EDI_findOverlay_searchResultPositionList.data[index];
+        if (pos <= EDI_textByteList_count) {
+            EDI_moveCursor_position(pos);
+        }
+    }
+}
+
+function EDI_btnNext_onclick() {
+	let spanCurrent = document.getElementById('EDI_findOverlay_current');
+	if (!spanCurrent) return;
+	
+	let spanTotal = document.getElementById('EDI_findOverlay_total');
+	if (!spanTotal) return;
+	
+	let current = parseInt(spanCurrent.textContent, 10);
+	let total = parseInt(spanTotal.textContent, 10);
+	
+	if (current && total) {
+		current++;
+		if (current > total || current < 1) {
+			current = 1;
+		}
+		spanCurrent.textContent = current;
+	}
+	else {
+		spanCurrent.textContent = 'parseInt not successful?';
+	}
+
+    let index = current - 1;
+    if (index >= 0 && index < total && index < EDI_findOverlay_searchResultPositionList.count) {
+        let pos = EDI_findOverlay_searchResultPositionList.data[index];
+        if (pos <= EDI_textByteList_count) {
+            EDI_moveCursor_position(pos);
+        }
+    }
+}
+//#endregion
 
 /*
 Each edit needs to keep the lsp up to date.

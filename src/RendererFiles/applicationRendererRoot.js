@@ -73,79 +73,89 @@ function APP_measureLineHeightAndCharacterWidth() {
 }
 
 async function window_myAPI_onMessage(data) {
-    if (data.method === 'textDocument/documentSymbol') {
-        EDI_documentSymbolResult = data.result;
-        if (!EDI_listComponent) {
-            EDI_listComponent = new ListComponent();
-        }
-        EDI_listComponent.setItems(INTS[fAPP_lineHeight], INTS[fAPP_lineHeight] + 'px',
-            EDI_listComponent_drawItemAction,
-            EDI_listComponent_onkeydownAction,
-            EDI_listComponent_getItemsCountFunc);
-        return DIALOG_show_async(DialogKind_DocumentSymbol, dialog_documentSymbol_onResizeAction);
-    }
-    else if (data.method === 'textDocument/CustomFullFileLexRequest') {
-        /*
-        The C# code:
-        ```csharp
-        _psuedoFourFieldTrackedSyntaxList.Add((int)TrackedSyntaxKind.String);
-        _psuedoFourFieldTrackedSyntaxList.Add(token.Position.line);
-        _psuedoFourFieldTrackedSyntaxList.Add(token.Position.character);
-        _psuedoFourFieldTrackedSyntaxList.Add(token.Length);
-        ```
-        */
-        const fieldCount = 4;
-
-        if (data.result.length % fieldCount !== 0) {
-            throw new Error('mismatched field count');
-        }
-
-        const data_result = data.result;
-        const data_countAbstract = data_result.length / fieldCount;
-        const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
-        const local_EDI_lineEndPositionList_count = EDI_lineEndPositionList_count;
-
-        const trackedSyntaxList = EDI_trackedSyntaxList;
-        trackedSyntaxList.clear();
-        trackedSyntaxList.ensureCapacityForInsertion(0, data_countAbstract);
-
-        // TODO: Don't do this, there likely are existing functions that will do this.
-        for (let i = 0; i < data_countAbstract; i++) {
-            const line = data_result[(i * fieldCount) + 1];
-            let lineStart = 0;
-            if (line < local_EDI_lineEndPositionList_count && line !== 0) {
-                lineStart = local_EDI_lineEndPositionList_data[line - 1] + 1;
+    switch (data.method) {
+        case 'textDocument/documentSymbol':
+            EDI_documentSymbolResult = data.result;
+            if (!EDI_listComponent) {
+                EDI_listComponent = new ListComponent();
             }
+            EDI_listComponent.setItems(INTS[fAPP_lineHeight], INTS[fAPP_lineHeight] + 'px',
+                EDI_listComponent_drawItemAction,
+                EDI_listComponent_onkeydownAction,
+                EDI_listComponent_getItemsCountFunc);
+            return DIALOG_show_async(DialogKind_DocumentSymbol, dialog_documentSymbol_onResizeAction);
+        case 'textDocument/CustomFullFileLexRequest':
+            {
+                /*
+                The C# code:
+                ```csharp
+                _psuedoFourFieldTrackedSyntaxList.Add((int)TrackedSyntaxKind.String);
+                _psuedoFourFieldTrackedSyntaxList.Add(token.Position.line);
+                _psuedoFourFieldTrackedSyntaxList.Add(token.Position.character);
+                _psuedoFourFieldTrackedSyntaxList.Add(token.Length);
+                ```
+                */
+                const fieldCount = 4;
 
-            trackedSyntaxList.insert(
-                trackedSyntaxList.count_abstract,
-                data_result[(i * fieldCount) + 0],             // let trackedSyntaxKind = data_result[(i * fieldCount) + 0];
-                lineStart + data_result[(i * fieldCount) + 2], // let character = data_result[(i * fieldCount) + 2];
-                data_result[(i * fieldCount) + 3]);            // let length = data_result[(i * fieldCount) + 3];
-        }
-    }
-    else if (data.method === 'textDocument/hover') {
-        if (!BYTES[byteEDI_mousemove_eventListener_isActive]) {
-            TOOLTIP_show(data.result);
-        }
-    }
-    else if (data.method === 'textDocument/definition') {
-        let aaa = 2;
-        if (data.result) {
-            EDI_moveCursor_indexLine_indexColumn(data.result.range.start.line, /*indexColumn*/ 0)
-        }
-    }
-    else if (data.method === 'textDocument/completion') {
-        if (data.result.items) {
-            AUTOCOMPLETE_show(data.result);
-        }
-    }
-    else if (data.method === 'textDocument/completion_slice') {
-        // I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
-        //if (data.result.items) {
-        //    AUTOCOMPLETE_show(data.result);
-        //}
-        AUTOCOMPLETE_slice(data.result);
+                if (data.result.length % fieldCount !== 0) {
+                    throw new Error('mismatched field count');
+                }
+
+                const data_result = data.result;
+                const data_countAbstract = data_result.length / fieldCount;
+                const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
+                const local_EDI_lineEndPositionList_count = EDI_lineEndPositionList_count;
+
+                const trackedSyntaxList = EDI_trackedSyntaxList;
+                trackedSyntaxList.clear();
+                trackedSyntaxList.ensureCapacityForInsertion(0, data_countAbstract);
+
+                // TODO: Don't do this, there likely are existing functions that will do this.
+                for (let i = 0; i < data_countAbstract; i++) {
+                    const line = data_result[(i * fieldCount) + 1];
+                    let lineStart = 0;
+                    if (line < local_EDI_lineEndPositionList_count && line !== 0) {
+                        lineStart = local_EDI_lineEndPositionList_data[line - 1] + 1;
+                    }
+
+                    trackedSyntaxList.insert(
+                        trackedSyntaxList.count_abstract,
+                        data_result[(i * fieldCount) + 0],             // let trackedSyntaxKind = data_result[(i * fieldCount) + 0];
+                        lineStart + data_result[(i * fieldCount) + 2], // let character = data_result[(i * fieldCount) + 2];
+                        data_result[(i * fieldCount) + 3]);            // let length = data_result[(i * fieldCount) + 3];
+                }
+            }
+            break;
+        case 'textDocument/hover':
+            {
+                if (!BYTES[byteEDI_mousemove_eventListener_isActive]) {
+                    TOOLTIP_show(data.result);
+                }
+            }
+            break;
+        case 'textDocument/definition':
+            {
+                if (data.result) {
+                    EDI_moveCursor_indexLine_indexColumn(data.result.range.start.line, /*indexColumn*/ 0)
+                }
+            }
+            break;
+        case 'textDocument/completion':
+            {
+                if (data.result.items) {
+                    AUTOCOMPLETE_show(data.result);
+                }
+            }
+            break;
+        case 'textDocument/completion_slice':
+            {
+                // I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
+                //if (data.result.items) {
+                //    AUTOCOMPLETE_show(data.result);
+                //}
+                AUTOCOMPLETE_slice(data.result);
+            }
+            break;
     }
 }
 

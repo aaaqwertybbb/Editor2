@@ -4326,6 +4326,7 @@ function EDI_editEvent_checkFor_NOTcanBatch_Enter(event) {
     return false;
 }
 
+//#region keydown
 /**
  * < The browser's event listener engine ignores the return value of event handlers.
  * < If you return a Promise, the browser treats it exactly like returning undefined, true, or a string. It drops the return value on the floor.
@@ -4870,6 +4871,7 @@ async function EDI_onKeyDown_keyLengthEqualsOne_ctrlKey(event) {
 function EDI_onKeyDown_keyLengthEqualsOne_altKey(event) {
     
 }
+//#endregion
 
 function EDI_onContextMenu() {
     let optionList = [

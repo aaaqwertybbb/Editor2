@@ -621,7 +621,7 @@ class TreeViewComponent {
         }
 
         // transform last for optimal state flagging of the modified DOM element
-        this.cursorElement.style.transform = `translateY(${this.cursorTranslateYNumber}px)`;
+        this.cursorElement.style.top = `${this.cursorTranslateYNumber}px`;
     }
 
     /**

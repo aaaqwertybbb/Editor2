@@ -243,7 +243,8 @@ function EXPLORER_drawItem_BATCH(start, length, onePositiveDiff_twoNegativeDiff_
             INTS[fEXPLORER_LARGEST_DEPTH_SEEN_NOT_THE_CSS_JUST_THE_DEPTH] = depth;
         }
 
-        divItem.style.transform = `translate(${CONST_EXPLORER_offsetPerDepth * depth}px, ${verticalStyleNumber}px)`;
+        divItem.style.top = `${verticalStyleNumber}px`;
+        divItem.style.marginLeft = `${CONST_EXPLORER_offsetPerDepth * depth}px`;
         verticalStyleNumber += INTS[fEXPLORER_itemHeightNumber];
 
         loopCounter++;
@@ -1296,7 +1297,7 @@ function EXPLORER_render_do_Cursor() {
     }
 
     // transform last for optimal state flagging of the modified DOM element
-    EXPLORER_cursorElement.style.transform = `translateY(${INTS[fEXPLORER_cursorTranslateYNumber]}px)`;
+    EXPLORER_cursorElement.style.top = `${INTS[fEXPLORER_cursorTranslateYNumber]}px`;
 }
 
 /**

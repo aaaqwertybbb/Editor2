@@ -235,7 +235,7 @@ class ListComponent {
 
                         let divItem = this.LIST_ringBuffer[ringBufferIndexItem];
                         
-                        divItem.style.transform = `translateY(${vertical}px)`;
+                        divItem.style.top = `${vertical}px`;
                         vertical += this.itemHeightNumber;
 
                         if (indexItem >= itemsCount)
@@ -274,7 +274,7 @@ class ListComponent {
                             lastIndex = this.LIST_ringBufferLength - 1;
                         }
 
-                        divItem.style.transform = `translateY(${vertical}px)`;
+                        divItem.style.top = `${vertical}px`;
                         vertical -= this.itemHeightNumber;
 
                         if (indexItem >= itemsCount)
@@ -300,7 +300,7 @@ class ListComponent {
 
                         let divItem = this.LIST_ringBuffer[ringBufferIndexItem];
 
-                        divItem.style.transform = `translateY(${vertical}px)`;
+                        divItem.style.top = `${vertical}px`;
                         vertical += this.itemHeightNumber;
 
                         if (indexItem >= itemsCount)
@@ -330,7 +330,7 @@ class ListComponent {
             let divItem = document.createElement('div');
             divItem.style.height = this.itemHeightStyleAttributeValueString;
             divItem.style.position = 'absolute';
-            divItem.style.transform = `translateY(${vertical}px)`;
+            divItem.style.top = `${vertical}px`;
             vertical += this.itemHeightNumber;
             divItem.textContent = i;
             this.itemListElement.appendChild(divItem);
@@ -465,3 +465,5 @@ class ListComponent {
         return indexItem;
     }
 }
+
+// if static css gives top but I always change it and override the class this is overhead questionmark?

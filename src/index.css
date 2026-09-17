@@ -309,23 +309,6 @@ the class names that linearly scale in usage as you show more and more text.
   color: var(--editor-syntax-member-color);
 }
 
-/* .eP (i.e.: Editor Parenthesis) */
-.eP {
-  color: var(--editor-syntax-parenthesis-color);
-}
-
-/* .eO (i.e.: Editor Operator) */
-.eO {
-  color: var(--editor-syntax-operator-color);
-  /*background-color: var(--editor-syntax-member-access-background-color);*/
-}
-
-/* .eOA (i.e.: Editor OperatorAssignment) */
-.eOA {
-  color: var(--editor-syntax-operatorAssignment-color);
-  /*background-color: var(--editor-syntax-member-access-background-color);*/
-}
-
 /* .eN (i.e.: Editor Not_yet_syntax_highlighted) */
 .eN {
   color: var(--editor-syntax-operatorAssignment-color);
@@ -741,10 +724,6 @@ functions: rgb(85, 193, 85)
   --editor-syntax-string-color: #CE9178;
   --editor-syntax-keyword-color: #569CD6;
   --editor-syntax-keywordControl-color: #C586C0;
-  --editor-syntax-parenthesis-color: rgb(173 90 255);
-  --editor-syntax-operator-color: rgb(70, 165, 215);
-  --editor-syntax-operatorAssignment-color: rgb(70, 165, 215);
-  --editor-syntax-member-access-color: rgb(0 180 255);
   --editor-syntax-identifier-color: #9CDCFE;
   --editor-syntax-function-color: #CECE84;
   --editor-syntax-number-color: #B5CEA8;
@@ -770,10 +749,6 @@ functions: rgb(85, 193, 85)
   --editor-syntax-string-color: #A31515;
   --editor-syntax-keyword-color: #0000FF;
   --editor-syntax-keywordControl-color: #AF00DB;
-  --editor-syntax-parenthesis-color: rgb(85, 193, 85);
-  --editor-syntax-operator-color: rgb(70, 165, 215);
-  --editor-syntax-operatorAssignment-color: rgb(70, 165, 215);
-  --editor-syntax-member-access-color: rgb(70, 165, 215);
   --editor-syntax-identifier-color: #001080;
   --editor-syntax-function-color: #af7700;
   --editor-syntax-number-color: #098658;

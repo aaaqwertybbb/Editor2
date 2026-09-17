@@ -8925,4 +8925,8 @@ These have 60% of the daily iron intake.
 So then, you watch what you eat and think "ah I'm only gonna hit like 30% iron today I'll have the cheerios to bump it up to 90%"
 or "I'm at 100% without the cheerios I won't eat them today then."
 
+after initialization:
+"The two texts are identical"
+when using diffchecker website
+
 */

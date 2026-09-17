@@ -62,179 +62,9 @@ const EDI_trackedSyntaxList = new TrackedSyntaxList(32);
  */
 let EDI_findOverlay_searchResultPositionList = null;
 
-//#region textByteList
 let EDI_textByteList_capacity = 1024;
 let EDI_textByteList_bytes = new Uint8Array(EDI_textByteList_capacity);
 let EDI_textByteList_count = 0;
-/**
- * Does not clear the information, only sets 'EDI_textByteList_count' to '0'.
- */
-function EDI_textByteList_clear() {
-    EDI_textByteList_count = 0;
-}
-/**
- * TODO: ensure all the parameters are encoded, especially because I'm noticing myself forgetting.
- */
-function EDI_textByteList_insert(index, byte) {
-    EDI_textByteList_ensureCapacityForInsertion(index, 1);
-
-    if (index !== EDI_textByteList_count) {
-        EDI_textByteList_copyTo(EDI_textByteList_bytes, index, EDI_textByteList_bytes, index + 1, EDI_textByteList_count - index);
-    }
-
-    EDI_textByteList_bytes[index] = byte;
-
-    EDI_textByteList_count++;
-}
-/**
- * @param {number} index 
- * @param {Uint8Array} incomingBs the incoming bytes, name avoids confusion with EDI_textByteList_bytes
- * @param {number} offset the offset to begin reading from
- * @param {number} length the amount of bytes to read
- */
-function EDI_textByteList_insertBytes(index, incomingBs, offset, length) {
-    // 1. Validate that the source parameters are within the actual bounds of incomingBs
-    if (offset < 0 || length < 0 || offset + length > incomingBs.length) {
-        throw new RangeError(
-            //`Invalid source bounds: offset ${offset} and length ${length} exceed incomingBs.length of ${incomingBs.length}.`
-        );
-    }
-
-    // 2. Validate that the target insertion index makes sense
-    if (index < 0 || index > EDI_textByteList_count) {
-        throw new RangeError(
-            //`Invalid insertion index: index ${index} must be between 0 and current count ${EDI_textByteList_count}.`
-        );
-    }
-
-    EDI_textByteList_ensureCapacityForInsertion(index, length);
-
-    if (index !== EDI_textByteList_count) {
-        EDI_textByteList_copyTo(EDI_textByteList_bytes, index, EDI_textByteList_bytes, index + length, EDI_textByteList_count - index);
-    }
-
-    // TODO: Google AI is telling me:
-    // < In JavaScript, calling .subarray(0, incomingBs.length) on a TypedArray does not duplicate memory or create a heavy object.
-    // < It is already optimized under the hood.
-    // < ...
-    // < You can simplify your code back down to a single line without losing any performance:
-    // < ...
-    //
-    const segmentToInsert = (offset === 0 && offset + length === incomingBs.length)
-        ? incomingBs
-        : incomingBs.subarray(offset, offset + length);
-    EDI_textByteList_bytes.set(segmentToInsert, index);
-
-    EDI_textByteList_count += length;
-}
-/**
- * Does not clear trailing information.
- * 
- * count === 0 immediately returns
- */
-function EDI_textByteList_removeAt(index, count) {
-    if (index > EDI_textByteList_count) { throw new Error('removeAt(...): index > EDI_textByteList_count'); }
-    if (index + count > EDI_textByteList_count) { throw new Error('removeAt(...): index + count > EDI_textByteList_count'); }
-    if (count === 0) { return; }
-
-    if (index + count === EDI_textByteList_count) {
-        let shiftableCount = EDI_textByteList_count - (index + count);
-        if (shiftableCount > 0) {
-            EDI_textByteList_copyTo(
-                EDI_textByteList_bytes,
-                index + count,
-                EDI_textByteList_bytes,
-                index,
-                shiftableCount);
-        }
-    }
-    else {
-        EDI_textByteList_copyTo(
-            EDI_textByteList_bytes,
-            index + count,
-            EDI_textByteList_bytes,
-            index,
-            EDI_textByteList_count - (index + count));
-    }
-
-    EDI_textByteList_count -= count;
-}
-/**
- * 
- * @param {number} sourceStart 
- * @param {number} destinationStart 
- * @param {number} length 
- */
-function EDI_textByteList_duplicateWithin(sourceStart, destinationStart, length) {
-    if (sourceStart + length > destinationStart) {
-        // TODO: This perhaps could result in the initial 'copyTo' step that creates space within the array, having clobbered the source.
-        //
-        // TODO: I'm gonna throw an error if 'sourceStart + length > destinationStart' that should let me do the simple duplicate case and then go from there.
-        //
-        // TODO: When copying text you only need to remember the positions maybe, and then if the user loses focus of the app...
-        // ...only then would you need to create text from their selection in case they intend to paste to an external app...
-        // ...otherwise paste could just be a copyWithin if copy and paste only occurs within the app itself?
-        //
-        throw new Error('TODO: sourceStart + length > destinationStart');
-    }
-
-    EDI_textByteList_ensureCapacityForInsertion(destinationStart, length);
-
-    if (destinationStart !== EDI_textByteList_count) {
-        EDI_textByteList_copyTo(EDI_textByteList_bytes, destinationStart, EDI_textByteList_bytes, destinationStart + length, EDI_textByteList_count - destinationStart);
-    }
-
-    EDI_textByteList_copyTo(EDI_textByteList_bytes, sourceStart, EDI_textByteList_bytes, destinationStart, length);
-
-    EDI_textByteList_count += length;
-}
-function EDI_textByteList_ensureCapacityForInsertion(index, count) {
-    // TODO: sparse insertions?
-    const requiredCapacity = Math.max(EDI_textByteList_count + count, index);
-    
-    // If we already have enough capacity, do absolutely nothing
-    if (requiredCapacity <= EDI_textByteList_capacity) {
-        return;
-    }
-
-    // Calculate the new capacity by doubling until it fits
-    let capacityNew = EDI_textByteList_capacity || 1; // Prevent infinite loops if capacity is 0
-    while (capacityNew < requiredCapacity) {
-        capacityNew *= 2;
-    }
-
-    // Safety check against integer overflow / negative bounds
-    if (capacityNew < EDI_textByteList_capacity) {
-        throw new Error('ensureCapacityForInsertion(...): Capacity overflowed or went negative');
-    }
-
-    // Allocate and copy EXACTLY ONCE
-    let bytesNew = new Uint8Array(capacityNew);
-    EDI_textByteList_copyTo(EDI_textByteList_bytes, 0, bytesNew, 0, EDI_textByteList_count);
-    
-    // Commit the changes to your global/module state
-    EDI_textByteList_bytes = bytesNew;
-    EDI_textByteList_capacity = capacityNew;
-}
-/**
- * inclusive/exclusive
- */
-function EDI_textByteList_copyTo(bytesSource, sourceStart, bytesDestination, destinationStart, length) {
-    if (bytesSource === bytesDestination) {
-        if (bytesSource !== EDI_textByteList_bytes) {
-            throw new Error('bytesSource === bytesDestination ; but bytesSource !== EDI_textByteList_bytes');
-        }
-
-        EDI_textByteList_bytes.copyWithin(destinationStart, sourceStart, sourceStart + length);
-    }
-    else {
-        // TODO: use 'set' method here and other such locations
-        for (var i = 0; i < length; i++) {
-            bytesDestination[destinationStart + i] = bytesSource[sourceStart + i];
-        }
-    }
-}
-//#endregion
 
 const EDI_encoder = new TextEncoder();
 const EDI_decoder = new TextDecoder();
@@ -317,113 +147,10 @@ INTS[fEDI_ontab_visualWidth_perCharacter] = 4;
  */
 const EDI_lineEndPositionList_PENDING = new UInt32List(128);
 
-//#region lineEndPositionList
 let EDI_lineEndPositionList_capacity = 128;
-/**
- * IMPORTANT: use EDI_readLineEndPositionList(...) rather than indexing into this directly...
- * ...due to the possibility of pending edits.
- */
+/** Be wary to the possibility of pending edits causing this to not be up to date. */
 let EDI_lineEndPositionList_data = new Uint32Array(EDI_lineEndPositionList_capacity);
 let EDI_lineEndPositionList_count = 0;
-/**
- * Does not clear the information, only sets 'EDI_lineEndPositionList_count' to '0'.
- */
-function EDI_lineEndPositionList_clear() {
-    EDI_lineEndPositionList_count = 0;
-}
-/**
- * TODO: ensure all the parameters are encoded, especially because I'm noticing myself forgetting.
- */
-function EDI_lineEndPositionList_insert(index, int32Value) {
-    EDI_lineEndPositionList_ensureCapacityForInsertion(index, 1);
-
-    if (index !== EDI_lineEndPositionList_count) {
-        EDI_lineEndPositionList_copyTo(EDI_lineEndPositionList_data, index, EDI_lineEndPositionList_data, index + 1, EDI_lineEndPositionList_count - index);
-    }
-
-    EDI_lineEndPositionList_data[index] = int32Value;
-
-    EDI_lineEndPositionList_count++;
-}
-/**
- * Does not clear trailing information.
- * 
- * count === 0 immediately returns
- */
-function EDI_lineEndPositionList_removeAt(index, count) {
-    if (index > EDI_lineEndPositionList_count) { throw new Error('removeAt(...): index > EDI_lineEndPositionList_count'); }
-    if (index + count > EDI_lineEndPositionList_count) { throw new Error('removeAt(...): index + count > EDI_lineEndPositionList_count'); }
-    if (count === 0) { return; }
-
-    if (index + count === EDI_lineEndPositionList_count) {
-        let shiftableCount = EDI_lineEndPositionList_count - (index + count);
-        if (shiftableCount > 0) {
-            EDI_lineEndPositionList_copyTo(
-                EDI_lineEndPositionList_data,
-                index + count,
-                EDI_lineEndPositionList_data,
-                index,
-                shiftableCount);
-        }
-    }
-    else {
-        EDI_lineEndPositionList_copyTo(
-            EDI_lineEndPositionList_data,
-            index + count,
-            EDI_lineEndPositionList_data,
-            index,
-            EDI_lineEndPositionList_count - (index + count));
-    }
-
-    EDI_lineEndPositionList_count -= count;
-}
-function EDI_lineEndPositionList_ensureCapacityForInsertion(index, count) {
-    // TODO: sparse insertions?
-    const requiredCapacity = Math.max(EDI_lineEndPositionList_count + count, index);
-    
-    // If we already have enough capacity, do absolutely nothing
-    if (requiredCapacity <= EDI_lineEndPositionList_capacity) {
-        return;
-    }
-
-    // Calculate the new capacity by doubling until it fits
-    let capacityNew = EDI_lineEndPositionList_capacity || 1; // Prevent infinite loops if capacity is 0
-    while (capacityNew < requiredCapacity) {
-        capacityNew *= 2;
-    }
-
-    // Safety check against integer overflow / negative bounds
-    if (capacityNew < EDI_lineEndPositionList_capacity) {
-        throw new Error('ensureCapacityForInsertion(...): Capacity overflowed or went negative');
-    }
-
-    // Allocate and copy EXACTLY ONCE
-    let dataNew = new Uint32Array(capacityNew);
-    EDI_lineEndPositionList_copyTo(EDI_lineEndPositionList_data, 0, dataNew, 0, EDI_lineEndPositionList_count);
-    
-    // Commit the changes to your global/module state
-    EDI_lineEndPositionList_data = dataNew;
-    EDI_lineEndPositionList_capacity = capacityNew;
-}
-/**
- * inclusive/exclusive
- */
-function EDI_lineEndPositionList_copyTo(bytesSource, sourceStart, bytesDestination, destinationStart, length) {
-    if (bytesSource === bytesDestination) {
-        if (bytesSource !== EDI_lineEndPositionList_data) {
-            throw new Error('bytesSource === bytesDestination ; but bytesSource !== EDI_lineEndPositionList_data');
-        }
-
-        EDI_lineEndPositionList_data.copyWithin(destinationStart, sourceStart, sourceStart + length);
-    }
-    else {
-        // TODO: use 'set' method here and other such locations
-        for (var i = 0; i < length; i++) {
-            bytesDestination[destinationStart + i] = bytesSource[sourceStart + i];
-        }
-    }
-}
-//#endregion
 
 let EDI_textSourceIdentifier = '';
 let EDI_FORMATTED_textSourceIdentifier = '';
@@ -8068,6 +7795,278 @@ function EDI_btnNext_onclick() {
         let pos = EDI_findOverlay_searchResultPositionList.data[index];
         if (pos <= EDI_textByteList_count) {
             EDI_moveCursor_position(pos);
+        }
+    }
+}
+//#endregion
+
+//#region textByteList
+/**
+ * Does not clear the information, only sets 'EDI_textByteList_count' to '0'.
+ */
+function EDI_textByteList_clear() {
+    EDI_textByteList_count = 0;
+}
+/**
+ * TODO: ensure all the parameters are encoded, especially because I'm noticing myself forgetting.
+ */
+function EDI_textByteList_insert(index, byte) {
+    EDI_textByteList_ensureCapacityForInsertion(index, 1);
+
+    if (index !== EDI_textByteList_count) {
+        EDI_textByteList_copyTo(EDI_textByteList_bytes, index, EDI_textByteList_bytes, index + 1, EDI_textByteList_count - index);
+    }
+
+    EDI_textByteList_bytes[index] = byte;
+
+    EDI_textByteList_count++;
+}
+/**
+ * @param {number} index 
+ * @param {Uint8Array} incomingBs the incoming bytes, name avoids confusion with EDI_textByteList_bytes
+ * @param {number} offset the offset to begin reading from
+ * @param {number} length the amount of bytes to read
+ */
+function EDI_textByteList_insertBytes(index, incomingBs, offset, length) {
+    // 1. Validate that the source parameters are within the actual bounds of incomingBs
+    if (offset < 0 || length < 0 || offset + length > incomingBs.length) {
+        throw new RangeError(
+            //`Invalid source bounds: offset ${offset} and length ${length} exceed incomingBs.length of ${incomingBs.length}.`
+        );
+    }
+
+    // 2. Validate that the target insertion index makes sense
+    if (index < 0 || index > EDI_textByteList_count) {
+        throw new RangeError(
+            //`Invalid insertion index: index ${index} must be between 0 and current count ${EDI_textByteList_count}.`
+        );
+    }
+
+    EDI_textByteList_ensureCapacityForInsertion(index, length);
+
+    if (index !== EDI_textByteList_count) {
+        EDI_textByteList_copyTo(EDI_textByteList_bytes, index, EDI_textByteList_bytes, index + length, EDI_textByteList_count - index);
+    }
+
+    // TODO: Google AI is telling me:
+    // < In JavaScript, calling .subarray(0, incomingBs.length) on a TypedArray does not duplicate memory or create a heavy object.
+    // < It is already optimized under the hood.
+    // < ...
+    // < You can simplify your code back down to a single line without losing any performance:
+    // < ...
+    //
+    const segmentToInsert = (offset === 0 && offset + length === incomingBs.length)
+        ? incomingBs
+        : incomingBs.subarray(offset, offset + length);
+    EDI_textByteList_bytes.set(segmentToInsert, index);
+
+    EDI_textByteList_count += length;
+}
+/**
+ * Does not clear trailing information.
+ * 
+ * count === 0 immediately returns
+ */
+function EDI_textByteList_removeAt(index, count) {
+    if (index > EDI_textByteList_count) { throw new Error('removeAt(...): index > EDI_textByteList_count'); }
+    if (index + count > EDI_textByteList_count) { throw new Error('removeAt(...): index + count > EDI_textByteList_count'); }
+    if (count === 0) { return; }
+
+    if (index + count === EDI_textByteList_count) {
+        let shiftableCount = EDI_textByteList_count - (index + count);
+        if (shiftableCount > 0) {
+            EDI_textByteList_copyTo(
+                EDI_textByteList_bytes,
+                index + count,
+                EDI_textByteList_bytes,
+                index,
+                shiftableCount);
+        }
+    }
+    else {
+        EDI_textByteList_copyTo(
+            EDI_textByteList_bytes,
+            index + count,
+            EDI_textByteList_bytes,
+            index,
+            EDI_textByteList_count - (index + count));
+    }
+
+    EDI_textByteList_count -= count;
+}
+/**
+ * 
+ * @param {number} sourceStart 
+ * @param {number} destinationStart 
+ * @param {number} length 
+ */
+function EDI_textByteList_duplicateWithin(sourceStart, destinationStart, length) {
+    if (sourceStart + length > destinationStart) {
+        // TODO: This perhaps could result in the initial 'copyTo' step that creates space within the array, having clobbered the source.
+        //
+        // TODO: I'm gonna throw an error if 'sourceStart + length > destinationStart' that should let me do the simple duplicate case and then go from there.
+        //
+        // TODO: When copying text you only need to remember the positions maybe, and then if the user loses focus of the app...
+        // ...only then would you need to create text from their selection in case they intend to paste to an external app...
+        // ...otherwise paste could just be a copyWithin if copy and paste only occurs within the app itself?
+        //
+        throw new Error('TODO: sourceStart + length > destinationStart');
+    }
+
+    EDI_textByteList_ensureCapacityForInsertion(destinationStart, length);
+
+    if (destinationStart !== EDI_textByteList_count) {
+        EDI_textByteList_copyTo(EDI_textByteList_bytes, destinationStart, EDI_textByteList_bytes, destinationStart + length, EDI_textByteList_count - destinationStart);
+    }
+
+    EDI_textByteList_copyTo(EDI_textByteList_bytes, sourceStart, EDI_textByteList_bytes, destinationStart, length);
+
+    EDI_textByteList_count += length;
+}
+function EDI_textByteList_ensureCapacityForInsertion(index, count) {
+    // TODO: sparse insertions?
+    const requiredCapacity = Math.max(EDI_textByteList_count + count, index);
+    
+    // If we already have enough capacity, do absolutely nothing
+    if (requiredCapacity <= EDI_textByteList_capacity) {
+        return;
+    }
+
+    // Calculate the new capacity by doubling until it fits
+    let capacityNew = EDI_textByteList_capacity || 1; // Prevent infinite loops if capacity is 0
+    while (capacityNew < requiredCapacity) {
+        capacityNew *= 2;
+    }
+
+    // Safety check against integer overflow / negative bounds
+    if (capacityNew < EDI_textByteList_capacity) {
+        throw new Error('ensureCapacityForInsertion(...): Capacity overflowed or went negative');
+    }
+
+    // Allocate and copy EXACTLY ONCE
+    let bytesNew = new Uint8Array(capacityNew);
+    EDI_textByteList_copyTo(EDI_textByteList_bytes, 0, bytesNew, 0, EDI_textByteList_count);
+    
+    // Commit the changes to your global/module state
+    EDI_textByteList_bytes = bytesNew;
+    EDI_textByteList_capacity = capacityNew;
+}
+/**
+ * inclusive/exclusive
+ */
+function EDI_textByteList_copyTo(bytesSource, sourceStart, bytesDestination, destinationStart, length) {
+    if (bytesSource === bytesDestination) {
+        if (bytesSource !== EDI_textByteList_bytes) {
+            throw new Error('bytesSource === bytesDestination ; but bytesSource !== EDI_textByteList_bytes');
+        }
+
+        EDI_textByteList_bytes.copyWithin(destinationStart, sourceStart, sourceStart + length);
+    }
+    else {
+        // TODO: use 'set' method here and other such locations
+        for (var i = 0; i < length; i++) {
+            bytesDestination[destinationStart + i] = bytesSource[sourceStart + i];
+        }
+    }
+}
+//#endregion
+
+//#region lineEndPositionList
+/**
+ * Does not clear the information, only sets 'EDI_lineEndPositionList_count' to '0'.
+ */
+function EDI_lineEndPositionList_clear() {
+    EDI_lineEndPositionList_count = 0;
+}
+/**
+ * TODO: ensure all the parameters are encoded, especially because I'm noticing myself forgetting.
+ */
+function EDI_lineEndPositionList_insert(index, int32Value) {
+    EDI_lineEndPositionList_ensureCapacityForInsertion(index, 1);
+
+    if (index !== EDI_lineEndPositionList_count) {
+        EDI_lineEndPositionList_copyTo(EDI_lineEndPositionList_data, index, EDI_lineEndPositionList_data, index + 1, EDI_lineEndPositionList_count - index);
+    }
+
+    EDI_lineEndPositionList_data[index] = int32Value;
+
+    EDI_lineEndPositionList_count++;
+}
+/**
+ * Does not clear trailing information.
+ * 
+ * count === 0 immediately returns
+ */
+function EDI_lineEndPositionList_removeAt(index, count) {
+    if (index > EDI_lineEndPositionList_count) { throw new Error('removeAt(...): index > EDI_lineEndPositionList_count'); }
+    if (index + count > EDI_lineEndPositionList_count) { throw new Error('removeAt(...): index + count > EDI_lineEndPositionList_count'); }
+    if (count === 0) { return; }
+
+    if (index + count === EDI_lineEndPositionList_count) {
+        let shiftableCount = EDI_lineEndPositionList_count - (index + count);
+        if (shiftableCount > 0) {
+            EDI_lineEndPositionList_copyTo(
+                EDI_lineEndPositionList_data,
+                index + count,
+                EDI_lineEndPositionList_data,
+                index,
+                shiftableCount);
+        }
+    }
+    else {
+        EDI_lineEndPositionList_copyTo(
+            EDI_lineEndPositionList_data,
+            index + count,
+            EDI_lineEndPositionList_data,
+            index,
+            EDI_lineEndPositionList_count - (index + count));
+    }
+
+    EDI_lineEndPositionList_count -= count;
+}
+function EDI_lineEndPositionList_ensureCapacityForInsertion(index, count) {
+    // TODO: sparse insertions?
+    const requiredCapacity = Math.max(EDI_lineEndPositionList_count + count, index);
+    
+    // If we already have enough capacity, do absolutely nothing
+    if (requiredCapacity <= EDI_lineEndPositionList_capacity) {
+        return;
+    }
+
+    // Calculate the new capacity by doubling until it fits
+    let capacityNew = EDI_lineEndPositionList_capacity || 1; // Prevent infinite loops if capacity is 0
+    while (capacityNew < requiredCapacity) {
+        capacityNew *= 2;
+    }
+
+    // Safety check against integer overflow / negative bounds
+    if (capacityNew < EDI_lineEndPositionList_capacity) {
+        throw new Error('ensureCapacityForInsertion(...): Capacity overflowed or went negative');
+    }
+
+    // Allocate and copy EXACTLY ONCE
+    let dataNew = new Uint32Array(capacityNew);
+    EDI_lineEndPositionList_copyTo(EDI_lineEndPositionList_data, 0, dataNew, 0, EDI_lineEndPositionList_count);
+    
+    // Commit the changes to your global/module state
+    EDI_lineEndPositionList_data = dataNew;
+    EDI_lineEndPositionList_capacity = capacityNew;
+}
+/**
+ * inclusive/exclusive
+ */
+function EDI_lineEndPositionList_copyTo(bytesSource, sourceStart, bytesDestination, destinationStart, length) {
+    if (bytesSource === bytesDestination) {
+        if (bytesSource !== EDI_lineEndPositionList_data) {
+            throw new Error('bytesSource === bytesDestination ; but bytesSource !== EDI_lineEndPositionList_data');
+        }
+
+        EDI_lineEndPositionList_data.copyWithin(destinationStart, sourceStart, sourceStart + length);
+    }
+    else {
+        // TODO: use 'set' method here and other such locations
+        for (var i = 0; i < length; i++) {
+            bytesDestination[destinationStart + i] = bytesSource[sourceStart + i];
         }
     }
 }

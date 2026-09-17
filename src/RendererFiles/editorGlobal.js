@@ -3934,6 +3934,130 @@ function EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_la
     }
 }
 
+function EDI_stopTrackingIfTrackedSyntaxMadeToSpanSingleLine() {
+    // binary search for 'if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] > positionIndex)'
+    let indexTrackedSyntax = EDI_drawViewPort_FindTrackedSyntax_StartingIndex(INTS[fEDI_cursor_indexLine]);
+    if (indexTrackedSyntax === NaN || indexTrackedSyntax === -1) {
+        indexTrackedSyntax = EDI_trackedSyntaxList.count_abstract;
+    }
+    if (indexTrackedSyntax < EDI_trackedSyntaxList.count_abstract) {
+        EDI_trackedSyntaxList.getElementAt(indexTrackedSyntax);
+        if (INTS[fEDI_pooledTrackedSyntax_start] < INTS[fEDI_cursor_editPosition]) {
+            let moreThanOneLineEndPositionIsEncompassed = false;
+
+            // TODO: This has no reason to be a for loop
+            for (let i = INTS[fEDI_cursor_indexLine] - 1; i >= 0; i--) {
+                let lineEndPosition = EDI_lineEndPositionList_data[i];
+                if (INTS[fEDI_pooledTrackedSyntax_start] < lineEndPosition &&
+                    INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] > lineEndPosition) {
+                        moreThanOneLineEndPositionIsEncompassed = true;
+                        break;
+                }
+                else {
+                    break;
+                }
+            }
+            
+            if (!moreThanOneLineEndPositionIsEncompassed) {
+                // TODO: This has no reason to be a for loop
+                for (let i = INTS[fEDI_cursor_indexLine] + 1; i < EDI_lineEndPositionList_count; i++) {
+                    let lineEndPosition = EDI_lineEndPositionList_data[i];
+                    if (INTS[fEDI_pooledTrackedSyntax_start] < lineEndPosition &&
+                        INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] > lineEndPosition) {
+                            moreThanOneLineEndPositionIsEncompassed = true;
+                            break;
+                    }
+                    else {
+                        break;
+                    }
+                }
+
+                if (!moreThanOneLineEndPositionIsEncompassed) {
+                    EDI_trackedSyntaxList.removeAt(indexTrackedSyntax, 1);
+                }
+            }
+        }
+    }
+}
+
+
+
+function EDI_getCharacterKind(character) {
+    switch (character) {
+        case 'a':
+        case 'b':
+        case 'c':
+        case 'd':
+        case 'e':
+        case 'f':
+        case 'g':
+        case 'h':
+        case 'i':
+        case 'j':
+        case 'k':
+        case 'l':
+        case 'm':
+        case 'n':
+        case 'o':
+        case 'p':
+        case 'q':
+        case 'r':
+        case 's':
+        case 't':
+        case 'u':
+        case 'v':
+        case 'w':
+        case 'x':
+        case 'y':
+        case 'z':
+        case 'A':
+        case 'B':
+        case 'C':
+        case 'D':
+        case 'E':
+        case 'F':
+        case 'G':
+        case 'H':
+        case 'I':
+        case 'J':
+        case 'K':
+        case 'L':
+        case 'M':
+        case 'N':
+        case 'O':
+        case 'P':
+        case 'Q':
+        case 'R':
+        case 'S':
+        case 'T':
+        case 'U':
+        case 'V':
+        case 'W':
+        case 'X':
+        case 'Y':
+        case 'Z':
+        case '_':
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            return CharacterKind_LetterOrDigit;
+        case ' ':
+        case '\t':
+        case '\r':
+        case '\n':
+            return CharacterKind_Whitespace;
+        default:
+            return CharacterKind_Punctuation;
+    }
+}
+
 /**
  * See comment above 'EXPLORER_measureBaseElement'
  * for explanation why this code is a bad idea.
@@ -7360,130 +7484,6 @@ function EDI_insertDo(character) {
     INTS[fEDI_cursor_editLength]++;
     INTS[fEDI_cursor_indexColumn]++;
     INTS[fEDI_cursorVisualColumnIndex]++;
-}
-
-function EDI_stopTrackingIfTrackedSyntaxMadeToSpanSingleLine() {
-    // binary search for 'if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] > positionIndex)'
-    let indexTrackedSyntax = EDI_drawViewPort_FindTrackedSyntax_StartingIndex(INTS[fEDI_cursor_indexLine]);
-    if (indexTrackedSyntax === NaN || indexTrackedSyntax === -1) {
-        indexTrackedSyntax = EDI_trackedSyntaxList.count_abstract;
-    }
-    if (indexTrackedSyntax < EDI_trackedSyntaxList.count_abstract) {
-        EDI_trackedSyntaxList.getElementAt(indexTrackedSyntax);
-        if (INTS[fEDI_pooledTrackedSyntax_start] < INTS[fEDI_cursor_editPosition]) {
-            let moreThanOneLineEndPositionIsEncompassed = false;
-
-            // TODO: This has no reason to be a for loop
-            for (let i = INTS[fEDI_cursor_indexLine] - 1; i >= 0; i--) {
-                let lineEndPosition = EDI_lineEndPositionList_data[i];
-                if (INTS[fEDI_pooledTrackedSyntax_start] < lineEndPosition &&
-                    INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] > lineEndPosition) {
-                        moreThanOneLineEndPositionIsEncompassed = true;
-                        break;
-                }
-                else {
-                    break;
-                }
-            }
-            
-            if (!moreThanOneLineEndPositionIsEncompassed) {
-                // TODO: This has no reason to be a for loop
-                for (let i = INTS[fEDI_cursor_indexLine] + 1; i < EDI_lineEndPositionList_count; i++) {
-                    let lineEndPosition = EDI_lineEndPositionList_data[i];
-                    if (INTS[fEDI_pooledTrackedSyntax_start] < lineEndPosition &&
-                        INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] > lineEndPosition) {
-                            moreThanOneLineEndPositionIsEncompassed = true;
-                            break;
-                    }
-                    else {
-                        break;
-                    }
-                }
-
-                if (!moreThanOneLineEndPositionIsEncompassed) {
-                    EDI_trackedSyntaxList.removeAt(indexTrackedSyntax, 1);
-                }
-            }
-        }
-    }
-}
-
-
-
-function EDI_getCharacterKind(character) {
-    switch (character) {
-        case 'a':
-        case 'b':
-        case 'c':
-        case 'd':
-        case 'e':
-        case 'f':
-        case 'g':
-        case 'h':
-        case 'i':
-        case 'j':
-        case 'k':
-        case 'l':
-        case 'm':
-        case 'n':
-        case 'o':
-        case 'p':
-        case 'q':
-        case 'r':
-        case 's':
-        case 't':
-        case 'u':
-        case 'v':
-        case 'w':
-        case 'x':
-        case 'y':
-        case 'z':
-        case 'A':
-        case 'B':
-        case 'C':
-        case 'D':
-        case 'E':
-        case 'F':
-        case 'G':
-        case 'H':
-        case 'I':
-        case 'J':
-        case 'K':
-        case 'L':
-        case 'M':
-        case 'N':
-        case 'O':
-        case 'P':
-        case 'Q':
-        case 'R':
-        case 'S':
-        case 'T':
-        case 'U':
-        case 'V':
-        case 'W':
-        case 'X':
-        case 'Y':
-        case 'Z':
-        case '_':
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-            return CharacterKind_LetterOrDigit;
-        case ' ':
-        case '\t':
-        case '\r':
-        case '\n':
-            return CharacterKind_Whitespace;
-        default:
-            return CharacterKind_Punctuation;
-    }
 }
 
 async function EDI_MenuOnClick(indexClicked, elementClicked) {

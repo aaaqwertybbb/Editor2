@@ -3620,50 +3620,6 @@ function EDI_startEdit(editKind, editPosition, editLength) {
 }
 
 /**
- * @returns 
- */
-function EDI_NOTcanBatch_insert() {
-    return INTS[fEDI_cursor_editKind] != EditKind_InsertLtr ||
-           INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_editIndexLine] ||
-           INTS[fEDI_cursor_indexColumn] !== INTS[fEDI_cursor_editIndexColumn] + INTS[fEDI_cursor_editLength] ||
-           INTS[fEDI_cursor_editLength] >= CONST_EDI_cursor_GAP_BUFFER_CAPACITY ||
-           EDI_cursor_hasSelection();
-}
-
-/**
- * @returns 
- */
-function EDI_NOTcanBatch_enter() {
-    return true || // turn off batching until it works. The initial enter event is what matters everything else can be recreated based on the amount of lineFeeds that were inserted.
-           INTS[fEDI_cursor_editKind] != EditKind_Enter ||
-           INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_END_editIndexLine] ||
-           INTS[fEDI_cursor_indexColumn] !== INTS[fEDI_cursor_END_editIndexColumn] ||
-           INTS[fEDI_cursor_editLength] >= CONST_EDI_cursor_GAP_BUFFER_CAPACITY ||
-           !EDI_cursor_enterKey_newLinePlusIndentation_byteList ||
-           EDI_cursor_hasSelection();
-}
-
-/**
- * @returns 
- */
-function EDI_NOTcanBatch_backspace() {
-    return INTS[fEDI_cursor_editKind] != EditKind_BackspaceRtl ||
-           INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_editIndexLine] ||
-           INTS[fEDI_cursor_indexColumn] !== INTS[fEDI_cursor_editIndexColumn] ||
-           EDI_cursor_hasSelection();
-}
-
-/**
- * @returns 
- */
-function EDI_NOTcanBatch_delete() {
-    return INTS[fEDI_cursor_editKind] != EditKind_DeleteLtr ||
-           INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_editIndexLine] ||
-           INTS[fEDI_cursor_indexColumn] !== INTS[fEDI_cursor_editIndexColumn] ||
-           EDI_cursor_hasSelection();
-}
-
-/**
  * @param {*} shiftKey 
  */
 function EDI_preKeyboardMovementSelectionLogic(shiftKey) {
@@ -3948,6 +3904,50 @@ function EDI_editEvent_theEditIself_Duplicate() {
     EDI_duplicateSelection();
     INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
     EDI_render_request(RenderKind_Cursor_n);
+}
+
+/**
+ * @returns 
+ */
+function EDI_NOTcanBatch_insert() {
+    return INTS[fEDI_cursor_editKind] != EditKind_InsertLtr ||
+           INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_editIndexLine] ||
+           INTS[fEDI_cursor_indexColumn] !== INTS[fEDI_cursor_editIndexColumn] + INTS[fEDI_cursor_editLength] ||
+           INTS[fEDI_cursor_editLength] >= CONST_EDI_cursor_GAP_BUFFER_CAPACITY ||
+           EDI_cursor_hasSelection();
+}
+
+/**
+ * @returns 
+ */
+function EDI_NOTcanBatch_enter() {
+    return true || // turn off batching until it works. The initial enter event is what matters everything else can be recreated based on the amount of lineFeeds that were inserted.
+           INTS[fEDI_cursor_editKind] != EditKind_Enter ||
+           INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_END_editIndexLine] ||
+           INTS[fEDI_cursor_indexColumn] !== INTS[fEDI_cursor_END_editIndexColumn] ||
+           INTS[fEDI_cursor_editLength] >= CONST_EDI_cursor_GAP_BUFFER_CAPACITY ||
+           !EDI_cursor_enterKey_newLinePlusIndentation_byteList ||
+           EDI_cursor_hasSelection();
+}
+
+/**
+ * @returns 
+ */
+function EDI_NOTcanBatch_backspace() {
+    return INTS[fEDI_cursor_editKind] != EditKind_BackspaceRtl ||
+           INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_editIndexLine] ||
+           INTS[fEDI_cursor_indexColumn] !== INTS[fEDI_cursor_editIndexColumn] ||
+           EDI_cursor_hasSelection();
+}
+
+/**
+ * @returns 
+ */
+function EDI_NOTcanBatch_delete() {
+    return INTS[fEDI_cursor_editKind] != EditKind_DeleteLtr ||
+           INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_editIndexLine] ||
+           INTS[fEDI_cursor_indexColumn] !== INTS[fEDI_cursor_editIndexColumn] ||
+           EDI_cursor_hasSelection();
 }
 
 /** @returns {boolean} 'shouldFinalizeAllCursors' */

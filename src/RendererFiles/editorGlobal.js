@@ -1294,6 +1294,7 @@ function EDI_drawHorizontalScrollbar() {
     }
 }
 
+// #region finalize
 /**
  * TODO: Exception during finalize softlocks the editor because you can't even clear to reset the state: 'Uncaught (in promise) Error: removeAt(...): index > this.count'
  * 
@@ -2078,6 +2079,7 @@ function EDI_finalizeEdit_ClearEditState() {
     INTS[fEDI_cursor_editLineFeedCount] = 0;
     EDI_lineEndPositionList_PENDING.clear();
 }
+// #endregion
 
 function enqueueLSPNotification(payload) {
     lspQueue.push(payload);
@@ -2608,61 +2610,6 @@ function EDI_draw_cursor_debug() {
 }
 
 /**
- * Returns 'true' if success otherwise 'false' the "return" values are indexLine, and indexColumn; which are stored in 'fieldBuffer.js'
- * as 'INTS[fEDI_getLineAndColumnIndices_indexLine] = indexLine;' and 'INTS[fEDI_getLineAndColumnIndices_indexColumn] = indexColumn;'.
- * 
- * TODO: Local variables for this looping logic?
- */
-function EDI_getLineAndColumnIndices_raw(positionIndex) {
-    let left = 0;
-    let right = EDI_lineEndPositionList_count - 1;
-
-    let indexLine = -1;
-    let indexColumn = -1;
-
-    let local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
-
-    while (left <= right) {
-        const mid = Math.floor((left + right) / 2);
-        
-        if (local_EDI_lineEndPositionList_data[mid] >= positionIndex) {
-            indexLine = mid;
-
-            if (local_EDI_lineEndPositionList_data[mid] === positionIndex) {
-                break;
-            }
-            
-            right = mid - 1;
-        }
-        else if (local_EDI_lineEndPositionList_data[mid] < positionIndex) {
-            left = mid + 1;
-        }
-        else {
-            return false; // NaN
-        }
-    }
-
-    if (indexLine === -1) {
-        return false;
-        //return {
-        //  indexLine: 0,
-        //  indexColumn: 0,  
-        //};
-    }
-
-    if (indexLine === 0) {
-        indexColumn = positionIndex;
-    }
-    else {
-        indexColumn = positionIndex - (local_EDI_lineEndPositionList_data[indexLine - 1] + 1);
-    }
-
-    INTS[fEDI_getLineAndColumnIndices_indexLine] = indexLine;
-    INTS[fEDI_getLineAndColumnIndices_indexColumn] = indexColumn;
-    return true;
-}
-
-/**
  * This function only clears both the 'BYTES[byteEDI_cursor_selectionDivExists]' and the HTML associated with the selection NOT the actual selection position properties of the cursor.
  */
 function EDI_clearSelectionStyle() {
@@ -3182,6 +3129,61 @@ function EDI_onMouseMoveDetailRankThree(indexLineClicked, indexColumnClicked) {
 
         EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
     }
+}
+
+/**
+ * Returns 'true' if success otherwise 'false' the "return" values are indexLine, and indexColumn; which are stored in 'fieldBuffer.js'
+ * as 'INTS[fEDI_getLineAndColumnIndices_indexLine] = indexLine;' and 'INTS[fEDI_getLineAndColumnIndices_indexColumn] = indexColumn;'.
+ * 
+ * TODO: Local variables for this looping logic?
+ */
+function EDI_getLineAndColumnIndices_raw(positionIndex) {
+    let left = 0;
+    let right = EDI_lineEndPositionList_count - 1;
+
+    let indexLine = -1;
+    let indexColumn = -1;
+
+    const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
+
+    while (left <= right) {
+        const mid = Math.floor((left + right) / 2);
+        
+        if (local_EDI_lineEndPositionList_data[mid] >= positionIndex) {
+            indexLine = mid;
+
+            if (local_EDI_lineEndPositionList_data[mid] === positionIndex) {
+                break;
+            }
+            
+            right = mid - 1;
+        }
+        else if (local_EDI_lineEndPositionList_data[mid] < positionIndex) {
+            left = mid + 1;
+        }
+        else {
+            return false; // NaN
+        }
+    }
+
+    if (indexLine === -1) {
+        return false;
+        //return {
+        //  indexLine: 0,
+        //  indexColumn: 0,  
+        //};
+    }
+
+    if (indexLine === 0) {
+        indexColumn = positionIndex;
+    }
+    else {
+        indexColumn = positionIndex - (local_EDI_lineEndPositionList_data[indexLine - 1] + 1);
+    }
+
+    INTS[fEDI_getLineAndColumnIndices_indexLine] = indexLine;
+    INTS[fEDI_getLineAndColumnIndices_indexColumn] = indexColumn;
+    return true;
 }
 
 function EDI_getLastValidIndexColumn_raw(indexLine) {

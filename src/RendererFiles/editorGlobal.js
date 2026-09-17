@@ -8888,6 +8888,10 @@ Google AI:
           than the app non-monospace "height" of text.
     - [ ] So would storing this in AppData be a significant improvement to startup overhead?
     - [ ] How much cost exactly is it currently to do the text measurement logic (especially pertinent in respect to the text editor monospace font character width calculations)?
+    - [ ] If you do this, you'd want to add a button in the settings to manually remeasure the font in-case heuristics failed to predict a re-measure being necessary.
+- [ ] Add a button in settings that tells LSP to write out a file containing the text of what it thinks the current file's text is.
+    - [ ] This button would also write out a separate file containing the text of what the editor thinks the current file's text is.
+    - [ ] Then I can copy and paste each file's contents into a diff checker.
 
 
 */

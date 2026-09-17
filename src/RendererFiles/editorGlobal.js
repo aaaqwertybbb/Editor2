@@ -5026,7 +5026,7 @@ function EDI_onMouseDown(event) {
     if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
         EDI_finalizeEdit();
     }
-    
+
     EDI_movementBasedCacheInvalidation();
 
     if (get_EDI_recentBoundingClientRect_isNull_intFalsey()) {
@@ -8880,6 +8880,14 @@ Google AI:
 <
 < If you want to know more about how the body processes smoke, would you like details on how inhalation affects the bloodstream or the difference between mouth puffing and lung inhaling?
 
+==========
+
+- [ ] Continue synchronizing LSP with keystrokes (more-so synchronizing with an edit being finalized for the time being).
+- [ ] Store heuristics to determine when starting the app whether the font size changed? Is this useful?
+    - [ ] More specifically, the goal would be probably to avoid the text editor font width calculations, cause that is far more "expensive"
+          than the app non-monospace "height" of text.
+    - [ ] So would storing this in AppData be a significant improvement to startup overhead?
+    - [ ] How much cost exactly is it currently to do the text measurement logic (especially pertinent in respect to the text editor monospace font character width calculations)?
 
 
 */

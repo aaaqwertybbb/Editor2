@@ -8903,5 +8903,14 @@ Google AI:
                     - [ ] This is for the sake of correctness in the moment
                     - [ ] Then you can aim for reducing the amount of cases where you finalize the current edit
                           where sensible over time once you get the original correctness in place.
-
+- [ ] Update single line lexer such that:
+    - [ ] member access IMMEDIATELY followed by a period turns the word after the period to '--editor-syntax-member-color'
+        - [ ] UNLESS the word after the period is followed by a parenthesis in which you use '--editor-syntax-function-color'
+    - [ ] Remove all the side syntax highlighting that won't be used anymore.
+    - [ ] functions
+    - [ ] All in all the idea is to get the simplest cases of these things to work
+        - [ ] It will miss things like having a space between on the same line (not quite so complicated)
+        - [ ] but moreso I wonder about single line lexing where the period is one some line, and the identifier is on the next
+            - [ ] But "whatever" for the time being, I'll figure it out later
+            - [ ] And once I do I'll fix both described cases at the same time.
 */

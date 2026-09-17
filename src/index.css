@@ -757,13 +757,18 @@ functions: rgb(85, 193, 85)
   --primary-focus-outline: black;
   --gap-buffer-span-color: rgb(242, 92, 0);
   --gutter-background-color: rgb(255, 246, 220);
-  --editor-syntax-comment-color: rgb(238, 0, 255);
-  --editor-syntax-string-color: rgb(255, 119, 0);
-  --editor-syntax-keyword-color: rgb(255, 0, 0);
-  --editor-syntax-keywordControl-color: rgb(215, 100, 100);
+  --editor-syntax-comment-color: #008000;
+  --editor-syntax-string-color: #A31515;
+  --editor-syntax-keyword-color: #0000FF;
+  --editor-syntax-keywordControl-color: #AF00DB;
   --editor-syntax-parenthesis-color: rgb(85, 193, 85);
   --editor-syntax-operator-color: rgb(70, 165, 215);
   --editor-syntax-operatorAssignment-color: rgb(70, 165, 215);
   --editor-syntax-member-access-color: rgb(70, 165, 215);
+  --editor-syntax-identifier-color: #001080;
+  --editor-syntax-function-color: #af7700;
+  --editor-syntax-number-color: #098658;
+  --editor-syntax-type-color: #267f99;
+  --editor-syntax-member-color: #0070C1;
   --editor-cursor-color-focused: rgb(0, 0, 255);
 }

@@ -2914,71 +2914,6 @@ function EDI_createStyleForSelection_indentMore() {
     INTS[fEDI_cursor_DRAWN_selectionEnd] = INTS[fEDI_cursor_selectionEnd];
 }
 
-function EDI_getLastValidIndexColumn_raw(indexLine) {
-    if (indexLine < EDI_lineEndPositionList_count) {
-        if (indexLine === 0) {
-            return EDI_lineEndPositionList_data[indexLine] - 0;
-        }
-        else {
-            return EDI_lineEndPositionList_data[indexLine] - (EDI_lineEndPositionList_data[indexLine - 1] + 1);
-        }
-    }
-    return 0;
-}
-
-/**
- * 'INTS[fEDI_getLineBoundaryPositions_start]' is the position of the first character on that line.
- * 
- * 'INTS[fEDI_getLineBoundaryPositions_end]' is the position of the "line end" (i.e.: ascii code for '\n' or EOF).
- * 
- * The inclusivity/exclusivity is in reference to whether the position
- * points to non-line-end-text that exists on the line
- * 
- * NOTE: In performance critical sections this code is explicitly inlined and modified to be as performant as it seemingly can get for that specific section of code.
- * 
- * @returns nothing: the results are stored in 'INTS[fEDI_getLineBoundaryPositions_start]' inclusive and 'INTS[fEDI_getLineBoundaryPositions_end]' exclusive.
- */
-function EDI_getLineBoundaryPositions_raw(indexLine) {
-    if (indexLine < EDI_lineEndPositionList_count) {
-        if (indexLine === 0) {
-            INTS[fEDI_getLineBoundaryPositions_start] = 0;
-            INTS[fEDI_getLineBoundaryPositions_end] = EDI_lineEndPositionList_data[indexLine] - 0;
-            return;
-        }
-        else {
-            INTS[fEDI_getLineBoundaryPositions_start] = EDI_lineEndPositionList_data[indexLine - 1] + 1;
-            INTS[fEDI_getLineBoundaryPositions_end] = EDI_lineEndPositionList_data[indexLine];
-            return;
-        }
-    }
-    INTS[fEDI_getLineBoundaryPositions_start] = 0;
-    INTS[fEDI_getLineBoundaryPositions_end] = 0;
-}
-
-function EDI_getLineStart_pos_raw(indexLine) {
-    if (indexLine < EDI_lineEndPositionList_count) {
-        if (indexLine === 0) {
-            return 0;
-        }
-        else {
-            return (EDI_lineEndPositionList_data[indexLine - 1] + 1);
-        }
-    }
-    return 0;
-}
-
-function EDI_getLineEnd_pos_raw(indexLine) {
-    if (indexLine < EDI_lineEndPositionList_count) {
-        if (indexLine === 0) {
-            return EDI_lineEndPositionList_data[indexLine] - 0;
-        }
-        else {
-            return EDI_lineEndPositionList_data[indexLine];
-        }
-    }
-    return 0;
-}
-
 function EDI_onMouseMove_WRAPIT(event) {
     if ((event.buttons & 1) && !get_EDI_recentBoundingClientRect_isNull_intFalsey()) {
         // TODO: Consider short circuiting at via event.clientX and clientY by tracking the necessary thresholds for the cursor position to pass rather than the previous and current indices. (you can possibly thereby skip the calculation of the indices entirely for the redundant events).
@@ -3284,6 +3219,71 @@ function EDI_onMouseMoveDetailRankThree(indexLineClicked, indexColumnClicked) {
 
         EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
     }
+}
+
+function EDI_getLastValidIndexColumn_raw(indexLine) {
+    if (indexLine < EDI_lineEndPositionList_count) {
+        if (indexLine === 0) {
+            return EDI_lineEndPositionList_data[indexLine] - 0;
+        }
+        else {
+            return EDI_lineEndPositionList_data[indexLine] - (EDI_lineEndPositionList_data[indexLine - 1] + 1);
+        }
+    }
+    return 0;
+}
+
+/**
+ * 'INTS[fEDI_getLineBoundaryPositions_start]' is the position of the first character on that line.
+ * 
+ * 'INTS[fEDI_getLineBoundaryPositions_end]' is the position of the "line end" (i.e.: ascii code for '\n' or EOF).
+ * 
+ * The inclusivity/exclusivity is in reference to whether the position
+ * points to non-line-end-text that exists on the line
+ * 
+ * NOTE: In performance critical sections this code is explicitly inlined and modified to be as performant as it seemingly can get for that specific section of code.
+ * 
+ * @returns nothing: the results are stored in 'INTS[fEDI_getLineBoundaryPositions_start]' inclusive and 'INTS[fEDI_getLineBoundaryPositions_end]' exclusive.
+ */
+function EDI_getLineBoundaryPositions_raw(indexLine) {
+    if (indexLine < EDI_lineEndPositionList_count) {
+        if (indexLine === 0) {
+            INTS[fEDI_getLineBoundaryPositions_start] = 0;
+            INTS[fEDI_getLineBoundaryPositions_end] = EDI_lineEndPositionList_data[indexLine] - 0;
+            return;
+        }
+        else {
+            INTS[fEDI_getLineBoundaryPositions_start] = EDI_lineEndPositionList_data[indexLine - 1] + 1;
+            INTS[fEDI_getLineBoundaryPositions_end] = EDI_lineEndPositionList_data[indexLine];
+            return;
+        }
+    }
+    INTS[fEDI_getLineBoundaryPositions_start] = 0;
+    INTS[fEDI_getLineBoundaryPositions_end] = 0;
+}
+
+function EDI_getLineStart_pos_raw(indexLine) {
+    if (indexLine < EDI_lineEndPositionList_count) {
+        if (indexLine === 0) {
+            return 0;
+        }
+        else {
+            return (EDI_lineEndPositionList_data[indexLine - 1] + 1);
+        }
+    }
+    return 0;
+}
+
+function EDI_getLineEnd_pos_raw(indexLine) {
+    if (indexLine < EDI_lineEndPositionList_count) {
+        if (indexLine === 0) {
+            return EDI_lineEndPositionList_data[indexLine] - 0;
+        }
+        else {
+            return EDI_lineEndPositionList_data[indexLine];
+        }
+    }
+    return 0;
 }
 
 /**

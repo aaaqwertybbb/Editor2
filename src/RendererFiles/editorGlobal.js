@@ -2608,6 +2608,45 @@ function EDI_cursorBlink_startChecking() {
     EDI_cursor_cursorElement.classList.remove('EDI_cursor_focus');
     requestAnimationFrame(EDI_cursorBlink_trailingEdge);
 }
+
+function EDI_scrollCursorIntoView() {
+    let scrollX = 0;
+    let scrollY = 0;
+
+    let local_lastReadNumber_scrollTop = INTS[fEDI_lastReadNumber_scrollTop];
+
+    if (INTS[fEDI_cursor_cursorTranslateYValue] < local_lastReadNumber_scrollTop) {
+        scrollY = INTS[fEDI_cursor_cursorTranslateYValue] - local_lastReadNumber_scrollTop;
+    }
+    else if (INTS[fEDI_cursor_cursorTranslateYValue] >= local_lastReadNumber_scrollTop + INTS[fEDI_lastReadNumber_offsetHeight]) {
+        // I want to use clientHeight but I don't have any logic for no scrollbar thus single page fitting text might bug out and trigger
+        // scrollBy over and over.
+
+        // make the bottom touch then add lineHeight is probably the algorithm to get a perfect fill maybe do lineHeight * 2 skip an event when spamming arrowDown?
+        let currentBottom = local_lastReadNumber_scrollTop + INTS[fEDI_lastReadNumber_offsetHeight];
+        let changeToMakeBottomTouch = INTS[fEDI_cursor_cursorTranslateYValue] - currentBottom;
+        scrollY = changeToMakeBottomTouch + (2 * INTS[fEDI_lineHeight]);
+    }
+
+    if (INTS[fEDI_cursor_cursorTranslateXValue] < INTS[fEDI_lastReadNumber_scrollLeft]) {
+        scrollX = INTS[fEDI_cursor_cursorTranslateXValue] - INTS[fEDI_lastReadNumber_scrollLeft];
+    }
+    else if (INTS[fEDI_cursor_cursorTranslateXValue] >= INTS[fEDI_lastReadNumber_scrollLeft] + INTS[fEDI_lastReadNumber_offsetWidth]) {
+        // I want to use clientWidth but I don't have any logic for no scrollbar thus single page fitting text might bug out and trigger
+        // scrollBy over and over.
+
+        // make the right touch then add characterWidth is probably the algorithm to get a perfect fill maybe do characterWidth * 2 skip an event when spamming arrowRight?
+        let currentRight = INTS[fEDI_lastReadNumber_scrollLeft] + INTS[fEDI_lastReadNumber_offsetWidth];
+        let changeToMakeRightTouch = INTS[fEDI_cursor_cursorTranslateXValue] - currentRight;
+        scrollX = changeToMakeRightTouch + (4 * EDI_characterWidth);
+    }
+
+    // This is asynchronous, this is the bug cause
+    // (SPECIFICALLY: the scroll event is async)
+    if (scrollX !== 0 || scrollY !== 0) {
+        EDI_baseElement.scrollBy(scrollX, scrollY);
+    }
+}
 //#endregion
 
 //#region mousedown
@@ -7369,44 +7408,7 @@ function EDI_stopTrackingIfTrackedSyntaxMadeToSpanSingleLine() {
     }
 }
 
-function EDI_scrollCursorIntoView() {
-    let scrollX = 0;
-    let scrollY = 0;
 
-    let local_lastReadNumber_scrollTop = INTS[fEDI_lastReadNumber_scrollTop];
-
-    if (INTS[fEDI_cursor_cursorTranslateYValue] < local_lastReadNumber_scrollTop) {
-        scrollY = INTS[fEDI_cursor_cursorTranslateYValue] - local_lastReadNumber_scrollTop;
-    }
-    else if (INTS[fEDI_cursor_cursorTranslateYValue] >= local_lastReadNumber_scrollTop + INTS[fEDI_lastReadNumber_offsetHeight]) {
-        // I want to use clientHeight but I don't have any logic for no scrollbar thus single page fitting text might bug out and trigger
-        // scrollBy over and over.
-
-        // make the bottom touch then add lineHeight is probably the algorithm to get a perfect fill maybe do lineHeight * 2 skip an event when spamming arrowDown?
-        let currentBottom = local_lastReadNumber_scrollTop + INTS[fEDI_lastReadNumber_offsetHeight];
-        let changeToMakeBottomTouch = INTS[fEDI_cursor_cursorTranslateYValue] - currentBottom;
-        scrollY = changeToMakeBottomTouch + (2 * INTS[fEDI_lineHeight]);
-    }
-
-    if (INTS[fEDI_cursor_cursorTranslateXValue] < INTS[fEDI_lastReadNumber_scrollLeft]) {
-        scrollX = INTS[fEDI_cursor_cursorTranslateXValue] - INTS[fEDI_lastReadNumber_scrollLeft];
-    }
-    else if (INTS[fEDI_cursor_cursorTranslateXValue] >= INTS[fEDI_lastReadNumber_scrollLeft] + INTS[fEDI_lastReadNumber_offsetWidth]) {
-        // I want to use clientWidth but I don't have any logic for no scrollbar thus single page fitting text might bug out and trigger
-        // scrollBy over and over.
-
-        // make the right touch then add characterWidth is probably the algorithm to get a perfect fill maybe do characterWidth * 2 skip an event when spamming arrowRight?
-        let currentRight = INTS[fEDI_lastReadNumber_scrollLeft] + INTS[fEDI_lastReadNumber_offsetWidth];
-        let changeToMakeRightTouch = INTS[fEDI_cursor_cursorTranslateXValue] - currentRight;
-        scrollX = changeToMakeRightTouch + (4 * EDI_characterWidth);
-    }
-
-    // This is asynchronous, this is the bug cause
-    // (SPECIFICALLY: the scroll event is async)
-    if (scrollX !== 0 || scrollY !== 0) {
-        EDI_baseElement.scrollBy(scrollX, scrollY);
-    }
-}
 
 function EDI_getCharacterKind(character) {
     switch (character) {

@@ -1024,9 +1024,6 @@ delete node.dataset.syntaxPending;
 < This keeps your CSS incredibly clean, avoids duplication, handles performance perfectly, and makes your code self-documenting without needing comments calling it "hacky."
 < 
 < Would you like to look at how to structure your trailing-edge querySelectorAll batch updates using one of these cleaner approaches?
-
-
-
 */
 
             let divItem = document.createElement('div');

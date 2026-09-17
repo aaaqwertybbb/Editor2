@@ -264,6 +264,7 @@ function EDI_render_do_CreateViewport() {
     const translateY = `translateY(0px)`;
     const left = gutterWidthTotal_withPxUnits;
     const gutterWidth = `${INTS[fEDI_gutterWidthStyleValue]}px`;
+    const local_EDI_horizontal_scrollbar_virtualization_boundary_style_width = EDI_horizontal_scrollbar_virtualization_boundary.style.width;
 
     for (var i = 0; i < INTS[fEDI_virtualCount]; i++) {
 
@@ -279,7 +280,6 @@ function EDI_render_do_CreateViewport() {
         }
         gutterLineElement.className = 'eG';
         EDI_gutter.appendChild(gutterLineElement);
-        gutterLineElement.style.top = top;
         gutterLineElement.style.width = gutterWidth;
 
         const div = document.createElement('div');
@@ -287,7 +287,7 @@ function EDI_render_do_CreateViewport() {
         EDI_textElement.appendChild(div);
         div.style.transform = translateY;
         div.style.left = left;
-        div.style.width = EDI_horizontal_scrollbar_virtualization_boundary.style.width;
+        div.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
 
         div.appendChild(document.createElement('span'));
     }

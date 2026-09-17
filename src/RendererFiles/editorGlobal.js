@@ -2135,30 +2135,6 @@ function EDI_getFinalizedEditsAndRawSaveFileData(NOTfinalizePendingEdits) {
         fileStartsWithBom: Boolean(get_EDI_fileStartsWithBom())
     };
 }
-//aaaaaaaaaaaaaaaaaaaa
-/**
- * @param {*} indexLine
- * @returns {number} the last valid POSITION index on the line, but with respect to any pending edits.
- */
-function EDI_readLineEndPositionList(indexLine) {
-    let lineEndPositionIndex = EDI_lineEndPositionList_data[indexLine];
-
-    // If you need to determine the text without finalizing an edit, you DO have to loop forwards right?
-    if (INTS[fEDI_cursor_editLength] > 0 && INTS[fEDI_cursor_editPosition] <= lineEndPositionIndex) {
-        switch (INTS[fEDI_cursor_editKind]) {
-            case EditKind_InsertLtr:
-                lineEndPositionIndex += INTS[fEDI_cursor_editLength];
-                break;
-            case EditKind_DeleteLtr:
-            case EditKind_BackspaceRtl:
-            case EditKind_RemoveTextNoBatching:
-                lineEndPositionIndex -= INTS[fEDI_cursor_editLength];
-                break;
-        }
-    }
-
-    return lineEndPositionIndex;
-}
 
 /**
  * If you were to make a function for this logic, it presumably would look like this.
@@ -6984,7 +6960,7 @@ function EDI_render_do_RemoveSelection() {
         // -1 since you can't remove EOF
         for (var iVarDependent = INTS[fEDI_cursor_indexLine]; iVarDependent < EDI_lineEndPositionList_count - 1; iVarDependent++) {
             // TODO: all of these reads need to be raw for this work with multicursor just remember that for tomorrow don't worry about this right now just focus on the one task but remember this for tomorrow.
-            let lineEnding = EDI_readLineEndPositionList(iVarDependent);
+            let lineEnding = EDI_lineEndPositionList_data[iVarDependent];
             if (lineEnding >= INTS[fEDI_cursor_editPosition] && lineEnding < INTS[fEDI_cursor_editPosition] + editLength) {
                 linesRemovedCount++;
                 INTS[fEDI_cursor_editLineFeedCount]++;
@@ -7032,7 +7008,7 @@ function EDI_render_do_RemoveSelection() {
                 EDI_trackedSyntaxList.removeAt(indexTrackedSyntax, 1);
         }
 
-        let finalLineEndPosition = EDI_readLineEndPositionList(INTS[fEDI_cursor_indexLine] + linesRemovedCount);
+        let finalLineEndPosition = EDI_lineEndPositionList_data[INTS[fEDI_cursor_indexLine] + linesRemovedCount];
         let largestDrawnIndexLine = INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1;
         let visibleLinesRemovedCount = 0;
 

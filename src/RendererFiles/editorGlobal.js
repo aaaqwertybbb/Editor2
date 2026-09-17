@@ -8889,9 +8889,9 @@ Google AI:
     - [ ] So would storing this in AppData be a significant improvement to startup overhead?
     - [ ] How much cost exactly is it currently to do the text measurement logic (especially pertinent in respect to the text editor monospace font character width calculations)?
     - [ ] If you do this, you'd want to add a button in the settings to manually remeasure the font in-case heuristics failed to predict a re-measure being necessary.
-- [ ] Add a button in settings that tells LSP to write out a file containing the text of what it thinks the current file's text is.
-    - [ ] This button would also write out a separate file containing the text of what the editor thinks the current file's text is.
-    - [ ] Then I can copy and paste each file's contents into a diff checker.
+- [x] Add a button in settings that tells LSP to write out a file containing the text of what it thinks the current file's text is.
+    - [x] This button would also write out a separate file containing the text of what the editor thinks the current file's text is.
+    - [x] Then I can copy and paste each file's contents into a diff checker.
 - [ ] TODO: make a decision about aaa and aaaRAW etc...
     - [ ] I'm pretty sure you can just always use "raw" to the point of even just removing non-raw entirely.
         - [ ] probably also remove raw too and just inline all the usages to target the bytes at position index.
@@ -8903,16 +8903,16 @@ Google AI:
                     - [ ] This is for the sake of correctness in the moment
                     - [ ] Then you can aim for reducing the amount of cases where you finalize the current edit
                           where sensible over time once you get the original correctness in place.
-- [ ] Update single line lexer such that:
-    - [ ] member access IMMEDIATELY followed by a period turns the word after the period to '--editor-syntax-member-color'
-        - [ ] UNLESS the word after the period is followed by a parenthesis in which you use '--editor-syntax-function-color'
-    - [ ] Remove all the side syntax highlighting that won't be used anymore.
-    - [ ] functions
-    - [ ] All in all the idea is to get the simplest cases of these things to work
-        - [ ] It will miss things like having a space between on the same line (not quite so complicated)
-        - [ ] but moreso I wonder about single line lexing where the period is one some line, and the identifier is on the next
-            - [ ] But "whatever" for the time being, I'll figure it out later
-            - [ ] And once I do I'll fix both described cases at the same time.
+- [x] Update single line lexer such that:
+    - [x] member access IMMEDIATELY followed by a period turns the word after the period to '--editor-syntax-member-color'
+        - [x] UNLESS the word after the period is followed by a parenthesis in which you use '--editor-syntax-function-color'
+    - [x] Remove all the side syntax highlighting that won't be used anymore.
+    - [x] functions
+    - [x] All in all the idea is to get the simplest cases of these things to work
+        - [x] It will miss things like having a space between on the same line (not quite so complicated)
+        - [x] but moreso I wonder about single line lexing where the period is one some line, and the identifier is on the next
+            - [x] But "whatever" for the time being, I'll figure it out later
+            - [x] And once I do I'll fix both described cases at the same time.
 
 
 I find that iron supplements are extremely high in "dose".

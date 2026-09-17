@@ -1426,6 +1426,14 @@ I did some exercises then about an hour long walk then showered...
                             if (className === 'eI') {
                                 textContent = divSpanTextContent.substring(substart, substart + wordlength);
                             }
+                            
+                            if (divSpanTextContent[pos] === '(') {
+                                className = 'eF';
+                            }
+                            else if (divSpanTextContent[pos] === '.') {
+                                className = 'eM';
+                            }
+
                             if (childIndex < divChildrenInitialLength) {
                                 span = div.children[childIndex++];
                                 span.className = className;

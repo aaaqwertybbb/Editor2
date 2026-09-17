@@ -299,15 +299,19 @@ the class names that linearly scale in usage as you show more and more text.
   color: var(--editor-syntax-identifier-color);
 }
 
+/* (i.e.: Editor Function) */
+.eF {
+  color: var(--editor-syntax-function-color);
+}
+
+/* (i.e.: Editor Member) */
+.eM {
+  color: var(--editor-syntax-member-color);
+}
+
 /* .eP (i.e.: Editor Parenthesis) */
 .eP {
   color: var(--editor-syntax-parenthesis-color);
-}
-
-/* .eM (i.e.: Editor Member access) */
-.eM {
-  color: var(--editor-syntax-member-access-color);
-  /*background-color: var(--editor-syntax-member-access-background-color);*/
 }
 
 /* .eO (i.e.: Editor Operator) */

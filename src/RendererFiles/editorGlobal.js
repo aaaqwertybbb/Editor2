@@ -2628,7 +2628,7 @@ function EDI_draw_cursor_debug() {
         //let previous = EDI_getCharacterPrevious(INTS[fEDI_cursor_indexColumn], EDI_getPositionIndex_cursor());
         //if (previous === '\n') previous = '\\n';
         //else if (previous === '\t') previous = '\\t';
-        //let current = EDI_getCharacterCurrent(INTS[fEDI_cursor_indexColumn], EDI_getPositionIndex_cursor(), EDI_getLineEnd_pos(INTS[fEDI_cursor_indexLine]));
+        //let current = EDI_getCharacterCurrent(INTS[fEDI_cursor_indexColumn], EDI_getPositionIndex_cursor(), EDI_getLineEnd_pos_raw(INTS[fEDI_cursor_indexLine]));
         //if (current === '\n') current = '\\n';
         //else if (current === '\t') current = '\\t';
         //text += ' | (' + previous + ', ' + current + ')';
@@ -2926,30 +2926,6 @@ function EDI_getLastValidIndexColumn_raw(indexLine) {
     return 0;
 }
 
-function EDI_getLineStart_pos(indexLine) {
-    if (indexLine < EDI_lineEndPositionList_count) {
-        if (indexLine === 0) {
-            return 0;
-        }
-        else {
-            return (EDI_readLineEndPositionList(indexLine - 1) + 1);
-        }
-    }
-    return 0;
-}
-
-function EDI_getLineEnd_pos(indexLine) {
-    if (indexLine < EDI_lineEndPositionList_count) {
-        if (indexLine === 0) {
-            return EDI_readLineEndPositionList(indexLine) - 0;
-        }
-        else {
-            return EDI_readLineEndPositionList(indexLine);
-        }
-    }
-    return 0;
-}
-
 /**
  * 'INTS[fEDI_getLineBoundaryPositions_start]' is the position of the first character on that line.
  * 
@@ -3126,7 +3102,7 @@ function EDI_onMouseMoveDetailRankTwo(indexLineClicked, indexColumnClicked, inde
         INTS[fEDI_cursor_selectionEnd] = positionIndex;
         INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
 
-        let goalCharacterKind = EDI_getCharacterCurrent_KIND(INTS[fEDI_cursor_indexColumn], positionIndex, EDI_getLineEnd_pos(INTS[fEDI_cursor_indexLine]));
+        let goalCharacterKind = EDI_getCharacterCurrent_KIND(INTS[fEDI_cursor_indexColumn], positionIndex, EDI_getLineEnd_pos_raw(INTS[fEDI_cursor_indexLine]));
         let leftWasFound = false;
         let tempPositionIndex = positionIndex;
 
@@ -3314,11 +3290,11 @@ function EDI_onMouseMoveDetailRankThree(indexLineClicked, indexColumnClicked) {
  * @returns 
  */
 function EDI_getPositionIndex_cursor() {
-    return EDI_getLineStart_pos(INTS[fEDI_cursor_indexLine]) + INTS[fEDI_cursor_indexColumn];
+    return EDI_getLineStart_pos_raw(INTS[fEDI_cursor_indexLine]) + INTS[fEDI_cursor_indexColumn];
 }
 
 function EDI_getPositionIndex_Overload(indexLine, indexColumn) {
-    return EDI_getLineStart_pos(indexLine) + indexColumn;
+    return EDI_getLineStart_pos_raw(indexLine) + indexColumn;
 }
 
 /**
@@ -8751,6 +8727,7 @@ Google AI:
     - [ ] EDI_getLineAndColumnIndices_raw
         - [ ] indent logic sounds most problematic to swap to raw cuz u gotta be careful not to "actually" modify the selection or you'll go past the raw line position for the end selection.
     - [ ] last valid column index function
+    - [ ] EDI_getPositionIndex_raw_cursor and other 2
     - [ ] double check that everything is working
 - [x] Update single line lexer such that:
     - [x] member access IMMEDIATELY followed by a period turns the word after the period to '--editor-syntax-member-color'

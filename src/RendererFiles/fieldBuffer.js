@@ -279,6 +279,8 @@ const CONST_js_QUESTIONMARK_num = 63;
 const CONST_js_CARET_str = '^';
 const CONST_js_CARET_num = 94;
 
+const CONST_js_COLON_num = 58;
+
 const CONST_EDI_gutterPaddingLeft = 3;
 const CONST_EDI_gutterPaddingRight = 6;
 

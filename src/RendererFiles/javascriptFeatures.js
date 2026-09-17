@@ -566,14 +566,17 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                     }
 
                     if (className === 'eI') {
-                        textContent = divSpanTextContent.substring(substart, substart + wordlength);
-                    }
+                        textContent = bytes.subarray(substart, substart + wordlength);
 
-                    if (divSpanTextContent[pos] === '(') {
-                        className = 'eF';
-                    }
-                    else if (substart > 0 && divSpanTextContent[substart - 1] === '.') {
-                        className = 'eM';
+                        if (divSpanTextContent[pos] === CONST_js_OPENPARENTHESIS_num) {
+                            className = 'eF';
+                        }
+                        else if (substart > 0 && bytes[substart - 1] === CONST_js_PERIOD_num) {
+                            className = 'eM';
+                        }
+                        else if (bytes[pos] === CONST_js_COLON_num) {
+                            className = 'eM';
+                        }
                     }
 
                     if (childIndex < div.children.length) {
@@ -1433,13 +1436,16 @@ I did some exercises then about an hour long walk then showered...
 
                             if (className === 'eI') {
                                 textContent = divSpanTextContent.substring(substart, substart + wordlength);
-                            }
-                            
-                            if (divSpanTextContent[pos] === '(') {
-                                className = 'eF';
-                            }
-                            else if (substart > 0 && divSpanTextContent[substart - 1] === '.') {
-                                className = 'eM';
+
+                                if (divSpanTextContent[pos] === '(') {
+                                    className = 'eF';
+                                }
+                                else if (substart > 0 && divSpanTextContent[substart - 1] === '.') {
+                                    className = 'eM';
+                                }
+                                else if (divSpanTextContent[pos] === ':') {
+                                    className = 'eM';
+                                }
                             }
 
                             if (childIndex < divChildrenInitialLength) {

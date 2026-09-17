@@ -377,7 +377,6 @@ function EXPLORER_drawItem_BATCH_PullDataDrawResult() {
 
         for (let i = 0; i < INTS[fEXPLORER_pullData_result_count]; i++) {
             let packedInteger = EXPLORER_pullData_result[i];
-            const key = packedInteger & EXPLORER_KEY_MASK;
             const ringBufferIndexItem = packedInteger >> CONST_EXPLORER_KEY_BITS;
 
             let nodeElement = itemListElement_children[ringBufferIndexItem];

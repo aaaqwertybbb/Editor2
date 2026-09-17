@@ -831,12 +831,6 @@ function EDI_render_do_Scroll(timestamp) {
 
     INTS[fEDI_ONSCROLLscrollTop] = INTS[fEDI_lastReadNumber_scrollTop];
 
-    // TODO: Move this to the leading edge? (maybe)
-    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
-        // (the comment at the end of this line is not applicable while this is in EDI_render_do_Scroll, only applicable when moved to leading edge) TODO: Timing issue, someone typing while they scroll
-        EDI_finalizeEdit();
-    }
-
     // TODO: Consider moving the 0 diff case to the soonest possible line to skip as much code as possible.
     let diff = local_currVli - local_prevVli;
     if (diff === 0) return;
@@ -931,6 +925,11 @@ function EDI_render_do_Scroll(timestamp) {
  * @returns true if scrollTop (and a few other details) have not changed, thus indicating the invoker should immediately return from their own rather than continuing with scroll logic.
  */
 function EDI_onScroll_LeadingEdge(local_prevVli, local_currVli) {
+
+    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+        // TODO: Timing issue, someone typing while they scroll
+        EDI_finalizeEdit();
+    }
     
     // (Comment group ID: 'do_Scroll/LeadingEdge')...and here the locals are moved to the global scope. (part 2 of 3)
     INTS[fEDI_prevVli] = local_prevVli;
@@ -8840,6 +8839,8 @@ Google AI:
                     - [ ] This is for the sake of correctness in the moment
                     - [ ] Then you can aim for reducing the amount of cases where you finalize the current edit
                           where sensible over time once you get the original correctness in place.
+    - [ ] EDI_getLineAndColumnIndices_raw
+    - [ ] double check that everything is working
 - [x] Update single line lexer such that:
     - [x] member access IMMEDIATELY followed by a period turns the word after the period to '--editor-syntax-member-color'
         - [x] UNLESS the word after the period is followed by a parenthesis in which you use '--editor-syntax-function-color'

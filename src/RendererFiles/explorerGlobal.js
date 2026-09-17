@@ -204,24 +204,23 @@ function EXPLORER_drawItem_BATCH(start, length, onePositiveDiff_twoNegativeDiff_
         }
         else {
             EXPLORER_treeViewNodes.getElementAt(indexItem);
-            let key = INTS[fTreeView_pooledNode_key];
             depth = INTS[fTreeView_pooledNode_depth];
             nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
             
-            let isDirectory = nodeKind === TreeViewNodeKind_isExpandable_isExpanded ||
-                                nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded;
-
             //let entry = arrayEntries[loopCounter];
             let textNode = divItem.lastChild;
             textNode.nodeValue = '...';//entry.basename;
             textNode.title = '...';//entry.absolutePath;
             divItem.className = 'eN';
 
-            if (false /*isDirectory*/ /*&& !entry.isDirectory*/) {
-                // A file was deleted then a directory was created with same absolute file path or vice versa.
-                EXPLORER_treeViewNodes.setNodeKind(indexItem, TreeViewNodeKind_NOTisExpandable_NOTisExpanded);
-                nodeKind = TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
-            }
+            //let isDirectory = nodeKind === TreeViewNodeKind_isExpandable_isExpanded ||
+            //                  nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded;
+            //
+            //if (false /*isDirectory*/ /*&& !entry.isDirectory*/) {
+            //    // A file was deleted then a directory was created with same absolute file path or vice versa.
+            //    EXPLORER_treeViewNodes.setNodeKind(indexItem, TreeViewNodeKind_NOTisExpandable_NOTisExpanded);
+            //    nodeKind = TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
+            //}
         }
         
         switch (nodeKind) {

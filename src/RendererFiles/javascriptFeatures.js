@@ -566,9 +566,9 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                     }
 
                     if (className === 'eI') {
-                        textContent = bytes.subarray(substart, substart + wordlength);
+                        textContent = EDI_decoder.decode(bytes.subarray(substart, substart + wordlength));
 
-                        if (divSpanTextContent[pos] === CONST_js_OPENPARENTHESIS_num) {
+                        if (bytes[pos] === CONST_js_OPENPARENTHESIS_num) {
                             className = 'eF';
                         }
                         else if (substart > 0 && bytes[substart - 1] === CONST_js_PERIOD_num) {

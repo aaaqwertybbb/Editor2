@@ -389,20 +389,19 @@ function EDI_render_do_Scroll(timestamp) {
     
     let local_prevVli = INTS[fEDI_ONSCROLLvirtualIndexLine];
     const local_currVli = INTS[fEDI_virtualIndexLine];
+    INTS[fEDI_ONSCROLLvirtualIndexLine] = local_currVli;
 
     INTS[fEDI_scrollEndDeadline] = timestamp + 1000;
-    
-    let diff = local_currVli - local_prevVli;
-    if (diff === 0) return;
-
-    INTS[fEDI_ONSCROLLvirtualIndexLine] = local_currVli;
 
     if (INTS[fEDI_intFalsey_isScrolling] === 0) {
         // (Comment group ID: 'do_Scroll/LeadingEdge')...and here the locals are passed to the LeadingEdge because only when performing the LeadingEdge do you need to use the global versions. (part 1 of 3)
         if (EDI_onScroll_LeadingEdge(local_prevVli, local_currVli)) return; // This if statement reads poorly. You return for a reason that isn't gleaned by reading the function name alone.
         // (Comment group ID: 'do_Scroll/LeadingEdge')...and here the locals assigned the same value as the "globals" in case 'EDI_onScroll_LeadingEdge' modified the globals. (part 3 of 3)
-        diff = local_currVli - INTS[fEDI_prevVli];
+        local_prevVli = INTS[fEDI_prevVli];
     }
+
+    let diff = local_currVli - local_prevVli; // you cannot move this 'diff === 0' case prior to the leading edge.
+    if (diff === 0) return;
 
     let lowerBound = 0;
     let upperBound = 0;

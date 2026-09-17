@@ -3698,24 +3698,6 @@ function EDI_postKeyboardMovementSelectionLogic(shiftKey) {
 }
 
 /**
- * @param {*} shiftKey 
- */
-function EDI_arrowDown(shiftKey) {
-    // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
-    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
-        EDI_finalizeEdit();
-    }
-    EDI_movementBasedCacheInvalidation();
-    EDI_preKeyboardMovementSelectionLogic(shiftKey);
-    if (INTS[fEDI_cursor_indexLine] < EDI_lineEndPositionList_count - 1) {
-        INTS[fEDI_cursor_indexLine]++;
-        EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
-        EDI_set_indexColumn_and_visualColumn_relativeTo_storedVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
-    }
-    EDI_postKeyboardMovementSelectionLogic(shiftKey);
-}
-
-/**
  * This function is expected to be used for a variety of scenarios,
  * but the initial use-case is caching the indentation when holding the 'enter' key, so that each consecutive event can know what the indentation was on the previous
  * event and not have to re-calculate it.
@@ -4339,7 +4321,19 @@ function EDI_onKeyDown_ArrowDown(event) {
         EDI_baseElement.scrollBy(0, INTS[fEDI_lineHeight]);
     }
     else {
-        EDI_arrowDown(/*shiftKey*/ event.shiftKey);
+        // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
+        if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+            EDI_finalizeEdit();
+        }
+        EDI_movementBasedCacheInvalidation();
+        EDI_preKeyboardMovementSelectionLogic(event.shiftKey);
+        if (INTS[fEDI_cursor_indexLine] < EDI_lineEndPositionList_count - 1) {
+            INTS[fEDI_cursor_indexLine]++;
+            EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+            EDI_set_indexColumn_and_visualColumn_relativeTo_storedVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
+        }
+        EDI_postKeyboardMovementSelectionLogic(shiftKey);
+
         EDI_render_request(RenderKind_Cursor_n);
         if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
             EDI_cursorBlink_startChecking();

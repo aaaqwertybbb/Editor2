@@ -1729,7 +1729,7 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
             // rank is just a means of short circuiting any weird combinations of spaces and tabs.
             // (TODO: maybe I should believe in tab stops.)
 
-            let c = getCharacter(line_start + i);
+            let c = String.fromCharCode(EDI_textByteList_bytes[line_start + i]);
             switch (c) {
                 case ' ':
                     seenSpaceCount++;
@@ -1890,7 +1890,7 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
             // rank is just a means of short circuiting any weird combinations of spaces and tabs.
             // (TODO: maybe I should believe in tab stops.)
 
-            let c = getCharacter(line_start + i);
+            let c = String.fromCharCode(EDI_textByteList_bytes[line_start + i]);
             switch (c) {
                 case ' ':
                     seenSpaceCount++;
@@ -2628,13 +2628,14 @@ INTS[fEDI_cursor_indexLine]
     text += '(' + INTS[fEDI_cursor_indexLine] + ', ' + INTS[fEDI_cursor_indexColumn] + ')';
     
     if (BYTES[byteDIALOG_Settings_editorDebugShowAdjacentCharacters]) {
-        let previous = EDI_getCharacterPrevious(INTS[fEDI_cursor_indexColumn], EDI_getPositionIndex_cursor());
-        if (previous === '\n') previous = '\\n';
-        else if (previous === '\t') previous = '\\t';
-        let current = EDI_getCharacterCurrent(INTS[fEDI_cursor_indexColumn], EDI_getPositionIndex_cursor(), EDI_getLineEnd_pos(INTS[fEDI_cursor_indexLine]));
-        if (current === '\n') current = '\\n';
-        else if (current === '\t') current = '\\t';
-        text += ' | (' + previous + ', ' + current + ')';
+        //let previous = EDI_getCharacterPrevious(INTS[fEDI_cursor_indexColumn], EDI_getPositionIndex_cursor());
+        //if (previous === '\n') previous = '\\n';
+        //else if (previous === '\t') previous = '\\t';
+        //let current = EDI_getCharacterCurrent(INTS[fEDI_cursor_indexColumn], EDI_getPositionIndex_cursor(), EDI_getLineEnd_pos(INTS[fEDI_cursor_indexLine]));
+        //if (current === '\n') current = '\\n';
+        //else if (current === '\t') current = '\\t';
+        //text += ' | (' + previous + ', ' + current + ')';
+        text += 'byteDIALOG_Settings_editorDebugShowAdjacentCharacters_is_not_implemented';
     }
 
     text += ' | (' + INTS[fEDI_cursorVisualColumnIndex] + ')';
@@ -3188,105 +3189,9 @@ function EDI_onMouseMoveDetailRankOne(indexLineClicked, indexColumnClicked, inde
     EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
 }
 
-function getCharacter_raw(positionIndex) {
-    return String.fromCharCode(EDI_textByteList_bytes[positionIndex]);
-}
-
-function getCharacter_kind_raw(positionIndex) {
-    return EDI_getCharacterKind(getCharacter_raw(positionIndex));
-}
-
-function getCharacter(positionIndex) {
-
-    // in this getCharacter function, you'd actually already know the total shift if you just looped forwards.
-    // Also this currently is EXTREMELY unoptimized given that it resets the totalShift each time it gets invoked rather than remembering the previous result.
-
-    // maybe when hitting ArrowRight you'd want to finalize the edits?
-    // because if you have multicursor with two cursors on the same line
-    // you type some letters
-    // then ctrl arrow right
-    // how would this interact with the line end positions?
-    //
-    // I think if it were something like this, that it'd relate to whether the user moved they're cursor outisde the range of that cursor's pending "gap buffer" insertion text.
-    //
-    // additionally this function feels "random access", you need to consider a consecutive approach where you accumulate this state.
-    // and that's what the plan was... but it doesn't quite feel like it would go here. Or that there'd be a second function in which you agree to using contextual information to determine the result much faster.
-
-    // Cursors overlapping missed cases:
-    // =================================
-    // two cursors same line hit home
-    // two cursors same line hit end
-
-    // The problem with ctrl+backspace / ctrl+delete is 'getCharacter(positionIndex)'
-
-    // this only gets 1 character why is it using the ..._decode_... functions.
-
-    let totalShift = 0;
-    // If you need to determine the text without finalizing an edit, you DO have to loop forwards right?
-    switch (INTS[fEDI_cursor_editKind]) {
-        case EditKind_InsertLtr:
-            if (positionIndex >= INTS[fEDI_cursor_editPosition] && positionIndex < INTS[fEDI_cursor_editPosition] + INTS[fEDI_cursor_editLength]) {
-                // TODO: I hear fromCharCode is faster than 'String.fromCodePoint(...)' thus I'm seeing if it is sufficient for my current personal usage...
-                // ...long term it presumably fails for characters that I don't tend to type, but until then this is working so I'll just use fromCharCode.
-                //
-                // TODO: This takes a spread/array; if I give it a single byte does it allocate a length of 1 array every invocation?
-                return String.fromCharCode(EDI_cursor_gapBuffer[positionIndex - INTS[fEDI_cursor_editPosition]]);
-            }
-            else if (INTS[fEDI_cursor_editPosition] <= positionIndex) {
-                totalShift += INTS[fEDI_cursor_editLength];
-            }
-            break;
-        case EditKind_DeleteLtr:
-        case EditKind_BackspaceRtl:
-        case EditKind_RemoveTextNoBatching:
-            totalShift -= INTS[fEDI_cursor_editLength];
-            break;
-    }
-    // TODO: I hear fromCharCode is faster than 'String.fromCodePoint(...)' thus I'm seeing if it is sufficient for my current personal usage...
-    // ...long term it presumably fails for characters that I don't tend to type, but until then this is working so I'll just use fromCharCode.
-    //
-    // TODO: This takes a spread/array; if I give it a single byte does it allocate a length of 1 array every invocation?
-    return String.fromCharCode(EDI_textByteList_bytes[positionIndex - totalShift]);
-}
-
-/**
- * 'positionIndex' is a calculated value that is commonly calculated.
- * It tends to be the case that you already are using a variable to store the positionIndex.
- * Thus providing that positionIndex is ideal.
- * 
- * @param {*} positionIndex 
- */
-function EDI_getCharacterPrevious(indexColumn, positionIndex) {
-    // TODO: Make a 'getCharacter(...) method so the gap buffer logic can be in one location.
-    if (indexColumn !== 0) {
-        return getCharacter(positionIndex - 1);
-    }
-    else {
-        return '\0';
-    }
-}
-
-/**
-  * 'positionIndex' is a calculated value that is commonly calculated.
- * It tends to be the case that you already are using a variable to store the positionIndex.
- * Thus providing that positionIndex is ideal.
- * 
- * @param {*} indexColumn 
- * @param {*} positionIndex 
- * @param {*} line 
- */
-function EDI_getCharacterCurrent(indexColumn, positionIndex, lineEnd) {
-    if (indexColumn < lineEnd) {
-        return getCharacter(positionIndex);
-    }
-    else {
-        return '\0';
-    }
-}
-
 function EDI_getCharacterPrevious_KIND(indexColumn, positionIndex) {
     if (indexColumn !== 0) {
-        return EDI_getCharacterKind(EDI_getCharacterPrevious(indexColumn, positionIndex));
+        return EDI_getCharacterKind(String.fromCharCode(EDI_textByteList_bytes[positionIndex - 1]));
     }
     else {
         return CharacterKind_None;
@@ -3295,7 +3200,7 @@ function EDI_getCharacterPrevious_KIND(indexColumn, positionIndex) {
 
 function EDI_getCharacterCurrent_KIND(indexColumn, positionIndex, lineEnd) {
     if (indexColumn < lineEnd) {
-        return EDI_getCharacterKind(EDI_getCharacterCurrent(indexColumn, positionIndex, lineEnd));
+        return EDI_getCharacterKind(String.fromCharCode(EDI_textByteList_bytes[positionIndex]));
     }
     else {
         return CharacterKind_None;
@@ -3866,6 +3771,10 @@ function EDI_postKeyboardMovementSelectionLogic(shiftKey) {
  * @param {*} shiftKey 
  */
 function EDI_arrowDown(shiftKey) {
+    // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
+    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+        EDI_finalizeEdit();
+    }
     EDI_movementBasedCacheInvalidation();
     EDI_preKeyboardMovementSelectionLogic(shiftKey);
     if (INTS[fEDI_cursor_indexLine] < EDI_lineEndPositionList_count - 1) {
@@ -4439,7 +4348,7 @@ function EDI_onKeyDown_ArrowLeft(event) {
             let indexPosition = INTS[fEDI_getLineBoundaryPositions_start] + INTS[fEDI_cursor_indexColumn];
             let originalCharacterKind = EDI_getCharacterPrevious_KIND(INTS[fEDI_cursor_indexColumn], indexPosition);
             INTS[fEDI_cursor_indexColumn]--;
-            if (originalCharacterKind === CharacterKind_Whitespace && getCharacter(EDI_getPositionIndex_cursor()) === '\t') {
+            if (originalCharacterKind === CharacterKind_Whitespace && String.fromCharCode(EDI_textByteList_bytes[EDI_getPositionIndex_cursor()]) === '\t') {
                 INTS[fEDI_cursorVisualColumnIndex] -= (4 - (INTS[fEDI_cursorVisualColumnIndex] % 4)); // (tabLength)
             }
             else {
@@ -4450,7 +4359,7 @@ function EDI_onKeyDown_ArrowLeft(event) {
             while (INTS[fEDI_cursor_indexColumn] > 0) {
                 if (EDI_getCharacterPrevious_KIND(INTS[fEDI_cursor_indexColumn], indexPosition) === originalCharacterKind) {
                     INTS[fEDI_cursor_indexColumn]--;
-                    if (originalCharacterKind === CharacterKind_Whitespace && getCharacter(EDI_getPositionIndex_cursor()) === '\t') {
+                    if (originalCharacterKind === CharacterKind_Whitespace && String.fromCharCode(EDI_textByteList_bytes[EDI_getPositionIndex_cursor()]) === '\t') {
                         INTS[fEDI_cursorVisualColumnIndex] -= (4 - (INTS[fEDI_cursorVisualColumnIndex] % 4)); // (tabLength)
                     }
                     else {
@@ -4466,7 +4375,7 @@ function EDI_onKeyDown_ArrowLeft(event) {
         else {
             if (INTS[fEDI_cursor_indexColumn] > 0) {
                 INTS[fEDI_cursor_indexColumn]--;
-                if (getCharacter(EDI_getPositionIndex_cursor()) === '\t') {
+                if (String.fromCharCode(EDI_textByteList_bytes[EDI_getPositionIndex_cursor()]) === '\t') {
                     INTS[fEDI_cursorVisualColumnIndex] -= (4 - (INTS[fEDI_cursorVisualColumnIndex] % 4)); // (tabLength)
                 }
                 else {
@@ -4517,6 +4426,10 @@ function EDI_onKeyDown_ArrowUp(event) {
         EDI_baseElement.scrollBy(0, -1 * INTS[fEDI_lineHeight]);
     }
     else {
+        // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
+        if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+            EDI_finalizeEdit();
+        }
         EDI_movementBasedCacheInvalidation();
         EDI_preKeyboardMovementSelectionLogic(event.shiftKey);
         if (INTS[fEDI_cursor_indexLine] > 0) {
@@ -4537,6 +4450,10 @@ function EDI_onKeyDown_ArrowRight(event) {
     event.preventDefault();
     event.stopPropagation();
 
+    // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
+    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+        EDI_finalizeEdit();
+    }
     EDI_movementBasedCacheInvalidation();
 
     if (EDI_cursor_hasSelection() && !event.shiftKey) {
@@ -4566,7 +4483,7 @@ function EDI_onKeyDown_ArrowRight(event) {
             const line_end = INTS[fEDI_getLineBoundaryPositions_end];
             let indexPosition = INTS[fEDI_getLineBoundaryPositions_start] + INTS[fEDI_cursor_indexColumn];
             let originalCharacterKind = EDI_getCharacterCurrent_KIND(INTS[fEDI_cursor_indexColumn], indexPosition, line_end);
-            if (originalCharacterKind === CharacterKind_Whitespace && getCharacter(EDI_getPositionIndex_cursor()) === '\t') {
+            if (originalCharacterKind === CharacterKind_Whitespace && String.fromCharCode(EDI_textByteList_bytes[EDI_getPositionIndex_cursor()]) === '\t') {
                 INTS[fEDI_cursorVisualColumnIndex] += (4 - (INTS[fEDI_cursorVisualColumnIndex] % 4)); // (tabLength)
             }
             else {
@@ -4577,7 +4494,7 @@ function EDI_onKeyDown_ArrowRight(event) {
 
             while (INTS[fEDI_cursor_indexColumn] < lastValidIndexColumn) {
                 if (EDI_getCharacterCurrent_KIND(INTS[fEDI_cursor_indexColumn], indexPosition, line_end) === originalCharacterKind) {
-                    if (originalCharacterKind === CharacterKind_Whitespace && getCharacter(EDI_getPositionIndex_cursor()) === '\t') {
+                    if (originalCharacterKind === CharacterKind_Whitespace && String.fromCharCode(EDI_textByteList_bytes[EDI_getPositionIndex_cursor()]) === '\t') {
                         INTS[fEDI_cursorVisualColumnIndex] += (4 - (INTS[fEDI_cursorVisualColumnIndex] % 4)); // (tabLength)
                     }
                     else {
@@ -4593,7 +4510,7 @@ function EDI_onKeyDown_ArrowRight(event) {
         }
         else {
             if (INTS[fEDI_cursor_indexColumn] < lastValidIndexColumn) {
-                if (getCharacter(EDI_getPositionIndex_cursor()) === '\t') {
+                if (String.fromCharCode(EDI_textByteList_bytes[EDI_getPositionIndex_cursor()]) === '\t') {
                     INTS[fEDI_cursorVisualColumnIndex] += (4 - (INTS[fEDI_cursorVisualColumnIndex] % 4)); // (tabLength)
                 }
                 else {
@@ -4622,6 +4539,10 @@ function EDI_onKeyDown_Home(event) {
     event.preventDefault();
     event.stopPropagation();
 
+    // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
+    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+        EDI_finalizeEdit();
+    }
     EDI_movementBasedCacheInvalidation();
     EDI_preKeyboardMovementSelectionLogic(event.shiftKey);
     if (event.ctrlKey) {
@@ -4655,6 +4576,10 @@ function EDI_onKeyDown_End(event) {
     event.preventDefault();
     event.stopPropagation();
 
+    // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
+    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+        EDI_finalizeEdit();
+    }
     EDI_movementBasedCacheInvalidation();
     EDI_preKeyboardMovementSelectionLogic(event.shiftKey);
 
@@ -4852,7 +4777,7 @@ function fEDI_getEntireLineVisualWidth(lineStart, lineEnd) {
     while (positionIndex < lineEnd) {
         let charLength = 1;
         
-        if (getCharacter(positionIndex) === '\t') {
+        if (String.fromCharCode(EDI_textByteList_bytes[positionIndex]) === '\t') {
             charLength = 4 - (visualColumns % 4);
         }
 
@@ -4874,7 +4799,7 @@ function EDI_set_indexColumn_and_visualColumn_relativeTo_storedVisualWidth(lineS
     while (positionIndex < lineEnd) {
         let charLength = 1;
         
-        if (getCharacter(positionIndex) === '\t') {
+        if (String.fromCharCode(EDI_textByteList_bytes[positionIndex]) === '\t') {
             charLength = 4 - (visualColumns % 4);
         }
 
@@ -4918,7 +4843,7 @@ function getIndexFromX_RESET(rx, lineStart, lineEnd) {
     while (positionIndex < lineEnd) {
         let charLength = 1;
         
-        if (getCharacter(positionIndex) === '\t') {
+        if (String.fromCharCode(EDI_textByteList_bytes[positionIndex]) === '\t') {
             charLength = 4 - (visualColumns % 4);
         }
 
@@ -4953,7 +4878,7 @@ function getIndexFromX_sameLine_newRxIsLarger(goalRx, lineStart, lineEnd, startC
     while (positionIndex < lineEnd) {
         let charLength = 1;
         
-        if (getCharacter(positionIndex) === '\t') {
+        if (String.fromCharCode(EDI_textByteList_bytes[positionIndex]) === '\t') {
             charLength = 4 - (visualColumns % 4);
         }
 
@@ -4995,7 +4920,7 @@ function getIndexFromX_sameLine_newRxIsSmaller(goalRx, lineStart, startColumn, s
     while (positionIndex >= lineStart && positionIndex > 0) {
         let charLength = 1;
         
-        if (getCharacter(positionIndex - 1) === '\t') {
+        if (String.fromCharCode(EDI_textByteList_bytes[positionIndex - 1]) === '\t') {
             charLength = 4 - (visualColumns % 4);
         }
 
@@ -5697,7 +5622,7 @@ function EDI_render_do_IndentLess() {
             }
             let seenSpace = false;
             outer: for (var i = 0; i < upperLimitIndexColumn; i++) {
-                let c = getCharacter(line_start + i);
+                let c = String.fromCharCode(EDI_textByteList_bytes[line_start + i]);
                 switch (c) {
                     case ' ':
                         seenSpace = true;
@@ -7570,7 +7495,7 @@ function EDI_state_do_Delete(event) {
 
             let originalCharacterKind;
             if (tempIndexColumn < lineEnd) {
-                originalCharacterKind = getCharacter_kind_raw(tempPosition);
+                originalCharacterKind = EDI_getCharacterKind(String.fromCharCode(EDI_textByteList_bytes[tempPosition]));
             }
             else {
                 originalCharacterKind = CharacterKind_None;
@@ -7584,7 +7509,7 @@ function EDI_state_do_Delete(event) {
             
             while (INTS[fEDI_cursor_indexColumn] < lastValidIndexColumn) {
                 if (tempIndexColumn < lineEnd) {
-                    thisCharacterKind = getCharacter_kind_raw(tempPosition);
+                    thisCharacterKind = EDI_getCharacterKind(String.fromCharCode(EDI_textByteList_bytes[tempPosition]));
                 }
                 else {
                     thisCharacterKind = CharacterKind_None;
@@ -7737,7 +7662,7 @@ function EDI_state_do_Backspace(event) {
         if (event.ctrlKey) {
             // INTS[fEDI_cursor_editPosition] is intended to be equal due to the batch requirements / a new edit would also be equal.
 
-            let originalCharacterKind = getCharacter_kind_raw(INTS[fEDI_cursor_editPosition] - 1);
+            let originalCharacterKind = EDI_getCharacterKind(String.fromCharCode(EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition] - 1]));
             INTS[fEDI_cursor_editPosition]--;
             INTS[fEDI_cursor_editIndexColumn]--;
             INTS[fEDI_cursor_editLength]++;
@@ -7752,7 +7677,7 @@ function EDI_state_do_Backspace(event) {
             }
 
             while (INTS[fEDI_cursor_indexColumn] > 0) {
-                if (getCharacter_kind_raw(INTS[fEDI_cursor_editPosition] - 1) !== originalCharacterKind) {
+                if (EDI_getCharacterKind(String.fromCharCode(EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition] - 1])) !== originalCharacterKind) {
                     break;
                 }
                 INTS[fEDI_cursor_editPosition]--;
@@ -8209,14 +8134,26 @@ function EDI_mouseLeave() {
 }
 
 function EDI_requestLspComplete() {
+    // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
+    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+        EDI_finalizeEdit();
+    }
     window.myAPI.editorCompletionRequest(INTS[fEDI_cursor_indexLine], INTS[fEDI_cursor_indexColumn]);
 }
 
 function EDI_doEditorGoToDefinitionRequest() {
+    // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
+    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+        EDI_finalizeEdit();
+    }
     window.myAPI.editorGoToDefinitionRequest(INTS[fEDI_cursor_indexLine], INTS[fEDI_cursor_indexColumn]);
 }
 
 function EDI_requestLspHover() {
+    // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
+    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+        EDI_finalizeEdit();
+    }
     let event_clientY = INTS[fEDI_EDI_mouseOver_event_clientY];
     let event_clientX = INTS[fEDI_EDI_mouseOver_event_clientX];
 

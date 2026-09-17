@@ -4,57 +4,6 @@ import "./fieldBuffer"
 import "./javascriptFeatures"
 //__#__
 
-// Extremely important softlock possibility: see documentation comment for 'EDI_finalizeEdit()'.
-// Retrospectively I'd say... I imagine there'd be more than one scenario of this I have a lot of 'critical booleans'.
-// i.e.: if you enter the 'critical boolean guarded code path' then throw an exception in the middle of that code path with bad state for the 'critical boolean guarded code path' you might never be able to enter it again.
-// i.e.: I don't see this happen myself unless I'm messing with new code and running the code that I am in progress of writing. But I don't have a try catch so if an error were to occur it'd completely softlock things.
-
-/*
-###################################
-# Wording related to "indexLine": #
-###################################
-
-- indexLine        // The line number of '1' corresponds to the '0' indexLine; The end position of this line is located at index '0' within 'EDI_lineEndPositionList'.
-- virtualIndexLine // If you map the indexLine to an index that exists from virtualIndex to (virtualIndex + virtualCount - 1); both sides are inclusive;
-                   // Then you could imagine that the UI has HTML divs available to be rendered into.
-                   // And that this 'virtualIndexLine' says: "given my indexLine, is this being shown in the UI?"
-                   // BUT there is more to this, you next have to consider the position of the ringBuffer.
-
-Why is it not a 'lineIndex' wording pattern?
-
-It tends to be the case that you are working with an 'index'
-so the inclusion of that word is rather unimportant when reading over the code.
-
-I actually think 'lineIndex' "rolls off the tongue" a little easier.
-But if you apply the pattern it hides the word 'line'.
-And the importance when reading the code lies with the words 'line' and 'column'.
-
-- [ ] When getting the ringBufferIndex of anything that follows this pattern you don't check whether the underlying data has a large enough count, it is solely related to whether the itemHeight and height of the element can fit "that many divs".
-    - [ ] TreeView
-    - [ ] List
-- [ ] When creating divs for the viewport you follow up by drawing the viewport afterwards.
-    - [ ] Thus the creation of divs ought to be fully ignoring any excessive calculations because its style is just overriden immediately afterwards.
-*/
-
-/*
-###################################################################
-# Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex': #
-###################################################################
-
-// TODO: This is an awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'...
-// ...the initial declaration of 'let ringBufferIndex' is assigned what I refer to as the "virtualIndex"
-// but 'ringBufferIndex' is the output of the function, and a 'virtualIndex' variable is only needed temporarily
-// for the calculation. So by storing the 'virtualIndex' in 'ringBufferIndex' at the start I skip a variable declaration.
-|
-(retrospective comment): I see what I was doing.
-It isn't just the single variable declaration.
-You can't do the modulo logic UNLESS the virtual index is valid (that the line of text is actually being drawn in the UI).
-BUT I think this was an assumption on my end.
-I wonder if the modulo math would work out such that I could...
-well I guess I'd need to add an if to verify that the modulo math went correctly
-thus the same thing happens but now I can't just re-use that I'm virtual index first then you're safe thus the if else part...
-*/
-
 const EDI_trackedSyntaxList = new TrackedSyntaxList(32);
 
 /**
@@ -8071,6 +8020,57 @@ function EDI_lineEndPositionList_copyTo(bytesSource, sourceStart, bytesDestinati
     }
 }
 //#endregion
+
+// Extremely important softlock possibility: see documentation comment for 'EDI_finalizeEdit()'.
+// Retrospectively I'd say... I imagine there'd be more than one scenario of this I have a lot of 'critical booleans'.
+// i.e.: if you enter the 'critical boolean guarded code path' then throw an exception in the middle of that code path with bad state for the 'critical boolean guarded code path' you might never be able to enter it again.
+// i.e.: I don't see this happen myself unless I'm messing with new code and running the code that I am in progress of writing. But I don't have a try catch so if an error were to occur it'd completely softlock things.
+
+/*
+###################################
+# Wording related to "indexLine": #
+###################################
+
+- indexLine        // The line number of '1' corresponds to the '0' indexLine; The end position of this line is located at index '0' within 'EDI_lineEndPositionList'.
+- virtualIndexLine // If you map the indexLine to an index that exists from virtualIndex to (virtualIndex + virtualCount - 1); both sides are inclusive;
+                   // Then you could imagine that the UI has HTML divs available to be rendered into.
+                   // And that this 'virtualIndexLine' says: "given my indexLine, is this being shown in the UI?"
+                   // BUT there is more to this, you next have to consider the position of the ringBuffer.
+
+Why is it not a 'lineIndex' wording pattern?
+
+It tends to be the case that you are working with an 'index'
+so the inclusion of that word is rather unimportant when reading over the code.
+
+I actually think 'lineIndex' "rolls off the tongue" a little easier.
+But if you apply the pattern it hides the word 'line'.
+And the importance when reading the code lies with the words 'line' and 'column'.
+
+- [ ] When getting the ringBufferIndex of anything that follows this pattern you don't check whether the underlying data has a large enough count, it is solely related to whether the itemHeight and height of the element can fit "that many divs".
+    - [ ] TreeView
+    - [ ] List
+- [ ] When creating divs for the viewport you follow up by drawing the viewport afterwards.
+    - [ ] Thus the creation of divs ought to be fully ignoring any excessive calculations because its style is just overriden immediately afterwards.
+*/
+
+/*
+###################################################################
+# Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex': #
+###################################################################
+
+// TODO: This is an awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'...
+// ...the initial declaration of 'let ringBufferIndex' is assigned what I refer to as the "virtualIndex"
+// but 'ringBufferIndex' is the output of the function, and a 'virtualIndex' variable is only needed temporarily
+// for the calculation. So by storing the 'virtualIndex' in 'ringBufferIndex' at the start I skip a variable declaration.
+|
+(retrospective comment): I see what I was doing.
+It isn't just the single variable declaration.
+You can't do the modulo logic UNLESS the virtual index is valid (that the line of text is actually being drawn in the UI).
+BUT I think this was an assumption on my end.
+I wonder if the modulo math would work out such that I could...
+well I guess I'd need to add an if to verify that the modulo math went correctly
+thus the same thing happens but now I can't just re-use that I'm virtual index first then you're safe thus the if else part...
+*/
 
 /*
 Each edit needs to keep the lsp up to date.

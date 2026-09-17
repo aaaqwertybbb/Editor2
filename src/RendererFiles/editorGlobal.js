@@ -1496,7 +1496,7 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
     EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition], EDI_cursor_gapBuffer, /*offset*/ 0, /*length*/ INTS[fEDI_cursor_gapBufferCount]);
 
     let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
-    EDI_getLineAndColumnIndices(INTS[fEDI_cursor_editPosition]);
+    EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
     let lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
     let lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
     let text = EDI_decoder.decode(EDI_cursor_gapBuffer.subarray(0, INTS[fEDI_cursor_gapBufferCount]));
@@ -2539,10 +2539,8 @@ function EDI_drawCursor(NOTscrollCursorIntoView) {
     INTS[fEDI_cursor_cursorTranslateYValue] = INTS[fEDI_cursor_indexLine] * INTS[fEDI_lineHeight];
 
 
-
 // cursor should store visual column then
 // and relative to line index
-
 
 
 /*
@@ -2607,13 +2605,6 @@ INTS[fEDI_cursor_indexLine]
     //return paddingLeft + (visualColumns * charWidth);
 
 
-
-
-
-
-
-
-
     INTS[fEDI_cursor_cursorTranslateXValue] = INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth;
 
     EDI_cursor_caretRow.style.transform = `translateY(${INTS[fEDI_cursor_cursorTranslateYValue]}px)`;
@@ -2663,19 +2654,21 @@ function EDI_getLineAndColumnIndices_raw(positionIndex) {
     let indexLine = -1;
     let indexColumn = -1;
 
+    let local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
+
     while (left <= right) {
         const mid = Math.floor((left + right) / 2);
         
-        if (EDI_lineEndPositionList_data[mid] >= positionIndex) {
+        if (local_EDI_lineEndPositionList_data[mid] >= positionIndex) {
             indexLine = mid;
 
-            if (EDI_lineEndPositionList_data[mid] === positionIndex) {
+            if (local_EDI_lineEndPositionList_data[mid] === positionIndex) {
                 break;
             }
             
             right = mid - 1;
         }
-        else if (EDI_lineEndPositionList_data[mid] < positionIndex) {
+        else if (local_EDI_lineEndPositionList_data[mid] < positionIndex) {
             left = mid + 1;
         }
         else {
@@ -2695,60 +2688,7 @@ function EDI_getLineAndColumnIndices_raw(positionIndex) {
         indexColumn = positionIndex;
     }
     else {
-        indexColumn = positionIndex - (EDI_lineEndPositionList_data[indexLine - 1] + 1);
-    }
-
-    INTS[fEDI_getLineAndColumnIndices_indexLine] = indexLine;
-    INTS[fEDI_getLineAndColumnIndices_indexColumn] = indexColumn;
-    return true;
-}
-
-/**
- * Returns 'true' if success otherwise 'false' the "return" values are indexLine, and indexColumn; which are stored in 'fieldBuffer.js'
- * as 'INTS[fEDI_getLineAndColumnIndices_indexLine] = indexLine;' and 'INTS[fEDI_getLineAndColumnIndices_indexColumn] = indexColumn;'.
- * 
- * TODO: Local variables for this looping logic?
- */
-function EDI_getLineAndColumnIndices(positionIndex) {
-    let left = 0;
-    let right = EDI_lineEndPositionList_count - 1;
-
-    let indexLine = -1;
-    let indexColumn = -1;
-
-    while (left <= right) {
-        const mid = Math.floor((left + right) / 2);
-        
-        if (EDI_readLineEndPositionList(mid) >= positionIndex) {
-            indexLine = mid;
-
-            if (EDI_readLineEndPositionList(mid) === positionIndex) {
-                break;
-            }
-            
-            right = mid - 1;
-        }
-        else if (EDI_readLineEndPositionList(mid) < positionIndex) {
-            left = mid + 1;
-        }
-        else {
-            return false; // NaN
-        }
-    }
-
-    if (indexLine === -1) {
-        return false;
-        //return {
-        //  indexLine: 0,
-        //  indexColumn: 0,  
-        //};
-    }
-
-    if (indexLine === 0) {
-        indexColumn = positionIndex;
-    }
-    else {
-        indexColumn = positionIndex - (EDI_readLineEndPositionList(indexLine - 1) + 1);
+        indexColumn = positionIndex - (local_EDI_lineEndPositionList_data[indexLine - 1] + 1);
     }
 
     INTS[fEDI_getLineAndColumnIndices_indexLine] = indexLine;
@@ -2837,7 +2777,7 @@ function EDI_createStyleForSelection() {
         // TODO: only somewhat simple viewport based virtualization is implemented from what I remember. i.e.: I think the divs are re-used, but every div is redrawn for the viewport, rather than only recalculating the css for the divs that came or left the viewport.
 
         let start = INTS[fEDI_cursor_selectionAnchor];
-        EDI_getLineAndColumnIndices(start);
+        EDI_getLineAndColumnIndices_raw(start);
         let startLineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
         let startLineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
         let startLine = startLineAndColumnIndices_indexLine;
@@ -2845,7 +2785,7 @@ function EDI_createStyleForSelection() {
         let start_visualColumnStart = INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL];
 
         let end = INTS[fEDI_cursor_selectionEnd];
-        EDI_getLineAndColumnIndices(end);
+        EDI_getLineAndColumnIndices_raw(end);
         let endLineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
         let endLineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
         let INCLUSIVEendLine = endLineAndColumnIndices_indexLine;
@@ -3296,7 +3236,7 @@ function EDI_onMouseMoveDetailRankTwo(indexLineClicked, indexColumnClicked, inde
             INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_detail_smallColumnVisual];
         }
 
-        EDI_getLineAndColumnIndices(INTS[fEDI_detail_largePosition]);
+        EDI_getLineAndColumnIndices_raw(INTS[fEDI_detail_largePosition]);
         let largeLineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
         let largeLineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
         INTS[fEDI_cursor_indexLine] = largeLineAndColumnIndices_indexLine;
@@ -3320,7 +3260,7 @@ function EDI_onMouseMoveDetailRankThree(indexLineClicked, indexColumnClicked) {
         // so you'd probably want to do both attach to window and protect against large movements that skip the exact threshold when transitioning.
         //
         if (EDI_getPositionIndex_raw_cursor() !== INTS[fEDI_detail_smallPosition]) {
-            EDI_getLineAndColumnIndices(INTS[fEDI_detail_smallPosition]);
+            EDI_getLineAndColumnIndices_raw(INTS[fEDI_detail_smallPosition]);
             let smallLineAndColumnPositionIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
             let smallLineAndColumnPositionIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
             INTS[fEDI_cursor_indexLine] = smallLineAndColumnPositionIndices_indexLine;
@@ -3343,7 +3283,7 @@ function EDI_onMouseMoveDetailRankThree(indexLineClicked, indexColumnClicked) {
     }
     else if (indexLineClicked < INTS[fEDI_detailRank3OriginLine]) {
         if (INTS[fEDI_cursor_selectionAnchor] < INTS[fEDI_cursor_selectionEnd]) {
-            EDI_getLineAndColumnIndices(INTS[fEDI_detail_smallPosition]);
+            EDI_getLineAndColumnIndices_raw(INTS[fEDI_detail_smallPosition]);
             let smallLineAndColumnPositionIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
             let smallLineAndColumnPositionIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
 
@@ -4108,10 +4048,10 @@ function EDI_editEvent_checkFor_NOTcanBatch_IndentMore() {
         LARGE_pos = INTS[fEDI_cursor_selectionAnchor];
     }
 
-    EDI_getLineAndColumnIndices(SMALL_pos);
+    EDI_getLineAndColumnIndices_raw(SMALL_pos);
     let SMALL_lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
 
-    EDI_getLineAndColumnIndices(LARGE_pos);
+    EDI_getLineAndColumnIndices_raw(LARGE_pos);
     let LARGE_lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
 
     // start at the LARGE position
@@ -4329,7 +4269,7 @@ function EDI_onKeyDown_ArrowLeft(event) {
         else {
             small = INTS[fEDI_cursor_selectionEnd];
         }
-        EDI_getLineAndColumnIndices(small); // TODO: Check all of these whether they can be inlined (remove the single stage middle-man variable)
+        EDI_getLineAndColumnIndices_raw(small); // TODO: Check all of these whether they can be inlined (remove the single stage middle-man variable)
         let lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
         let lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
         INTS[fEDI_cursor_indexLine] = lineAndColumnIndices_indexLine;
@@ -4463,7 +4403,7 @@ function EDI_onKeyDown_ArrowRight(event) {
         else {
             large = INTS[fEDI_cursor_selectionAnchor];
         }
-        EDI_getLineAndColumnIndices(large);
+        EDI_getLineAndColumnIndices_raw(large);
         let lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
         let lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
         INTS[fEDI_cursor_indexLine] = lineAndColumnIndices_indexLine;
@@ -4731,7 +4671,7 @@ async function EDI_onKeyDown_keyLengthEqualsOne_ctrlKey(event) {
             INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = 0;
             INTS[fEDI_cursor_selectionEnd] = EDI_textByteList_count;
             INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
-            EDI_getLineAndColumnIndices(INTS[fEDI_cursor_selectionEnd]);
+            EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_selectionEnd]);
             let selectionEndLineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
             let selectionEndLineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
             INTS[fEDI_cursor_indexLine] = selectionEndLineAndColumnIndices_indexLine;
@@ -5702,10 +5642,10 @@ function EDI_indentLess() {
         LARGE_pos = INTS[fEDI_cursor_selectionAnchor];
     }
 
-    EDI_getLineAndColumnIndices(SMALL_pos);
+    EDI_getLineAndColumnIndices_raw(SMALL_pos);
     let SMALL_lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
     
-    EDI_getLineAndColumnIndices(LARGE_pos);
+    EDI_getLineAndColumnIndices_raw(LARGE_pos);
     let LARGE_lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
 
     // starting index
@@ -5796,7 +5736,7 @@ async function EDI_duplicateSelection() {
     let length = large - small;
 
     INTS[fEDI_cursor_editPosition] = large;
-    EDI_getLineAndColumnIndices(large);
+    EDI_getLineAndColumnIndices_raw(large);
     let large_lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
     let large_lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
     INTS[fEDI_cursor_editIndexLine] = large_lineAndColumnIndices_indexLine;
@@ -7015,8 +6955,6 @@ And then I got response of
 }
 
 /**
- * TODO: This function uses 'EDI_getLineAndColumnIndices' but it needs to be raw.
- * 
  * @returns 
  */
 function EDI_removeSelection() {
@@ -7048,7 +6986,7 @@ function EDI_removeSelection() {
     // editLength is 0 in this ...startEdit invocation intentionally, you cannot set the editLength until the end (TODO: remember what the exact reason was and put it here... I think it was because 'EDI_readLineEndPositionList' function is used rather than reading directly)
     EDI_startEdit(EditKind_RemoveTextNoBatching, smallPosition, /*editLength*/ 0);
 
-    EDI_getLineAndColumnIndices(smallPosition);
+    EDI_getLineAndColumnIndices_raw(smallPosition);
     let smallLineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
     let smallLineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
     INTS[fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexLine] = smallLineAndColumnIndices_indexLine;
@@ -7061,7 +6999,7 @@ function EDI_removeSelection() {
     INTS[fEDI_cursor_editIndexLine] = smallLineAndColumnIndices_indexLine;
     INTS[fEDI_cursor_editIndexColumn] = smallLineAndColumnIndices_indexColumn;
 
-    EDI_getLineAndColumnIndices(largePosition);
+    EDI_getLineAndColumnIndices_raw(largePosition);
     let largeLineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
     let largeLineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
     INTS[fEDI_cursor_END_editIndexLine] = largeLineAndColumnIndices_indexLine;
@@ -7942,7 +7880,11 @@ async function EDI_MenuOnClick(indexClicked, elementClicked) {
  * This clears the cursor's selection.
  */
 function EDI_moveCursor_position(intValue) {
-    EDI_getLineAndColumnIndices(intValue);
+    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+        // TODO: Timing issue, someone typing while they scroll
+        EDI_finalizeEdit();
+    }
+    EDI_getLineAndColumnIndices_raw(intValue);
     let lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
     let lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
     EDI_moveCursor_indexLine_indexColumn(lineAndColumnIndices_indexLine, lineAndColumnIndices_indexColumn);
@@ -7952,6 +7894,10 @@ function EDI_moveCursor_position(intValue) {
  * This clears the cursor's selection.
  */
 function EDI_moveCursor_indexLine_indexColumn(indexLine, indexColumn) {
+    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+        // TODO: Timing issue, someone typing while they scroll
+        EDI_finalizeEdit();
+    }
     let lastValidIndexColumn = EDI_getLastValidIndexColumn(indexLine);
 
     if (indexColumn > lastValidIndexColumn) {
@@ -8840,6 +8786,8 @@ Google AI:
                     - [ ] Then you can aim for reducing the amount of cases where you finalize the current edit
                           where sensible over time once you get the original correctness in place.
     - [ ] EDI_getLineAndColumnIndices_raw
+        - [ ] indent logic sounds most problematic to swap to raw cuz u gotta be careful not to "actually" modify the selection or you'll go past the raw line position for the end selection.
+    - [ ] last valid column index function
     - [ ] double check that everything is working
 - [x] Update single line lexer such that:
     - [x] member access IMMEDIATELY followed by a period turns the word after the period to '--editor-syntax-member-color'

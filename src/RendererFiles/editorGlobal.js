@@ -7570,49 +7570,6 @@ function PLAINTEXT_line_lex(div, substart, lineEnd, childIndex) {
     return childIndex;
 }
 
-function EDI_measureLineHeightAndCharacterWidth() {
-    let measureElement = document.createElement('div');
-    measureElement.style.width = "fit-content";
-    measureElement.style.position = 'absolute';
-    measureElement.style.visibility = 'hidden';
-    measureElement.style.padding = '0';
-    measureElement.style.border = 'none';
-    measureElement.style.left = '0';
-    measureElement.style.top = '0';
-
-    // AI is saying "// The foolproof way to prevent ALL scrollbars during measurement" is this paragraph of code.
-    // The foolproof way to prevent ALL scrollbars during measurement
-    const wrapper = document.createElement('div');
-    wrapper.style.position = 'fixed'; // Removes it from the normal page layout flow
-    wrapper.style.top = '0';
-    wrapper.style.left = '0';
-    wrapper.style.width = '0';        // Forces a tiny container footprint
-    wrapper.style.height = '0';       // Forces a tiny container footprint
-    wrapper.style.overflow = 'hidden'; // Prevents any layout leaking out or causing scrollbars
-    wrapper.style.visibility = 'hidden'; // Keeps it completely invisible to the user
-
-    wrapper.appendChild(measureElement);
-    EDI_textElement.appendChild(wrapper);
-
-    let len = 396;
-    measureElement.innerHTML = 'A'.repeat(len);
-    let measureElementBoundingClientRect = measureElement.getBoundingClientRect();
-    EDI_characterWidth = measureElementBoundingClientRect.width / len; // 7.146002258917298
-    INTS[fEDI_lineHeight] = Math.ceil(measureElementBoundingClientRect.height); // 15
-
-    wrapper.removeChild(measureElement);
-    EDI_textElement.removeChild(wrapper);
-
-    const root = document.documentElement;
-    const computedStyles = window.getComputedStyle(root);
-    let teLineHeight = INTS[fEDI_lineHeight] + 'px';
-    let propertyName = '--EDITOR-line-height';
-    if (computedStyles.getPropertyValue(propertyName) !== teLineHeight) {
-        // avoid layout with if statement
-        root.style.setProperty(propertyName, teLineHeight);
-    }
-}
-
 function EDI_registerHandlers() {
     EDI_baseElement.addEventListener('keydown', EDI_onKeyDown);
     EDI_baseElement.addEventListener('mousedown', EDI_onMouseDown);
@@ -7720,6 +7677,49 @@ function EDI_onfocus() {
 
 function EDI_onblur() {
     EDI_cursor_cursorElement.classList.remove('EDI_cursor_focus');
+}
+
+function EDI_measureLineHeightAndCharacterWidth() {
+    let measureElement = document.createElement('div');
+    measureElement.style.width = "fit-content";
+    measureElement.style.position = 'absolute';
+    measureElement.style.visibility = 'hidden';
+    measureElement.style.padding = '0';
+    measureElement.style.border = 'none';
+    measureElement.style.left = '0';
+    measureElement.style.top = '0';
+
+    // AI is saying "// The foolproof way to prevent ALL scrollbars during measurement" is this paragraph of code.
+    // The foolproof way to prevent ALL scrollbars during measurement
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'fixed'; // Removes it from the normal page layout flow
+    wrapper.style.top = '0';
+    wrapper.style.left = '0';
+    wrapper.style.width = '0';        // Forces a tiny container footprint
+    wrapper.style.height = '0';       // Forces a tiny container footprint
+    wrapper.style.overflow = 'hidden'; // Prevents any layout leaking out or causing scrollbars
+    wrapper.style.visibility = 'hidden'; // Keeps it completely invisible to the user
+
+    wrapper.appendChild(measureElement);
+    EDI_textElement.appendChild(wrapper);
+
+    let len = 396;
+    measureElement.innerHTML = 'A'.repeat(len);
+    let measureElementBoundingClientRect = measureElement.getBoundingClientRect();
+    EDI_characterWidth = measureElementBoundingClientRect.width / len; // 7.146002258917298
+    INTS[fEDI_lineHeight] = Math.ceil(measureElementBoundingClientRect.height); // 15
+
+    wrapper.removeChild(measureElement);
+    EDI_textElement.removeChild(wrapper);
+
+    const root = document.documentElement;
+    const computedStyles = window.getComputedStyle(root);
+    let teLineHeight = INTS[fEDI_lineHeight] + 'px';
+    let propertyName = '--EDITOR-line-height';
+    if (computedStyles.getPropertyValue(propertyName) !== teLineHeight) {
+        // avoid layout with if statement
+        root.style.setProperty(propertyName, teLineHeight);
+    }
 }
 
 //#region findOverlay

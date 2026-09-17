@@ -3824,6 +3824,78 @@ function EDI_trackedSyntaxList_inefficientUpdateStartAndLength(indexPosition, in
 }
 
 /**
+ * CORRUPT_STATE: The invoker needs to ensure there is at least one empty span on the 'inclusiveSmallestRingBufferIndexToShift' after they invoke this function.
+ * 
+ * TODO: implement this but by an arbitrary distance
+ */
+function EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, inclusiveSmallestRingBufferIndexToShift) {
+    // TODO: This remove logic for the last line wasn't written with the correct understanding...
+    // ...
+    // It appears that this logic for 99% of cases is NOT needed.
+    // But that if you:
+    // - "Were at ringBuffer index zero" (I'm not sure what I'm thinking by this I need to focus on my task at hand but this edge case is being slightly-considered in my mind while typing this)
+    //     - I think the correct wording is if you were at 'PREVIOUS(ringBuffer_indexZero)' then you'd be the last line
+    //     - i.e.: if 'ringBufferIndex_last === inclusiveSmallestRingBufferIndexToShift'
+    // - for some reason only had a virtualization count of '1',
+    // you might need to run this logic otherwise an enter key at column index 0 of a line wouldn't show any changes.
+    // 
+    let local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
+
+    let lastDiv = EDI_textElement.children[ringBufferIndex_last];
+    for (let i = lastDiv.children.length - 1; i >= 0; i--) {
+        lastDiv.removeChild(lastDiv.children[i]);
+    }
+
+    for (let i = ringBufferIndex_last; i !== inclusiveSmallestRingBufferIndexToShift;) {
+        let destinationDiv = EDI_textElement.children[i];
+        i = (i - 1 + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
+        let sourceDiv = EDI_textElement.children[i];
+        destinationDiv.replaceChildren(...sourceDiv.childNodes);
+    }
+}
+
+/**
+ * 'smallestRingBufferIndexToReceive' somewhat 'exclusive' in that it doesn't get shifted. It is the smallest line that receives the shift of the next line, and thus all content on this line is lost in the process.
+ * 
+ * TODO: an idea that you might be able to short circuit if you start shifting 'out of bounds lines of text' into 'out of bounds lines of text'?
+ * */
+function EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_last, smallestRingBufferIndexToReceive, distance, local_virtualIndexLine, local_virtualCount) {
+
+    // TODO: Does 'coalesce assignment' exist, and is it equivalent?
+    if (!local_virtualIndexLine) local_virtualIndexLine = INTS[fEDI_virtualIndexLine];
+    if (!local_virtualCount) local_virtualCount = INTS[fEDI_virtualCount];
+
+    // TODO: if smallestRingBufferIndexToReceive < 0 throw an error?
+
+    let local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
+
+    let breakingPoint = ringBufferIndex_last;
+    for (let i = 1 /*starts at one*/; i < distance; i++) {
+        breakingPoint = (breakingPoint - 1 + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
+    }
+
+    for (let destinationIndex = smallestRingBufferIndexToReceive; destinationIndex !== breakingPoint;) {
+        let destinationDiv = EDI_textElement.children[destinationIndex];
+        let sourceIndex = destinationIndex;
+        for (let i = 0; i < distance; i++) {
+            sourceIndex = (sourceIndex + 1) % local_ArrayFrom_textElement_children_length;
+        }
+        destinationDiv.replaceChildren(...EDI_textElement.children[sourceIndex].childNodes);
+        if (EDI_gutter.children[sourceIndex].textContent === '~') {
+            EDI_gutter.children[destinationIndex].textContent = '~';
+        }
+        destinationIndex = (destinationIndex + 1) % local_ArrayFrom_textElement_children_length;
+    }
+
+    let ringBufferIndex = breakingPoint;
+    for (let i = 0; ; i++) {
+        EDI_drawLine(local_virtualIndexLine + local_virtualCount - (distance - i), EDI_gutter.children[ringBufferIndex], EDI_textElement.children[ringBufferIndex]);
+        if (ringBufferIndex === ringBufferIndex_last) break; // awkward positioning of this break, it seems somewhat necessary but need to take time to read the code further and try to have it moved somewhere more sensible.
+        ringBufferIndex = (ringBufferIndex + 1) % local_ArrayFrom_textElement_children_length;
+    }
+}
+
+/**
  * TODO: repeated duplications of the same extremely large selection might benefit from temporary caching of this functions result.
  * 
  * textonly is in reference to conversion of the raw storage of the text editor such that all line feeds get returned as as EDI_lineEndString rather than the internal representation of '\n'.
@@ -6341,78 +6413,6 @@ function EDI_EnterKey(ctrlKey, shiftKey) {
     INTS[fEDI_cursor_END_editIndexColumn] = INTS[fEDI_cursor_indexColumn];
 
     EDI_render_request(RenderKind_Enter);
-}
-
-/**
- * CORRUPT_STATE: The invoker needs to ensure there is at least one empty span on the 'inclusiveSmallestRingBufferIndexToShift' after they invoke this function.
- * 
- * TODO: implement this but by an arbitrary distance
- */
-function EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, inclusiveSmallestRingBufferIndexToShift) {
-    // TODO: This remove logic for the last line wasn't written with the correct understanding...
-    // ...
-    // It appears that this logic for 99% of cases is NOT needed.
-    // But that if you:
-    // - "Were at ringBuffer index zero" (I'm not sure what I'm thinking by this I need to focus on my task at hand but this edge case is being slightly-considered in my mind while typing this)
-    //     - I think the correct wording is if you were at 'PREVIOUS(ringBuffer_indexZero)' then you'd be the last line
-    //     - i.e.: if 'ringBufferIndex_last === inclusiveSmallestRingBufferIndexToShift'
-    // - for some reason only had a virtualization count of '1',
-    // you might need to run this logic otherwise an enter key at column index 0 of a line wouldn't show any changes.
-    // 
-    let local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
-
-    let lastDiv = EDI_textElement.children[ringBufferIndex_last];
-    for (let i = lastDiv.children.length - 1; i >= 0; i--) {
-        lastDiv.removeChild(lastDiv.children[i]);
-    }
-
-    for (let i = ringBufferIndex_last; i !== inclusiveSmallestRingBufferIndexToShift;) {
-        let destinationDiv = EDI_textElement.children[i];
-        i = (i - 1 + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
-        let sourceDiv = EDI_textElement.children[i];
-        destinationDiv.replaceChildren(...sourceDiv.childNodes);
-    }
-}
-
-/**
- * 'smallestRingBufferIndexToReceive' somewhat 'exclusive' in that it doesn't get shifted. It is the smallest line that receives the shift of the next line, and thus all content on this line is lost in the process.
- * 
- * TODO: an idea that you might be able to short circuit if you start shifting 'out of bounds lines of text' into 'out of bounds lines of text'?
- * */
-function EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_last, smallestRingBufferIndexToReceive, distance, local_virtualIndexLine, local_virtualCount) {
-
-    // TODO: Does 'coalesce assignment' exist, and is it equivalent?
-    if (!local_virtualIndexLine) local_virtualIndexLine = INTS[fEDI_virtualIndexLine];
-    if (!local_virtualCount) local_virtualCount = INTS[fEDI_virtualCount];
-
-    // TODO: if smallestRingBufferIndexToReceive < 0 throw an error?
-
-    let local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
-
-    let breakingPoint = ringBufferIndex_last;
-    for (let i = 1 /*starts at one*/; i < distance; i++) {
-        breakingPoint = (breakingPoint - 1 + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
-    }
-
-    for (let destinationIndex = smallestRingBufferIndexToReceive; destinationIndex !== breakingPoint;) {
-        let destinationDiv = EDI_textElement.children[destinationIndex];
-        let sourceIndex = destinationIndex;
-        for (let i = 0; i < distance; i++) {
-            sourceIndex = (sourceIndex + 1) % local_ArrayFrom_textElement_children_length;
-        }
-        destinationDiv.replaceChildren(...EDI_textElement.children[sourceIndex].childNodes);
-        if (EDI_gutter.children[sourceIndex].textContent === '~') {
-            EDI_gutter.children[destinationIndex].textContent = '~';
-        }
-        destinationIndex = (destinationIndex + 1) % local_ArrayFrom_textElement_children_length;
-    }
-
-    let ringBufferIndex = breakingPoint;
-    for (let i = 0; ; i++) {
-        EDI_drawLine(local_virtualIndexLine + local_virtualCount - (distance - i), EDI_gutter.children[ringBufferIndex], EDI_textElement.children[ringBufferIndex]);
-        if (ringBufferIndex === ringBufferIndex_last) break; // awkward positioning of this break, it seems somewhat necessary but need to take time to read the code further and try to have it moved somewhere more sensible.
-        ringBufferIndex = (ringBufferIndex + 1) % local_ArrayFrom_textElement_children_length;
-    }
 }
 
 function EDI_render_do_Resize(timestamp) {

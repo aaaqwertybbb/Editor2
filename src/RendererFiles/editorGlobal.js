@@ -8892,6 +8892,16 @@ Google AI:
 - [ ] Add a button in settings that tells LSP to write out a file containing the text of what it thinks the current file's text is.
     - [ ] This button would also write out a separate file containing the text of what the editor thinks the current file's text is.
     - [ ] Then I can copy and paste each file's contents into a diff checker.
-
+- [ ] TODO: make a decision about aaa and aaaRAW etc...
+    - [ ] I'm pretty sure you can just always use "raw" to the point of even just removing non-raw entirely.
+        - [ ] probably also remove raw too and just inline all the usages to target the bytes at position index.
+        - [ ] Then you want complete coverage for all pending edits any scenario where they need to be finalized
+              in order for a user's action to target the correct position.
+              - [ ] The idea here is that batching of the same edit wouldn't need to worry about this.
+                    They'd still manage to batch just that "anything other than another edit of the same kind"
+                    would finalize the current edit.
+                    - [ ] This is for the sake of correctness in the moment
+                    - [ ] Then you can aim for reducing the amount of cases where you finalize the current edit
+                          where sensible over time once you get the original correctness in place.
 
 */

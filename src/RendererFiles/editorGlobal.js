@@ -2625,10 +2625,10 @@ function EDI_draw_cursor_debug() {
     text += '(' + INTS[fEDI_cursor_indexLine] + ', ' + INTS[fEDI_cursor_indexColumn] + ')';
     
     if (BYTES[byteDIALOG_Settings_editorDebugShowAdjacentCharacters]) {
-        //let previous = EDI_getCharacterPrevious(INTS[fEDI_cursor_indexColumn], EDI_getPositionIndex_cursor());
+        //let previous = EDI_getCharacterPrevious(INTS[fEDI_cursor_indexColumn], EDI_getPositionIndex_cursor_raw());
         //if (previous === '\n') previous = '\\n';
         //else if (previous === '\t') previous = '\\t';
-        //let current = EDI_getCharacterCurrent(INTS[fEDI_cursor_indexColumn], EDI_getPositionIndex_cursor(), EDI_getLineEnd_pos_raw(INTS[fEDI_cursor_indexLine]));
+        //let current = EDI_getCharacterCurrent(INTS[fEDI_cursor_indexColumn], EDI_getPositionIndex_cursor_raw(), EDI_getLineEnd_pos_raw(INTS[fEDI_cursor_indexLine]));
         //if (current === '\n') current = '\\n';
         //else if (current === '\t') current = '\\t';
         //text += ' | (' + previous + ', ' + current + ')';
@@ -2995,7 +2995,7 @@ function EDI_onMouseMoveDetailRankOne(indexLineClicked, indexColumnClicked, inde
     INTS[fEDI_cursorVisualColumnIndex] = indexColumnVisual;
     INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
 
-    INTS[fEDI_cursor_selectionEnd] = EDI_getPositionIndex_cursor();
+    INTS[fEDI_cursor_selectionEnd] = EDI_getPositionIndex_cursor_raw();
     INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
 
     EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
@@ -3310,7 +3310,7 @@ function EDI_onMouseDownDetailRankOne(event_button, event_shiftKey, indexLineCli
 
     if (event_shiftKey && !selectionPlusContextMenuCase) {
         if (!EDI_cursor_hasSelection()) {
-            INTS[fEDI_cursor_selectionAnchor] = EDI_getPositionIndex_cursor();
+            INTS[fEDI_cursor_selectionAnchor] = EDI_getPositionIndex_cursor_raw();
             INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = indexColumnVisual;
         }
     }
@@ -3322,7 +3322,7 @@ function EDI_onMouseDownDetailRankOne(event_button, event_shiftKey, indexLineCli
         INTS[fEDI_cursor_STORED_visualWidth] = indexColumnVisual;
         INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
     
-        INTS[fEDI_cursor_selectionEnd] = EDI_getPositionIndex_cursor();
+        INTS[fEDI_cursor_selectionEnd] = EDI_getPositionIndex_cursor_raw();
         INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
 
         if (!event_shiftKey) {
@@ -3344,7 +3344,7 @@ function EDI_onMouseDownDetailRankTwo(event_button, event_shiftKey, indexLineCli
     INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
     INTS[fEDI_cursorVisualColumnIndex] = indexColumnVisual;
     INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
-    let positionIndex = EDI_getPositionIndex_cursor();
+    let positionIndex = EDI_getPositionIndex_cursor_raw();
     
     EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
     const line_start = INTS[fEDI_getLineBoundaryPositions_start];
@@ -3616,7 +3616,7 @@ function EDI_NOTcanBatch_delete() {
 function EDI_preKeyboardMovementSelectionLogic(shiftKey) {
     if (shiftKey) {
         if (!EDI_cursor_hasSelection()) {
-            INTS[fEDI_cursor_selectionAnchor] = EDI_getPositionIndex_cursor();
+            INTS[fEDI_cursor_selectionAnchor] = EDI_getPositionIndex_cursor_raw();
             INTS[fEDI_cursor_selectionIndexAnchorLine] = INTS[fEDI_cursor_indexLine];
             INTS[fEDI_cursor_selectionIndexAnchorColumn] = INTS[fEDI_cursor_indexColumn];
             INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
@@ -3637,7 +3637,7 @@ function EDI_preKeyboardMovementSelectionLogic(shiftKey) {
  */
 function EDI_postKeyboardMovementSelectionLogic(shiftKey) {
     if (shiftKey) {
-        INTS[fEDI_cursor_selectionEnd] = EDI_getPositionIndex_cursor();
+        INTS[fEDI_cursor_selectionEnd] = EDI_getPositionIndex_cursor_raw();
         INTS[fEDI_cursor_selectionIndexEndLine] = INTS[fEDI_cursor_indexLine];
         INTS[fEDI_cursor_selectionIndexEndColumn] = INTS[fEDI_cursor_indexColumn];
         INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
@@ -4226,7 +4226,7 @@ function EDI_onKeyDown_ArrowLeft(event) {
             let indexPosition = INTS[fEDI_getLineBoundaryPositions_start] + INTS[fEDI_cursor_indexColumn];
             let originalCharacterKind = EDI_getCharacterPrevious_KIND(INTS[fEDI_cursor_indexColumn], indexPosition);
             INTS[fEDI_cursor_indexColumn]--;
-            if (originalCharacterKind === CharacterKind_Whitespace && String.fromCharCode(EDI_textByteList_bytes[EDI_getPositionIndex_cursor()]) === '\t') {
+            if (originalCharacterKind === CharacterKind_Whitespace && String.fromCharCode(EDI_textByteList_bytes[EDI_getPositionIndex_cursor_raw()]) === '\t') {
                 INTS[fEDI_cursorVisualColumnIndex] -= (4 - (INTS[fEDI_cursorVisualColumnIndex] % 4)); // (tabLength)
             }
             else {
@@ -4237,7 +4237,7 @@ function EDI_onKeyDown_ArrowLeft(event) {
             while (INTS[fEDI_cursor_indexColumn] > 0) {
                 if (EDI_getCharacterPrevious_KIND(INTS[fEDI_cursor_indexColumn], indexPosition) === originalCharacterKind) {
                     INTS[fEDI_cursor_indexColumn]--;
-                    if (originalCharacterKind === CharacterKind_Whitespace && String.fromCharCode(EDI_textByteList_bytes[EDI_getPositionIndex_cursor()]) === '\t') {
+                    if (originalCharacterKind === CharacterKind_Whitespace && String.fromCharCode(EDI_textByteList_bytes[EDI_getPositionIndex_cursor_raw()]) === '\t') {
                         INTS[fEDI_cursorVisualColumnIndex] -= (4 - (INTS[fEDI_cursorVisualColumnIndex] % 4)); // (tabLength)
                     }
                     else {
@@ -4253,7 +4253,7 @@ function EDI_onKeyDown_ArrowLeft(event) {
         else {
             if (INTS[fEDI_cursor_indexColumn] > 0) {
                 INTS[fEDI_cursor_indexColumn]--;
-                if (String.fromCharCode(EDI_textByteList_bytes[EDI_getPositionIndex_cursor()]) === '\t') {
+                if (String.fromCharCode(EDI_textByteList_bytes[EDI_getPositionIndex_cursor_raw()]) === '\t') {
                     INTS[fEDI_cursorVisualColumnIndex] -= (4 - (INTS[fEDI_cursorVisualColumnIndex] % 4)); // (tabLength)
                 }
                 else {
@@ -4361,7 +4361,7 @@ function EDI_onKeyDown_ArrowRight(event) {
             const line_end = INTS[fEDI_getLineBoundaryPositions_end];
             let indexPosition = INTS[fEDI_getLineBoundaryPositions_start] + INTS[fEDI_cursor_indexColumn];
             let originalCharacterKind = EDI_getCharacterCurrent_KIND(INTS[fEDI_cursor_indexColumn], indexPosition, line_end);
-            if (originalCharacterKind === CharacterKind_Whitespace && String.fromCharCode(EDI_textByteList_bytes[EDI_getPositionIndex_cursor()]) === '\t') {
+            if (originalCharacterKind === CharacterKind_Whitespace && String.fromCharCode(EDI_textByteList_bytes[EDI_getPositionIndex_cursor_raw()]) === '\t') {
                 INTS[fEDI_cursorVisualColumnIndex] += (4 - (INTS[fEDI_cursorVisualColumnIndex] % 4)); // (tabLength)
             }
             else {
@@ -4372,7 +4372,7 @@ function EDI_onKeyDown_ArrowRight(event) {
 
             while (INTS[fEDI_cursor_indexColumn] < lastValidIndexColumn) {
                 if (EDI_getCharacterCurrent_KIND(INTS[fEDI_cursor_indexColumn], indexPosition, line_end) === originalCharacterKind) {
-                    if (originalCharacterKind === CharacterKind_Whitespace && String.fromCharCode(EDI_textByteList_bytes[EDI_getPositionIndex_cursor()]) === '\t') {
+                    if (originalCharacterKind === CharacterKind_Whitespace && String.fromCharCode(EDI_textByteList_bytes[EDI_getPositionIndex_cursor_raw()]) === '\t') {
                         INTS[fEDI_cursorVisualColumnIndex] += (4 - (INTS[fEDI_cursorVisualColumnIndex] % 4)); // (tabLength)
                     }
                     else {
@@ -4388,7 +4388,7 @@ function EDI_onKeyDown_ArrowRight(event) {
         }
         else {
             if (INTS[fEDI_cursor_indexColumn] < lastValidIndexColumn) {
-                if (String.fromCharCode(EDI_textByteList_bytes[EDI_getPositionIndex_cursor()]) === '\t') {
+                if (String.fromCharCode(EDI_textByteList_bytes[EDI_getPositionIndex_cursor_raw()]) === '\t') {
                     INTS[fEDI_cursorVisualColumnIndex] += (4 - (INTS[fEDI_cursorVisualColumnIndex] % 4)); // (tabLength)
                 }
                 else {
@@ -4974,7 +4974,7 @@ function EDI_findOverlay_doSearch() {
         nextMatchPos = small;
     }
     else {
-        nextMatchPos = EDI_getPositionIndex_cursor();
+        nextMatchPos = EDI_getPositionIndex_cursor_raw();
     }
     
     if (get_EDI_findOverlay_options_matchWord() && ((searchEncoded[0] >= 97 && searchEncoded[0] <= 122) || (searchEncoded[0] >= 65 && searchEncoded[0] <= 90) || (searchEncoded[0] >= 48 && searchEncoded[0] <= 57) || (searchEncoded[0] === 95))) {
@@ -6061,7 +6061,7 @@ function EDI_render_do_DuplicateOrPaste() {
  * @param {*} content 
  */
 function EDI_paste(content) {
-    let positionIndex = EDI_getPositionIndex_cursor();
+    let positionIndex = EDI_getPositionIndex_cursor_raw();
 
     INTS[fEDI_cursor_editPosition] = positionIndex;
     INTS[fEDI_cursor_editIndexLine] = INTS[fEDI_cursor_indexLine];
@@ -6284,7 +6284,7 @@ function EDI_render_do_TabKey() {
 function EDI_tabKey() {
 
     if (INTS[fEDI_cursor_editLength] === 0) {
-        INTS[fEDI_cursor_editPosition] = EDI_getPositionIndex_cursor();
+        INTS[fEDI_cursor_editPosition] = EDI_getPositionIndex_cursor_raw();
         INTS[fEDI_cursor_editIndexLine] = INTS[fEDI_cursor_indexLine];
         INTS[fEDI_cursor_editIndexColumn] = INTS[fEDI_cursor_indexColumn];
     }

@@ -8775,4 +8775,6 @@ when using diffchecker website
 dude that's totally why my video was lagging
 GPU overhead
 
+I might make the video public again cause that's hilarious
+
 */

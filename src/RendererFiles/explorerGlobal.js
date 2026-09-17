@@ -963,6 +963,70 @@ Google AI:
 >   left: 0;
 >   top: 0;
 > }
+
+< Swapping between these two specific CSS classes in JavaScript will not cause significant rendering overhead.
+<
+< From a browser performance standpoint, because .tvn and .tvnN have the exact same layout properties
+< (position: absolute, left: 0, top: 0, white-space: nowrap), swapping the classes will not trigger a costly reflow (layout recalculation).
+< The browser already knows exactly where the boxes are and how big they are.
+<
+< At most, it will only trigger a fast repaint if you have other rules elsewhere in your CSS that style .tvn or .tvnN with different colors or fonts.
+<
+< The Real Problem: Maintainability & Semantics
+< 
+< While it won't hurt performance, you are right to feel that this setup is "hacky." You are completely duplicating the layout CSS just to use the class name as a temporary flag.
+<
+< If you ever want to change the layout (e.g., changing top: 0 to something else), you now have to update it in two separate places.
+<
+< A Cleaner, Standard Way to Do This
+<
+< Instead of creating a completely separate class that duplicates layout rules, you should use state modifiers or data attributes.
+<
+< Approach A: The BEM Modifier Pattern (Recommended for CSS)
+<
+< Keep your base layout rules in .tvn, and add a second class only to mark the change.
+<
+< ```css
+!//! Base class: Handles all layout
+.tvn {
+  white-space: nowrap;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+!//! Modifier class: Used only as a hook or for visual changes
+.tvn--pending-syntax {
+  !//! You can leave this completely empty if it's just a hook for JS, or put styling here if un-highlighted text needs a gray color
+  color: #888; 
+}
+< ```
+< 
+< In JavaScript:
+< - To mark it: node.classList.add('tvn--pending-syntax');
+< - To clear it: node.classList.remove('tvn--pending-syntax');
+< 
+< Approach B: HTML5 Data Attributes (Recommended for Logic)
+< If the class is purely a marker for your JavaScript asynchronous logic and doesn't change the visual style at all, use a data-* attribute.
+< This completely separates your styling concerns from your JavaScript state logic.
+< 
+< ```js
+// In your scroll logic: Mark the node as needing a fetch
+node.dataset.syntaxPending = "true";
+
+// In your trailing-edge logic: Find all nodes that need updating
+const nodesToUpdate = document.querySelectorAll('.tvn[data-syntax-pending="true"]');
+
+// Once updated: Remove the attribute
+delete node.dataset.syntaxPending;
+< ```
+< 
+< This keeps your CSS incredibly clean, avoids duplication, handles performance perfectly, and makes your code self-documenting without needing comments calling it "hacky."
+< 
+< Would you like to look at how to structure your trailing-edge querySelectorAll batch updates using one of these cleaner approaches?
+
+
+
 */
 
             let divItem = document.createElement('div');

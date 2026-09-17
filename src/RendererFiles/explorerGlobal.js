@@ -105,7 +105,7 @@ function EXPLORER_setChosenDirectory(chosenDirectory, chosenDirectoryAbsolutePat
 
     let nodeKind = TreeViewNodeKind_isExpandable_NOTisExpanded;
     EXPLORER_treeViewNodes.insert(EXPLORER_treeViewNodes.count_abstract, nodeKind, EXPLORER_chosenDirectoryAbsolutePathId, 0);
-    INTS[fEXPLORER_itemHeightTotal] = EXPLORER_getTotalCount() * INTS[fEXPLORER_itemHeightNumber];
+    INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
     EXPLORER_virtualizationElement.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
 }
 
@@ -123,7 +123,7 @@ function EXPLORER_setChosenWorkspace(chooseWorkspaceResult) {
         EXPLORER_treeViewNodes.insert(EXPLORER_treeViewNodes.count_abstract, nodeKind, directory.id, 0);
     }
 
-    INTS[fEXPLORER_itemHeightTotal] = EXPLORER_getTotalCount() * INTS[fEXPLORER_itemHeightNumber];
+    INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
     EXPLORER_virtualizationElement.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
 }
 
@@ -526,7 +526,7 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem) {
             }
             // TODO: Insert range, or at the least 'pre-emptively' resize the list so that it fits each insertion without resizing per insertion.
             EXPLORER_treeViewNodes.insert(indexItem + 1 + i, nodeKind, entry.id, depth + 1);
-            INTS[fEXPLORER_itemHeightTotal] = EXPLORER_getTotalCount() * INTS[fEXPLORER_itemHeightNumber];
+            INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
             EXPLORER_virtualizationElement.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
         }
 
@@ -549,7 +549,7 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem) {
         }
         if (countChildren > 0) { // TODO: is this check necessary?
             EXPLORER_treeViewNodes.removeAt(indexItem + 1, countChildren);
-            INTS[fEXPLORER_itemHeightTotal] = EXPLORER_getTotalCount() * INTS[fEXPLORER_itemHeightNumber];
+            INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
             EXPLORER_virtualizationElement.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
             EXPLORER_draw_render_fullReset_request();
         }
@@ -609,10 +609,6 @@ function EXPLORER_arrowLeft(divItem, indexItem) {
     return Promise.resolve();
 }
 
-function EXPLORER_getTotalCount() {
-    return EXPLORER_treeViewNodes.count_abstract;
-}
-
 /**
  * This method should only pertain itself with the contents of the flat list, any UI changes will be made based on the returned 'changeCount'
  * which is interpreted as one for the item itself, plus the count of any children that were recursively removed.
@@ -648,7 +644,7 @@ function EXPLORER_removeFromNodeList(indexItem) {
     }
 
     EXPLORER_treeViewNodes.removeAt(indexItem, 1 + countChildren);
-    INTS[fEXPLORER_itemHeightTotal] = EXPLORER_getTotalCount() * INTS[fEXPLORER_itemHeightNumber];
+    INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
     EXPLORER_virtualizationElement.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
     return 1 + countChildren;
 }
@@ -741,7 +737,7 @@ function EXPLORER_render_do_SetItems() {
     EXPLORER_itemHeightStyleAttributeValueString = EXPLORER_SET_ITEMS_itemHeightStyleAttributeValueString;
 
     EXPLORER_cursorElement.style.height = EXPLORER_itemHeightStyleAttributeValueString;
-    INTS[fEXPLORER_itemHeightTotal] = EXPLORER_getTotalCount() * INTS[fEXPLORER_itemHeightNumber];
+    INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
     EXPLORER_virtualizationElement.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
     BYTES[byteEXPLORER_boundingClientRect_isValid] = 0;
 }
@@ -861,7 +857,7 @@ function EXPLORER_render_do_Scroll(timestamp) {
 
             let diff = currVli - prevVli;
 
-            let totalCount = EXPLORER_getTotalCount();
+            let totalCount = EXPLORER_treeViewNodes.count_abstract;
 
             if (diff > 0 && diff < INTS[fEXPLORER_virtualCount]) {
                 EXPLORER_drawItem_BATCH(prevVli + INTS[fEXPLORER_ONSCROLLvirtualCount], diff, 1, undefined, timestamp);
@@ -903,7 +899,7 @@ function EXPLORER_render_do_FullReset(timestamp) {
     INTS[fEXPLORER_virtualIndex_ofScrollTop] = Math.floor(INTS[fEXPLORER_lastReadNumber_scrollTop] / INTS[fEXPLORER_itemHeightNumber]);
     INTS[fEXPLORER_ringBufferIndexZero] = 0;
 
-    let totalCount = EXPLORER_getTotalCount();
+    let totalCount = EXPLORER_treeViewNodes.count_abstract;
 
     if (EXPLORER_itemListElement.children.length !== INTS[fEXPLORER_virtualCount]) {
         EXPLORER_itemListElement.innerHTML = '';
@@ -1049,7 +1045,7 @@ function EXPLORER_event_contextmenu(event) {
         return EXPLORER_oncontextmenu(EXPLORER_ringBuffer[ringBufferIndexItem], INTS[fEXPLORER_cursorIndex], event_button, event_clientX, event_clientY, ringBufferIndexItem);
     }
     else {
-        if (INTS[fEXPLORER_cursorIndex] >= EXPLORER_getTotalCount()) {
+        if (INTS[fEXPLORER_cursorIndex] >= EXPLORER_treeViewNodes.count_abstract) {
             return;
         }
 
@@ -1215,8 +1211,8 @@ function EXPLORER_state_cursor_setIndex(index) {
  * @param {*} indexItem 
  */
 function EXPLORER_state_cursor_validateIndex(indexItem) {
-    if (indexItem >= EXPLORER_getTotalCount()) {
-        indexItem = EXPLORER_getTotalCount() - 1;
+    if (indexItem >= EXPLORER_treeViewNodes.count_abstract) {
+        indexItem = EXPLORER_treeViewNodes.count_abstract - 1;
     }
     if (indexItem < 0) {
         indexItem = 0;
@@ -1526,7 +1522,7 @@ async function EXPLORER_MenuOnClick(indexClicked, elementClicked) {
                                 someIndex++;
 
                                 if (!isCollapsed) {
-                                    while (someIndex < EXPLORER_getTotalCount()) {
+                                    while (someIndex < EXPLORER_treeViewNodes.count_abstract) {
                                         let d_of_perhaps_too_large_depth = EXPLORER_treeViewNodes.getDepth(someIndex);
                                         if (d_of_perhaps_too_large_depth > targetDepth) {
                                             someIndex++;
@@ -1538,7 +1534,7 @@ async function EXPLORER_MenuOnClick(indexClicked, elementClicked) {
                                     }
                                 }
 
-                                // TODO: You're missing a 'someIndex < EXPLORER_getTotalCount()' check for after the while loop.
+                                // TODO: You're missing a 'someIndex < EXPLORER_treeViewNodes.count_abstract' check for after the while loop.
                             }
 
                             EXPLORER_treeViewNodes.insert(someIndex, nodeKind, pasteResult.pathId, MENU_target.depth + 1);
@@ -1548,7 +1544,7 @@ async function EXPLORER_MenuOnClick(indexClicked, elementClicked) {
                                 if (someIndex >= INTS[fEXPLORER_virtualIndex_ofScrollTop] && someIndex <= largestIndexItemBeingShown) {
                                     let finalDiv = EXPLORER_itemListElement.children[EXPLORER_itemListElement.children.length - 1];
 
-                                    INTS[fEXPLORER_itemHeightTotal] = EXPLORER_getTotalCount() * INTS[fEXPLORER_itemHeightNumber];
+                                    INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
                                     EXPLORER_virtualizationElement.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
 
                                     // TODO: Check that the node you're pasting into is expanded.
@@ -1575,7 +1571,7 @@ async function EXPLORER_MenuOnClick(indexClicked, elementClicked) {
         
                                     if (divRelativeIndex <= largestIndexItemBeingShown) {
 
-                                        let countOfMoreEntriesToShow = EXPLORER_getTotalCount() - (INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount]);
+                                        let countOfMoreEntriesToShow = EXPLORER_treeViewNodes.count_abstract - (INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount]);
 
                                         let countChanges;
                                         
@@ -1587,7 +1583,7 @@ async function EXPLORER_MenuOnClick(indexClicked, elementClicked) {
                                             countChanges = 1;
                                         }
 
-                                        INTS[fEXPLORER_itemHeightTotal] = EXPLORER_getTotalCount() * INTS[fEXPLORER_itemHeightNumber];
+                                        INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
                                         EXPLORER_virtualizationElement.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
 
                                         let remainingChangesToRender = countChanges < INTS[fEXPLORER_virtualCount] ? countChanges : INTS[fEXPLORER_virtualCount] - divRelativeIndex;
@@ -1747,7 +1743,7 @@ async function NewFile_Directory_WIDGET_InputText_callback(result) {
                 someIndex++;
 
                 if (!isCollapsed) {
-                    while (someIndex < EXPLORER_getTotalCount()) {
+                    while (someIndex < EXPLORER_treeViewNodes.count_abstract) {
                         let d_of_perhaps_too_large_depth = EXPLORER_treeViewNodes.getDepth(someIndex);
                         if (d_of_perhaps_too_large_depth > targetDepth) {
                             someIndex++;
@@ -1759,7 +1755,7 @@ async function NewFile_Directory_WIDGET_InputText_callback(result) {
                     }
                 }
 
-                // TODO: You're missing a 'someIndex < EXPLORER_getTotalCount()' check for after the while loop.
+                // TODO: You're missing a 'someIndex < EXPLORER_treeViewNodes.count_abstract' check for after the while loop.
             }
 
             EXPLORER_treeViewNodes.insert(someIndex, nodeKind, newFileResult.pathId, WIDGET_target.depth + 1);
@@ -1769,7 +1765,7 @@ async function NewFile_Directory_WIDGET_InputText_callback(result) {
                 if (someIndex >= INTS[fEXPLORER_virtualIndex_ofScrollTop] && someIndex <= largestIndexItemBeingShown) {
                     //let finalDiv = EXPLORER_itemListElement.children[EXPLORER_itemListElement.children.length - 1];
 
-                    INTS[fEXPLORER_itemHeightTotal] = EXPLORER_getTotalCount() * INTS[fEXPLORER_itemHeightNumber];
+                    INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
                     EXPLORER_virtualizationElement.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
 
                     //await EXPLORER_drawItem_async(finalDiv, someIndex, /*isNull*/ false);
@@ -1829,7 +1825,7 @@ async function NewFile_File_WIDGET_InputText_callback(result) {
                 someIndex++;
 
                 if (!isCollapsed) {
-                    while (someIndex < EXPLORER_getTotalCount()) {
+                    while (someIndex < EXPLORER_treeViewNodes.count_abstract) {
                         let d_of_perhaps_too_large_depth = EXPLORER_treeViewNodes.getDepth(someIndex);
                         if (d_of_perhaps_too_large_depth > targetDepth) {
                             someIndex++;
@@ -1841,7 +1837,7 @@ async function NewFile_File_WIDGET_InputText_callback(result) {
                     }
                 }
 
-                // TODO: You're missing a 'someIndex < EXPLORER_getTotalCount()' check for after the while loop.
+                // TODO: You're missing a 'someIndex < EXPLORER_treeViewNodes.count_abstract' check for after the while loop.
             }
 
             EXPLORER_treeViewNodes.insert(someIndex, nodeKind, newFileResult.pathId, WIDGET_target.depth + 1);
@@ -1851,7 +1847,7 @@ async function NewFile_File_WIDGET_InputText_callback(result) {
                 if (someIndex >= INTS[fEXPLORER_virtualIndex_ofScrollTop] && someIndex <= largestIndexItemBeingShown) {
                     //let finalDiv = EXPLORER_itemListElement.children[EXPLORER_itemListElement.children.length - 1];
     
-                    INTS[fEXPLORER_itemHeightTotal] = EXPLORER_getTotalCount() * INTS[fEXPLORER_itemHeightNumber];
+                    INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
                     EXPLORER_virtualizationElement.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
     
                     //await EXPLORER_drawItem_async(finalDiv, someIndex, /*isNull*/ false);
@@ -1874,11 +1870,11 @@ async function DeleteFile_Directory_YesCancel_callback(result) {
     let entry = WIDGET_SHOW_value;
     let deleteFileResult = await window.myAPI.deleteFile(entry.absolutePath, /*isDirectory*/ true);
     if (deleteFileResult) {
-        let countOfMoreEntriesToShow = EXPLORER_getTotalCount() - (INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount]);
+        let countOfMoreEntriesToShow = EXPLORER_treeViewNodes.count_abstract - (INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount]);
 
         let countChanges = EXPLORER_removeFromNodeList(WIDGET_target.indexItem);
 
-        INTS[fEXPLORER_itemHeightTotal] = EXPLORER_getTotalCount() * INTS[fEXPLORER_itemHeightNumber];
+        INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
         EXPLORER_virtualizationElement.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
 
         let remainingChangesToRender = countChanges < INTS[fEXPLORER_virtualCount] ? countChanges : INTS[fEXPLORER_virtualCount] - WIDGET_target.divRelativeIndex;
@@ -1916,14 +1912,14 @@ async function DeleteFile_File_YesCancel_callback(result) {
     let entry = WIDGET_SHOW_value;
     let deleteFileResult = await window.myAPI.deleteFile(entry.absolutePath, /*isDirectory*/ false);
     if (deleteFileResult) {
-        let noMoreEntriesToShow = INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] >= EXPLORER_getTotalCount();
+        let noMoreEntriesToShow = INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] >= EXPLORER_treeViewNodes.count_abstract;
 
         EXPLORER_treeViewNodes.removeAt(WIDGET_target.indexItem, 1);
 
         if (INTS[fEXPLORER_virtualCount] > 0) {
             //let divItem = EXPLORER_itemListElement.children[WIDGET_target.divRelativeIndex];
 
-            INTS[fEXPLORER_itemHeightTotal] = EXPLORER_getTotalCount() * INTS[fEXPLORER_itemHeightNumber];
+            INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
             EXPLORER_virtualizationElement.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
 
             //EXPLORER_itemListElement.insertBefore(divItem, undefined);

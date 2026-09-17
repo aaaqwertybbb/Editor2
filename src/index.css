@@ -94,6 +94,7 @@ body {
 .LIST_moveChildNodes {
   position: relative;
   overflow: scroll;
+  transform: translate3d(0px, 0px, 0px);
 }
 
   .LIST_moveChildNodes:focus .LIST_moveChildNodes_cursor {

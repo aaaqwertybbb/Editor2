@@ -2412,6 +2412,7 @@ function positiveNumbersOnly_countDigitsLoop(number) {
   return count;
 }
 
+//#region cursor
 function EDI_render_do_cursor(timestamp) {
     INTS[fEDI_EDI_cursorBlinkLastTimestamp] = timestamp;
     EDI_drawCursor();
@@ -2823,6 +2824,7 @@ function EDI_createStyleForSelection_indentMore() {
     INTS[fEDI_cursor_DRAWN_selectionAnchor] = INTS[fEDI_cursor_selectionAnchor];
     INTS[fEDI_cursor_DRAWN_selectionEnd] = INTS[fEDI_cursor_selectionEnd];
 }
+//#endregion
 
 //#region mousedown
 function EDI_onMouseDown(event) {

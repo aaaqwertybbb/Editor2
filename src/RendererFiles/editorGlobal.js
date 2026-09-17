@@ -2911,24 +2911,6 @@ function EDI_onMouseMoveDetailRankOne(indexLineClicked, indexColumnClicked, inde
     EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
 }
 
-function EDI_getCharacterPrevious_KIND(indexColumn, positionIndex) {
-    if (indexColumn !== 0) {
-        return EDI_getCharacterKind(String.fromCharCode(EDI_textByteList_bytes[positionIndex - 1]));
-    }
-    else {
-        return CharacterKind_None;
-    }
-}
-
-function EDI_getCharacterCurrent_KIND(indexColumn, positionIndex, lineEnd) {
-    if (indexColumn < lineEnd) {
-        return EDI_getCharacterKind(String.fromCharCode(EDI_textByteList_bytes[positionIndex]));
-    }
-    else {
-        return CharacterKind_None;
-    }
-}
-
 function EDI_onMouseMoveDetailRankTwo(indexLineClicked, indexColumnClicked, indexColumnVisual) {
     let nextPositionIndex = EDI_getPositionIndex_Overload(indexLineClicked, indexColumnClicked);
 
@@ -3128,6 +3110,24 @@ function EDI_onMouseMoveDetailRankThree(indexLineClicked, indexColumnClicked) {
         }
 
         EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
+    }
+}
+
+function EDI_getCharacterPrevious_KIND(indexColumn, positionIndex) {
+    if (indexColumn !== 0) {
+        return EDI_getCharacterKind(String.fromCharCode(EDI_textByteList_bytes[positionIndex - 1]));
+    }
+    else {
+        return CharacterKind_None;
+    }
+}
+
+function EDI_getCharacterCurrent_KIND(indexColumn, positionIndex, lineEnd) {
+    if (indexColumn < lineEnd) {
+        return EDI_getCharacterKind(String.fromCharCode(EDI_textByteList_bytes[positionIndex]));
+    }
+    else {
+        return CharacterKind_None;
     }
 }
 

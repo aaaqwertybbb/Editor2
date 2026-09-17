@@ -8772,6 +8772,7 @@ when using diffchecker website
 < 
 < ...
 
-
+dude that's totally why my video was lagging
+GPU overhead
 
 */

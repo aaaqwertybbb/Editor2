@@ -928,6 +928,41 @@ Google AI:
 < ...
 < 
 < ...
+
+
+======
+
+> I have a treeview UI, it is a "sliding window" such that as you scroll it determines the nodes that need to be redrawn and then recycles the existing DOM elements to do so.
+> 
+> But, I have this "asynchronous" logic where, everytime you scroll it begins listening for the scroll event's trailing edge.
+> 
+> When the trailing edge occurs, I get the actual names of each node. In this case I'm showing a filesystem, and so as you scroll you see '...' and the trailing edge asks the respective file system for the filenames that need to be drawn.
+> 
+> I do this by changing the node's CSS class as a means of marking it for later.
+> 
+> Does this make sense so far?
+
+< Yes, this makes perfect sense. You have built a virtualized scrolling treeview (or a recycling list) that leverages a debounced / trailing-edge scroll listener to fetch data asynchronously.
+<
+< ...
+
+> My concern is in the following CSS declarations I made
+> (that is to say, I'm worried that swapping between these two CSS classes using javascript could cause significant overhead):
+> 
+> !//! .tvn => TreeViewNode...SEE 'tvnN' (this is super hacky I need to mark a node for change...)
+> .tvn {
+>   white-space: nowrap;
+>   position: absolute;
+>   left: 0;
+>   top: 0;
+> }
+> !//! .tvnN => TreeViewNode (but NOT "syntax highlighted") (this is super hacky I need to mark a node for change...)
+> .tvnN {
+>   white-space: nowrap;
+>   position: absolute;
+>   left: 0;
+>   top: 0;
+> }
 */
 
             let divItem = document.createElement('div');

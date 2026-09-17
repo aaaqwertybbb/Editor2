@@ -568,6 +568,14 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
                     if (className === 'eI') {
                         textContent = divSpanTextContent.substring(substart, substart + wordlength);
                     }
+
+                    if (divSpanTextContent[pos] === '(') {
+                        className = 'eF';
+                    }
+                    else if (substart > 0 && divSpanTextContent[substart - 1] === '.') {
+                        className = 'eM';
+                    }
+
                     if (childIndex < div.children.length) {
                         span = div.children[childIndex++];
                         span.className = className;

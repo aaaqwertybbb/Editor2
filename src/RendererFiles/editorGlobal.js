@@ -2862,67 +2862,6 @@ function EDI_EnterKey(ctrlKey, shiftKey) {
     EDI_render_request(RenderKind_Enter);
 }
 
-function EDI_render_do_Resize(timestamp) {
-    EDI_baseElement.style.width = '';
-    EDI_baseElement.style.height = '';
-    EDI_baseElement.style.contain = '';
-
-    EDI_measureBaseElement();
-
-    let remember_virtualCount = INTS[fEDI_virtualCount];
-    update_virtualCount();
-    if (INTS[fEDI_virtualCount] !== remember_virtualCount) {
-        // why 'update_verticalVirtualizationBoundary' here???
-        update_verticalVirtualizationBoundary(EDI_lineEndPositionList_count + 1);
-
-        INTS[fEDI_intFalsey_isScrolling] = 0;
-
-        INTS[fEDI_scrollEndDeadline] = timestamp + 1000;
-
-        EDI_render_do_Scroll(timestamp); //EDI_onScroll_WRAPIT();
-        // # Redraw cursor selection virtualization
-        // Code Duplication: # Redraw cursor selection virtualization... TODO: This is using 'EDI_primaryCursor' rather than 'EDI_cursorList[i]' so it is surely incorrect?
-        EDI_createStyleForSelection();
-    }
-
-    set_EDI_recentBoundingClientRect_isNull_intFalsey(1);
-
-    EDI_drawHorizontalScrollbar();
-}
-
-function EDI_onResize() {
-    EDI_render_request(RenderKind_Resize);
-}
-
-// 1. The Entry Point (Replaces WRAPIT)
-function EDI_onResize_WRAPIT() {
-    // If timer is running, just note that a trailing call is needed
-    if (INTS[fEDI_onResize_timer]) {
-        BYTES[byteEDI_onResize_hasTrailingCall] = 1;
-        return;
-    }
-
-    // Leading edge: Execute immediately
-    EDI_onResize();
-
-    // Start the throttle window
-    EDI_onResize_startThrottleTimeout();
-}
-
-// 2. The Gatekeeper
-function EDI_onResize_startThrottleTimeout() {
-    INTS[fEDI_onResize_timer] = setTimeout(() => {
-        if (BYTES[byteEDI_onResize_hasTrailingCall]) {
-            BYTES[byteEDI_onResize_hasTrailingCall] = 0;
-            EDI_onResize();
-            
-            EDI_onResize_startThrottleTimeout();
-        } else {
-            INTS[fEDI_onResize_timer] = 0;
-        }
-    }, 500);
-}
-
 /**
  * @returns 
  */
@@ -3671,6 +3610,67 @@ function EDI_insertDo(character) {
     INTS[fEDI_cursor_editLength]++;
     INTS[fEDI_cursor_indexColumn]++;
     INTS[fEDI_cursorVisualColumnIndex]++;
+}
+
+function EDI_render_do_Resize(timestamp) {
+    EDI_baseElement.style.width = '';
+    EDI_baseElement.style.height = '';
+    EDI_baseElement.style.contain = '';
+
+    EDI_measureBaseElement();
+
+    let remember_virtualCount = INTS[fEDI_virtualCount];
+    update_virtualCount();
+    if (INTS[fEDI_virtualCount] !== remember_virtualCount) {
+        // why 'update_verticalVirtualizationBoundary' here???
+        update_verticalVirtualizationBoundary(EDI_lineEndPositionList_count + 1);
+
+        INTS[fEDI_intFalsey_isScrolling] = 0;
+
+        INTS[fEDI_scrollEndDeadline] = timestamp + 1000;
+
+        EDI_render_do_Scroll(timestamp); //EDI_onScroll_WRAPIT();
+        // # Redraw cursor selection virtualization
+        // Code Duplication: # Redraw cursor selection virtualization... TODO: This is using 'EDI_primaryCursor' rather than 'EDI_cursorList[i]' so it is surely incorrect?
+        EDI_createStyleForSelection();
+    }
+
+    set_EDI_recentBoundingClientRect_isNull_intFalsey(1);
+
+    EDI_drawHorizontalScrollbar();
+}
+
+function EDI_onResize() {
+    EDI_render_request(RenderKind_Resize);
+}
+
+// 1. The Entry Point (Replaces WRAPIT)
+function EDI_onResize_WRAPIT() {
+    // If timer is running, just note that a trailing call is needed
+    if (INTS[fEDI_onResize_timer]) {
+        BYTES[byteEDI_onResize_hasTrailingCall] = 1;
+        return;
+    }
+
+    // Leading edge: Execute immediately
+    EDI_onResize();
+
+    // Start the throttle window
+    EDI_onResize_startThrottleTimeout();
+}
+
+// 2. The Gatekeeper
+function EDI_onResize_startThrottleTimeout() {
+    INTS[fEDI_onResize_timer] = setTimeout(() => {
+        if (BYTES[byteEDI_onResize_hasTrailingCall]) {
+            BYTES[byteEDI_onResize_hasTrailingCall] = 0;
+            EDI_onResize();
+            
+            EDI_onResize_startThrottleTimeout();
+        } else {
+            INTS[fEDI_onResize_timer] = 0;
+        }
+    }, 500);
 }
 
 async function EDI_MenuOnClick(indexClicked, elementClicked) {

@@ -7512,83 +7512,6 @@ function EDI_decode_textonly(start, length) {
 	return decodedText;
 }
 
-function EDI_toExtensionKind(extensionWithPeriod) {
-    switch (extensionWithPeriod) {
-        case '.js':
-        case '.cjs':
-            return ExtensionKind_JavaScript;
-        default:
-            return ExtensionKind_None;
-    }
-}
-
-function EDI_language_line_lex_SET(extensionKind) {
-    switch (extensionKind) {
-        case ExtensionKind_JavaScript:
-            EDI_language_line_lex = JS_line_lex;
-            break;
-        default:
-            EDI_language_line_lex = PLAINTEXT_line_lex;
-            break;
-    }
-}
-
-/**
- * TODO: this can be way faster all I did was take JS_line_lex and then strip away all the details...
- * ...I'm more concerned with tightening the difference between best and worst case...
- * ...by reducing worst case.
- * This makes line lexing JS faster so it is preferable even if I don't write this plaintext implementation perfectly.
- * "maybe" it's faster I didn't measure anything but I swear I know what I'm doing
- * not only did I not measure it but I went back and forth between vscode I actually have no idea if this faster I can't remember anything I'm super tired.
- * I'm tired and I still have to write more of the multicursor logic so I'm just vibing out the optimizations for a bit I'll get measurements later when the app works more.
- */
-function PLAINTEXT_line_lex(div, substart, lineEnd, childIndex) {
-    let length = 0;
-    let pos = substart;
-
-    const bytes = EDI_textByteList_bytes;
-
-    while (pos < lineEnd) {
-        length++;
-        pos++;
-    }
-
-    if (length > 0) {
-        let span;
-        if (childIndex < div.children.length) {
-            span = div.children[childIndex++];
-            span.className = '';
-        }
-        else {
-            span = document.createElement('span');
-            div.appendChild(span);
-            childIndex++;
-        }
-        span.textContent = EDI_decoder.decode(bytes.subarray(substart, substart + length));
-    }
-
-    return childIndex;
-}
-
-function EDI_registerHandlers() {
-    EDI_baseElement.addEventListener('keydown', EDI_onKeyDown);
-    EDI_baseElement.addEventListener('mousedown', EDI_onMouseDown);
-    EDI_baseElement.addEventListener('scroll', EDI_onScroll_WRAPIT, { passive: true });
-
-    EDI_baseElement.addEventListener('wheel', EDI_onWheel, { passive: true });
-
-    EDI_baseElement.addEventListener('contextmenu', EDI_onContextMenu);
-    window.addEventListener('resize', EDI_onResize_WRAPIT);
-    EDI_horizontal_scrollbar.addEventListener('scroll', EDI_horizontal_scrollbar_onScroll, { passive: true });
-
-    // Attach a single listener to your text container (Event Delegation)
-    EDI_baseElement.addEventListener('mouseover', EDI_mouseOver);
-    EDI_baseElement.addEventListener('mouseleave', EDI_mouseLeave);
-    
-    EDI_baseElement.addEventListener('focus', EDI_onfocus);
-    EDI_baseElement.addEventListener('blur', EDI_onblur);
-}
-
 /**
  * < Thanks to a browser feature called Event Bubbling, when the mouse enters a tiny token span, the event bubbles up to the parent container
  */
@@ -7720,6 +7643,83 @@ function EDI_measureLineHeightAndCharacterWidth() {
         // avoid layout with if statement
         root.style.setProperty(propertyName, teLineHeight);
     }
+}
+
+function EDI_toExtensionKind(extensionWithPeriod) {
+    switch (extensionWithPeriod) {
+        case '.js':
+        case '.cjs':
+            return ExtensionKind_JavaScript;
+        default:
+            return ExtensionKind_None;
+    }
+}
+
+function EDI_language_line_lex_SET(extensionKind) {
+    switch (extensionKind) {
+        case ExtensionKind_JavaScript:
+            EDI_language_line_lex = JS_line_lex;
+            break;
+        default:
+            EDI_language_line_lex = PLAINTEXT_line_lex;
+            break;
+    }
+}
+
+/**
+ * TODO: this can be way faster all I did was take JS_line_lex and then strip away all the details...
+ * ...I'm more concerned with tightening the difference between best and worst case...
+ * ...by reducing worst case.
+ * This makes line lexing JS faster so it is preferable even if I don't write this plaintext implementation perfectly.
+ * "maybe" it's faster I didn't measure anything but I swear I know what I'm doing
+ * not only did I not measure it but I went back and forth between vscode I actually have no idea if this faster I can't remember anything I'm super tired.
+ * I'm tired and I still have to write more of the multicursor logic so I'm just vibing out the optimizations for a bit I'll get measurements later when the app works more.
+ */
+function PLAINTEXT_line_lex(div, substart, lineEnd, childIndex) {
+    let length = 0;
+    let pos = substart;
+
+    const bytes = EDI_textByteList_bytes;
+
+    while (pos < lineEnd) {
+        length++;
+        pos++;
+    }
+
+    if (length > 0) {
+        let span;
+        if (childIndex < div.children.length) {
+            span = div.children[childIndex++];
+            span.className = '';
+        }
+        else {
+            span = document.createElement('span');
+            div.appendChild(span);
+            childIndex++;
+        }
+        span.textContent = EDI_decoder.decode(bytes.subarray(substart, substart + length));
+    }
+
+    return childIndex;
+}
+
+function EDI_registerHandlers() {
+    EDI_baseElement.addEventListener('keydown', EDI_onKeyDown);
+    EDI_baseElement.addEventListener('mousedown', EDI_onMouseDown);
+    EDI_baseElement.addEventListener('scroll', EDI_onScroll_WRAPIT, { passive: true });
+
+    EDI_baseElement.addEventListener('wheel', EDI_onWheel, { passive: true });
+
+    EDI_baseElement.addEventListener('contextmenu', EDI_onContextMenu);
+    window.addEventListener('resize', EDI_onResize_WRAPIT);
+    EDI_horizontal_scrollbar.addEventListener('scroll', EDI_horizontal_scrollbar_onScroll, { passive: true });
+
+    // Attach a single listener to your text container (Event Delegation)
+    EDI_baseElement.addEventListener('mouseover', EDI_mouseOver);
+    EDI_baseElement.addEventListener('mouseleave', EDI_mouseLeave);
+    
+    EDI_baseElement.addEventListener('focus', EDI_onfocus);
+    EDI_baseElement.addEventListener('blur', EDI_onblur);
 }
 
 //#region findOverlay

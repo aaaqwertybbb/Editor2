@@ -5022,6 +5022,11 @@ function getIndexFromX_sameLine_newRxIsSmaller(goalRx, lineStart, startColumn, s
 }
 
 function EDI_onMouseDown(event) {
+    // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
+    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+        EDI_finalizeEdit();
+    }
+    
     EDI_movementBasedCacheInvalidation();
 
     if (get_EDI_recentBoundingClientRect_isNull_intFalsey()) {

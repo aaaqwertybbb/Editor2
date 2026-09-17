@@ -2081,37 +2081,6 @@ function EDI_finalizeEdit_ClearEditState() {
 }
 // #endregion
 
-function enqueueLSPNotification(payload) {
-    lspQueue.push(payload);
-    processLspQueue(); // Fire-and-forget processing loop
-}
-
-async function processLspQueue() {
-    if (BYTES[byteisProcessingLspQueue]) return;
-    BYTES[byteisProcessingLspQueue] = 1;
-
-    while (lspQueue.length > 0) {
-        const item = lspQueue.shift(); // Guarantees strict FIFO order
-        
-        try {
-            // Await the Electron IPC and LSP stdin write
-            await window.myAPI.didChangeTextDocumentNotification(
-                item.absolutePath,
-                item.version,
-                item.startLine,
-                item.startCharacter,
-                item.endLine,
-                item.endCharacter,
-                item.text
-            );
-        } catch (error) {
-            console.error("LSP IPC notification failed:", error);
-        }
-    }
-
-    BYTES[byteisProcessingLspQueue] = 0;
-}
-
 /**
  * Returns the underlying uint8array that contains the encoded characters for the text.
  * The uint8array's capacity (i.e.: length) is not what should be saved out.
@@ -2317,102 +2286,7 @@ function EDI_drawLine(indexLine, gutterLineElement, textLineElement) {
     EDI_createSpansForLineOfText(textLineElement, INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end], trackedSyntax_StartingIndex);
 }
 
-/**
- * if (trackedSyntax_StartingIndex === NaN || trackedSyntax_StartingIndex === -1) { trackedSyntax_StartingIndex = EDI_trackedSyntaxList.count_abstract; }
- * @param {*} indexLineAaa 
- * @returns 
- */
-function EDI_drawViewPort_FindTrackedSyntax_StartingIndex(indexLineAaa) {
-
-    // TODO: 'indexLineAaa' and 'indexLineBbb'; babel compiler error when both were named indexLine.
-
-    let local_EDI_trackedSyntaxList = EDI_trackedSyntaxList;
-
-    EDI_getLineBoundaryPositions_raw(indexLineAaa);
-    const positionIndex = INTS[fEDI_getLineBoundaryPositions_start];
-
-    let left = 0;
-    let right = local_EDI_trackedSyntaxList.count_abstract - 1;
-
-    let indexLineBbb = -1;
-
-    while (left <= right) {
-        const mid = Math.floor((left + right) / 2);
-
-        local_EDI_trackedSyntaxList.getElementAt(mid);
-        
-        if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] > positionIndex) {
-            indexLineBbb = mid;
-
-            if (INTS[fEDI_pooledTrackedSyntax_start] === positionIndex) {
-                break;
-            }
-            
-            right = mid - 1;
-        }
-        else if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] <= positionIndex) {
-            left = mid + 1;
-        }
-        else {
-            return; // NaN
-        }
-    }
-
-    return indexLineBbb;
-}
-
-/**
- * if (trackedSyntax_StartingIndex === NaN || trackedSyntax_StartingIndex === -1) { trackedSyntax_StartingIndex = EDI_trackedSyntaxList.count_abstract; }
- * Probably should make 1 of these and accept a predicate.
- */
-function EDI_trackedSyntaxReposition_find(positionIndex) {
-
-    let local_EDI_trackedSyntaxList = EDI_trackedSyntaxList;
-
-    let left = 0;
-    let right = local_EDI_trackedSyntaxList.count_abstract - 1;
-
-    let indexLine = -1;
-
-    while (left <= right) {
-        const mid = Math.floor((left + right) / 2);
-
-        let start = local_EDI_trackedSyntaxList.getStart(mid);
-        
-        if (positionIndex <= start) {
-            indexLine = mid;
-
-            if (positionIndex === start) {
-                break;
-            }
-            
-            right = mid - 1;
-        }
-        else if (positionIndex > start) {
-            left = mid + 1;
-        }
-        else {
-            return; // NaN
-        }
-    }
-
-    return indexLine;
-}
-
-/** modification of Google AI Overview "javascript count of digits" */
-function positiveNumbersOnly_countDigitsLoop(number) {
-  if (number <= 0) return 1;
-  let count = 0;
-
-  while (number > 0) {
-    number = Math.floor(number / 10); // Remove the last digit
-    count++;
-  }
-
-  return count;
-}
-
-//#region cursor
+//#region cursorDrawing
 function EDI_render_do_cursor(timestamp) {
     INTS[fEDI_EDI_cursorBlinkLastTimestamp] = timestamp;
     EDI_drawCursor();
@@ -3422,6 +3296,132 @@ function EDI_onMouseMoveDetailRankThree(indexLineClicked, indexColumnClicked) {
     }
 }
 //#endregion
+
+function enqueueLSPNotification(payload) {
+    lspQueue.push(payload);
+    processLspQueue(); // Fire-and-forget processing loop
+}
+
+async function processLspQueue() {
+    if (BYTES[byteisProcessingLspQueue]) return;
+    BYTES[byteisProcessingLspQueue] = 1;
+
+    while (lspQueue.length > 0) {
+        const item = lspQueue.shift(); // Guarantees strict FIFO order
+        
+        try {
+            // Await the Electron IPC and LSP stdin write
+            await window.myAPI.didChangeTextDocumentNotification(
+                item.absolutePath,
+                item.version,
+                item.startLine,
+                item.startCharacter,
+                item.endLine,
+                item.endCharacter,
+                item.text
+            );
+        } catch (error) {
+            console.error("LSP IPC notification failed:", error);
+        }
+    }
+
+    BYTES[byteisProcessingLspQueue] = 0;
+}
+
+/**
+ * if (trackedSyntax_StartingIndex === NaN || trackedSyntax_StartingIndex === -1) { trackedSyntax_StartingIndex = EDI_trackedSyntaxList.count_abstract; }
+ * @param {*} indexLineAaa 
+ * @returns 
+ */
+function EDI_drawViewPort_FindTrackedSyntax_StartingIndex(indexLineAaa) {
+
+    // TODO: 'indexLineAaa' and 'indexLineBbb'; babel compiler error when both were named indexLine.
+
+    let local_EDI_trackedSyntaxList = EDI_trackedSyntaxList;
+
+    EDI_getLineBoundaryPositions_raw(indexLineAaa);
+    const positionIndex = INTS[fEDI_getLineBoundaryPositions_start];
+
+    let left = 0;
+    let right = local_EDI_trackedSyntaxList.count_abstract - 1;
+
+    let indexLineBbb = -1;
+
+    while (left <= right) {
+        const mid = Math.floor((left + right) / 2);
+
+        local_EDI_trackedSyntaxList.getElementAt(mid);
+        
+        if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] > positionIndex) {
+            indexLineBbb = mid;
+
+            if (INTS[fEDI_pooledTrackedSyntax_start] === positionIndex) {
+                break;
+            }
+            
+            right = mid - 1;
+        }
+        else if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] <= positionIndex) {
+            left = mid + 1;
+        }
+        else {
+            return; // NaN
+        }
+    }
+
+    return indexLineBbb;
+}
+
+/**
+ * if (trackedSyntax_StartingIndex === NaN || trackedSyntax_StartingIndex === -1) { trackedSyntax_StartingIndex = EDI_trackedSyntaxList.count_abstract; }
+ * Probably should make 1 of these and accept a predicate.
+ */
+function EDI_trackedSyntaxReposition_find(positionIndex) {
+
+    let local_EDI_trackedSyntaxList = EDI_trackedSyntaxList;
+
+    let left = 0;
+    let right = local_EDI_trackedSyntaxList.count_abstract - 1;
+
+    let indexLine = -1;
+
+    while (left <= right) {
+        const mid = Math.floor((left + right) / 2);
+
+        let start = local_EDI_trackedSyntaxList.getStart(mid);
+        
+        if (positionIndex <= start) {
+            indexLine = mid;
+
+            if (positionIndex === start) {
+                break;
+            }
+            
+            right = mid - 1;
+        }
+        else if (positionIndex > start) {
+            left = mid + 1;
+        }
+        else {
+            return; // NaN
+        }
+    }
+
+    return indexLine;
+}
+
+/** modification of Google AI Overview "javascript count of digits" */
+function positiveNumbersOnly_countDigitsLoop(number) {
+  if (number <= 0) return 1;
+  let count = 0;
+
+  while (number > 0) {
+    number = Math.floor(number / 10); // Remove the last digit
+    count++;
+  }
+
+  return count;
+}
 
 function EDI_getCharacterPrevious_KIND(indexColumn, positionIndex) {
     if (indexColumn !== 0) {

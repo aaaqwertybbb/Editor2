@@ -8886,10 +8886,14 @@ I'm procrastinating btw.
 - [x] RemoveTextNoBatching
 - [ ] IndentMore
     - [ ] simple test
+        - [ ] single line
     - [ ] complex test
+        - [ ] multi line
 - [ ] IndentLess
     - [ ] simple test
+        - [ ] single line
     - [ ] complex test
+        - [ ] multi line
 
 TODO: is this longest line logic everywhere it should be? (similar logic I mean, not necessarily exactly the same)
     if (indexLine_editOccurredOn === INTS[fEDI_longestLine_indexLine]) {

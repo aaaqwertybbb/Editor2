@@ -8989,4 +8989,13 @@ TODO: is this longest line logic everywhere it should be? (similar logic I mean,
 
 =======
 
+that's another one
+Caroline Konstnar
+
+I was getting this video
+the youtuber that faked a "I can't rembmer the word maybe it was pregnancy?" for donations.
+I was like why am I getting this recommendation?
+and then I realized it was cause you think xyz and that
+this video is connected somehow your watching this thinking of me or something
+
 */

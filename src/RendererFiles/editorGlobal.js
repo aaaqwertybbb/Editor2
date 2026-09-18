@@ -9003,4 +9003,9 @@ My Mom last night was like "so I have the papers here we gotta talk about this a
 you known what that's why it's on my mind.
 My mom holds the fucking sword of Damocles over my head all day.
 
+I got super bad anxiety and everyday my family is like btw your entire life is ruined if you don't figure out your health insurance
+by the time it renews.
+
+And it's just every day it's this bs
+
 */

@@ -9038,4 +9038,6 @@ I'll still make the whole thing working at quickchek last year part time I don't
 but then I get stress again cause they messin with me
 and I feel insulted by you
 
+Mentioning that stuff in the videos was always painful to me. I hated it.
+
 */

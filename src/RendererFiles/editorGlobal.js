@@ -9022,4 +9022,6 @@ then all of a sudden I get bombarded with this
 and it's like everytime I'm on youtube (which is 24/7 it is 33% of my monitor width all the time including right now)
 I got everyone telling me to give up
 
+I just got it recommended right now lol "Breaking Bad - Where is the Money? Scene (S4E11) | Rotten Tomatoes TV"
+
 */

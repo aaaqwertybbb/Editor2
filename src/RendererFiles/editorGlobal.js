@@ -9014,4 +9014,12 @@ etc...
 Cause I never seen good will hunting, so the only reason I'm getting recommended the clips
 is cause the recommendation algorithm has me overlapped with you cause you watched things I mentioned.
 
+I don't click on these things.
+
+"You need to let this love go" yes but that was a long time ago
+and I never seen it in my recommendations since
+then all of a sudden I get bombarded with this
+and it's like everytime I'm on youtube (which is 24/7 it is 33% of my monitor width all the time including right now)
+I got everyone telling me to give up
+
 */

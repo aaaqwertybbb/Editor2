@@ -390,18 +390,18 @@ function EDI_render_do_Scroll(timestamp) {
     let ringBufferIndex = 0; // The 0th loop will increment somewhat awkwardly. see the: "This decrement avoids that." comments for each case.
 
     const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
-    // TODO: consider 'const virtualCount = INTS[fEDI_virtualCount];'
+    const virtualCount = INTS[fEDI_virtualCount];
 
     // TODO: This if elseif else can probably be optimized
-    if (diff > 0 && diff < INTS[fEDI_virtualCount]) {
+    if (diff > 0 && diff < virtualCount) {
         INTS[fEDI_sum_diffPositive] += diff;
-        // Note: (TODO: retrospectively reading this comment I'm thinking "what is this talking about?" To be fair I only glanced at it but because it is far too "verbose" I just don't feel like reading this right now to determine whether the comment is worthwhile or not.) this case has 'vertical = (INTS[fEDI_prevVli] + INTS[fEDI_virtualCount]) * local_lineHeight;' I believe 'INTS[fEDI_virtualCount]' === 'INTS[fEDI_ONSCROLLvirtualCount]' in this case, thus all vertical calculations can be moved after the if statements to be lowerBound * ... All cases other than this one were exact 1 to 1 matches.
+        // Note: (TODO: retrospectively reading this comment I'm thinking "what is this talking about?" To be fair I only glanced at it but because it is far too "verbose" I just don't feel like reading this right now to determine whether the comment is worthwhile or not.) this case has 'vertical = (INTS[fEDI_prevVli] + virtualCount) * local_lineHeight;' I believe 'virtualCount' === 'INTS[fEDI_ONSCROLLvirtualCount]' in this case, thus all vertical calculations can be moved after the if statements to be lowerBound * ... All cases other than this one were exact 1 to 1 matches.
         lowerBound = local_prevVli + INTS[fEDI_ONSCROLLvirtualCount];
         upperBound = lowerBound + diff;
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1 /*This decrement avoids that.*/;
         INTS[fEDI_ringBuffer_indexZero] = (ringBufferIndex + 1/*This decrement avoids that... but here you need to undo it for a moment*/ + diff) % local_ArrayFrom_textElement_children_length;
     }
-    else if (diff < 0 && (diff *= -1) < INTS[fEDI_virtualCount]) {
+    else if (diff < 0 && (diff *= -1) < virtualCount) {
         INTS[fEDI_sum_diffNegative] += diff;
         lowerBound = local_currVli;
         upperBound = lowerBound + diff;
@@ -413,9 +413,9 @@ function EDI_render_do_Scroll(timestamp) {
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1/*This decrement avoids that.*/;
     }
     else {
-        INTS[fEDI_sum_diffPositive] += INTS[fEDI_virtualCount];
+        INTS[fEDI_sum_diffPositive] += virtualCount;
         lowerBound = local_currVli;
-        upperBound = lowerBound + INTS[fEDI_virtualCount];
+        upperBound = lowerBound + virtualCount;
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1/*This decrement avoids that.*/;
     }
 

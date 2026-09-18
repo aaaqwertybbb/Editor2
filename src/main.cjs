@@ -608,7 +608,46 @@ async function chooseWorkspace(event) {
 	};
 }
 
+/** TODO: probably should combine this and the 'didChangeTextDocumentNotification_array' version? */
 async function didChangeTextDocumentNotification(event, absolutePath, version, startLine, startCharacter, endLine, endCharacter, text) {
+	// renderer now gives the formatted path
+	//absolutePath = formatAbsolutePath(absolutePath);
+	
+	if (openedDocumentUri !== absolutePath) return;
+
+	try {
+		if (languageServerHandshakeSuccess && languageServer) {
+			let versionedTextDocumentIdentifier = lspTypes.MAIN_message_construct_versionedTextDocumentIdentifier(absolutePath, version);
+			let startPosition = lspTypes.MAIN_message_construct_position(startLine, startCharacter);
+			let endPosition = lspTypes.MAIN_message_construct_position(endLine, endCharacter);
+			let range = lspTypes.MAIN_message_construct_range(startPosition, endPosition);
+			let change = lspTypes.MAIN_message_construct_textDocumentContentChangeEvent(range, text);
+			let params = lspTypes.MAIN_message_construct_didChangeTextDocumentNotification_Params(versionedTextDocumentIdentifier, [change]);
+			let messageObject = lspTypes.MAIN_message_construct_didChangeTextDocumentNotification(params);
+			let messageJson = MAIN_encodeMessageObject(messageObject);
+			languageServer.stdin.write(messageJson);
+		}
+	}
+	catch (err) {
+		console.error("Error did-change-text-document-notification:", err);
+		return [];
+	}
+}
+
+/*
+[
+	{
+		startLine,
+		startCharacter,
+		endLine,
+		endCharacter,
+		text
+	}
+]
+*/
+
+/** TODO: probably should combine this and the 'didChangeTextDocumentNotification' version? */
+async function didChangeTextDocumentNotification_array(event, absolutePath, version, startLine, startCharacter, endLine, endCharacter, text) {
 	// renderer now gives the formatted path
 	//absolutePath = formatAbsolutePath(absolutePath);
 	

@@ -118,6 +118,40 @@ let w_div = null;
 /**
  * This queueing is currently a complete copy and paste of what Google AI generated.
  * I looked it over and it appears correct.
+ * 
+ * TODO: monomorphic queue
+ * 
+ * ----
+ * 
+ * Type is either this: {
+ *       absolutePath: textSourceIdentifier,
+ *       version: version,
+ *       startLine: lineAndColumnIndices_indexLine,
+ *       startCharacter: lineAndColumnIndices_indexColumn,
+ *       endLine: lineAndColumnIndices_indexLine,
+ *       endCharacter: lineAndColumnIndices_indexColumn,
+ *       text: text
+ *   }
+ * 
+ * ---
+ * OR
+ * ---
+ * 
+ * this: {
+ *       absolutePath: textSourceIdentifier,
+ *       version: version,
+ *       [
+ * 	         {
+ * 	         	startLine,
+ * 	         	startCharacter,
+ * 	         	endLine,
+ * 	         	endCharacter,
+ *              text: text
+ * 	         },
+ *           // perhaps more than one in the array...
+ *       ]
+ * }
+ * 
  */
 const lspQueue = [];
 
@@ -3525,6 +3559,26 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
     for (var lineI = startingIndex + 1; lineI < EDI_lineEndPositionList_count; lineI++) {
         EDI_lineEndPositionList_data[lineI] += ORIGINAL_incrementBy;
     }
+
+    //let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
+    //EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
+    //let lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
+    //let lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
+    //let text = content;
+    //INTS[F_didChangeTextDocument_version] = INTS[F_didChangeTextDocument_version] + 1;
+    //let version = INTS[F_didChangeTextDocument_version];
+//
+    //// --- CLEAN INTEGRATION ---
+    //enqueueLSPNotification({
+    //    absolutePath: textSourceIdentifier,
+    //    version: version,
+    //    startLine: lineAndColumnIndices_indexLine,
+    //    startCharacter: lineAndColumnIndices_indexColumn,
+    //    endLine: lineAndColumnIndices_indexLine,
+    //    endCharacter: lineAndColumnIndices_indexColumn,
+    //    text: text
+    //});
+    //// -------------------------
 
     EDI_finalizeEdit_ClearEditState();
 

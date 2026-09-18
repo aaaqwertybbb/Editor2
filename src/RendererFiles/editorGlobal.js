@@ -8777,4 +8777,6 @@ GPU overhead
 
 I might make the video public again cause that's hilarious
 
+I privated the video I think it was public again long enough for you to see what I was referring to.s
+
 */

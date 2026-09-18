@@ -365,27 +365,9 @@ function EDI_onScroll_WRAPIT() {
 
 function EDI_render_do_Scroll(timestamp) {
     const local_lineHeight = INTS[fEDI_lineHeight];
-
-    // TODO: This floor logic seems very odd. Because given the previous and the current you can determine it without dividing maybe I think?
-    /*
-    what lol???
-
-    < Your intuition is partially right, but standard division is actually the most efficient anchor here. Because users can scroll multiple lines instantly via trackpad gestures, scrollbars, or keyboard shortcuts (like Page Down), you cannot reliably guess the current absolute line index using only the previous scroll delta. You need a absolute anchor point.
-    < 
-    < However, you can make it significantly faster by replacing Math.floor() with a high-performance JavaScript bitwise operator.
-    < 
-    < Since your scroll position and line heights are positive integers, you can use the bitwise double-NOT operator (~~) or bitwise OR (| 0). These truncate decimals directly at the CPU level, bypassing the overhead of invoking the floating-point Math object:
-    <
-    < ```js
-    // High-performance CPU truncation (Bypasses Math.floor)
+    
+    // High-performance CPU truncation (Bypasses Math.floor)... take care if your numbers might be negative, I read that the behavior is different in that case.
     INTS[fEDI_virtualIndexLine] = (INTS[fEDI_lastReadNumber_scrollTop] / local_lineHeight) | 0;
-    < ```
-
-    I looked into it I get it.
-    */
-    // High-performance CPU truncation (Bypasses Math.floor)
-    INTS[fEDI_virtualIndexLine] = (INTS[fEDI_lastReadNumber_scrollTop] / local_lineHeight) | 0;
-    //INTS[fEDI_virtualIndexLine] = Math.floor(INTS[fEDI_lastReadNumber_scrollTop] / local_lineHeight);
     
     let local_prevVli = INTS[fEDI_ONSCROLLvirtualIndexLine];
     const local_currVli = INTS[fEDI_virtualIndexLine];

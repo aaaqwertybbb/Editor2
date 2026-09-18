@@ -99,6 +99,7 @@ const createWindow = () => {
 	ipcMain.handle('choose-directory', chooseDirectory);
 	ipcMain.handle('choose-workspace', chooseWorkspace);
 	ipcMain.handle('did-change-text-document-notification', didChangeTextDocumentNotification);
+	ipcMain.handle('did-change-text-document-notification-array', didChangeTextDocumentNotification_array);
 	ipcMain.handle('get-filesystem-entries', getFilesystemEntries);
 	ipcMain.handle('get-filesystem-entry-by-id', getFilesystemEntryById);
 	ipcMain.handle('get-filesystem-entry-by-id-array', getFilesystemEntryById_ARRAY);
@@ -635,7 +636,7 @@ async function didChangeTextDocumentNotification(event, absolutePath, version, s
 }
 
 /*
-[
+arrayOfEditInformation: [
 	{
 		startLine,
 		startCharacter,

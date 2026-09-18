@@ -140,7 +140,7 @@ let w_div = null;
  * this: {
  *       absolutePath: textSourceIdentifier,
  *       version: version,
- *       [
+ *       arrayOfEditInformation: [
  * 	         {
  * 	         	startLine,
  * 	         	startCharacter,
@@ -3515,6 +3515,19 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
     }
     trackedSyntaxReposition_i--;
 
+    let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
+    EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
+    INTS[F_didChangeTextDocument_version] = INTS[F_didChangeTextDocument_version] + 1;
+    let version = INTS[F_didChangeTextDocument_version];
+
+    let lspObject = {
+        absolutePath: textSourceIdentifier,
+        version: version,
+        arrayOfEditInformation: []
+    };
+
+    let perEdit_text = EDI_decoder.decode(bytes);
+
     // # Descending indexLine loop:
     //     # Insert the text on the respective line.
     //     # Increment the entry in 'EDI_lineEndPositionList' for the respective line
@@ -3545,6 +3558,14 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
 
         // # Insert the text on the respective line.
         EDI_textByteList_insertBytes(line_start, bytes, 0 /*offset*/, bytesLength /*length*/);
+
+        lspObject.arrayOfEditInformation.push({
+            startLine: lineI,
+            startCharacter: 0,
+            endLine: lineI,
+            endCharacter: 0,
+            text: perEdit_text
+        });
         
         // # Increment the entry in 'EDI_lineEndPositionList' for the respective line
         EDI_lineEndPositionList_data[lineI] += incrementBy;
@@ -3560,25 +3581,9 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
         EDI_lineEndPositionList_data[lineI] += ORIGINAL_incrementBy;
     }
 
-    //let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
-    //EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
-    //let lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
-    //let lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
-    //let text = content;
-    //INTS[F_didChangeTextDocument_version] = INTS[F_didChangeTextDocument_version] + 1;
-    //let version = INTS[F_didChangeTextDocument_version];
-//
-    //// --- CLEAN INTEGRATION ---
-    //enqueueLSPNotification({
-    //    absolutePath: textSourceIdentifier,
-    //    version: version,
-    //    startLine: lineAndColumnIndices_indexLine,
-    //    startCharacter: lineAndColumnIndices_indexColumn,
-    //    endLine: lineAndColumnIndices_indexLine,
-    //    endCharacter: lineAndColumnIndices_indexColumn,
-    //    text: text
-    //});
-    //// -------------------------
+    // --- CLEAN INTEGRATION ---
+    enqueueLSPNotification(lspObject);
+    // -------------------------
 
     EDI_finalizeEdit_ClearEditState();
 
@@ -4131,16 +4136,24 @@ async function processLspQueue() {
         const item = lspQueue.shift(); // Guarantees strict FIFO order
         
         try {
-            // Await the Electron IPC and LSP stdin write
-            await window.myAPI.didChangeTextDocumentNotification(
-                item.absolutePath,
-                item.version,
-                item.startLine,
-                item.startCharacter,
-                item.endLine,
-                item.endCharacter,
-                item.text
-            );
+            if (item.arrayOfEditInformation) {
+                await window.myAPI.didChangeTextDocumentNotification_array(
+                    item.absolutePath,
+                    item.version,
+                    item.arrayOfEditInformation
+                );
+            }
+            else {
+                await window.myAPI.didChangeTextDocumentNotification(
+                    item.absolutePath,
+                    item.version,
+                    item.startLine,
+                    item.startCharacter,
+                    item.endLine,
+                    item.endCharacter,
+                    item.text
+                );
+            }
         } catch (error) {
             console.error("LSP IPC notification failed:", error);
         }
@@ -8939,8 +8952,8 @@ I'm procrastinating btw.
 - [x] BackspaceRtl
 - [x] RemoveTextNoBatching
 - [ ] IndentMore
-    - [ ] simple test
-        - [ ] single line
+    - [x] simple test
+        - [x] single line
     - [ ] complex test
         - [ ] multi line
 - [ ] IndentLess

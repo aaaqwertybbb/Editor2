@@ -16,6 +16,7 @@ contextBridge.exposeInMainWorld('myAPI', {
   chooseDirectory: () => ipcRenderer.invoke('choose-directory'),
   chooseWorkspace: () => ipcRenderer.invoke('choose-workspace'),
   didChangeTextDocumentNotification: (absolutePath, version, startLine, startCharacter, endLine, endCharacter, text) => ipcRenderer.invoke('did-change-text-document-notification', absolutePath, version, startLine, startCharacter, endLine, endCharacter, text),
+  didChangeTextDocumentNotification_array: (absolutePath, version, arrayOfEditInformation) => ipcRenderer.invoke('did-change-text-document-notification-array', absolutePath, version, arrayOfEditInformation),
   /**
    * The provided absolute file path is validated by the main process.
    * If the absolute file path is NOT recognized by the main process, then an empty enumeration is returned.

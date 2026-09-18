@@ -637,12 +637,17 @@ function EDI_render_do_SetText(timestamp) {
     }
 }
 
-function EDI_state_setText(text, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString) {
+/**
+ * TODO: assert that the function parameters fit the requirements as described in the respective param documentation.
+ * @param {*} uint8Array the length is exactly the length of the text, with all line endings replaced by '\n' regardless of the desired line ending when saving the file (or copying text, etc...)
+ * @param {*} lineEndString this is the desired line ending when saving the file (or copying text, etc...)
+ */
+function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString) {
     EDI_baseElement.scrollTop = 0;
     INTS[fEDI_lastReadNumber_scrollTop] = 0;
     EDI_baseElement.scrollLeft = 0;
     INTS[fEDI_lastReadNumber_scrollLeft] = 0;
-    
+
     EDI_state_clear();
 
     set_EDI_fileStartsWithBom(fileStartsWithBom);
@@ -654,21 +659,18 @@ function EDI_state_setText(text, fileStartsWithBom, textSourceIdentifier, FORMAT
 
     EDI_lineEndString = lineEndString;
     if (!EDI_lineEndString) {
-        const firstNewlineMatch = text.match(/\r?\n/);
-        EDI_lineEndString = firstNewlineMatch ? firstNewlineMatch[0] : '\n';
+        EDI_lineEndString = '\n';
     }
 
-    let local_EDI_lineEndPositionList_count = EDI_lineEndPositionList_count;
-
-    let lineLength = 0; /** TODO: Track the linePosition last seen when making a line or something you don't have to increment this per character, you just need the difference of the last line drawn to the current or something. */
-    const normalizedText = text.replaceAll('\r\n', '\n');
-    const finalUint8Array = EDI_encoder.encode(normalizedText); /** how do I 'encodeInto' when a character might actually be multi-byte thus I don't ever truly know the size ahead of time? */
-    EDI_textByteList_ensureCapacityForInsertion(0, finalUint8Array.length);
-    EDI_textByteList_bytes.set(finalUint8Array, 0);
-    EDI_textByteList_count = finalUint8Array.length;
+    EDI_textByteList_ensureCapacityForInsertion(0, uint8Array.length);
+    EDI_textByteList_bytes.set(uint8Array, 0);
+    EDI_textByteList_count = uint8Array.length;
 
     const local_EDI_textByteList_bytes = EDI_textByteList_bytes;
     const local_EDI_textByteList_count = EDI_textByteList_count;
+
+    let lineLength = 0; /** TODO: Track the linePosition last seen when making a line or something you don't have to increment this per character, you just need the difference of the last line drawn to the current or something. */
+    let local_EDI_lineEndPositionList_count = EDI_lineEndPositionList_count;
 
     for (var sourceI = 0; sourceI < local_EDI_textByteList_count; sourceI++) {
         lineLength++; // avoid branching by eager counting the lineLength and then excluding the lineEnding later
@@ -704,6 +706,18 @@ function EDI_state_setText(text, fileStartsWithBom, textSourceIdentifier, FORMAT
     // ...thus 'INTS[fEDI_virtualCount]' amount of lines get redrawn...
     // ...i.e.: the entire viewport is redrawn with the new file's text.
     INTS[fEDI_ONSCROLLvirtualIndexLine] = INTS[fEDI_virtualCount];
+}
+
+function EDI_state_setText(text, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString) {
+    if (!lineEndString) {
+        const firstNewlineMatch = text.match(/\r?\n/);
+        lineEndString = firstNewlineMatch ? firstNewlineMatch[0] : '\n';
+    }
+
+    const normalizedText = text.replaceAll('\r\n', '\n');
+    const uint8Array = EDI_encoder.encode(normalizedText); /** how do I 'encodeInto' when a character might actually be multi-byte thus I don't ever truly know the size ahead of time? */
+
+    EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString);
 }
 
 /**

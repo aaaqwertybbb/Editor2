@@ -8968,6 +8968,7 @@ I'm procrastinating btw.
 
 ========
 
+For tomorrow:
 TODO: is this longest line logic everywhere it should be? (similar logic I mean, not necessarily exactly the same)
     if (indexLine_editOccurredOn === INTS[fEDI_longestLine_indexLine]) {
         INTS[fEDI_longestLine_length] = INTS[fEDI_longestLine_length] + INTS[fEDI_cursor_editLength];
@@ -8986,6 +8987,21 @@ TODO: is this longest line logic everywhere it should be? (similar logic I mean,
 - [ ] IndentLess
 
 
+=======
+
+> when doing a binary search I use the statement 'const mid = Math.floor((left + right) / 2);'
+>
+> should I use this instead:
+> // High-performance CPU truncation (Bypasses Math.floor)... take care if your numbers might be negative, I read that the behavior is different in that case.
+> INTS[fEDI_virtualIndexLine] = (INTS[fEDI_lastReadNumber_scrollTop] / local_lineHeight) | 0;
+
+< ...
+
+You know what I got in the mail?
+
+I got an update on my health insurance the next time it renews I'm gonna lose it.
+I can't stand this life.
+money money money money money money money money
 
 
 */

@@ -9012,4 +9012,7 @@ I think me blackmailing you doesn't make sense in terms of the vocabulary I thou
 
 I thought you were saying I Was emotionally blackmailing you or something but I don't think that's a thing
 
+so then the blackmail would be everything I've said in the past in my github privated/deleted accounts
+and then the github admins using that agains tme.
+
 */

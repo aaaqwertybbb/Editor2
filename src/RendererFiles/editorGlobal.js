@@ -3800,13 +3800,18 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
     let linesInsertedCount = 0;
     let insertionLength = 0;
 
+    // TODO: You probably should get their pasted string to be normalized with 'replaceAll'
+    // 
     for (var sourceI = 0; sourceI < content.length; sourceI++) {
         const code = content.charCodeAt(sourceI);
         switch (code) {
-            case CONST_EDI_ASCII_TAB:
-                EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition] + insertionLength, EDI_tab_tabsbytes, /*offset*/ 0, /*length*/ 4);
-                insertionLength += 4;
-                break;
+            //case CONST_EDI_ASCII_TAB:
+            //    // TODO: Should paste convert tabs to spaces depending on the user's settings for tabs or spaces?
+            //    // if so this commented code would do so, but specifically every tab becomes 4 spaces this commented code doesn't convert to spaces relative to tab width.
+            //    // ----
+            //    //EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition] + insertionLength, EDI_on_tab_bytes, /*offset*/ 0, /*length*/ EDI_on_tab_bytes.length);
+            //    //insertionLength += EDI_on_tab_bytes.length;
+            //    break;
             case CONST_EDI_ASCII_LINE_FEED:
                 EDI_textByteList_insert(INTS[fEDI_cursor_editPosition] + insertionLength, CONST_EDI_ASCII_LINE_FEED);
                 EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine] + linesInsertedCount, INTS[fEDI_cursor_editPosition] + insertionLength);
@@ -8882,12 +8887,9 @@ I'm procrastinating btw.
 - [ ] Tab
     - [x] simple test
     - [ ] complex test
-- [ ] Paste
-    - [ ] bug
-        - [ ] when I paste a 'tab' I get a tab and 3 null characters like literally vscode says 'null' as a character?
+- [x] Paste
     - [x] simple test
-    - [ ] complex test
-        - [ ] this would probably be multi-line paste
+    - [x] complex test
 - [ ] Duplicate
     - [x] simple test
     - [ ] complex test

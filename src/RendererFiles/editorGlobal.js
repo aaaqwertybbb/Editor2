@@ -8999,4 +8999,8 @@ TODO: is this longest line logic everywhere it should be? (similar logic I mean,
 
 I'm fine I just have this constantly in my mind and it really got to me just now
 
+My Mom last night was like "so I have the papers here we gotta talk about this at some point"
+you known what that's why it's on my mind.
+My mom holds the fucking sword of Damocles over my head all day.
+
 */

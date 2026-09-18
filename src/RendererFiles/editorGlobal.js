@@ -3385,6 +3385,26 @@ function EDI_finalizeEdit_Tab(indexLine_editOccurredOn) {
         EDI_lineEndPositionList_data[i] += length;
     }
 
+    let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
+    EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
+    let lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
+    let lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
+    let text = EDI_decoder.decode(bytes);
+    INTS[F_didChangeTextDocument_version] = INTS[F_didChangeTextDocument_version] + 1;
+    let version = INTS[F_didChangeTextDocument_version];
+
+    // --- CLEAN INTEGRATION ---
+    enqueueLSPNotification({
+        absolutePath: textSourceIdentifier,
+        version: version,
+        startLine: lineAndColumnIndices_indexLine,
+        startCharacter: lineAndColumnIndices_indexColumn,
+        endLine: lineAndColumnIndices_indexLine,
+        endCharacter: lineAndColumnIndices_indexColumn,
+        text: text
+    });
+    // -------------------------
+
     EDI_finalizeEdit_ClearEditState();
 
     return indexLine_editOccurredOn;
@@ -8844,7 +8864,10 @@ I'm procrastinating btw.
     - [ ] simple test
     - [ ] complex test
 - [ ] Tab
-    - [ ] simple test
+    - [x] simple test
+        - [ ] did tab=>tab
+        - [ ] and tab=>4spaces
+        - [ ] both worked
     - [ ] complex test
 - [ ] IndentMore
     - [ ] simple test

@@ -647,7 +647,7 @@ async function didChangeTextDocumentNotification(event, absolutePath, version, s
 */
 
 /** TODO: probably should combine this and the 'didChangeTextDocumentNotification' version? */
-async function didChangeTextDocumentNotification_array(event, absolutePath, version, startLine, startCharacter, endLine, endCharacter, text) {
+async function didChangeTextDocumentNotification_array(event, absolutePath, version, arrayOfEditInformation) {
 	// renderer now gives the formatted path
 	//absolutePath = formatAbsolutePath(absolutePath);
 	
@@ -656,11 +656,19 @@ async function didChangeTextDocumentNotification_array(event, absolutePath, vers
 	try {
 		if (languageServerHandshakeSuccess && languageServer) {
 			let versionedTextDocumentIdentifier = lspTypes.MAIN_message_construct_versionedTextDocumentIdentifier(absolutePath, version);
-			let startPosition = lspTypes.MAIN_message_construct_position(startLine, startCharacter);
-			let endPosition = lspTypes.MAIN_message_construct_position(endLine, endCharacter);
-			let range = lspTypes.MAIN_message_construct_range(startPosition, endPosition);
-			let change = lspTypes.MAIN_message_construct_textDocumentContentChangeEvent(range, text);
-			let params = lspTypes.MAIN_message_construct_didChangeTextDocumentNotification_Params(versionedTextDocumentIdentifier, [change]);
+
+			let textDocumentContentChangeEventArray = [];
+
+			for (let i = 0; i < arrayOfEditInformation.length; i++) {
+				let edit = arrayOfEditInformation[i];
+				let startPosition = lspTypes.MAIN_message_construct_position(edit.startLine, edit.startCharacter);
+				let endPosition = lspTypes.MAIN_message_construct_position(edit.endLine, edit.endCharacter);
+				let range = lspTypes.MAIN_message_construct_range(startPosition, endPosition);
+				let change = lspTypes.MAIN_message_construct_textDocumentContentChangeEvent(range, edit.text);
+				textDocumentContentChangeEventArray.push(change);
+			}
+
+			let params = lspTypes.MAIN_message_construct_didChangeTextDocumentNotification_Params(versionedTextDocumentIdentifier, textDocumentContentChangeEventArray);
 			let messageObject = lspTypes.MAIN_message_construct_didChangeTextDocumentNotification(params);
 			let messageJson = MAIN_encodeMessageObject(messageObject);
 			languageServer.stdin.write(messageJson);

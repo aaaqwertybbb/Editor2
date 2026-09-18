@@ -8831,6 +8831,9 @@ I'm procrastinating btw.
                     once you've broken it down. But it mentally feels very intimidating.
                     - [ ] no matter how complicated something is you can (approaching infinitely (if necessary)) break it down into smaller and smaller ideas or tasks
                           that's all I mean by that.
+                          - [ ] there's no reason to ever fear solving a problem, because every problem ultimately can be reduced to a series of simpler and simpler tasks
+                                so the end all feeling that you'd get from writing code is actually just boredom if you really wanted to solve any problem.
+                                - [ ] Perhaps the true anxiety is the worry whether what you're doing even matters.
     - [ ] complex test
 - [ ] BackspaceRtl
     - [ ] simple test

@@ -8772,16 +8772,5 @@ when using diffchecker website
 < 
 < ...
 
-dude that's totally why my video was lagging
-GPU overhead
-
-I might make the video public again cause that's hilarious
-
-I privated the video I think it was public again long enough for you to see what I was referring to.s
-
-I got sriracha on my lips cause I just finished eating the lb of 98% fat free ground chicken
-and I gotta go to the store
-and I gotta get to ... so I can clock in
-trying to put songs in a playlist though.
 
 */

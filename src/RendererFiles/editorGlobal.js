@@ -8997,17 +8997,6 @@ TODO: is this longest line logic everywhere it should be? (similar logic I mean,
 
 < ...
 
-The worst part is that you mock me constantly.
-
-I go to quickcheck I work there.
-
-And you still mock me.
-
-Things settled out with me working at quickcheck then trumps like ay lmao and now I'm gonna lose my health insurance again
-btw I already had this scare originally and went months unsure and then they said ay u have health insurance renewed don't worry
-now they say ayy lmao you don't have health insurance renewing upcoming lmao
-
-I literally don't even want health insurance
-my parents tell me it is illegal not to
+I'm fine I just have this constantly in my mind and it really got to me just now
 
 */

@@ -8951,11 +8951,7 @@ I'm procrastinating btw.
 - [x] DeleteLtr
 - [x] BackspaceRtl
 - [x] RemoveTextNoBatching
-- [ ] IndentMore
-    - [x] simple test
-        - [x] single line
-    - [ ] complex test
-        - [ ] multi line
+- [x] IndentMore
 - [ ] IndentLess
     - [ ] simple test
         - [ ] single line

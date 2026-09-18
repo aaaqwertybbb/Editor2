@@ -9003,4 +9003,9 @@ that and disease called life etc...
 
 I was like yeah there it is a bunch of people that are laughing about that without ahving any idea what I was talking about at the time.
 
+Or harvester road runner cartoons.
+Like it's all the github admins I think they're looking at my old privated/delete repos
+and then watching the links
+and so I get recommended them
+
 */

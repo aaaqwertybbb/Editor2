@@ -8966,22 +8966,26 @@ but it's a million times easier to deal with this than just 1 check box and cons
 it's just mental mind games.
 I'm procrastinating btw.
 
-- [x] CustomFullFileLexRequest
-- [x] InsertLtr
-- [x] Enter
-- [x] Tab
-- [x] Paste
-- [x] Duplicate
-- [x] DeleteLtr
-- [x] BackspaceRtl
-- [x] RemoveTextNoBatching
-- [x] IndentMore
-- [x] IndentLess
+========
 
 TODO: is this longest line logic everywhere it should be? (similar logic I mean, not necessarily exactly the same)
     if (indexLine_editOccurredOn === INTS[fEDI_longestLine_indexLine]) {
         INTS[fEDI_longestLine_length] = INTS[fEDI_longestLine_length] + INTS[fEDI_cursor_editLength];
     }
+
+- [ ] CustomFullFileLexRequest
+- [ ] InsertLtr
+- [ ] Enter
+- [ ] Tab
+- [ ] Paste
+- [ ] Duplicate
+- [ ] DeleteLtr
+- [ ] BackspaceRtl
+- [ ] RemoveTextNoBatching
+- [ ] IndentMore
+- [ ] IndentLess
+
+
 
 
 */

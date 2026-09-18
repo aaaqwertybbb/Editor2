@@ -805,16 +805,11 @@ async function editorReadAllText_byteArray(event, absolutePath) {
 
 		let itHasBom = hasBOM(absolutePath);
 
-
 		const firstNewlineMatch = itHasBom.text.match(/\r?\n/);
 		let lineEndString = firstNewlineMatch ? firstNewlineMatch[0] : '\n';
 
-
-
 		itHasBom.text = itHasBom.text.replaceAll('\r\n', '\n');
 		const uint8Array = (new TextEncoder()).encode(itHasBom.text); /** how do I 'encodeInto' when a character might actually be multi-byte thus I don't ever truly know the size ahead of time? */
-
-
 
 		absolutePath = formatAbsolutePath(absolutePath);
 		itHasBom.formattedAbsolutePath = absolutePath;

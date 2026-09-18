@@ -9008,5 +9008,6 @@ I hope I die
 everything you care about in life is just another delusion
 go work all your life make a big career and be miserable.
 
+buy a big pool in the backyard and have every kid you have kill themselves.
 
 */

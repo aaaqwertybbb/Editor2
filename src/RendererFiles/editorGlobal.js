@@ -8778,4 +8778,38 @@ when using diffchecker website
 - [ ] Pick one that doesn't work
 - [ ] Make it work
 
+- [ ] CustomFullFileLexRequest
+    - [ ] simple test
+    - [ ] complex test
+- [ ] InsertLtr
+    - [ ] simple test
+    - [ ] complex test
+- [ ] Enter
+    - [ ] simple test
+    - [ ] complex test
+- [ ] Tab
+    - [ ] simple test
+    - [ ] complex test
+- [ ] IndentMore
+    - [ ] simple test
+    - [ ] complex test
+- [ ] IndentLess
+    - [ ] simple test
+    - [ ] complex test
+- [ ] Paste
+    - [ ] simple test
+    - [ ] complex test
+- [ ] Duplicate
+    - [ ] simple test
+    - [ ] complex test
+- [ ] DeleteLtr
+    - [ ] simple test
+    - [ ] complex test
+- [ ] BackspaceRtl
+    - [ ] simple test
+    - [ ] complex test
+- [ ] RemoveTextNoBatching
+    - [ ] simple test
+    - [ ] complex test
+
 */

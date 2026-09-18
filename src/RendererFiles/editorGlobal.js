@@ -8988,21 +8988,6 @@ TODO: is this longest line logic everywhere it should be? (similar logic I mean,
 
 =======
 
-I say that cause one of the things that bothers me
-is the clip from I think the show is Mr Robot I never watched it
-but there's one of "kernel panic"
-and everytime I do anything productive I see this recommended to me
-meanwhile I'm doing the same things I do every other day
-and it invalidates my effort because you think I'm just on adderall or something when I'm not
 
-I'm on some stuff but it's the same stuff EVERYDAY whether I do 1 hour or 9 hours
-or whatever it doesn't change it's always the same things
-and so then it's about the consistency and then sometimes you have energy or etc...
-
-a lot of the time I feel NOTHING while I code
-the closest feeling would be "I feel tired I feel exhausted I feel etc..."
-
-The last few days I've been feeling incredible I don't know why it just is what it is
-I feel euphoric
 
 */

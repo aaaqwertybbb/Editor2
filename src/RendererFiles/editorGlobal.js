@@ -8794,9 +8794,11 @@ I'm procrastinating btw.
     - [x] simple test
         - [ ] i.e.: I checked this off because I had typed 'dddd' at some position in a file then asked the LSP to write what it thinks the text is then I saved the file and copy and pasted the file from the operating system and compared them with a diffchecker website and they were equal.
         - [ ] maybe this is entirely sufficient. I have no idea. I'm reasoning through anxiety right now
+        - [ ] or wait no that was the InsertLtr I did this one too but the respective steps.
     - [ ] complex test
 - [ ] InsertLtr
     - [x] simple test
+    - [ ] I did this... it worked... the text was identical
     - [ ] complex test
 - [ ] Enter
     - [ ] simple test
@@ -8818,12 +8820,16 @@ I'm procrastinating btw.
     - [ ] complex test
 - [ ] DeleteLtr
     - [ ] simple test
+        - [ ] I did all 3 of these (1 of 3)
+        - [ ] But the LSP doesn't think the file changes...
     - [ ] complex test
 - [ ] BackspaceRtl
     - [ ] simple test
+        - [ ] I did all 3 of these (2 of 3)
     - [ ] complex test
 - [ ] RemoveTextNoBatching
     - [ ] simple test
+        - [ ] I did all 3 of these (3 of 3)
     - [ ] complex test
 
 */

@@ -8875,21 +8875,11 @@ but it's a million times easier to deal with this than just 1 check box and cons
 it's just mental mind games.
 I'm procrastinating btw.
 
-- [ ] CustomFullFileLexRequest
-    - [x] simple test
-    - [ ] complex test
-- [ ] InsertLtr
-    - [x] simple test
-    - [ ] complex test
-- [ ] Enter
-    - [x] simple test
-    - [ ] complex test
-- [ ] Tab
-    - [x] simple test
-    - [ ] complex test
+- [x] CustomFullFileLexRequest
+- [x] InsertLtr
+- [x] Enter
+- [x] Tab
 - [x] Paste
-    - [x] simple test
-    - [x] complex test
 - [ ] Duplicate
     - [x] simple test
     - [ ] complex test
@@ -8897,9 +8887,11 @@ I'm procrastinating btw.
 - [ ] DeleteLtr
     - [x] simple test
     - [ ] complex test
+        - [ ] delete a line ending I guess?
 - [ ] BackspaceRtl
     - [x] simple test
     - [ ] complex test
+        - [ ] delete a line ending I guess?
 - [ ] RemoveTextNoBatching
     - [x] simple test
     - [ ] complex test

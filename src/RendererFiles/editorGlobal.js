@@ -8988,5 +8988,11 @@ TODO: is this longest line logic everywhere it should be? (similar logic I mean,
 
 =======
 
+I'm being recommended "Katy Perry - Ur So Gay (Official)"
+
+I was trying to decide whether I'd mention this cause I Thought it was hilarious but I'm like
+oh maybe it's a fluke so I kept refreshing and I kept seeing it
+so I clicked it and the initial lyrics took me off guard I'm gonna mention it
+I'll take this as a funny recommendation.
 
 */

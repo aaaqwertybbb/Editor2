@@ -8840,8 +8840,9 @@ I'm procrastinating btw.
         - [ ] I did all 3 of these (2 of 3)
     - [ ] complex test
 - [ ] RemoveTextNoBatching
-    - [ ] simple test
+    - [x] simple test
         - [ ] I did all 3 of these (3 of 3)
     - [ ] complex test
+        - [ ] this would probably be multi-line selection
 
 */

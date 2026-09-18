@@ -9001,5 +9001,6 @@ None of you understand what I'm even saying either it's probably the most infuri
 
 I look at my youtube recommendations and I can tell that you mock me.
 
+Go buy a big house a big pretty fucking garden.
 
 */

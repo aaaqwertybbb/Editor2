@@ -9010,4 +9010,8 @@ go work all your life make a big career and be miserable.
 
 buy a big pool in the backyard and have every kid you have kill themselves.
 
+You should be allowed to opt of out everything.
+Do you understand how cheap it is for me to live?
+That I don't want ANYTHING
+
 */

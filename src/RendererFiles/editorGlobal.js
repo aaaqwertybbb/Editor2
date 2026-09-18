@@ -9009,4 +9009,8 @@ or that I'm a loser cause I wanna just sit around and not work.
 
 I'll fucking overwork your ass any day you have no idea what I'm saying.
 
+I don't want "money money". I want it to the extent that you literally cannot live in this society without it
+I want the bare fucking minimum. And you mock me.
+
+
 */

@@ -1468,18 +1468,19 @@ function EXPLORER_setShow(shouldShow) {
 }
 
 async function EXPLORER_openInEditor(absolutePath, shouldFocus) {
-    const itHasBom = await window.myAPI.editorReadAllText(absolutePath);
+    const itHasBom = await window.myAPI.editorReadAllText_byteArray(absolutePath);
 
-    if (!itHasBom.text && itHasBom.text != '') {
+    if (!itHasBom.uint8Array) {
         return;
     }
 
-    EDI_setText(
-        itHasBom.text,
+    EDI_state_setText_byteArray(
+        itHasBom.uint8Array,
         itHasBom.fileStartsWithBom,
         /*textSourceIdentifier*/ absolutePath,
         /*FORMATTED_textSourceIdentifier*/ itHasBom.formattedAbsolutePath,
-        /*extensionKind*/ EDI_toExtensionKind(itHasBom.extension));
+        /*extensionKind*/ EDI_toExtensionKind(itHasBom.extension),
+        itHasBom.lineEndString);
     if (shouldFocus) {
         let editor = document.getElementById('EDITOR');
         if (editor) {

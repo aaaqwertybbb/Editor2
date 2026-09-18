@@ -38,6 +38,7 @@ contextBridge.exposeInMainWorld('myAPI', {
    * You can't store tabs as '\t\0\0\0' because the LSP interactions will be horrible to deal with?
   */
   editorReadAllText: absoluteFilePath => ipcRenderer.invoke('editor-read-all-text', absoluteFilePath),
+  editorReadAllText_byteArray: absoluteFilePath => ipcRenderer.invoke('editor-read-all-text-byteArray', absoluteFilePath),
   editorDocumentSymbolsRequest: () => ipcRenderer.invoke('editor-document-symbols-request'),
   editorGoToDefinitionRequest: (indexLine, indexColumn) => ipcRenderer.invoke('editor-go-to-definition-request', indexLine, indexColumn),
   editorHoverRequest: (indexLine, indexColumn) => ipcRenderer.invoke('editor-hover-request', indexLine, indexColumn),

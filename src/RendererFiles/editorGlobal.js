@@ -612,6 +612,7 @@ function EDI_state_clear() {
     INTS[fEDI_longestLine_indexLine] = 0;
     INTS[fEDI_longestLine_length] = 0;
     
+    // This placement is very odd you await the async and... it works seemingly but happenstance kinda odd timing that just kinda works?
     EDI_trackedSyntaxList.clear();
 }
 
@@ -706,8 +707,15 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
     // ...thus 'INTS[fEDI_virtualCount]' amount of lines get redrawn...
     // ...i.e.: the entire viewport is redrawn with the new file's text.
     INTS[fEDI_ONSCROLLvirtualIndexLine] = INTS[fEDI_virtualCount];
+
+    EDI_render_request(RenderKind_SetText);
 }
 
+/**
+ * @param {string} text 
+ * @param {string} textSourceIdentifier I intend to have this be an absolute path. Then when the app saves a file, it can verify against the database that this absolute path is "safe" and then write to the file.
+ * @param {string} lineEndString pass null (or do not include the parameter) to have line endings set to the first encountered kind in the text. Otherwise specify here. The string is used EXACTLY AS PROVIDED if non-falsey.
+ */
 function EDI_state_setText(text, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString) {
     if (!lineEndString) {
         const firstNewlineMatch = text.match(/\r?\n/);
@@ -718,17 +726,6 @@ function EDI_state_setText(text, fileStartsWithBom, textSourceIdentifier, FORMAT
     const uint8Array = EDI_encoder.encode(normalizedText); /** how do I 'encodeInto' when a character might actually be multi-byte thus I don't ever truly know the size ahead of time? */
 
     EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString);
-}
-
-/**
- * 
- * @param {string} text 
- * @param {string} textSourceIdentifier I intend to have this be an absolute path. Then when the app saves a file, it can verify against the database that this absolute path is "safe" and then write to the file.
- * @param {string} lineEndString pass null (or do not include the parameter) to have line endings set to the first encountered kind in the text. Otherwise specify here. The string is used EXACTLY AS PROVIDED if non-falsey.
- */
-function EDI_setText(text, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString) {
-    EDI_state_setText(text, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString);
-    EDI_render_request(RenderKind_SetText);
 }
 
 function EDI_render_do_IndentMore() {

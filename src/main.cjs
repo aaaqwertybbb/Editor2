@@ -104,6 +104,7 @@ const createWindow = () => {
 	ipcMain.handle('get-filesystem-entry-by-id-array', getFilesystemEntryById_ARRAY);
 	ipcMain.handle('read-all-text', readAllText);
 	ipcMain.handle('editor-read-all-text', editorReadAllText);
+	ipcMain.handle('editor-read-all-text-byteArray', editorReadAllText_byteArray);
 	ipcMain.handle('editor-document-symbols-request', editorDocumentSymbolsRequest);
 	ipcMain.handle('editor-go-to-definition-request', editorGoToDefinitionRequest);
 	ipcMain.handle('editor-hover-request', editorHoverRequest);
@@ -792,6 +793,84 @@ async function editorReadAllText(event, absolutePath) {
 	}
 	catch (err) {
 		return null;
+	}
+}
+
+async function editorReadAllText_byteArray(event, absolutePath) {
+	if(!isValidAbsolutePath(absolutePath)) return;
+
+	try {
+		let basename = path.basename(absolutePath);
+		let extension = path.extname(absolutePath);
+
+		let itHasBom = hasBOM(absolutePath);
+
+
+		const firstNewlineMatch = itHasBom.text.match(/\r?\n/);
+		let lineEndString = firstNewlineMatch ? firstNewlineMatch[0] : '\n';
+
+
+
+		itHasBom.text = itHasBom.text.replaceAll('\r\n', '\n');
+		const uint8Array = (new TextEncoder()).encode(itHasBom.text); /** how do I 'encodeInto' when a character might actually be multi-byte thus I don't ever truly know the size ahead of time? */
+
+
+
+		absolutePath = formatAbsolutePath(absolutePath);
+		itHasBom.formattedAbsolutePath = absolutePath;
+		itHasBom.extension = extension;
+
+		let pathId = database.addAbsolutePath(itHasBom.formattedAbsolutePath, basename);
+
+		if (openedDocumentUri) {
+			let tdIdentifier = lspTypes.MAIN_message_construct_textDocumentIdentifier(absolutePath);
+			if (languageServerHandshakeSuccess && languageServer) {
+				languageServer.stdin.write(
+					MAIN_encodeMessageObject(lspTypes.MAIN_message_construct_didCloseTextDocumentNotification(tdIdentifier)));
+			}
+			openedDocumentUri = null; // Should be set null regardless of language server existence to ensure it gets cleared if language server was running then stopped
+		}
+
+		let tdi = lspTypes.MAIN_message_construct_textDocumentItem(
+			absolutePath,   // uri
+			'javascript',   // languageId
+			0,              // version
+			itHasBom.text); // text
+		let messageObject = lspTypes.MAIN_message_construct_didOpenTextDocumentNotification(tdi);
+		let messageJson = MAIN_encodeMessageObject(messageObject);
+		if (languageServerHandshakeSuccess && languageServer) {
+			languageServer.stdin.write(messageJson);
+			openedDocumentUri = absolutePath;
+
+			// TODO: Somewhat nonsensical to check 'openedDocumentUri' but I'm not sure if it was ever validated and I don't wanna deal with it right now...
+			// ...
+			// More so, I don't want this new logic to ever have a possibility of crashing the old logic (which simply wanted to read the text.)
+			// So until I guarantee that 'openedDocumentUri' is validated, I don't want to take any risks with it. (and maybe it is validated I just don't know either which way)
+			//
+			if (openedDocumentUri) {
+				let tdIdentifier = lspTypes.MAIN_message_construct_textDocumentIdentifier(openedDocumentUri);
+				let customFullFileLexRequest = lspTypes.MAIN_message_construct_CustomFullFileLexRequest(tdIdentifier);
+				mostRecentRequest = customFullFileLexRequest;
+				languageServer.stdin.write(MAIN_encodeMessageObject(customFullFileLexRequest));
+			}
+		}
+		
+		return {
+			uint8Array: uint8Array,
+			fileStartsWithBom: itHasBom.fileStartsWithBom,
+			formattedAbsolutePath: itHasBom.formattedAbsolutePath,
+			extension: itHasBom.extension,
+			lineEndString: lineEndString
+		};
+	}
+	catch (err) {
+		return {
+			uint8Array: null,
+			fileStartsWithBom: null,
+			formattedAbsolutePath: null,
+			extension: null,
+			lineEndString: null
+		};
 	}
 }
 

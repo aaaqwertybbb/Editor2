@@ -663,6 +663,15 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
         EDI_lineEndString = '\n';
     }
 
+    // Not using 'uint8Array' feels very wasteful.
+    //
+    // Once you've ensured capacity for some length then you don't have to worry about allocating the 'EDI_textByteList_bytes',
+    // you'll just write over the data that currently exists.
+    //
+    // But even still, you're doing the 'set' although perhaps that isn't all too cumbersome?
+    //
+    // My concern is: a user opens a file, just to immediately open a different file.
+    // 
     EDI_textByteList_ensureCapacityForInsertion(0, uint8Array.length);
     EDI_textByteList_bytes.set(uint8Array, 0);
     EDI_textByteList_count = uint8Array.length;

@@ -3772,6 +3772,17 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
     }
     trackedSyntaxReposition_i--;
 
+    let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
+    EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
+    INTS[F_didChangeTextDocument_version] = INTS[F_didChangeTextDocument_version] + 1;
+    let version = INTS[F_didChangeTextDocument_version];
+
+    let lspObject = {
+        absolutePath: textSourceIdentifier,
+        version: version,
+        arrayOfEditInformation: []
+    };
+
     for (var lineI = startingIndex; lineI >= SMALL_lineAndColumnIndices_indexLine; lineI--) {
         let innerRemoveCount = 0;
         EDI_getLineBoundaryPositions_raw(lineI);
@@ -3836,6 +3847,15 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
         }
 
         EDI_textByteList_removeAt(line_start, innerRemoveCount);
+
+        lspObject.arrayOfEditInformation.push({
+            startLine: lineI,
+            startCharacter: 0,
+            endLine: lineI,
+            endCharacter: innerRemoveCount,
+            text: ''
+        });
+
 	    EDI_lineEndPositionList_data[lineI] -= decrementBy;
 
         decrementBy -= innerRemoveCount;
@@ -3844,6 +3864,10 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
     for (var lineI = startingIndex + 1; lineI < EDI_lineEndPositionList_count; lineI++) {
         EDI_lineEndPositionList_data[lineI] -= ORIGINAL_decrementBy;
     }
+
+    // --- CLEAN INTEGRATION ---
+    enqueueLSPNotification(lspObject);
+    // -------------------------
 
     EDI_finalizeEdit_ClearEditState();
 
@@ -8952,11 +8976,7 @@ I'm procrastinating btw.
 - [x] BackspaceRtl
 - [x] RemoveTextNoBatching
 - [x] IndentMore
-- [ ] IndentLess
-    - [ ] simple test
-        - [ ] single line
-    - [ ] complex test
-        - [ ] multi line
+- [x] IndentLess
 
 TODO: is this longest line logic everywhere it should be? (similar logic I mean, not necessarily exactly the same)
     if (indexLine_editOccurredOn === INTS[fEDI_longestLine_indexLine]) {

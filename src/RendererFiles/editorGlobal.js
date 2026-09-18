@@ -8829,7 +8829,7 @@ I'm procrastinating btw.
                     sure it can sound complicated but ultimately you're saying take this byte and put it there etc...
                     and that's just over and over the same question you're answering so you can solve any problem
                     once you've broken it down. But it mentally feels very intimidating.
-                    - [ ] no matter how complicated something is you can (approaching infinitely) break it down into smaller and smaller ideas or tasks
+                    - [ ] no matter how complicated something is you can (approaching infinitely (if necessary)) break it down into smaller and smaller ideas or tasks
                           that's all I mean by that.
     - [ ] complex test
 - [ ] BackspaceRtl

@@ -9005,5 +9005,8 @@ money money money money money money money money
 
 I hope I die
 
+everything you care about in life is just another delusion
+go work all your life make a big career and be miserable.
+
 
 */

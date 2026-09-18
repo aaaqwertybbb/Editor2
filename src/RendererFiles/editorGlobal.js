@@ -8819,7 +8819,7 @@ I'm procrastinating btw.
     - [ ] simple test
     - [ ] complex test
 - [ ] DeleteLtr
-    - [ ] simple test
+    - [x] simple test
         - [ ] I did all 3 of these (1 of 3)
         - [ ] But the LSP doesn't think the file changes...
         - [ ] If you look at the entire list of what I need to handle, you can see how

@@ -9002,4 +9002,8 @@ You're mocking me again you remember what I said you're mocking me
 
 anytime dsbm shows up in my youtube recommendations you're mocking me you're mocking you're mocking me you're mocking me
 
+Some kinda movie it says "consequences"
+You think me being here alone is consequences for all the things I've said.
+You're mocking me I see this clip constantly.
+
 */

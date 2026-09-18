@@ -8997,5 +8997,7 @@ TODO: is this longest line logic everywhere it should be? (similar logic I mean,
 
 < ...
 
+I'm fine I just am anxious and honestly I seem to be paranoid my youtube recommendations thing isn't a bit it causes me immense distress
+as I obsess over the meaning of each recommendation maybe I'm right though"?
 
 */

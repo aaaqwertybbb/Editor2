@@ -8997,22 +8997,4 @@ TODO: is this longest line logic everywhere it should be? (similar logic I mean,
 
 < ...
 
-You wanna know how deep this goes
-
-I'm being recommended.
-
-"Shakira - Chantaje (Official Video) ft. Maluma"
-
-OUT OF NOWHERE BTW
-
-That means blackmail lol?
-
-I'm confused actually am I blackmailing you or are you blackmailing me
-I think me blackmailing you doesn't make sense in terms of the vocabulary I thought that was what it was at first though
-
-I thought you were saying I Was emotionally blackmailing you or something but I don't think that's a thing
-
-so then the blackmail would be everything I've said in the past in my github privated/deleted accounts
-and then the github admins using that agains tme.
-
 */

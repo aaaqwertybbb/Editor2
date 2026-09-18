@@ -8997,50 +8997,5 @@ TODO: is this longest line logic everywhere it should be? (similar logic I mean,
 
 < ...
 
-"Manic: Don Cheadle Goes Off"
-
-I've made a mistake in how I was acting
-
-I also feel like you're all telling me that I'm a loser when I see:
-
-"Ben Affleck tells Matt Damon that he has to move on..."
-
-or
-
-I can't remember the name "you need to let this love go..."
-
-etc...
-
-Cause I never seen good will hunting, so the only reason I'm getting recommended the clips
-is cause the recommendation algorithm has me overlapped with you cause you watched things I mentioned.
-
-I don't click on these things.
-
-"You need to let this love go" yes but that was a long time ago
-and I never seen it in my recommendations since
-then all of a sudden I get bombarded with this
-and it's like everytime I'm on youtube (which is 24/7 it is 33% of my monitor width all the time including right now)
-I got everyone telling me to give up
-
-I just got it recommended right now lol "Breaking Bad - Where is the Money? Scene (S4E11) | Rotten Tomatoes TV"
-I saw this nonstop I don't watch breaking bad I never have I never click the links.
-
-Everytime I do anything I see that show up or I mean I was seeing it
-like I don't care dude.
-I don't even want this to get me health insurance that's just some side bs that is stressing me out
-I'll make the whole thingg not getting a cent or insurance or etc...
-and the fact that you think I won't hurts my feelings
-
-cause even back in the day when I'd start a youtube video mentioning something money related
-it was never about "money money" it was only ever about getting my parents to stop breathing down my neck.
-Just the bear minimum I'm not upset that I couldn't reach that through youtube I'm not spiteful about it etc...
-I'll still make the whole thing working at quickchek last year part time I don't mind
-but then I get stress again cause they messin with me
-and I feel insulted by you
-
-Mentioning that stuff in the videos was always painful to me. I hated it.
-
-I don't do youtube cause I am an extremely anxious person it isn't spiteful
-I couldn't handle the stress
 
 */

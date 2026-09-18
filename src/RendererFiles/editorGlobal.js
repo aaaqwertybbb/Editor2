@@ -8995,4 +8995,7 @@ oh maybe it's a fluke so I kept refreshing and I kept seeing it
 so I clicked it and the initial lyrics took me off guard I'm gonna mention it
 I'll take this as a funny recommendation.
 
+and now I'm wondering because it feels so specific someone might be out there like
+"oh that's me I caused that to happen"
+
 */

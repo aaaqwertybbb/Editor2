@@ -9031,4 +9031,11 @@ I don't even want this to get me health insurance that's just some side bs that 
 I'll make the whole thingg not getting a cent or insurance or etc...
 and the fact that you think I won't hurts my feelings
 
+cause even back in the day when I'd start a youtube video mentioning something money related
+it was never about "money money" it was only ever about getting my parents to stop breathing down my neck.
+Just the bear minimum I'm not upset that I couldn't reach that through youtube I'm not spiteful about it etc...
+I'll still make the whole thing working at quickchek last year part time I don't mind
+but then I get stress again cause they messin with me
+and I feel insulted by you
+
 */

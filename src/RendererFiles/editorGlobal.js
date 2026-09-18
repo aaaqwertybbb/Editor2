@@ -9006,4 +9006,9 @@ Some kinda movie it says "consequences"
 You think me being here alone is consequences for all the things I've said.
 You're mocking me I see this clip constantly.
 
+South park that's a pretty good trick
+you think I lied about having a schizoaffective diagnosis for donations
+TRY ME I'll bring out every medical document I Got
+so stop fucking with me
+
 */

@@ -8997,18 +8997,14 @@ TODO: is this longest line logic everywhere it should be? (similar logic I mean,
 
 < ...
 
-crystal catles kept nothing remix
-You're mocking me again you remember what I said you're mocking me
+The worst part is that you mock me constantly.
 
-anytime dsbm shows up in my youtube recommendations you're mocking me you're mocking you're mocking me you're mocking me
+I go to quickcheck I work there.
 
-Some kinda movie it says "consequences"
-You think me being here alone is consequences for all the things I've said.
-You're mocking me I see this clip constantly.
+And you still mock me.
 
-South park that's a pretty good trick
-you think I lied about having a schizoaffective diagnosis for donations
-TRY ME I'll bring out every medical document I Got
-so stop fucking with me
+Things settled out with me working at quickcheck then trumps like ay lmao and now I'm gonna lose my health insurance again
+btw I already had this scare originally and went months unsure and then they said ay u have health insurance renewed don't worry
+now they say ayy lmao you don't have health insurance renewing upcoming lmao
 
 */

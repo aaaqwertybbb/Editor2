@@ -8999,4 +8999,10 @@ I'm on some stuff but it's the same stuff EVERYDAY whether I do 1 hour or 9 hour
 or whatever it doesn't change it's always the same things
 and so then it's about the consistency and then sometimes you have energy or etc...
 
+a lot of the time I feel NOTHING while I code
+the closest feeling would be "I feel tired I feel exhausted I feel etc..."
+
+The last few days I've been feeling incredible I don't know why it just is what it is
+I feel euphoric
+
 */

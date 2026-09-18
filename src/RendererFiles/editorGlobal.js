@@ -9003,4 +9003,10 @@ I look at my youtube recommendations and I can tell that you mock me.
 
 Go buy a big house a big pretty fucking garden.
 
+I get recommended sometimes a "breaking bad where's the money" clip.
+You think I'm a greedy as fuck or something cause I talk about this shit
+or that I'm a loser cause I wanna just sit around and not work.
+
+I'll fucking overwork your ass any day you have no idea what I'm saying.
+
 */

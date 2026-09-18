@@ -8883,10 +8883,7 @@ I'm procrastinating btw.
 - [x] Duplicate
 - [x] DeleteLtr
 - [x] BackspaceRtl
-- [ ] RemoveTextNoBatching
-    - [x] simple test
-    - [ ] complex test
-        - [ ] this would probably be multi-line selection
+- [x] RemoveTextNoBatching
 ---------------------------------------------------------
 - [ ] IndentMore
     - [ ] simple test

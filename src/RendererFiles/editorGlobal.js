@@ -8988,4 +8988,11 @@ TODO: is this longest line logic everywhere it should be? (similar logic I mean,
 
 =======
 
+I say that cause one of the things that bothers me
+is the clip from I think the show is Mr Robot I never watched it
+but there's one of "kernel panic"
+and everytime I do anything productive I see this recommended to me
+meanwhile I'm doing the same things I do every other day
+and it invalidates my effort because you think I'm just on adderall or something when I'm not
+
 */

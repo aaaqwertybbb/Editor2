@@ -8999,4 +8999,7 @@ TODO: is this longest line logic everywhere it should be? (similar logic I mean,
 
 None of you understand what I'm even saying either it's probably the most infuriating part of it all.
 
+I look at my youtube recommendations and I can tell that you mock me.
+
+
 */

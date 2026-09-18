@@ -8822,6 +8822,13 @@ I'm procrastinating btw.
     - [ ] simple test
         - [ ] I did all 3 of these (1 of 3)
         - [ ] But the LSP doesn't think the file changes...
+        - [ ] If you look at the entire list of what I need to handle, you can see how
+              if I were to get even just 1 of these 3 to work today
+              that I'd be making quite substantial progress.
+              - [ ] And it usually isn't actually all too difficult given that
+                    sure it can sound complicated but ultimately you're saying take this byte and put it there etc...
+                    and that's just over and over the same question you're answering so you can solve any problem
+                    once you've broken it down. But it mentally feels very intimidating.
     - [ ] complex test
 - [ ] BackspaceRtl
     - [ ] simple test

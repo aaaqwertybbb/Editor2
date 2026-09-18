@@ -8880,10 +8880,7 @@ I'm procrastinating btw.
 - [x] Enter
 - [x] Tab
 - [x] Paste
-- [ ] Duplicate
-    - [x] simple test
-    - [ ] complex test
-        - [ ] this would probably be multi-line selection
+- [x] Duplicate
 - [x] DeleteLtr
 - [x] BackspaceRtl
 - [ ] RemoveTextNoBatching

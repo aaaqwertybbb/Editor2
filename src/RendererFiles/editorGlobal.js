@@ -8997,23 +8997,6 @@ TODO: is this longest line logic everywhere it should be? (similar logic I mean,
 
 < ...
 
-You know what I got in the mail?
 
-I got an update on my health insurance the next time it renews I'm gonna lose it.
-I can't stand this life.
-money money money money money money money money
-
-I hope I die
-
-everything you care about in life is just another delusion
-go work all your life make a big career and be miserable.
-
-buy a big pool in the backyard and have every kid you have kill themselves.
-
-You should be allowed to opt of out everything.
-Do you understand how cheap it is for me to live?
-That I don't want ANYTHING
-
-This is so fucking stupid
 
 */

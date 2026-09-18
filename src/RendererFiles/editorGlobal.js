@@ -8883,6 +8883,8 @@ I'm procrastinating btw.
     - [x] simple test
     - [ ] complex test
 - [ ] Paste
+    - [ ] bug
+        - [ ] when I paste a 'tab' I get a tab and 3 null characters like literally vscode says 'null' as a character?
     - [x] simple test
     - [ ] complex test
         - [ ] this would probably be multi-line paste

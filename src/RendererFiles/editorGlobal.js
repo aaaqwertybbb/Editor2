@@ -8836,7 +8836,7 @@ I'm procrastinating btw.
                                 - [ ] Perhaps the true anxiety is the worry whether what you're doing even matters.
     - [ ] complex test
 - [ ] BackspaceRtl
-    - [ ] simple test
+    - [x] simple test
         - [ ] I did all 3 of these (2 of 3)
     - [ ] complex test
 - [ ] RemoveTextNoBatching

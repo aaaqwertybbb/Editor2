@@ -9007,4 +9007,12 @@ I need to make progress I need to learn I need to make progress I need to learn 
 I can't play a videogame cause I'm so anxious it just is not fun at all I can't relax
 and 99% of the time NOTHING happens. But they love to stress me out all the time.
 
+I feel like you all think I'm a scammer and a loser.
+
+My Mom doesn't understand ANYTHING about computers she thinks I'm a loser.
+
+My Dad does understand but doesn't seem to care.
+
+I mean I just feel like shit is all
+
 */

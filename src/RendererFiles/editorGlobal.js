@@ -9004,4 +9004,7 @@ Cause I had a good day today.
 Then I was done with my goal for the day and I just kept thinking in a panic
 I need to make progress I need to learn I need to make progress I need to learn !!!?!?!?!?!?!?!?!?!?!?1111111
 
+I can't play a videogame cause I'm so anxious it just is not fun at all I can't relax
+and 99% of the time NOTHING happens. But they love to stress me out all the time.
+
 */

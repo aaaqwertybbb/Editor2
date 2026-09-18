@@ -3834,6 +3834,26 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
         EDI_lineEndPositionList_data[i] += insertionLength;
     }
 
+    let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
+    EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
+    let lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
+    let lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
+    let text = EDI_decoder.decode(EDI_textByteList_bytes.subarray(small, small + length));
+    INTS[F_didChangeTextDocument_version] = INTS[F_didChangeTextDocument_version] + 1;
+    let version = INTS[F_didChangeTextDocument_version];
+
+    // --- CLEAN INTEGRATION ---
+    enqueueLSPNotification({
+        absolutePath: textSourceIdentifier,
+        version: version,
+        startLine: lineAndColumnIndices_indexLine,
+        startCharacter: lineAndColumnIndices_indexColumn,
+        endLine: lineAndColumnIndices_indexLine,
+        endCharacter: lineAndColumnIndices_indexColumn,
+        text: text
+    });
+    // -------------------------
+
     EDI_finalizeEdit_ClearEditState();
 
     return indexLine_editOccurredOn;
@@ -8816,8 +8836,9 @@ I'm procrastinating btw.
     - [ ] simple test
     - [ ] complex test
 - [ ] Duplicate
-    - [ ] simple test
+    - [x] simple test
     - [ ] complex test
+        - [ ] this would probably be multi-line selection
 - [ ] DeleteLtr
     - [x] simple test
         - [ ] I did all 3 of these (1 of 3)
@@ -8844,5 +8865,12 @@ I'm procrastinating btw.
         - [ ] I did all 3 of these (3 of 3)
     - [ ] complex test
         - [ ] this would probably be multi-line selection
+
+
+TODO: is this longest line logic everywhere it should be? (similar logic I mean, not necessarily exactly the same)
+    if (indexLine_editOccurredOn === INTS[fEDI_longestLine_indexLine]) {
+        INTS[fEDI_longestLine_length] = INTS[fEDI_longestLine_length] + INTS[fEDI_cursor_editLength];
+    }
+
 
 */

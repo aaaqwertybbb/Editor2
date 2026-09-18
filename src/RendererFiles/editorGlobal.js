@@ -9023,5 +9023,12 @@ and it's like everytime I'm on youtube (which is 24/7 it is 33% of my monitor wi
 I got everyone telling me to give up
 
 I just got it recommended right now lol "Breaking Bad - Where is the Money? Scene (S4E11) | Rotten Tomatoes TV"
+I saw this nonstop I don't watch breaking bad I never have I never click the links.
+
+Everytime I do anything I see that show up or I mean I was seeing it
+like I don't care dude.
+I don't even want this to get me health insurance that's just some side bs that is stressing me out
+I'll make the whole thingg not getting a cent or insurance or etc...
+and the fact that you think I won't hurts my feelings
 
 */

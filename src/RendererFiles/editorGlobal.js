@@ -8792,6 +8792,8 @@ I'm procrastinating btw.
 
 - [ ] CustomFullFileLexRequest
     - [x] simple test
+        - [ ] i.e.: I checked this off because I had typed 'dddd' at some position in a file then asked the LSP to write what it thinks the text is then I saved the file and copy and pasted the file from the operating system and compared them with a diffchecker website and they were equal.
+        - [ ] maybe this is entirely sufficient. I have no idea. I'm reasoning through anxiety right now
     - [ ] complex test
 - [ ] InsertLtr
     - [x] simple test

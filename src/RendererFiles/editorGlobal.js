@@ -8781,10 +8781,10 @@ when using diffchecker website
 - [ ] Make it work
 
 - [ ] CustomFullFileLexRequest
-    - [ ] simple test
+    - [x] simple test
     - [ ] complex test
 - [ ] InsertLtr
-    - [ ] simple test
+    - [x] simple test
     - [ ] complex test
 - [ ] Enter
     - [ ] simple test

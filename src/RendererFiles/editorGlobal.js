@@ -3355,6 +3355,26 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
 
     EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine], INTS[fEDI_cursor_editPosition]);
 
+    let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
+    EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
+    let lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
+    let lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
+    let text = EDI_decoder.decode(EDI_cursor_enterKey_newLinePlusIndentation_byteList); // EDI_cursor_cached_indentation_string does not include the linefeed
+    INTS[F_didChangeTextDocument_version] = INTS[F_didChangeTextDocument_version] + 1;
+    let version = INTS[F_didChangeTextDocument_version];
+
+    // --- CLEAN INTEGRATION ---
+    enqueueLSPNotification({
+        absolutePath: textSourceIdentifier,
+        version: version,
+        startLine: lineAndColumnIndices_indexLine,
+        startCharacter: lineAndColumnIndices_indexColumn,
+        endLine: lineAndColumnIndices_indexLine,
+        endCharacter: lineAndColumnIndices_indexColumn,
+        text: text
+    });
+    // -------------------------
+
     EDI_finalizeEdit_ClearEditState();
 
     return indexLine_editOccurredOn;
@@ -8861,7 +8881,10 @@ I'm procrastinating btw.
     - [ ] I did this... it worked... the text was identical
     - [ ] complex test
 - [ ] Enter
-    - [ ] simple test
+    - [x] simple test
+        - [ ] did tab=>tab
+        - [ ] and tab=>4spaces
+        - [ ] both worked
     - [ ] complex test
 - [ ] Tab
     - [x] simple test

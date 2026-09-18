@@ -8872,31 +8872,15 @@ I'm procrastinating btw.
 
 - [ ] CustomFullFileLexRequest
     - [x] simple test
-        - [ ] i.e.: I checked this off because I had typed 'dddd' at some position in a file then asked the LSP to write what it thinks the text is then I saved the file and copy and pasted the file from the operating system and compared them with a diffchecker website and they were equal.
-        - [ ] maybe this is entirely sufficient. I have no idea. I'm reasoning through anxiety right now
-        - [ ] or wait no that was the InsertLtr I did this one too but the respective steps.
     - [ ] complex test
 - [ ] InsertLtr
     - [x] simple test
-    - [ ] I did this... it worked... the text was identical
     - [ ] complex test
 - [ ] Enter
     - [x] simple test
-        - [ ] did tab=>tab
-        - [ ] and tab=>4spaces
-        - [ ] both worked
     - [ ] complex test
 - [ ] Tab
     - [x] simple test
-        - [ ] did tab=>tab
-        - [ ] and tab=>4spaces
-        - [ ] both worked
-    - [ ] complex test
-- [ ] IndentMore
-    - [ ] simple test
-    - [ ] complex test
-- [ ] IndentLess
-    - [ ] simple test
     - [ ] complex test
 - [ ] Paste
     - [x] simple test
@@ -8908,31 +8892,21 @@ I'm procrastinating btw.
         - [ ] this would probably be multi-line selection
 - [ ] DeleteLtr
     - [x] simple test
-        - [ ] I did all 3 of these (1 of 3)
-        - [ ] But the LSP doesn't think the file changes...
-        - [ ] If you look at the entire list of what I need to handle, you can see how
-              if I were to get even just 1 of these 3 to work today
-              that I'd be making quite substantial progress.
-              - [ ] And it usually isn't actually all too difficult given that
-                    sure it can sound complicated but ultimately you're saying take this byte and put it there etc...
-                    and that's just over and over the same question you're answering so you can solve any problem
-                    once you've broken it down. But it mentally feels very intimidating.
-                    - [ ] no matter how complicated something is you can (approaching infinitely (if necessary)) break it down into smaller and smaller ideas or tasks
-                          that's all I mean by that.
-                          - [ ] there's no reason to ever fear solving a problem, because every problem ultimately can be reduced to a series of simpler and simpler tasks
-                                so the end all feeling that you'd get from writing code is actually just boredom if you really wanted to solve any problem.
-                                - [ ] Perhaps the true anxiety is the worry whether what you're doing even matters.
     - [ ] complex test
 - [ ] BackspaceRtl
     - [x] simple test
-        - [ ] I did all 3 of these (2 of 3)
     - [ ] complex test
 - [ ] RemoveTextNoBatching
     - [x] simple test
-        - [ ] I did all 3 of these (3 of 3)
     - [ ] complex test
         - [ ] this would probably be multi-line selection
-
+---------------------------------------------------------
+- [ ] IndentMore
+    - [ ] simple test
+    - [ ] complex test
+- [ ] IndentLess
+    - [ ] simple test
+    - [ ] complex test
 
 TODO: is this longest line logic everywhere it should be? (similar logic I mean, not necessarily exactly the same)
     if (indexLine_editOccurredOn === INTS[fEDI_longestLine_indexLine]) {

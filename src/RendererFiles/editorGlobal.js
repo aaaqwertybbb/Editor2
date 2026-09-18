@@ -8997,15 +8997,5 @@ TODO: is this longest line logic everywhere it should be? (similar logic I mean,
 
 < ...
 
-That's one of the things that got me too honestly.
-I saw "The Lonely - Inhuman (Full Album)" out of nowhere in my youtube recommendations
-that and disease called life etc...
-
-I was like yeah there it is a bunch of people that are laughing about that without ahving any idea what I was talking about at the time.
-
-Or harvester road runner cartoons.
-Like it's all the github admins I think they're looking at my old privated/delete repos
-and then watching the links
-and so I get recommended them
 
 */

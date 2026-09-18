@@ -8997,22 +8997,5 @@ TODO: is this longest line logic everywhere it should be? (similar logic I mean,
 
 < ...
 
-None of you understand what I'm even saying either it's probably the most infuriating part of it all.
-
-I look at my youtube recommendations and I can tell that you mock me.
-
-Go buy a big house a big pretty fucking garden.
-
-I get recommended sometimes a "breaking bad where's the money" clip.
-You think I'm a greedy as fuck or something cause I talk about this shit
-or that I'm a loser cause I wanna just sit around and not work.
-
-I'll fucking overwork your ass any day you have no idea what I'm saying.
-
-I don't want "money money". I want it to the extent that you literally cannot live in this society without it
-I want the bare fucking minimum. And you mock me.
-
-I'm pissed cause you mock me.
-
 
 */

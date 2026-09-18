@@ -8989,12 +8989,5 @@ TODO: is this longest line logic everywhere it should be? (similar logic I mean,
 
 =======
 
-> when doing a binary search I use the statement 'const mid = Math.floor((left + right) / 2);'
->
-> should I use this instead:
-> // High-performance CPU truncation (Bypasses Math.floor)... take care if your numbers might be negative, I read that the behavior is different in that case.
-> INTS[fEDI_virtualIndexLine] = (INTS[fEDI_lastReadNumber_scrollTop] / local_lineHeight) | 0;
-
-< ...
 
 */

@@ -9007,4 +9007,7 @@ Things settled out with me working at quickcheck then trumps like ay lmao and no
 btw I already had this scare originally and went months unsure and then they said ay u have health insurance renewed don't worry
 now they say ayy lmao you don't have health insurance renewing upcoming lmao
 
+I literally don't even want health insurance
+my parents tell me it is illegal not to
+
 */

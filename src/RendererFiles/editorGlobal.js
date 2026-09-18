@@ -8884,6 +8884,7 @@ I'm procrastinating btw.
 - [x] DeleteLtr
 - [x] BackspaceRtl
 - [x] RemoveTextNoBatching
+indentmore and indentless can't hurt me cuz I drew da line xd
 ---------------------------------------------------------
 - [ ] IndentMore
     - [ ] simple test

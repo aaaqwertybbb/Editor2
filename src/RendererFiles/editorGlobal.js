@@ -8884,14 +8884,8 @@ I'm procrastinating btw.
     - [x] simple test
     - [ ] complex test
         - [ ] this would probably be multi-line selection
-- [ ] DeleteLtr
-    - [x] simple test
-    - [ ] complex test
-        - [ ] delete a line ending I guess?
-- [ ] BackspaceRtl
-    - [x] simple test
-    - [ ] complex test
-        - [ ] delete a line ending I guess?
+- [x] DeleteLtr
+- [x] BackspaceRtl
 - [ ] RemoveTextNoBatching
     - [x] simple test
     - [ ] complex test

@@ -8780,6 +8780,16 @@ when using diffchecker website
 - [ ] Pick one that doesn't work
 - [ ] Make it work
 
+What "simple test" vs "complex test" mean?
+
+It means nothing specific.
+It is a means of avoiding procrastination.
+If I find that I'm paralyzed, I can decide with myself "okay well I'll do the simple test and then check it off"
+and the "simple test" is true progress, and may or may not be the complete progress,
+but it's a million times easier to deal with this than just 1 check box and constantly thinking "I haven't FULLY done the task"
+it's just mental mind games.
+I'm procrastinating btw.
+
 - [ ] CustomFullFileLexRequest
     - [x] simple test
     - [ ] complex test

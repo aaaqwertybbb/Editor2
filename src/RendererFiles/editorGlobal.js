@@ -9040,4 +9040,7 @@ and I feel insulted by you
 
 Mentioning that stuff in the videos was always painful to me. I hated it.
 
+I don't do youtube cause I am an extremely anxious person it isn't spiteful
+I couldn't handle the stress
+
 */

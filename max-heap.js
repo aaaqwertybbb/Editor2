@@ -281,7 +281,7 @@ maxHeap.peek()... expected answer is: (        3,      3)
 */
 
 
-const INDEX_BITS = 12;
+const LINE_BITS = 12;
 
 // 00000000000000000000000000000000
 //
@@ -290,7 +290,7 @@ const INDEX_BITS = 12;
 // 00000000000000000000    000000000000
 // ||||||||||||||||||||    ||||||||||||
 //            lineIndex      lineLength
-let entryTest = (3 << INDEX_BITS) | 3;
+let entryTest = (3 << LINE_BITS) | 3;
 
 consoleLogMaxHeapEntry(entryTest);
 

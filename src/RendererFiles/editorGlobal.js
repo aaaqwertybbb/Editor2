@@ -711,7 +711,7 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
             }
             // NOTE: The 'EDI_trackingUint32MaxHeap.insert' does NOT post-increment whereas 'EDI_lineEndPositionList_insert' does.
             // TODO: Consider using 'local_EDI_lineEndPositionList_count' here instead of 'EDI_trackingUint32MaxHeap.nextId'
-            EDI_trackingUint32MaxHeap.insert(EDI_trackingUint32MaxHeap.nextId, lineLength);
+            EDI_trackingUint32MaxHeap.insert(EDI_trackingUint32MaxHeap.nextId++, lineLength);
             lineLength = 0;
             EDI_lineEndPositionList_insert(local_EDI_lineEndPositionList_count++, sourceI);
         }
@@ -719,7 +719,7 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
 
     // NOTE: The 'EDI_trackingUint32MaxHeap.insert' does NOT post-increment whereas 'EDI_lineEndPositionList_insert' does.
     // TODO: Consider using 'local_EDI_lineEndPositionList_count' here instead of 'EDI_trackingUint32MaxHeap.nextId'
-    EDI_trackingUint32MaxHeap.insert(EDI_trackingUint32MaxHeap.nextId, lineLength);
+    EDI_trackingUint32MaxHeap.insert(EDI_trackingUint32MaxHeap.nextId++, lineLength);
     // TODO: The ++ here "isn't needed" but it makes the code consistent and less prone to future mistakes should another access of 'EDI_lineEndPositionList_count' be made after this point in the future.
     EDI_lineEndPositionList_insert(local_EDI_lineEndPositionList_count++, local_EDI_textByteList_count);
 

@@ -60,26 +60,27 @@ export class TrackingUint32MaxHeap {
     }
   }
 
-  insert(lineIndex, lineLength) {
+  /** TODO: Eventual "garbage collection / defragmentation" of the 'this._resizePositionMap' and 'this.nextId' for the no longer in use 'this.nextId'(s) */
+  insert(lineId, lineLength) {
     if (this.size >= this.capacity) this._resize();
     
     // Grow position tracking map if necessary
-    if (lineIndex >= this.positionMap.length) {
-      this._resizePositionMap(lineIndex * 2);
+    if (lineId >= this.positionMap.length) {
+      this._resizePositionMap(lineId * 2);
     }
 
     // Pre-calculated bit limits based on your 20/12 bit layout
     const MAX_LINE_INDEX = 1048575; // (2 ** 20) - 1
     const MAX_LINE_LENGTH = 4095;   // (2 ** 12) - 1
-    if (lineIndex > MAX_LINE_INDEX) {
-      throw new RangeError(`Line index (${lineIndex}) exceeds the 20-bit limit (${MAX_LINE_INDEX}).`);
+    if (lineId > MAX_LINE_INDEX) {
+      throw new RangeError(`Line index (${lineId}) exceeds the 20-bit limit (${MAX_LINE_INDEX}).`);
     }
     if (lineLength > MAX_LINE_LENGTH) {
       throw new RangeError(`Line length (${lineLength}) exceeds the 12-bit limit (${MAX_LINE_LENGTH}).`);
     }
 
-    this.heap[this.size] = this.pack(lineIndex, lineLength);
-    this.positionMap[lineIndex] = this.size; // Track initial placement
+    this.heap[this.size] = this.pack(lineId, lineLength);
+    this.positionMap[lineId] = this.size; // Track initial placement
     
     this._bubbleUp(this.size);
     this.size++;
@@ -120,6 +121,13 @@ export class TrackingUint32MaxHeap {
       const parentIndex = (index - 1) >> 1;
       const parentEntry = this.heap[parentIndex];
 
+      /*
+       > It's this line of '_bubbleUp' that says 'if (entry <= parentEntry) break;'.
+       > A comparison on the entry (which is packed) would fail to do a "then by" comparison.
+       > I think you'd have to explicitly unpack both values from the entry and compare them one at a time.
+
+       < ...
+      */
       if (entry <= parentEntry) break;
 
       // Swap entry and update its position tracking

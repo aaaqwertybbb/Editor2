@@ -174,18 +174,18 @@ class Uint32MaxHeap {
    * Inserts a new unsigned integer value into the heap.
    * @param {number} value 
    */
-  insert(value) {
-    // Ensure the value fits the unsigned 32-bit boundary
-    if (value < 0 || value > 4294967295) {
-      throw new RangeError("Value must be a valid 32-bit unsigned integer.");
+  insert(index, length) {
+    // Ensure the length fits the unsigned 32-bit boundary
+    if (length < 0 || length > 4294967295) {
+      throw new RangeError("Length must be a valid 32-bit unsigned integer.");
     }
 
     if (this.size >= this.capacity) {
       this._resize();
     }
 
-    // Place value at the end of the heap and bubble up
-    this.heap[this.size] = value;
+    // Place length at the end of the heap and bubble up
+    this.heap[this.size] = length;
     this._bubbleUp(this.size);
     this.size++;
   }
@@ -270,11 +270,64 @@ class Uint32MaxHeap {
 
 const maxHeap = new Uint32MaxHeap();
 
-maxHeap.insert(10);
-maxHeap.insert(40);
-maxHeap.insert(15);
-maxHeap.insert(50);
+/*
+1. 
+2. a
+3. bb
+4. ccc
 
-console.log(maxHeap.peek());        // Output: 50
-console.log(maxHeap.extractMax());  // Output: 50
-console.log(maxHeap.extractMax());  // Output: 40
+                                      (lineIndex, length)
+maxHeap.peek()... expected answer is: (        3,      3)
+*/
+
+
+const INDEX_BITS = 12;
+
+// 00000000000000000000000000000000
+//
+// =>
+//
+// 00000000000000000000    000000000000
+// ||||||||||||||||||||    ||||||||||||
+//            lineIndex      lineLength
+let entryTest = (3 << INDEX_BITS) | 3;
+
+consoleLogMaxHeapEntry(entryTest);
+
+
+
+//maxHeap.insert(0, 0);
+//maxHeap.insert(1, 1);
+//maxHeap.insert(2, 2);
+//maxHeap.insert(3, 3);
+
+//consoleLogMaxHeapEntry(maxHeap.peek());
+//consoleLogMaxHeapEntry(maxHeap.extractMax());
+//consoleLogMaxHeapEntry(maxHeap.extractMax());
+
+function consoleLogMaxHeapEntry(entry) {
+    let entryIndex = 0;
+    let entryLength = 0;
+    console.log(`(${entryIndex}, ${entryLength})`);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

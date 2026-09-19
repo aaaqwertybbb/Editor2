@@ -1,4 +1,4 @@
-class TrackingUint32MaxHeap {
+export class TrackingUint32MaxHeap {
   constructor(initialCapacity = 16) {
     this.capacity = initialCapacity;
     this.size = 0;

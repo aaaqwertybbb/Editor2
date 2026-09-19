@@ -1,4 +1,4 @@
-import "./src/RendererFiles/editorMaxHeap"
+import {TrackingUint32MaxHeap} from "./src/RendererFiles/editorMaxHeap.js"
 
 const maxHeap = new TrackingUint32MaxHeap();
 

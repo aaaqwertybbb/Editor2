@@ -10,17 +10,19 @@ class TrackingUint32MaxHeap {
     
     this.LENGTH_BITS = 12;
     this.LENGTH_MASK = (1 << this.LENGTH_BITS) - 1;
+
+    this.unpack_pool_index = 0;
+    this.unpack_pool_length = 0;
   }
 
   pack(index, length) {
     return (index << this.LENGTH_BITS) | (length & this.LENGTH_MASK);
   }
 
+  /** Result is stored in the fields: 'this.unpack_pool_index' and 'this.unpack_pool_length' */
   unpack(entry) {
-    return {
-      index: entry >>> this.LENGTH_BITS,
-      length: entry & this.LENGTH_MASK
-    };
+    this.unpack_pool_index = entry >>> this.LENGTH_BITS;
+    this.unpack_pool_length = entry & this.LENGTH_MASK;
   }
 
   peek() {
@@ -76,12 +78,15 @@ class TrackingUint32MaxHeap {
     if (this.size === 0) return null;
 
     const maxEntry = this.heap[0];
-    const { index: maxIndex } = this.unpack(maxEntry);
+    this.unpack(maxEntry);
+    const maxIndex = this.unpack_pool_index;
+
     this.positionMap[maxIndex] = -1; // Removed
 
     if (this.size > 1) {
       const lastEntry = this.heap[this.size - 1];
-      const { index: lastIndex } = this.unpack(lastEntry);
+      this.unpack(lastEntry);
+      const lastIndex = this.unpack_pool_index;
       
       this.heap[0] = lastEntry;
       this.positionMap[lastIndex] = 0; // Updated track
@@ -97,7 +102,8 @@ class TrackingUint32MaxHeap {
 
   _bubbleUp(index) {
     const entry = this.heap[index];
-    const { index: lineIndex } = this.unpack(entry);
+    this.unpack(entry);
+    const lineIndex = this.unpack_pool_index;
 
     while (index > 0) {
       const parentIndex = (index - 1) >> 1;
@@ -107,7 +113,8 @@ class TrackingUint32MaxHeap {
 
       // Swap entry and update its position tracking
       this.heap[index] = parentEntry;
-      const { index: parentLineIndex } = this.unpack(parentEntry);
+      this.unpack(parentEntry);
+      const parentLineIndex = this.unpack_pool_index;
       this.positionMap[parentLineIndex] = index;
 
       index = parentIndex;
@@ -119,7 +126,8 @@ class TrackingUint32MaxHeap {
 
   _sinkDown(index) {
     const entry = this.heap[index];
-    const { index: lineIndex } = this.unpack(entry);
+    this.unpack(entry);
+    const lineIndex = this.unpack_pool_index;
     const halfSize = this.size >> 1;
 
     while (index < halfSize) {
@@ -136,7 +144,8 @@ class TrackingUint32MaxHeap {
       // Swap entry and update its position tracking
       const childEntry = this.heap[largestChildIndex];
       this.heap[index] = childEntry;
-      const { index: childLineIndex } = this.unpack(childEntry);
+      this.unpack(childEntry);
+      const childLineIndex = this.unpack_pool_index;
       this.positionMap[childLineIndex] = index;
 
       index = largestChildIndex;
@@ -172,8 +181,8 @@ consoleLogMaxHeapEntry(maxHeap.extractMax());
 consoleLogMaxHeapEntry(maxHeap.extractMax());
 
 function consoleLogMaxHeapEntry(entry) {
-    const unpackedObject = maxHeap.unpack(entry);
-    console.log(`(${unpackedObject.index}, ${unpackedObject.length})`);
+    maxHeap.unpack(entry);
+    console.log(`(${maxHeap.unpack_pool_index}, ${maxHeap.unpack_pool_length})`);
 }
 
 

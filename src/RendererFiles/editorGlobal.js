@@ -729,6 +729,7 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
     const heap_max_length_the_length = EDI_trackingUint32MaxHeap.unpack_pool_length;
     // 9045 and 0?
     // 0 and 582?
+    // 435 and 582 for editorGlobal.js
 
     update_VirtualIndexLine();
     update_virtualCount();

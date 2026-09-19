@@ -8,8 +8,8 @@ export class TrackingUint32MaxHeap {
     // Assuming a max layout size, or grow dynamically. We'll start it large or match capacity.
     this.positionMap = new Int32Array(initialCapacity).fill(-1);
     
-    this.LENGTH_BITS = 12;
-    this.LENGTH_MASK = (1 << this.LENGTH_BITS) - 1;
+    this.ID_BITS = 20;
+    this.ID_MASK = (1 << this.ID_BITS) - 1;
 
     this.nextId = 0;
     this.unpack_pool_id = 0;
@@ -17,13 +17,13 @@ export class TrackingUint32MaxHeap {
   }
 
   pack(id, length) {
-    return (id << this.LENGTH_BITS) | (length & this.LENGTH_MASK);
+    return (length << this.ID_BITS) | (id & this.ID_MASK);
   }
 
   /** Result is stored in the fields: 'this.unpack_pool_index' and 'this.unpack_pool_length' */
   unpack(entry) {
-    this.unpack_pool_id = entry >>> this.LENGTH_BITS;
-    this.unpack_pool_length = entry & this.LENGTH_MASK;
+    this.unpack_pool_length = entry >>> this.ID_BITS;
+    this.unpack_pool_id = entry & this.ID_MASK;
   }
 
   peek() {
@@ -44,7 +44,7 @@ export class TrackingUint32MaxHeap {
 
     // 2. Get the old packed entry to compare lengths
     const oldEntry = this.heap[heapIndex];
-    const oldLength = oldEntry & this.LENGTH_MASK;
+    const oldLength = oldEntry >>> this.ID_BITS;
     
     // 3. Overwrite the element with the new packed entry
     const newEntry = this.pack(lineId, newLength);

@@ -284,6 +284,31 @@ maxHeap.peek()... expected answer is: (        3,      3)
 // TODO: once you do this it completely invalidates the fact that your line end position list can fit indices up to 32 bits.
 //       because you can only track up to (currently 20 bits given the exact way this is written at the moment).
 const LENGTH_BITS = 12;
+const LENGTH_MASK = (1 << LENGTH_BITS) - 1; // 0xFFF (Lower 12 bits)
+
+/**
+ * Packs a 20-bit line index and a 12-bit length into a single 32-bit unsigned integer.
+ */
+function packEntry(index, length) {
+  // Clamp length to 12 bits max (4095) to prevent corruption of the index
+  const safeLength = length & LENGTH_MASK; 
+  
+  // Shift index left by 12 bits, then merge with length using bitwise OR
+  return (index << LENGTH_BITS) | safeLength;
+}
+
+/**
+ * Unpacks the data from a 32-bit entry.
+ */
+function unpackEntry(entry) {
+  // Extract length: clear the upper bits using the mask
+  const length = entry & LENGTH_MASK;
+
+  // Extract index: shift right by 12 bits using >>> (unsigned right shift)
+  const index = entry >>> LENGTH_BITS;
+
+  return { index, length };
+}
 
 // 00000000000000000000000000000000
 //
@@ -292,7 +317,7 @@ const LENGTH_BITS = 12;
 // 00000000000000000000    000000000000
 // ||||||||||||||||||||    ||||||||||||
 //            lineIndex      lineLength
-let entryTest = (3 << LENGTH_BITS) | 3;
+let entryTest = packEntry(3, 3);
 
 consoleLogMaxHeapEntry(entryTest);
 
@@ -310,28 +335,13 @@ consoleLogMaxHeapEntry(entryTest);
 function consoleLogMaxHeapEntry(entry) {
 
 
-    // TODO: Is the explorerGlobal.js even using the bit packing logic???? Maybe it is I just at a glance am a little confused.
-    const LENGTH_BITS = 12;
-    const LENGTH_MASK = (1 << LENGTH_BITS) - 1; // Binary: 00000000000000000000111111111111 (0xFFF)
-    const entryLength = entry & LENGTH_MASK;
-    const entryIndex = entry & (LENGTH_MASK ^ 1);
+    const unpackedObject = unpackEntry(entry)
 
 
-    console.log(`(${entryIndex}, ${entryLength})`);
+    console.log(`(${unpackedObject.index}, ${unpackedObject.length})`);
 }
 
-const LENGTH_BITS = 12;
-
-// 00000000000000000000000000000000
-//
-// =>
-//
-// 00000000000000000000    000000000000
-// ||||||||||||||||||||    ||||||||||||
-//            lineIndex      lineLength
-let entryTest = (3 << LENGTH_BITS) | 3;
-
-consoleLogMaxHeapEntry(entryTest);
+//consoleLogMaxHeapEntry(entryTest);
 
 
 

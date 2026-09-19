@@ -708,13 +708,9 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
     for (var sourceI = 0; sourceI < local_EDI_textByteList_count; sourceI++) {
         lineLength++; // avoid branching by eager counting the lineLength and then excluding the lineEnding later
         if (local_EDI_textByteList_bytes[sourceI] === CONST_EDI_ASCII_LINE_FEED) {
-            if (lineLength - 1 > INTS[fEDI_longestLine_length]) { // avoid branching by eager counting the lineLength and then excluding the lineEnding later
-                INTS[fEDI_longestLine_length] = lineLength - 1; // avoid branching by eager counting the lineLength and then excluding the lineEnding later
-                INTS[fEDI_longestLine_indexLine] = local_EDI_lineEndPositionList_count;
-            }
             // NOTE: The 'EDI_trackingUint32MaxHeap.insert' does NOT post-increment whereas 'EDI_lineEndPositionList_insert' does.
             // TODO: Consider using 'local_EDI_lineEndPositionList_count' here instead of 'EDI_trackingUint32MaxHeap.nextId'
-            EDI_trackingUint32MaxHeap.insert(EDI_trackingUint32MaxHeap.nextId++, lineLength);
+            EDI_trackingUint32MaxHeap.insert(EDI_trackingUint32MaxHeap.nextId++, lineLength - 1); // avoid branching by eager counting the lineLength and then excluding the lineEnding later
             lineLength = 0;
             EDI_lineEndPositionList_insert(local_EDI_lineEndPositionList_count++, sourceI);
         }
@@ -727,9 +723,15 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
     EDI_lineEndPositionList_insert(local_EDI_lineEndPositionList_count++, local_EDI_textByteList_count);
 
     EDI_trackingUint32MaxHeap.unpack(EDI_trackingUint32MaxHeap.peek());
-    EDI_trackingUint32MaxHeap.unpack(4097);
-    const heap_max_length_the_index = EDI_trackingUint32MaxHeap.unpack_pool_id;
-    const heap_max_length_the_length = EDI_trackingUint32MaxHeap.unpack_pool_length;
+    // 
+    // "The id is not the lineIndex... except for the times where it is"
+    //
+    // But, I currently am always constructing a new 'EDI_trackingUint32MaxHeap' when I setText due to the internal invocation of 'clear'.
+    // And the first time you mess with the heap the indices will actually align, it is after you initialize that they start of stray away from being a 1 to 1.
+    // I need to write code to get the actual lineIndex from an id, but I don't think I'm doing that today so this is somewhat convenient.
+    // 
+    INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
+    INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
     // 9045 and 0?
     // 0 and 582?
     // 435 and 582 for editorGlobal.js

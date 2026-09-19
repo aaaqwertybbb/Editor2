@@ -8990,6 +8990,8 @@ TODO: is this longest line logic everywhere it should be? (similar logic I mean,
 
 When I'm done with this project I'm gonna dog food it to make a native-UI IDE
 
+Either that or I'll dog food this project to remake it from scratch but with a canvas.
+
 =======
 
 I'm being recommended "Katy Perry - Ur So Gay (Official)"

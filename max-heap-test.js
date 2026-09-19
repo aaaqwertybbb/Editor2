@@ -16,10 +16,6 @@ function consoleLogMaxHeapEntry(entry) {
     console.log(`(${maxHeap.unpack_pool_index}, ${maxHeap.unpack_pool_length})`);
 }
 
-
-
-
-
 /*
 > javascript max heap implementation as uint array
 

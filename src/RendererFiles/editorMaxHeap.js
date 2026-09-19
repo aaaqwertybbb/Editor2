@@ -126,6 +126,16 @@ export class TrackingUint32MaxHeap {
        > A comparison on the entry (which is packed) would fail to do a "then by" comparison.
        > I think you'd have to explicitly unpack both values from the entry and compare them one at a time.
 
+       < The Faster Fix: Swap Your Bit Packing Layout
+       <
+       < Instead of unpacking elements on every single heap movement (which slows things down), you can simply swap where the bits live:
+       < Upper 20 bits: Line Length (Sorted first!)
+       < Lower 12 bits: Line ID
+       <
+       < Because the most significant bits dictate the size of the whole 32-bit integer,
+       < a raw comparison like entryA > entryB will now naturally sort by length first.
+       < If two lengths are identical, it will cleanly break ties using the ID in the lower bits.
+       < 
        < ...
       */
       if (entry <= parentEntry) break;

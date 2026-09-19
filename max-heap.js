@@ -57,18 +57,16 @@ class TrackingUint32MaxHeap {
     }
   }
 
-  insert(entry) {
+  insert(lineIndex, lineLength) {
     if (this.size >= this.capacity) this._resize();
-
-    const { index } = this.unpack(entry);
     
     // Grow position tracking map if necessary
-    if (index >= this.positionMap.length) {
+    if (lineIndex >= this.positionMap.length) {
       this._resizePositionMap(index * 2);
     }
 
-    this.heap[this.size] = entry;
-    this.positionMap[index] = this.size; // Track initial placement
+    this.heap[this.size] = this.pack(lineIndex, lineLength);
+    this.positionMap[lineIndex] = this.size; // Track initial placement
     
     this._bubbleUp(this.size);
     this.size++;
@@ -164,10 +162,10 @@ class TrackingUint32MaxHeap {
 
 const maxHeap = new TrackingUint32MaxHeap();
 
-maxHeap.insert(maxHeap.pack(0, 0));
-maxHeap.insert(maxHeap.pack(1, 1));
-maxHeap.insert(maxHeap.pack(2, 2));
-maxHeap.insert(maxHeap.pack(3, 3));
+maxHeap.insert(0, 0);
+maxHeap.insert(1, 1);
+maxHeap.insert(2, 2);
+maxHeap.insert(3, 3);
 
 consoleLogMaxHeapEntry(maxHeap.peek());
 consoleLogMaxHeapEntry(maxHeap.extractMax());

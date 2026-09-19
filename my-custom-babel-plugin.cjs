@@ -572,6 +572,8 @@ module.exports = function (babel) {
 
     "fEDI_cursor_cached_indentation_string_visualWidth",
 
+    "fEDI_cursor_GAP_BUFFER_width_when_each_char_is_1_visual_width",
+
   ];
 
   return {

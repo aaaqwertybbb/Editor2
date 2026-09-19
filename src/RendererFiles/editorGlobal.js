@@ -8988,6 +8988,8 @@ TODO: is this longest line logic everywhere it should be? (similar logic I mean,
 
 - [ ] if the (widthOfTheLongestLine + 32ch) is less than that of the width of the viewport then set the width of the longest line to the width of the viewport.
 
+When I'm done with this project I'm gonna dog food it to make a native-UI IDE
+
 =======
 
 I'm being recommended "Katy Perry - Ur So Gay (Official)"

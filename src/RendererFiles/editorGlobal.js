@@ -709,9 +709,9 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
                 INTS[fEDI_longestLine_length] = lineLength - 1; // avoid branching by eager counting the lineLength and then excluding the lineEnding later
                 INTS[fEDI_longestLine_indexLine] = local_EDI_lineEndPositionList_count;
             }
-            lineLength = 0;
             // NOTE: The 'EDI_trackingUint32MaxHeap.insert' does NOT post-increment whereas 'EDI_lineEndPositionList_insert' does.
             EDI_trackingUint32MaxHeap.insert(local_EDI_lineEndPositionList_count, lineLength);
+            lineLength = 0;
             EDI_lineEndPositionList_insert(local_EDI_lineEndPositionList_count++, sourceI);
         }
     }

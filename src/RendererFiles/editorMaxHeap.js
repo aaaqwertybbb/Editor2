@@ -67,6 +67,11 @@ export class TrackingUint32MaxHeap {
       this._resizePositionMap(lineIndex * 2);
     }
 
+    if (lineIndex >= 2^20 || lineLength >= 2^12) {
+      // 9046 console messages from this
+      // console.log('if (lineIndex >= 2^20 || lineLength >= 2^12)');
+    }
+
     this.heap[this.size] = this.pack(lineIndex, lineLength);
     this.positionMap[lineIndex] = this.size; // Track initial placement
     

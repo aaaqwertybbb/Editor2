@@ -627,6 +627,9 @@ function EDI_state_clear() {
     BYTES[byteEDI_extensionKind] = ExtensionKind_None;
     set_EDI_fileStartsWithBom(false);
     EDI_lineEndString = null;
+    // TODO: Maybe re-use the 'TrackingUint32MaxHeap' rather than making a new one everytime
+    // TODO: Maybe do an 'ensure capacity' check prior to the loop that inserts 1 by 1 into 'EDI_trackingUint32MaxHeap'.
+    EDI_trackingUint32MaxHeap = new TrackingUint32MaxHeap();
     EDI_lineEndPositionList_clear();
     EDI_textByteList_clear();
     INTS[fEDI_longestLine_indexLine] = 0;

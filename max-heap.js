@@ -408,6 +408,13 @@ function unpackEntry(entry) {
 < 
 < Or if you want to swap the layout so Length occupies the upper bits instead, let me know and we can adjust the shifts!
 < 
+
+Extremely convenient, Google AI is telling me:
+
+< Note: Since a Max-Heap sorts by value, putting the Length in the lower bits means a direct numeric comparison (entryA > entryB) will naturally sort by length first!
+< If lengths are equal, it will break ties using the line index.
+
+I wasn't even considering that, just happened to put Length in lower bits.
 */
 
 

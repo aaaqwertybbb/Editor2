@@ -11,7 +11,24 @@ export class TrackingUint32MaxHeap {
     this.ID_BITS = 20;
     this.ID_MASK = (1 << this.ID_BITS) - 1;
 
+    /**
+     * The id is not the lineIndex.
+     * 
+     * This is necessary because you then avoid that when an entire line is removed from the editor you would have to update many nodes in the heap to have their new line index.
+     * Thus 'id is not the lineIndex'.
+     * That being said 'id' does act as an index into 'this.positionMap'.
+     * 
+     * Long term as you remove entire lines of text from the editor you'll be creating holes in 'this.positionMap' where an
+     * array entry exists but is never in use because if the entire creates
+     * a line at lineIndex 0 for the first time it happens to align.
+     * But the second time and everytime after that, it stops aligning.
+     * 
+     * So you have to figure out a timing to go through the 'this.positionMap' and periodically clear out all the holes,
+     * and when doing this you'd then have to update the heap as well, but instead of per edit of a whole line
+     * you're doing it per "whenever you decide to remove the holes".
+     */
     this.nextId = 0;
+
     this.unpack_pool_id = 0;
     this.unpack_pool_length = 0;
   }

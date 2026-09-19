@@ -9174,4 +9174,10 @@ If you are dealing with smaller data or specific memory constraints, we can adap
 - Do you want to use Uint8Array or Uint16Array instead to preserve memory for smaller integer sizes?
 - Do you prefer a fixed capacity variant that avoids the _resize() method altogether?
 
+=======
+
+I'm gonna pack into the 32 bit entry something like this:
+16 bits for the index
+16 bits for the length
+
 */

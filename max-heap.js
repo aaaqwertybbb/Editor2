@@ -175,17 +175,24 @@ class Uint32MaxHeap {
    * @param {number} value 
    */
   insert(index, length) {
-    // Ensure the length fits the unsigned 32-bit boundary
-    if (length < 0 || length > 4294967295) {
-      throw new RangeError("Length must be a valid 32-bit unsigned integer.");
-    }
+
+    // Clamp length to 12 bits max (4095) to prevent corruption of the index
+    const safeLength = length & LENGTH_MASK;
+    const packedNumber = (index << LENGTH_BITS) | safeLength;
+    // Shift index left by 12 bits, then merge with length using bitwise OR
+    //return (index << LENGTH_BITS) | safeLength;
+
+    //// Ensure the length fits the unsigned 32-bit boundary
+    //if (length < 0 || length > 4294967295) {
+    //  throw new RangeError("Length must be a valid 32-bit unsigned integer.");
+    //}
 
     if (this.size >= this.capacity) {
       this._resize();
     }
 
     // Place length at the end of the heap and bubble up
-    this.heap[this.size] = length;
+    this.heap[this.size] = packedNumber;
     this._bubbleUp(this.size);
     this.size++;
   }
@@ -317,20 +324,20 @@ function unpackEntry(entry) {
 // 00000000000000000000    000000000000
 // ||||||||||||||||||||    ||||||||||||
 //            lineIndex      lineLength
-let entryTest = packEntry(3, 3);
+//let entryTest = packEntry(3, 3);
 
-consoleLogMaxHeapEntry(entryTest);
+//consoleLogMaxHeapEntry(entryTest);
 
 
 
-//maxHeap.insert(0, 0);
-//maxHeap.insert(1, 1);
-//maxHeap.insert(2, 2);
-//maxHeap.insert(3, 3);
+maxHeap.insert(0, 0);
+maxHeap.insert(1, 1);
+maxHeap.insert(2, 2);
+maxHeap.insert(3, 3);
 
-//consoleLogMaxHeapEntry(maxHeap.peek());
-//consoleLogMaxHeapEntry(maxHeap.extractMax());
-//consoleLogMaxHeapEntry(maxHeap.extractMax());
+consoleLogMaxHeapEntry(maxHeap.peek());
+consoleLogMaxHeapEntry(maxHeap.extractMax());
+consoleLogMaxHeapEntry(maxHeap.extractMax());
 
 function consoleLogMaxHeapEntry(entry) {
 

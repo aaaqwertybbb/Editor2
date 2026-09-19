@@ -6019,11 +6019,11 @@ function EDI_draw_cursor_debug() {
         text += 'byteDIALOG_Settings_editorDebugShowAdjacentCharacters_is_not_implemented';
     }
 
-    text += ' | (' + INTS[fEDI_cursorVisualColumnIndex] + ')';
+    //text += ' | (' + INTS[fEDI_cursorVisualColumnIndex] + ')';
     
     text += ' | (' + INTS[fEDI_cursor_editLength] + ')';
 
-    //text += ' | (' + INTS[fEDI_longestLine_indexLine] + ', ' + INTS[fEDI_longestLine_length] + ')';
+    text += ' | (' + INTS[fEDI_longestLine_indexLine] + ', ' + INTS[fEDI_longestLine_length] + ')';
 
     EDI_debug.replaceChildren(text);
 }
@@ -8974,7 +8974,8 @@ TODO: is this longest line logic everywhere it should be? (similar logic I mean,
         INTS[fEDI_longestLine_length] = INTS[fEDI_longestLine_length] + INTS[fEDI_cursor_editLength];
     }
 
-- [ ] CustomFullFileLexRequest
+- [x] CustomFullFileLexRequest
+    - [x] editorGlobal.js lineIndex of longest line is 431 the last valid column index for this line is 581
 - [ ] InsertLtr
 - [ ] Enter
 - [ ] Tab

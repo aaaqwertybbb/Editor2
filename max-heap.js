@@ -415,6 +415,15 @@ Extremely convenient, Google AI is telling me:
 < If lengths are equal, it will break ties using the line index.
 
 I wasn't even considering that, just happened to put Length in lower bits.
+
+> If I wanted to update the length of a line that  already existed in the Max-Heap how would I do this?
+
+< To update a value in a standard binary heap, you have to find its location first. Because heaps are not designed for O(1) random lookups, you can't instantly know where in the Uint32Array a specific line index is currently sitting.
+<
+< To achieve high-performance updates, you need a lookup table (a second array) that maps every line index to its current position (its array index) inside the heap.
+< 
+< ...
+
 */
 
 

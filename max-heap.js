@@ -458,6 +458,7 @@ Line 1 (Len: 8)  Line 2    Line 3 (Len: 45)  Line 4 (Len: 19)
 < Comparion Matrix:
 < 
 < Operation                 | Option 1: Persistent IDs + Binary Heap          | Option 2: Augmented Tree (Rope/B-Tree)
+< ---------------------------------------------------------------------------------------------------------------------------
 < Line Text Edit            | O(logN) (Heap restructure)                      | O(logN) (Tree walk)
 < Insert/Delete Line        | O(logN) (Only affects the target line)          | O(logN) (Natural tree mutation)
 < Memory overhead           | Low (Uint32Array + Int32Array)                  | Moderate (Object references per node)

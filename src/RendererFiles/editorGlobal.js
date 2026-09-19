@@ -8986,6 +8986,8 @@ TODO: is this longest line logic everywhere it should be? (similar logic I mean,
 - [ ] IndentMore
 - [ ] IndentLess
 
+- [ ] if the (widthOfTheLongestLine + 32ch) is less than that of the width of the viewport then set the width of the longest line to the width of the viewport.
+
 =======
 
 I'm being recommended "Katy Perry - Ur So Gay (Official)"

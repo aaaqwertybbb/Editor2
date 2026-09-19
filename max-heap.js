@@ -308,11 +308,30 @@ consoleLogMaxHeapEntry(entryTest);
 //consoleLogMaxHeapEntry(maxHeap.extractMax());
 
 function consoleLogMaxHeapEntry(entry) {
-    let entryIndex = 0;
-    let entryLength = 0;
+
+
+    // TODO: Is the explorerGlobal.js even using the bit packing logic???? Maybe it is I just at a glance am a little confused.
+    const LENGTH_BITS = 12;
+    const LENGTH_MASK = (1 << LENGTH_BITS) - 1; // Binary: 00000000000000000000111111111111 (0xFFF)
+    const entryLength = entry & LENGTH_MASK;
+    const entryIndex = entry & (LENGTH_MASK ^ 1);
+
+
     console.log(`(${entryIndex}, ${entryLength})`);
 }
 
+const LENGTH_BITS = 12;
+
+// 00000000000000000000000000000000
+//
+// =>
+//
+// 00000000000000000000    000000000000
+// ||||||||||||||||||||    ||||||||||||
+//            lineIndex      lineLength
+let entryTest = (3 << LENGTH_BITS) | 3;
+
+consoleLogMaxHeapEntry(entryTest);
 
 
 
@@ -322,10 +341,57 @@ function consoleLogMaxHeapEntry(entry) {
 
 
 
+/*
+> I'm trying to do some bit packing logic does this look correct to you?:
+> 
+> ...
 
+< No, this logic contains two critical issues that will cause incorrect values when extracting the data:
+<
+< ...
+<
+< ```js
+// Constants
+const LENGTH_BITS = 12;
+const LENGTH_MASK = (1 << LENGTH_BITS) - 1; // 0xFFF (Lower 12 bits)
 
+// Packs a 20-bit line index and a 12-bit length into a single 32-bit unsigned integer.
+function packEntry(index, length) {
+  // Clamp length to 12 bits max (4095) to prevent corruption of the index
+  const safeLength = length & LENGTH_MASK; 
+  
+  // Shift index left by 12 bits, then merge with length using bitwise OR
+  return (index << LENGTH_BITS) | safeLength;
+}
 
+// Unpacks the data from a 32-bit entry.
+function unpackEntry(entry) {
+  // Extract length: clear the upper bits using the mask
+  const length = entry & LENGTH_MASK;
 
+  // Extract index: shift right by 12 bits using >>> (unsigned right shift)
+  const index = entry >>> LENGTH_BITS;
+
+  return { index, length };
+}
+< ```
+<
+< Why >>> (Unsigned Right Shift) Matters
+<
+< In JavaScript, standard bitwise operators operate on signed 32-bit integers.
+< If your line index grows large enough that the 32nd bit becomes 1, using a normal shift (>>) will preserve the sign bit and inject negative numbers.
+< Using >>> guarantees it is treated as a clean, unsigned 32-bit entity, which matches your Uint32Array perfectly.
+< 
+< To test your understanding, let's try a quick practice problem:
+< If you pack a line index of 5 and a line length of 10 using the layout above ((5 << 12) | 10), what is the resulting decimal value stored in the entry?
+< a) 20490
+< b) 4106
+< c) 50
+< d) None of the above
+< 
+< Or if you want to swap the layout so Length occupies the upper bits instead, let me know and we can adjust the shifts!
+< 
+*/
 
 
 

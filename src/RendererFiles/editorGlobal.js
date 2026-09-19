@@ -8992,6 +8992,13 @@ When I'm done with this project I'm gonna dog food it to make a native-UI IDE
 
 Either that or I'll dog food this project to remake it from scratch but with a canvas.
 
+Rather I do one or the other first I'll do the second after
+so 3 things total
+
+editor with html
+editor with canvas
+editor with native-UI
+
 =======
 
 I'm being recommended "Katy Perry - Ur So Gay (Official)"

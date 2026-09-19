@@ -776,6 +776,7 @@ function readyFileState() {
         "dialogImplementationsGlobal.js",
         "listComponent.js",
         "listTypes.js",
+        "editorMaxHeap.js",
         "editorGlobal.js",
         "javascriptFeatures.js",
         "explorerGlobal.js",

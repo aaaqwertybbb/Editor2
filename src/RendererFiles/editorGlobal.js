@@ -2,7 +2,11 @@
 // preprocessor.cjs
 import "./fieldBuffer"
 import "./javascriptFeatures"
+//import "./editorMaxHeap"
+//import {*} from "./editorMaxHeap";
 //__#__
+
+const EDI_trackingUint32MaxHeap = new TrackingUint32MaxHeap();
 
 const EDI_trackedSyntaxList = new TrackedSyntaxList(32);
 

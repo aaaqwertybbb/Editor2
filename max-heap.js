@@ -283,7 +283,7 @@ maxHeap.peek()... expected answer is: (        3,      3)
 // TODO: Actually pick a number that makes sense for the lineIndex, i.e.: it doesn't need 20 bits, presumably it'd be the shorter side.
 // TODO: once you do this it completely invalidates the fact that your line end position list can fit indices up to 32 bits.
 //       because you can only track up to (currently 20 bits given the exact way this is written at the moment).
-const LINE_BITS = 12;
+const LENGTH_BITS = 12;
 
 // 00000000000000000000000000000000
 //
@@ -292,7 +292,7 @@ const LINE_BITS = 12;
 // 00000000000000000000    000000000000
 // ||||||||||||||||||||    ||||||||||||
 //            lineIndex      lineLength
-let entryTest = (3 << LINE_BITS) | 3;
+let entryTest = (3 << LENGTH_BITS) | 3;
 
 consoleLogMaxHeapEntry(entryTest);
 

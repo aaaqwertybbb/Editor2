@@ -710,12 +710,21 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
                 INTS[fEDI_longestLine_indexLine] = local_EDI_lineEndPositionList_count;
             }
             lineLength = 0;
+            // NOTE: The 'EDI_trackingUint32MaxHeap.insert' does NOT post-increment whereas 'EDI_lineEndPositionList_insert' does.
+            EDI_trackingUint32MaxHeap.insert(local_EDI_lineEndPositionList_count, lineLength);
             EDI_lineEndPositionList_insert(local_EDI_lineEndPositionList_count++, sourceI);
         }
     }
 
+    // NOTE: The 'EDI_trackingUint32MaxHeap.insert' does NOT post-increment whereas 'EDI_lineEndPositionList_insert' does.
+    EDI_trackingUint32MaxHeap.insert(local_EDI_lineEndPositionList_count, lineLength);
     // TODO: The ++ here "isn't needed" but it makes the code consistent and less prone to future mistakes should another access of 'EDI_lineEndPositionList_count' be made after this point in the future.
     EDI_lineEndPositionList_insert(local_EDI_lineEndPositionList_count++, local_EDI_textByteList_count);
+
+    EDI_trackingUint32MaxHeap.unpack(EDI_trackingUint32MaxHeap.peek());
+    const heap_max_length_the_index = EDI_trackingUint32MaxHeap.unpack_pool_index;
+    const heap_max_length_the_length = EDI_trackingUint32MaxHeap.unpack_pool_length;
+    // 9045 and 0?
 
     update_VirtualIndexLine();
     update_virtualCount();

@@ -64,7 +64,7 @@ export class TrackingUint32MaxHeap {
     
     // Grow position tracking map if necessary
     if (lineIndex >= this.positionMap.length) {
-      this._resizePositionMap(index * 2);
+      this._resizePositionMap(lineIndex * 2);
     }
 
     this.heap[this.size] = this.pack(lineIndex, lineLength);

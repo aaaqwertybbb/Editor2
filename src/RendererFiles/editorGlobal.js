@@ -3385,8 +3385,8 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
     // -------------------------
 
     EDI_trackingUint32MaxHeap.updateLength_diff(/*lineId*/ indexLine_editOccurredOn, INTS[fEDI_cursor_editLength]);
-    let maxHeapEntry = EDI_trackingUint32MaxHeap.peek() ?? 0;
-    if (INTS[fEDI_longestLine_heapEntry] !== maxHeapEntry) {
+    let maxHeapEntry = EDI_trackingUint32MaxHeap.peek();
+    if (maxHeapEntry !== null && INTS[fEDI_longestLine_heapEntry] !== maxHeapEntry) {
         INTS[fEDI_longestLine_heapEntry] = maxHeapEntry;
         EDI_trackingUint32MaxHeap.unpack(maxHeapEntry);
         INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
@@ -3493,8 +3493,8 @@ function EDI_finalizeEdit_Tab(indexLine_editOccurredOn) {
     // -------------------------
 
     EDI_trackingUint32MaxHeap.updateLength_diff(/*lineId*/ INTS[fEDI_cursor_editIndexLine], length * INTS[fEDI_ontab_visualWidth_perCharacter]);
-    let maxHeapEntry = EDI_trackingUint32MaxHeap.peek() ?? 0;
-    if (INTS[fEDI_longestLine_heapEntry] !== maxHeapEntry) {
+    let maxHeapEntry = EDI_trackingUint32MaxHeap.peek();
+    if (maxHeapEntry !== null && INTS[fEDI_longestLine_heapEntry] !== maxHeapEntry) {
         INTS[fEDI_longestLine_heapEntry] = maxHeapEntry;
         EDI_trackingUint32MaxHeap.unpack(maxHeapEntry);
         INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
@@ -4148,8 +4148,15 @@ function EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_
     });
     // -------------------------
 
-    if (indexLine_editOccurredOn === INTS[fEDI_longestLine_indexLine]) {
-        INTS[fEDI_longestLine_length] = INTS[fEDI_longestLine_length] - INTS[fEDI_cursor_editLength];
+    if (INTS[fEDI_cursor_editKind] !== EditKind_RemoveTextNoBatching) {
+        EDI_trackingUint32MaxHeap.updateLength_diff(/*lineId*/ INTS[fEDI_cursor_editIndexLine], -1 * INTS[fEDI_cursor_editLength]);
+        let maxHeapEntry = EDI_trackingUint32MaxHeap.peek();
+        if (maxHeapEntry !== null && INTS[fEDI_longestLine_heapEntry] !== maxHeapEntry) {
+            INTS[fEDI_longestLine_heapEntry] = maxHeapEntry;
+            EDI_trackingUint32MaxHeap.unpack(maxHeapEntry);
+            INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
+            INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
+        }
     }
 
     EDI_finalizeEdit_ClearEditState();
@@ -9085,11 +9092,11 @@ account for tabs
     - [ ] simple
     - [ ] complex
 - [ ] DeleteLtr
-    - [ ] simple
-    - [ ] complex
+    - [x] simple (no tabs)
+    - [ ] complex (with tabs)
 - [ ] BackspaceRtl
-    - [ ] simple
-    - [ ] complex
+    - [x] simple (no tabs)
+    - [ ] complex (with tabs)
 - [ ] RemoveTextNoBatching
     - [ ] simple
     - [ ] complex

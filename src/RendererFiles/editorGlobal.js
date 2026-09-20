@@ -4148,7 +4148,7 @@ function EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_
     });
     // -------------------------
 
-    if (INTS[fEDI_cursor_editKind] !== EditKind_RemoveTextNoBatching) {
+    if (startLineAndColumnIndices_indexLine === endLineAndColumnIndices_indexLine) {
         EDI_trackingUint32MaxHeap.updateLength_diff(/*lineId*/ INTS[fEDI_cursor_editIndexLine], -1 * INTS[fEDI_cursor_editLength]);
         let maxHeapEntry = EDI_trackingUint32MaxHeap.peek();
         if (maxHeapEntry !== null && INTS[fEDI_longestLine_heapEntry] !== maxHeapEntry) {
@@ -9098,14 +9098,28 @@ account for tabs
     - [x] simple (no tabs)
     - [ ] complex (with tabs)
 - [ ] RemoveTextNoBatching
-    - [ ] simple
-    - [ ] complex
+    - [ ] simple (single line)
+        - [ ] (no tabs)
+        - [ ] (with tabs)
+    - [ ] complex (multi line)
 - [ ] IndentMore
-    - [ ] simple
-    - [ ] complex
+    - [ ] simple (single line)
+        - [ ] tabs
+        - [ ] spaces
+        - [ ] both
+    - [ ] complex (multi line)
+        - [ ] tabs
+        - [ ] spaces
+        - [ ] both
 - [ ] IndentLess
-    - [ ] simple
-    - [ ] complex
+    - [ ] simple (single line)
+        - [ ] tabs
+        - [ ] spaces
+        - [ ] both
+    - [ ] complex (multi line)
+        - [ ] tabs
+        - [ ] spaces
+        - [ ] both
 
 TODO: Fix the explorer menu options I tried making a new file and it borked.
 

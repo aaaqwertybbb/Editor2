@@ -9414,6 +9414,14 @@ Because everyone is saying LOL EMOTIONAL BLACKMAIL you never actually experience
 you're a loser and you're a double loser cause you just sit here making EVERYTHING up
 
 That's what my thought process is.
-Anxiety anxiety anxiety anxiety
+Anxiety anxiety anxiety anxiety.
+
+Chantaje means blackmail.
+
+I don't want anything.
+You get me recommended pumped up kicks you're a clown.
+You get me recommended Chantaje you're a clown.
+I'm gonna make this entire thing and get nothing in return
+just for the idiots doing that
 
 */

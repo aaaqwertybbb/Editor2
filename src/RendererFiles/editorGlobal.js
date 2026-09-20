@@ -9437,4 +9437,7 @@ now I see pumped up kicks cause of them
 I don't listen to that song.
 I can't stand any of these implications that these idiots make.
 
+I don't listen to snow strippers btw.
+That's again what I'm saying. Like why all of a sudden is that oddly titled song showing up?
+
 */

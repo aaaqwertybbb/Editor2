@@ -2,8 +2,9 @@
 // preprocessor.cjs
 import "./fieldBuffer"
 import "./javascriptFeatures"
-//import "./editorMaxHeap"
-//import {*} from "./editorMaxHeap";
+// I'm not dealing with this I don't know what putting an export on will do I got things to do
+//import {TrackingUint32MaxHeap} from "./editorMaxHeap"
+//import {TrackedSyntaxList} from "./trackedSyntaxTypes"
 //__#__
 
 let EDI_trackingUint32MaxHeap = new TrackingUint32MaxHeap();

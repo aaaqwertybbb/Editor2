@@ -9430,5 +9430,18 @@ Like when you're in English class and they say "but what does the sock represent
 
 All of this and in the end I feel like everyone just thinks I'm insane
 
+The ending of the movie The Quiet.
+
+SPOILERSPOILER
+SPOILER
+The Mom SPOILER
+lies to the police that she murdered the father
+in order to save the daughter and Dot from the police
+and the likely long amount of prison time.
+She apologizes to them and you clearly can tell it is her
+way of apologizing for the fact that SHE KNEW what was going on in the family the entire time
+and did nothing.
+SPOILER
+SPOILERSPOILER
 
 */

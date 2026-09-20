@@ -9354,5 +9354,10 @@ if (INTS[fEDI_cursor_indexColumn] > 0) {
 < Would you like to explore implementing a line-cache array to store pre-calculated visual column maps for ultra-long lines,
 < or do you need help writing the EDI_getLineStartRawIndex() helper function?
 
+Man I'm a bad programmer.
+A real baaaad programmer.
+Code is dirty...
+
+
 
 */

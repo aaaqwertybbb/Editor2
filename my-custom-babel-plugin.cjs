@@ -572,7 +572,13 @@ module.exports = function (babel) {
 
     "fEDI_cursor_cached_indentation_string_visualWidth",
 
+    // TODO: maybe track the visual width of the gap buffer as you go so you know when to modify the line length or something?...
+    // ...longest div cuts off text if go beyond without updating width.
+    // ...would prob update the being edited line width first and then apply it to every other line when you finalize or something.
+    //
     "fEDI_cursor_GAP_BUFFER_width_when_each_char_is_1_visual_width",
+
+    "fEDI_longestLine_heapEntry",
 
   ];
 

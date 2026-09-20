@@ -37,7 +37,7 @@ class TrackingUint32MaxHeap {
     return (length << this.ID_BITS) | (id & this.ID_MASK);
   }
 
-  /** Result is stored in the fields: 'this.unpack_pool_index' and 'this.unpack_pool_length' */
+  /** Result is stored in the fields: 'this.unpack_pool_id' and 'this.unpack_pool_length' */
   unpack(entry) {
     this.unpack_pool_length = entry >>> this.ID_BITS;
     this.unpack_pool_id = entry & this.ID_MASK;
@@ -62,6 +62,39 @@ class TrackingUint32MaxHeap {
     // 2. Get the old packed entry to compare lengths
     const oldEntry = this.heap[heapIndex];
     const oldLength = oldEntry >>> this.ID_BITS;
+    
+    // 3. Overwrite the element with the new packed entry
+    const newEntry = this.pack(lineId, newLength);
+    this.heap[heapIndex] = newEntry;
+
+    // 4. Restore the Max-Heap property
+    if (newLength > oldLength) {
+      // If it grew longer, it might need to bubble up toward the top
+      this._bubbleUp(heapIndex);
+    } else if (newLength < oldLength) {
+      // If it grew shorter, it might need to sink down toward the leaves
+      this._sinkDown(heapIndex);
+    }
+  }
+  
+  /**
+   * @param {*} diff positive or negative to reflect length change
+   */
+  updateLength_diff(lineId, diffLength) {
+    // 1. Look up where this line index currently lives in the heap array
+    if (lineId >= this.positionMap.length) return; // or resize positionMap
+    const heapIndex = this.positionMap[lineId];
+    
+    // If it's not currently in the heap, just insert it normally
+    if (heapIndex === -1) {
+      this.insert(lineId, newLength);
+      return;
+    }
+
+    // 2. Get the old packed entry to compare lengths
+    const oldEntry = this.heap[heapIndex];
+    const oldLength = oldEntry >>> this.ID_BITS;
+    const newLength = oldLength + diffLength;
     
     // 3. Overwrite the element with the new packed entry
     const newEntry = this.pack(lineId, newLength);

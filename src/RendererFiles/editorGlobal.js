@@ -3384,9 +3384,18 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
     });
     // -------------------------
 
-    if (indexLine_editOccurredOn === INTS[fEDI_longestLine_indexLine]) {
-        INTS[fEDI_longestLine_length] = INTS[fEDI_longestLine_length] + INTS[fEDI_cursor_editLength];
+    EDI_trackingUint32MaxHeap.updateLength_diff(/*lineId*/ indexLine_editOccurredOn, INTS[fEDI_cursor_editLength]);
+    let maxHeapEntry = EDI_trackingUint32MaxHeap.peek() ?? 0;
+    if (INTS[fEDI_longestLine_heapEntry] !== maxHeapEntry) {
+        INTS[fEDI_longestLine_heapEntry] = maxHeapEntry;
+        EDI_trackingUint32MaxHeap.unpack(maxHeapEntry);
+        INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
+        INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
     }
+
+    //if (indexLine_editOccurredOn === INTS[fEDI_longestLine_indexLine]) {
+    //    INTS[fEDI_longestLine_length] = INTS[fEDI_longestLine_length] + INTS[fEDI_cursor_editLength];
+    //}
 
     EDI_finalizeEdit_ClearEditState();
 
@@ -9087,5 +9096,8 @@ account for tabs
     - [ ] complex
 
 TODO: Fix the explorer menu options I tried making a new file and it borked.
+
+I'm not gonna map the lineIndex to the heapEntryId yet
+I wanna get all the non-line-end edits done first.
 
 */

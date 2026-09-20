@@ -9265,4 +9265,11 @@ TODO: When you have index line 4 longest at 4 you have line index 5 at 0 visual 
 
 TODO: type out a list of every movement key and ensure they handle tabs of any width.
 
+"
+I'm being recommended "Katy Perry - Ur So Gay (Official)"
+That's so weird I don't like Katy Perry
+"
+
+I was thinking about this while I was going for a walk is it a good use of the joke
+
 */

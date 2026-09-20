@@ -9281,6 +9281,12 @@ is there a command line option that I can provide to know for certain?
 
 These two more would be nice.
 - [ ] IndentMore               (simple) (any tab-width) (single line)
+    You always insert at column 0 so this is always 4 sized
 - [ ] IndentLess               (simple) (any tab-width) (single line)
+    1 space
+    1 tab (3 width)
+    2 edit length
+    removes the 1 space
+    you then visually see the tab at a width of 4...
 
 */

@@ -9162,11 +9162,9 @@ account for tabs
 # track longest line
 
 - [ ] CustomFullFileLexRequest
-    - [x] simple (no tabs)
     - [ ] complex (with tabs)
         - [ ] account for tabs of any tab-width due to column position.
 - [ ] InsertLtr
-    - [x] simple
     - [ ] complex
 - [ ] Tab
     - [ ] simple
@@ -9182,9 +9180,7 @@ account for tabs
     - [ ] complex
 - [ ] DeleteLtr
     - [ ] simple (single line)
-        - [x] no tabs
         - [ ] with tabs
-            - [x] treat every tab as a width of 4
             - [ ] account for tabs of any tab-width due to column position.
     - [ ] complex (multi line)
         - [ ] no tabs
@@ -9193,9 +9189,7 @@ account for tabs
             - [ ] account for tabs of any tab-width due to column position.
 - [ ] BackspaceRtl
     - [ ] simple (single line)
-        - [x] no tabs
         - [ ] with tabs
-            - [x] treat every tab as a width of 4
             - [ ] account for tabs of any tab-width due to column position.
     - [ ] complex (multi line)
         - [ ] no tabs
@@ -9204,9 +9198,7 @@ account for tabs
             - [ ] account for tabs of any tab-width due to column position.
 - [ ] RemoveTextNoBatching
     - [ ] simple (single line)
-        - [x] no tabs
         - [ ] with tabs
-            - [x] treat every tab as a width of 4
             - [ ] account for tabs of any tab-width due to column position.
     - [ ] complex (multi line)
         - [ ] no tabs

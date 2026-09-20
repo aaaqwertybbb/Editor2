@@ -9401,4 +9401,11 @@ if (INTS[fEDI_cursor_indexColumn] > 0) {
 < Would you like to explore implementing a line-cache array to store pre-calculated visual column maps for ultra-long lines,
 < or do you need help writing the EDI_getLineStartRawIndex() helper function?
 
+After I say that you know what I see in my music recommendations it is "chantaje" once again.
+Out of nowhere.
+Where was this song at until I mentioned something? Isn't that odd.
+Like I mention literally anything and then a thousand people rush to watch the music video for "chantaje"
+to insinuate that I'm emotionally blackmailing everyone and that nothing that I've ever
+experienced actually happened.
+
 */

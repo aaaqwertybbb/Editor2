@@ -9450,6 +9450,7 @@ The car stuff hasn't stopped my family has decided I shouldn't say anything
 so I just focus on myself while he wastes money, destroys the environment, and is getting money and health insurance from the government.
 While I'm in constant panic
 I am honestly jealous but he does nothing with his life whereas I do. And I think that means something.
+And in large seeing how he lives his life is a major motivator for me not to live similarly.
 
 
 */

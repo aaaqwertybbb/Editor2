@@ -9401,54 +9401,5 @@ if (INTS[fEDI_cursor_indexColumn] > 0) {
 < Would you like to explore implementing a line-cache array to store pre-calculated visual column maps for ultra-long lines,
 < or do you need help writing the EDI_getLineStartRawIndex() helper function?
 
-Man I'm a bad programmer.
-A real baaaad programmer.
-Code is dirty...
-
-Okay do the left movement such that if you hit the tab you stop the relative visual width
-and just jump to the end column index then invoke a function that determines visual width from column index 0 to the landed at column index.
-
-Something like a month ago I freaked out at my Dad.
-
-What happened was:
-I got up in the morning and I went to the car that I share with my brother.
-My brother had garbage all around the ground outside the car including one of his socks.
-
-I took a video of it and showed it to my family.
-
-"sure I should've cleaned it up but maybe you'll see what I'm saying in a moment"
-
-All in all my Dad eventually asked me to go and clean it up.
-But I felt he did did it in a way that was him being a dick
-meanwhile I cleanup after EVERYTHING he ever did and it's all I ever do all my life.
-
-It was a whole lot of screaming and everyone thought I was just completely insane for that.
-Meanwhile I understand that I should've cleaned up my brother's mess and etc...
-and I even stopped screaming pretty damn quickly it was just an immediately reaction at first.
-
-Like when you're in English class and they say "but what does the sock represent?"
-
-All of this and in the end I feel like everyone just thinks I'm insane
-
-The ending of the movie The Quiet.
-
-SPOILERSPOILER
-SPOILER
-The Mom SPOILER
-lies to the police that she murdered the father
-in order to save the daughter and Dot from the police
-and the likely long amount of prison time.
-She apologizes to them and you clearly can tell it is her
-way of apologizing for the fact that SHE KNEW what was going on in the family the entire time
-and did nothing.
-SPOILER
-SPOILERSPOILER
-
-Don't speak. Stay quiet.
-Endure everythhing.
-Then look at your youtube recommendations and see you're being recommended
-what the fk is it called pumped up shoes cause some dumbasses on the internet
-laugh at you thinking your a ss when you're the furtherst thing from that what a lot of fcking clowns
-those idiots are that resulted in me getting recommended that
 
 */

@@ -87,7 +87,7 @@ class TrackingUint32MaxHeap {
     
     // If it's not currently in the heap, just insert it normally
     if (heapIndex === -1) {
-      this.insert(lineId, newLength);
+      this.insert(lineId, newLength); // ERROR: cannot access newLength before initialization
       return;
     }
 

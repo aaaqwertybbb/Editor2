@@ -9408,4 +9408,23 @@ Code is dirty...
 Okay do the left movement such that if you hit the tab you stop the relative visual width
 and just jump to the end column index then invoke a function that determines visual width from column index 0 to the landed at column index.
 
+Something like a month ago I freaked out at my Dad.
+
+What happened was:
+I got up in the morning and I went to the car that I share with my brother.
+My brother had garbage all around the ground outside the car including one of his socks.
+
+I took a video of it and showed it to my family.
+
+"sure I should've cleaned it up but maybe you'll see what I'm saying in a moment"
+
+All in all my Dad eventually asked me to go and clean it up.
+But I felt he did did it in a way that was him being a dick
+meanwhile I cleanup after EVERYTHING he ever did and it's all I ever do all my life.
+
+It was a whole lot of screaming and everyone thought I was just completely insane for that.
+Meanwhile I understand that I should've cleaned up my brother's mess and etc...
+and I even stopped screaming pretty damn quickly it was just an immediately reaction at first.
+
+
 */

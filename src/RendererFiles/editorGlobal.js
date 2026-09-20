@@ -2211,6 +2211,21 @@ function EDI_render_do_RemoveSelection() {
             }
         }
 
+        // TODO: two tabs one after another you delete the first one the second one falls into the first one's position...
+        // ...and takes the tab-width of the first one which might not be equal to the second one.
+        // Count line width after the edit? Probably not?
+
+        if (linesRemovedCount === 0) {
+            // TODO: Combine the visual width calculation and the linesRemovedCount loops?
+            for (let i = smallPosition; i < largePosition; i++) {
+                INTS[fEDI_cursor_editLengthVisual]++;
+                if (EDI_textByteList_bytes[i] === CONST_EDI_ASCII_TAB) {
+                    // TODO: it isn't += 3 it is the respective tab-width for that exact tab
+                    INTS[fEDI_cursor_editLengthVisual] += 3;
+                }
+            }
+        }
+
         if (linesRemovedCount > 0 && possibleTrackedSyntaxToSpanSingleLine) {
             // The next line end will NOT be removed, so you need to check whether it was encompassed by the possible syntax.
             //
@@ -2556,6 +2571,12 @@ function EDI_state_do_Delete(event) {
             tempIndexColumn++;
             tempPosition++;
             INTS[fEDI_cursor_editLength]++;
+            INTS[fEDI_cursor_editLengthVisual]++;
+            INTS[fEDI_cursorVisualColumnIndex]--;
+            if (originalCharacterKind === CharacterKind_Whitespace && EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
+                INTS[fEDI_cursor_editLengthVisual] += 3;
+                INTS[fEDI_cursorVisualColumnIndex] -= 3;
+            }
             
             while (INTS[fEDI_cursor_indexColumn] < lastValidIndexColumn) {
                 if (tempIndexColumn < lineEnd) {
@@ -2570,10 +2591,22 @@ function EDI_state_do_Delete(event) {
                 tempIndexColumn++;
                 tempPosition++;
                 INTS[fEDI_cursor_editLength]++;
+                INTS[fEDI_cursor_editLengthVisual]++;
+                INTS[fEDI_cursorVisualColumnIndex]--;
+                if (originalCharacterKind === CharacterKind_Whitespace && EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
+                    INTS[fEDI_cursor_editLengthVisual] += 3;
+                    INTS[fEDI_cursorVisualColumnIndex] -= 3;
+                }
             }
         }
         else {
             INTS[fEDI_cursor_editLength]++;
+            INTS[fEDI_cursor_editLengthVisual]++;
+            INTS[fEDI_cursorVisualColumnIndex]--;
+            if (EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
+                INTS[fEDI_cursor_editLengthVisual] += 3;
+                INTS[fEDI_cursorVisualColumnIndex] -= 3;
+            }
         }
 
         EDI_render_request(RenderKind_DeleteLtr);
@@ -2716,14 +2749,12 @@ function EDI_state_do_Backspace(event) {
             INTS[fEDI_cursor_editPosition]--;
             INTS[fEDI_cursor_editIndexColumn]--;
             INTS[fEDI_cursor_editLength]++;
+            INTS[fEDI_cursor_editLengthVisual]++;
             INTS[fEDI_cursor_indexColumn]--;
-            // TODO: Reduce branching
-            if (originalCharacterKind === CharacterKind_Whitespace &&
-                EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
-                    INTS[fEDI_cursorVisualColumnIndex] -= 4;
-            }
-            else {
-                INTS[fEDI_cursorVisualColumnIndex]--;
+            INTS[fEDI_cursorVisualColumnIndex]--;
+            if (originalCharacterKind === CharacterKind_Whitespace && EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
+                INTS[fEDI_cursor_editLengthVisual] += 3;
+                INTS[fEDI_cursorVisualColumnIndex] -= 3;
             }
 
             while (INTS[fEDI_cursor_indexColumn] > 0) {
@@ -2733,14 +2764,12 @@ function EDI_state_do_Backspace(event) {
                 INTS[fEDI_cursor_editPosition]--;
                 INTS[fEDI_cursor_editIndexColumn]--;
                 INTS[fEDI_cursor_editLength]++;
+                INTS[fEDI_cursor_editLengthVisual]++;
                 INTS[fEDI_cursor_indexColumn]--;
-                // TODO: Reduce branching
-                if (originalCharacterKind === CharacterKind_Whitespace &&
-                    EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
-                        INTS[fEDI_cursorVisualColumnIndex] -= 4;
-                }
-                else {
-                    INTS[fEDI_cursorVisualColumnIndex]--;
+                INTS[fEDI_cursorVisualColumnIndex]--;
+                if (originalCharacterKind === CharacterKind_Whitespace && EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
+                    INTS[fEDI_cursor_editLengthVisual] += 3;
+                    INTS[fEDI_cursorVisualColumnIndex] -= 3;
                 }
             }
         }
@@ -2748,14 +2777,12 @@ function EDI_state_do_Backspace(event) {
             INTS[fEDI_cursor_editPosition] -= 1;
             INTS[fEDI_cursor_editIndexColumn] -= 1;
             INTS[fEDI_cursor_editLength]++;
-
+            INTS[fEDI_cursor_editLengthVisual]++;
             INTS[fEDI_cursor_indexColumn] -= 1;
-            // TODO: Reduce branching
+            INTS[fEDI_cursorVisualColumnIndex]--;
             if (EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
-                INTS[fEDI_cursorVisualColumnIndex] -= 4;
-            }
-            else {
-                INTS[fEDI_cursorVisualColumnIndex]--;
+                INTS[fEDI_cursor_editLengthVisual] += 3;
+                INTS[fEDI_cursorVisualColumnIndex] -= 3;
             }
         }
     }
@@ -4149,7 +4176,7 @@ function EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_
     // -------------------------
 
     if (startLineAndColumnIndices_indexLine === endLineAndColumnIndices_indexLine) {
-        EDI_trackingUint32MaxHeap.updateLength_diff(/*lineId*/ INTS[fEDI_cursor_editIndexLine], -1 * INTS[fEDI_cursor_editLength]);
+        EDI_trackingUint32MaxHeap.updateLength_diff(/*lineId*/ INTS[fEDI_cursor_editIndexLine], -1 * INTS[fEDI_cursor_editLengthVisual]);
         let maxHeapEntry = EDI_trackingUint32MaxHeap.peek();
         if (maxHeapEntry !== null && INTS[fEDI_longestLine_heapEntry] !== maxHeapEntry) {
             INTS[fEDI_longestLine_heapEntry] = maxHeapEntry;
@@ -4181,6 +4208,7 @@ function EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_
 function EDI_finalizeEdit_ClearEditState() {
     INTS[fEDI_cursor_editKind] = EditKind_None;
     INTS[fEDI_cursor_editLength] = 0;
+    INTS[fEDI_cursor_editLengthVisual] = 0;
     INTS[fEDI_cursor_editPosition] = 0;
     INTS[fEDI_cursor_editIndexLine] = 0;
     INTS[fEDI_cursor_editIndexColumn] = 0;
@@ -9094,13 +9122,19 @@ account for tabs
 - [ ] DeleteLtr
     - [x] simple (no tabs)
     - [ ] complex (with tabs)
+            - [x] treat every tab as a width of 4
+            - [ ] account for tabs of any tab-width due to column position.
 - [ ] BackspaceRtl
     - [x] simple (no tabs)
     - [ ] complex (with tabs)
+            - [x] treat every tab as a width of 4
+            - [ ] account for tabs of any tab-width due to column position.
 - [ ] RemoveTextNoBatching
     - [ ] simple (single line)
-        - [ ] (no tabs)
+        - [x] (no tabs)
         - [ ] (with tabs)
+            - [x] treat every tab as a width of 4
+            - [ ] account for tabs of any tab-width due to column position.
     - [ ] complex (multi line)
 - [ ] IndentMore
     - [ ] simple (single line)

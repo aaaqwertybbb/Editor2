@@ -9274,4 +9274,7 @@ I was thinking about this while I was going for a walk is it a good use of the j
 
 I'm trying not to have a panic attack...
 
+Instead of relying on compiler heuristics to determine whether the bug spray gave me brain damage
+is there a command line option that I can provide to know for certain?
+
 */

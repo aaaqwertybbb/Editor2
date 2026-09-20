@@ -706,7 +706,7 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
     for (var sourceI = 0; sourceI < local_EDI_textByteList_count; sourceI++) {
         lineLengthVisual++; // avoid branching by eager counting the lineLengthVisual and then excluding the lineEnding later
         if (local_EDI_textByteList_bytes[sourceI] === CONST_EDI_ASCII_TAB) {
-            lineLengthVisual += 3;
+            lineLengthVisual += ((4 - ((lineLengthVisual - 1) % 4)) - 1); // (tab logic): avoid branching by eager counting... 'lineLengthVisual - 1... % 4)) - 1)'
         }
         else if (local_EDI_textByteList_bytes[sourceI] === CONST_EDI_ASCII_LINE_FEED) {
             // NOTE: The 'EDI_trackingUint32MaxHeap.insert' does NOT post-increment whereas 'EDI_lineEndPositionList_insert' does.
@@ -9189,7 +9189,6 @@ account for tabs
 
 # track longest line
 
-- [ ] CustomFullFileLexRequest (simple) (any tab-width)
 - [ ] Paste                    (simple) (any tab-width) (single line)
 - [ ] Duplicate                (simple) (any tab-width) (single line)
 - [ ] DeleteLtr                (simple) (any tab-width) (single line)

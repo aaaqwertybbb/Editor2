@@ -3658,7 +3658,14 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
     // This information doesn't matter much here but I'm ensuring an understanding incase the future necessitates it.
     //
     if (startingIndex === SMALL_lineAndColumnIndices_indexLine) {
-        //console.log('if (startingIndex === SMALL_lineAndColumnIndices_indexLine)');
+        EDI_trackingUint32MaxHeap.updateLength_diff(/*lineId*/ INTS[fEDI_cursor_editIndexLine], bytesLength * INTS[fEDI_ontab_visualWidth_perCharacter]);
+        let maxHeapEntry = EDI_trackingUint32MaxHeap.peek();
+        if (maxHeapEntry !== null && INTS[fEDI_longestLine_heapEntry] !== maxHeapEntry) {
+            INTS[fEDI_longestLine_heapEntry] = maxHeapEntry;
+            EDI_trackingUint32MaxHeap.unpack(maxHeapEntry);
+            INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
+            INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
+        }
     }
     
     EDI_finalizeEdit_ClearEditState();
@@ -9189,7 +9196,7 @@ account for tabs
 - [ ] IndentMore
     - [ ] simple (single line)
         - [ ] tabs
-            - [ ] treat every tab as a width of 4
+            - [x] treat every tab as a width of 4
             - [ ] account for tabs of any tab-width due to column position.
         - [ ] spaces
         - [ ] both

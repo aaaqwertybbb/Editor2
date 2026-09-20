@@ -9262,4 +9262,14 @@ TODO: When you have index line 4 longest at 4 you have line index 5 at 0 visual 
 - [ ] i.e.: doing vs initializing give slightly different result here.
 - [ ] i.e.: look into it
 
+> my brother sprayed himself with a ton of bug spray but he did it inside.
+> He never does it around me but where he sprayed it was by the laundry washing machine.
+> And I just happened to for the first time bring my laundry down to put in the washing machine and just happened to for the first
+> time I brought it down just after he sprayed himself with the bug spray.
+> I didn't say anything cause I didn't wanna cause any issues I'll just put my laundry in at sometime that isn't around 3:50 PM incase
+> he's spraying bug spray. But I could hardly breathe I just "tanked it" and put the laundry in I don't have brain damage?
+
+< No, you do not have brain damage. Briefly breathing in fumes from standard household bug spray in a poorly ventilated area can cause immediate,
+< uncomfortable irritation, but it does not cause permanent brain damage from a single, short exposure.
+
 */

@@ -3393,10 +3393,6 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
         INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
     }
 
-    //if (indexLine_editOccurredOn === INTS[fEDI_longestLine_indexLine]) {
-    //    INTS[fEDI_longestLine_length] = INTS[fEDI_longestLine_length] + INTS[fEDI_cursor_editLength];
-    //}
-
     EDI_finalizeEdit_ClearEditState();
 
     return indexLine_editOccurredOn;
@@ -3496,9 +3492,18 @@ function EDI_finalizeEdit_Tab(indexLine_editOccurredOn) {
     });
     // -------------------------
 
+    EDI_trackingUint32MaxHeap.updateLength_diff(/*lineId*/ INTS[fEDI_cursor_editIndexLine], length * INTS[fEDI_ontab_visualWidth_perCharacter]);
+    let maxHeapEntry = EDI_trackingUint32MaxHeap.peek() ?? 0;
+    if (INTS[fEDI_longestLine_heapEntry] !== maxHeapEntry) {
+        INTS[fEDI_longestLine_heapEntry] = maxHeapEntry;
+        EDI_trackingUint32MaxHeap.unpack(maxHeapEntry);
+        INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
+        INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
+    }
+
     EDI_finalizeEdit_ClearEditState();
 
-    return indexLine_editOccurredOn;
+    return INTS[fEDI_cursor_editIndexLine];
 }
 
 function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
@@ -9065,13 +9070,13 @@ account for tabs
     - [x] simple (no tabs)
     - [x] complex (with tabs)
 - [ ] InsertLtr
-    - [ ] simple
+    - [x] simple
     - [ ] complex
 - [ ] Enter
     - [ ] simple
     - [ ] complex
 - [ ] Tab
-    - [ ] simple
+    - [x] simple
     - [ ] complex
 - [ ] Paste
     - [ ] simple

@@ -9163,6 +9163,10 @@ account for tabs
 
 - [ ] CustomFullFileLexRequest (simple) (any tab-width)
 - [ ] Tab                      (simple) (any tab-width)
+    - [ ] visual width 4 added 4 to the longest line
+    - [ ] visual width 3 added 4 to the longest line
+    - [ ] visual width 2 added 4 to the longest line
+    - [ ] visual width 1 added 4 to the longest line
 - [ ] Paste                    (simple) (any tab-width) (single line)
 - [ ] Duplicate                (simple) (any tab-width) (single line)
 - [ ] DeleteLtr                (simple) (any tab-width) (single line)

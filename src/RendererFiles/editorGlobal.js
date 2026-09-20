@@ -4663,6 +4663,50 @@ function EDI_set_indexColumn_and_visualColumn_relativeTo_storedVisualWidth(lineS
  * 
  * @returns nothing: the results are stored in 'INTS[fEDI_getIndexFromX_indexColumn]' and 'INTS[fEDI_getIndexFromX_visualColumns]'.
  */
+function getIndexFromColumn_RESET(column, lineStart, lineEnd) {
+    let indexColumn = 0;
+    let visualColumns = 0;
+    let positionIndex = lineStart;
+    let charWidth = EDI_characterWidth;
+    // TODO: Don't use rx just use column maybe?
+    let rx = column * charWidth;
+
+    while (positionIndex < lineEnd) {
+        let charLength = 1;
+        
+        if (String.fromCharCode(EDI_textByteList_bytes[positionIndex]) === '\t') {
+            charLength = 4 - (visualColumns % 4);
+        }
+
+        // Calculate pixel boundaries for the current character
+        const charLeftX = visualColumns * charWidth;
+        const charRightX = (visualColumns + charLength) * charWidth;
+        const charMidpointX = charLeftX + (charRightX - charLeftX) / 2;
+
+        // If the click is before the midpoint of this character/tab, target this index
+        if (rx < charMidpointX) {
+            INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
+            INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
+            return;
+        }
+
+        visualColumns += charLength;
+        positionIndex++;
+        indexColumn++;
+    }
+
+    // If clicked past the end of the line text
+    INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
+    INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
+}
+
+/**
+ * 'INTS[fEDI_getIndexFromX_indexColumn]'
+ * 
+ * 'INTS[fEDI_getIndexFromX_visualColumns]'
+ * 
+ * @returns nothing: the results are stored in 'INTS[fEDI_getIndexFromX_indexColumn]' and 'INTS[fEDI_getIndexFromX_visualColumns]'.
+ */
 function getIndexFromX_RESET(rx, lineStart, lineEnd) {
     let indexColumn = 0;
     let visualColumns = 0;
@@ -5601,7 +5645,10 @@ function EDI_onKeyDown_ArrowLeft(event) {
             if (INTS[fEDI_cursor_indexColumn] > 0) {
                 INTS[fEDI_cursor_indexColumn]--;
                 if (String.fromCharCode(EDI_textByteList_bytes[EDI_getPositionIndex_cursor_raw()]) === '\t') {
-                    INTS[fEDI_cursorVisualColumnIndex] -= (4 - (INTS[fEDI_cursorVisualColumnIndex] % 4)); // (tabLength)
+                    //INTS[fEDI_cursorVisualColumnIndex] -= (4 - (INTS[fEDI_cursorVisualColumnIndex] % 4)); // (tabLength)
+                    EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+                    getIndexFromColumn_RESET(INTS[fEDI_cursor_indexColumn], INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
+                    INTS[fEDI_cursorVisualColumnIndex] = INTS[fEDI_getIndexFromX_visualColumns];
                 }
                 else {
                     INTS[fEDI_cursorVisualColumnIndex]--;

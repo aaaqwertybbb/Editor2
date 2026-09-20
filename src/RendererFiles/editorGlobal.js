@@ -9408,4 +9408,9 @@ Like I mention literally anything and then a thousand people rush to watch the m
 to insinuate that I'm emotionally blackmailing everyone and that nothing that I've ever
 experienced actually happened.
 
+The recommendations that I obsess over the most are the ones I that I personally don't ever look at.
+I never listened to that shakira song so why all of a sudden is it showing up?
+Because everyone is saying LOL EMOTIONAL BLACKMAIL you never actually experienced anything in your life
+you're a loser and you're a double loser cause you just sit here making EVERYTHING up
+
 */

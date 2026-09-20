@@ -4045,21 +4045,24 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
     let linesInsertedCount = 0;
     let insertionLength = 0;
 
+    let editLengthVisual = 0;
+
     EDI_textByteList_duplicateWithin(small, INTS[fEDI_cursor_editPosition], length);
 
     // TODO: You should be able to do this much faster than looping over the selected bytes since you know the line end positions that exist and would know whether the selection will insert line endings.
 
     for (let offset = 0; offset < length; offset++) {
         switch (EDI_textByteList_bytes[small + offset]) {
-            case CONST_EDI_ASCII_TAB:
-                insertionLength += 4;
-                break;
             case CONST_EDI_ASCII_LINE_FEED:
                 EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine] + linesInsertedCount, INTS[fEDI_cursor_editPosition] + insertionLength);
                 insertionLength++;
                 linesInsertedCount++;
                 break;
+            case CONST_EDI_ASCII_TAB:
+                editLengthVisual += 3;
+                // switch case fallthrough
             default:
+                editLengthVisual++;
                 insertionLength++;
                 break;
         }
@@ -4088,6 +4091,18 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
         text: text
     });
     // -------------------------
+
+    if (linesInsertedCount === 0) {
+        indexLine_editOccurredOn = INTS[fEDI_cursor_editIndexLine];
+        EDI_trackingUint32MaxHeap.updateLength_diff(/*lineId*/ indexLine_editOccurredOn, editLengthVisual);
+        let maxHeapEntry = EDI_trackingUint32MaxHeap.peek();
+        if (maxHeapEntry !== null && INTS[fEDI_longestLine_heapEntry] !== maxHeapEntry) {
+            INTS[fEDI_longestLine_heapEntry] = maxHeapEntry;
+            EDI_trackingUint32MaxHeap.unpack(maxHeapEntry);
+            INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
+            INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
+        }
+    }
 
     EDI_finalizeEdit_ClearEditState();
 
@@ -9137,7 +9152,9 @@ account for tabs
         - [ ] account for tabs of any tab-width due to column position.
     - [ ] complex
 - [ ] Duplicate
-    - [ ] simple
+    - [ ] simple (single line)
+        - [x] treat every tab as a width of 4
+        - [ ] account for tabs of any tab-width due to column position.
     - [ ] complex
 - [ ] DeleteLtr
     - [x] simple (no tabs)

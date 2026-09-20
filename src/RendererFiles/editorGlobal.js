@@ -9428,5 +9428,7 @@ and I even stopped screaming pretty damn quickly it was just an immediately reac
 
 Like when you're in English class and they say "but what does the sock represent?"
 
+All of this and in the end I feel like everyone just thinks I'm insane
+
 
 */

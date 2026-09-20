@@ -9413,4 +9413,7 @@ I never listened to that shakira song so why all of a sudden is it showing up?
 Because everyone is saying LOL EMOTIONAL BLACKMAIL you never actually experienced anything in your life
 you're a loser and you're a double loser cause you just sit here making EVERYTHING up
 
+That's what my thought process is.
+Anxiety anxiety anxiety anxiety
+
 */

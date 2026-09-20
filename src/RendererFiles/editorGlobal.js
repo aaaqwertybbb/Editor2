@@ -2572,10 +2572,8 @@ function EDI_state_do_Delete(event) {
             tempPosition++;
             INTS[fEDI_cursor_editLength]++;
             INTS[fEDI_cursor_editLengthVisual]++;
-            INTS[fEDI_cursorVisualColumnIndex]--;
             if (originalCharacterKind === CharacterKind_Whitespace && EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
                 INTS[fEDI_cursor_editLengthVisual] += 3;
-                INTS[fEDI_cursorVisualColumnIndex] -= 3;
             }
             
             while (INTS[fEDI_cursor_indexColumn] < lastValidIndexColumn) {
@@ -2592,20 +2590,16 @@ function EDI_state_do_Delete(event) {
                 tempPosition++;
                 INTS[fEDI_cursor_editLength]++;
                 INTS[fEDI_cursor_editLengthVisual]++;
-                INTS[fEDI_cursorVisualColumnIndex]--;
                 if (originalCharacterKind === CharacterKind_Whitespace && EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
                     INTS[fEDI_cursor_editLengthVisual] += 3;
-                    INTS[fEDI_cursorVisualColumnIndex] -= 3;
                 }
             }
         }
         else {
             INTS[fEDI_cursor_editLength]++;
             INTS[fEDI_cursor_editLengthVisual]++;
-            INTS[fEDI_cursorVisualColumnIndex]--;
             if (EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
                 INTS[fEDI_cursor_editLengthVisual] += 3;
-                INTS[fEDI_cursorVisualColumnIndex] -= 3;
             }
         }
 
@@ -9170,22 +9164,20 @@ account for tabs
 - [ ] CustomFullFileLexRequest
     - [x] simple (no tabs)
     - [ ] complex (with tabs)
-        - [x] treat every tab as a width of 4
         - [ ] account for tabs of any tab-width due to column position.
 - [ ] InsertLtr
     - [x] simple
     - [ ] complex
 - [ ] Tab
-    - [x] simple (treat every tab as a width of 4)
+    - [ ] simple
+        - [ ] spaces
     - [ ] complex (account for tabs of any tab-width due to column position.)
 - [ ] Paste
     - [ ] simple (single line)
-        - [x] treat every tab as a width of 4
         - [ ] account for tabs of any tab-width due to column position.
     - [ ] complex
 - [ ] Duplicate
     - [ ] simple (single line)
-        - [x] treat every tab as a width of 4
         - [ ] account for tabs of any tab-width due to column position.
     - [ ] complex
 - [ ] DeleteLtr
@@ -9200,17 +9192,13 @@ account for tabs
             - [ ] account for tabs of any tab-width due to column position.
 - [ ] RemoveTextNoBatching
     - [ ] simple (single line)
-        - [x] (no tabs)
         - [ ] (with tabs)
-            - [x] treat every tab as a width of 4
             - [ ] account for tabs of any tab-width due to column position.
     - [ ] complex (multi line)
 - [ ] IndentMore
     - [ ] simple (single line)
         - [ ] tabs
-            - [x] treat every tab as a width of 4
             - [ ] account for tabs of any tab-width due to column position.
-        - [x] spaces
         - [ ] both
     - [ ] complex (multi line)
         - [ ] tabs
@@ -9221,9 +9209,7 @@ account for tabs
 - [ ] IndentLess
     - [ ] simple (single line)
         - [ ] tabs
-            - [x] treat every tab as a width of 4
             - [ ] account for tabs of any tab-width due to column position.
-        - [x] spaces
         - [ ] both
     - [ ] complex (multi line)
         - [ ] tabs

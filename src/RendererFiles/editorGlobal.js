@@ -3952,6 +3952,8 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
     let linesInsertedCount = 0;
     let insertionLength = 0;
 
+    let editLengthVisual = 0;
+
     // TODO: You probably should get their pasted string to be normalized with 'replaceAll'
     // 
     for (var sourceI = 0; sourceI < content.length; sourceI++) {
@@ -3979,7 +3981,11 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
                 insertionLength++;
                 linesInsertedCount++;
                 break;
+            case CONST_EDI_ASCII_TAB:
+                // TODO: What is the "overhead" of falling through this case to the default?
+                editLengthVisual += 3;
             default:
+                editLengthVisual++;
                 EDI_textByteList_insert(INTS[fEDI_cursor_editPosition] + insertionLength, code);
                 insertionLength++;
                 break;
@@ -4009,6 +4015,18 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
         text: text
     });
     // -------------------------
+
+    if (linesInsertedCount === 0) {
+        indexLine_editOccurredOn = INTS[fEDI_cursor_editIndexLine];
+        EDI_trackingUint32MaxHeap.updateLength_diff(/*lineId*/ indexLine_editOccurredOn, editLengthVisual);
+        let maxHeapEntry = EDI_trackingUint32MaxHeap.peek();
+        if (maxHeapEntry !== null && INTS[fEDI_longestLine_heapEntry] !== maxHeapEntry) {
+            INTS[fEDI_longestLine_heapEntry] = maxHeapEntry;
+            EDI_trackingUint32MaxHeap.unpack(maxHeapEntry);
+            INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
+            INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
+        }
+    }
 
     EDI_finalizeEdit_ClearEditState();
 
@@ -9111,10 +9129,12 @@ account for tabs
     - [ ] simple
     - [ ] complex
 - [ ] Tab
-    - [x] simple
-    - [ ] complex
+    - [x] simple (treat every tab as a width of 4)
+    - [ ] complex (account for tabs of any tab-width due to column position.)
 - [ ] Paste
-    - [ ] simple
+    - [ ] simple (single line)
+        - [x] treat every tab as a width of 4
+        - [ ] account for tabs of any tab-width due to column position.
     - [ ] complex
 - [ ] Duplicate
     - [ ] simple

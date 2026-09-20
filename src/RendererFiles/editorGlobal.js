@@ -3866,7 +3866,10 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
         arrayOfEditInformation: []
     };
 
+    let mostRecent_decrementedVisualWidthAbsolute = 0;
+
     for (var lineI = startingIndex; lineI >= SMALL_lineAndColumnIndices_indexLine; lineI--) {
+        mostRecent_decrementedVisualWidthAbsolute = 0;
         let innerRemoveCount = 0;
         EDI_getLineBoundaryPositions_raw(lineI);
         const line_start = INTS[fEDI_getLineBoundaryPositions_start];
@@ -3894,6 +3897,7 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
                 case ' ':
                     seenSpaceCount++;
                     innerRemoveCount++;
+                    mostRecent_decrementedVisualWidthAbsolute++;
                     if (seenSpaceCount % 4 === 0) {
                         // avoid a number that could approach infinity because I don't understand how machines compute division/modulo
                         // and I assume that it is easier to keep 'seenSpaceCount' at [0, 4] than compute division/modulo on very large numbers.
@@ -3908,6 +3912,7 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
                     }
                     if (rank >= largestRank) break outer;
                     innerRemoveCount++;
+                    mostRecent_decrementedVisualWidthAbsolute += 4;
                     rank++;
                     break;
                 default:
@@ -3956,7 +3961,14 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
     // This information doesn't matter much here but I'm ensuring an understanding incase the future necessitates it.
     //
     if (startingIndex === SMALL_lineAndColumnIndices_indexLine) {
-        //console.log('if (startingIndex === SMALL_lineAndColumnIndices_indexLine)');
+        EDI_trackingUint32MaxHeap.updateLength_diff(/*lineId*/ INTS[fEDI_cursor_editIndexLine], -1 * mostRecent_decrementedVisualWidthAbsolute);
+        let maxHeapEntry = EDI_trackingUint32MaxHeap.peek();
+        if (maxHeapEntry !== null && INTS[fEDI_longestLine_heapEntry] !== maxHeapEntry) {
+            INTS[fEDI_longestLine_heapEntry] = maxHeapEntry;
+            EDI_trackingUint32MaxHeap.unpack(maxHeapEntry);
+            INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
+            INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
+        }
     }
 
     EDI_finalizeEdit_ClearEditState();
@@ -9198,7 +9210,7 @@ account for tabs
         - [ ] tabs
             - [x] treat every tab as a width of 4
             - [ ] account for tabs of any tab-width due to column position.
-        - [ ] spaces
+        - [x] spaces
         - [ ] both
     - [ ] complex (multi line)
         - [ ] tabs
@@ -9209,9 +9221,9 @@ account for tabs
 - [ ] IndentLess
     - [ ] simple (single line)
         - [ ] tabs
-            - [ ] treat every tab as a width of 4
+            - [x] treat every tab as a width of 4
             - [ ] account for tabs of any tab-width due to column position.
-        - [ ] spaces
+        - [x] spaces
         - [ ] both
     - [ ] complex (multi line)
         - [ ] tabs

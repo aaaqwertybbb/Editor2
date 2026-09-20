@@ -3654,7 +3654,7 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
     enqueueLSPNotification(lspObject);
     // -------------------------
 
-    // 'startingIndex' is the larger index, the loop in this variable comes from goes in reverse.
+    // 'startingIndex' is the larger index, the loop that this variable comes from goes in reverse.
     // This information doesn't matter much here but I'm ensuring an understanding incase the future necessitates it.
     //
     if (startingIndex === SMALL_lineAndColumnIndices_indexLine) {
@@ -3944,6 +3944,13 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
     // --- CLEAN INTEGRATION ---
     enqueueLSPNotification(lspObject);
     // -------------------------
+
+    // 'startingIndex' is the larger index, the loop that this variable comes from goes in reverse.
+    // This information doesn't matter much here but I'm ensuring an understanding incase the future necessitates it.
+    //
+    if (startingIndex === SMALL_lineAndColumnIndices_indexLine) {
+        //console.log('if (startingIndex === SMALL_lineAndColumnIndices_indexLine)');
+    }
 
     EDI_finalizeEdit_ClearEditState();
 

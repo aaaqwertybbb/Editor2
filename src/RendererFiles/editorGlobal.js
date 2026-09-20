@@ -9161,41 +9161,52 @@ account for tabs
 
 # track longest line
 
+- [ ] Paste
+    - [ ] simple (single line) (account for tabs of any tab-width due to column position.)
+- [ ] Duplicate
+    - [ ] simple (single line) (account for tabs of any tab-width due to column position.)
+- [ ] DeleteLtr
+    - [ ] simple (single line) (with tabs) (account for tabs of any tab-width due to column position.)
+- [ ] BackspaceRtl
+    - [ ] simple (single line) (with tabs) (account for tabs of any tab-width due to column position.)
+- [ ] RemoveTextNoBatching
+    - [ ] simple (single line) (with tabs) (account for tabs of any tab-width due to column position.)
+- [ ] IndentMore
+    - [ ] simple (single line)
+        - [ ] tabs (account for tabs of any tab-width due to column position.)
+        - [ ] both
+- [ ] IndentLess
+    - [ ] simple (single line)
+        - [ ] tabs (account for tabs of any tab-width due to column position.)
+        - [ ] both
+-----------------------------------------------------------------------------
 - [ ] CustomFullFileLexRequest
     - [ ] complex (account for tabs of any tab-width due to column position.)
 - [ ] Tab
     - [ ] complex (account for tabs of any tab-width due to column position.)
 - [ ] Paste
-    - [ ] simple (single line) (account for tabs of any tab-width due to column position.)
     - [ ] complex
 - [ ] Duplicate
-    - [ ] simple (single line) (account for tabs of any tab-width due to column position.)
     - [ ] complex
 - [ ] DeleteLtr
-    - [ ] simple (single line) (with tabs) (account for tabs of any tab-width due to column position.)
     - [ ] complex (multi line)
         - [ ] no tabs
         - [ ] with tabs
             - [ ] treat every tab as a width of 4
             - [ ] account for tabs of any tab-width due to column position.
 - [ ] BackspaceRtl
-    - [ ] simple (single line) (with tabs) (account for tabs of any tab-width due to column position.)
     - [ ] complex (multi line)
         - [ ] no tabs
         - [ ] with tabs
             - [ ] treat every tab as a width of 4
             - [ ] account for tabs of any tab-width due to column position.
 - [ ] RemoveTextNoBatching
-    - [ ] simple (single line) (with tabs) (account for tabs of any tab-width due to column position.)
     - [ ] complex (multi line)
         - [ ] no tabs
         - [ ] with tabs
             - [ ] treat every tab as a width of 4
             - [ ] account for tabs of any tab-width due to column position.
 - [ ] IndentMore
-    - [ ] simple (single line)
-        - [ ] tabs (account for tabs of any tab-width due to column position.)
-        - [ ] both
     - [ ] complex (multi line)
         - [ ] tabs
             - [ ] treat every tab as a width of 4
@@ -9203,9 +9214,6 @@ account for tabs
         - [ ] spaces
         - [ ] both
 - [ ] IndentLess
-    - [ ] simple (single line)
-        - [ ] tabs (account for tabs of any tab-width due to column position.)
-        - [ ] both
     - [ ] complex (multi line)
         - [ ] tabs
             - [ ] treat every tab as a width of 4

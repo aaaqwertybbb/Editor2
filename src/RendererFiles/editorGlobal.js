@@ -9401,43 +9401,5 @@ if (INTS[fEDI_cursor_indexColumn] > 0) {
 < Would you like to explore implementing a line-cache array to store pre-calculated visual column maps for ultra-long lines,
 < or do you need help writing the EDI_getLineStartRawIndex() helper function?
 
-After I say that you know what I see in my music recommendations it is "chantaje" once again.
-Out of nowhere.
-Where was this song at until I mentioned something? Isn't that odd.
-Like I mention literally anything and then a thousand people rush to watch the music video for "chantaje"
-to insinuate that I'm emotionally blackmailing everyone and that nothing that I've ever
-experienced actually happened.
-
-The recommendations that I obsess over the most are the ones I that I personally don't ever look at.
-I never listened to that shakira song so why all of a sudden is it showing up?
-Because everyone is saying LOL EMOTIONAL BLACKMAIL you never actually experienced anything in your life
-you're a loser and you're a double loser cause you just sit here making EVERYTHING up
-
-That's what my thought process is.
-Anxiety anxiety anxiety anxiety.
-
-Chantaje means blackmail.
-
-I don't want anything.
-You get me recommended pumped up kicks you're a clown.
-You get me recommended Chantaje you're a clown.
-I'm gonna make this entire thing and get nothing in return
-just for the idiots doing that
-
-I'm getting recommended snow strippers almost a threat
-
-I wanna make it very clear.
-I never listened to pumped up kicks I saw it recommended to me today though
-Why is it recommended to me?
-Because people have seen things I've mentioned.
-And then they're like lol this guy is trippin out "pumped up kicks am I right"
-and then they go listen to it
-and then since they looked at the previous things I mentioned
-now I see pumped up kicks cause of them
-I don't listen to that song.
-I can't stand any of these implications that these idiots make.
-
-I don't listen to snow strippers btw.
-That's again what I'm saying. Like why all of a sudden is that oddly titled song showing up?
 
 */

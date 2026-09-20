@@ -9181,20 +9181,38 @@ account for tabs
         - [ ] account for tabs of any tab-width due to column position.
     - [ ] complex
 - [ ] DeleteLtr
-    - [x] simple (no tabs)
-    - [ ] complex (with tabs)
+    - [ ] simple (single line)
+        - [x] no tabs
+        - [ ] with tabs
             - [x] treat every tab as a width of 4
             - [ ] account for tabs of any tab-width due to column position.
+    - [ ] complex (multi line)
+        - [ ] no tabs
+        - [ ] with tabs
+            - [ ] treat every tab as a width of 4
+            - [ ] account for tabs of any tab-width due to column position.
 - [ ] BackspaceRtl
-    - [x] simple (no tabs)
-    - [ ] complex (with tabs)
+    - [ ] simple (single line)
+        - [x] no tabs
+        - [ ] with tabs
             - [x] treat every tab as a width of 4
+            - [ ] account for tabs of any tab-width due to column position.
+    - [ ] complex (multi line)
+        - [ ] no tabs
+        - [ ] with tabs
+            - [ ] treat every tab as a width of 4
             - [ ] account for tabs of any tab-width due to column position.
 - [ ] RemoveTextNoBatching
     - [ ] simple (single line)
-        - [ ] (with tabs)
+        - [x] no tabs
+        - [ ] with tabs
+            - [x] treat every tab as a width of 4
             - [ ] account for tabs of any tab-width due to column position.
     - [ ] complex (multi line)
+        - [ ] no tabs
+        - [ ] with tabs
+            - [ ] treat every tab as a width of 4
+            - [ ] account for tabs of any tab-width due to column position.
 - [ ] IndentMore
     - [ ] simple (single line)
         - [ ] tabs

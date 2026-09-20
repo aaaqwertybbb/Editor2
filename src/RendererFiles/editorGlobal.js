@@ -2,9 +2,6 @@
 // preprocessor.cjs
 import "./fieldBuffer"
 import "./javascriptFeatures"
-// I'm not dealing with this I don't know what putting an export on will do I got things to do
-//import {TrackingUint32MaxHeap} from "./editorMaxHeap"
-//import {TrackedSyntaxList} from "./trackedSyntaxTypes"
 //__#__
 
 let EDI_trackingUint32MaxHeap = new TrackingUint32MaxHeap();
@@ -703,23 +700,30 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
     const local_EDI_textByteList_bytes = EDI_textByteList_bytes;
     const local_EDI_textByteList_count = EDI_textByteList_count;
 
-    let lineLength = 0; /** TODO: Track the linePosition last seen when making a line or something you don't have to increment this per character, you just need the difference of the last line drawn to the current or something. */
+    let lineLengthVisual = 0; /** TODO: Track the linePosition last seen when making a line or something you don't have to increment this per character, you just need the difference of the last line drawn to the current or something. */
     let local_EDI_lineEndPositionList_count = EDI_lineEndPositionList_count;
 
     for (var sourceI = 0; sourceI < local_EDI_textByteList_count; sourceI++) {
-        lineLength++; // avoid branching by eager counting the lineLength and then excluding the lineEnding later
-        if (local_EDI_textByteList_bytes[sourceI] === CONST_EDI_ASCII_LINE_FEED) {
+        lineLengthVisual++; // avoid branching by eager counting the lineLengthVisual and then excluding the lineEnding later
+        if (local_EDI_textByteList_bytes[sourceI] === CONST_EDI_ASCII_TAB) {
+            lineLengthVisual += 3;
+        }
+        else if (local_EDI_textByteList_bytes[sourceI] === CONST_EDI_ASCII_LINE_FEED) {
             // NOTE: The 'EDI_trackingUint32MaxHeap.insert' does NOT post-increment whereas 'EDI_lineEndPositionList_insert' does.
-            // TODO: Consider using 'local_EDI_lineEndPositionList_count' here instead of 'EDI_trackingUint32MaxHeap.nextId'
-            EDI_trackingUint32MaxHeap.insert(EDI_trackingUint32MaxHeap.nextId++, lineLength - 1); // avoid branching by eager counting the lineLength and then excluding the lineEnding later
-            lineLength = 0;
+            // TODO: Consider using 'local_EDI_lineEndPositionList_count' here instead of 'EDI_trackingUint32MaxHeap.nextId'...
+            // ...this todo is specifically in reference to the fact that setText internally will invoke 'clear' logic for editor which news the 'EDI_trackingUint32MaxHeap'
+            // resulting in 'EDI_trackingUint32MaxHeap.nextId' being '0' and being equivalent to 'local_EDI_lineEndPositionList_count' in this specific scenario.
+            // By using 'local_EDI_lineEndPositionList_count' you reduce the pointer chasing.
+            //
+            EDI_trackingUint32MaxHeap.insert(EDI_trackingUint32MaxHeap.nextId++, lineLengthVisual - 1); // avoid branching by eager counting the lineLengthVisual and then excluding the lineEnding later
+            lineLengthVisual = 0;
             EDI_lineEndPositionList_insert(local_EDI_lineEndPositionList_count++, sourceI);
         }
     }
 
     // NOTE: The 'EDI_trackingUint32MaxHeap.insert' does NOT post-increment whereas 'EDI_lineEndPositionList_insert' does.
     // TODO: Consider using 'local_EDI_lineEndPositionList_count' here instead of 'EDI_trackingUint32MaxHeap.nextId'
-    EDI_trackingUint32MaxHeap.insert(EDI_trackingUint32MaxHeap.nextId++, lineLength);
+    EDI_trackingUint32MaxHeap.insert(EDI_trackingUint32MaxHeap.nextId++, lineLengthVisual);
     // TODO: The ++ here "isn't needed" but it makes the code consistent and less prone to future mistakes should another access of 'EDI_lineEndPositionList_count' be made after this point in the future.
     EDI_lineEndPositionList_insert(local_EDI_lineEndPositionList_count++, local_EDI_textByteList_count);
 
@@ -9049,8 +9053,8 @@ account for tabs
 # track longest line
 
 - [ ] CustomFullFileLexRequest
-    - [ ] simple
-    - [ ] complex
+    - [x] simple (no tabs)
+    - [ ] complex (with tabs)
 - [ ] InsertLtr
     - [ ] simple
     - [ ] complex

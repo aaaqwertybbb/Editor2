@@ -9190,16 +9190,6 @@ account for tabs
 # track longest line
 
 - [ ] CustomFullFileLexRequest (simple) (any tab-width)
-- [x] Tab                      (simple) (any tab-width)
-    - [x] visual width 4 added 4 to the longest line
-    - [x] visual width 3 added 3 to the longest line
-        - [x] no it added 4
-        - [x] it added 3
-        - [x] but you gotta try
-        - [x] 'c\t\tbbbb'
-            - [x] 3 + 4
-    - [x] visual width 2 added 2 to the longest line
-    - [x] visual width 1 added 1 to the longest line
 - [ ] Paste                    (simple) (any tab-width) (single line)
 - [ ] Duplicate                (simple) (any tab-width) (single line)
 - [ ] DeleteLtr                (simple) (any tab-width) (single line)

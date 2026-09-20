@@ -9358,6 +9358,9 @@ Man I'm a bad programmer.
 A real baaaad programmer.
 Code is dirty...
 
+Okay do the left movement such that if you hit the tab you stop the relative visual width
+and just jump to the end column index then invoke a function that determines visual width from column index 0 to the landed at column index.
+
 
 
 */

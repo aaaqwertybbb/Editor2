@@ -9277,4 +9277,10 @@ I'm trying not to have a panic attack...
 Instead of relying on compiler heuristics to determine whether the bug spray gave me brain damage
 is there a command line option that I can provide to know for certain?
 
+==========
+
+These two more would be nice.
+- [ ] IndentMore               (simple) (any tab-width) (single line)
+- [ ] IndentLess               (simple) (any tab-width) (single line)
+
 */

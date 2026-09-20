@@ -9052,9 +9052,9 @@ account for tabs
 
 # track longest line
 
-- [ ] CustomFullFileLexRequest
+- [x] CustomFullFileLexRequest
     - [x] simple (no tabs)
-    - [ ] complex (with tabs)
+    - [x] complex (with tabs)
 - [ ] InsertLtr
     - [ ] simple
     - [ ] complex
@@ -9085,5 +9085,7 @@ account for tabs
 - [ ] IndentLess
     - [ ] simple
     - [ ] complex
+
+TODO: Fix the explorer menu options I tried making a new file and it borked.
 
 */

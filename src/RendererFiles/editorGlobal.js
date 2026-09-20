@@ -1800,6 +1800,27 @@ function EDI_tabKey() {
         // Tab Length (L) = 4 - (col (mod 4));
         let tabLengthL = 4 - (INTS[fEDI_cursorVisualColumnIndex] % 4);
         INTS[fEDI_cursorVisualColumnIndex] += tabLengthL;
+        if (INTS[fEDI_cursor_editLength] === 1) {
+            //
+            // TODO: Don't do this...
+            // ...but the first tab might not be a tab-width of 4.
+            // Since this code exists already that gets the tabLength,
+            // and INTS[fEDI_cursor_editLength] was just incremented,
+            // then if 'INTS[fEDI_cursor_editLength] === 1' then this is the tab being typed
+            // of this edit batch.
+            //
+            // The 'INTS[fEDI_cursor_editLengthVisual]' isn't currently being used for
+            // the tab key.
+            // Thus I can store the first tab key's tabWidth in there.
+            //
+            // Then when finalizing the tab edit
+            // I know every tab being inserted after the first is indeed a tabWidth of 4
+            // so I just multiple 4 by editLength (amount of tabs to insert)
+            // then I subtract 4 and then add 'INTS[fEDI_cursor_editLengthVisual]'.
+            // or something like that.
+            //
+            INTS[fEDI_cursor_editLengthVisual] = tabLengthL;
+        }
     }
 
     INTS[fEDI_cursor_indexColumn] += EDI_on_tab_bytes.length; // this has to come after the 'walkLineUntilIndexColumn' invocation.
@@ -3513,7 +3534,14 @@ function EDI_finalizeEdit_Tab(indexLine_editOccurredOn) {
     });
     // -------------------------
 
-    EDI_trackingUint32MaxHeap.updateLength_diff(/*lineId*/ INTS[fEDI_cursor_editIndexLine], length * INTS[fEDI_ontab_visualWidth_perCharacter]);
+    let editLengthVisual = length * INTS[fEDI_ontab_visualWidth_perCharacter];
+    if (INTS[fEDI_ontab_visualWidth_perCharacter] === 4) {
+        editLengthVisual -= 4;
+        let tabWidthOfFirstTab = INTS[fEDI_cursor_editLengthVisual];
+        editLengthVisual += tabWidthOfFirstTab;
+    }
+
+    EDI_trackingUint32MaxHeap.updateLength_diff(/*lineId*/ INTS[fEDI_cursor_editIndexLine], editLengthVisual);
     let maxHeapEntry = EDI_trackingUint32MaxHeap.peek();
     if (maxHeapEntry !== null && INTS[fEDI_longestLine_heapEntry] !== maxHeapEntry) {
         INTS[fEDI_longestLine_heapEntry] = maxHeapEntry;
@@ -9166,6 +9194,10 @@ account for tabs
     - [x] visual width 4 added 4 to the longest line
     - [ ] visual width 3 added 3 to the longest line
         - [ ] no it added 4
+        - [ ] it added 3
+        - [ ] but you gotta try
+        - [ ] 'c\t\tbbbb'
+            - [ ] 3 + 4
     - [ ] visual width 2 added 2 to the longest line
     - [ ] visual width 1 added 1 to the longest line
 - [ ] Paste                    (simple) (any tab-width) (single line)

@@ -9227,4 +9227,7 @@ TODO: Fix the explorer menu options I tried making a new file and it borked.
 I'm not gonna map the lineIndex to the heapEntryId yet
 I wanna get all the non-line-end edits done first.
 
+I think you'd only have to edit the next tab's tab width when doing an edit...?
+and that the next tab is limited by a distance of 4 or even more accurately likely it is similar to the modulo math to get tab-width itself.
+
 */

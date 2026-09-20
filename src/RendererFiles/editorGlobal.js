@@ -9424,4 +9424,17 @@ You get me recommended Chantaje you're a clown.
 I'm gonna make this entire thing and get nothing in return
 just for the idiots doing that
 
+I'm getting recommended snow strippers almost a threat
+
+I wanna make it very clear.
+I never listened to pumped up kicks I saw it recommended to me today though
+Why is it recommended to me?
+Because people have seen things I've mentioned.
+And then they're like lol this guy is trippin out "pumped up kicks am I right"
+and then they go listen to it
+and then since they looked at the previous things I mentioned
+now I see pumped up kicks cause of them
+I don't listen to that song.
+I can't stand any of these implications that these idiots make.
+
 */

@@ -9444,4 +9444,11 @@ and did nothing.
 SPOILER
 SPOILERSPOILER
 
+Don't speak. Stay quiet.
+Endure everythhing.
+Then look at your youtube recommendations and see you're being recommended
+what the fk is it called pumped up shoes cause some dumbasses on the internet
+laugh at you thinking your a ss when you're the furtherst thing from that what a lot of fcking clowns
+those idiots are that resulted in me getting recommended that
+
 */

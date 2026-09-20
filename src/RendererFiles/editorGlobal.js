@@ -9161,21 +9161,19 @@ account for tabs
 
 # track longest line
 
-- [ ] Paste                (simple) (single line) (any tab-width)
-- [ ] Duplicate            (simple) (single line) (any tab-width)
-- [ ] DeleteLtr            (simple) (single line) (any tab-width)
-- [ ] BackspaceRtl         (simple) (single line) (any tab-width)
-- [ ] RemoveTextNoBatching (simple) (single line) (any tab-width)
-- [ ] IndentMore           (simple) (single line) (any tab-width)
-- [ ] IndentLess           (simple) (single line) (any tab-width)
+- [ ] CustomFullFileLexRequest (simple) (any tab-width)
+- [ ] Tab                      (simple) (any tab-width)
+- [ ] Paste                    (simple) (any tab-width) (single line)
+- [ ] Duplicate                (simple) (any tab-width) (single line)
+- [ ] DeleteLtr                (simple) (any tab-width) (single line)
+- [ ] BackspaceRtl             (simple) (any tab-width) (single line)
+- [ ] RemoveTextNoBatching     (simple) (any tab-width) (single line)
+- [ ] IndentMore               (simple) (any tab-width) (single line)
+- [ ] IndentLess               (simple) (any tab-width) (single line)
 -----------------------------------------------------------------------------
 - [ ] IndentMore (single line) (both tabs and spaces)
 - [ ] IndentLess (single line) (both tabs and spaces)
 -----------------------------------------------------------------------------
-- [ ] CustomFullFileLexRequest
-    - [ ] complex (account for tabs of any tab-width due to column position.)
-- [ ] Tab
-    - [ ] complex (account for tabs of any tab-width due to column position.)
 - [ ] Paste
     - [ ] complex
 - [ ] Duplicate

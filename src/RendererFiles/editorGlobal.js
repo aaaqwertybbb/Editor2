@@ -9285,4 +9285,74 @@ These two more would be nice.
 
 Actually maybe I could get ' \t' (space then tab) go to end of indentation and then arrow left it isn't working you'll move a visual width of 4?
 
+You know what that's exactly what I need to do.
+I need to figure out this arrow left logic moving over a tab how I'd know the tab width of the tab.
+
+> I'm making a text editor with JavaScript, it is an es6 module, it uses Electron. I have much of the code already written. I'm currently writing cursor movement logic. When handling keydown of 'ArrowRight' I can do this using the modulo math for tab-size. But when handling 'ArrowLeft' I'm wondering how I would determine the tab-size of the tab character that is to the left of the cursor? My logic is essentially this:
+> 
+> if (INTS[fEDI_cursor_indexColumn] > 0) {
+>     INTS[fEDI_cursor_indexColumn]--;
+>     if (String.fromCharCode(EDI_textByteList_bytes[EDI_getPositionIndex_cursor_raw()]) === '\t') {
+>         INTS[fEDI_cursorVisualColumnIndex] -= (4 - (INTS[fEDI_cursorVisualColumnIndex] % 4)); // (tabLength)
+>     }
+>     else {
+>         INTS[fEDI_cursorVisualColumnIndex]--;
+>     }
+> }
+
+< To determine the visual column position when moving left over a tab character (\t),
+< you cannot rely solely on the cursor's current visual column because a tab expands forward from the column where it starts, not where it ends.
+<
+< To calculate this correctly, you must calculate the visual column of the tab character's starting position.
+< You do this by tracking a virtual visual column from the beginning of the current line up to the cursor's logical position.
+<
+< The Correct Logic
+< Instead of looking backward from the current position, calculate forward from the start of the line. Here is how your updated logic should handle ArrowLeft:
+<
+< ```js
+if (INTS[fEDI_cursor_indexColumn] > 0) {
+    // 1. Move the logical index back by one
+    INTS[fEDI_cursor_indexColumn]--;
+
+    // 2. Recalculate the visual column from the start of the line
+    let visualColumn = 0;
+    
+    // Find the starting raw index of the current line
+    let lineStartRawIndex = EDI_getLineStartRawIndex(); 
+    let currentRawIndex = EDI_getPositionIndex_cursor_raw();
+
+    // Iterate from the start of the line up to the new cursor position
+    for (let i = lineStartRawIndex; i < currentRawIndex; i++) {
+        if (String.fromCharCode(EDI_textByteList_bytes[i]) === '\t') {
+            // Standard tab alignment logic moving forward:
+            // Calculate how many spaces are needed to reach the next tab stop
+            visualColumn += (4 - (visualColumn % 4));
+        } else {
+            visualColumn++;
+        }
+    }
+
+    // 3. Update your visual column tracker with the precise result
+    INTS[fEDI_cursorVisualColumnIndex] = visualColumn;
+}
+< ```
+< 
+< Why Modulo Alone Fails Moving Left
+< 
+< When moving ArrowRight over a tab, your math works because the cursor is sitting at the beginning of the tab.
+< The visual width of that tab is entirely dependent on its starting visual column.
+< 
+< When moving ArrowLeft, your cursor sits at the end of the tab. If you only look at the current INTS[fEDI_cursorVisualColumnIndex],
+< you don't actually know if the preceding tab spanned 1, 2, 3, or 4 visual columns.
+< 
+< Performance Trade-Off
+<
+< While iterating from the beginning of the line on every left arrow press introduces a tiny loop,
+< it is localized entirely to a single line of text. For standard code and text files, a line rarely exceeds a few hundred characters,
+< making this linear scan computationally negligible and highly accurate.
+< 
+< Would you like to explore implementing a line-cache array to store pre-calculated visual column maps for ultra-long lines,
+< or do you need help writing the EDI_getLineStartRawIndex() helper function?
+
+
 */

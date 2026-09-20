@@ -9134,14 +9134,13 @@ account for tabs
 
 # track longest line
 
-- [x] CustomFullFileLexRequest
+- [ ] CustomFullFileLexRequest
     - [x] simple (no tabs)
-    - [x] complex (with tabs)
+    - [ ] complex (with tabs)
+        - [x] treat every tab as a width of 4
+        - [ ] account for tabs of any tab-width due to column position.
 - [ ] InsertLtr
     - [x] simple
-    - [ ] complex
-- [ ] Enter
-    - [ ] simple
     - [ ] complex
 - [ ] Tab
     - [x] simple (treat every tab as a width of 4)
@@ -9176,21 +9175,33 @@ account for tabs
 - [ ] IndentMore
     - [ ] simple (single line)
         - [ ] tabs
+            - [ ] treat every tab as a width of 4
+            - [ ] account for tabs of any tab-width due to column position.
         - [ ] spaces
         - [ ] both
     - [ ] complex (multi line)
         - [ ] tabs
+            - [ ] treat every tab as a width of 4
+            - [ ] account for tabs of any tab-width due to column position.
         - [ ] spaces
         - [ ] both
 - [ ] IndentLess
     - [ ] simple (single line)
         - [ ] tabs
+            - [ ] treat every tab as a width of 4
+            - [ ] account for tabs of any tab-width due to column position.
         - [ ] spaces
         - [ ] both
     - [ ] complex (multi line)
         - [ ] tabs
+            - [ ] treat every tab as a width of 4
+            - [ ] account for tabs of any tab-width due to column position.
         - [ ] spaces
         - [ ] both
+-----------------------------------------------------------------------------
+- [ ] Enter
+    - [ ] simple
+    - [ ] complex
 
 TODO: Fix the explorer menu options I tried making a new file and it borked.
 

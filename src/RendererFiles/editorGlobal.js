@@ -9164,9 +9164,9 @@ account for tabs
 - [ ] CustomFullFileLexRequest (simple) (any tab-width)
 - [ ] Tab                      (simple) (any tab-width)
     - [ ] visual width 4 added 4 to the longest line
-    - [ ] visual width 3 added 4 to the longest line
-    - [ ] visual width 2 added 4 to the longest line
-    - [ ] visual width 1 added 4 to the longest line
+    - [ ] visual width 3 added 3 to the longest line
+    - [ ] visual width 2 added 2 to the longest line
+    - [ ] visual width 1 added 1 to the longest line
 - [ ] Paste                    (simple) (any tab-width) (single line)
 - [ ] Duplicate                (simple) (any tab-width) (single line)
 - [ ] DeleteLtr                (simple) (any tab-width) (single line)
@@ -9222,5 +9222,11 @@ and that the next tab is limited by a distance of 4 or even more accurately like
 
 I think I'm getting paralyzed with anxiety cause I cannot see the tab width
 but all I gotta do is put 4 characters that are visible on the line above where I'm testing the tab-width logic...
+
+TODO: When you have index line 4 longest at 4 you have line index 5 at 0 visual length you tab it makes line index 5 length 4
+- [ ] when doing this you end up with line 4 being longest
+- [ ] if you open the file again though you get line 5 being longest
+- [ ] i.e.: doing vs initializing give slightly different result here.
+- [ ] i.e.: look into it
 
 */

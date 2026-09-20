@@ -9263,4 +9263,6 @@ TODO: When you have index line 4 longest at 4 you have line index 5 at 0 visual 
 <
 < ...
 
+TODO: type out a list of every movement key and ensure they handle tabs of any width.
+
 */

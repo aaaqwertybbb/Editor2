@@ -9408,53 +9408,5 @@ Code is dirty...
 Okay do the left movement such that if you hit the tab you stop the relative visual width
 and just jump to the end column index then invoke a function that determines visual width from column index 0 to the landed at column index.
 
-=========
-
-what happened today that ruined your day?
-
-
-you went downstairs to put your laundry in the washing machine
-but your brother was in the process of spraying copious amounts of bug spray
-while standing directly in front of the laundry machine.
-
-
-He saw you so he walked a few feet away into his room (the door was still open) to continue spraying bug spray on himself and then you
-didn't wanna make it like you were upset about anything
-so you just stood there holding in your discomfort and somewhat avoiding breathing while you put your laundry in the machine
-once you got your laundry in the machine you walked into a different room for 5 seconds to catch your breathe then
-went back in the room with the laundry machine because you had to put laundry detergent in before you closed and started it.
-
-
-The solution is to not put laundry in at that time of day, or essentially make sure your brother had left for some good amount of time
-so there isn't any lingering bug spray.
-
-He does this so that he can drive 60-80 miles from the time of 4 pm to 2 am while he goes around doing ???
-I hear him pull up and park at 2 am I usually wake up from it.
-He has no job and wastes like $60 everytime I fill the gas but my dad pays for it.
-etc... etc... 
-
-anyways you getting upset over any of this solves nothing the solution is to avoid any
-triggers of these things and ignore them and just focus on yourself and making progress.
-
-That being said you're worried that you just received brain damage and for that reason you won't
-be able to make progress on yourself and ....
-
-Anxiety anxiety anxiety
-
-"it's always someone elses fault"
-i.e.: it isn't cause opposite primadona or something
-rambling
-
-I haven't raged about my brother in a long time.
-The car stuff hasn't stopped my family has decided I shouldn't say anything
-so I just focus on myself while he wastes money, destroys the environment, and is getting money and health insurance from the government.
-While I'm in constant panic
-I am honestly jealous but he does nothing with his life whereas I do. And I think that means something.
-And in large seeing how he lives his life is a major motivator for me not to live similarly.
-
-I'm still trying not to have a panic attack it has been like 3 hours at this point.
-
-"it's just bug spray" it isn't that simple there's a lifetime of bs behind it all
-
 
 */

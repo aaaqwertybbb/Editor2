@@ -9002,18 +9002,7 @@ TODO: is this longest line logic everywhere it should be? (similar logic I mean,
         INTS[fEDI_longestLine_length] = INTS[fEDI_longestLine_length] + INTS[fEDI_cursor_editLength];
     }
 
-- [x] CustomFullFileLexRequest
-    - [x] editorGlobal.js lineIndex of longest line is 431 the last valid column index for this line is 581
-- [ ] InsertLtr
-- [ ] Enter
-- [ ] Tab
-- [ ] Paste
-- [ ] Duplicate
-- [ ] DeleteLtr
-- [ ] BackspaceRtl
-- [ ] RemoveTextNoBatching
-- [ ] IndentMore
-- [ ] IndentLess
+
 
 - [ ] if the (widthOfTheLongestLine + 32ch) is less than that of the width of the viewport then set the width of the longest line to the width of the viewport.
 
@@ -9059,6 +9048,38 @@ account for tabs
 
 # track longest line
 
-
+- [ ] CustomFullFileLexRequest
+    - [ ] simple
+    - [ ] complex
+- [ ] InsertLtr
+    - [ ] simple
+    - [ ] complex
+- [ ] Enter
+    - [ ] simple
+    - [ ] complex
+- [ ] Tab
+    - [ ] simple
+    - [ ] complex
+- [ ] Paste
+    - [ ] simple
+    - [ ] complex
+- [ ] Duplicate
+    - [ ] simple
+    - [ ] complex
+- [ ] DeleteLtr
+    - [ ] simple
+    - [ ] complex
+- [ ] BackspaceRtl
+    - [ ] simple
+    - [ ] complex
+- [ ] RemoveTextNoBatching
+    - [ ] simple
+    - [ ] complex
+- [ ] IndentMore
+    - [ ] simple
+    - [ ] complex
+- [ ] IndentLess
+    - [ ] simple
+    - [ ] complex
 
 */

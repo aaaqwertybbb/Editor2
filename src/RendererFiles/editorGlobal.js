@@ -9426,5 +9426,7 @@ It was a whole lot of screaming and everyone thought I was just completely insan
 Meanwhile I understand that I should've cleaned up my brother's mess and etc...
 and I even stopped screaming pretty damn quickly it was just an immediately reaction at first.
 
+Like when you're in English class and they say "but what does the sock represent?"
+
 
 */

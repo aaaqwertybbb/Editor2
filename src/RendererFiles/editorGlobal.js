@@ -9452,5 +9452,9 @@ While I'm in constant panic
 I am honestly jealous but he does nothing with his life whereas I do. And I think that means something.
 And in large seeing how he lives his life is a major motivator for me not to live similarly.
 
+I'm still trying not to have a panic attack it has been like 3 hours at this point.
+
+"it's just bug spray" it isn't that simple there's a lifetime of bs behind it all
+
 
 */

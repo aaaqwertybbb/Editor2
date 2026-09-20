@@ -9194,7 +9194,6 @@ account for tabs
 - [ ] DeleteLtr                (simple) (any tab-width) (single line)
 - [ ] BackspaceRtl             (simple) (any tab-width) (single line)
 - [ ] RemoveTextNoBatching     (simple) (any tab-width) (single line)
-- [ ] IndentMore               (simple) (any tab-width) (single line)
 - [ ] IndentLess               (simple) (any tab-width) (single line)
 -----------------------------------------------------------------------------
 - [ ] IndentMore (single line) (both tabs and spaces)
@@ -9265,12 +9264,7 @@ TODO: When you have index line 4 longest at 4 you have line index 5 at 0 visual 
 
 TODO: type out a list of every movement key and ensure they handle tabs of any width.
 
-"
-I'm being recommended "Katy Perry - Ur So Gay (Official)"
-That's so weird I don't like Katy Perry
-"
-
-I was thinking about this while I was going for a walk is it a good use of the joke
+YIKES
 
 I'm trying not to have a panic attack...
 
@@ -9280,7 +9274,7 @@ is there a command line option that I can provide to know for certain?
 ==========
 
 These two more would be nice.
-- [ ] IndentMore               (simple) (any tab-width) (single line)
+- [x] IndentMore               (simple) (any tab-width) (single line)
     You always insert at column 0 so this is always 4 sized
 - [ ] IndentLess               (simple) (any tab-width) (single line)
     1 space
@@ -9288,5 +9282,7 @@ These two more would be nice.
     2 edit length
     removes the 1 space
     you then visually see the tab at a width of 4...
+
+Actually maybe I could get ' \t' (space then tab) go to end of indentation and then arrow left it isn't working you'll move a visual width of 4?
 
 */

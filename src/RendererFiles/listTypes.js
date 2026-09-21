@@ -107,10 +107,7 @@ class UInt32List {
             this.data.copyWithin(destinationStart, sourceStart, sourceStart + length);
         }
         else {
-            // TODO: use 'set' method here and other such locations
-            for (var i = 0; i < length; i++) {
-                bytesDestination[destinationStart + i] = bytesSource[sourceStart + i];
-            }
+            bytesDestination.set(bytesSource.subarray(sourceStart, sourceStart + length), destinationStart);
         }
     }
 }

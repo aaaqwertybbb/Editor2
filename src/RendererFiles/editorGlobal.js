@@ -8450,10 +8450,7 @@ function EDI_textByteList_copyTo(bytesSource, sourceStart, bytesDestination, des
         EDI_textByteList_bytes.copyWithin(destinationStart, sourceStart, sourceStart + length);
     }
     else {
-        // TODO: use 'set' method here and other such locations
-        for (var i = 0; i < length; i++) {
-            bytesDestination[destinationStart + i] = bytesSource[sourceStart + i];
-        }
+        bytesDestination.set(bytesSource.subarray(sourceStart, sourceStart + length), destinationStart);
     }
 }
 //#endregion
@@ -8554,10 +8551,7 @@ function EDI_lineEndPositionList_copyTo(bytesSource, sourceStart, bytesDestinati
         EDI_lineEndPositionList_data.copyWithin(destinationStart, sourceStart, sourceStart + length);
     }
     else {
-        // TODO: use 'set' method here and other such locations
-        for (var i = 0; i < length; i++) {
-            bytesDestination[destinationStart + i] = bytesSource[sourceStart + i];
-        }
+        bytesDestination.set(bytesSource.subarray(sourceStart, sourceStart + length), destinationStart);
     }
 }
 
@@ -8570,10 +8564,7 @@ function EDI_lineIndexToHeapId_copyTo(bytesSource, sourceStart, bytesDestination
         EDI_lineIndexToHeapId.copyWithin(destinationStart, sourceStart, sourceStart + length);
     }
     else {
-        // TODO: use 'set' method here and other such locations
-        for (var i = 0; i < length; i++) {
-            bytesDestination[destinationStart + i] = bytesSource[sourceStart + i];
-        }
+        bytesDestination.set(bytesSource.subarray(sourceStart, sourceStart + length), destinationStart);
     }
 }
 //#endregion

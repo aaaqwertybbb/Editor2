@@ -9731,8 +9731,8 @@ Ideas:
 < Since we're focusing on minimizing heap pressure to keep the UI perfectly smooth, would you like to talk about Object Pooling for your text editor's tokens/lines, or
 < how to ensure your functions stay monomorphic when swapping from the dummy object to the real buffer?
 
-
-
+I feel uncomfortable with this statement "< - When you freeze an object, V8 creates a specific, permanent hidden class for it marked as immutable."
+i.e.: "creates a specific, permanent hidden class"
 
 
 

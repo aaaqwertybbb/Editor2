@@ -9361,8 +9361,6 @@ account for tabs
 
 # track longest line
 
-- [x] BackspaceRtl             (simple) (any tab-width) (single line)
-- [x] RemoveTextNoBatching     (simple) (any tab-width) (single line)
 - [ ] IndentLess               (simple) (any tab-width) (single line)
 -----------------------------------------------------------------------------
 - [ ] IndentMore (single line) (both tabs and spaces)

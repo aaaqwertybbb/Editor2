@@ -4111,6 +4111,12 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
 
     let editLengthVisual = 0;
 
+    // TODO: The state that is retrieved via this paragraph of code I think already exists in this function somewhere. i.e.: needs optimization (remove redundancy)
+    EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
+    EDI_getLineBoundaryPositions_raw(INTS[fEDI_getLineAndColumnIndices_indexLine]);
+    getIndexFromColumn_RESET(INTS[fEDI_cursor_editIndexColumn], INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
+    let columnVisual = INTS[fEDI_getIndexFromX_visualColumns];
+
     EDI_textByteList_duplicateWithin(small, INTS[fEDI_cursor_editPosition], length);
 
     // TODO: You should be able to do this much faster than looping over the selected bytes since you know the line end positions that exist and would know whether the selection will insert line endings.
@@ -4123,10 +4129,13 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
                 linesInsertedCount++;
                 break;
             case CONST_EDI_ASCII_TAB:
-                editLengthVisual += 3;
+                let tabLength = 4 - (columnVisual % 4);
+                columnVisual += (tabLength - 1);
+                editLengthVisual += (tabLength - 1);
                 // switch case fallthrough
             default:
                 editLengthVisual++;
+                columnVisual++;
                 insertionLength++;
                 break;
         }
@@ -4672,13 +4681,11 @@ function EDI_set_indexColumn_and_visualColumn_relativeTo_storedVisualWidth(lineS
  * 
  * @returns nothing: the results are stored in 'INTS[fEDI_getIndexFromX_indexColumn]' and 'INTS[fEDI_getIndexFromX_visualColumns]'.
  */
-function getIndexFromColumn_RESET(column, lineStart, lineEnd) {
+function getIndexFromColumn_RESET(targetColumn, lineStart, lineEnd) {
     let indexColumn = 0;
     let visualColumns = 0;
     let positionIndex = lineStart;
     let charWidth = EDI_characterWidth;
-    // TODO: Don't use rx just use column maybe?
-    let rx = column * charWidth;
 
     while (positionIndex < lineEnd) {
         let charLength = 1;
@@ -4693,7 +4700,7 @@ function getIndexFromColumn_RESET(column, lineStart, lineEnd) {
         const charMidpointX = charLeftX + (charRightX - charLeftX) / 2;
 
         // If the click is before the midpoint of this character/tab, target this index
-        if (rx < charMidpointX) {
+        if (targetColumn === indexColumn) {
             INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
             INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
             return;
@@ -9254,9 +9261,8 @@ account for tabs
 
 - [x] Paste                    (simple) (any tab-width) (single line)
     - [ ] NOTE: this specifically relates to the finalize, I do notice that the "drawing" of the paste has the wrong visual width until you reset the line
-- [ ] Duplicate                (simple) (any tab-width) (single line)
-    - [ ] erroneous current behavior is 17
-    - [ ] correct would be 16
+- [x] Duplicate                (simple) (any tab-width) (single line)
+    - [ ] NOTE: this specifically relates to the finalize
 - [ ] DeleteLtr                (simple) (any tab-width) (single line)
 - [ ] BackspaceRtl             (simple) (any tab-width) (single line)
 - [ ] RemoveTextNoBatching     (simple) (any tab-width) (single line)

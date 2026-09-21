@@ -87,7 +87,12 @@ class TrackingUint32MaxHeap {
     
     // If it's not currently in the heap, just insert it normally
     if (heapIndex === -1) {
-      this.insert(lineId, newLength); // ERROR: cannot access newLength before initialization
+      // TODO: ERROR: cannot access newLength before initialization...
+      // ...using 'diffLength' fixes the error, and from some perspectives actually seems sensible.
+      // But this is probably extremely bad because you have to track the line index -> heap id and vice versa
+      // so the idea that you ever accidentally update something that doesn't exist sounds catastrophically bad
+      // because it implies you're failing to track the previously mentioned mappings.
+      this.insert(lineId, diffLength);
       return;
     }
 

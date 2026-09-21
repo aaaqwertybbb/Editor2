@@ -9661,14 +9661,19 @@ the github error screen
 
 Ideas:
 - dummy object
-    - i.e.: all the ring buffers when starting the app are set to their own instance of '[]'
-    - in C# I believe this ends up being a static single allocation of a 0 capacity List.
-    - In JavaScript I think however that each one is an allocation
-    - i.e.: at the start of the app how can I reduce as many allocations as possible
-      to increase how quickly the garbage collector can reach a stable state that isn't "choked up"/freezes and juttering of the UI at the start
-      due to big collections of all the redundant stuff from the app initialization.
-    - This isn't important it's just a side idea
-    - Well okay hold on lol I think it is "important" to have good discipline over your allocations just that I still need to write a text editor and etc... is what I mean...
+    - this is all one point
+        - i.e.: all the ring buffers when starting the app are set to their own instance of '[]'
+        - in C# I believe this ends up being a static single allocation of a 0 capacity List.
+        - In JavaScript I think however that each one is an allocation
+        - i.e.: at the start of the app how can I reduce as many allocations as possible
+        to increase how quickly the garbage collector can reach a stable state that isn't "choked up"/freezes and juttering of the UI at the start
+        due to big collections of all the redundant stuff from the app initialization.
+        - This isn't important it's just a side idea
+        - Well okay hold on lol I think it is "important" to have good discipline over your allocations just that I still need to write a text editor and etc... is what I mean...
+    - null or undefined
+        - would either of these result in injections of defensive code?
+        - versus me using a dummy object initially
+        - provided that I ensured that the dummy object is always replaced prior to any modifications to the variable's push or whatever
 
 
 

@@ -2620,7 +2620,13 @@ function EDI_state_do_Delete(event) {
             INTS[fEDI_cursor_editLength]++;
             INTS[fEDI_cursor_editLengthVisual]++;
             if (EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
-                INTS[fEDI_cursor_editLengthVisual] += 3;
+                // TODO: For delete key you could probably pre-calculate the tab-width cause it'd always bring the next tab if there is one to the same starting column during a
+                // ...ctrl delete keypress or something not that you should I'm just observing this so consider it at some point for yes or no.
+                //
+                // ^ no it's more complicated than that you fell into it so the actual width was 4 because the fact that you fell into 3 isn't reflected yet
+                //
+                let tabLength = 4 - (INTS[fEDI_cursorVisualColumnIndex] % 4);
+                INTS[fEDI_cursor_editLengthVisual] += (tabLength - 1);
             }
         }
 
@@ -9258,6 +9264,7 @@ account for tabs
 # track longest line
 
 - [ ] DeleteLtr                (simple) (any tab-width) (single line)
+    - [ ] Erroneous: 8
 - [ ] BackspaceRtl             (simple) (any tab-width) (single line)
 - [ ] RemoveTextNoBatching     (simple) (any tab-width) (single line)
 - [ ] IndentLess               (simple) (any tab-width) (single line)

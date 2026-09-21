@@ -2237,14 +2237,30 @@ function EDI_render_do_RemoveSelection() {
         // Count line width after the edit? Probably not?
 
         if (linesRemovedCount === 0) {
-            // TODO: Combine the visual width calculation and the linesRemovedCount loops?
-            for (let i = smallPosition; i < largePosition; i++) {
-                INTS[fEDI_cursor_editLengthVisual]++;
-                if (EDI_textByteList_bytes[i] === CONST_EDI_ASCII_TAB) {
-                    // TODO: it isn't += 3 it is the respective tab-width for that exact tab
-                    INTS[fEDI_cursor_editLengthVisual] += 3;
-                }
-            }
+            //
+            // 'INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL]' is 0???
+            //
+            //INTS[fEDI_cursor_editLengthVisual] = Math.abs(INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] - INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL]);
+
+            EDI_getLineAndColumnIndices_raw(largePosition);
+            let largeLineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
+            let largeLineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
+
+            EDI_getLineBoundaryPositions_raw(smallLineAndColumnIndices_indexLine);
+            let lineStart = INTS[fEDI_getLineBoundaryPositions_start];
+            let lineEnd = INTS[fEDI_getLineBoundaryPositions_end];
+
+            getIndexFromColumn_RESET(smallLineAndColumnIndices_indexColumn, lineStart, lineEnd);
+            let small_columnVisual = INTS[fEDI_getIndexFromX_visualColumns];
+
+            // TODO: You don't have to RESET here but... this answer is ultimately going to be scrapped for something more correct so it isn't worth the time.
+            getIndexFromColumn_RESET(largeLineAndColumnIndices_indexColumn, lineStart, lineEnd);
+            let large_columnVisual = INTS[fEDI_getIndexFromX_visualColumns];
+
+            INTS[fEDI_cursor_editLengthVisual] += large_columnVisual - small_columnVisual;
+            //INTS[fEDI_cursorVisualColumnIndex] = small_columnVisual;
+
+            //getIndexFromColumn_RESET();
         }
 
         if (linesRemovedCount > 0 && possibleTrackedSyntaxToSpanSingleLine) {
@@ -9346,7 +9362,7 @@ account for tabs
 # track longest line
 
 - [x] BackspaceRtl             (simple) (any tab-width) (single line)
-- [ ] RemoveTextNoBatching     (simple) (any tab-width) (single line)
+- [x] RemoveTextNoBatching     (simple) (any tab-width) (single line)
 - [ ] IndentLess               (simple) (any tab-width) (single line)
 -----------------------------------------------------------------------------
 - [ ] IndentMore (single line) (both tabs and spaces)

@@ -666,7 +666,7 @@ function EDI_render_do_SetText(timestamp) {
  * @param {*} uint8Array the length is exactly the length of the text, with all line endings replaced by '\n' regardless of the desired line ending when saving the file (or copying text, etc...)
  * @param {*} lineEndString this is the desired line ending when saving the file (or copying text, etc...)
  */
-function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString) {
+function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString, lineEndCount) {
     EDI_baseElement.scrollTop = 0;
     INTS[fEDI_lastReadNumber_scrollTop] = 0;
     EDI_baseElement.scrollLeft = 0;
@@ -704,6 +704,8 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
 
     let lineLengthVisual = 0; /** TODO: Track the linePosition last seen when making a line or something you don't have to increment this per character, you just need the difference of the last line drawn to the current or something. */
     let local_EDI_lineEndPositionList_count = EDI_lineEndPositionList_count;
+
+    EDI_lineEndPositionList_ensureCapacityForInsertion(0, lineEndCount);
 
     for (var sourceI = 0; sourceI < local_EDI_textByteList_count; sourceI++) {
         lineLengthVisual++; // avoid branching by eager counting the lineLengthVisual and then excluding the lineEnding later
@@ -780,7 +782,19 @@ function EDI_state_setText(text, fileStartsWithBom, textSourceIdentifier, FORMAT
     const normalizedText = text.replaceAll('\r\n', '\n');
     const uint8Array = EDI_encoder.encode(normalizedText); /** how do I 'encodeInto' when a character might actually be multi-byte thus I don't ever truly know the size ahead of time? */
 
-    EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString);
+    let lineEndCount = countNewlines(text);
+
+    EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString, lineEndCount);
+}
+
+function countNewlines(sourceString) {
+    let count = 0;
+    let pos = sourceString.indexOf('\n');
+    while (pos !== -1) {
+        count++;
+        pos = sourceString.indexOf('\n', pos + 1);
+    }
+    return count;
 }
 
 function EDI_render_do_IndentMore() {
@@ -8516,9 +8530,6 @@ function EDI_lineEndPositionList_ensureCapacityForInsertion(index, count) {
     if (requiredCapacity <= EDI_lineEndPositionList_capacity) {
         return;
     }
-
-    // 7 times
-    // console.log('EDI_lineEndPositionList_ensureCapacityForInsertion');
 
     // Calculate the new capacity by doubling until it fits
     let capacityNew = EDI_lineEndPositionList_capacity || 1; // Prevent infinite loops if capacity is 0

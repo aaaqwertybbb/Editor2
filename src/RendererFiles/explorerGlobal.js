@@ -1480,7 +1480,8 @@ async function EXPLORER_openInEditor(absolutePath, shouldFocus) {
         /*textSourceIdentifier*/ absolutePath,
         /*FORMATTED_textSourceIdentifier*/ itHasBom.formattedAbsolutePath,
         /*extensionKind*/ EDI_toExtensionKind(itHasBom.extension),
-        itHasBom.lineEndString);
+        itHasBom.lineEndString,
+        itHasBom.lineEndCount);
     if (shouldFocus) {
         let editor = document.getElementById('EDITOR');
         if (editor) {

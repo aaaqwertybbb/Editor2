@@ -844,6 +844,16 @@ async function editorReadAllText(event, absolutePath) {
 	}
 }
 
+function countNewlines(sourceString) {
+    let count = 0;
+    let pos = sourceString.indexOf('\n');
+    while (pos !== -1) {
+        count++;
+        pos = sourceString.indexOf('\n', pos + 1);
+    }
+    return count;
+}
+
 async function editorReadAllText_byteArray(event, absolutePath) {
 	if(!isValidAbsolutePath(absolutePath)) return;
 
@@ -858,6 +868,8 @@ async function editorReadAllText_byteArray(event, absolutePath) {
 
 		itHasBom.text = itHasBom.text.replaceAll('\r\n', '\n');
 		const uint8Array = (new TextEncoder()).encode(itHasBom.text); /** how do I 'encodeInto' when a character might actually be multi-byte thus I don't ever truly know the size ahead of time? */
+
+		let lineEndCount = countNewlines(itHasBom.text);
 
 		absolutePath = formatAbsolutePath(absolutePath);
 		itHasBom.formattedAbsolutePath = absolutePath;
@@ -903,7 +915,8 @@ async function editorReadAllText_byteArray(event, absolutePath) {
 			fileStartsWithBom: itHasBom.fileStartsWithBom,
 			formattedAbsolutePath: itHasBom.formattedAbsolutePath,
 			extension: itHasBom.extension,
-			lineEndString: lineEndString
+			lineEndString: lineEndString,
+			lineEndCount: lineEndCount
 		};
 	}
 	catch (err) {
@@ -912,7 +925,8 @@ async function editorReadAllText_byteArray(event, absolutePath) {
 			fileStartsWithBom: null,
 			formattedAbsolutePath: null,
 			extension: null,
-			lineEndString: null
+			lineEndString: null,
+			lineEndCount: null
 		};
 	}
 }

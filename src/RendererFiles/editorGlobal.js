@@ -9643,4 +9643,66 @@ Do the first bullet point:
 unicorn anxiety... just ignore it
 the github error screen
 
+============
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Ideas:
+- dummy object
+    - i.e.: all the ring buffers when starting the app are set to their own instance of '[]'
+    - in C# I believe this ends up being a static single allocation of a 0 capacity List.
+    - In JavaScript I think however that each one is an allocation
+    - i.e.: at the start of the app how can I reduce as many allocations as possible
+      to increase how quickly the garbage collector can reach a stable state that isn't "choked up"/freezes and juttering of the UI at the start
+      due to big collections of all the redundant stuff from the app initialization.
+    - This isn't important it's just a side idea
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */

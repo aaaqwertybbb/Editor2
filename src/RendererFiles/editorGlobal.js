@@ -9882,6 +9882,11 @@ I don't have access to any heavier dumbbells or any other etc...
 
 i.e.: I can shoulder press the heaviest dumbbell in the gym (aka: my house)
 
+I am going in to work every 4th day
+so I do the exercises the 1st 2nd and 3rd day
+then I work on the 4th so I don't do the exercises
+then on the fifth day I go back to the 1st day etc...
+
 
 
 

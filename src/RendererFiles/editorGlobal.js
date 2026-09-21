@@ -8517,6 +8517,9 @@ function EDI_lineEndPositionList_ensureCapacityForInsertion(index, count) {
         return;
     }
 
+    // 7 times
+    // console.log('EDI_lineEndPositionList_ensureCapacityForInsertion');
+
     // Calculate the new capacity by doubling until it fits
     let capacityNew = EDI_lineEndPositionList_capacity || 1; // Prevent infinite loops if capacity is 0
     while (capacityNew < requiredCapacity) {

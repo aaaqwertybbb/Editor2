@@ -240,6 +240,8 @@ class TrackingUint32MaxHeap {
   }
 
   _resize() {
+    // 10 times
+    //console.log('_resize');
     this.capacity *= 2;
     const nextHeap = new Uint32Array(this.capacity);
     nextHeap.set(this.heap);

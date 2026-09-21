@@ -9378,35 +9378,42 @@ account for tabs
 # track longest line
 
 -----------------------------------------------------------------------------
-- [ ] Paste (complex) (multi line)
-- [ ] Duplicate (complex) (multi line)
-- [ ] DeleteLtr (complex) (multi line)
-    - [ ] no tabs
-    - [ ] with tabs
-        - [ ] treat every tab as a width of 4
-        - [ ] account for tabs of any tab-width due to column position.
-- [ ] BackspaceRtl (complex) (multi line)
-    - [ ] no tabs
-    - [ ] with tabs
-        - [ ] treat every tab as a width of 4
-        - [ ] account for tabs of any tab-width due to column position.
-- [ ] RemoveTextNoBatching (complex) (multi line)
-    - [ ] no tabs
-    - [ ] with tabs
-        - [ ] treat every tab as a width of 4
-        - [ ] account for tabs of any tab-width due to column position.
-- [ ] IndentMore (complex) (multi line)
-    - [ ] tabs
-        - [ ] treat every tab as a width of 4
-        - [ ] account for tabs of any tab-width due to column position.
-    - [ ] spaces
-    - [ ] both
-- [ ] IndentLess (complex) (multi line)
-    - [ ] tabs
-        - [ ] treat every tab as a width of 4
-        - [ ] account for tabs of any tab-width due to column position.
-    - [ ] spaces
-    - [ ] both
+(complex) (multi line) {
+    (positive cases) {
+        - [ ] Paste (complex) (multi line)
+        - [ ] Duplicate (complex) (multi line)
+        - [ ] IndentMore (complex) (multi line)
+            - [ ] tabs
+                - [ ] treat every tab as a width of 4
+                - [ ] account for tabs of any tab-width due to column position.
+            - [ ] spaces
+            - [ ] both
+    }
+    -----------------------------------------------------------------------------
+    (negative cases) {
+        - [ ] DeleteLtr (complex) (multi line)
+            - [ ] no tabs
+            - [ ] with tabs
+                - [ ] treat every tab as a width of 4
+                - [ ] account for tabs of any tab-width due to column position.
+        - [ ] BackspaceRtl (complex) (multi line)
+            - [ ] no tabs
+            - [ ] with tabs
+                - [ ] treat every tab as a width of 4
+                - [ ] account for tabs of any tab-width due to column position.
+        - [ ] RemoveTextNoBatching (complex) (multi line)
+            - [ ] no tabs
+            - [ ] with tabs
+                - [ ] treat every tab as a width of 4
+                - [ ] account for tabs of any tab-width due to column position.
+        - [ ] IndentLess (complex) (multi line)
+            - [ ] tabs
+                - [ ] treat every tab as a width of 4
+                - [ ] account for tabs of any tab-width due to column position.
+            - [ ] spaces
+            - [ ] both
+    }
+}
 -----------------------------------------------------------------------------
 - [ ] Enter
     - [ ] simple

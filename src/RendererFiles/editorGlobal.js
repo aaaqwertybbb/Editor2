@@ -9378,9 +9378,6 @@ account for tabs
 # track longest line
 
 -----------------------------------------------------------------------------
-- [ ] IndentMore (single line) (both tabs and spaces)
-- [ ] IndentLess (single line) (both tabs and spaces)
------------------------------------------------------------------------------
 - [ ] Paste (complex) (multi line)
 - [ ] Duplicate (complex) (multi line)
 - [ ] DeleteLtr (complex) (multi line)

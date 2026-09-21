@@ -3957,6 +3957,7 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
         let innerRemoveCount = 0;
         EDI_getLineBoundaryPositions_raw(lineI);
         const line_start = INTS[fEDI_getLineBoundaryPositions_start];
+        const line_end = INTS[fEDI_getLineBoundaryPositions_end];
         let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(lineI);
         let upperLimitIndexColumn;
         if (lastValidIndexColumn > maxVirtualColumnIndex) {
@@ -3965,6 +3966,21 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
         else {
             upperLimitIndexColumn = lastValidIndexColumn;
         }
+
+
+        //EDI_getLineAndColumnIndices_raw(largePosition);
+        //let largeLineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
+        //let largeLineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
+//
+        //getIndexFromColumn_RESET(smallLineAndColumnIndices_indexColumn, lineStart, lineEnd);
+        //let small_columnVisual = INTS[fEDI_getIndexFromX_visualColumns];
+//
+        //// TODO: You don't have to RESET here but... this answer is ultimately going to be scrapped for something more correct so it isn't worth the time.
+        //getIndexFromColumn_RESET(largeLineAndColumnIndices_indexColumn, lineStart, lineEnd);
+        //let large_columnVisual = INTS[fEDI_getIndexFromX_visualColumns];
+//
+        //INTS[fEDI_cursor_editLengthVisual] += large_columnVisual - small_columnVisual;
+        //mostRecent_decrementedVisualWidthAbsolute = ;
 
         let seenSpaceCount = 0;
         let rank = 0;
@@ -3996,7 +4012,7 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
                     }
                     if (rank >= largestRank) break outer;
                     innerRemoveCount++;
-                    mostRecent_decrementedVisualWidthAbsolute += 4;
+                    mostRecent_decrementedVisualWidthAbsolute += 4 - (mostRecent_decrementedVisualWidthAbsolute % 4);
                     rank++;
                     break;
                 default:
@@ -9361,7 +9377,12 @@ account for tabs
 
 # track longest line
 
-- [ ] IndentLess               (simple) (any tab-width) (single line)
+- [x] IndentLess               (simple) (any tab-width) (single line)
+    - [ ] the only way to do this sensibly is to reset each keystroke
+    - [ ] cuz: space1 -> tab3 -> tab4 -> space1 -> tab3
+    - [ ] well if that's the case you only are using the edit visual length at the finalize stage
+          whether correct or wrong it is what you're doing
+    - [ ] so you could completely ignore edit visual length until the finalization
 -----------------------------------------------------------------------------
 - [ ] IndentMore (single line) (both tabs and spaces)
 - [ ] IndentLess (single line) (both tabs and spaces)

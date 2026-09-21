@@ -6233,7 +6233,7 @@ function EDI_draw_cursor_debug() {
         text += 'byteDIALOG_Settings_editorDebugShowAdjacentCharacters_is_not_implemented';
     }
 
-    //text += ' | (' + INTS[fEDI_cursorVisualColumnIndex] + ')';
+    text += ' | (' + INTS[fEDI_cursorVisualColumnIndex] + ')';
     
     text += ' | (' + INTS[fEDI_cursor_editLength] + ')';
 
@@ -9244,6 +9244,14 @@ account for tabs
 
 
 - [ ] Paste                    (simple) (any tab-width) (single line)
+    - [ ] ' 	' (i.e.: ' ' + '\t')
+    - [ ] Line starts as 'eeeedddd' in order to make  it the longest line in the file.
+    - [ ] The line above it is 'ffff' in order to visualize the tab-width
+    - [ ] You insert the ' 	' at column index 0.
+    - [ ] space is width of 1, tab in this scenario is width of 3
+    - [ ] longest line goes from visual width of 8 to visual width of 12
+    - [ ] erroneous behavior would be 13
+    - [ ] initially observed behavior: 13
 - [ ] Duplicate                (simple) (any tab-width) (single line)
 - [ ] DeleteLtr                (simple) (any tab-width) (single line)
 - [ ] BackspaceRtl             (simple) (any tab-width) (single line)

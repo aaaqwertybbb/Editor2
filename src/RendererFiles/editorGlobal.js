@@ -9668,6 +9668,7 @@ Ideas:
       to increase how quickly the garbage collector can reach a stable state that isn't "choked up"/freezes and juttering of the UI at the start
       due to big collections of all the redundant stuff from the app initialization.
     - This isn't important it's just a side idea
+    - Well okay hold on lol I think it is "important" to have good discipline over your allocations just that I still need to write a text editor and etc... is what I mean...
 
 
 

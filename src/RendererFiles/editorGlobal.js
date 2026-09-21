@@ -9846,9 +9846,36 @@ export const EMPTY_NUMBER_ARRAY = Object.freeze([]); // For arrays that will hol
 !!!! "< or causing polymorphism in functions that expect a specific packed layout."
 
 
+===========
 
+I was 232 lbs
 
+then I was 236
 
+Then today I was 234
+
+I started eating this:
+
+Breakfast:
+1 lb of 98% fat free ground chicken with sriracha
+1 donut with chocolate frosting
+1 donut with vanilla frosting
+1 apple fritter
+
+Dinner:
+1 serving of plain cheerios to get 60% of my daily iron
+1 lb of 98% fat free ground chicken with sriracha
+
+For the exercises I am doing:
+
+15 reps of external rotation
+10 reps of lateral raises with a 5 lb dumbell
+10 reps of dumbell presses with a 10 lb dumbell
+10 seconds of flexing my arms as hard as I can
+
+I repeat that 5 times
+
+Then I go for an hour long walk.
 
 
 

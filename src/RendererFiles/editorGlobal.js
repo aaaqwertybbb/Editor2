@@ -2784,13 +2784,13 @@ function EDI_state_do_Backspace(event) {
             INTS[fEDI_cursor_editPosition]--;
             INTS[fEDI_cursor_editIndexColumn]--;
             INTS[fEDI_cursor_editLength]++;
-            INTS[fEDI_cursor_editLengthVisual]++;
+            //INTS[fEDI_cursor_editLengthVisual]++;
             INTS[fEDI_cursor_indexColumn]--;
-            INTS[fEDI_cursorVisualColumnIndex]--;
-            if (originalCharacterKind === CharacterKind_Whitespace && EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
-                INTS[fEDI_cursor_editLengthVisual] += 3;
-                INTS[fEDI_cursorVisualColumnIndex] -= 3;
-            }
+            //INTS[fEDI_cursorVisualColumnIndex]--;
+            //if (originalCharacterKind === CharacterKind_Whitespace && EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
+            //    INTS[fEDI_cursor_editLengthVisual] += 3;
+            //    INTS[fEDI_cursorVisualColumnIndex] -= 3;
+            //}
 
             while (INTS[fEDI_cursor_indexColumn] > 0) {
                 if (EDI_getCharacterKind(String.fromCharCode(EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition] - 1])) !== originalCharacterKind) {
@@ -2799,16 +2799,32 @@ function EDI_state_do_Backspace(event) {
                 INTS[fEDI_cursor_editPosition]--;
                 INTS[fEDI_cursor_editIndexColumn]--;
                 INTS[fEDI_cursor_editLength]++;
-                INTS[fEDI_cursor_editLengthVisual]++;
+                //INTS[fEDI_cursor_editLengthVisual]++;
                 INTS[fEDI_cursor_indexColumn]--;
-                INTS[fEDI_cursorVisualColumnIndex]--;
-                if (originalCharacterKind === CharacterKind_Whitespace && EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
-                    INTS[fEDI_cursor_editLengthVisual] += 3;
-                    INTS[fEDI_cursorVisualColumnIndex] -= 3;
-                }
+                //INTS[fEDI_cursorVisualColumnIndex]--;
+                //if (originalCharacterKind === CharacterKind_Whitespace && EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
+                //    INTS[fEDI_cursor_editLengthVisual] += 3;
+                //    INTS[fEDI_cursorVisualColumnIndex] -= 3;
+                //}
             }
+
+            EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
+            EDI_getLineBoundaryPositions_raw(INTS[fEDI_getLineAndColumnIndices_indexLine]);
+            getIndexFromColumn_RESET(INTS[fEDI_cursor_indexColumn], INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
+            let columnVisual = INTS[fEDI_getIndexFromX_visualColumns];
+
+            INTS[fEDI_cursor_editLengthVisual] += (INTS[fEDI_cursorVisualColumnIndex] - columnVisual);
+            INTS[fEDI_cursorVisualColumnIndex] = columnVisual;
         }
         else {
+
+            // TODO: I'm getting the sense that all visual updates should just be done immediately?...
+            // ...but maybe it is sufficient to say that any multiline edits
+            // the first and last line are the only ones that need to be updated
+            // so doing a full reset for their visual length isn't the end of the world
+            // no matter how many lines you selected it only is the first and last cause
+            // any line between doesn't exist any more.
+
             INTS[fEDI_cursor_editPosition] -= 1;
             INTS[fEDI_cursor_editIndexColumn] -= 1;
             INTS[fEDI_cursor_editLength]++;
@@ -2816,8 +2832,18 @@ function EDI_state_do_Backspace(event) {
             INTS[fEDI_cursor_indexColumn] -= 1;
             INTS[fEDI_cursorVisualColumnIndex]--;
             if (EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
-                INTS[fEDI_cursor_editLengthVisual] += 3;
-                INTS[fEDI_cursorVisualColumnIndex] -= 3;
+                // Undo the default path to avoid branching on default path
+                INTS[fEDI_cursor_editLengthVisual]--;
+                INTS[fEDI_cursorVisualColumnIndex]++;
+
+                // Now actually get the correct answer for tabs
+                EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
+                EDI_getLineBoundaryPositions_raw(INTS[fEDI_getLineAndColumnIndices_indexLine]);
+                getIndexFromColumn_RESET(INTS[fEDI_cursor_indexColumn], INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
+                let columnVisual = INTS[fEDI_getIndexFromX_visualColumns];
+
+                INTS[fEDI_cursor_editLengthVisual] += (INTS[fEDI_cursorVisualColumnIndex] - columnVisual);
+                INTS[fEDI_cursorVisualColumnIndex] = columnVisual;
             }
         }
     }
@@ -9319,7 +9345,7 @@ account for tabs
 
 # track longest line
 
-- [ ] BackspaceRtl             (simple) (any tab-width) (single line)
+- [x] BackspaceRtl             (simple) (any tab-width) (single line)
 - [ ] RemoveTextNoBatching     (simple) (any tab-width) (single line)
 - [ ] IndentLess               (simple) (any tab-width) (single line)
 -----------------------------------------------------------------------------

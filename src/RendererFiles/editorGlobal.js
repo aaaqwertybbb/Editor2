@@ -9877,6 +9877,9 @@ I repeat that 5 times
 
 Then I go for an hour long walk.
 
+I don't have access to any heavier dumbbells or any other etc...
+10 lb is all I have up to currently
+
 
 
 

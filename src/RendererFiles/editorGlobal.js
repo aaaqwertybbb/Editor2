@@ -2625,6 +2625,8 @@ function EDI_state_do_Delete(event) {
                 //
                 // ^ no it's more complicated than that you fell into it so the actual width was 4 because the fact that you fell into 3 isn't reflected yet
                 //
+                // You handle the insertion of tabs as their own edit; you do NOT do this with the tabs, this entire thought process was flawed from the start.
+                //
                 let tabLength = 4 - (INTS[fEDI_cursorVisualColumnIndex] % 4);
                 INTS[fEDI_cursor_editLengthVisual] += (tabLength - 1);
             }

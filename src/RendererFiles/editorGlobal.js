@@ -618,7 +618,7 @@ function EDI_render_do_Clear() {
     EDI_render_do_CreateViewport();
 }
 
-function EDI_state_clear() {
+function EDI_state_clear(trackingUint32MaxHeap_initialCapacity) {
     EDI_finalizeEdit();
     EDI_cursor_clear();
     set_EDI_recentBoundingClientRect_isNull_intFalsey(1);
@@ -629,7 +629,7 @@ function EDI_state_clear() {
     EDI_lineEndString = null;
     // TODO: Maybe re-use the 'TrackingUint32MaxHeap' rather than making a new one everytime
     // TODO: Maybe do an 'ensure capacity' check prior to the loop that inserts 1 by 1 into 'EDI_trackingUint32MaxHeap'.
-    EDI_trackingUint32MaxHeap = new TrackingUint32MaxHeap();
+    EDI_trackingUint32MaxHeap = new TrackingUint32MaxHeap(trackingUint32MaxHeap_initialCapacity);
     EDI_lineEndPositionList_clear();
     EDI_textByteList_clear();
     INTS[fEDI_longestLine_indexLine] = 0;
@@ -672,7 +672,7 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
     EDI_baseElement.scrollLeft = 0;
     INTS[fEDI_lastReadNumber_scrollLeft] = 0;
 
-    EDI_state_clear();
+    EDI_state_clear(lineEndCount);
 
     set_EDI_fileStartsWithBom(fileStartsWithBom);
 

@@ -9257,12 +9257,6 @@ account for tabs
 
 # track longest line
 
-
-
-- [x] Paste                    (simple) (any tab-width) (single line)
-    - [ ] NOTE: this specifically relates to the finalize, I do notice that the "drawing" of the paste has the wrong visual width until you reset the line
-- [x] Duplicate                (simple) (any tab-width) (single line)
-    - [ ] NOTE: this specifically relates to the finalize
 - [ ] DeleteLtr                (simple) (any tab-width) (single line)
 - [ ] BackspaceRtl             (simple) (any tab-width) (single line)
 - [ ] RemoveTextNoBatching     (simple) (any tab-width) (single line)

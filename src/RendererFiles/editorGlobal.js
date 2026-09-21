@@ -9377,12 +9377,6 @@ account for tabs
 
 # track longest line
 
-- [x] IndentLess               (simple) (any tab-width) (single line)
-    - [ ] the only way to do this sensibly is to reset each keystroke
-    - [ ] cuz: space1 -> tab3 -> tab4 -> space1 -> tab3
-    - [ ] well if that's the case you only are using the edit visual length at the finalize stage
-          whether correct or wrong it is what you're doing
-    - [ ] so you could completely ignore edit visual length until the finalization
 -----------------------------------------------------------------------------
 - [ ] IndentMore (single line) (both tabs and spaces)
 - [ ] IndentLess (single line) (both tabs and spaces)

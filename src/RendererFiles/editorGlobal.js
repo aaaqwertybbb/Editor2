@@ -2578,7 +2578,6 @@ function EDI_state_do_Delete(event) {
             let tempIndexColumn = INTS[fEDI_cursor_indexColumn];
             let tempPosition = INTS[fEDI_cursor_editPosition];
 
-
             let originalCharacterKind;
             if (tempIndexColumn < lineEnd) {
                 originalCharacterKind = EDI_getCharacterKind(String.fromCharCode(EDI_textByteList_bytes[tempPosition]));
@@ -2592,10 +2591,10 @@ function EDI_state_do_Delete(event) {
             tempIndexColumn++;
             tempPosition++;
             INTS[fEDI_cursor_editLength]++;
-            INTS[fEDI_cursor_editLengthVisual]++;
-            if (originalCharacterKind === CharacterKind_Whitespace && EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
-                INTS[fEDI_cursor_editLengthVisual] += 3;
-            }
+            //INTS[fEDI_cursor_editLengthVisual]++;
+            //if (originalCharacterKind === CharacterKind_Whitespace && EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
+            //    INTS[fEDI_cursor_editLengthVisual] += 3;
+            //}
             
             while (INTS[fEDI_cursor_indexColumn] < lastValidIndexColumn) {
                 if (tempIndexColumn < lineEnd) {
@@ -2610,11 +2609,24 @@ function EDI_state_do_Delete(event) {
                 tempIndexColumn++;
                 tempPosition++;
                 INTS[fEDI_cursor_editLength]++;
-                INTS[fEDI_cursor_editLengthVisual]++;
-                if (originalCharacterKind === CharacterKind_Whitespace && EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
-                    INTS[fEDI_cursor_editLengthVisual] += 3;
-                }
+                //INTS[fEDI_cursor_editLengthVisual]++;
+                //if (originalCharacterKind === CharacterKind_Whitespace && EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
+                //    INTS[fEDI_cursor_editLengthVisual] += 3;
+                //}
             }
+
+            EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
+            EDI_getLineBoundaryPositions_raw(INTS[fEDI_getLineAndColumnIndices_indexLine]);
+            getIndexFromColumn_sameLine_newRxIsLarger(
+                tempIndexColumn, INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
+            let columnVisual = INTS[fEDI_getIndexFromX_visualColumns];
+            INTS[fEDI_cursor_editLengthVisual] += columnVisual - INTS[fEDI_cursorVisualColumnIndex];
+            
+            // TODO: When a single delete key (non ctrl) causes a tab of length <4 to fall into a slot of 4 your code breaks.
+            //
+            // TODO: You can fix this by doing some sort of reset-ish calculation for consecutive delete key presses that batch...
+            // ...you recalculate the entire visual length instead of appending to a previous.
+
         }
         else {
             INTS[fEDI_cursor_editLength]++;
@@ -2625,7 +2637,7 @@ function EDI_state_do_Delete(event) {
                 //
                 // ^ no it's more complicated than that you fell into it so the actual width was 4 because the fact that you fell into 3 isn't reflected yet
                 //
-                // You handle the insertion of tabs as their own edit; you do NOT do this with the tabs, this entire thought process was flawed from the start.
+                // You handle the insertion of tabs as their own edit; you do NOT do this with the removal of tabs, this entire thought process was flawed from the start.
                 //
                 let tabLength = 4 - (INTS[fEDI_cursorVisualColumnIndex] % 4);
                 INTS[fEDI_cursor_editLengthVisual] += (tabLength - 1);
@@ -4680,6 +4692,48 @@ function EDI_set_indexColumn_and_visualColumn_relativeTo_storedVisualWidth(lineS
     INTS[fEDI_cursor_indexColumn] = indexColumn;
     INTS[fEDI_cursorVisualColumnIndex] = visualColumns;
     // TODO: fEDI_cursorVisualColumnIndex_relativeToThisLineIndex
+}
+
+/**
+ * 'INTS[fEDI_getIndexFromX_indexColumn]'
+ * 
+ * 'INTS[fEDI_getIndexFromX_visualColumns]'
+ * 
+ * @returns nothing: the results are stored in 'INTS[fEDI_getIndexFromX_indexColumn]' and 'INTS[fEDI_getIndexFromX_visualColumns]'.
+ */
+function getIndexFromColumn_sameLine_newRxIsLarger(targetColumn, lineStart, lineEnd, startColumn, startVisualColumns) {
+    let indexColumn = startColumn;
+    let visualColumns = startVisualColumns;
+    let positionIndex = lineStart + startColumn;
+    let charWidth = EDI_characterWidth;
+
+    while (positionIndex < lineEnd) {
+        let charLength = 1;
+        
+        if (String.fromCharCode(EDI_textByteList_bytes[positionIndex]) === '\t') {
+            charLength = 4 - (visualColumns % 4);
+        }
+
+        // Calculate pixel boundaries for the current character
+        const charLeftX = visualColumns * charWidth;
+        const charRightX = (visualColumns + charLength) * charWidth;
+        const charMidpointX = charLeftX + (charRightX - charLeftX) / 2;
+
+        // If the click is before the midpoint of this character/tab, target this index
+        if (targetColumn === indexColumn) {
+            INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
+            INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
+            return;
+        }
+
+        visualColumns += charLength;
+        positionIndex++;
+        indexColumn++;
+    }
+
+    // If clicked past the end of the line text
+    INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
+    INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
 }
 
 /**
@@ -9265,8 +9319,6 @@ account for tabs
 
 # track longest line
 
-- [ ] DeleteLtr                (simple) (any tab-width) (single line)
-    - [ ] Erroneous: 8
 - [ ] BackspaceRtl             (simple) (any tab-width) (single line)
 - [ ] RemoveTextNoBatching     (simple) (any tab-width) (single line)
 - [ ] IndentLess               (simple) (any tab-width) (single line)

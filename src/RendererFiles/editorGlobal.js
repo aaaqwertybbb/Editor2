@@ -101,6 +101,8 @@ const EDI_lineEndPositionList_PENDING = new UInt32List(128);
 let EDI_lineEndPositionList_capacity = 128;
 /** Be wary to the possibility of pending edits causing this to not be up to date. */
 let EDI_lineEndPositionList_data = new Uint32Array(EDI_lineEndPositionList_capacity);
+/** This uses the same capacity as EDI_lineEndPositionList_data maybe??? */
+let EDI_lineIndexToHeapId = new Uint32Array(EDI_lineEndPositionList_capacity);
 let EDI_lineEndPositionList_count = 0;
 
 let EDI_textSourceIdentifier = '';
@@ -8532,10 +8534,13 @@ function EDI_lineEndPositionList_ensureCapacityForInsertion(index, count) {
     // Allocate and copy EXACTLY ONCE
     let dataNew = new Uint32Array(capacityNew);
     EDI_lineEndPositionList_copyTo(EDI_lineEndPositionList_data, 0, dataNew, 0, EDI_lineEndPositionList_count);
-    
     // Commit the changes to your global/module state
     EDI_lineEndPositionList_data = dataNew;
     EDI_lineEndPositionList_capacity = capacityNew;
+
+    let dN_EDI_lineIndexToHeapId = new Uint32Array(capacityNew);
+    EDI_lineIndexToHeapId_copyTo(EDI_lineIndexToHeapId, 0, dN_EDI_lineIndexToHeapId, 0, EDI_lineEndPositionList_count);
+    EDI_lineIndexToHeapId = dN_EDI_lineIndexToHeapId;
 }
 /**
  * inclusive/exclusive
@@ -8547,6 +8552,22 @@ function EDI_lineEndPositionList_copyTo(bytesSource, sourceStart, bytesDestinati
         }
 
         EDI_lineEndPositionList_data.copyWithin(destinationStart, sourceStart, sourceStart + length);
+    }
+    else {
+        // TODO: use 'set' method here and other such locations
+        for (var i = 0; i < length; i++) {
+            bytesDestination[destinationStart + i] = bytesSource[sourceStart + i];
+        }
+    }
+}
+
+function EDI_lineIndexToHeapId_copyTo(bytesSource, sourceStart, bytesDestination, destinationStart, length) {
+    if (bytesSource === bytesDestination) {
+        if (bytesSource !== EDI_lineIndexToHeapId) {
+            throw new Error('bytesSource === bytesDestination ; but bytesSource !== EDI_lineIndexToHeapId');
+        }
+
+        EDI_lineIndexToHeapId.copyWithin(destinationStart, sourceStart, sourceStart + length);
     }
     else {
         // TODO: use 'set' method here and other such locations

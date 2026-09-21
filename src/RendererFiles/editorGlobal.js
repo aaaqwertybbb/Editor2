@@ -9606,5 +9606,12 @@ idToLineIndex[newHeapId] = insertedIndex;
 < Which core data structure does your editor use to hold the text lines right now—a flat array or a tree-based buffer?
 < I can help you write the exact map syncing code for the strategy you choose.
 
+=======================
+
+Do the first bullet point:
+< Handling Line Mutations:
+< - Line Edit (Text updates): Lookup takes O(1). You query lineIndexToId[editorLineIndex] to get the heapId,
+<   then immediately pass that ID to the heap's updateLength(heapId, newLength) method.
+< - ...
 
 */

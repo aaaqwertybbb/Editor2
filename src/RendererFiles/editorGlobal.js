@@ -9253,6 +9253,7 @@ account for tabs
 
 
 - [x] Paste                    (simple) (any tab-width) (single line)
+    - [ ] NOTE: this specifically relates to the finalize, I do notice that the "drawing" of the paste has the wrong visual width until you reset the line
 - [ ] Duplicate                (simple) (any tab-width) (single line)
 - [ ] DeleteLtr                (simple) (any tab-width) (single line)
 - [ ] BackspaceRtl             (simple) (any tab-width) (single line)

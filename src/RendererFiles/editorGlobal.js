@@ -4009,6 +4009,11 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
 
     let editLengthVisual = 0;
 
+    EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
+    EDI_getLineBoundaryPositions_raw(INTS[fEDI_getLineAndColumnIndices_indexLine]);
+    getIndexFromColumn_RESET(INTS[fEDI_cursor_editIndexColumn], INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
+    let columnVisual = INTS[fEDI_getIndexFromX_visualColumns];
+
     // TODO: You probably should get their pasted string to be normalized with 'replaceAll'
     // 
     for (var sourceI = 0; sourceI < content.length; sourceI++) {
@@ -4037,10 +4042,14 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
                 linesInsertedCount++;
                 break;
             case CONST_EDI_ASCII_TAB:
+                let tabLength = 4 - (columnVisual % 4);
+                columnVisual += (tabLength - 1);
+                editLengthVisual += (tabLength - 1);
                 // TODO: What is the "overhead" of falling through this case to the default?
-                editLengthVisual += 3;
+                // ^ one massive source of overhead is cognitive holey moley.
             default:
                 editLengthVisual++;
+                columnVisual++;
                 EDI_textByteList_insert(INTS[fEDI_cursor_editPosition] + insertionLength, code);
                 insertionLength++;
                 break;
@@ -9243,15 +9252,7 @@ account for tabs
 
 
 
-- [ ] Paste                    (simple) (any tab-width) (single line)
-    - [ ] ' 	' (i.e.: ' ' + '\t')
-    - [ ] Line starts as 'eeeedddd' in order to make  it the longest line in the file.
-    - [ ] The line above it is 'ffff' in order to visualize the tab-width
-    - [ ] You insert the ' 	' at column index 0.
-    - [ ] space is width of 1, tab in this scenario is width of 3
-    - [ ] longest line goes from visual width of 8 to visual width of 12
-    - [ ] erroneous behavior would be 13
-    - [ ] initially observed behavior: 13
+- [x] Paste                    (simple) (any tab-width) (single line)
 - [ ] Duplicate                (simple) (any tab-width) (single line)
 - [ ] DeleteLtr                (simple) (any tab-width) (single line)
 - [ ] BackspaceRtl             (simple) (any tab-width) (single line)

@@ -610,7 +610,7 @@ it probably inserted 4 spaces and I was like doh why am I still getting 0 CLS af
 }
 
 /* AI keeps recommending I put white-space pre on these specifically, I have it on '#EDI_text'... I am gonna put this here as a note to look into this later, I'm more focused on removing the control characters '\t' and '\0'. */
-.eT, .eT span {
+.eT, .eT > span {
   /* Tells the browser's layout engine to render every space byte exactly as an isolated glyph */
   white-space: pre !important;
 }

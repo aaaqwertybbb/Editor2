@@ -297,9 +297,6 @@ function EDI_render_do_CreateViewport() {
 
     INTS[fEDI_ONSCROLLvirtualCount] = virtualCount;
 
-    EDI_gutter.innerHTML = '';      // replace children with the fragment?
-    EDI_textElement.innerHTML = ''; // replace children with the fragment?
-
     INTS[fEDI_ringBuffer_indexZero] = 0;
     const left = gutterWidthTotal_withPxUnits;
     const gutterWidth = `${INTS[fEDI_gutterWidthStyleValue]}px`;
@@ -332,8 +329,8 @@ function EDI_render_do_CreateViewport() {
         textFragment.appendChild(textLineElement);
     }
 
-    EDI_gutter.appendChild(gutterFragment);
-    EDI_textElement.appendChild(textFragment);
+    EDI_gutter.replaceChildren(gutterFragment);
+    EDI_textElement.replaceChildren(textFragment);
 
     EDI_ringBuffer_gutter = Array.from(EDI_gutter.children);
     EDI_ringBuffer_text = Array.from(EDI_textElement.children);

@@ -595,9 +595,14 @@ Is every line being... I have transform per line this was alarming to read.
 yesterday I tried testing tab logic by typing tabs in vscode like a goober
 it probably inserted 4 spaces and I was like doh why am I still getting 0 CLS after adding tabs to my test?
 */
-#EDI_text, 
-#EDI_text div, 
-#EDI_text span {
+#EDI_text {
+  /*
+  The One Exception to Watch Out For
+
+  While span and div elements will inherit these properties flawlessly,
+  form inputs (like <input>, <textarea>, <button>, and <select>) do not inherit font styles from their parents by default in most browsers.
+  */
+
   /* Strictly forbids the browser from adjusting spacing between characters */
   letter-spacing: 0px !important;
   word-spacing: 0px !important;

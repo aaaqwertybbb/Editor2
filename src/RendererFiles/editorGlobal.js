@@ -123,6 +123,8 @@ let w_div = null;
  * This queueing is currently a complete copy and paste of what Google AI generated.
  * I looked it over and it appears correct.
  * 
+ * TODO: re-use the same hidden class somehow for the objects being put into this instead of having two separate ones.
+ * 
  * ----
  * 
  * Type is either this: {

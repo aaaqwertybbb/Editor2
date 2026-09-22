@@ -9897,6 +9897,8 @@ It's 200g of protein for 2 lbs of 98% fat free ground chicken.
 I put aside a tiny amount for my dog before I put the sriracha on.
 Like a very small amount it is like 4 "grains" of the ground chicken I go for the larger-ish ones
 I still have like 95% of the chhicken for myself.
+Maybe I'd even say 98% of the chicken for myself. Like it isn't much that I put aside
+but I mean it is a lot given that umm idk he enjoys it is a satisfying anmomunt
 
 
 

@@ -9893,6 +9893,11 @@ as if I'd eaten super "healthily".
 But I did eat healthily cause I calculated everything.
 And I have no desire to binge cause I know tomorrow morning ima eat a few donuts again.
 
+It's 200g of protein for 2 lbs of 98% fat free ground chicken.
+I put aside a tiny amount for my dog before I put the sriracha on.
+Like a very small amount it is like 4 "grains" of the ground chicken I go for the larger-ish ones
+I still have like 95% of the chhicken for myself.
+
 
 
 

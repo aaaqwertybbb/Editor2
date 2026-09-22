@@ -9359,4 +9359,55 @@ export const EMPTY_NUMBER_ARRAY = Object.freeze([]); // For arrays that will hol
 TODO: Fix the explorer menu options I tried making a new file and it borked.
 TODO: type out a list of every movement key and ensure they handle tabs of any width.
 
+Google AI:
+
+"> Do not respond with much if anything I'll ask the question in the next question, this is just context."
+The free Google AI is very inexpensive relative to having an AI.
+
+I'll ask a ton of questions in a single thread and then ask how much it costed Google and I'm told like 2 cents total.
+If I take the 2 cents total as truth and not a hallucination of the AI, then I think this is extremely interesting.
+I don't know if it is just me or not, but I get extremely good responses from the Google AI about anything.
+It has its hallucinations but that's to be expected in my opinion. AI these days is purposeful acceptance of
+innacuracy in response in order to permit the AI to reason about what you're saying and give a response that
+tries to make sense of your question relative to much of the data available online rather than taking what you said word for word.
+So long as you acknowledge the pros and cons of such a thing, hallucinations are a non issue justs stop blindly listening to what the AI says.
+I say this all the time but when you first start programming perhaps a teacher does an exercise
+where you describe how to make a peanut butter and jelly sandwich, then the teacher acts out what you described and it goes wild quickly
+due to the innacuracy of the english language.
+It's all a give and take.
+
+I'm super tired I don't know if what I just said was super rambly or not but...
+
+Essentially I'm interested in min maxing the usefulness of AI especially in terms of having it cost the least amount.
+
+As I ask more and more questions in a single thread, each further question becomes more and more expensive due to
+Google having to consider the context of the entire thread.
+
+So I like to start new threads everyday.
+
+But what do I say to start things off?
+
+I haven't optimized this first paragraph but I found it worked a few times so I keep repeating it.
+But then the AI gives me a ton of text about text editors.
+
+This line:
+"> Do not respond with much if anything I'll ask the question in the next question, this is just context."
+
+was massive for reducing the size of their initial response with a bunch of things I'm not particularly interested in.
+
+
+> I am making a text editor app. A lot of the code is written already,
+> and so my question is more specifically going to relate to a generalized performance question.
+> The app uses electron, and vanilla javascript as a single monolithic ES6 module.
+> 
+> Do not respond with much if anything I'll ask the question in the next question, this is just context.
+
+< Got it. I am ready for your question whenever you are!
+< 
+< Please go ahead and ask your performance question about your Electron and ES6 module text editor!
+
+
+
+
+
 */

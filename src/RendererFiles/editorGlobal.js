@@ -305,13 +305,11 @@ function EDI_render_do_CreateViewport() {
 
     const virtualCount = INTS[fEDI_virtualCount];
 
-    const gutterChildren = new Array(INTS[fEDI_virtualCount]);
-    const textChildren = new Array(INTS[fEDI_virtualCount]);
+    const gutterFragment = document.createDocumentFragment();
+    const textFragment = document.createDocumentFragment();
 
     const lower = INTS[fEDI_virtualIndexLine];
     const upper = lower + virtualCount;
-
-    let loopCount = 0;
 
     for (var indexLine = lower; indexLine < upper; indexLine++) {
 
@@ -324,20 +322,18 @@ function EDI_render_do_CreateViewport() {
         else {
             gutterLineElement.textContent = indexLine + 1;
         }
-        gutterChildren[loopCount] = gutterLineElement;
+        gutterFragment.appendChild(gutterLineElement);
 
         const textLineElement = document.createElement('div');
         textLineElement.className = 'eT';
         textLineElement.style.left = left;
         textLineElement.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
         textLineElement.appendChild(document.createElement('span'));
-        textChildren[loopCount] = textLineElement;
-
-        loopCount++;
+        textFragment.appendChild(textLineElement);
     }
 
-    EDI_gutter.append(...gutterChildren);
-    EDI_textElement.append(...textChildren);
+    EDI_gutter.appendChild(gutterFragment);
+    EDI_textElement.appendChild(textFragment);
 
     EDI_ringBuffer_gutter = Array.from(EDI_gutter.children);
     EDI_ringBuffer_text = Array.from(EDI_textElement.children);

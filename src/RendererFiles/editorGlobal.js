@@ -9890,6 +9890,9 @@ then on the fifth day I go back to the 1st day etc...
 My face actually has a "sucked in" feeling right now
 as if I'd eaten super "healthily".
 
+But I did eat healthily cause I calculated everything.
+And I have no desire to binge cause I know tomorrow morning ima eat a few donuts again.
+
 
 
 

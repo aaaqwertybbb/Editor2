@@ -293,17 +293,17 @@ function EDI_render_do_CreateViewport() {
     EDI_baseElement.scrollLeft = 0;
     INTS[fEDI_lastReadNumber_scrollLeft] = 0;
 
-    INTS[fEDI_ONSCROLLvirtualCount] = INTS[fEDI_virtualCount];
+    const virtualCount = INTS[fEDI_virtualCount];
 
-    EDI_gutter.innerHTML = '';
-    EDI_textElement.innerHTML = '';
+    INTS[fEDI_ONSCROLLvirtualCount] = virtualCount;
+
+    EDI_gutter.innerHTML = '';      // replace children with the fragment?
+    EDI_textElement.innerHTML = ''; // replace children with the fragment?
 
     INTS[fEDI_ringBuffer_indexZero] = 0;
     const left = gutterWidthTotal_withPxUnits;
     const gutterWidth = `${INTS[fEDI_gutterWidthStyleValue]}px`;
     const local_EDI_horizontal_scrollbar_virtualization_boundary_style_width = EDI_horizontal_scrollbar_virtualization_boundary.style.width;
-
-    const virtualCount = INTS[fEDI_virtualCount];
 
     const gutterFragment = document.createDocumentFragment();
     const textFragment = document.createDocumentFragment();

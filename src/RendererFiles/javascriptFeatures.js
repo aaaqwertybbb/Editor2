@@ -1071,26 +1071,12 @@ function JS_line_lex_newVersion(div, ringBufferIndexOfDiv, trackedSyntax_I, line
                                     < perfect hashing on a closed set
                                     < ...
 
-                                    I "feel" horrible at the moment
-
-                                    I feel horrible about having mentioned further details of the "event"
-                                    I think I feel better generally but
-
-                                    This switch within a switch just to add the numbers drives me wild lol there's no way this is a good way to things
-
-                                    Intrusive thoughts and stress
-
-                                    And I don't know how I feel about this new logic
-                                    I just feel so out of it
-
                                     This isn't actually unique btw it is unique across this closed set*
                                     I realize it was saying that
 
                                     And then it wants me to allocate a string to compare against a hardcoded version of the keyword.
                                     I feel like I'm just super decision making out'd right now
                                     every little detail of this just feels far more stressful to think about
-
-                                    I feel so anxious if I could just get this double switch of alphabet/thenumnbers then I'd feel so much fbeter
 
 > do you remember this too? '2. Manual Character Validation vs. V8 Monomorphism'
 
@@ -1118,25 +1104,6 @@ function JS_line_lex_newVersion(div, ringBufferIndexOfDiv, trackedSyntax_I, line
 < V8 often doesn't actually copy the characters. Instead, it creates a SlicedString object,
 < which is just a tiny pointer pointing directly to your original divSpanTextContent string buffer with a start and length property.
 < The actual comparison happens via highly optimized C++ memory operations inside the engine, beating manual JS loops every single time
-
-I strongly believe that making this editor has humiliated the black pill out of me.
-I realize just how little I understand and it is an extremely painful experience.
-
-I was mainly black pilled cause I thought I "knew it all" about philosophy and everything.
-And this is just daily a slap in the face that says you don't actually know anything
-
-It goes hand in hand like "you thought you knew how to code, now we're here"
-"you thought you understood how the world works... but remember how you felt about coding?"
-
-I think that's the feeling I feel right now is extreme humiliation
-
-I'm making the whole thing still
-I'm just describing how I feel right now is all
-
-My number 1 goal tomorrow is that I do my shift if I do 0 coding that's fine.
-I've been a bit on the edge lately so so long as I do my shift it was good progress.
-
-I did some exercises then about an hour long walk then showered...
 
 > should I include the check on wordLength?
 

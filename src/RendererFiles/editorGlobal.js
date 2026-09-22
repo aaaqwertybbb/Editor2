@@ -9887,7 +9887,8 @@ so I do the exercises the 1st 2nd and 3rd day
 then I work on the 4th so I don't do the exercises
 then on the fifth day I go back to the 1st day etc...
 
-
+My face actually has a "sucked in" feeling right now
+as if I'd eaten super "healthily".
 
 
 

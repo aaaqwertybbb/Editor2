@@ -9593,7 +9593,116 @@ The image was super small resolution I minimized the width and height of the app
 < Got it. The CSS structural choices match your DOM design perfectly.
 < 
 < I see several critical performance-focused patterns here:
+< - contain: size layout; on individual gutter numbers (.eG) and lines (.EDI_caretRow) to heavily isolate layout/paint steps.
+< - Extensive use of display: contents; on structural wrappers to bypass layout generation for parent wrappers.
+< - Hard strict text layout rules (font-kerning: none, font-variant-ligatures: none, etc.) forcing highly predictable monospaced rendering.
+< - High-performance will-change: opacity; on the blinking caret to bypass layout shifts.
+< 
+< The entire layout is cleanly virtualized via absolute positioning, isolated containment blocks, and hard structural layers.
+< I am ready. What is the specific performance question or roadblock you're hitting with this engine?
+<
+< What is your specific performance question regarding this CSS/HTML setup in your Electron text editor?
+
+> Each line of text (the css class name for these being '.eT'),
+> receives a 'width', 'left', and 'top' from JavaScript.
+> 
+> The actual CSS styling for my '.eT' contains more than the shortened version of what I provided you.
+> The '.css' file actually additionally contains 'width: 100%;', 'left: 0;', and 'top: 0;'.
+> The shortened version of what I provided did not include these because the JavaScript style was overriding them,
+> and I only provided you in the shortened version the '.css' that actually was in effect.
+> 
+> One of my questions is: does this redundancy of the '.css' setting an attribute,
+> just for JavaScript to assign the same attribute a value but with a 'style' specificity which
+> is greater than that of a class specificity, does this introduce any overhead in the browser's rendering engine?
+
 < ...
+
+> If I have a static css file that sets an attribute. But I use JavaScript to apply the attribute using style,
+> does that static css file's attribute change have any overhead or is it completely "erased".
+
+< No, it does not introduce any measurable runtime performance overhead. The engine does not "erase" the static CSS,
+< but the way modern browser engines (like Chromium in Electron) process the style pipeline completely neutralizes the
+< redundant values before layout or rendering ever occurs.
+<
+< Here is exactly how Chromium handles this behind the scenes and the trade-offs involved:
+<
+< 1. The Recalculate Style Phase
+< When the browser builds the render tree, it resolves styles for each element during the Recalculate Style phase:
+< - It evaluates the static CSS rule (.eT { width: 100%; }) and adds it to the element's matched ruleset.
+< - It evaluates the inline style (style="width: 4195px;"), which carries a higher specificity weight.
+< - The Override: The cascade resolution picks the inline style as the "winning" value.
+<
+< This matching process happens entirely in fast, compiled C++ memory.
+< Comparing a few static properties and discarding them during style resolution takes fractions of a nanosecond.
+<
+< 2. Layout and Paint Steps
+< Once the style is resolved, only the winning inline value is passed to the layout engine.
+< - The layout engine computes the boxes based on 4195px, completely unaware that 100% was ever a candidate.
+< - No layout recalculation or extra paint steps are triggered by the overridden CSS property.
+< 
+< Direct Trade-Offs
+< While there is zero runtime rendering overhead, keeping or removing those styles involves a slight architectural trade-off:
+< 
+< Approach                               | Advantages                                                                                                                                   | Disadvantages
+< ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+< Keeping the Static CSS (Current Setup) | - Prevents visual layout flashes if the JS initializes slowly. - Keeps structural elements visually predictable in dev tools if JS detaches. | Negligible memory footprint increase for the stylesheet string parsed at startup.
+< Removing the Static CSS                | - Cleaner CSS file. - Eliminates developer confusion when inspecting the cascade.                                                            | If JS execution delays for even a single frame during a massive render, elements could collapse to 0x0 pixels.
+< 
+< Summary
+< You do not need to strip these properties from your CSS file for performance reasons.
+< Since you are building a virtualized text editor where DOM nodes are aggressively recycled,
+< your current bottlenecks will lie in JS memory churn or DOM mutation frequency—not in CSS cascade resolution.
+< 
+< Would you like to move on to your primary performance question about the architecture,
+< or dig deeper into how Chromium handles DOM mutations during your virtualization steps?
+
+> When it comes to CSS such as what I have in quotes here: ".eT, .eT span { white-space: pre !important; }"
+> Including 'span' in the selection worries me because of how broad it is.
+> What can you say of the actual overhead involved in targeting something so broad as span in this situation?
+
+< In your virtualized architecture, the runtime overhead of this selector is practically zero.
+< 
+< While the general rule of thumb in web development is to avoid broad descendant selectors like .eT span,
+< your specific environment (Electron) and your implementation strategy change the math entirely.
+<
+< Here is exactly how Chromium evaluates this selector and why you do not need to worry about it.
+< 
+< 1. How Chromium Parses .eT span (Right-to-Left)
+< Browser engines evaluate CSS selectors from right to left.
+< 1. When a DOM node is mutated or added, Chromium looks at the right-most part of the selector first: span.
+< 2. It asks: "Is this element a span?"
+< 3. If yes, it walks up the DOM tree to check: "Is any ancestor an element with the class .eT?"
+< 
+< In a standard webpage with tens of thousands of deeply nested elements, a trailing span selector forces the engine to do a lot of upward tree-walking.
+< However, your editor is strictly virtualized. The only span elements on screen are the ones actively representing visible syntax tokens inside your
+< highly shallow .eT row containers. The engine only walks up one single level to find .eT.
+< 
+< 2. The Power of display: contents; and contain: layout;
+< Because your parent containers utilize display: contents; and explicit layout containment,
+< you have boxed off your editor rows into independent rendering islands. When you type or scroll:
+< - Chromium only performs style recalculation on the specific line elements (.eT) being added, removed, or modified.
+< - The engine does not scan the global document for span tags; it only evaluates the selector within the context of the micro-DOM fragments you are mutating.
+< 
+< 3. The !important Rule Traversal
+< The !important flag does not slow down the matching of the selector, but it does change how the property sits in the engine's internal cascade map.
+< It forces the engine to bypass normal specificity checks and immediately promote white-space: pre to the highest priority override tier.
+< Because it prevents any downstream token rules from accidentally overriding the layout rules of your text editor, it is actually structurally efficient here.
+< 
+< Comparison & Alternatives
+< If you still want to remove all theoretical risk, you have a few options to consider:
+< 
+< Selector Strategy                        | Overhead Level | Architectural Trade-off
+< ------------------------------------------------------------
+< `.eT span` (Current)                     | Negligible     | Fast to write. Safe unless you accidentally nest unrelated `span` tags inside a line row.
+< `.et > span` (Child Selector)            | Event Lower    | Stops the engine from walking all the way up the tree. It checks only the immediate parent. It it's not `.eT`, it drops the evaluation instantly.
+< `.eC` (Targeting token classes directly) | Identical      | Since your spans already have classes like `.eC` (syntax colors), you could just add `white-space: pre` to your base token class styles instead of targeting the tag name.
+< 
+< Summary
+< Keep .eT span if it makes your life easier, or change it to the child selector .eT > span to give the engine an explicit instruction to stop
+< tree-walking past the immediate parent.
+< 
+< Would you like to explore how Chromium optimizes the child selector (>) versus the descendant selector,
+< or are you ready to jump into your next architectural performance question?
 
 TODO: Document fragment I think it is called when "creating viewport".
 

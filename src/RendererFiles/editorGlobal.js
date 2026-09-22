@@ -9706,4 +9706,68 @@ The image was super small resolution I minimized the width and height of the app
 
 TODO: Document fragment I think it is called when "creating viewport".
 
+> I don't understand why my original code would cause reflows. The rendering doesn't interrupt my for loop to draw something?
+
+< You are completely correct about how the browser handles the execution loop:
+< the browser will never interrupt your for loop mid-execution to paint something onto the screen.
+< JavaScript runs on a single thread, and the rendering engine cannot paint a frame until your synchronous script finishes running and
+< yields control back to the browser.
+<
+< However, your original code (where you append directly to EDI_gutter and EDI_textElement inside the loop)
+< can still cause massive performance bottlenecks due to a concept known as Forced Synchronous Layout (or Layout Thrashing).
+< 
+< Here is exactly what happens under the hood and why it can slow your loop down, even though no pixels are being drawn yet:
+< 
+< The Problem: Layout Invalidation vs. Forced Reflow
+< 
+< When you append a new child directly to an active element in the DOM tree, you are mutating the structure of the live document. The browser reacts to this in two ways:
+< 
+< 1. Layout Invalidation (Deferred): The browser marks the layout of that section of the page as "dirty."
+< It notes that it will need to recalculate geometric positions (widths, heights, offsets) before the next paint cycle.
+< If you just append things and do nothing else, this calculation is safely deferred until your loop finishes.
+< 
+< 2. Forced Reflow (Immediate): Even though the browser doesn't draw pixels mid-loop,
+< your code inside the loop might accidentally ask the browser for geometric layout data.
+< If your loop touches properties like offsetHeight, clientWidth, getBoundingClientRect(), or computed styles after appending a node,
+< the browser is forced to halt your script, run a synchronous layout calculation immediately to give you the accurate number, and then resume your loop.
+< 
+< Why Your Original Loop is Risky
+< 
+< In the snippet you provided, you are only writing to the DOM (setting classes, text, and appending).
+< You aren't explicitly reading any layout metrics. If this loop remains purely write-only,
+< your original code will actually only trigger one layout/reflow cycle at the very end when the browser prepares to paint.
+< 
+< However, appending directly to the live DOM inside a loop introduces two hidden performance traps:
+< - Hidden Reads (Layout Thrashing): Codebases grow. If another developer adds a line inside this loop later—such as adjusting a height based on an
+<   existing element, or checking a parent element's width (EDI_gutter.clientWidth) to dynamically set gutterWidth—the loop will
+<   instantly fall into a layout thrashing trap. For a loop running 100 times, it will force the browser to compute the layout 100 times sequentially.
+< - Internal Engine Overhead: Every time you call appendChild on a live DOM node, the browser engine has to run internal lifecycle hooks.
+<   It registers the node, bubbles up mutation events, evaluates CSS selectors to see if new rules apply, and updates internal tree pointers.
+<   Doing this 100 separate times on a live element has a slightly higher management overhead for the browser than doing it once with a fully formed fragment
+<   or array.
+< 
+< Summary: Why Fragments or Arrays are "Defensive" Programming
+< 
+< Using a DocumentFragment or gathering elements in an array before appending them isn't always about saving the browser from painting mid-loop. It is a performance safeguard.
+< 
+< By keeping your new elements entirely detached from the main DOM tree during construction:
+< 1. You guarantee that no layout invalidation occurs until the loop is 100% finished.
+< 2. You completely immunize your loop against accidental Layout Thrashing if someone adds a geometric read (offsetWidth, etc.) to the loop later.
+< 
+< Are you planning to add any code inside this loop that checks the height or width of the lines as they are created,
+< or is the layout completely static and calculated beforehand?
+< 
+========
+
+..... I used document fragment
+
+< Analysis of Your Specific Code
+< 
+< Your current implementation is solid and highly performant because you are handling two separate target wrappers (EDI_gutter and EDI_textElement)
+< across a shared iteration count.
+< 
+< However, you can optimize the code's readability and slightly reduce overhead by switching from a fragment to Array batching using Element.append():
+< 
+< ...
+
 */

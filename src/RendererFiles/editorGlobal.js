@@ -9413,6 +9413,8 @@ The responded that it was extremely helpful for it being able to understand what
 But I don't know if it was just "saying that" or if it really meant it or whatever.
 And then I don't know the cost of the image versus text.
 
+The image was super small resolution I minimized the width and height of the app until it I could keep things sensible enough or whatever
+
 
 
 */

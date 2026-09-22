@@ -9770,4 +9770,72 @@ TODO: Document fragment I think it is called when "creating viewport".
 < 
 < ...
 
+> why is using an array recommended above a document fragment?
+
+< Using an array combined with Element.append() is often recommended over a DocumentFragment because it offers better readability,
+< matches modern JavaScript conventions, and scales better with functional programming patterns.
+< 
+< From a strict performance standpoint, both techniques are equally fast because they both perform a single-reflow batch insertion into the DOM.
+< However, arrays have won favor among developers for several practical reasons:
+< 
+< 1. Cleaner Syntax and Less Boilerplate
+< Using an array requires fewer lines of code and avoids the verbose step of explicitly creating and managing a placeholder container object.
+< ```js
+// --- Using DocumentFragment ---
+const fragment = document.createDocumentFragment();
+for (let i = 0; i < 5; i++) {
+    const div = document.createElement('div');
+    fragment.appendChild(div);
+}
+container.appendChild(fragment);
+
+// --- Using an Array + Spread Operator ---
+const elements = [];
+for (let i = 0; i < 5; i++) {
+    const div = document.createElement('div');
+    elements.push(div);
+}
+container.append(...elements); // Native, single-operation insertion
+< ```
+< 
+< 2. Native Support for Functional Array Methods
+< If you shift away from a standard for loop, arrays allow you to chain operations like .map() and .filter() seamlessly.
+< A DocumentFragment does not support these native array operations.
+< ```js
+const items = ['Line 1', 'Line 2', 'Line 3'];
+
+// Maps directly to an array of elements and inserts them cleanly
+const nodes = items.map(text => {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div;
+});
+
+container.append(...nodes);
+< ```
+< 
+< 3. Arrays Don't "Empty" Themselves Mutably
+< When you append a DocumentFragment to the DOM, the fragment is instantly mutated and emptied of its children.
+< ```js
+container.appendChild(fragment);
+console.log(fragment.childNodes.length); // 0 (It emptied itself!)
+< ```
+< 
+< An array, however, keeps its references intact. If you need to map over those same elements again, pass them to a separate tracking function,
+< or conditionally append them to a second debug container, the array remains fully populated and reusable.
+< 
+< 4. Better Alignment with Modern Frameworks
+< If you ever transition your text-editor logic to modern tools or libraries (like React, Lit, or generic virtual-dom structures),
+< you will find they all treat lists of elements natively as JavaScript arrays. Practicing array-based rendering makes your code much more adaptable.
+< 
+< The One Catch with Arrays: append() vs appendChild()
+< The only reason DocumentFragment remains relevant today is if you are targeting incredibly old browser environments (like Internet Explorer).
+< - container.appendChild() only accepts one node at a time (which is why it requires a fragment wrapper).
+< - container.append() accepts multiple nodes or text strings via the spread operator (...elements).
+< 
+< Because append() is supported natively by all modern browsers, the array-spread pattern has largely replaced the need for explicit document fragments.
+< 
+< Would you like to see how to refactor your dual-loop architecture (gutters and lines) into a cleaner, functional .map() format,
+< or are you satisfied keeping the traditional for loop for raw execution speed?
+
 */

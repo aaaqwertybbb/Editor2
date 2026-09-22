@@ -123,8 +123,6 @@ let w_div = null;
  * This queueing is currently a complete copy and paste of what Google AI generated.
  * I looked it over and it appears correct.
  * 
- * TODO: monomorphic queue
- * 
  * ----
  * 
  * Type is either this: {

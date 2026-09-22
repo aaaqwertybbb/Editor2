@@ -9415,6 +9415,8 @@ And then I don't know the cost of the image versus text.
 
 The image was super small resolution I minimized the width and height of the app until it I could keep things sensible enough or whatever
 
+> "the screenshot image is here"
+>
 > I've tried an image in the past. I'm not sure how useful an image is versus text.
 > And furthermore, I'm not sure the cost of you interpreting an image versus text.
 > I resized the app as small as I could while keeping things visible to reduce the data behind the image.This is just more context.

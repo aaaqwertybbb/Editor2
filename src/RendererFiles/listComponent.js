@@ -6,13 +6,13 @@ class ListComponent {
     constructor() {
         /** @type {HTMLDivElement} */
         this.rootElement = document.createElement('div');
-        this.rootElement.className = 'LIST_moveChildNodes';
+        this.rootElement.className = 'LIST';
         this.rootElement.tabIndex = 0;
         this.rootElement.style.height = '100%';
 
         /** @type {HTMLDivElement} */
         this.virtualizationElement = document.createElement('div');
-        this.virtualizationElement.className = 'LIST_moveChildNodes_virtualization';
+        this.virtualizationElement.className = 'LIST_virtualization';
         this.rootElement.appendChild(this.virtualizationElement);
 
         /**
@@ -20,12 +20,12 @@ class ListComponent {
          * Consider the existence of such methods as 'state_cursor_setIndex' before mutating state directly
          */
         this.cursorElement = document.createElement('div');
-        this.cursorElement.className = 'LIST_moveChildNodes_cursor';
+        this.cursorElement.className = 'LIST_cursor';
         this.rootElement.appendChild(this.cursorElement);
 
         /** @type {HTMLDivElement} */
         this.itemListElement = document.createElement('div');
-        this.itemListElement.className = 'LIST_moveChildNodes_itemList';
+        this.itemListElement.className = 'LIST_itemList';
         this.rootElement.appendChild(this.itemListElement);
 
         /** @type {number} */ this.itemHeightTotal = 0;

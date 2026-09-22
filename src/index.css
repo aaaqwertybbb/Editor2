@@ -91,24 +91,24 @@ body {
   padding-bottom: 1px;
 }
 
-.LIST_moveChildNodes {
+.LIST {
   position: relative;
   overflow: scroll;
   transform: translate3d(0px, 0px, 0px);
 }
 
-  .LIST_moveChildNodes:focus .LIST_moveChildNodes_cursor {
+  .LIST:focus .LIST_cursor {
     background-color: var(--primary-active-with-focus-background-color);
   }
 
-.LIST_moveChildNodes_virtualization {
+.LIST_virtualization {
   position: absolute;
   left: 0;
   top: 0;
   width: 1px;
 }
 
-.LIST_moveChildNodes_cursor {
+.LIST_cursor {
   position: absolute;
   left: 0;
   top: 0;
@@ -117,7 +117,7 @@ body {
   width: 100%;
 }
 
-.LIST_moveChildNodes_itemList {
+.LIST_itemList {
   display: contents;
 }
 

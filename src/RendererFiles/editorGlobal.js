@@ -305,11 +305,13 @@ function EDI_render_do_CreateViewport() {
 
     const virtualCount = INTS[fEDI_virtualCount];
 
-    //const gutterChildren = new Array(INTS[fEDI_virtualCount]);
-    //const textChildren = new Array(INTS[fEDI_virtualCount]);
+    const gutterChildren = new Array(INTS[fEDI_virtualCount]);
+    const textChildren = new Array(INTS[fEDI_virtualCount]);
 
     const lower = INTS[fEDI_virtualIndexLine];
     const upper = lower + virtualCount;
+
+    let loopCount = 0;
 
     for (var indexLine = lower; indexLine < upper; indexLine++) {
 
@@ -322,16 +324,20 @@ function EDI_render_do_CreateViewport() {
         else {
             gutterLineElement.textContent = indexLine + 1;
         }
-        EDI_gutter.appendChild(gutterLineElement);
+        gutterChildren[loopCount] = gutterLineElement;
 
-        const div = document.createElement('div');
-        div.className = 'eT';
-        div.style.left = left;
-        div.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
-        
-        div.appendChild(document.createElement('span'));
-        EDI_textElement.appendChild(div);
+        const textLineElement = document.createElement('div');
+        textLineElement.className = 'eT';
+        textLineElement.style.left = left;
+        textLineElement.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
+        textLineElement.appendChild(document.createElement('span'));
+        textChildren[loopCount] = textLineElement;
+
+        loopCount++;
     }
+
+    EDI_gutter.append(...gutterChildren);
+    EDI_textElement.append(...textChildren);
 
     EDI_ringBuffer_gutter = Array.from(EDI_gutter.children);
     EDI_ringBuffer_text = Array.from(EDI_textElement.children);
@@ -9842,5 +9848,47 @@ console.log(fragment.childNodes.length); // 0 (It emptied itself!)
 < 
 < Would you like to see how to refactor your dual-loop architecture (gutters and lines) into a cleaner, functional .map() format,
 < or are you satisfied keeping the traditional for loop for raw execution speed?
+
+> what is the cost of the spread operator
+
+< While using the spread operator (...elements) inside append() is highly readable,
+< it does carry two hidden costs that you must be aware of—especially when writing high-performance code like a code editor:
+< memory allocation overhead and maximum argument limits.
+< 
+< 1. The Critical Flaw: Call Stack Size Limits
+< 
+< When you pass an array using the spread operator to a function (like container.append(...elements)),
+< JavaScript translates every element in that array into an individual function argument.
+< 
+< JavaScript engines have a strict hard limit on the maximum number of arguments a function can accept (the Call Stack Size).
+< - The Limit: Depending on the browser (Chrome/V8 vs. Safari/JavaScriptCore), this limit usually sits between 65,535 and 500,000 arguments.
+< - The Risk: If your array contains 100,000 DOM nodes (e.g., a massive text file completely rendered), calling container.append(...elements)
+<   will crash your application entirely with a fatal error:RangeError: Maximum call stack size exceeded.
+< 
+< 2. Performance & Memory Overhead
+< Because the spread operator unpacks the array onto the call stack, it forces the JavaScript engine to perform extra work:
+< - Array Copying: The engine creates a temporary representation of those arguments on the execution stack.
+<   If your array is large, you are temporarily doubling the memory footprint for those references before the function even executes.
+< - Micro-Optimizations: In performance-critical hot paths (like scrolling loop updates inside a code editor), unpacking thousands of items onto the call stack is measurably
+<   slower than passing a single object reference like a DocumentFragment.
+< 
+< The Trade-Off Comparison
+< 
+< Method             | Stack Limit Risk?                   | Memory Cost                                | Best Used For
+< -------------------------------------------------------------------------------------------------------------------------------------------------------
+< DocumentFragment   | No (Safe for millions of nodes)     | Very Low (Single object pointer passed)    | Large datasets, infinite scrollers, hot execution loops.
+< Array Spread (...) | Yes (Crashes if array is too large) | Higher (Allocates stack space per element) | Small UI components, rendering small lists (< 10,000 items).
+< 
+< The Verdict for Your Text Editor
+< 
+< Because you are building components for a text editor with virtualized boundaries (fEDI_virtualCount),
+< your loop count is likely restricted to only the lines visible on the screen (usually 30 to 100 lines at a time).
+< - If your virtualCount is strictly capped at a low number (e.g., < 5,000 items): The cost of the spread operator is completely negligible.
+<   Go with the array pattern for cleaner code.
+< - If there is any chance your loop processes tens of thousands of lines at once: Stick with your original DocumentFragment code.
+<   It is immune to stack overflows and handles mass allocations more efficiently.
+< 
+< What is the absolute maximum value that INTS[fEDI_virtualCount] can reach during a heavy scroll or window resize?
+< Knowing this range will pinpoint exactly whether the spread operator is safe for your codebase.
 
 */

@@ -403,17 +403,10 @@ TODO: Is it better to have one virtualization element that has both the width an
 .eG {
   height: var(--EDITOR-line-height);
   position: absolute;
-  /*background-color: var(--gutter-background-color);*/
 
   left: 0;
   top: 0;
 
-  /*transform: translateZ(0);*/
-  
-
-  /* 3. Prevents layout changes inside the row from leaking out */
-  /*contain: layout style;*/
-  /*contain: strict; /* 👈 Tells the browser layout engine to stop tracking internal shifts globally */
   overflow: hidden;
   contain: size layout;
 }
@@ -424,26 +417,9 @@ TODO: Is it better to have one virtualization element that has both the width an
   height: var(--EDITOR-line-height);
   position: absolute;
 
-  /* I'm presuming that position:absolute and top:0 is fine, so that I can "zero out" all the lines of text and do a translateY from position 0 */
-  /* left for the text is provided by the JavaScript so that it equals the width of the gutter. */
   top: 0;
-
   /*left: 0;*/
 
-  /*transform: translateZ(0);*/
-
-  /* 3. Prevents layout changes inside the row from leaking out */
-  /*contain: layout style;*/
-  /*contain: strict; /* 👈 Tells the browser layout engine to stop tracking internal shifts globally */
-  
-  /*font-variant-ligatures: none;
-  letter-spacing: 0;*/
-  /* Lock the graphics layer permanently so it doesn't drop to the CPU thread unexpectedly */
-  /*will-change: transform;
-  transform: translateZ(0);*/ /* Explicitly forces 3D layer permanence */
-
-  /*width: 200px;
-  height: 24px;*/
   overflow: hidden;
   contain: size layout;
 }
@@ -481,7 +457,7 @@ TODO: Is it better to have one virtualization element that has both the width an
   top: 0;
 
   opacity: 1;
-  will-change: opacity;
+  will-change: opacity; /* TODO: Are you sure you want this? */
 }
 
 .EDI_cursor_focus {

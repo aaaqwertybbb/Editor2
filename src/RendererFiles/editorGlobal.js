@@ -323,8 +323,6 @@ function EDI_render_do_CreateViewport() {
         div.className = 'eT';
         div.style.left = left;
         div.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
-        // will translate css is good?
-        //div.style.transform = translateY;
         
         div.appendChild(document.createElement('span'));
         EDI_textElement.appendChild(div);
@@ -9430,5 +9428,173 @@ The image was super small resolution I minimized the width and height of the app
 <
 < What is the specific performance hurdle or question you are facing with your monolithic ES6 module or Electron architecture?
 
+> I copied the inner HTML of the app's editor, and then manually modified it so I could give you an example of the HTML that is being output on the screen as succinctly as possible.
+> Don't respond much just yet I have some CSS that I did the same thing with.
+> 
+> <div id="EDITOR" tabindex="0" style="width: 589px; height: 526px; contain: layout;">
+>     <div id="EDI_virtualization_horizontal" style="width: 4233px;"></div>
+>     <div id="EDI_virtualization_vertical" style="height: 142470px;"></div>
+>     <div id="EDI_horizontal_scrollbar_sticky">
+>         <div id="EDI_horizontal_scrollbar" style="left: 38px; width: 536px;">
+>             <div id="EDI_horizontal_scrollbar_virtualization_boundary" style="width: 4195px;"></div>
+>         </div>
+>     </div>
+>     <div id="EDI_gutter_background_color" style="padding-left: 3px; padding-right: 6px; width: 29px;"></div>
+>     <div id="EDI_gutter_container" style="padding-left: 3px; padding-right: 6px; width: 29px;">
+>         <div class="eG" style="width: 29px; top: 0px;">1</div>
+>         <div class="eG" style="width: 29px; top: 15px;">2</div>
+>     </div>
+>     <div id="EDI_body">
+>         <div id="EDI_presentation"></div>
+>         <div id="EDI_cursorList">
+>             <div id="EDI_caretRow-1" class="EDI_caretRow" style="left: 38px; width: 4195px; top: 165px;">
+>                 <div id="EDI_cursor-1" class="EDI_cursor" style="left: 150px;"></div>
+>             </div>
+>         </div>
+>         <div id="EDI_text">
+>             <div class="eT" style="left: 38px; width: 4195px; top: 0px;">
+>                 <span class="eC">//__#__</span>
+>             </div>
+>             <div class="eT" style="left: 38px; width: 4195px; top: 15px;">
+>                 <span class="eC">// preprocessor.cjs</span>
+>             </div>
+>         </div>
+>     </div>
+> </div>
+
+< Received. This gives me a perfectly clear look at your DOM structure, absolute positioning strategy, and virtualization setups.
+<
+< Drop the CSS whenever you are ready, and I will be fully primed for your performance question!
+< Please provide the CSS context, and then we can dive straight into your performance question.
+
+> <style>
+>     #EDITOR {
+>         outline: none;
+>         overflow-y: scroll;
+>         overflow-x: hidden;
+>         position: relative;
+>         font-family: monospace;
+>         cursor: text;
+>         display: flex;
+>         transform: translate3d(0px, 0px, 0px);
+>     }
+> 
+>     #EDI_virtualization_horizontal {
+>         height: 1px;
+>         position: absolute;
+>     }
+> 
+>     #EDI_virtualization_vertical {
+>         width: 1px;
+>         position: absolute;
+>     }
+> 
+>     #EDI_horizontal_scrollbar_sticky {
+>         position: sticky;
+>         left: 0;
+>         top: 0;
+>     }
+> 
+>     #EDI_horizontal_scrollbar {
+>         position: absolute;
+>         overflow-x: scroll;
+>         height: 14px;
+>         bottom: 0;
+>     }
+> 
+>     #EDI_horizontal_scrollbar_virtualization_boundary {
+>         height: 1px;
+>     }
+> 
+>     #EDI_gutter_background_color {
+>         position: sticky;
+>         left: 0;
+>         top: 0;
+>         cursor: default;
+>         min-height: 100%;
+>         background-color: var(--gutter-background-color);
+>     }
+> 
+>     #EDI_gutter_container {
+>         position: absolute;
+>         display: contents;
+>         text-align: end;
+>     }
+> 
+>     .eG {
+>         height: var(--EDITOR-line-height);
+>         position: absolute;
+>         left: 0;
+>         overflow: hidden;
+>         contain: size layout;
+>     }
+> 
+>     #EDI_body {
+>         cursor: text;
+>         height: 100%;
+>         display: contents;
+>     }
+> 
+>     #EDI_presentation {
+>         display: contents;
+>     }
+> 
+>     #EDI_cursorList {
+>         display: contents;
+>     }
+> 
+>     .EDI_caretRow {
+>         width: 100%;
+>         height: var(--EDITOR-line-height);
+>         outline: 1px solid var(--light-border-color);
+>         position: absolute;
+>         left: 0;
+>         top: 0;
+>         contain: size layout;
+>     }
+> 
+>     .EDI_cursor {
+>         width: 2.5px;
+>         height: var(--EDITOR-line-height);
+>         background-color: var(--primary-foreground-color);
+>         position: absolute;
+>         left: 0;
+>         top: 0;
+>         opacity: 1;
+>         will-change: opacity;
+>     }
+> 
+>     #EDI_text {
+>         white-space: pre;
+>         width: 0;
+>         height: 0;
+>         tab-size: 4;
+>         display: contents;
+>     }
+> 
+>     #EDI_text, #EDI_text div, #EDI_text span {
+>         letter-spacing: 0px !important;
+>         word-spacing: 0px !important;
+>         font-kerning: none !important;
+>         font-variant-ligatures: none !important;
+>         font-weight: normal !important;
+>         font-style: normal !important;
+>     }
+> 
+>     .eT, .eT span {
+>         white-space: pre !important;
+>     }
+> 
+>     .eC {
+>         color: var(--editor-syntax-comment-color);
+>     }
+> </style>
+
+< Got it. The CSS structural choices match your DOM design perfectly.
+< 
+< I see several critical performance-focused patterns here:
+< ...
+
+TODO: Document fragment I think it is called when "creating viewport".
 
 */

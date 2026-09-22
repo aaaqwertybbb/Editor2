@@ -9891,4 +9891,81 @@ console.log(fragment.childNodes.length); // 0 (It emptied itself!)
 < What is the absolute maximum value that INTS[fEDI_virtualCount] can reach during a heavy scroll or window resize?
 < Knowing this range will pinpoint exactly whether the spread operator is safe for your codebase.
 
+> Can I specify an initial capacity for document fragment? i.e.:
+> 
+> const gutterChildren = new Array(INTS[fEDI_virtualCount]);
+> const textChildren = new Array(INTS[fEDI_virtualCount]);
+
+< No, you cannot specify an initial capacity for a DocumentFragment. Neither document.createDocumentFragment() nor new DocumentFragment() accepts any arguments,
+< and the underlying native engine does not allow pre-allocating memory size for internal DOM child node lists.
+< 
+< Unlike a JavaScript Array, which is a continuous block of array references that can benefit from pre-allocation,
+< a DocumentFragment stores its children as a linked list under the hood in the browser's C++ rendering engine.
+< Because it is a pointer-based tree structure rather than an indexed memory buffer, the concept of "capacity" or "contiguous sizing" does not apply.
+< 
+< How to Blend Pre-allocation with Fragments
+< 
+< If you are looking for the absolute maximum micro-optimization for your code editor,
+< you can combine the pre-allocated memory benefits of an array with the stack-safe security of a DocumentFragment.
+< 
+< Instead of pushing to a dynamic array or appending blindly to a fragment, you can use your pre-allocated array to build the elements,
+< and then run a fast loop to append them to the fragment. This completely bypasses the costly array-growth allocations and avoids the spread operator stack limit.
+< ```js
+const loopLimit = INTS[fEDI_virtualCount];
+
+// 1. Pre-allocate arrays to perfectly fit the exact number of nodes
+const gutterChildren = new Array(loopLimit);
+const textChildren = new Array(loopLimit);
+
+// 2. Create your standard, safe fragments
+const gutterFragment = new DocumentFragment();
+const lineFragment = new DocumentFragment();
+
+const startIndex = INTS[fEDI_virtualIndexLine];
+
+// 3. Fill the pre-allocated arrays (No internal array resizing happens here)
+for (var i = 0; i < loopLimit; i++) {
+    const indexLine = i + startIndex;
+
+    // Build Gutter Node
+    const gutterLineElement = document.createElement('div');
+    gutterLineElement.className = 'eG';
+    gutterLineElement.style.width = gutterWidth;
+    gutterLineElement.textContent = (indexLine >= EDI_lineEndPositionList_count) ? '~' : (indexLine + 1);
+    gutterChildren[i] = gutterLineElement; // Direct index assignment is highly optimized
+
+    // Build Line Text Node
+    const div = document.createElement('div');
+    div.className = 'eT';
+    div.style.left = left;
+    div.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
+    div.appendChild(document.createElement('span'));
+    textChildren[i] = div;
+}
+
+// 4. Batch transfer references to the fragments using standard loops
+// (Extremely low overhead because pointers are simply being moved in memory)
+for (var i = 0; i < loopLimit; i++) {
+    gutterFragment.appendChild(gutterChildren[i]);
+    lineFragment.appendChild(textChildren[i]);
+}
+
+// 5. Append safely to the live DOM
+EDI_gutter.appendChild(gutterFragment);
+EDI_textElement.appendChild(lineFragment);
+< ```
+< 
+< Is Pre-allocating Arrays Worth It Here?
+< 
+< In modern V8 engines (Chrome/Edge/Node), initializing an array with new Array(capacity) is highly performant if you immediately fill it using an exact index
+< (array[i] = ...). It signals to the engine that the array will stay packed and uniform, preventing the engine from shifting it into a slower "hash map" mode.
+< 
+< However, if your fEDI_virtualCount is just representing the visible window of a text editor (e.g., 30 to 150 elements),
+< the performance difference between a pre-allocated array and a standard DocumentFragment.appendChild() loop is likely a fraction of a microsecond.
+< 
+< Are you noticing actual frame drops or lag while scrolling in your virtualized editor right now, or are you performing these adjustments as a proactive engineering optimization?
+
+^ I have no idea what it is talking about with the "fill an array then move them to the document fragment" comment.
+
+
 */

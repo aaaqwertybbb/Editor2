@@ -286,13 +286,6 @@ function EDI_render_request(renderKind) {
 }
 
 function EDI_render_do_CreateViewport() {
-    const remember_scrollTop = INTS[fEDI_lastReadNumber_scrollTop];
-    const remember_scrollLeft = INTS[fEDI_lastReadNumber_scrollLeft];
-
-    EDI_baseElement.scrollTop = 0;
-    EDI_baseElement.scrollLeft = 0;
-    INTS[fEDI_lastReadNumber_scrollLeft] = 0;
-
     const virtualCount = INTS[fEDI_virtualCount];
 
     INTS[fEDI_ONSCROLLvirtualCount] = virtualCount;
@@ -336,10 +329,7 @@ function EDI_render_do_CreateViewport() {
     EDI_ringBuffer_text = Array.from(EDI_textElement.children);
     INTS[fEDI_ArrayFrom_textElement_children_length] = EDI_ringBuffer_text.length;
 
-    EDI_drawHorizontalScrollbar(); // TODO: The 'setting EDI_baseElement.scrollLeft' line appearing after 'EDI_drawHorizontalScrollbar();' in this function strikes me as odd when skimming the code. (1 of 2)
-
-    EDI_baseElement.scrollTop = remember_scrollTop;
-    EDI_baseElement.scrollLeft = remember_scrollLeft; // TODO: The 'setting EDI_baseElement.scrollLeft' line appearing after 'EDI_drawHorizontalScrollbar();' in this function strikes me as odd when skimming the code. (1 of 2)
+    EDI_drawHorizontalScrollbar();
 }
 
 function EDI_createViewport() {

@@ -9368,12 +9368,12 @@ I'll ask a ton of questions in a single thread and then ask how much it costed G
 If I take the 2 cents total as truth and not a hallucination of the AI, then I think this is extremely interesting.
 I don't know if it is just me or not, but I get extremely good responses from the Google AI about anything.
 It has its hallucinations but that's to be expected in my opinion. AI these days is purposeful acceptance of
-innacuracy in response in order to permit the AI to reason about what you're saying and give a response that
+inaccuracy in response in order to permit the AI to reason about what you're saying and give a response that
 tries to make sense of your question relative to much of the data available online rather than taking what you said word for word.
 So long as you acknowledge the pros and cons of such a thing, hallucinations are a non issue justs stop blindly listening to what the AI says.
 I say this all the time but when you first start programming perhaps a teacher does an exercise
 where you describe how to make a peanut butter and jelly sandwich, then the teacher acts out what you described and it goes wild quickly
-due to the innacuracy of the english language.
+due to the inaccuracy of the english language.
 It's all a give and take.
 
 I'm super tired I don't know if what I just said was super rambly or not but...

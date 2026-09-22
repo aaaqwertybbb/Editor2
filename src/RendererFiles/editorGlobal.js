@@ -303,10 +303,13 @@ function EDI_render_do_CreateViewport() {
     const gutterWidth = `${INTS[fEDI_gutterWidthStyleValue]}px`;
     const local_EDI_horizontal_scrollbar_virtualization_boundary_style_width = EDI_horizontal_scrollbar_virtualization_boundary.style.width;
 
-    for (var i = 0; i < INTS[fEDI_virtualCount]; i++) {
+    //const gutterChildren = new Array(INTS[fEDI_virtualCount]);
+    //const textChildren = new Array(INTS[fEDI_virtualCount]);
 
-        // TODO: Move this to the for loop initializer
-        const indexLine = i + INTS[fEDI_virtualIndexLine];
+    const lower = INTS[fEDI_virtualIndexLine];
+    const upper = INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount];
+
+    for (var indexLine = lower; indexLine < upper; indexLine++) {
 
         const gutterLineElement = document.createElement('div');
         gutterLineElement.className = 'eG';

@@ -303,11 +303,13 @@ function EDI_render_do_CreateViewport() {
     const gutterWidth = `${INTS[fEDI_gutterWidthStyleValue]}px`;
     const local_EDI_horizontal_scrollbar_virtualization_boundary_style_width = EDI_horizontal_scrollbar_virtualization_boundary.style.width;
 
+    const virtualCount = INTS[fEDI_virtualCount];
+
     //const gutterChildren = new Array(INTS[fEDI_virtualCount]);
     //const textChildren = new Array(INTS[fEDI_virtualCount]);
 
     const lower = INTS[fEDI_virtualIndexLine];
-    const upper = INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount];
+    const upper = lower + virtualCount;
 
     for (var indexLine = lower; indexLine < upper; indexLine++) {
 

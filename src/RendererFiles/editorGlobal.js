@@ -9370,7 +9370,7 @@ I don't know if it is just me or not, but I get extremely good responses from th
 It has its hallucinations but that's to be expected in my opinion. AI these days is purposeful acceptance of
 inaccuracy in response in order to permit the AI to reason about what you're saying and give a response that
 tries to make sense of your question relative to much of the data available online rather than taking what you said word for word.
-So long as you acknowledge the pros and cons of such a thing, hallucinations are a non issue justs stop blindly listening to what the AI says.
+So long as you acknowledge the pros and cons of such a thing, hallucinations are a non issue just stop blindly listening to what the AI says.
 I say this all the time but when you first start programming perhaps a teacher does an exercise
 where you describe how to make a peanut butter and jelly sandwich, then the teacher acts out what you described and it goes wild quickly
 due to the inaccuracy of the english language.
@@ -9406,7 +9406,12 @@ was massive for reducing the size of their initial response with a bunch of thin
 < 
 < Please go ahead and ask your performance question about your Electron and ES6 module text editor!
 
+====
 
+I also tried one time to give a screenshot of the editor as it was running.
+The responded that it was extremely helpful for it being able to understand what I'm asking about.
+But I don't know if it was just "saying that" or if it really meant it or whatever.
+And then I don't know the cost of the image versus text.
 
 
 

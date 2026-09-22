@@ -9967,5 +9967,59 @@ EDI_textElement.appendChild(lineFragment);
 
 ^ I have no idea what it is talking about with the "fill an array then move them to the document fragment" comment.
 
+> Is the DocumentFragment itself the linked list, or is there additional allocations going on per node of the linked list that wraps the DocumentFragment (or something of the sort)
+
+< To find the exact answer, we have to look past JavaScript and look directly at how browser engines like Blink (Chrome/Edge) and WebKit (Safari) handle DOM trees in C++.
+< 
+< 1. Does the Node Wrap the Fragment?
+< 
+< No, it is actually the inverse: the DocumentFragment is just a specialized Node object.
+< 
+< In the engine's source code, DocumentFragment inherits directly from the base ContainerNode class, which inherits from Node.
+< It doesn't contain a separate, hidden linked-list container wrapper. The fragment itself acts as the parent head pointer for its child elements.
+< 
+< 2. Is There Additional Allocation Per Node?
+< 
+< Yes, there is internal allocation overhead per node, but it is not created by or for the fragment.
+< 
+< The allocation happens the exact moment you call document.createElement(). When you create a DOM element, the browser allocates a heavy C++ object
+< (e.g., an HTMLDivElement instance in Blink) to track everything about that element.
+< 
+< Crucially, every standard Node in the browser already contains embedded pointer properties built directly into its memory footprint to manage its position in a tree structure.
+< It does not use a separate array or an external linked list object. Instead, each node allocates space for pointers like:
+< - m_firstChild
+< - m_lastChild
+< - m_nextSibling
+< - m_previousSibling
+< - m_parent
+< 
+< 3. What Happens Dynamically in Memory when you call fragment.appendChild(node)?
+< 
+< When you call fragment.appendChild(div) inside your loop, the engine performs zero new object or wrapper allocations.
+< 
+< Instead, it executes low-level pointer reassignments:
+< 1. It updates the div's internal m_parent pointer to point to the DocumentFragment.
+< 2. It looks at the fragment's current m_lastChild, finds the previous node you inserted, and links its m_nextSibling pointer to your new div.
+< 3. It updates the fragment's own m_lastChild pointer to point to your new div.
+< ```text
+[ DocumentFragment ]
+     │           │
+(m_firstChild) (m_lastChild)
+     │           │
+     ▼           ▼
+  [ div ] ──► [ div ] ──► [ div ] (m_nextSibling pointers)
+< ```
+< 
+< The Architectural Takeaway for Your Editor
+< 
+< Because child node management inside a DocumentFragment is purely a pointer-swapping operation on pre-existing allocations,
+< you don't need to worry about hidden allocation bottlenecks when appending to a fragment.
+< 
+< The primary memory and CPU cost in your loop is entirely driven by document.createElement()
+< (allocating the heavy C++ element wrappers and setting up their default styles/classes) and .textContent (allocating JavaScript string data inside the engine).
+< The act of pushing those nodes into a DocumentFragment is about as low-overhead as native code can get.
+< 
+< Knowing that createElement is the heaviest part of this loop, would you be interested in looking at DOM node recycling techniques
+< (where you reuse your existing gutter and text lines instead of destroying and recreating them during a scroll)?
 
 */

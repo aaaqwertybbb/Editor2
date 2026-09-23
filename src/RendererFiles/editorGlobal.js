@@ -10020,4 +10020,7 @@ Breakfast:
 Dinner:
 will be 1 lb of 98% fat free ground chicken with sriracha (100 grams of protein)
 
+I'm not eating donuts for breakfast anymore, at first I didn't notice anything bad but the more days of me doing it
+the worse I felt which I guess makes sense
+
 */

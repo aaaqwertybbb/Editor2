@@ -10025,4 +10025,6 @@ the worse I felt which I guess makes sense
 
 Calories in calories out... "what's insulin? diabetes?"
 
+8 + 4 = 10 not a good start
+
 */

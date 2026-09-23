@@ -215,14 +215,13 @@ class TrackingUint32MaxHeap {
   constructor(initialCapacity = 16) {
     this.capacity = initialCapacity;
     this.size = 0;
-    this.heap = new Uint32Array(this.capacity);
+    
+    // Interleaved: Each logical entry takes 2 slots (0: length, 1: lineId)
+    this.heap = new Uint32Array(this.capacity * 2);
 
     // Maps lineIndex -> current position in this.heap. Initialize with -1.
     // Assuming a max layout size, or grow dynamically. We'll start it large or match capacity.
     this.positionMap = new Int32Array(initialCapacity).fill(-1);
-    
-    this.ID_BITS = 20;
-    this.ID_MASK = (1 << this.ID_BITS) - 1;
 
     /**
      * The id is not the lineIndex.
@@ -246,18 +245,82 @@ class TrackingUint32MaxHeap {
     this.unpack_pool_length = 0;
   }
 
-  pack(id, length) {
-    return (length << this.ID_BITS) | (id & this.ID_MASK);
-  }
-
   /** Result is stored in the fields: 'this.unpack_pool_id' and 'this.unpack_pool_length' */
-  unpack(entry) {
-    this.unpack_pool_length = entry >>> this.ID_BITS;
-    this.unpack_pool_id = entry & this.ID_MASK;
+  unpackAt(index) {
+    const bufferIndex = index * 2;
+    this.unpack_pool_length = this.heap[bufferIndex];
+    this.unpack_pool_id = this.heap[bufferIndex + 1];
   }
 
-  peek() {
-    return this.size > 0 ? this.heap[0] : null;
+  /**
+   * result is stored in: 'this.unpack_pool_id', and 'this.unpack_pool_length'
+   * Returns a boolean that indicates whether a node existed.
+   */
+  tryPooledPeek() {
+    if (this.size === 0) return false;
+    this.unpackAt(0);
+    return true;
+  }
+
+  /**
+   * result is stored in: 'this.unpack_pool_id', and 'this.unpack_pool_length'
+   * Returns a boolean that indicates whether a node existed.
+   */
+  tryPooledExtractMax() {
+    if (this.size === 0) return false;
+
+    // Grab max info from root (logical index 0)
+    this.unpackAt(0);
+    const maxId = this.unpack_pool_id;
+    const maxLength = this.unpack_pool_length;
+
+    this.positionMap[maxId] = -1; // Removed
+
+    const maxEntry = this.heap[0];
+    this.unpackAt(maxEntry);
+    const maxIndex = this.unpack_pool_id;
+
+    this.positionMap[maxIndex] = -1; // Removed
+
+    const lastIndex = this.size - 1;
+    if (lastIndex > 0) {
+      // Move last item to root
+      const lastBufferIndex = lastIndex * 2;
+      const lastLength = this.heap[lastBufferIndex];
+      const lastId = this.heap[lastBufferIndex + 1];
+
+      this.heap[0] = lastLength;
+      this.heap[1] = lastId;
+      this.positionMap[lastId] = 0;
+
+      this.size--;
+      this._sinkDown(0);
+    }
+    else {
+      this.size--;
+    }
+
+    return true;
+  }
+
+  /** TODO: Eventual "garbage collection / defragmentation" of the 'this._resizePositionMap' and 'this.nextId' for the no longer in use 'this.nextId'(s) */
+  insert(lineId, lineLength) {
+    if (this.size >= this.capacity) this._resize();
+    
+    // Grow position tracking map if necessary
+    if (lineId >= this.positionMap.length) {
+      this._resizePositionMap(lineId * 2);
+    }
+
+    const index = this.size;
+    const bufferIndex = index * 2;
+
+    this.heap[bufferIndex] = lineLength;
+    this.heap[bufferIndex + 1] = lineId;
+    this.positionMap[lineId] = index;
+    
+    this._bubbleUp(index);
+    this.size++;
   }
 
   // --- The Core Update Method ---
@@ -326,58 +389,6 @@ class TrackingUint32MaxHeap {
       // If it grew shorter, it might need to sink down toward the leaves
       this._sinkDown(heapIndex);
     }
-  }
-
-  /** TODO: Eventual "garbage collection / defragmentation" of the 'this._resizePositionMap' and 'this.nextId' for the no longer in use 'this.nextId'(s) */
-  insert(lineId, lineLength) {
-    if (this.size >= this.capacity) this._resize();
-    
-    // Grow position tracking map if necessary
-    if (lineId >= this.positionMap.length) {
-      this._resizePositionMap(lineId * 2);
-    }
-
-    // Pre-calculated bit limits based on your 20/12 bit layout
-    const MAX_LINE_INDEX = 1048575; // (2 ** 20) - 1
-    const MAX_LINE_LENGTH = 4095;   // (2 ** 12) - 1
-    if (lineId > MAX_LINE_INDEX) {
-      throw new RangeError(`Line index (${lineId}) exceeds the 20-bit limit (${MAX_LINE_INDEX}).`);
-    }
-    if (lineLength > MAX_LINE_LENGTH) {
-      throw new RangeError(`Line length (${lineLength}) exceeds the 12-bit limit (${MAX_LINE_LENGTH}).`);
-    }
-
-    this.heap[this.size] = this.pack(lineId, lineLength);
-    this.positionMap[lineId] = this.size; // Track initial placement
-    
-    this._bubbleUp(this.size);
-    this.size++;
-  }
-
-  extractMax() {
-    if (this.size === 0) return null;
-
-    const maxEntry = this.heap[0];
-    this.unpack(maxEntry);
-    const maxIndex = this.unpack_pool_id;
-
-    this.positionMap[maxIndex] = -1; // Removed
-
-    if (this.size > 1) {
-      const lastEntry = this.heap[this.size - 1];
-      this.unpack(lastEntry);
-      const lastIndex = this.unpack_pool_id;
-      
-      this.heap[0] = lastEntry;
-      this.positionMap[lastIndex] = 0; // Updated track
-      
-      this.size--;
-      this._sinkDown(0);
-    } else {
-      this.size--;
-    }
-
-    return maxEntry;
   }
 
   _bubbleUp(index) {

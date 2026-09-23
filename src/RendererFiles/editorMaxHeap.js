@@ -134,6 +134,10 @@ class TrackingUint32MaxHeap {
 
   // Result is stored in the fields: 'this.unpack_pool_id' and 'this.unpack_pool_length'
   unpack(entry) {
+    // (
+    // I left this one hoping they'd pick up on my avoidance of creating an object as a return value.
+    // I need to read the final resulting code still.
+    // )
     this.unpack_pool_length = entry >>> this.ID_BITS;
     this.unpack_pool_id = entry & this.ID_MASK;
   }

@@ -331,25 +331,20 @@ class TrackingUint32MaxHeap {
     
     // If it's not currently in the heap, just insert it normally
     if (heapIndex === -1) {
-      this.insert(lineId, newLength);
-      return;
+      throw new Error();
+      //this.insert(lineId, newLength);
+      //return;
     }
 
-    // 2. Get the old packed entry to compare lengths
-    const oldEntry = this.heap[heapIndex];
-    const oldLength = oldEntry >>> this.ID_BITS;
-    
-    // 3. Overwrite the element with the new packed entry
-    const newEntry = this.pack(lineId, newLength);
-    this.heap[heapIndex] = newEntry;
+    const bufferIndex = index * 2;
+    const oldLength = this.heap[bufferIndex];
+    this.heap[bufferIndex] = newLength;
 
-    // 4. Restore the Max-Heap property
     if (newLength > oldLength) {
-      // If it grew longer, it might need to bubble up toward the top
       this._bubbleUp(heapIndex);
-    } else if (newLength < oldLength) {
-      // If it grew shorter, it might need to sink down toward the leaves
-      this._sinkDown(heapIndex);
+    }
+    else if (newLength < oldLength) {
+      this._sinkDown(index);
     }
   }
   
@@ -363,73 +358,66 @@ class TrackingUint32MaxHeap {
     
     // If it's not currently in the heap, just insert it normally
     if (heapIndex === -1) {
-      // TODO: ERROR: cannot access newLength before initialization...
-      // ...using 'diffLength' fixes the error, and from some perspectives actually seems sensible.
-      // But this is probably extremely bad because you have to track the line index -> heap id and vice versa
-      // so the idea that you ever accidentally update something that doesn't exist sounds catastrophically bad
-      // because it implies you're failing to track the previously mentioned mappings.
-      this.insert(lineId, diffLength);
-      return;
+      throw new Error();
+      //// TODO: ERROR: cannot access newLength before initialization...
+      //// ...using 'diffLength' fixes the error, and from some perspectives actually seems sensible.
+      //// But this is probably extremely bad because you have to track the line index -> heap id and vice versa
+      //// so the idea that you ever accidentally update something that doesn't exist sounds catastrophically bad
+      //// because it implies you're failing to track the previously mentioned mappings.
+      //this.insert(lineId, diffLength);
+      //return;
     }
 
-    // 2. Get the old packed entry to compare lengths
-    const oldEntry = this.heap[heapIndex];
-    const oldLength = oldEntry >>> this.ID_BITS;
-    const newLength = oldLength + diffLength;
-    
-    // 3. Overwrite the element with the new packed entry
-    const newEntry = this.pack(lineId, newLength);
-    this.heap[heapIndex] = newEntry;
+    const bufferIndex = index * 2;
+    const oldLength = this.heap[bufferIndex];
+    const newLength = oldLength + diffLength; // Assumes length stays unsigned/positive
+    this.heap[bufferIndex] = newLength;
 
     // 4. Restore the Max-Heap property
     if (newLength > oldLength) {
       // If it grew longer, it might need to bubble up toward the top
       this._bubbleUp(heapIndex);
-    } else if (newLength < oldLength) {
+    }
+    else if (newLength < oldLength) {
       // If it grew shorter, it might need to sink down toward the leaves
       this._sinkDown(heapIndex);
     }
   }
 
+  /** Swaps full 2-slot records and updates the position map pointers */
+  _swap(i, j) {
+    const idxA = i * 2;
+    const idxB = j * 2;
+
+    // Swap Lengths
+    const lenA = this.heap[idxA];
+    this.heap[idxA] = this.heap[idxB];
+    this.heap[idxB] = lenA;
+
+    // Swap IDs
+    const idA = this.heap[idxA + 1];
+    const idB = this.heap[idxB + 1];
+    this.heap[idxA + 1] = this.heap[idxB + 1];
+    this.heap[idxB + 1] = idA;
+
+    // Update the position mappings to reflect their new logical heap index
+    this.positionMap[idA] = j;
+    this.positionMap[idB] = i;
+  }
+
   _bubbleUp(index) {
-    const entry = this.heap[index];
-    this.unpack(entry);
-    const lineIndex = this.unpack_pool_id;
+
+    const entry = this.heap[index * 2];
 
     while (index > 0) {
       const parentIndex = (index - 1) >> 1;
-      const parentEntry = this.heap[parentIndex];
 
-      /*
-       > It's this line of '_bubbleUp' that says 'if (entry <= parentEntry) break;'.
-       > A comparison on the entry (which is packed) would fail to do a "then by" comparison.
-       > I think you'd have to explicitly unpack both values from the entry and compare them one at a time.
+      // Compare lengths at slot 0 of both entries
+      if (entry <= this.heap[parentIndex * 2]) break;
 
-       < The Faster Fix: Swap Your Bit Packing Layout
-       <
-       < Instead of unpacking elements on every single heap movement (which slows things down), you can simply swap where the bits live:
-       < Upper 20 bits: Line Length (Sorted first!)
-       < Lower 12 bits: Line ID
-       <
-       < Because the most significant bits dictate the size of the whole 32-bit integer,
-       < a raw comparison like entryA > entryB will now naturally sort by length first.
-       < If two lengths are identical, it will cleanly break ties using the ID in the lower bits.
-       < 
-       < ...
-      */
-      if (entry <= parentEntry) break;
-
-      // Swap entry and update its position tracking
-      this.heap[index] = parentEntry;
-      this.unpack(parentEntry);
-      const parentLineIndex = this.unpack_pool_id;
-      this.positionMap[parentLineIndex] = index;
-
+      this._swap(index, parentIndex);
       index = parentIndex;
     }
-    
-    this.heap[index] = entry;
-    this.positionMap[lineIndex] = index;
   }
 
   _sinkDown(index) {

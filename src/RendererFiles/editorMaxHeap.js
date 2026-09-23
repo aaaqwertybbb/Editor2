@@ -421,46 +421,42 @@ class TrackingUint32MaxHeap {
   }
 
   _sinkDown(index) {
-    const entry = this.heap[index];
-    this.unpack(entry);
-    const lineIndex = this.unpack_pool_id;
+
     const halfSize = this.size >> 1;
 
     while (index < halfSize) {
-      let leftChildIndex = (index << 1) + 1;
-      let rightChildIndex = leftChildIndex + 1;
-      let largestChildIndex = leftChildIndex;
+      let leftChild = (index << 1) + 1;
+      let rightChild = leftChild + 1;
+      let largest = index;
 
-      if (rightChildIndex < this.size && this.heap[rightChildIndex] > this.heap[leftChildIndex]) {
-        largestChildIndex = rightChildIndex;
+      if (this.heap[leftChild * 2] > this.heap[largest * 2]) {
+        largest = leftChild;
+      }
+      if (rightChild < this.size && this.heap[rightChild * 2] > this.heap[largest * 2]) {
+        largest = rightChild;
       }
 
-      if (entry >= this.heap[largestChildIndex]) break;
+      if (largest === index) break;
 
-      // Swap entry and update its position tracking
-      const childEntry = this.heap[largestChildIndex];
-      this.heap[index] = childEntry;
-      this.unpack(childEntry);
-      const childLineIndex = this.unpack_pool_id;
-      this.positionMap[childLineIndex] = index;
-
-      index = largestChildIndex;
+      this._swap(index, largest);
+      index = largest;
     }
-
-    this.heap[index] = entry;
-    this.positionMap[lineIndex] = index;
   }
 
   _resize() {
     this.capacity *= 2;
-    const nextHeap = new Uint32Array(this.capacity);
+    const nextHeap = new Uint32Array(this.capacity * 2);
     nextHeap.set(this.heap);
     this.heap = nextHeap;
   }
 
   _resizePositionMap(newMinSize) {
-    const nextMap = new Int32Array(Math.max(this.positionMap.length * 2, newMinSize)).fill(-1);
-    nextMap.set(this.positionMap);
-    this.positionMap = nextMap;
+
+    let newSize = this.positionMap.length * 2;
+    if (newSize < newMinSize) { newSize = newMinSize; }
+
+    const newMap = new Int32Array(newSize).fill(-1);
+    newMap.set(this.positionMap);
+    this.positionMap = newMap;
   }
 }

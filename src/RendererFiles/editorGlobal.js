@@ -10028,4 +10028,24 @@ It always makes one of the fields a worrisome limiting reagent.
 But you could probably make a "mirror image" of the current heap.
 Such that the heap entry in the current one is the visual length and the mirror image stores the lineIndex?
 
+=====
+
+Focus, attention, pleasure, boredom, fatigue, feeling tire; and the relation to poductivity
+
+I don't feel like typing much out right now.
+But I want to say something on this right now because this always was a big thing on my mind back in the day.
+
+Today I have so far felt, no focus, no pleasure, just boredom and fatigue.
+I've been yawning over and over.
+And I have nearly 0 desire to do anything.
+
+In terms of routine I did the exact same thing today as I do on days where I suddenly can code for 9 hours straight
+and that I actually have to intentionally tell myself to stop so I can go and eat / exercise.
+
+I don't know if I'll say anything more than that just cause I don't even quite want to.
+But, idk
+
+
+
+
 */

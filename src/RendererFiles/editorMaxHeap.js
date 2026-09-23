@@ -129,7 +129,7 @@ class TrackingUint32MaxHeap {
   }
 
   pack(id, length) {
-    // ..
+    // .. (these are actually commented out just like this in my prompt)
   }
 
   // Result is stored in the fields: 'this.unpack_pool_id' and 'this.unpack_pool_length'
@@ -139,44 +139,44 @@ class TrackingUint32MaxHeap {
   }
 
   peek() {
-    // ..
+    // .. (these are actually commented out just like this in my prompt)
   }
 
   // --- The Core Update Method ---
   updateLength(lineId, newLength) {
-    // ..
+    // .. (these are actually commented out just like this in my prompt)
   }
   
   // 
   // @param {*} diff positive or negative to reflect length change
   // 
   updateLength_diff(lineId, diffLength) {
-    // ..
+    // .. (these are actually commented out just like this in my prompt)
   }
 
   // TODO: Eventual "garbage collection / defragmentation" of the 'this._resizePositionMap' and 'this.nextId' for the no longer in use 'this.nextId'(s)
   insert(lineId, lineLength) {
-    // ..
+    // .. (these are actually commented out just like this in my prompt)
   }
 
   extractMax() {
-    // ..
+    // .. (these are actually commented out just like this in my prompt)
   }
 
   _bubbleUp(index) {
-    // ..
+    // .. (these are actually commented out just like this in my prompt)
   }
 
   _sinkDown(index) {
-    // ..
+    // .. (these are actually commented out just like this in my prompt)
   }
 
   _resize() {
-    // ..
+    // .. (these are actually commented out just like this in my prompt)
   }
 
   _resizePositionMap(newMinSize) {
-    // ..
+    // .. (these are actually commented out just like this in my prompt)
   }
 }
 > ```

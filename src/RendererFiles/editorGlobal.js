@@ -10045,6 +10045,15 @@ and that I actually have to intentionally tell myself to stop so I can go and ea
 I don't know if I'll say anything more than that just cause I don't even quite want to.
 But, idk
 
+"Don't confuse pleasure for productivity"
+"Don't confuse throughput for productivity"
+
+The feelings of "excitement and pleasure" aren't always going to be there.
+And the lack of them doesn't necessarily indicate you're going in the wrong direction.
+
+In fact, constant feeling of "excitement and pleasure" would likely indicate that you're going in the wrong direction,
+and delusional and unable to truly evaluate your progress as of late.
+
 
 
 

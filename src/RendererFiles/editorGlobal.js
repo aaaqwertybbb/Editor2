@@ -10034,4 +10034,12 @@ Calories in calories out... "what's insulin? diabetes?"
 
 8 + 4 = 10 not a good start
 
+TODO: you pack the heap entries because you don't want the per-heap-node-object-allocation overhead...
+...this means your lineIndex is cap'd to like 1 million...
+...and the longest visual length is like 4096 or something.
+And no matter how you move the packing bits per field and such.
+It always makes one of the fields a worrisome limiting reagent.
+But you could probably make a "mirror image" of the current heap.
+Such that the heap entry in the current one is the visual length and the mirror image stores the lineIndex?
+
 */

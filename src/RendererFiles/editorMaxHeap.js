@@ -198,7 +198,187 @@ class TrackingUint32MaxHeap {
 < 
 < Refactored Class Template
 < ```js
-// lots of code...
+class TrackingUint32MaxHeap {
+  constructor(initialCapacity = 16) {
+    this.capacity = initialCapacity;
+    this.size = 0;
+    
+    // Interleaved: Each logical entry takes 2 slots (0: length, 1: lineId)
+    this.heap = new Uint32Array(this.capacity * 2);
+
+    // Maps lineId -> current logical position in this.heap.
+    this.positionMap = new Int32Array(initialCapacity).fill(-1);
+    
+    // The pool fields can now directly hold the unpacked values without bitwise limits
+    this.unpack_pool_id = 0;
+    this.unpack_pool_length = 0;
+  }
+
+  // Safely extracts values into the pool variables using the logical index
+  unpackAt(index) {
+    const bufferIndex = index * 2;
+    this.unpack_pool_length = this.heap[bufferIndex];
+    this.unpack_pool_id = this.heap[bufferIndex + 1];
+  }
+
+  peek() {
+    if (this.size === 0) return null;
+    this.unpackAt(0);
+    return { id: this.unpack_pool_id, length: this.unpack_pool_length };
+  }
+
+  insert(lineId, lineLength) {
+    if (this.size >= this.capacity) {
+      this._resize();
+    }
+    if (lineId >= this.positionMap.length) {
+      this._resizePositionMap(lineId + 1);
+    }
+
+    const index = this.size;
+    const bufferIndex = index * 2;
+    
+    this.heap[bufferIndex] = lineLength;
+    this.heap[bufferIndex + 1] = lineId;
+    this.positionMap[lineId] = index;
+    
+    this.size++;
+    this._bubbleUp(index);
+  }
+
+  extractMax() {
+    if (this.size === 0) return null;
+
+    // Grab max info from root (logical index 0)
+    this.unpackAt(0);
+    const maxId = this.unpack_pool_id;
+    const maxLength = this.unpack_pool_length;
+
+    this.positionMap[maxId] = -1; // Removed
+
+    const lastIndex = this.size - 1;
+    if (lastIndex > 0) {
+      // Move last item to root
+      const lastBufferIndex = lastIndex * 2;
+      const lastLength = this.heap[lastBufferIndex];
+      const lastId = this.heap[lastBufferIndex + 1];
+
+      this.heap[0] = lastLength;
+      this.heap[1] = lastId;
+      this.positionMap[lastId] = 0;
+
+      this.size--;
+      this._sinkDown(0);
+    } else {
+      this.size--;
+    }
+
+    return { id: maxId, length: maxLength };
+  }
+
+  // --- The Core Update Methods ---
+  updateLength(lineId, newLength) {
+    const index = this.positionMap[lineId];
+    if (index === -1) return;
+
+    const bufferIndex = index * 2;
+    const oldLength = this.heap[bufferIndex];
+    this.heap[bufferIndex] = newLength;
+
+    if (newLength > oldLength) {
+      this._bubbleUp(index);
+    } else if (newLength < oldLength) {
+      this._sinkDown(index);
+    }
+  }
+  
+  updateLength_diff(lineId, diffLength) {
+    const index = this.positionMap[lineId];
+    if (index === -1) return;
+
+    const bufferIndex = index * 2;
+    const oldLength = this.heap[bufferIndex];
+    const newLength = oldLength + diffLength; // Assumes length stays unsigned/positive
+    this.heap[bufferIndex] = newLength;
+
+    if (diffLength > 0) {
+      this._bubbleUp(index);
+    } else if (diffLength < 0) {
+      this._sinkDown(index);
+    }
+  }
+
+  // --- Internal Heap Mechanics ---
+  _bubbleUp(index) {
+    while (index > 0) {
+      const parentIndex = (index - 1) >> 1;
+      
+      // Compare lengths at slot 0 of both entries
+      if (this.heap[index * 2] <= this.heap[parentIndex * 2]) break;
+      
+      this._swap(index, parentIndex);
+      index = parentIndex;
+    }
+  }
+
+  _sinkDown(index) {
+    const halfSize = this.size >> 1;
+    while (index < halfSize) {
+      let leftChild = (index << 1) + 1;
+      let rightChild = leftChild + 1;
+      let largest = index;
+
+      if (this.heap[leftChild * 2] > this.heap[largest * 2]) {
+        largest = leftChild;
+      }
+      if (rightChild < this.size && this.heap[rightChild * 2] > this.heap[largest * 2]) {
+        largest = rightChild;
+      }
+
+      if (largest === index) break;
+
+      this._swap(index, largest);
+      index = largest;
+    }
+  }
+
+  // Swaps full 2-slot records and updates the position map pointers
+  _swap(i, j) {
+    const idxA = i * 2;
+    const idxB = j * 2;
+
+    // Swap Lengths
+    const lenA = this.heap[idxA];
+    this.heap[idxA] = this.heap[idxB];
+    this.heap[idxB] = lenA;
+
+    // Swap IDs
+    const idA = this.heap[idxA + 1];
+    const idB = this.heap[idxB + 1];
+    this.heap[idxA + 1] = this.heap[idxB + 1];
+    this.heap[idxB + 1] = idA;
+
+    // Update the position mappings to reflect their new logical heap index
+    this.positionMap[idA] = j;
+    this.positionMap[idB] = i;
+  }
+
+  _resize() {
+    this.capacity *= 2;
+    const newHeap = new Uint32Array(this.capacity * 2);
+    newHeap.set(this.heap);
+    this.heap = newHeap;
+  }
+
+  _resizePositionMap(newMinSize) {
+    let newSize = this.positionMap.length * 2;
+    if (newSize < newMinSize) newSize = newMinSize;
+    
+    const newMap = new Int32Array(newSize).fill(-1);
+    newMap.set(this.positionMap);
+    this.positionMap = newMap;
+  }
+}
 < ```
 < 
 < Key Differences & Benefits

@@ -1770,7 +1770,7 @@ async function EXPLORER_MenuOnClick(indexClicked, elementClicked) {
 async function NewFile_Directory_WIDGET_InputText_callback(result) {
     if (result.isCancelled) return;
 
-    let entry = WIDGET_SHOW_value;
+    let entry = WIDGET_value;
 
     EXPLORER_treeViewNodes.getElementAt(WIDGET_target.indexItem);
     let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
@@ -1855,7 +1855,7 @@ async function NewFile_Directory_WIDGET_InputText_callback(result) {
 async function NewFile_File_WIDGET_InputText_callback(result) {
     if (result.isCancelled) return;
 
-    let entry = WIDGET_SHOW_value;
+    let entry = WIDGET_value;
     
     EXPLORER_treeViewNodes.getElementAt(WIDGET_target.indexItem);
     let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
@@ -1936,7 +1936,7 @@ async function NewFile_File_WIDGET_InputText_callback(result) {
 
 async function DeleteFile_Directory_YesCancel_callback(result) {
     if (result.isCancelled) return;
-    let entry = WIDGET_SHOW_value;
+    let entry = WIDGET_value;
     let deleteFileResult = await window.myAPI.deleteFile(entry.absolutePath, /*isDirectory*/ true);
     if (deleteFileResult) {
         let countOfMoreEntriesToShow = EXPLORER_treeViewNodes.count_abstract - (INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount]);
@@ -1976,9 +1976,9 @@ async function DeleteFile_Directory_YesCancel_callback(result) {
 
 async function DeleteFile_File_YesCancel_callback(result) {
     if (result.isCancelled) return;
-    // TODO: Biggest concern is that 'WIDGET_SHOW_value' is never set to a GC collectable state after widget finishes.
-    // ...better wording of the TODO: the object that 'WIDGET_SHOW_value' references can never be garbage collected even after the widget finishes (unless a later show of a widget overrites the variable to reference a different object). This is because the variable is never set to null. Due to the variable being global, it exists for the entire app duration and a null set is required in this case for garbage collection of what it points to to take place.
-    let entry = WIDGET_SHOW_value;
+    // TODO: Biggest concern is that 'WIDGET_value' is never set to a GC collectable state after widget finishes.
+    // ...better wording of the TODO: the object that 'WIDGET_value' references can never be garbage collected even after the widget finishes (unless a later show of a widget overrites the variable to reference a different object). This is because the variable is never set to null. Due to the variable being global, it exists for the entire app duration and a null set is required in this case for garbage collection of what it points to to take place.
+    let entry = WIDGET_value;
     let deleteFileResult = await window.myAPI.deleteFile(entry.absolutePath, /*isDirectory*/ false);
     if (deleteFileResult) {
         let noMoreEntriesToShow = INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] >= EXPLORER_treeViewNodes.count_abstract;

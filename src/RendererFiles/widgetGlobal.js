@@ -263,7 +263,7 @@ function WIDGET_CreateInputText() {
     }
 
     // TODO: "typeof value === 'string'" is not a bulletproof solution for checking whether the value is a string.
-    // TODO: Extremely undocumented behavior in relation to the ways of using 'WIDGET_SHOW_value'.
+    // TODO: Extremely undocumented behavior in relation to the ways of using 'WIDGET_value'.
     //
     if ((WIDGET_value || WIDGET_value === '') && (typeof WIDGET_value === 'string')) {
         input.value = WIDGET_value;

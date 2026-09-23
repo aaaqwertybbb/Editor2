@@ -713,7 +713,7 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
     // TODO: The ++ here "isn't needed" but it makes the code consistent and less prone to future mistakes should another access of 'EDI_lineEndPositionList_count' be made after this point in the future.
     EDI_lineEndPositionList_insert(local_EDI_lineEndPositionList_count++, local_EDI_textByteList_count, lineLengthVisual);
 
-    EDI_trackingUint32MaxHeap.unpack(EDI_trackingUint32MaxHeap.peek());
+    EDI_trackingUint32MaxHeap.tryPooledPeek();
     // 
     // "The id is not the lineIndex... except for the times where it is"
     //
@@ -3487,14 +3487,12 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
     // -------------------------
 
     EDI_trackingUint32MaxHeap.updateLength_diff(/*lineId*/ indexLine_editOccurredOn, INTS[fEDI_cursor_editLength]);
-    let maxHeapEntry = EDI_trackingUint32MaxHeap.peek();
-    if (maxHeapEntry !== null && INTS[fEDI_longestLine_heapEntry] !== maxHeapEntry) {
-        INTS[fEDI_longestLine_heapEntry] = maxHeapEntry;
-        EDI_trackingUint32MaxHeap.unpack(maxHeapEntry);
+    if (EDI_trackingUint32MaxHeap.tryPooledPeek()) {
         INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
         INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
     }
-
+    // TODO: else?
+    
     EDI_finalizeEdit_ClearEditState();
 
     return indexLine_editOccurredOn;
@@ -3602,13 +3600,11 @@ function EDI_finalizeEdit_Tab(indexLine_editOccurredOn) {
     }
 
     EDI_trackingUint32MaxHeap.updateLength_diff(/*lineId*/ INTS[fEDI_cursor_editIndexLine], editLengthVisual);
-    let maxHeapEntry = EDI_trackingUint32MaxHeap.peek();
-    if (maxHeapEntry !== null && INTS[fEDI_longestLine_heapEntry] !== maxHeapEntry) {
-        INTS[fEDI_longestLine_heapEntry] = maxHeapEntry;
-        EDI_trackingUint32MaxHeap.unpack(maxHeapEntry);
+    if (EDI_trackingUint32MaxHeap.tryPooledPeek()) {
         INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
         INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
     }
+    // TODO: else?
 
     EDI_finalizeEdit_ClearEditState();
 
@@ -3741,13 +3737,11 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
     //
     if (startingIndex === SMALL_lineAndColumnIndices_indexLine) {
         EDI_trackingUint32MaxHeap.updateLength_diff(/*lineId*/ INTS[fEDI_cursor_editIndexLine], bytesLength * INTS[fEDI_ontab_visualWidth_perCharacter]);
-        let maxHeapEntry = EDI_trackingUint32MaxHeap.peek();
-        if (maxHeapEntry !== null && INTS[fEDI_longestLine_heapEntry] !== maxHeapEntry) {
-            INTS[fEDI_longestLine_heapEntry] = maxHeapEntry;
-            EDI_trackingUint32MaxHeap.unpack(maxHeapEntry);
+        if (EDI_trackingUint32MaxHeap.tryPooledPeek()) {
             INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
             INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
         }
+        // TODO: else?
     }
     
     EDI_finalizeEdit_ClearEditState();
@@ -4060,13 +4054,11 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
     //
     if (startingIndex === SMALL_lineAndColumnIndices_indexLine) {
         EDI_trackingUint32MaxHeap.updateLength_diff(/*lineId*/ INTS[fEDI_cursor_editIndexLine], -1 * mostRecent_decrementedVisualWidthAbsolute);
-        let maxHeapEntry = EDI_trackingUint32MaxHeap.peek();
-        if (maxHeapEntry !== null && INTS[fEDI_longestLine_heapEntry] !== maxHeapEntry) {
-            INTS[fEDI_longestLine_heapEntry] = maxHeapEntry;
-            EDI_trackingUint32MaxHeap.unpack(maxHeapEntry);
+        if (EDI_trackingUint32MaxHeap.tryPooledPeek()) {
             INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
             INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
         }
+        // TODO: else?
     }
 
     EDI_finalizeEdit_ClearEditState();
@@ -4159,13 +4151,11 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
     if (linesInsertedCount === 0) {
         indexLine_editOccurredOn = INTS[fEDI_cursor_editIndexLine];
         EDI_trackingUint32MaxHeap.updateLength_diff(/*lineId*/ indexLine_editOccurredOn, editLengthVisual);
-        let maxHeapEntry = EDI_trackingUint32MaxHeap.peek();
-        if (maxHeapEntry !== null && INTS[fEDI_longestLine_heapEntry] !== maxHeapEntry) {
-            INTS[fEDI_longestLine_heapEntry] = maxHeapEntry;
-            EDI_trackingUint32MaxHeap.unpack(maxHeapEntry);
+        if (EDI_trackingUint32MaxHeap.tryPooledPeek()) {
             INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
             INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
         }
+        // TODO: else?
     }
 
     EDI_finalizeEdit_ClearEditState();
@@ -4244,13 +4234,11 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
     if (linesInsertedCount === 0) {
         indexLine_editOccurredOn = INTS[fEDI_cursor_editIndexLine];
         EDI_trackingUint32MaxHeap.updateLength_diff(/*lineId*/ indexLine_editOccurredOn, editLengthVisual);
-        let maxHeapEntry = EDI_trackingUint32MaxHeap.peek();
-        if (maxHeapEntry !== null && INTS[fEDI_longestLine_heapEntry] !== maxHeapEntry) {
-            INTS[fEDI_longestLine_heapEntry] = maxHeapEntry;
-            EDI_trackingUint32MaxHeap.unpack(maxHeapEntry);
+        if (EDI_trackingUint32MaxHeap.tryPooledPeek()) {
             INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
             INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
         }
+        // TODO: else?
     }
 
     EDI_finalizeEdit_ClearEditState();
@@ -4359,13 +4347,11 @@ function EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_
 
     if (startLineAndColumnIndices_indexLine === endLineAndColumnIndices_indexLine) {
         EDI_trackingUint32MaxHeap.updateLength_diff(/*lineId*/ INTS[fEDI_cursor_editIndexLine], -1 * INTS[fEDI_cursor_editLengthVisual]);
-        let maxHeapEntry = EDI_trackingUint32MaxHeap.peek();
-        if (maxHeapEntry !== null && INTS[fEDI_longestLine_heapEntry] !== maxHeapEntry) {
-            INTS[fEDI_longestLine_heapEntry] = maxHeapEntry;
-            EDI_trackingUint32MaxHeap.unpack(maxHeapEntry);
+        if (EDI_trackingUint32MaxHeap.tryPooledPeek()) {
             INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
             INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
         }
+        // TODO: else?
     }
 
     EDI_finalizeEdit_ClearEditState();

@@ -762,7 +762,8 @@ const fEDI_cursor_cached_indentation_string_visualWidth = 186;
 
 const fEDI_cursor_GAP_BUFFER_width_when_each_char_is_1_visual_width = 187;
 
-const fEDI_longestLine_heapEntry = 188;
+/** TODO: obsolete */
+const fEDI_longestLine_heapEntry = 188; 
 
 const fEDI_cursor_editLengthVisual = 189;
 

@@ -10012,4 +10012,12 @@ EDI_textElement.appendChild(lineFragment);
 
 # track longest line
 
+Breakfast:
+1 lb of 98% fat free ground chicken with sriracha (100 grams of protein)
+4 peanut butter cliff bars (40% daily iron, 44 grams of protein, energy calories, fiber)
+1 single serving container of plain cheerios (60% daily iron, energy calories)
+
+Dinner:
+will be 1 lb of 98% fat free ground chicken with sriracha (100 grams of protein)
+
 */

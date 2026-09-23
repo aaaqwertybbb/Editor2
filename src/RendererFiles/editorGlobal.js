@@ -10054,6 +10054,10 @@ And the lack of them doesn't necessarily indicate you're going in the wrong dire
 In fact, constant feeling of "excitement and pleasure" would likely indicate that you're going in the wrong direction,
 and delusional and unable to truly evaluate your progress as of late.
 
+You don't want to just take dopaminergic substances to force the "excitement and pleasure"
+because your shifts in mood, and shifts in feelings of pleasure are extremely useful
+for solving problems.
+
 
 
 

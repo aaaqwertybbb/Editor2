@@ -389,6 +389,150 @@ class TrackingUint32MaxHeap {
 <    keeping outer structures easy to reason about.
 < 
 < Would you like to write a unit test suite / harness to verify that the heap invariant holds and that the positionMap tracks line migrations correctly during heavy updates?
+
+> I need to add 'removeAt' logic for the heap. For example I have this code currently:
+> 
+> function EDI_lineEndPositionList_removeAt(index, count) {
+>     // ... (the code was included in the prompt)
+> }
+
+< In a tracking max heap, removing a contiguous block of lines from your document structure requires two distinct updates to the heap system:
+< 
+< 1. Heap Element Removal: The specific lines that are deleted must be scrubbed out of the heap completely.
+< 2. Tracking Map Shift: For all surviving lines positioned after the deleted block (lineId >= index + count), their absolute lineId has effectively
+<    shifted down by count. This means your tracking structures and the IDs stored within the interleaved heap itself need to be decremented.
+< 
+< Here is the refactored logic broken down into a helper method for your heap class and an updated version of your document-level removeAt function.
+< 
+< 1. Add removeLineId to your Heap Class
+< 
+< Instead of removing by heap index, it is much safer to look up the line by its identity using your tracking map.
+< To remove a node from an arbitrary position in a heap:
+< 
+< 1. Swap it with the last element in the heap.
+< 2. Decrease this.size.
+< 3. Repair the heap structural invariant by either bubbling the swapped element up or sinking it down.
+< 
+< Add this method to your TrackingUint32MaxHeap class:
+< ```js
+removeLineId(lineId) {
+  const index = this.positionMap[lineId];
+  if (index === -1) return; // Not in the heap
+
+  this.positionMap[lineId] = -1;
+  const lastIndex = this.size - 1;
+
+  if (index === lastIndex) {
+    this.size--;
+    return;
+  }
+
+  // Move the last element into the hole
+  const lastBufferIndex = lastIndex * 2;
+  const targetBufferIndex = index * 2;
+  
+  const movedLength = this.heap[lastBufferIndex];
+  const movedId = this.heap[lastBufferIndex + 1];
+
+  this.heap[targetBufferIndex] = movedLength;
+  this.heap[targetBufferIndex + 1] = movedId;
+  this.positionMap[movedId] = index;
+
+  this.size--;
+
+  // The element could need to move up or down depending on its value
+  // We check its parent to see if it needs to bubble up, otherwise sink it down
+  if (index > 0) {
+    const parentIndex = (index - 1) >> 1;
+    if (this.heap[targetBufferIndex] > this.heap[parentIndex * 2]) {
+      this._bubbleUp(index);
+      return;
+    }
+  }
+  this._sinkDown(index);
+}
+< ```
+< 
+< 2. Update your removeAt Document Function
+< 
+< Your current function correctly shifts your linear document vectors down. We need to integrate the heap logic so that:
+< 
+< 1. Before the array copy shift: We completely remove the targeted lines from the heap.
+< 2. After the array copy shift: We loop over the internal storage of the heap to decrement the IDs of elements that migrated to a lower index.
+< 
+< (Note: There was a minor logic branch bug in your original snippet: if (index + count === EDI_lineEndPositionList_count) calculated shiftableCount,
+<        but then executed if (shiftableCount > 0) which would always be false since EDI_lineEndPositionList_count - (index + count) is 0 under that condition.
+<        The refactored version consolidates this safely.)
+< 
+< ```js
+function EDI_lineEndPositionList_removeAt(index, count) {
+    if (index > EDI_lineEndPositionList_count) { throw new Error('removeAt(...): index > EDI_lineEndPositionList_count'); }
+    if (index + count > EDI_lineEndPositionList_count) { throw new Error('removeAt(...): index + count > EDI_lineEndPositionList_count'); }
+    if (count === 0) { return; }
+
+    // --- Step 1: Remove the deleted lines from the heap tracking system ---
+    const endDeletedRange = index + count;
+    for (let i = index; i < endDeletedRange; i++) {
+        // Look up the specific heap ID assigned to this line row
+        let heapId = EDI_lineIndexToHeapId[i];
+        if (heapId !== -1) { 
+            myTrackingHeap.removeLineId(heapId);
+        }
+    }
+
+    // --- Step 2: Concurrently shift down your document linear structures ---
+    let shiftableCount = EDI_lineEndPositionList_count - endDeletedRange;
+    if (shiftableCount > 0) {
+        EDI_lineEndPositionList_copyTo(
+            EDI_lineEndPositionList_data,
+            endDeletedRange,
+            EDI_lineEndPositionList_data,
+            index,
+            shiftableCount
+        );
+        EDI_lineIndexToHeapId_copyTo(
+            EDI_lineIndexToHeapId,
+            endDeletedRange,
+            EDI_lineIndexToHeapId,
+            index,
+            shiftableCount
+        );
+
+        // --- Step 3: Shift the structural IDs of lines that survived ---
+        // Every line that was past the deletion zone just got its index decremented by 'count'.
+        // We must update the references inside the interleaved heap and position map.
+        
+        // Loop through the heap buffer directly to re-align internal IDs
+        const heapTotalSlots = myTrackingHeap.size * 2;
+        for (let slot = 1; slot < heapTotalSlots; slot += 2) {
+            let currentLineId = myTrackingHeap.heap[slot];
+            if (currentLineId >= endDeletedRange) {
+                myTrackingHeap.heap[slot] = currentLineId - count;
+            }
+        }
+
+        // Shift down the tracking positions map entries for remaining indices
+        // Assuming your positionMap grows to track maximum layout boundaries
+        const originalMapLen = myTrackingHeap.positionMap.length;
+        for (let i = endDeletedRange; i < originalMapLen; i++) {
+            myTrackingHeap.positionMap[i - count] = myTrackingHeap.positionMap[i];
+        }
+        // Blank out the tail entries left behind by the shift
+        myTrackingHeap.positionMap.fill(-1, originalMapLen - count, originalMapLen);
+    }
+
+    EDI_lineEndPositionList_count -= count;
+}
+< ```
+< 
+< Why this design avoids fragmentation
+< 
+< - Linear Shifts: The position map data updates cleanly with a simple fast-loop index assignment, matching your underlying vector strategy.
+< - Heap Scan: The heap payload itself only scans up to this.size * 2 elements rather than the whole capacity buffer, making the pointer reassignment rapid.
+< 
+< Would you like help adapting your companion insertAt logic to safely increase and offset those tracking IDs when
+< new lines are spliced into the middle of the document?
+
 */
 
 class TrackingUint32MaxHeap {

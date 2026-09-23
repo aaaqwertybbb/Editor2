@@ -516,7 +516,7 @@ class TrackingUint32MaxHeap {
       //return;
     }
 
-    const bufferIndex = index * 2;
+    const bufferIndex = heapIndex * 2;
     const oldLength = this.heap[bufferIndex];
     this.heap[bufferIndex] = newLength;
 
@@ -524,7 +524,7 @@ class TrackingUint32MaxHeap {
       this._bubbleUp(heapIndex);
     }
     else if (newLength < oldLength) {
-      this._sinkDown(index);
+      this._sinkDown(heapIndex);
     }
   }
   
@@ -548,7 +548,7 @@ class TrackingUint32MaxHeap {
       //return;
     }
 
-    const bufferIndex = index * 2;
+    const bufferIndex = heapIndex * 2;
     const oldLength = this.heap[bufferIndex];
     const newLength = oldLength + diffLength; // Assumes length stays unsigned/positive
     this.heap[bufferIndex] = newLength;

@@ -705,23 +705,13 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
             lineLengthVisual += ((4 - ((lineLengthVisual - 1) % 4)) - 1); // (tab logic): avoid branching by eager counting... 'lineLengthVisual - 1... % 4)) - 1)'
         }
         else if (local_EDI_textByteList_bytes[sourceI] === CONST_EDI_ASCII_LINE_FEED) {
-            // NOTE: The 'EDI_trackingUint32MaxHeap.insert' does NOT post-increment whereas 'EDI_lineEndPositionList_insert' does.
-            // TODO: Consider using 'local_EDI_lineEndPositionList_count' here instead of 'EDI_trackingUint32MaxHeap.nextId'...
-            // ...this todo is specifically in reference to the fact that setText internally will invoke 'clear' logic for editor which news the 'EDI_trackingUint32MaxHeap'
-            // resulting in 'EDI_trackingUint32MaxHeap.nextId' being '0' and being equivalent to 'local_EDI_lineEndPositionList_count' in this specific scenario.
-            // By using 'local_EDI_lineEndPositionList_count' you reduce the pointer chasing.
-            //
-            EDI_trackingUint32MaxHeap.insert(EDI_trackingUint32MaxHeap.nextId++, lineLengthVisual - 1); // avoid branching by eager counting the lineLengthVisual and then excluding the lineEnding later
+            EDI_lineEndPositionList_insert(local_EDI_lineEndPositionList_count++, sourceI, lineLengthVisual - 1);
             lineLengthVisual = 0;
-            EDI_lineEndPositionList_insert(local_EDI_lineEndPositionList_count++, sourceI);
         }
     }
 
-    // NOTE: The 'EDI_trackingUint32MaxHeap.insert' does NOT post-increment whereas 'EDI_lineEndPositionList_insert' does.
-    // TODO: Consider using 'local_EDI_lineEndPositionList_count' here instead of 'EDI_trackingUint32MaxHeap.nextId'
-    EDI_trackingUint32MaxHeap.insert(EDI_trackingUint32MaxHeap.nextId++, lineLengthVisual);
     // TODO: The ++ here "isn't needed" but it makes the code consistent and less prone to future mistakes should another access of 'EDI_lineEndPositionList_count' be made after this point in the future.
-    EDI_lineEndPositionList_insert(local_EDI_lineEndPositionList_count++, local_EDI_textByteList_count);
+    EDI_lineEndPositionList_insert(local_EDI_lineEndPositionList_count++, local_EDI_textByteList_count, lineLengthVisual);
 
     EDI_trackingUint32MaxHeap.unpack(EDI_trackingUint32MaxHeap.peek());
     // 
@@ -3532,7 +3522,7 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     if (INTS[fEDI_cursor_editIndexLine] <= INTS[fEDI_longestLine_indexLine])
         INTS[fEDI_longestLine_indexLine] = INTS[fEDI_longestLine_indexLine] + 1;
 
-    EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine], INTS[fEDI_cursor_editPosition]);
+    EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine], INTS[fEDI_cursor_editPosition], 0);
 
     let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
     EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
@@ -4114,7 +4104,7 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
             //    break;
             case CONST_EDI_ASCII_LINE_FEED:
                 EDI_textByteList_insert(INTS[fEDI_cursor_editPosition] + insertionLength, CONST_EDI_ASCII_LINE_FEED);
-                EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine] + linesInsertedCount, INTS[fEDI_cursor_editPosition] + insertionLength);
+                EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine] + linesInsertedCount, INTS[fEDI_cursor_editPosition] + insertionLength, 0);
                 insertionLength++;
                 linesInsertedCount++;
                 break;
@@ -4123,7 +4113,7 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
                     sourceI++;
                 }
                 EDI_textByteList_insert(INTS[fEDI_cursor_editPosition] + insertionLength, CONST_EDI_ASCII_LINE_FEED);
-                EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine] + linesInsertedCount, INTS[fEDI_cursor_editPosition] + insertionLength);
+                EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine] + linesInsertedCount, INTS[fEDI_cursor_editPosition] + insertionLength, 0);
                 insertionLength++;
                 linesInsertedCount++;
                 break;
@@ -4210,7 +4200,7 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
     for (let offset = 0; offset < length; offset++) {
         switch (EDI_textByteList_bytes[small + offset]) {
             case CONST_EDI_ASCII_LINE_FEED:
-                EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine] + linesInsertedCount, INTS[fEDI_cursor_editPosition] + insertionLength);
+                EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine] + linesInsertedCount, INTS[fEDI_cursor_editPosition] + insertionLength, 0);
                 insertionLength++;
                 linesInsertedCount++;
                 break;
@@ -8471,14 +8461,19 @@ function EDI_lineEndPositionList_clear() {
 /**
  * TODO: ensure all the parameters are encoded, especially because I'm noticing myself forgetting.
  */
-function EDI_lineEndPositionList_insert(index, int32Value) {
+function EDI_lineEndPositionList_insert(index, position, lineLengthVisual) {
     EDI_lineEndPositionList_ensureCapacityForInsertion(index, 1);
 
     if (index !== EDI_lineEndPositionList_count) {
         EDI_lineEndPositionList_copyTo(EDI_lineEndPositionList_data, index, EDI_lineEndPositionList_data, index + 1, EDI_lineEndPositionList_count - index);
+        EDI_lineIndexToHeapId_copyTo(EDI_lineIndexToHeapId, index, EDI_lineIndexToHeapId, index + 1, EDI_lineEndPositionList_count - index);
     }
 
-    EDI_lineEndPositionList_data[index] = int32Value;
+    const heapId = EDI_trackingUint32MaxHeap.nextId++;
+
+    EDI_lineEndPositionList_data[index] = position;
+    EDI_trackingUint32MaxHeap.insert(heapId, lineLengthVisual);
+    EDI_lineIndexToHeapId[index] = heapId;
 
     EDI_lineEndPositionList_count++;
 }
@@ -8501,6 +8496,12 @@ function EDI_lineEndPositionList_removeAt(index, count) {
                 EDI_lineEndPositionList_data,
                 index,
                 shiftableCount);
+            EDI_lineIndexToHeapId_copyTo(
+                EDI_lineIndexToHeapId,
+                index + count,
+                EDI_lineIndexToHeapId,
+                index,
+                shiftableCount);
         }
     }
     else {
@@ -8508,6 +8509,12 @@ function EDI_lineEndPositionList_removeAt(index, count) {
             EDI_lineEndPositionList_data,
             index + count,
             EDI_lineEndPositionList_data,
+            index,
+            EDI_lineEndPositionList_count - (index + count));
+        EDI_lineIndexToHeapId_copyTo(
+            EDI_lineIndexToHeapId,
+            index + count,
+            EDI_lineIndexToHeapId,
             index,
             EDI_lineEndPositionList_count - (index + count));
     }

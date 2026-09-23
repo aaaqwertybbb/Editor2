@@ -10005,4 +10005,11 @@ EDI_textElement.appendChild(lineFragment);
 < Knowing that createElement is the heaviest part of this loop, would you be interested in looking at DOM node recycling techniques
 < (where you reuse your existing gutter and text lines instead of destroying and recreating them during a scroll)?
 
+==============
+
+8:26 AM
+10:26 AM
+
+# track longest line
+
 */

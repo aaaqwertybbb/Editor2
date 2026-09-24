@@ -8493,7 +8493,7 @@ function EDI_lineEndPositionList_removeAt(index, count) {
             index,
             shiftableCount
         );
-        EDI_trackingUint32MaxHeap.lineIndexToHeapIndexMap_copyTo(endDeletedRange, index, shiftableCount);
+        //EDI_trackingUint32MaxHeap.lineIndexToHeapIndexMap_copyTo(endDeletedRange, index, shiftableCount);
 
         // --- Step 3: Shift the structural IDs of lines that survived ---
         // Every line that was past the deletion zone just got its index decremented by 'count'.

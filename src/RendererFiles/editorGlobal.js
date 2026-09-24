@@ -8473,17 +8473,11 @@ function EDI_lineEndPositionList_removeAt(index, count) {
     if (index + count > EDI_lineEndPositionList_count) { throw new Error('removeAt(...): index + count > EDI_lineEndPositionList_count'); }
     if (count === 0) { return; }
 
-    //// --- Step 1: Remove the deleted lines from the heap tracking system ---
-    //const endDeletedRange = index + count;
-    //for (let i = index; i < endDeletedRange; i++) {
-    //    // Look up the specific heap ID assigned to this line row
-    //    let heapId = EDI_lineIndexToHeapId[i];
-    //    if (heapId !== -1) { // TODO: -1?
-    //        myTrackingHeap.removeLineId(heapId);
-    //    }
-    //}
+    const endDeletedRange = index + count;
 
-    // --- Step 2: Concurrently shift down your document linear structures ---
+    // 1. Process the heap internally (it compacts, re-heapifies, and re-syncs its own map)
+    EDI_trackingUint32MaxHeap.batchRemoveLines(index, count);
+
     let shiftableCount = EDI_lineEndPositionList_count - endDeletedRange;
     if (shiftableCount > 0) {
         EDI_lineEndPositionList_copyTo(
@@ -8493,32 +8487,15 @@ function EDI_lineEndPositionList_removeAt(index, count) {
             index,
             shiftableCount
         );
-        //EDI_trackingUint32MaxHeap.lineIndexToHeapIndexMap_copyTo(endDeletedRange, index, shiftableCount);
-
-        // --- Step 3: Shift the structural IDs of lines that survived ---
-        // Every line that was past the deletion zone just got its index decremented by 'count'.
-        // We must update the references inside the interleaved heap and position map.
-        
-        //// Loop through the heap buffer directly to re-align internal IDs
-        //const heapTotalSlots = myTrackingHeap.size * 2;
-        //for (let slot = 1; slot < heapTotalSlots; slot += 2) {
-        //    let currentLineId = myTrackingHeap.heap[slot];
-        //    if (currentLineId >= endDeletedRange) {
-        //        myTrackingHeap.heap[slot] = currentLineId - count;
-        //    }
-        //}
-
-        //// Shift down the tracking positions map entries for remaining indices
-        //// Assuming your positionMap grows to track maximum layout boundaries
-        //const originalMapLen = myTrackingHeap.positionMap.length;
-        //for (let i = endDeletedRange; i < originalMapLen; i++) {
-        //    myTrackingHeap.positionMap[i - count] = myTrackingHeap.positionMap[i];
-        //}
-        //// Blank out the tail entries left behind by the shift
-        //myTrackingHeap.positionMap.fill(-1, originalMapLen - count, originalMapLen);
     }
 
     EDI_lineEndPositionList_count -= count;
+
+    if (EDI_trackingUint32MaxHeap.tryPooledPeek()) {
+        INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
+        INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
+    }
+    // TODO: else?
 }
 function EDI_lineEndPositionList_ensureCapacityForInsertion(index, count) {
     // TODO: sparse insertions?

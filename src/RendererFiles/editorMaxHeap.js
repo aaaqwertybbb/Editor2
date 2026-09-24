@@ -934,6 +934,77 @@ class TrackingUint32MaxHeap {
     }
   }
 
+  batchRemoveLines(start, count) {
+    const exclusiveEnd = start + count;
+    let writeLogicalIndex = 0;
+    const oldSize = this.size;
+
+    // Pass 1: Compact data and adjust surviving line numbers
+    for (let i = 0; i < oldSize; i++) {
+      const readBufferIndex = i * 2;
+      const length = this.heap[readBufferIndex];
+      const lineIndex = this.heap[readBufferIndex + 1];
+
+      if (lineIndex >= start && lineIndex < exclusiveEnd) {
+        continue; // Drop line
+      }
+
+      const writeBufferIndex = writeLogicalIndex * 2;
+      this.heap[writeBufferIndex] = length;
+
+      if (lineIndex >= exclusiveEnd) {
+        this.heap[writeBufferIndex + 1] = lineIndex - count;
+      } else {
+        this.heap[writeBufferIndex + 1] = lineIndex;
+      }
+
+      writeLogicalIndex++;
+    }
+
+    this.size = writeLogicalIndex;
+
+    // Pass 2: Re-balance heap structure
+    const halfSize = this.size >> 1;
+    for (let i = halfSize - 1; i >= 0; i--) {
+      this._sinkDown(i);
+    }
+
+    // Pass 3: Self-contained internal synchronization pass
+    this.syncTrackingMap();
+  }
+
+  /**
+   * Mass updates the heap for line insertions.
+   * @param {number} start The index where new lines were spliced in.
+   * @param {number} count The number of lines inserted.
+   */
+  batchInsertLines(start, count) {
+    const oldSize = this.size;
+
+    // Shift lineIndex values for everything at or past the insertion point
+    for (let i = 0; i < oldSize; i++) {
+      const bufferIndex = i * 2;
+      const lineIndex = this.heap[bufferIndex + 1];
+      if (lineIndex >= start) {
+        this.heap[bufferIndex + 1] = lineIndex + count;
+      }
+    }
+    
+    // Note: No structural heapify required here because lengths didn't change!
+
+    this.syncTrackingMap();
+  }
+
+  /** Call this after rebuilding to sync your lineIndexToHeapIndex lookup vector */
+  syncTrackingMap() {
+    // Blank out active boundaries
+    this.lineIndexToHeapIndex.fill(-1);
+    for (let i = 0; i < this.size; i++) {
+      const lineIndex = this.heap[i * 2 + 1];
+      this.lineIndexToHeapIndex[lineIndex] = i; 
+    }
+  }
+
   _resize() {
     this.capacity *= 2;
     const nextHeap = new Uint32Array(this.capacity * 2);

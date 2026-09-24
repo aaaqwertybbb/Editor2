@@ -101,8 +101,6 @@ const EDI_lineEndPositionList_PENDING = new UInt32List(128);
 let EDI_lineEndPositionList_capacity = 128;
 /** Be wary to the possibility of pending edits causing this to not be up to date. */
 let EDI_lineEndPositionList_data = new Uint32Array(EDI_lineEndPositionList_capacity);
-/** This uses the same capacity as EDI_lineEndPositionList_data maybe??? */
-let EDI_lineIndexToHeapId = new Uint32Array(EDI_lineEndPositionList_capacity);
 let EDI_lineEndPositionList_count = 0;
 
 let EDI_textSourceIdentifier = '';
@@ -721,7 +719,7 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
     // And the first time you mess with the heap the indices will actually align, it is after you initialize that they start of stray away from being a 1 to 1.
     // I need to write code to get the actual lineIndex from an id, but I don't think I'm doing that today so this is somewhat convenient.
     // 
-    INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
+    INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
     INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
     // 9045 and 0?
     // 0 and 582?
@@ -3486,9 +3484,9 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
     });
     // -------------------------
 
-    EDI_trackingUint32MaxHeap.updateLength_diff(EDI_lineIndexToHeapId[indexLine_editOccurredOn], INTS[fEDI_cursor_editLength]);
+    EDI_trackingUint32MaxHeap.updateLength_diff(indexLine_editOccurredOn, INTS[fEDI_cursor_editLength]);
     if (EDI_trackingUint32MaxHeap.tryPooledPeek()) {
-        INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
+        INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
         INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
     }
     // TODO: else?
@@ -3599,9 +3597,9 @@ function EDI_finalizeEdit_Tab(indexLine_editOccurredOn) {
         editLengthVisual += tabWidthOfFirstTab;
     }
 
-    EDI_trackingUint32MaxHeap.updateLength_diff(EDI_lineIndexToHeapId[INTS[fEDI_cursor_editIndexLine]], editLengthVisual);
+    EDI_trackingUint32MaxHeap.updateLength_diff(INTS[fEDI_cursor_editIndexLine], editLengthVisual);
     if (EDI_trackingUint32MaxHeap.tryPooledPeek()) {
-        INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
+        INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
         INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
     }
     // TODO: else?
@@ -3736,9 +3734,9 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
     // This information doesn't matter much here but I'm ensuring an understanding incase the future necessitates it.
     //
     if (startingIndex === SMALL_lineAndColumnIndices_indexLine) {
-        EDI_trackingUint32MaxHeap.updateLength_diff(EDI_lineIndexToHeapId[INTS[fEDI_cursor_editIndexLine]], bytesLength * INTS[fEDI_ontab_visualWidth_perCharacter]);
+        EDI_trackingUint32MaxHeap.updateLength_diff(INTS[fEDI_cursor_editIndexLine], bytesLength * INTS[fEDI_ontab_visualWidth_perCharacter]);
         if (EDI_trackingUint32MaxHeap.tryPooledPeek()) {
-            INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
+            INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
             INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
         }
         // TODO: else?
@@ -4053,9 +4051,9 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
     // This information doesn't matter much here but I'm ensuring an understanding incase the future necessitates it.
     //
     if (startingIndex === SMALL_lineAndColumnIndices_indexLine) {
-        EDI_trackingUint32MaxHeap.updateLength_diff(EDI_lineIndexToHeapId[INTS[fEDI_cursor_editIndexLine]], -1 * mostRecent_decrementedVisualWidthAbsolute);
+        EDI_trackingUint32MaxHeap.updateLength_diff(INTS[fEDI_cursor_editIndexLine], -1 * mostRecent_decrementedVisualWidthAbsolute);
         if (EDI_trackingUint32MaxHeap.tryPooledPeek()) {
-            INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
+            INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
             INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
         }
         // TODO: else?
@@ -4150,9 +4148,9 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
 
     if (linesInsertedCount === 0) {
         indexLine_editOccurredOn = INTS[fEDI_cursor_editIndexLine];
-        EDI_trackingUint32MaxHeap.updateLength_diff(EDI_lineIndexToHeapId[indexLine_editOccurredOn], editLengthVisual);
+        EDI_trackingUint32MaxHeap.updateLength_diff(indexLine_editOccurredOn, editLengthVisual);
         if (EDI_trackingUint32MaxHeap.tryPooledPeek()) {
-            INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
+            INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
             INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
         }
         // TODO: else?
@@ -4233,9 +4231,9 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
 
     if (linesInsertedCount === 0) {
         indexLine_editOccurredOn = INTS[fEDI_cursor_editIndexLine];
-        EDI_trackingUint32MaxHeap.updateLength_diff(EDI_lineIndexToHeapId[indexLine_editOccurredOn], editLengthVisual);
+        EDI_trackingUint32MaxHeap.updateLength_diff(indexLine_editOccurredOn, editLengthVisual);
         if (EDI_trackingUint32MaxHeap.tryPooledPeek()) {
-            INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
+            INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
             INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
         }
         // TODO: else?
@@ -4346,9 +4344,9 @@ function EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_
     // -------------------------
 
     if (startLineAndColumnIndices_indexLine === endLineAndColumnIndices_indexLine) {
-        EDI_trackingUint32MaxHeap.updateLength_diff(EDI_lineIndexToHeapId[INTS[fEDI_cursor_editIndexLine]], -1 * INTS[fEDI_cursor_editLengthVisual]);
+        EDI_trackingUint32MaxHeap.updateLength_diff(INTS[fEDI_cursor_editIndexLine], -1 * INTS[fEDI_cursor_editLengthVisual]);
         if (EDI_trackingUint32MaxHeap.tryPooledPeek()) {
-            INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_id;
+            INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
             INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
         }
         // TODO: else?
@@ -8447,22 +8445,24 @@ function EDI_lineEndPositionList_clear() {
 /**
  * TODO: ensure all the parameters are encoded, especially because I'm noticing myself forgetting.
  */
-function EDI_lineEndPositionList_insert(index, position, lineLengthVisual) {
-    EDI_lineEndPositionList_ensureCapacityForInsertion(index, 1);
+function EDI_lineEndPositionList_insert(lineIndex, position, lineLengthVisual) {
+    EDI_lineEndPositionList_ensureCapacityForInsertion(lineIndex, 1);
 
-    if (index !== EDI_lineEndPositionList_count) {
-        EDI_lineEndPositionList_copyTo(EDI_lineEndPositionList_data, index, EDI_lineEndPositionList_data, index + 1, EDI_lineEndPositionList_count - index);
-        EDI_lineIndexToHeapId_copyTo(EDI_lineIndexToHeapId, index, EDI_lineIndexToHeapId, index + 1, EDI_lineEndPositionList_count - index);
+    if (lineIndex !== EDI_lineEndPositionList_count) {
+        EDI_lineEndPositionList_copyTo(EDI_lineEndPositionList_data, lineIndex, EDI_lineEndPositionList_data, lineIndex + 1, EDI_lineEndPositionList_count - lineIndex);
+        EDI_trackingUint32MaxHeap.lineIndexToHeapIndexMap_copyTo(lineIndex, lineIndex + 1, EDI_lineEndPositionList_count - lineIndex)
+        //EDI_lineIndexToHeapId_copyTo(EDI_lineIndexToHeapId, lineIndex, EDI_lineIndexToHeapId, lineIndex + 1, EDI_lineEndPositionList_count - lineIndex);
     }
 
-    const heapId = EDI_trackingUint32MaxHeap.nextId++;
+    //const heapId = EDI_trackingUint32MaxHeap.nextId++;
 
-    EDI_lineEndPositionList_data[index] = position;
-    EDI_trackingUint32MaxHeap.insert(heapId, lineLengthVisual);
-    EDI_lineIndexToHeapId[index] = heapId;
+    EDI_trackingUint32MaxHeap.insert(lineIndex, lineLengthVisual);
+    EDI_lineEndPositionList_data[lineIndex] = position;
+    //EDI_lineIndexToHeapId[lineIndex] = heapId;
 
     EDI_lineEndPositionList_count++;
 }
+
 /**
  * Does not clear trailing information.
  * 
@@ -8473,36 +8473,49 @@ function EDI_lineEndPositionList_removeAt(index, count) {
     if (index + count > EDI_lineEndPositionList_count) { throw new Error('removeAt(...): index + count > EDI_lineEndPositionList_count'); }
     if (count === 0) { return; }
 
-    if (index + count === EDI_lineEndPositionList_count) {
-        let shiftableCount = EDI_lineEndPositionList_count - (index + count);
-        if (shiftableCount > 0) {
-            EDI_lineEndPositionList_copyTo(
-                EDI_lineEndPositionList_data,
-                index + count,
-                EDI_lineEndPositionList_data,
-                index,
-                shiftableCount);
-            EDI_lineIndexToHeapId_copyTo(
-                EDI_lineIndexToHeapId,
-                index + count,
-                EDI_lineIndexToHeapId,
-                index,
-                shiftableCount);
-        }
-    }
-    else {
+    //// --- Step 1: Remove the deleted lines from the heap tracking system ---
+    //const endDeletedRange = index + count;
+    //for (let i = index; i < endDeletedRange; i++) {
+    //    // Look up the specific heap ID assigned to this line row
+    //    let heapId = EDI_lineIndexToHeapId[i];
+    //    if (heapId !== -1) { // TODO: -1?
+    //        myTrackingHeap.removeLineId(heapId);
+    //    }
+    //}
+
+    // --- Step 2: Concurrently shift down your document linear structures ---
+    let shiftableCount = EDI_lineEndPositionList_count - endDeletedRange;
+    if (shiftableCount > 0) {
         EDI_lineEndPositionList_copyTo(
             EDI_lineEndPositionList_data,
-            index + count,
+            endDeletedRange,
             EDI_lineEndPositionList_data,
             index,
-            EDI_lineEndPositionList_count - (index + count));
-        EDI_lineIndexToHeapId_copyTo(
-            EDI_lineIndexToHeapId,
-            index + count,
-            EDI_lineIndexToHeapId,
-            index,
-            EDI_lineEndPositionList_count - (index + count));
+            shiftableCount
+        );
+        EDI_trackingUint32MaxHeap.lineIndexToHeapIndexMap_copyTo(endDeletedRange, index, shiftableCount);
+
+        // --- Step 3: Shift the structural IDs of lines that survived ---
+        // Every line that was past the deletion zone just got its index decremented by 'count'.
+        // We must update the references inside the interleaved heap and position map.
+        
+        //// Loop through the heap buffer directly to re-align internal IDs
+        //const heapTotalSlots = myTrackingHeap.size * 2;
+        //for (let slot = 1; slot < heapTotalSlots; slot += 2) {
+        //    let currentLineId = myTrackingHeap.heap[slot];
+        //    if (currentLineId >= endDeletedRange) {
+        //        myTrackingHeap.heap[slot] = currentLineId - count;
+        //    }
+        //}
+
+        //// Shift down the tracking positions map entries for remaining indices
+        //// Assuming your positionMap grows to track maximum layout boundaries
+        //const originalMapLen = myTrackingHeap.positionMap.length;
+        //for (let i = endDeletedRange; i < originalMapLen; i++) {
+        //    myTrackingHeap.positionMap[i - count] = myTrackingHeap.positionMap[i];
+        //}
+        //// Blank out the tail entries left behind by the shift
+        //myTrackingHeap.positionMap.fill(-1, originalMapLen - count, originalMapLen);
     }
 
     EDI_lineEndPositionList_count -= count;
@@ -8533,10 +8546,6 @@ function EDI_lineEndPositionList_ensureCapacityForInsertion(index, count) {
     // Commit the changes to your global/module state
     EDI_lineEndPositionList_data = dataNew;
     EDI_lineEndPositionList_capacity = capacityNew;
-
-    let dN_EDI_lineIndexToHeapId = new Uint32Array(capacityNew);
-    EDI_lineIndexToHeapId_copyTo(EDI_lineIndexToHeapId, 0, dN_EDI_lineIndexToHeapId, 0, EDI_lineEndPositionList_count);
-    EDI_lineIndexToHeapId = dN_EDI_lineIndexToHeapId;
 }
 /**
  * inclusive/exclusive
@@ -8548,19 +8557,6 @@ function EDI_lineEndPositionList_copyTo(bytesSource, sourceStart, bytesDestinati
         }
 
         EDI_lineEndPositionList_data.copyWithin(destinationStart, sourceStart, sourceStart + length);
-    }
-    else {
-        bytesDestination.set(bytesSource.subarray(sourceStart, sourceStart + length), destinationStart);
-    }
-}
-
-function EDI_lineIndexToHeapId_copyTo(bytesSource, sourceStart, bytesDestination, destinationStart, length) {
-    if (bytesSource === bytesDestination) {
-        if (bytesSource !== EDI_lineIndexToHeapId) {
-            throw new Error('bytesSource === bytesDestination ; but bytesSource !== EDI_lineIndexToHeapId');
-        }
-
-        EDI_lineIndexToHeapId.copyWithin(destinationStart, sourceStart, sourceStart + length);
     }
     else {
         bytesDestination.set(bytesSource.subarray(sourceStart, sourceStart + length), destinationStart);

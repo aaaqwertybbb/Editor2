@@ -756,39 +756,21 @@ class TrackingUint32MaxHeap {
 
     // Maps lineIndex -> current position in this.heap. Initialize with -1.
     // Assuming a max layout size, or grow dynamically. We'll start it large or match capacity.
-    this.positionMap = new Int32Array(initialCapacity).fill(-1);
+    this.lineIndexToHeapIndex = new Int32Array(initialCapacity).fill(-1);
 
-    /**
-     * The id is not the lineIndex.
-     * 
-     * This is necessary because you then avoid that when an entire line is removed from the editor you would have to update many nodes in the heap to have their new line index.
-     * Thus 'id is not the lineIndex'.
-     * That being said 'id' does act as an index into 'this.positionMap'.
-     * 
-     * Long term as you remove entire lines of text from the editor you'll be creating holes in 'this.positionMap' where an
-     * array entry exists but is never in use because if the entire creates
-     * a line at lineIndex 0 for the first time it happens to align.
-     * But the second time and everytime after that, it stops aligning.
-     * 
-     * So you have to figure out a timing to go through the 'this.positionMap' and periodically clear out all the holes,
-     * and when doing this you'd then have to update the heap as well, but instead of per edit of a whole line
-     * you're doing it per "whenever you decide to remove the holes".
-     */
-    this.nextId = 0;
-
-    this.unpack_pool_id = 0;
+    this.unpack_pool_lineIndex = 0;
     this.unpack_pool_length = 0;
   }
 
-  /** Result is stored in the fields: 'this.unpack_pool_id' and 'this.unpack_pool_length' */
-  unpackAt(index) {
-    const bufferIndex = index * 2;
+  /** Result is stored in the fields: 'this.unpack_pool_lineIndex' and 'this.unpack_pool_length' */
+  unpackAt(logicalIndex) {
+    const bufferIndex = logicalIndex * 2;
     this.unpack_pool_length = this.heap[bufferIndex];
-    this.unpack_pool_id = this.heap[bufferIndex + 1];
+    this.unpack_pool_lineIndex = this.heap[bufferIndex + 1];
   }
 
   /**
-   * result is stored in: 'this.unpack_pool_id', and 'this.unpack_pool_length'
+   * result is stored in: 'this.unpack_pool_lineIndex', and 'this.unpack_pool_length'
    * Returns a boolean that indicates whether a node existed.
    */
   tryPooledPeek() {
@@ -798,7 +780,7 @@ class TrackingUint32MaxHeap {
   }
 
   /**
-   * result is stored in: 'this.unpack_pool_id', and 'this.unpack_pool_length'
+   * result is stored in: 'this.unpack_pool_lineIndex', and 'this.unpack_pool_length'
    * Returns a boolean that indicates whether a node existed.
    */
   tryPooledExtractMax() {
@@ -806,27 +788,20 @@ class TrackingUint32MaxHeap {
 
     // Grab max info from root (logical index 0)
     this.unpackAt(0);
-    const maxId = this.unpack_pool_id;
-    const maxLength = this.unpack_pool_length;
+    const maxIndex = this.unpack_pool_lineIndex;
 
-    this.positionMap[maxId] = -1; // Removed
+    this.lineIndexToHeapIndex[maxIndex] = -1; // Removed
 
-    const maxEntry = this.heap[0];
-    this.unpackAt(maxEntry);
-    const maxIndex = this.unpack_pool_id;
-
-    this.positionMap[maxIndex] = -1; // Removed
-
-    const lastIndex = this.size - 1;
-    if (lastIndex > 0) {
+    const lastLogicalIndex = this.size - 1;
+    if (lastLogicalIndex > 0) {
       // Move last item to root
-      const lastBufferIndex = lastIndex * 2;
+      const lastBufferIndex = lastLogicalIndex * 2;
       const lastLength = this.heap[lastBufferIndex];
       const lastId = this.heap[lastBufferIndex + 1];
 
       this.heap[0] = lastLength;
       this.heap[1] = lastId;
-      this.positionMap[lastId] = 0;
+      this.lineIndexToHeapIndex[lastId] = 0;
 
       this.size--;
       this._sinkDown(0);
@@ -839,83 +814,64 @@ class TrackingUint32MaxHeap {
   }
 
   /** TODO: Eventual "garbage collection / defragmentation" of the 'this._resizePositionMap' and 'this.nextId' for the no longer in use 'this.nextId'(s) */
-  insert(lineId, lineLength) {
+  insert(lineIndex, lineLength) {
     if (this.size >= this.capacity) this._resize();
     
     // Grow position tracking map if necessary
-    if (lineId >= this.positionMap.length) {
-      this._resizePositionMap(lineId * 2);
+    if (lineIndex >= this.lineIndexToHeapIndex.length) {
+      this._resizeLineIndexToHeapIndexMap(lineIndex * 2);
     }
 
-    const index = this.size;
-    const bufferIndex = index * 2;
+    const logicalIndex = this.size;
+    const bufferIndex = logicalIndex * 2;
 
     this.heap[bufferIndex] = lineLength;
-    this.heap[bufferIndex + 1] = lineId;
-    this.positionMap[lineId] = index;
+    this.heap[bufferIndex + 1] = lineIndex;
+    this.lineIndexToHeapIndex[lineIndex] = logicalIndex;
     
-    this._bubbleUp(index);
+    this._bubbleUp(logicalIndex);
     this.size++;
   }
 
   // --- The Core Update Method ---
-  updateLength(lineId, newLength) {
+  updateLength(lineIndex, newLength) {
     // 1. Look up where this line index currently lives in the heap array
-    if (lineId >= this.positionMap.length) return; // or resize positionMap
-    const heapIndex = this.positionMap[lineId];
+    if (lineIndex >= this.lineIndexToHeapIndex.length) { throw new Error(); }
     
-    // If it's not currently in the heap, just insert it normally
-    if (heapIndex === -1) {
-      throw new Error();
-      //this.insert(lineId, newLength);
-      //return;
-    }
+    const logicalIndex = this.lineIndexToHeapIndex[lineIndex];
+    if (logicalIndex === -1) { throw new Error(); }
 
-    const bufferIndex = heapIndex * 2;
+    const bufferIndex = logicalIndex * 2;
     const oldLength = this.heap[bufferIndex];
     this.heap[bufferIndex] = newLength;
 
     if (newLength > oldLength) {
-      this._bubbleUp(heapIndex);
+      this._bubbleUp(logicalIndex);
     }
     else if (newLength < oldLength) {
-      this._sinkDown(heapIndex);
+      this._sinkDown(logicalIndex);
     }
   }
   
   /**
    * @param {*} diff positive or negative to reflect length change
    */
-  updateLength_diff(lineId, diffLength) {
-    // 1. Look up where this line index currently lives in the heap array
-    if (lineId >= this.positionMap.length) return; // or resize positionMap
-    const heapIndex = this.positionMap[lineId];
-    
-    // If it's not currently in the heap, just insert it normally
-    if (heapIndex === -1) {
-      throw new Error();
-      //// TODO: ERROR: cannot access newLength before initialization...
-      //// ...using 'diffLength' fixes the error, and from some perspectives actually seems sensible.
-      //// But this is probably extremely bad because you have to track the line index -> heap id and vice versa
-      //// so the idea that you ever accidentally update something that doesn't exist sounds catastrophically bad
-      //// because it implies you're failing to track the previously mentioned mappings.
-      //this.insert(lineId, diffLength);
-      //return;
-    }
+  updateLength_diff(lineIndex, diffLength) {
+    if (lineIndex >= this.lineIndexToHeapIndex.length) { throw new Error(); }
 
-    const bufferIndex = heapIndex * 2;
+    const logicalIndex = this.lineIndexToHeapIndex[lineIndex];
+    if (logicalIndex === -1) { throw new Error(); }
+
+    const bufferIndex = logicalIndex * 2;
     const oldLength = this.heap[bufferIndex];
-    const newLength = oldLength + diffLength; // Assumes length stays unsigned/positive
+    const newLength = oldLength + diffLength;
     this.heap[bufferIndex] = newLength;
 
-    // 4. Restore the Max-Heap property
     if (newLength > oldLength) {
-      // If it grew longer, it might need to bubble up toward the top
-      this._bubbleUp(heapIndex);
+      this._bubbleUp(logicalIndex);
     }
     else if (newLength < oldLength) {
-      // If it grew shorter, it might need to sink down toward the leaves
-      this._sinkDown(heapIndex);
+      this._sinkDown(logicalIndex);
     }
   }
 
@@ -936,33 +892,33 @@ class TrackingUint32MaxHeap {
     this.heap[idxB + 1] = idA;
 
     // Update the position mappings to reflect their new logical heap index
-    this.positionMap[idA] = j;
-    this.positionMap[idB] = i;
+    this.lineIndexToHeapIndex[idA] = j;
+    this.lineIndexToHeapIndex[idB] = i;
   }
 
-  _bubbleUp(index) {
+  _bubbleUp(logicalIndex) {
 
-    const entry = this.heap[index * 2];
+    const entry = this.heap[logicalIndex * 2];
 
-    while (index > 0) {
-      const parentIndex = (index - 1) >> 1;
+    while (logicalIndex > 0) {
+      const parentLogicalIndex = (logicalIndex - 1) >> 1;
 
       // Compare lengths at slot 0 of both entries
-      if (entry <= this.heap[parentIndex * 2]) break;
+      if (entry <= this.heap[parentLogicalIndex * 2]) break;
 
-      this._swap(index, parentIndex);
-      index = parentIndex;
+      this._swap(logicalIndex, parentLogicalIndex);
+      logicalIndex = parentLogicalIndex;
     }
   }
 
-  _sinkDown(index) {
+  _sinkDown(logicalIndex) {
 
     const halfSize = this.size >> 1;
 
-    while (index < halfSize) {
-      let leftChild = (index << 1) + 1;
+    while (logicalIndex < halfSize) {
+      let leftChild = (logicalIndex << 1) + 1;
       let rightChild = leftChild + 1;
-      let largest = index;
+      let largest = logicalIndex;
 
       if (this.heap[leftChild * 2] > this.heap[largest * 2]) {
         largest = leftChild;
@@ -971,10 +927,10 @@ class TrackingUint32MaxHeap {
         largest = rightChild;
       }
 
-      if (largest === index) break;
+      if (largest === logicalIndex) break;
 
-      this._swap(index, largest);
-      index = largest;
+      this._swap(logicalIndex, largest);
+      logicalIndex = largest;
     }
   }
 
@@ -985,13 +941,17 @@ class TrackingUint32MaxHeap {
     this.heap = nextHeap;
   }
 
-  _resizePositionMap(newMinSize) {
+  _resizeLineIndexToHeapIndexMap(newMinSize) {
 
-    let newSize = this.positionMap.length * 2;
+    let newSize = this.lineIndexToHeapIndex.length * 2;
     if (newSize < newMinSize) { newSize = newMinSize; }
 
     const newMap = new Int32Array(newSize).fill(-1);
-    newMap.set(this.positionMap);
-    this.positionMap = newMap;
+    newMap.set(this.lineIndexToHeapIndex);
+    this.lineIndexToHeapIndex = newMap;
+  }
+
+  lineIndexToHeapIndexMap_copyTo(sourceStart, destinationStart, length) {
+    this.lineIndexToHeapIndex.copyWithin(destinationStart, sourceStart, sourceStart + length);
   }
 }

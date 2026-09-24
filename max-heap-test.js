@@ -13,7 +13,7 @@ consoleLogMaxHeapEntry(maxHeap.extractMax());
 
 function consoleLogMaxHeapEntry(entry) {
     maxHeap.unpack(entry);
-    console.log(`(${maxHeap.unpack_pool_id}, ${maxHeap.unpack_pool_length})`);
+    console.log(`(${maxHeap.unpack_pool_lineIndex}, ${maxHeap.unpack_pool_length})`);
 }
 
 /*

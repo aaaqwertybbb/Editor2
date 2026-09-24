@@ -744,6 +744,11 @@ function EDI_lineEndPositionList_removeAt(index, count) {
 < 
 < Would you like to review the specific JavaScript loop syntax that handles both the index shifting and the gap-compaction simultaneously inside the interleaved array?
 
+- [ ] Read over all the code from start to finish that relates to this tracking u int 32 max heap and its usages.
+- [ ] handle splitting lines with the enter key among a line
+- [ ] handle edits that span multiple lines
+
+
 */
 
 class TrackingUint32MaxHeap {

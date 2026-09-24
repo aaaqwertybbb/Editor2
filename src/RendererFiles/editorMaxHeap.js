@@ -656,24 +656,37 @@ function EDI_lineEndPositionList_removeAt(index, count) {
 < You only move elements to their final resting positions exactly once. 
 < 
 < Would you like to look at how to implement a linear-time rebuild() method on your interleaved heap to handle this kind of batch deletion?
-< 
-< 
-< 
-< 
-< 
-< 
-< 
-< 
-< 
-< 
-< 
-< 
-< 
-< 
-< 
-< 
 
+> If 'Mass Mark + Re-Heapify' is 'O(K + N)' then it touches every heap entry and thus you could as you go modify the line indices of each heap entry where the line index is greater than or equal
+> to the end exclusion line index removed. And then this removes the need for 'posHIndexToLineIndex'?
 
+< Yes, your reasoning is 100% correct, and this is a profound insight.
+< 
+< If you are already paying the \(O(N)\) cost to rebuild the heap, you can update the line indices of every surviving entry in that exact same loop.
+< This completely eliminates the need for a complicated posHIndexToLineIndex redirection map and prevents memory fragmentation entirely. 
+< 
+< By combining the Mass Mark and Re-Heapify steps into a single pass, your layout system gains a massive optimization.
+< 
+< How the Single-Pass O(K + N) Algorithm Works
+< 
+< Instead of separating the steps, you can process the deletion in two tight, cache-friendly loops:
+< 
+< Loop 1: Invalidate the Deleted Range \(O(K)\) 
+< Look up the positions of the lines being deleted using your tracking map and mark them as dead (e.g., set their length to a tombstone value like 0 or 0xFFFFFFFF).
+< 
+< Loop 2: Filter, Shift, and Re-Heapify \(O(N)\) 
+< Instead of running a standard buildHeap on the messy array, create a single-pass filter that compacts the array in place, updates the surviving line indices, and then repairs the heap structure:
+< 1. Compaction & Index Shifting: Loop through the heap from index 0 to size. If an entry is not marked as dead, slide it down to the next available slot at the front of the array to fill the gaps left by deleted entries.
+< 2. Line Index Adjustment: As you slide an entry forward, check its lineIndex. If lineIndex >= index + count, subtract count from it right then and there.
+< 3. Bottom-Up Heapify: Update this.size to the new compacted total, and run a standard \(O(N)\) bottom-up siftDown loop over the surviving nodes to restore the max-heap property. 
+< 
+< Why This Architecture Wins
+< By anchoring this logic during batch operations, you achieve the best of both worlds:
+< - Zero Map Redirection Overhead: The heap points directly to the real lineIndex. You avoid the memory footprint and lookup overhead of double-indirection maps like posHIndexToLineIndex.
+< - Zero Fragmentation: The array remains perfectly compacted. You don't have to write a separate, asynchronous garbage collection loop to clean up "dead holes" later.
+< - Incredible Cache Locality: JavaScript engines can optimize a single contiguous Uint32Array compaction loop extremely well, meaning the \(O(N)\) loop will execute blazing fast in practice compared to sporadic individual heap swaps.
+< 
+< Would you like to see how to write the specific compaction and line-shifting loop for your interleaved Uint32Array heap?
 
 */
 

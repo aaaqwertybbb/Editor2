@@ -617,6 +617,64 @@ function EDI_lineEndPositionList_removeAt(index, count) {
 < 
 < Would you like to map out how the indirection mapping arrays look under Option 2 during a deletion,
 < so you can visualize exactly how to write the garbage collection / defragmentation loop later?
+
+> what is the time complexity of "foreach : remove from maxHeapLineLength by lineIndex".
+> I wonder because it seems very wasteful shift down each heap "entry" 1 by 1.
+> Even if you have the map from lineIndex to the index within the heap, you likely are interacting with other entries that later will be targeted for their own bubble down?
+
+< You have hit on a critical flaw in that plan. "Foreach: remove from heap" is highly inefficient, precisely for the reason you guessed:
+< you are wastefully shifting elements into positions only to overwrite or move them again in the next loop iteration.
+< 
+< The Time Complexity Analysis
+< 
+< If you delete a block of K contiguous lines from a heap containing N total elements, the time complexity of removing them one-by-one is \(O(K \log N)\). 
+<
+< Here is why that gets ugly:
+< 1. Redundant Work: When you remove the first line, the heap fills the gap by pulling the last element of the heap to that spot and sinking it down (\(O(\log N)\)). 
+< 2. Cascading Swaps: If the next line you delete happens to be that element you just moved, or if the structure changes dramatically,
+<    you spend CPU cycles bubbling elements down, only to delete or shift them again in the very next loop iteration.
+< 3. Cache Trashing: You are constantly bouncing all over the Uint32Array memory space repairing structural invariants that are about to be broken anyway.
+< 
+< A Much Faster Alternative: Mass Invalidation + Re-Heapify (O(N))
+< Instead of maintaining the heap structure perfectly after each deleted line, it is significantly faster to destroy the heap invariants in bulk, then fix the heap all at once.
+< If K (the number of lines being removed) is large, or if you want consistent performance, you should treat removal as a lazy batch operation:
+<
+< 1. Mark as Dead (O(K)): Loop through your K lines and simply mark their lengths as 0 (or -1 if signed) directly in the heap, and set their positionMap entries to -1.
+<    Do not bubble anything yet.
+< 2. Trunk Truncation (O(1)): If any of those dead elements happen to be at the very end of your heap array, just decrement this.size.
+< 3. Build Heap / Bottom-Up Heapify (O(N)): Run a classic buildHeap algorithm from the bottom up.
+<    You start at the last non-leaf node (index (this.size - 2) >> 1) and call _sinkDown on each node going backwards to index 0.
+< 
+< The Mathematical Payoff
+< 
+< Approach               | Worse-Case Time Complexity | Best for...
+< ----------------------------------------------------------------------------------------------------------
+< One-by-One (foreach)   | O(KlogN)                   | Small deletions (K = 1 or 2)
+< Mass Mark + Re-Heapify | O(K + N)                   | Large block selections, multi-line cuts, or cleanups
+< 
+< Because a bottom-up buildHeap naturally runs in linear O(N) time (not \(O(N \log N)\)), it completely eliminates the cascading overhead.
+< You only move elements to their final resting positions exactly once. 
+< 
+< Would you like to look at how to implement a linear-time rebuild() method on your interleaved heap to handle this kind of batch deletion?
+< 
+< 
+< 
+< 
+< 
+< 
+< 
+< 
+< 
+< 
+< 
+< 
+< 
+< 
+< 
+< 
+
+
+
 */
 
 class TrackingUint32MaxHeap {

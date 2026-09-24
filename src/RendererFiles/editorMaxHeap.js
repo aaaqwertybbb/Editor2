@@ -980,18 +980,17 @@ class TrackingUint32MaxHeap {
    */
   batchInsertLines(start, count) {
     const oldSize = this.size;
-
     // Shift lineIndex values for everything at or past the insertion point
     for (let i = 0; i < oldSize; i++) {
       const bufferIndex = i * 2;
-      const lineIndex = this.heap[bufferIndex + 1];
-      if (lineIndex >= start) {
-        this.heap[bufferIndex + 1] = lineIndex + count;
+      const currentLineIndex = this.heap[bufferIndex + 1];
+      if (currentLineIndex >= start) {
+        this.heap[bufferIndex + 1] = currentLineIndex + count;
       }
     }
     
-    // Note: No structural heapify required here because lengths didn't change!
-
+    // TODO: Swap this as you go?
+    // Re-sync the mapping so that lineIndexToHeapIndex reflects the newly shifted lines
     this.syncTrackingMap();
   }
 
@@ -1020,9 +1019,5 @@ class TrackingUint32MaxHeap {
     const newMap = new Int32Array(newSize).fill(-1);
     newMap.set(this.lineIndexToHeapIndex);
     this.lineIndexToHeapIndex = newMap;
-  }
-
-  lineIndexToHeapIndexMap_copyTo(sourceStart, destinationStart, length) {
-    this.lineIndexToHeapIndex.copyWithin(destinationStart, sourceStart, sourceStart + length);
   }
 }

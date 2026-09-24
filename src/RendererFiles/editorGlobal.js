@@ -8448,18 +8448,21 @@ function EDI_lineEndPositionList_clear() {
 function EDI_lineEndPositionList_insert(lineIndex, position, lineLengthVisual) {
     EDI_lineEndPositionList_ensureCapacityForInsertion(lineIndex, 1);
 
+    // 1. First, tell the heap to increment the indices of all lines *at or after* lineIndex.
+    // This makes a logical "hole" in the heap's index mapping.
+    EDI_trackingUint32MaxHeap.batchInsertLines(lineIndex, 1);
+
+    // 2. Shift your linear text data arrays down to open a hole in your document structure
     if (lineIndex !== EDI_lineEndPositionList_count) {
         EDI_lineEndPositionList_copyTo(EDI_lineEndPositionList_data, lineIndex, EDI_lineEndPositionList_data, lineIndex + 1, EDI_lineEndPositionList_count - lineIndex);
-        //EDI_trackingUint32MaxHeap.lineIndexToHeapIndexMap_copyTo(lineIndex, lineIndex + 1, EDI_lineEndPositionList_count - lineIndex)
-        //EDI_lineIndexToHeapId_copyTo(EDI_lineIndexToHeapId, lineIndex, EDI_lineIndexToHeapId, lineIndex + 1, EDI_lineEndPositionList_count - lineIndex);
     }
 
-    //const heapId = EDI_trackingUint32MaxHeap.nextId++;
-
+    // 3. Now it is safe to insert the new line into the heap.
+    // It will take the newly vacated lineIndex.
     EDI_trackingUint32MaxHeap.insert(lineIndex, lineLengthVisual);
+    
+    // 4. Update the linear data metrics
     EDI_lineEndPositionList_data[lineIndex] = position;
-    //EDI_lineIndexToHeapId[lineIndex] = heapId;
-
     EDI_lineEndPositionList_count++;
 }
 

@@ -8450,7 +8450,7 @@ function EDI_lineEndPositionList_insert(lineIndex, position, lineLengthVisual) {
 
     if (lineIndex !== EDI_lineEndPositionList_count) {
         EDI_lineEndPositionList_copyTo(EDI_lineEndPositionList_data, lineIndex, EDI_lineEndPositionList_data, lineIndex + 1, EDI_lineEndPositionList_count - lineIndex);
-        EDI_trackingUint32MaxHeap.lineIndexToHeapIndexMap_copyTo(lineIndex, lineIndex + 1, EDI_lineEndPositionList_count - lineIndex)
+        //EDI_trackingUint32MaxHeap.lineIndexToHeapIndexMap_copyTo(lineIndex, lineIndex + 1, EDI_lineEndPositionList_count - lineIndex)
         //EDI_lineIndexToHeapId_copyTo(EDI_lineIndexToHeapId, lineIndex, EDI_lineIndexToHeapId, lineIndex + 1, EDI_lineEndPositionList_count - lineIndex);
     }
 

@@ -533,7 +533,7 @@ function EDI_lineEndPositionList_removeAt(index, count) {
 < Would you like help adapting your companion insertAt logic to safely increase and offset those tracking IDs when
 < new lines are spliced into the middle of the document?
 
-
+- [ ] TODO: When you modify don't use line index use the map
 - [ ] TODO: the above remove from heap logic
 - [ ] TODO: insert a line needs to shift the map from lineIndex to heapId etc...
 

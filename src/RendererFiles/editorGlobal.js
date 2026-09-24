@@ -10030,6 +10030,9 @@ Such that the heap entry in the current one is the visual length and the mirror 
 
 ====
 
+8:08
+12:08
 
+anxiety, nostalgia, fomo
 
 */

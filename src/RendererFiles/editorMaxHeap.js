@@ -889,25 +889,26 @@ class TrackingUint32MaxHeap {
     this.heap[idxB] = lenA;
 
     // Swap IDs
-    const idA = this.heap[idxA + 1];
-    const idB = this.heap[idxB + 1];
-    this.heap[idxA + 1] = this.heap[idxB + 1];
-    this.heap[idxB + 1] = idA;
+    const indexA = this.heap[idxA + 1];
+    const indexB = this.heap[idxB + 1];
+    this.heap[idxA + 1] = indexB;
+    this.heap[idxB + 1] = indexA;
 
     // Update the position mappings to reflect their new logical heap index
-    this.lineIndexToHeapIndex[idA] = j;
-    this.lineIndexToHeapIndex[idB] = i;
+    this.lineIndexToHeapIndex[indexA] = j;
+    this.lineIndexToHeapIndex[indexB] = i;
   }
 
   _bubbleUp(logicalIndex) {
-
-    const entry = this.heap[logicalIndex * 2];
-
     while (logicalIndex > 0) {
       const parentLogicalIndex = (logicalIndex - 1) >> 1;
 
+      // Read the values dynamically from the array each iteration
+      const currentLength = this.heap[logicalIndex * 2];
+      const parentLength  = this.heap[parentLogicalIndex * 2];
+
       // Compare lengths at slot 0 of both entries
-      if (entry <= this.heap[parentLogicalIndex * 2]) break;
+      if (currentLength <= parentLength) break;
 
       this._swap(logicalIndex, parentLogicalIndex);
       logicalIndex = parentLogicalIndex;

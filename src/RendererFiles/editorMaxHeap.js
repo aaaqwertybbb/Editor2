@@ -747,6 +747,9 @@ function EDI_lineEndPositionList_removeAt(index, count) {
 - [ ] Read over all the code from start to finish that relates to this tracking u int 32 max heap and its usages.
 - [ ] handle splitting lines with the enter key among a line
 - [ ] handle edits that span multiple lines
+- [ ] when the longest line changes you need to draw the div lengths etc...
+- [ ] when the longest line is being added to you need to somehow optimally keep the div length long enough but not cause (layout thrashing)?
+    - [ ] probably would involve only redrawing the length of the longest line and then during finalize you'd update the lengths of every other line that is part of the viewport
 
 
 */

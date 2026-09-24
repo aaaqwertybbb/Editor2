@@ -10013,4 +10013,6 @@ anxiety, nostalgia, fomo
 
 My front teeth are rotating out of my mouth and I have to suck them back into place
 
+I got an error in github desktop when I pushed that previous commit I anxiety/10
+
 */

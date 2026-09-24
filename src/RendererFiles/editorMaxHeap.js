@@ -815,22 +815,25 @@ class TrackingUint32MaxHeap {
 
   /** TODO: Eventual "garbage collection / defragmentation" of the 'this._resizePositionMap' and 'this.nextId' for the no longer in use 'this.nextId'(s) */
   insert(lineIndex, lineLength) {
-    if (this.size >= this.capacity) this._resize();
+    // Ensure heap capacity
+    if (this.size >= this.capacity) {
+      this._resize();
+    }
     
-    // Grow position tracking map if necessary
+    // Proactively ensure the lookup map can index this specific line
     if (lineIndex >= this.lineIndexToHeapIndex.length) {
-      this._resizeLineIndexToHeapIndexMap(lineIndex * 2);
+      this._resizeLineIndexToHeapIndexMap(lineIndex + 1);
     }
 
     const logicalIndex = this.size;
     const bufferIndex = logicalIndex * 2;
-
+    
     this.heap[bufferIndex] = lineLength;
     this.heap[bufferIndex + 1] = lineIndex;
     this.lineIndexToHeapIndex[lineIndex] = logicalIndex;
     
-    this._bubbleUp(logicalIndex);
     this.size++;
+    this._bubbleUp(logicalIndex);
   }
 
   // --- The Core Update Method ---
@@ -980,7 +983,26 @@ class TrackingUint32MaxHeap {
    */
   batchInsertLines(start, count) {
     const oldSize = this.size;
-    // Shift lineIndex values for everything at or past the insertion point
+
+    // 1. Proactively check if the shifted lines will overshoot the map capacity.
+    // We look through the heap to find the maximum line index that will exist *after* the shift.
+    let maxAnticipatedLineIndex = start + count;
+    for (let i = 0; i < oldSize; i++) {
+      const currentLineIndex = this.heap[i * 2 + 1];
+      if (currentLineIndex >= start) {
+        const shiftedIndex = currentLineIndex + count;
+        if (shiftedIndex > maxAnticipatedLineIndex) {
+          maxAnticipatedLineIndex = shiftedIndex;
+        }
+      }
+    }
+
+    // Ensure the map can hold the largest line index we just calculated
+    if (maxAnticipatedLineIndex >= this.lineIndexToHeapIndex.length) {
+      this._resizeLineIndexToHeapIndexMap(maxAnticipatedLineIndex + 1);
+    }
+
+    // 2. Perform the safe index shift
     for (let i = 0; i < oldSize; i++) {
       const bufferIndex = i * 2;
       const currentLineIndex = this.heap[bufferIndex + 1];
@@ -989,8 +1011,7 @@ class TrackingUint32MaxHeap {
       }
     }
     
-    // TODO: Swap this as you go?
-    // Re-sync the mapping so that lineIndexToHeapIndex reflects the newly shifted lines
+    // 3. This is now 100% safe from out-of-bounds errors
     this.syncTrackingMap();
   }
 

@@ -546,15 +546,16 @@ function EDI_lineEndPositionList_removeAt(index, count) {
         - [ ] length
         - [ ] lineIndex
       - [ ] remove:
-          - [ ] foreach : remove from maxHeapLineLength by lineIndex
-              - [ ] remove will bubble down all the way foreach removed line
-              - [ ] then modify heap count so that data is no longer in reach
           - [ ] shift down lineEndPositionList
               - [ ] modify count so data is no longer in reach
           - [ ] shift down lineIndexToHeapIndex
               - [ ] the 'foreach' step means that this is "in order"
               - [ ] just need to modify the count so that the data is no longer in reach
-          - [ ] loop the entire heap array and find any indices that are greater> end remove and modify by count removed
+          - [ ] loop the entire heap array
+            - [ ] find any indices that are >= exclusiveEndLineIndexRemoved, modify the heap entry's lineIndex by count removed
+            - [ ] if line index on heap entry is > inclusiveStartLineIndexRemoved and < exclusiveEndLineIndexRemoved
+              - [ ] mark heap entry for deletion
+            - [ ] re-heapify
   - [ ] De-couple lineIndex from heap
     - [ ] TODO: All you need is this
       - [ ] lineEndPositionList
@@ -687,6 +688,61 @@ function EDI_lineEndPositionList_removeAt(index, count) {
 < - Incredible Cache Locality: JavaScript engines can optimize a single contiguous Uint32Array compaction loop extremely well, meaning the \(O(N)\) loop will execute blazing fast in practice compared to sporadic individual heap swaps.
 < 
 < Would you like to see how to write the specific compaction and line-shifting loop for your interleaved Uint32Array heap?
+
+- [ ] remove:
+  - [ ] shift down lineEndPositionList
+    - [ ] modify count so data is no longer in reach
+  - [ ] shift down lineIndexToHeapIndex
+    - [ ] the 'foreach' step means that this is "in order"
+    - [ ] just need to modify the count so that the data is no longer in reach
+  - [ ] loop the entire heap array
+    - [ ] find any indices that are >= exclusiveEndLineIndexRemoved, modify the heap entry's lineIndex by count removed
+    - [ ] if line index on heap entry is > inclusiveStartLineIndexRemoved and < exclusiveEndLineIndexRemoved
+      - [ ] mark heap entry for deletion
+  - [ ] re-heapify
+
+> Do my notes look correct to you?:
+< ...the above checklist for '- [ ] remove:' is here
+
+< Your notes are almost 100% correct, and you have mapped out the logic beautifully.
+< There are just two minor logical adjustments needed to make it bulletproof: the order of your execution steps and a slight tweak to your conditional bounds.
+< 
+< Here is the breakdown of what is perfect and how to refine those two small areas:
+< 
+< 1. The Order of Execution (Critical Tweak)
+< 
+< In your notes, you listed shifting lineIndexToHeapIndex before looping through the heap array.
+< - The Catch: If you shift down your tracking array first, you overwrite and lose the pointers to the heap entries for the lines you are deleting.
+< - The Fix: You need to read from lineIndexToHeapIndex to find and mark the deleted heap entries before you shift it down.
+< 
+< 2. The Conditional Bounds Tweak
+< 
+< In your conditional block:
+<     "if line index on heap entry is > inclusiveStartLineIndexRemoved and < exclusiveEndLineIndexRemoved"
+< 
+< The Fix: Change the first check to >= (greater than or equal to). Since it is inclusive, a line right at the start bound must be marked for deletion too.
+< 
+< The Corrected, Optimized Plan
+< 
+< Here is your updated checklist with those two corrections integrated into a high-performance sequence:
+< 
+< - 1. Loop the entire heap array first (or use your map to target entries)
+<     - If a heap entry's lineIndex >= inclusiveStartLineIndexRemoved AND < exclusiveEndLineIndexRemoved:
+<         - Mark this heap entry for deletion (e.g., set length to 0 or a tombstone value).
+<     - If a heap entry's lineIndex >= exclusiveEndLineIndexRemoved:
+<         - Subtract count from the heap entry's lineIndex.
+< - 2. Compact & Re-heapify
+<     - Slide surviving heap entries forward in the typed array to overwrite the marked "dead" gaps.
+<     - Run the bottom-up O(N) loop to restore max-heap balance.
+< - 3. Shift down linear document structures
+<     - Shift down lineEndPositionList and modify its count.
+<     - Shift down lineIndexToHeapIndex and modify its count.
+< 
+< An Added Bonus of This Setup
+< Because your loop scans the entire heap array to update the line indices anyway, you don't even need to look at lineIndexToHeapIndex to find what to delete.
+< The heap entry tells you its own lineIndex! You can evaluate, mark, and shift indices for every single element in a single, flat, linear pass over the heap array.
+< 
+< Would you like to review the specific JavaScript loop syntax that handles both the index shifting and the gap-compaction simultaneously inside the interleaved array?
 
 */
 

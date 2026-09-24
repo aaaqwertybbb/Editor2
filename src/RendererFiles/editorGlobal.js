@@ -10028,47 +10028,8 @@ It always makes one of the fields a worrisome limiting reagent.
 But you could probably make a "mirror image" of the current heap.
 Such that the heap entry in the current one is the visual length and the mirror image stores the lineIndex?
 
-=====
+====
 
-Focus, attention, pleasure, boredom, fatigue, feeling tire; and the relation to poductivity
-
-I don't feel like typing much out right now.
-But I want to say something on this right now because this always was a big thing on my mind back in the day.
-
-Today I have so far felt, no focus, no pleasure, just boredom and fatigue.
-I've been yawning over and over.
-And I have nearly 0 desire to do anything.
-
-In terms of routine I did the exact same thing today as I do on days where I suddenly can code for 9 hours straight
-and that I actually have to intentionally tell myself to stop so I can go and eat / exercise.
-
-I don't know if I'll say anything more than that just cause I don't even quite want to.
-But, idk
-
-"Don't confuse pleasure for productivity"
-"Don't confuse throughput for productivity"
-
-The feelings of "excitement and pleasure" aren't always going to be there.
-And the lack of them doesn't necessarily indicate you're going in the wrong direction.
-
-In fact, constant feeling of "excitement and pleasure" would likely indicate that you're going in the wrong direction,
-and delusional and unable to truly evaluate your progress as of late.
-
-You don't want to just take dopaminergic substances to force the "excitement and pleasure"
-because your shifts in mood, and shifts in feelings of pleasure are extremely useful
-for solving problems.
-
-And if you were to truly care about "excitement and pleasure" as the be all end all.
-The true most strong feelings of "excitement and pleasure" are found
-when you lack delusion.
-
-If you are delusional and feel "excitement and pleasure" all the time,
-but the reality is that you have no idea what you're doing and nobody would ever want to hire you
-because you have no sense of restraint
-then you'll be broke in the long run.
-
-Whereas if you do have a sense of restraint you'll find yourself doing meaningful work
-that is exciting and has moments or pleasure and lasting satisfaction.
 
 
 */

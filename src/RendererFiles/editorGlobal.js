@@ -3515,8 +3515,8 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     }
 
     // You need to consider if the longest line gets split
-    if (INTS[fEDI_cursor_editIndexLine] <= INTS[fEDI_longestLine_indexLine])
-        INTS[fEDI_longestLine_indexLine] = INTS[fEDI_longestLine_indexLine] + 1;
+    //if (INTS[fEDI_cursor_editIndexLine] <= INTS[fEDI_longestLine_indexLine])
+    //    INTS[fEDI_longestLine_indexLine] = INTS[fEDI_longestLine_indexLine] + 1;
 
     EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine], INTS[fEDI_cursor_editPosition], 0);
 
@@ -8464,6 +8464,12 @@ function EDI_lineEndPositionList_insert(lineIndex, position, lineLengthVisual) {
     // 4. Update the linear data metrics
     EDI_lineEndPositionList_data[lineIndex] = position;
     EDI_lineEndPositionList_count++;
+
+    if (EDI_trackingUint32MaxHeap.tryPooledPeek()) {
+        INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
+        INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
+    }
+    // TODO: else?
 }
 
 /**

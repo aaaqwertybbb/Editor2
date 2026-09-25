@@ -753,6 +753,11 @@ function EDI_lineEndPositionList_removeAt(index, count) {
 
 - [ ] enter key
   - [/] start of line
+      - [ ] ctrl key
+        - [ ] 0,0
+        - [ ] 0,4
+    - [ ] 0,0
+    - [ ] 0,4
   - [ ] end of line
     - [ ] Does NOT work cuz if ur longest line u move up an index erroneously.
   - [ ] ctrl key

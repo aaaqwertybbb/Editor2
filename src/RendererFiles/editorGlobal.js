@@ -5833,7 +5833,7 @@ function EDI_onKeyDown_ArrowLeft(event) {
     }
     else {
         EDI_preKeyboardMovementSelectionLogic(event.shiftKey);
-        // ArrowLeft need to fix this
+        
         if (event.ctrlKey && INTS[fEDI_cursor_indexColumn] > 0) {
             EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
             const lineStart = INTS[fEDI_getLineBoundaryPositions_start]

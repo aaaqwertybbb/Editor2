@@ -3574,7 +3574,7 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     //if (INTS[fEDI_cursor_editIndexLine] <= INTS[fEDI_longestLine_indexLine])
     //    INTS[fEDI_longestLine_indexLine] = INTS[fEDI_longestLine_indexLine] + 1;
 
-    EDI_lineEndPositionList_insert(actualIndexLine, actualLineFeedPosition, 0);
+    EDI_lineEndPositionList_insert(actualIndexLine, actualLineFeedPosition, INTS[fEDI_cursor_cached_indentation_string_visualWidth]);
 
     // TODO: 'EDI_trackedSyntaxList_inefficientUpdateStartAndLength' with respect to the 'switch (BYTES[byteEDI_cursor_enterKeyEventKind])'?
     EDI_trackedSyntaxList_inefficientUpdateStartAndLength(actualEditPosition, INTS[fEDI_cursor_editLength]);

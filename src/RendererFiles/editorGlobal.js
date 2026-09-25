@@ -3598,6 +3598,11 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
         // TODO: this isn't working for me suddenly, but I'm prob done for day
         // wait I understand
         // you need to update the length to actualNewLineVisualWidth and then insert with firstSplitVisualWidth
+
+        // Everytime I change editorGlobal.js I "test the code" by building and running the app
+        // and then I open editorGlobal.js in app and see if the thing happens or not
+        // but I REALLY gotta stop doing that.
+        // Bad habit, gonna lose all my progress one day.
     }
     else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine) {
         // Contrary to 'EnterKeyEventKind_EndOfLine' this case actually does NOT have to move past the "current line's '\n'"

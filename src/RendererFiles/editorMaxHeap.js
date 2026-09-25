@@ -792,6 +792,14 @@ I hope it doesn't take too long I gotta fix a ton
 
 - [ ] mouse down detail rank 3?
 
+- [ ] TODO: Cannot read properties of null (reading 'className') 'EDI_render_do_EnterKey()'
+    - [ ] when I held it so it kept going over and over and then the cursor went off screen.
+    - [ ] let shouldPreserveCssClassWhenSplittingAmongLine = false;
+                    
+          switch (w_span.className) {
+
+          line 1954 of the code?
+
 */
 
 class TrackingUint32MaxHeap {

@@ -1951,6 +1951,9 @@ function EDI_render_do_EnterKey() {
                     if (!w_span || !w_div) {
                         // TODO: silent error bad
                         //console.log('// EDI_enter TODO: silent error bad');
+                        // It's awkward because this isn't so much an "error" it actually
+                        // is essentially saying "the cursor edit position is not in view"
+                        // That being said the text you see on screen does bug out until you scroll it out of view and back into view again
                         return;
                     }
 

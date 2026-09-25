@@ -10414,4 +10414,10 @@ Even before using the very first version I was sure to at least skim it and make
 and that there weren't any odd lines that would brick my computer etc...
 )
 
+
+I kill 99.9% of bugs in the AI code.
+The 0.1%...
+
+joke about hand sanitizer did it hit?
+
 */

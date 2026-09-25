@@ -790,6 +790,8 @@ I hope it doesn't take too long I gotta fix a ton
 
 - [ ] EDI_cacheIndentation needs to be split out into that and home separately
 
+- [ ] mouse down detail rank 3?
+
 */
 
 class TrackingUint32MaxHeap {

@@ -774,6 +774,22 @@ function EDI_lineEndPositionList_removeAt(index, count) {
   - [ ] among line
     - [ ] 
 
+
+- [ ] Enter key END OF LINE
+    - [ ] 
+- [ ] Enter key START OF LINE
+    - [ ] 
+- [ ] Enter key AMONG LINE
+    - [ ] 
+
+omg I gotta lock in actually my code sucks
+I hope it doesn't take too long I gotta fix a ton
+
+
+
+
+
+
 */
 
 class TrackingUint32MaxHeap {

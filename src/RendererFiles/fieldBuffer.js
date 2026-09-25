@@ -880,8 +880,9 @@ const EditKind_Duplicate = 10;
  */
 const EnterKeyEventKind_None = 0;
 const EnterKeyEventKind_StartOfLine = 1;
-const EnterKeyEventKind_EndOfLine = 2;
-const EnterKeyEventKind_AmongALine = 3;
+const EnterKeyEventKind_AmongALine = 2;
+const EnterKeyEventKind_EndOfLine = 3;
+const EnterKeyEventKind_EndOfFile = 4;
 
 /**
  * Do not change the order/values of these, they are used in equality comparisons, the larger the number says when double clicking between a character and a punctuation

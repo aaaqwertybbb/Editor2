@@ -786,9 +786,9 @@ omg I gotta lock in actually my code sucks
 I hope it doesn't take too long I gotta fix a ton
 
 
+- [ ] Batch enter key
 
-
-
+- [ ] EDI_cacheIndentation needs to be split out into that and home separately
 
 */
 

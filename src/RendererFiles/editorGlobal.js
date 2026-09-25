@@ -3603,6 +3603,7 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
         // and then I open editorGlobal.js in app and see if the thing happens or not
         // but I REALLY gotta stop doing that.
         // Bad habit, gonna lose all my progress one day.
+        // i.e.: open a file that at minimum doesn't already exist in your git changes.
     }
     else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine) {
         // Contrary to 'EnterKeyEventKind_EndOfLine' this case actually does NOT have to move past the "current line's '\n'"

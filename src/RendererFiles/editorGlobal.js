@@ -3497,6 +3497,26 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
 }
 
 function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
+
+
+/*
+The Complete "Enter Key" Matrix
+
+To handle every edge case cleanly without your functions turning into spaghetti code, classify your EnterKey event into one of these 4 distinct structural branches:
+
+(I realized this was the case before I asked google AI, I just wanted to hear them tell me I'm right... just sayin)
+
+< The Complete "Enter Key" Matrix
+< 
+< Event Kind  | Cursor Condition                    | Structural Action
+< --------------------------------------------------------------------------------------------------------------------------------------------------------------
+< StartOfLine | Column is `0`                       | Insert `\n` + indent 'before' the current text. Shift all current text down.
+< AmongALine  | Column is between 0 and Line End    | True Split. Break the text string in half. Move the right side down to a new line.
+< EndOfLine   | Column is at Line End (before `\n`) | Jump past the current line's `\n` byte. Append a clean new line entry 'after' it.
+< EndOfFile   | Pointer equals File Byte Length     | Append a `\n` directly to the end of the buffer to close the file, then append the new line's indentation.
+*/
+
+
     if (INTS[fEDI_cursor_editRenderedDisplacement] !== INTS[fEDI_cursor_editLength]) {
         EDI_render_do_EnterKey();
     }

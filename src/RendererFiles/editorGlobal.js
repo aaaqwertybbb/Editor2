@@ -10158,8 +10158,12 @@ MyHouse.WAD it was a crazy realization
 Back in the day I viewed some of his MyHouse.WAD video but I never finished it.
 I watched that too a few days ago.
 
-Also I was laughing a bit while watching 'The Faculty' because elijah woods is in every movie I watch these days I feel like.
+Also I was laughing a bit while watching 'The Faculty' because elijah wood is in every movie I watch these days I feel like.
 I actually never watched movies in the past.
 I knew the 'vil vear vigs' interview but I never actually saw his movies he's all over.
+
+> what's the joke where you add an s to the end of a store
+
+< ...
 
 */

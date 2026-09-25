@@ -3550,6 +3550,7 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     let actualEditPosition = INTS[fEDI_cursor_editPosition];
     let actualLineFeedPosition = actualEditPosition;
     let actualIndexLine = INTS[fEDI_cursor_editIndexLine];
+    let actualNewLineVisualWidth = INTS[fEDI_cursor_cached_indentation_string_visualWidth];
 
     if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine)
     {
@@ -3563,6 +3564,23 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
 
         actualIndexLine++;
     }
+    else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_AmongALine) {
+        EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_editIndexLine]);
+
+        //let totalVisualWidth_splitLine = fEDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
+        getIndexFromColumn_RESET(INTS[fEDI_cursor_editIndexColumn], INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
+        let firstSplitVisualWidth = INTS[fEDI_getIndexFromX_visualColumns];
+        //let aaa = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_editIndexLine]);
+        let lastValidIndexColumn = INTS[fEDI_getLineBoundaryPositions_end] - INTS[fEDI_getLineBoundaryPositions_start];
+        getIndexFromColumn_sameLine_newRxIsLarger(
+            lastValidIndexColumn,
+            INTS[fEDI_getLineBoundaryPositions_start],
+            INTS[fEDI_getLineBoundaryPositions_end],
+            INTS[fEDI_cursor_editIndexColumn],
+            firstSplitVisualWidth);
+        let lastSplitVisualWidth = INTS[fEDI_getIndexFromX_visualColumns] - firstSplitVisualWidth;
+        actualNewLineVisualWidth += lastSplitVisualWidth;
+    }
     
     EDI_textByteList_insertBytes(actualEditPosition, EDI_cursor_enterKey_newLinePlusIndentation_byteList, /*offset*/ 0, EDI_cursor_enterKey_newLinePlusIndentation_byteList.length);
 
@@ -3574,7 +3592,7 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     //if (INTS[fEDI_cursor_editIndexLine] <= INTS[fEDI_longestLine_indexLine])
     //    INTS[fEDI_longestLine_indexLine] = INTS[fEDI_longestLine_indexLine] + 1;
 
-    EDI_lineEndPositionList_insert(actualIndexLine, actualLineFeedPosition, INTS[fEDI_cursor_cached_indentation_string_visualWidth]);
+    EDI_lineEndPositionList_insert(actualIndexLine, actualLineFeedPosition, actualNewLineVisualWidth);
 
     // TODO: 'EDI_trackedSyntaxList_inefficientUpdateStartAndLength' with respect to the 'switch (BYTES[byteEDI_cursor_enterKeyEventKind])'?
     EDI_trackedSyntaxList_inefficientUpdateStartAndLength(actualEditPosition, INTS[fEDI_cursor_editLength]);

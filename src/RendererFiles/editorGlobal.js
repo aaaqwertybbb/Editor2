@@ -1291,7 +1291,7 @@ function EDI_render_do_DuplicateOrPaste() {
         walkLineUntilIndexColumn();
         if (!w_span || !w_div) {
             // TODO: silent error bad
-            alert('// EDI_paste TODO: silent error bad');
+            //alert('// EDI_paste TODO: silent error bad');
             return;
         }
 
@@ -1948,6 +1948,11 @@ function EDI_render_do_EnterKey() {
                     let spanText = EDI_cursor_cached_indentation_string;
 
                     walkLineUntilIndexColumn();
+                    if (!w_span || !w_div) {
+                        // TODO: silent error bad
+                        //console.log('// EDI_enter TODO: silent error bad');
+                        return;
+                    }
 
                     let shouldPreserveCssClassWhenSplittingAmongLine = false;
                     

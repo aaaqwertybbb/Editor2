@@ -3592,6 +3592,8 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
         actualNewLineVisualWidth += lastSplitVisualWidth;
 
         EDI_trackingUint32MaxHeap.updateLength(INTS[fEDI_cursor_editIndexLine], firstSplitVisualWidth);
+
+        // TODO: this isn't working for me suddenly, but I'm prob done for day
     }
     else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine) {
         // Contrary to 'EnterKeyEventKind_EndOfLine' this case actually does NOT have to move past the "current line's '\n'"

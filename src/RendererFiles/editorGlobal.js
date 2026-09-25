@@ -3544,9 +3544,6 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
         EDI_render_do_EnterKey();
     }
 
-    // TODO: 'EDI_trackedSyntaxList_inefficientUpdateStartAndLength' with respect to the 'switch (BYTES[byteEDI_cursor_enterKeyEventKind])'?
-    EDI_trackedSyntaxList_inefficientUpdateStartAndLength(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength]);
-
     // throws an exception if 'EnterKeyEventKind_None' (...or falsey).
     if (!BYTES[byteEDI_cursor_enterKeyEventKind] || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_None) { EDI_finalizeEdit_ClearEditState(); throw new Error('if (!enterKeyEventKind...)'); }
 
@@ -3578,6 +3575,9 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     //    INTS[fEDI_longestLine_indexLine] = INTS[fEDI_longestLine_indexLine] + 1;
 
     EDI_lineEndPositionList_insert(actualIndexLine, actualLineFeedPosition, 0);
+
+    // TODO: 'EDI_trackedSyntaxList_inefficientUpdateStartAndLength' with respect to the 'switch (BYTES[byteEDI_cursor_enterKeyEventKind])'?
+    EDI_trackedSyntaxList_inefficientUpdateStartAndLength(actualEditPosition, INTS[fEDI_cursor_editLength]);
 
     let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
     EDI_getLineAndColumnIndices_raw(actualEditPosition);
@@ -5833,6 +5833,7 @@ function EDI_onKeyDown_ArrowLeft(event) {
     }
     else {
         EDI_preKeyboardMovementSelectionLogic(event.shiftKey);
+        // ArrowLeft need to fix this
         if (event.ctrlKey && INTS[fEDI_cursor_indexColumn] > 0) {
             EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
             let indexPosition = INTS[fEDI_getLineBoundaryPositions_start] + INTS[fEDI_cursor_indexColumn];

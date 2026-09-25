@@ -10146,6 +10146,18 @@ I was wondering about that lol
 
 I watched the best version
 
+I like umm...
+
+Power Pak, he has a video about Box of Broken Nails
+I watched the entire thing from start to finish in a single sitting
+it was about a week ago I can't remember.
+
+And while watching that I realized he was the guy that had the big video about
+MyHouse.WAD it was a crazy realization
+
+Back in the day I viewed some of his MyHouse.WAD video but I never finished it.
+I watched that too a few days ago.
+
 
 
 */

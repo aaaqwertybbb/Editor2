@@ -3500,13 +3500,11 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
 
 
 /*
-The Complete "Enter Key" Matrix
-
-To handle every edge case cleanly without your functions turning into spaghetti code, classify your EnterKey event into one of these 4 distinct structural branches:
-
 (I realized this was the case before I asked google AI, I just wanted to hear them tell me I'm right... just sayin)
 
 < The Complete "Enter Key" Matrix
+< 
+< To handle every edge case cleanly without your functions turning into spaghetti code, classify your EnterKey event into one of these 4 distinct structural branches:
 < 
 < Event Kind  | Cursor Condition                    | Structural Action
 < --------------------------------------------------------------------------------------------------------------------------------------------------------------

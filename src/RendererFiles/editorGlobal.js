@@ -3587,6 +3587,7 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     }
     else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine) {
         // Contrary to 'EnterKeyEventKind_EndOfLine' this case actually does NOT have to move past the "current line's '\n'"
+        // NOTE: Ctrl + Enter keybind is a known case for why this line of code is needed, perhaps there are more that will come later I have no idea.
         actualLineFeedPosition += INTS[fEDI_cursor_editLength] - 1;
     }
     

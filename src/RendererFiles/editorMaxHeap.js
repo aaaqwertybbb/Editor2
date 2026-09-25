@@ -752,12 +752,22 @@ function EDI_lineEndPositionList_removeAt(index, count) {
     - [ ] probably would involve only redrawing the length of the longest line and then during finalize you'd update the lengths of every other line that is part of the viewport
 
 - [ ] enter key
-  - [ ] start of line
+  - [/] start of line
   - [ ] end of line
+    - [ ] Does NOT work cuz if ur longest line u move up an index erroneously.
   - [ ] ctrl key
-    - [ ] this is wrong
-  - [ ] shift key
+    - [ ] this is wrong because you don't move cursor to start of line you move it to end of previous but wait line 0?
+  - [ ] generally speaking indentation matching draws cursor correctly when dealing with tabs/spaces/both?
+    - [ ] shift key
+    - [ ] ctrl key
+    - [ ] start of line (no indentation)
+    - [ ] end of line
+    - [ ] among line
+  - [/] shift key
+    - [x] tested without tabs and this one worked
+    - [ ] TODO: test tab logic
   - [ ] among line
+    - [ ] 
 
 */
 

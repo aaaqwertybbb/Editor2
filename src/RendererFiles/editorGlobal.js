@@ -3552,8 +3552,7 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     let actualIndexLine = INTS[fEDI_cursor_editIndexLine];
     let actualNewLineVisualWidth = INTS[fEDI_cursor_cached_indentation_string_visualWidth];
 
-    if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine)
-    {
+    if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine) {
         actualEditPosition++; // Move past the current line's '\n'
         actualLineFeedPosition = actualEditPosition;
 
@@ -3580,6 +3579,8 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
             firstSplitVisualWidth);
         let lastSplitVisualWidth = INTS[fEDI_getIndexFromX_visualColumns] - firstSplitVisualWidth;
         actualNewLineVisualWidth += lastSplitVisualWidth;
+
+        EDI_trackingUint32MaxHeap.updateLength(INTS[fEDI_cursor_editIndexLine], firstSplitVisualWidth);
     }
     
     EDI_textByteList_insertBytes(actualEditPosition, EDI_cursor_enterKey_newLinePlusIndentation_byteList, /*offset*/ 0, EDI_cursor_enterKey_newLinePlusIndentation_byteList.length);
@@ -3587,10 +3588,6 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     for (var i = actualIndexLine; i < EDI_lineEndPositionList_count; i++) {
         EDI_lineEndPositionList_data[i] += INTS[fEDI_cursor_editLength];
     }
-
-    // You need to consider if the longest line gets split
-    //if (INTS[fEDI_cursor_editIndexLine] <= INTS[fEDI_longestLine_indexLine])
-    //    INTS[fEDI_longestLine_indexLine] = INTS[fEDI_longestLine_indexLine] + 1;
 
     EDI_lineEndPositionList_insert(actualIndexLine, actualLineFeedPosition, actualNewLineVisualWidth);
 

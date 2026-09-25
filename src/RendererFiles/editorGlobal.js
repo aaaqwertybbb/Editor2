@@ -3538,6 +3538,9 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     - [x] Draw
     - [x] Finalize
 
+- [ ] Ctrl Enter
+- [ ] Shift Enter
+
 */
 
     if (INTS[fEDI_cursor_editRenderedDisplacement] !== INTS[fEDI_cursor_editLength]) {

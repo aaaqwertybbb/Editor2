@@ -755,6 +755,7 @@ function EDI_lineEndPositionList_removeAt(index, count) {
   - [ ] start of line
   - [ ] end of line
   - [ ] ctrl key
+    - [ ] this is wrong
   - [ ] shift key
   - [ ] among line
 

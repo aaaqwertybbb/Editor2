@@ -3591,7 +3591,9 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
         let lastSplitVisualWidth = INTS[fEDI_getIndexFromX_visualColumns] - firstSplitVisualWidth;
         actualNewLineVisualWidth += lastSplitVisualWidth;
 
-        EDI_trackingUint32MaxHeap.updateLength(INTS[fEDI_cursor_editIndexLine], firstSplitVisualWidth);
+        EDI_trackingUint32MaxHeap.updateLength(INTS[fEDI_cursor_editIndexLine], actualNewLineVisualWidth);
+
+        actualNewLineVisualWidth = firstSplitVisualWidth;
 
         // TODO: this isn't working for me suddenly, but I'm prob done for day
         // wait I understand

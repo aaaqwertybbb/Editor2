@@ -3539,7 +3539,7 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     - [x] Finalize
 
 - [ ] Ctrl Enter
-- [ ] Shift Enter
+- [x] Shift Enter
 
 */
 

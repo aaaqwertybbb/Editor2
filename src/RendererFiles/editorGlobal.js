@@ -7573,14 +7573,14 @@ function EDI_onMouseDownDetailRankThree(event_button, event_shiftKey, indexLineC
     INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
     
     INTS[fEDI_cursor_selectionAnchor] = EDI_getPositionIndex_Overload(INTS[fEDI_cursor_indexLine], 0);
-    INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+    INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = 0;
     
     INTS[fEDI_detailRank3OriginLine] = INTS[fEDI_cursor_indexLine];
 
     if (INTS[fEDI_cursor_indexLine] === EDI_lineEndPositionList_count - 1) {
         EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
         INTS[fEDI_cursor_selectionEnd] = INTS[fEDI_getLineBoundaryPositions_end];
-        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = fEDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
         EDI_render_request(RenderKind_Cursor_n);
     }
     else {

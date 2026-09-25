@@ -5086,14 +5086,14 @@ function EDI_cacheIndentation(originalIndexLine, originalIndexColumn, lastValidI
 
     // Currently an enter key press only batches with other enter key presses so either the edit is finalized or the indentation was already cached and thus this code wouldn't run,
     // i.e.: you can read directly from the byte array without worrying about a pending edit.
-    outer: for (var col = 0; col < upperLimitIndexColumn; col++) {
-        switch (EDI_textByteList_bytes[line_start + col]) {
+    outer: for (var i = 0; i < upperLimitIndexColumn; i++) {
+        switch (EDI_textByteList_bytes[line_start + i]) {
             case CONST_EDI_ASCII_SPACE:
                 indentation_string_visualWidth++;
                 count++;
                 break;
             case CONST_EDI_ASCII_TAB:
-                indentation_string_visualWidth += 4;
+                indentation_string_visualWidth += 4 - (indentation_string_visualWidth % 4);
                 count++;
                 break;
             default:

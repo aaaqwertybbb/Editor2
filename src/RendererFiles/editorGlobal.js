@@ -3525,18 +3525,18 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
 < EndOfLine   | Column is at Line End (before `\n`) | Jump past the current line's `\n` byte. Append a clean new line entry 'after' it.
 < EndOfFile   | Pointer equals File Byte Length     | Append a `\n` directly to the end of the buffer to close the file, then append the new line's indentation.
 
-- [ ] StartOfLine
-    - [ ] Draw
-    - [ ] Finalize
+- [x] StartOfLine
+    - [x] Draw
+    - [x] Finalize
 - [ ] AmongALine
     - [ ] Draw
     - [ ] Finalize
-- [ ] EndOfLine
-    - [ ] Draw
-    - [ ] Finalize
-- [ ] EndOfFile
-    - [ ] Draw
-    - [ ] Finalize
+- [x] EndOfLine
+    - [x] Draw
+    - [x] Finalize
+- [x] EndOfFile
+    - [x] Draw
+    - [x] Finalize
 
 */
 
@@ -5833,7 +5833,7 @@ function EDI_onKeyDown_ArrowLeft(event) {
     }
     else {
         EDI_preKeyboardMovementSelectionLogic(event.shiftKey);
-        
+
         if (event.ctrlKey && INTS[fEDI_cursor_indexColumn] > 0) {
             EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
             const lineStart = INTS[fEDI_getLineBoundaryPositions_start]

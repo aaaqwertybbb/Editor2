@@ -3557,8 +3557,14 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine)
     {
         actualEditPosition++; // Move past the current line's '\n'
+        actualLineFeedPosition = actualEditPosition;
+
+        // TODO: Perhaps removing the -1 and no having the 'actualLineFeedPosition = actualEditPosition;' would read better I'm not sure... it would be 1 less statement in this function...
+        // ...i.e.: you could remove the -1 but now you do need that extra 1 accounted for in order to move past the current line's '\n' just like 'actualEditPosition++' did.
+        // -1 => don't count the '\n' itself (it's the indentation that's moving the actualLineFeedPosition.)
+        actualLineFeedPosition += INTS[fEDI_cursor_editLength] - 1;
+
         actualIndexLine++;
-        actualLineFeedPosition += INTS[fEDI_cursor_editLength] - 1; // -1 => don't count the '\n' itself (it's the indentation that's moving the actualLineFeedPosition.)
     }
     
     EDI_textByteList_insertBytes(actualEditPosition, EDI_cursor_enterKey_newLinePlusIndentation_byteList, /*offset*/ 0, EDI_cursor_enterKey_newLinePlusIndentation_byteList.length);

@@ -10020,4 +10020,115 @@ I got an error in github desktop when I pushed that previous commit I anxiety/10
 8:07
 12:07
 
+I fixed 'this.' in my color theme for Visual Studio Code
+
+"editor.bracketPairColorization.enabled": false,
+    "workbench.colorCustomizations": {
+        "[Light+]": {
+            //"sideBar.background": "#f3f3f3",
+            //"sideBar.foreground": "#333333",
+            //"sideBarSectionHeader.background": "#e8e8e8",
+            //"activityBar.background": "#f3f3f3",
+            //"activityBar.foreground": "#333333",
+            "activityBar.background": "#f3f3f3",
+            "activityBar.foreground": "#333333",
+            "activityBar.inactiveForeground": "#33333399",
+            "modernActivityBarItem.hoverForeground": "#2b88f9",
+            "modernActivityBarItem.activeForeground": "#2b88f9",
+            "activityBar.border": "#e4e4e4"
+        }
+    },
+    "editor.tokenColorCustomizations": {
+        "[Dark+]": {
+            "textMateRules": [
+                {
+                    "name": "Target dot property/member access (excluding methods)",
+                    "scope": [
+                        "variable.other.property",
+                        "variable.other.object.property",
+                        "support.type.property-name",
+                        "support.variable.property.js",
+                        "entity.name.variable.field",
+                        "entity.name.variable.property",
+                        "variable.other.constant.property.js",
+                        "support.variable.property",
+                    ],
+                    "settings": {
+                        "foreground": "#4FC1FF",
+                    }
+                },
+                {
+                    "scope": [
+                        "variable.other.constant",
+                        "variable.other.object.property",
+                        "variable.other.property.js"
+                    ],
+                    "settings": {
+                        "foreground": "#9CDCFE",
+                    }
+                },
+                {
+                    "scope": [
+                        "entity.name.function.js",
+                        "meta.function-call.js",
+                        "entity.name.function.js",
+                        "meta.function-call.js",
+                        "support.function",
+                        "entity.name.function.member",
+
+                    ],
+                    "settings": {
+                        "foreground": "#cece84",
+                    }
+                },
+            ]
+        },
+        "[Light+]": {
+            "textMateRules": [
+                {
+                    "name": "Target dot property/member access (excluding methods)",
+                    "scope": [
+                        "variable.other.property",
+                        "variable.other.object.property",
+                        "support.type.property-name",
+                        "support.variable.property.js",
+                        "entity.name.variable.field",
+                        "entity.name.variable.property",
+                        "variable.other.constant.property.js",
+                        "support.variable.property",
+                    ],
+                    "settings": {
+                        "foreground": "#0070C1",
+                    }
+                },
+                {
+                    "scope": [
+                        "variable.other.constant",
+                        "variable.other.object.property",
+                        "variable.other.property.js"
+                    ],
+                    "settings": {
+                        "foreground": "#001080",
+                    }
+                },
+                {
+                    "scope": [
+                        "entity.name.function.js",
+                        "meta.function-call.js",
+                        "entity.name.function.js",
+                        "meta.function-call.js",
+                        "support.function",
+                        "entity.name.function.member",
+
+                    ],
+                    "settings": {
+                        "foreground": "#af7700",
+                    }
+                },
+            ]
+        }
+    }
+
+
+
 */

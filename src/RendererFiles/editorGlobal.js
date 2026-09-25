@@ -47,6 +47,8 @@ EDI_cursor_cursorElement.className = "EDI_cursor";
 EDI_cursor_caretRow.appendChild(EDI_cursor_cursorElement);
 
 /**
+ * Depending on 'BYTES[byteEDI_cursor_enterKeyEventKind]' this may either start OR end with '\n'.
+ * 
  * Upon an enter keystroke this is inserted onto the newly added line.
  * 
  * The value is stored here to avoid high overhead from indentation matching when holding down the Enter key.
@@ -61,6 +63,7 @@ EDI_cursor_caretRow.appendChild(EDI_cursor_cursorElement);
  */
 let EDI_cursor_enterKey_newLinePlusIndentation_byteList = null;
 
+/** Depending on 'BYTES[byteEDI_cursor_enterKeyEventKind]' this may either start OR end with '\n'. */
 let EDI_cursor_cached_indentation_string = null;
 
 /**
@@ -2030,29 +2033,27 @@ function EDI_render_do_EnterKey() {
  * - "among a line":
  */
 function EDI_EnterKey(ctrlKey, shiftKey) {
-    if (!EDI_cursor_enterKey_newLinePlusIndentation_byteList)
-        EDI_cacheIndentation();
+
+    const originalIndexLine = INTS[fEDI_cursor_indexLine];
+    const originalIndexColumn = INTS[fEDI_cursor_indexColumn];
+    const lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
 
     if (ctrlKey) {
         INTS[fEDI_cursor_indexColumn] = 0;
         INTS[fEDI_cursorVisualColumnIndex] = 0;
     }
     else if (shiftKey) {
-        INTS[fEDI_cursor_indexColumn] = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
-        INTS[fEDI_cursorVisualColumnIndex] = INTS[fEDI_cursor_indexColumn];
+        INTS[fEDI_cursor_indexColumn] = lastValidIndexColumn;
+        INTS[fEDI_cursorVisualColumnIndex] = lastValidIndexColumn; // TODO: This should be fine because the cursor is going to move in a moment anyhow
     }
 
     if (INTS[fEDI_cursor_editLength] === 0) {
-
         BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_None;
-
         INTS[fEDI_cursor_editPosition] = EDI_getPositionIndex_cursor_raw();
         INTS[fEDI_cursor_editIndexLine] = INTS[fEDI_cursor_indexLine];
         INTS[fEDI_cursor_editIndexColumn] = INTS[fEDI_cursor_indexColumn];
     }
 
-    let insertionCount = EDI_cursor_enterKey_newLinePlusIndentation_byteList.length;
-    
     if (INTS[fEDI_cursor_indexColumn] === 0) { // start of line
         if (BYTES[byteEDI_cursor_enterKeyEventKind] === 0) {
             BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_StartOfLine;
@@ -2062,16 +2063,27 @@ function EDI_EnterKey(ctrlKey, shiftKey) {
             INTS[fEDI_cursor_indexLine]++;
     }
     else {
-        let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
-
         if (BYTES[byteEDI_cursor_enterKeyEventKind] === 0) {
-            BYTES[byteEDI_cursor_enterKeyEventKind] = lastValidIndexColumn === INTS[fEDI_cursor_indexColumn]
-                ? EnterKeyEventKind_EndOfLine
-                : EnterKeyEventKind_AmongALine;
+            if (lastValidIndexColumn === INTS[fEDI_cursor_indexColumn]) {
+                if (INTS[fEDI_cursor_editPosition] === EDI_textByteList_count) {
+                    BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_EndOfFile;
+                }
+                else {
+                    BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_EndOfLine;
+                }
+            }
+            else {
+                BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_AmongALine;
+            }
         }
         
         INTS[fEDI_cursor_indexLine]++;
     }
+
+    if (!EDI_cursor_enterKey_newLinePlusIndentation_byteList)
+        EDI_cacheIndentation(originalIndexLine, originalIndexColumn, lastValidIndexColumn);
+
+    const insertionCount = EDI_cursor_enterKey_newLinePlusIndentation_byteList.length;
 
     INTS[fEDI_cursor_indexColumn] = insertionCount - 1; // minus the newline
     INTS[fEDI_cursorVisualColumnIndex] = INTS[fEDI_cursor_cached_indentation_string_visualWidth]; // the indentation_string doesn't include the newline
@@ -3512,23 +3524,46 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
 < AmongALine  | Column is between 0 and Line End    | True Split. Break the text string in half. Move the right side down to a new line.
 < EndOfLine   | Column is at Line End (before `\n`) | Jump past the current line's `\n` byte. Append a clean new line entry 'after' it.
 < EndOfFile   | Pointer equals File Byte Length     | Append a `\n` directly to the end of the buffer to close the file, then append the new line's indentation.
-*/
 
+- [ ] StartOfLine
+    - [ ] Draw
+    - [ ] Finalize
+- [ ] AmongALine
+    - [ ] Draw
+    - [ ] Finalize
+- [ ] EndOfLine
+    - [ ] Draw
+    - [ ] Finalize
+- [ ] EndOfFile
+    - [ ] Draw
+    - [ ] Finalize
+
+*/
 
     if (INTS[fEDI_cursor_editRenderedDisplacement] !== INTS[fEDI_cursor_editLength]) {
         EDI_render_do_EnterKey();
     }
 
-    // TODO: A notification needs to sent to the LSP here
-
+    // TODO: 'EDI_trackedSyntaxList_inefficientUpdateStartAndLength' with respect to the 'switch (BYTES[byteEDI_cursor_enterKeyEventKind])'?
     EDI_trackedSyntaxList_inefficientUpdateStartAndLength(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength]);
 
     // throws an exception if 'EnterKeyEventKind_None' (...or falsey).
     if (!BYTES[byteEDI_cursor_enterKeyEventKind] || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_None) { EDI_finalizeEdit_ClearEditState(); throw new Error('if (!enterKeyEventKind...)'); }
 
-    EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition], EDI_cursor_enterKey_newLinePlusIndentation_byteList, /*offset*/ 0, EDI_cursor_enterKey_newLinePlusIndentation_byteList.length);
+    let actualEditPosition = INTS[fEDI_cursor_editPosition];
+    let actualLineFeedPosition = actualEditPosition;
+    let actualIndexLine = INTS[fEDI_cursor_editIndexLine];
 
-    for (var i = INTS[fEDI_cursor_editIndexLine]; i < EDI_lineEndPositionList_count; i++) {
+    if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine)
+    {
+        actualEditPosition++; // Move past the current line's '\n'
+        actualIndexLine++;
+        actualLineFeedPosition += INTS[fEDI_cursor_editLength] - 1; // -1 => don't count the '\n' itself (it's the indentation that's moving the actualLineFeedPosition.)
+    }
+    
+    EDI_textByteList_insertBytes(actualEditPosition, EDI_cursor_enterKey_newLinePlusIndentation_byteList, /*offset*/ 0, EDI_cursor_enterKey_newLinePlusIndentation_byteList.length);
+
+    for (var i = actualIndexLine; i < EDI_lineEndPositionList_count; i++) {
         EDI_lineEndPositionList_data[i] += INTS[fEDI_cursor_editLength];
     }
 
@@ -3536,10 +3571,10 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     //if (INTS[fEDI_cursor_editIndexLine] <= INTS[fEDI_longestLine_indexLine])
     //    INTS[fEDI_longestLine_indexLine] = INTS[fEDI_longestLine_indexLine] + 1;
 
-    EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine], INTS[fEDI_cursor_editPosition], 0);
+    EDI_lineEndPositionList_insert(actualIndexLine, actualLineFeedPosition, 0);
 
     let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
-    EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
+    EDI_getLineAndColumnIndices_raw(actualEditPosition);
     let lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
     let lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
     let text = EDI_decoder.decode(EDI_cursor_enterKey_newLinePlusIndentation_byteList); // EDI_cursor_cached_indentation_string does not include the linefeed
@@ -5034,15 +5069,16 @@ function EDI_moveCursor_indexLine_indexColumn(indexLine, indexColumn) {
  * - INTS[fEDI_cursor_cached_indentation_string_visualWidth]
  * - EDI_cursor_enterKey_newLinePlusIndentation_byteList
  * - EDI_cursor_cached_indentation_string
+ * 
+ * Internally uses 'BYTES[byteEDI_cursor_enterKeyEventKind]'.
  */
-function EDI_cacheIndentation() {
-    let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
-    EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+function EDI_cacheIndentation(originalIndexLine, originalIndexColumn, lastValidIndexColumn) {
+    EDI_getLineBoundaryPositions_raw(originalIndexLine);
     const line_start = INTS[fEDI_getLineBoundaryPositions_start];
 
     let upperLimitIndexColumn = lastValidIndexColumn;
-    if (INTS[fEDI_cursor_indexColumn] < lastValidIndexColumn) {
-        upperLimitIndexColumn = INTS[fEDI_cursor_indexColumn];
+    if (originalIndexColumn < lastValidIndexColumn) {
+        upperLimitIndexColumn = originalIndexColumn;
     }
 
     let count = 0;
@@ -5050,8 +5086,8 @@ function EDI_cacheIndentation() {
 
     // Currently an enter key press only batches with other enter key presses so either the edit is finalized or the indentation was already cached and thus this code wouldn't run,
     // i.e.: you can read directly from the byte array without worrying about a pending edit.
-    outer: for (var i = 0; i < upperLimitIndexColumn; i++) {
-        switch (EDI_textByteList_bytes[line_start + i]) {
+    outer: for (var col = 0; col < upperLimitIndexColumn; col++) {
+        switch (EDI_textByteList_bytes[line_start + col]) {
             case CONST_EDI_ASCII_SPACE:
                 indentation_string_visualWidth++;
                 count++;
@@ -5067,12 +5103,28 @@ function EDI_cacheIndentation() {
 
     INTS[fEDI_cursor_cached_indentation_string_visualWidth] = indentation_string_visualWidth;
 
-    EDI_cursor_enterKey_newLinePlusIndentation_byteList = new Uint8Array(1 + count); // '1 +' for the '\n'. This might not always exist in the byte array for example if pressing enter key on the 0th index line there is no existing '\n' to copy from the byte array so just always make it.
-    EDI_cursor_enterKey_newLinePlusIndentation_byteList[0] = CONST_EDI_ASCII_LINE_FEED;
+    const uint8Array_length = 1 + count; // '1 +' for the '\n'. This might not always exist in the byte array for example if pressing enter key on the 0th index line there is no existing '\n' to copy from the byte array so just always make it.
+    EDI_cursor_enterKey_newLinePlusIndentation_byteList = new Uint8Array(uint8Array_length);
+
+    let setOffset = 1;
+
+    switch (BYTES[byteEDI_cursor_enterKeyEventKind]) {
+        case EnterKeyEventKind_StartOfLine:
+        case EnterKeyEventKind_EndOfLine:
+            setOffset = 0;
+            EDI_cursor_enterKey_newLinePlusIndentation_byteList[uint8Array_length - 1] = CONST_EDI_ASCII_LINE_FEED;
+            break;
+        case EnterKeyEventKind_AmongALine:
+        case EnterKeyEventKind_EndOfFile:
+            EDI_cursor_enterKey_newLinePlusIndentation_byteList[0] = CONST_EDI_ASCII_LINE_FEED;
+            break;
+        default:
+            throw new Error();
+    }
 
     if (count > 0) {
         let subarray = EDI_textByteList_bytes.subarray(line_start, line_start + count);
-        EDI_cursor_enterKey_newLinePlusIndentation_byteList.set(subarray, 1);
+        EDI_cursor_enterKey_newLinePlusIndentation_byteList.set(subarray, setOffset);
         EDI_cursor_cached_indentation_string = EDI_decoder.decode(subarray);
     }
     else {

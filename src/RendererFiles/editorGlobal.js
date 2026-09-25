@@ -3585,6 +3585,10 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
 
         EDI_trackingUint32MaxHeap.updateLength(INTS[fEDI_cursor_editIndexLine], firstSplitVisualWidth);
     }
+    else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine) {
+        // Contrary to 'EnterKeyEventKind_EndOfLine' this case actually does NOT have to move past the "current line's '\n'"
+        actualLineFeedPosition += INTS[fEDI_cursor_editLength] - 1;
+    }
     
     EDI_textByteList_insertBytes(actualEditPosition, EDI_cursor_enterKey_newLinePlusIndentation_byteList, /*offset*/ 0, EDI_cursor_enterKey_newLinePlusIndentation_byteList.length);
 

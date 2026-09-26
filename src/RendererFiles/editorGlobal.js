@@ -1848,13 +1848,15 @@ function EDI_render_do_EnterKey() {
 
         // TODO: This 'ringBufferIndex_firstTilde' is maybe correct I don't know but it's been a long time since I wrote this line of code, and glancing at it, it looks like you need to subtract 1?
 
+        const local_EDI_lineEndPositionList_count = EDI_lineEndPositionList_count + INTS[fEDI_cursor_editRenderedDisplacement] - 1;
+
         // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
-        let ringBufferIndex_firstTilde = EDI_lineEndPositionList_count - INTS[fEDI_virtualIndexLine];
+        let ringBufferIndex_firstTilde = local_EDI_lineEndPositionList_count - INTS[fEDI_virtualIndexLine];
         if (ringBufferIndex_firstTilde >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_firstTilde < 0) ringBufferIndex_firstTilde = -1;
         else ringBufferIndex_firstTilde = (ringBufferIndex_firstTilde + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
 
         if (ringBufferIndex_firstTilde >= 0) {
-            EDI_gutter.children[ringBufferIndex_firstTilde].textContent = EDI_lineEndPositionList_count + 1;
+            EDI_gutter.children[ringBufferIndex_firstTilde].textContent = local_EDI_lineEndPositionList_count + 1;
         }
         
         let shouldRenderEntireViewport = false;

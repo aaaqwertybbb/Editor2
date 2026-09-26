@@ -3520,6 +3520,8 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
  * TODO: The state: 'fEDI_cursor_editLineFeedCount', 'fEDI_cursor_editRenderedDisplacement', and 'fEDI_cursor_editLength'...
  * ...are used in "different" ways depending on the edit and it is quite confusing.
  * 
+ * For the enter key events:
+ * -------------------------
  * fEDI_cursor_editLineFeedCount        => the amount of 'enter key events' that make up the batch
  * fEDI_cursor_editRenderedDisplacement => the amount of 'enter key events' that have been drawn
  * fEDI_cursor_editLength               => the amount of bytes that will be inserted?

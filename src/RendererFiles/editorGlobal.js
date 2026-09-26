@@ -3177,6 +3177,12 @@ function EDI_NOTcanBatch_insert() {
  * @returns 
  */
 function EDI_NOTcanBatch_enter(event) {
+    // 
+    // Currently: You actually can do shift+enter then enter and it batches just not
+    // enter then shift+enter
+    // And it actually works which makes sense.
+    // I might permit the shift key at point then I just need to slowly feel more and more comfortable with this.
+    // 
     return BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfLine ||
            INTS[fEDI_cursor_editKind] !== EditKind_Enter ||
            INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_END_editIndexLine] ||

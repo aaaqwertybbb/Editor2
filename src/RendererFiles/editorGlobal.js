@@ -10430,4 +10430,9 @@ some of the chewed up chicken back onto the plate.
 And I'm on such a long streak of eating 2 lbs everyday.
 I can't just not eat the chicken I coughed up.
 
+Starting at the 30 second mark in "THE CLINIC | Admitted to a Psychiatric Clinic AGAINST HER WILL | Full Movies"
+I watch this frequently.
+It's very motivating to me.
+I wanna look like her she's so pretty
+
 */

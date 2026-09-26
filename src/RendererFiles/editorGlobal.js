@@ -3675,8 +3675,6 @@ function EDI_finalizeEdit_Enter_new(indexLine_editOccurredOn) {
         }
     }
 
-    EDI_trackedSyntaxList_inefficientUpdateStartAndLength(INTS[fEDI_cursor_editPosition], length);
-
     EDI_textByteList_insertBytes(actualEditPosition, bytes, /*offset*/ 0, length);
 
     let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;

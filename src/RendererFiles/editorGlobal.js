@@ -3176,14 +3176,16 @@ function EDI_NOTcanBatch_insert() {
 /**
  * @returns 
  */
-function EDI_NOTcanBatch_enter() {
-    return true || // turn off batching until it works. The initial enter event is what matters everything else can be recreated based on the amount of lineFeeds that were inserted.
-           INTS[fEDI_cursor_editKind] != EditKind_Enter ||
+function EDI_NOTcanBatch_enter(event) {
+    return INTS[fEDI_cursor_editKind] !== EnterKeyEventKind_EndOfLine ||
+           INTS[fEDI_cursor_editKind] !== EditKind_Enter ||
            INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_END_editIndexLine] ||
            INTS[fEDI_cursor_indexColumn] !== INTS[fEDI_cursor_END_editIndexColumn] ||
            INTS[fEDI_cursor_editLength] >= CONST_EDI_cursor_GAP_BUFFER_CAPACITY ||
            !EDI_cursor_enterKey_newLinePlusIndentation_byteList ||
-           EDI_cursor_hasSelection();
+           EDI_cursor_hasSelection() ||
+           event.shiftKey ||
+           event.ctrlKey;
 }
 
 /**
@@ -3360,16 +3362,7 @@ function EDI_editEvent_checkFor_NOTcanBatch_IndentLess() {
 
 /** @returns {boolean} 'shouldFinalizeAllCursors' */
 function EDI_editEvent_checkFor_NOTcanBatch_Enter(event) {
-    if (event.shiftKey || event.ctrlKey) {
-        return true;
-    }
-    else {
-        // Enter key doesn't batch with itself?
-        if (EDI_NOTcanBatch_enter()) {
-            return true;
-        }
-    }
-    return false;
+    return EDI_NOTcanBatch_enter(event);
 }
 //#endregion
 
@@ -3530,46 +3523,16 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
  * 
 */
 function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
-
-
-/*
-(I realized this was the case before I asked google AI, I just wanted to hear them tell me I'm right... just sayin)
-
-< The Complete "Enter Key" Matrix
-< 
-< To handle every edge case cleanly without your functions turning into spaghetti code, classify your EnterKey event into one of these 4 distinct structural branches:
-< 
-< Event Kind  | Cursor Condition                    | Structural Action
-< --------------------------------------------------------------------------------------------------------------------------------------------------------------
-< StartOfLine | Column is `0`                       | Insert `\n` + indent 'before' the current text. Shift all current text down.
-< AmongALine  | Column is between 0 and Line End    | True Split. Break the text string in half. Move the right side down to a new line.
-< EndOfLine   | Column is at Line End (before `\n`) | Jump past the current line's `\n` byte. Append a clean new line entry 'after' it.
-< EndOfFile   | Pointer equals File Byte Length     | Append a `\n` directly to the end of the buffer to close the file, then append the new line's indentation.
-
-- [x] StartOfLine
-    - [x] Draw
-    - [x] Finalize
-- [ ] AmongALine
-    - [ ] Draw
-    - [ ] Finalize
-- [x] EndOfLine
-    - [x] Draw
-    - [x] Finalize
-- [x] EndOfFile
-    - [x] Draw
-    - [x] Finalize
-
-- [ ] Ctrl Enter
-- [x] Shift Enter
-
-*/
-
     if (INTS[fEDI_cursor_editRenderedDisplacement] !== INTS[fEDI_cursor_editLineFeedCount]) {
         EDI_render_do_EnterKey();
     }
 
     // throws an exception if 'EnterKeyEventKind_None' (...or falsey).
     if (!BYTES[byteEDI_cursor_enterKeyEventKind] || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_None) { EDI_finalizeEdit_ClearEditState(); throw new Error('if (!enterKeyEventKind...)'); }
+
+    if (INTS[fEDI_cursor_editLineFeedCount] > 1) {
+        return EDI_finalizeEdit_Enter_new(indexLine_editOccurredOn);
+    }
 
     let actualEditPosition = INTS[fEDI_cursor_editPosition];
     let actualLineFeedPosition = actualEditPosition;
@@ -3655,6 +3618,82 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     });
     // -------------------------
 
+    EDI_finalizeEdit_ClearEditState();
+
+    return indexLine_editOccurredOn;
+}
+
+/** TODO: Ensure only End of line => End of line hits this for today and then expand tomorrow */
+function EDI_finalizeEdit_Enter_new(indexLine_editOccurredOn) {
+    if (INTS[fEDI_cursor_editRenderedDisplacement] !== INTS[fEDI_cursor_editLineFeedCount]) {
+        EDI_render_do_EnterKey();
+    }
+
+    // throws an exception if 'EnterKeyEventKind_None' (...or falsey).
+    if (!BYTES[byteEDI_cursor_enterKeyEventKind] || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_None) { EDI_finalizeEdit_ClearEditState(); throw new Error('if (!enterKeyEventKind...)'); }
+
+    const per_edit_insertionCount = EDI_cursor_enterKey_newLinePlusIndentation_byteList.length;
+    
+    let actualEditPosition = INTS[fEDI_cursor_editPosition];
+    let actualLineFeedPosition = actualEditPosition;
+    let actualIndexLine = INTS[fEDI_cursor_editIndexLine];
+    let actualNewLineVisualWidth = INTS[fEDI_cursor_cached_indentation_string_visualWidth];
+
+    if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine) {
+        actualEditPosition++; // Move past the current line's '\n'
+        actualLineFeedPosition = actualEditPosition;
+        actualLineFeedPosition += per_edit_insertionCount - 1;
+        actualIndexLine++;
+    }
+
+    for (var i = actualIndexLine; i < EDI_lineEndPositionList_count; i++) {
+        EDI_lineEndPositionList_data[i] += INTS[fEDI_cursor_editLength];
+    }
+
+    EDI_trackedSyntaxList_inefficientUpdateStartAndLength(actualEditPosition, INTS[fEDI_cursor_editLength]);
+
+    let bytes = EDI_cursor_enterKey_newLinePlusIndentation_byteList;
+    const per_edit_length = bytes.length;
+    let length = per_edit_length;
+
+    if (INTS[fEDI_cursor_editLineFeedCount] > 1) {
+        length *= INTS[fEDI_cursor_editLineFeedCount];
+        const src_bytes = bytes;
+        bytes = new Uint8Array(length);
+        // TODO: typed array function usage
+        for (let i = 0; i < length; i += per_edit_length) {
+            // TODO: Why is this not using 'bytes.set(src_bytes, i)'?
+            for (let k = 0; k < per_edit_length; k++) {
+                bytes[i + k] = src_bytes[k];
+            }
+        }
+    }
+
+    EDI_trackedSyntaxList_inefficientUpdateStartAndLength(INTS[fEDI_cursor_editPosition], length);
+
+    EDI_textByteList_insertBytes(actualEditPosition, bytes, /*offset*/ 0, length);
+
+    let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
+    EDI_getLineAndColumnIndices_raw(actualEditPosition);
+    let lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
+    let lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
+    let text = EDI_decoder.decode(bytes); // EDI_cursor_cached_indentation_string does not include the linefeed
+    INTS[F_didChangeTextDocument_version] = INTS[F_didChangeTextDocument_version] + 1;
+    let version = INTS[F_didChangeTextDocument_version];
+    enqueueLSPNotification({
+        absolutePath: textSourceIdentifier,
+        version: version,
+        startLine: lineAndColumnIndices_indexLine,
+        startCharacter: lineAndColumnIndices_indexColumn,
+        endLine: lineAndColumnIndices_indexLine,
+        endCharacter: lineAndColumnIndices_indexColumn,
+        text: text
+    });
+
+    for (let i = 0; i < INTS[fEDI_cursor_editLineFeedCount]; i++) {
+        //EDI_lineEndPositionList_insert(actualIndexLine, actualLineFeedPosition, actualNewLineVisualWidth);
+    }
+    
     EDI_finalizeEdit_ClearEditState();
 
     return indexLine_editOccurredOn;

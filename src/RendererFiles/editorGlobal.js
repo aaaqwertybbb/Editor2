@@ -3177,7 +3177,7 @@ function EDI_NOTcanBatch_insert() {
  * @returns 
  */
 function EDI_NOTcanBatch_enter(event) {
-    return INTS[fEDI_cursor_editKind] !== EnterKeyEventKind_EndOfLine ||
+    return BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfLine ||
            INTS[fEDI_cursor_editKind] !== EditKind_Enter ||
            INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_END_editIndexLine] ||
            INTS[fEDI_cursor_indexColumn] !== INTS[fEDI_cursor_END_editIndexColumn] ||
@@ -3690,8 +3690,11 @@ function EDI_finalizeEdit_Enter_new(indexLine_editOccurredOn) {
         text: text
     });
 
+    // TODO: bulk insertion of lines
     for (let i = 0; i < INTS[fEDI_cursor_editLineFeedCount]; i++) {
-        //EDI_lineEndPositionList_insert(actualIndexLine, actualLineFeedPosition, actualNewLineVisualWidth);
+        EDI_lineEndPositionList_insert(actualIndexLine, actualLineFeedPosition, actualNewLineVisualWidth);
+        actualIndexLine++;
+        actualLineFeedPosition += per_edit_insertionCount;
     }
     
     EDI_finalizeEdit_ClearEditState();

@@ -3524,7 +3524,7 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
  * -------------------------
  * fEDI_cursor_editLineFeedCount        => the amount of 'enter key events' that make up the batch
  * fEDI_cursor_editRenderedDisplacement => the amount of 'enter key events' that have been drawn
- *                                             (For example, 'INTS[fEDI_cursor_editLineFeedCount]' === 3 and 'INTS[fEDI_cursor_editRenderedDisplacement] === 1' is to say:
+ *                                             (For example, 'INTS[fEDI_cursor_editLineFeedCount] === 3' and 'INTS[fEDI_cursor_editRenderedDisplacement] === 1' is to say:
  *                                              "3 enter key events are in the current pending edit, and only 1 of them have been drawn on the UI")
  * fEDI_cursor_editLength               => the amount of bytes that will be inserted?
  * 

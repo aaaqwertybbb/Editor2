@@ -3554,7 +3554,7 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_AmongALine) {
         EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_editIndexLine]);
 
-        //let totalVisualWidth_splitLine = fEDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
+        //let totalVisualWidth_splitLine = EDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
         getIndexFromColumn_RESET(INTS[fEDI_cursor_editIndexColumn], INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
         let firstSplitVisualWidth = INTS[fEDI_getIndexFromX_visualColumns];
         //let aaa = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_editIndexLine]);
@@ -4832,7 +4832,7 @@ function EDI_getPositionIndex_cursor_raw() {
 /**
  * TODO: Reduce the amount of redundant drawing of lines that haven't changed in the selection logic.
 */
-function fEDI_getEntireLineVisualWidth(lineStart, lineEnd) {
+function EDI_getEntireLineVisualWidth(lineStart, lineEnd) {
     let indexColumn = 0;
     let visualColumns = 0;
     let positionIndex = lineStart;
@@ -5977,7 +5977,7 @@ function EDI_onKeyDown_ArrowLeft(event) {
                 INTS[fEDI_cursor_indexLine]--;
                 INTS[fEDI_cursor_indexColumn] = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
                 EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
-                INTS[fEDI_cursorVisualColumnIndex] = fEDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
+                INTS[fEDI_cursorVisualColumnIndex] = EDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
                 INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex]--;
             }
         }
@@ -6199,7 +6199,7 @@ function EDI_onKeyDown_End(event) {
     //
     if (originalLine !== INTS[fEDI_cursor_indexLine] || originalColumn !== INTS[fEDI_cursor_indexColumn]) {
         EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
-        INTS[fEDI_cursorVisualColumnIndex] = fEDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
+        INTS[fEDI_cursorVisualColumnIndex] = EDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
     }
 
     EDI_postKeyboardMovementSelectionLogic(event.shiftKey);
@@ -6725,7 +6725,7 @@ function EDI_createStyleForSelection() {
             lineSelectionDiv.style.left = `${INTS[fEDI_gutterWidthTotal] + (start_visualColumnStart * EDI_characterWidth)}px`;
             lineSelectionDiv.style.top = `${INTS[fEDI_lineHeight] * startLine}px`;
             EDI_getLineBoundaryPositions_raw(startLine);
-            let lineVisualWidth = fEDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
+            let lineVisualWidth = EDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
             lineSelectionDiv.style.width = (lineVisualWidth + 1 - start_visualColumnStart) * EDI_characterWidth + 'px';
 
             // between lines
@@ -6735,7 +6735,7 @@ function EDI_createStyleForSelection() {
                 lineSelectionDiv.style.left = gutterWidthTotal_withPxUnits;
                 lineSelectionDiv.style.top = `${INTS[fEDI_lineHeight] * lineI}px`;
                 EDI_getLineBoundaryPositions_raw(lineI);
-                let lineVisualWidth = fEDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
+                let lineVisualWidth = EDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
                 lineSelectionDiv.style.width = (lineVisualWidth + 1) * EDI_characterWidth + 'px';
             }
 
@@ -7653,7 +7653,7 @@ function EDI_onMouseDownDetailRankThree(event_button, event_shiftKey, indexLineC
     if (INTS[fEDI_cursor_indexLine] === EDI_lineEndPositionList_count - 1) {
         EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
         INTS[fEDI_cursor_selectionEnd] = INTS[fEDI_getLineBoundaryPositions_end];
-        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = fEDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
+        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = EDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
         EDI_render_request(RenderKind_Cursor_n);
     }
     else {

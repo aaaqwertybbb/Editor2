@@ -39,7 +39,7 @@ module.exports = function (babel) {
     "fEDI_detailRank3OriginLine",
     "fEDI_gutterWidthStyleValue",
     "fEDI_gutterWidthTotal",
-    "F_didChangeTextDocument_version",
+    "fEDI_didChangeTextDocument_version",
     "fEDI_indexCursor",
     //"fEDI_offsetLine",
     //"fEDI_offsetColumn_withRespectToThisIndexLine",

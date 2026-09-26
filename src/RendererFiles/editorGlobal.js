@@ -3483,8 +3483,8 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
     let lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
     let lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
     let text = EDI_decoder.decode(EDI_cursor_gapBuffer.subarray(0, INTS[fEDI_cursor_gapBufferCount]));
-    INTS[F_didChangeTextDocument_version] = INTS[F_didChangeTextDocument_version] + 1;
-    let version = INTS[F_didChangeTextDocument_version];
+    INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
+    let version = INTS[fEDI_didChangeTextDocument_version];
 
     // --- CLEAN INTEGRATION ---
     enqueueLSPNotification({
@@ -3604,8 +3604,8 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     let lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
     let lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
     let text = EDI_decoder.decode(EDI_cursor_enterKey_newLinePlusIndentation_byteList); // EDI_cursor_cached_indentation_string does not include the linefeed
-    INTS[F_didChangeTextDocument_version] = INTS[F_didChangeTextDocument_version] + 1;
-    let version = INTS[F_didChangeTextDocument_version];
+    INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
+    let version = INTS[fEDI_didChangeTextDocument_version];
 
     // --- CLEAN INTEGRATION ---
     enqueueLSPNotification({
@@ -3677,8 +3677,8 @@ function EDI_finalizeEdit_Enter_new(indexLine_editOccurredOn) {
     let lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
     let lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
     let text = EDI_decoder.decode(bytes); // EDI_cursor_cached_indentation_string does not include the linefeed
-    INTS[F_didChangeTextDocument_version] = INTS[F_didChangeTextDocument_version] + 1;
-    let version = INTS[F_didChangeTextDocument_version];
+    INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
+    let version = INTS[fEDI_didChangeTextDocument_version];
     enqueueLSPNotification({
         absolutePath: textSourceIdentifier,
         version: version,
@@ -3731,8 +3731,8 @@ function EDI_finalizeEdit_Tab(indexLine_editOccurredOn) {
     let lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
     let lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
     let text = EDI_decoder.decode(bytes);
-    INTS[F_didChangeTextDocument_version] = INTS[F_didChangeTextDocument_version] + 1;
-    let version = INTS[F_didChangeTextDocument_version];
+    INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
+    let version = INTS[fEDI_didChangeTextDocument_version];
 
     // --- CLEAN INTEGRATION ---
     enqueueLSPNotification({
@@ -3818,8 +3818,8 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
 
     let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
     EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
-    INTS[F_didChangeTextDocument_version] = INTS[F_didChangeTextDocument_version] + 1;
-    let version = INTS[F_didChangeTextDocument_version];
+    INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
+    let version = INTS[fEDI_didChangeTextDocument_version];
 
     let lspObject = {
         absolutePath: textSourceIdentifier,
@@ -4087,8 +4087,8 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
 
     let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
     EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
-    INTS[F_didChangeTextDocument_version] = INTS[F_didChangeTextDocument_version] + 1;
-    let version = INTS[F_didChangeTextDocument_version];
+    INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
+    let version = INTS[fEDI_didChangeTextDocument_version];
 
     let lspObject = {
         absolutePath: textSourceIdentifier,
@@ -4287,8 +4287,8 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
     let lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
     let lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
     let text = content;
-    INTS[F_didChangeTextDocument_version] = INTS[F_didChangeTextDocument_version] + 1;
-    let version = INTS[F_didChangeTextDocument_version];
+    INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
+    let version = INTS[fEDI_didChangeTextDocument_version];
 
     // --- CLEAN INTEGRATION ---
     enqueueLSPNotification({
@@ -4370,8 +4370,8 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
     let lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
     let lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
     let text = EDI_decoder.decode(EDI_textByteList_bytes.subarray(small, small + length));
-    INTS[F_didChangeTextDocument_version] = INTS[F_didChangeTextDocument_version] + 1;
-    let version = INTS[F_didChangeTextDocument_version];
+    INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
+    let version = INTS[fEDI_didChangeTextDocument_version];
 
     // --- CLEAN INTEGRATION ---
     enqueueLSPNotification({
@@ -4484,8 +4484,8 @@ function EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_
 
     let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
     let text = '';
-    INTS[F_didChangeTextDocument_version] = INTS[F_didChangeTextDocument_version] + 1;
-    let version = INTS[F_didChangeTextDocument_version];
+    INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
+    let version = INTS[fEDI_didChangeTextDocument_version];
 
     // --- CLEAN INTEGRATION ---
     enqueueLSPNotification({

@@ -380,7 +380,7 @@ const fEDI_gutterWidthTotal = 15;
 /** WARNING: This will not set 'gutterWidthTotal_withPxUnits' and thus is somewhat prone to a mistake at some point. */
 INTS[fEDI_gutterWidthTotal] = 32;
 
-const F_didChangeTextDocument_version = 16;
+const fEDI_didChangeTextDocument_version = 16;
 
 /**
  * All the 'EDI_cursorList' loops are currently using the variable 'i'.

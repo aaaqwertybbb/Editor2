@@ -10,10 +10,13 @@
 
 DEBUG CONSIDERATIONS:
 
-Open file './my-custom-babel-plugin.cjs' and comment out 'const TARGET_VARIABLES = [ ... ]' to be 'const TARGET_VARIABLES = [ ]' or whatever other approach gets the same result etc...
+Open file `./my-custom-babel-plugin.cjs` and comment out 'const TARGET_VARIABLES = [ ... ]' to be 'const TARGET_VARIABLES = [ ]' or whatever other approach gets the same result etc...
 
-'preprocessor\__PREPROCESSEDbundle__.js'
-'build\__COMPILEDbundle__.js'
+The output of build is more or less these two files (and `./build/__COMPILEDbundle__.js` is the one that actually is used when running the app):
+
+`./preprocessor/__PREPROCESSEDbundle__.js`
+
+`./build/__COMPILEDbundle__.js`
 
 ==============
 

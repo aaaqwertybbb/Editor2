@@ -10453,4 +10453,156 @@ because it is exactly the same problem as pressing the enter key optimally.
 - [ ] text editor optimized enter key moves ring buffer entries around rather than shifting the content from 1 entry to the next.
 - [ ] ^ use previous point to solve issue of folder explorer you expand and then it wastefully redraws screen.
 
+function EDI_render_do_EnterKey() {//           | 1833
+	update_verticalVirtualizationBoundary();
+	if (fEDI_cursor_editKind !== EditKind_Enter) { return; }
+	if (fEDI_cursor_editRenderedDisplacement < fEDI_cursor_editLineFeedCount) {
+		fEDI_cursor_editRenderedDisplacement++;
+		// ...
+		if (ringBufferIndex_current < 0) { shouldRenderEntireViewport = true; }
+		if (fEDI_virtualCount <= 1 || EDI_textElement.children.length !== fEDI_virtualCount) { shouldRenderEntireViewport = true; }
+		// ...
+		if (!shouldRenderEntireViewport && fEDI_cursor_editIndexColumn === 0) { // start of line
+			EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, ringBufferIndex_current);
+            // ...
+		}
+		else {
+			if (!shouldRenderEntireViewport) {
+                // ensure this conditional branch returns if handled, otherwise it will execute the fallback case erroneously
+                let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(fEDI_cursor_editIndexLine);
+                if (lastValidIndexColumn === fEDI_cursor_editIndexColumn) { // end of line
+                    // ...
+                    EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, next_ringBufferIndex);
+                    // ...
+                }
+				else { // among a line
+                    // Prior to returning from this function restore the original 'indexLine', and 'indexColumn'. (1 of 2)
+                    // !!!! it also is using 'EDI_getPositionIndex_cursor_raw();'
+                    let remember_cursorIndexLine = fEDI_cursor_indexLine;
+                    let remember_cursorIndexColumn = fEDI_cursor_indexColumn;
+                    fEDI_cursor_indexLine = fEDI_cursor_editIndexLine;
+                    fEDI_cursor_indexColumn = fEDI_cursor_editIndexColumn;
+                    // ...
+                    walkLineUntilIndexColumn();
+                    if (!w_span || !w_div) { }// ... 
+                    // ...
+                    if (fEDI_w_indexColumn_Goal > 0) { } // ... split the current span
+                    // ...
+                    EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, next_ringBufferIndex);
+                    // ...
+                    aaa.appendChild(span);
+                    // ...
+                    for (;false;) { }// ...) { aaa.appendChild(w_div.children[rememberIndex]); 
+                    // ...
+                    // Prior to returning from this function restore the original 'indexLine', and 'indexColumn'. (2 of 2)
+                    // !!!! it also is using 'EDI_getPositionIndex_cursor_raw();'
+                    fEDI_cursor_indexLine = remember_cursorIndexLine;
+                    fEDI_cursor_indexColumn = remember_cursorIndexColumn;
+                    return;
+                }
+			}
+		}
+	}
+	// fallback case : implicit fallback case; TODO: why did I have to add a comment for this? ("implicit fallback case;" wasn't originally here I just wrote it myself)
+}
+function EDI_EnterKey() {//                     | 2043
+	// ... original
+	// ... ctrlKey || shiftKey
+	
+	if (fEDI_cursor_editLength === 0) {
+        BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_None;
+        fEDI_cursor_editPosition = EDI_getPositionIndex_cursor_raw();
+        fEDI_cursor_editIndexLine = fEDI_cursor_indexLine;
+        fEDI_cursor_editIndexColumn = fEDI_cursor_indexColumn;
+    }
+	
+	if (fEDI_cursor_indexColumn === 0) { // start of line
+        // EnterKeyEventKind_StartOfLine
+        if (!ctrlKey) { fEDI_cursor_indexLine++; }
+    }
+    else {
+        // ... EnterKeyEventKind_EndOfFile
+        // ... EnterKeyEventKind_EndOfLine
+        // ... EnterKeyEventKind_AmongALine 
+        fEDI_cursor_indexLine++;
+    }
+	
+	if (!EDI_cursor_enterKey_newLinePlusIndentation_byteList) { EDI_cacheIndentation(originalIndexLine, originalIndexColumn, lastValidIndexColumn); }
+
+    const insertionCount = EDI_cursor_enterKey_newLinePlusIndentation_byteList.length;
+
+    fEDI_cursor_indexColumn = insertionCount - 1; // minus the newline
+    fEDI_cursorVisualColumnIndex = fEDI_cursor_cached_indentation_string_visualWidth; // the indentation_string doesn't include the newline
+    fEDI_cursor_editLength += insertionCount;
+    fEDI_cursor_editLineFeedCount++;
+
+    fEDI_cursor_END_editIndexLine = fEDI_cursor_indexLine;
+    fEDI_cursor_END_editIndexColumn = fEDI_cursor_indexColumn;
+
+    EDI_render_request(RenderKind_Enter);
+}
+function EDI_editEvent_theEditIself_Enter() {// | 3138
+	if (fEDI_cursor_editKind !== EditKind_Enter) {
+        EDI_startEdit(EditKind_Enter, EDI_getPositionIndex_cursor_raw(), 0);
+    }
+    EDI_EnterKey(event.ctrlKey, event.shiftKey);
+    fEDI_cursor_STORED_visualWidth = fEDI_cursorVisualColumnIndex;
+    EDI_render_request(RenderKind_Cursor_n);
+}
+function EDI_NOTcanBatch_enter() {//            | 3179
+	return true || // turn off batching until it works. The initial enter event is what matters everything else can be recreated based on the amount of lineFeeds that were inserted.
+           fEDI_cursor_editKind != EditKind_Enter ||
+           fEDI_cursor_indexLine !== fEDI_cursor_END_editIndexLine ||
+           fEDI_cursor_indexColumn !== fEDI_cursor_END_editIndexColumn ||
+           fEDI_cursor_editLength >= CONST_EDI_cursor_GAP_BUFFER_CAPACITY ||
+           !EDI_cursor_enterKey_newLinePlusIndentation_byteList ||
+           EDI_cursor_hasSelection();
+}
+function EDI_finalizeEdit_Enter() {//           | 3519
+	if (fEDI_cursor_editRenderedDisplacement !== fEDI_cursor_editLength) { EDI_render_do_EnterKey(); }	
+    if (!BYTES[byteEDI_cursor_enterKeyEventKind] || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_None) { EDI_finalizeEdit_ClearEditState(); throw new Error('if (!enterKeyEventKind...)'); }
+    // fEDI_cursor_editPosition
+    // fEDI_cursor_cached_indentation_string_visualWidth
+    // fEDI_cursor_editLength
+    // fEDI_cursor_editIndexLine
+    // fEDI_cursor_editIndexColumn
+    // EDI_cursor_enterKey_newLinePlusIndentation_byteList
+    // EDI_cursor_enterKey_newLinePlusIndentation_byteList.length
+	// EDI_lineEndPositionList_data[i] += fEDI_cursor_editLength;
+    EDI_trackedSyntaxList_inefficientUpdateStartAndLength(actualEditPosition, fEDI_cursor_editLength);
+    let text = EDI_decoder.decode(EDI_cursor_enterKey_newLinePlusIndentation_byteList); // EDI_cursor_cached_indentation_string does not include the linefeed
+    // ...
+}
+
+////
+
+// Prior to returning from this function restore the original 'indexLine', and 'indexColumn'. (1 of 2)
+fEDI_cursor_indexLine
+fEDI_cursor_indexColumn
+fEDI_cursorVisualColumnIndex
+fEDI_cursor_STORED_visualWidth
+fEDI_cursor_editKind
+fEDI_cursor_editRenderedDisplacement
+fEDI_cursor_editLineFeedCount
+fEDI_cursor_editIndexLine
+fEDI_cursor_editIndexColumn
+fEDI_cursor_editPosition
+fEDI_cursor_editLength
+fEDI_cursor_cached_indentation_string_visualWidth
+EDI_cursor_enterKey_newLinePlusIndentation_byteList
+fEDI_cursor_END_editIndexLine
+fEDI_cursor_END_editIndexColumn
+fEDI_virtualCount
+fEDI_w_indexColumn_Goal
+
+/////
+
+fEDI_cursor_editRenderedDisplacement
+fEDI_cursor_editLineFeedCount
+fEDI_cursor_editLength
+
+////
+
+C
+
 */

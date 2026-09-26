@@ -1841,14 +1841,7 @@ function EDI_render_do_EnterKey() {
     // - for loop
     // - or preferably a shift by some count other than just one
     //
-    if (INTS[fEDI_cursor_editRenderedDisplacement] < INTS[fEDI_cursor_editLineFeedCount]) {
-
-        // TODO: This is missing a loop or etc... as was also stated elsewhere.
-        // ...
-        // Thus 'INTS[fEDI_cursor_editRenderedDisplacement]' is being incremented by 1 only.
-        // i.e.: This is wrong because if more than one enter key event was rendered as an edit length > 1 there's probably gonna be a rendering issue
-        // and the invocation of 'EDI_render_do_EnterKey' from finalize edit will cause confusion because a length of 2 could pass given certain timing of events.
-        //
+    while (INTS[fEDI_cursor_editRenderedDisplacement] < INTS[fEDI_cursor_editLineFeedCount]) {
         INTS[fEDI_cursor_editRenderedDisplacement]++;
 
         // TODO: You're gonna have to tighten the virtualization logic?

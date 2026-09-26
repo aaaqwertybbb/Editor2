@@ -9,7 +9,11 @@
 > npm run start
 
 DEBUG CONSIDERATIONS:
+
 Open file './my-custom-babel-plugin.cjs' and comment out 'const TARGET_VARIABLES = [ ... ]' to be 'const TARGET_VARIABLES = [ ]' or whatever other approach gets the same result etc...
+
+'preprocessor\__PREPROCESSEDbundle__.js'
+'build\__COMPILEDbundle__.js'
 
 ==============
 

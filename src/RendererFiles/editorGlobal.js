@@ -10433,4 +10433,20 @@ Dinner:
 1 lb of 98% fat free ground chicken with sriracha
 2 plain bagels
 
+
+============
+
+
+10:59
+2:59
+
+I realized something massive
+
+you don't need a circular buffer (pointers to the next / linked-list-esque) to do the optimized enter key logic.
+You just need to swap around the elements in the ring buffer and it'll work the same.
+
+Also, the folder explorer on  the left when you expand one item it redraws the entire view I was wondering why I did it that way
+but then I realized from the above statement that I couldn't get it to work correctly
+because it is exactly the same problem as pressing the enter key optimally.
+
 */

@@ -10420,6 +10420,17 @@ The 0.1%...
 
 joke about hand sanitizer did it hit?
 
+I got the food that I'll be eating everyday until I hit 219
+it isn't that ima eat this forever, it's just to make sure I can mindlessly
+go day by day until I hit the weigh in.
 
+Breakfast:
+1 lb of 98% fat free ground chicken with sriracha
+1 single serving cup of plain cheerios (these have 60% of daily iron in them so it's easy way for me to ensure I get in iron)
+2 plain bagels
+
+Dinner:
+1 lb of 98% fat free ground chicken with sriracha
+2 plain bagels
 
 */

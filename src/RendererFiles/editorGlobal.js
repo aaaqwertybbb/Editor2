@@ -10420,19 +10420,6 @@ The 0.1%...
 
 joke about hand sanitizer did it hit?
 
-The channel Earlybird is super good.
-I saw TLC yesterday.
 
-I'm eating my 1 lb of 98% fat free chicken right now.
-
-And I at one point nearly choked a bit and I ended up coughing
-some of the chewed up chicken back onto the plate.
-And I'm on such a long streak of eating 2 lbs everyday.
-I can't just not eat the chicken I coughed up.
-
-Starting at the 30 second mark in "THE CLINIC | Admitted to a Psychiatric Clinic AGAINST HER WILL | Full Movies"
-I watch this frequently.
-It's very motivating to me.
-I wanna look like her she's so pretty
 
 */

@@ -10420,4 +10420,7 @@ The 0.1%...
 
 joke about hand sanitizer did it hit?
 
+The channel Earlybird is super good.
+I saw TLC yesterday.
+
 */

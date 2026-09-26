@@ -323,7 +323,7 @@ const CONST_EDI_cursor_htmlId = "EDI_cursor-1";
  * because ES6 modules are expected (and thus module scopes remove the usefulness of making a local variable):
  *     index.html the script tag: 'type="module" src="..."'
  */
-const INTS = new Uint32Array(190);
+const INTS = new Uint32Array(181);
 
 const fEDI_lineHeight = 0;
 INTS[fEDI_lineHeight] = 20;
@@ -342,24 +342,24 @@ INTS[fEDI_ONSCROLLvirtualIndexLine] = 500;
 /** Also is used from 'EDI_render_do_SetText()', and 'EDI_render_do_Resize()', not just 'EDI_render_do_Scroll()' */
 const fEDI_scrollEndDeadline = 4;
 
-const fEDI_virtualCount = 6;
+const fEDI_virtualCount = 5;
 
-const fEDI_sum_diffPositive = 7;
+const fEDI_sum_diffPositive = 6;
 
-const fEDI_ONSCROLLvirtualCount = 8;
+const fEDI_ONSCROLLvirtualCount = 7;
 INTS[fEDI_ONSCROLLvirtualCount] = 0;
 
-const fEDI_sum_diffNegative = 9;
+const fEDI_sum_diffNegative = 8;
 
-const fEDI_findOverlay_isBeingShownDueToMultiCursorMatching_originMatchNumber = 10;
+const fEDI_findOverlay_isBeingShownDueToMultiCursorMatching_originMatchNumber = 9;
 
-const fEDI_drawn_count_of_digits_longest_line_number = 11;
+const fEDI_drawn_count_of_digits_longest_line_number = 10;
 
-const fEDI_detail_smallPosition = 12;
+const fEDI_detail_smallPosition = 11;
 
-const fEDI_detail_largePosition = 13;
+const fEDI_detail_largePosition = 12;
 
-const fEDI_detailRank3OriginLine = 14;
+const fEDI_detailRank3OriginLine = 13;
 
 /**
  * Pixels.
@@ -369,106 +369,106 @@ const fEDI_detailRank3OriginLine = 14;
  * 
  * Whereas the line height is a css variable (and thus could cause layout for the entire application whenever it changes).
  */
-const fEDI_gutterWidthStyleValue = 15;
+const fEDI_gutterWidthStyleValue = 14;
 INTS[fEDI_gutterWidthStyleValue] = 32;
 
 /**
  * This is the sum of the 'fEDI_gutterWidthStyleValue()' in addition to paddig
  * consider 'gutterWidthTotal_withPxUnits'
  */
-const fEDI_gutterWidthTotal = 16;
+const fEDI_gutterWidthTotal = 15;
 /** WARNING: This will not set 'gutterWidthTotal_withPxUnits' and thus is somewhat prone to a mistake at some point. */
 INTS[fEDI_gutterWidthTotal] = 32;
 
-const F_didChangeTextDocument_version = 17;
+const F_didChangeTextDocument_version = 16;
 
 /**
  * All the 'EDI_cursorList' loops are currently using the variable 'i'.
  * I'm experimenting with a few of the loops though such that at the start of every loop they set this variable equal to 'i'.
  * Then in any functions like getCharacter, I might be able to contextually find the character much faster.
  * */
-const fEDI_indexCursor = 18;
+const fEDI_indexCursor = 17;
 
-const fEDI_longestLine_indexLine = 24;
+const fEDI_longestLine_indexLine = 18;
 
-const fEDI_longestLine_length = 25;
+const fEDI_longestLine_length = 19;
 
 /**
  * The fEDI_contentWidth() is calculated via Math.ceil(someVar * otherVar) so this is faster to check whether content width will change rather than the multiplication and ceil.
  */
-const fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar = 26;
+const fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar = 20;
 
-const fEDI_contentWidth = 27;
+const fEDI_contentWidth = 21;
 
-const fEDI_indent_ORIGINAL_indentBy = 28;
+const fEDI_indent_ORIGINAL_indentBy = 22;
 
-const fEDI_indent_SMALL_lineAndColumnIndices_indexLine = 29;
+const fEDI_indent_SMALL_lineAndColumnIndices_indexLine = 23;
 
-const fEDI_indent_startingIndex = 30;
+const fEDI_indent_startingIndex = 24;
 
-const fEDI_recentBoundingClientRect_left = 31;
+const fEDI_recentBoundingClientRect_left = 25;
 
-const fEDI_recentBoundingClientRect_top = 32;
+const fEDI_recentBoundingClientRect_top = 26;
 
-const fEDI_pooledTrackedSyntax_start = 33;
+const fEDI_pooledTrackedSyntax_start = 27;
 
-const fEDI_pooledTrackedSyntax_length = 34;
+const fEDI_pooledTrackedSyntax_length = 28;
 
 /**
  * Also is used from 'EDI_render_do_SetText()', and 'EDI_render_do_Resize()', not just 'EDI_render_do_Scroll()'
  * 
  * I'm gonna store this in the int32 array so that the editor scroll render function can access it from the already existing local reference of INTS.
  */
-const fEDI_intFalsey_isScrolling = 35;
+const fEDI_intFalsey_isScrolling = 29;
 
 /**
  * I'm gonna store this in the int32 array so that the editor scroll render function can access it from the already existing local reference of INTS.
  */
-const fEDI_cursor_editKind = 36;
+const fEDI_cursor_editKind = 30;
 
-const fEDI_cursor_indexLine = 37;
-const fEDI_cursor_indexColumn = 38;
+const fEDI_cursor_indexLine = 31;
+const fEDI_cursor_indexColumn = 32;
 
 /**
  * When moving cursor vertically, if the current column index cannot be matched due to the upcoming line being too short,
  * then this will allow a later vertical movement to a line that is long enough to match the original column rather than the minimized one.
  */
-const fEDI_cursor_STORED_visualWidth = 39;
+const fEDI_cursor_STORED_visualWidth = 33;
 
-const fEDI_cursor_cursorTranslateYValue = 40;
-const fEDI_cursor_cursorTranslateXValue = 41;
+const fEDI_cursor_cursorTranslateYValue = 34;
+const fEDI_cursor_cursorTranslateXValue = 35;
 
-const fEDI_cursor_selectionAnchor = 42;
-const fEDI_cursor_selectionEnd = 43;
+const fEDI_cursor_selectionAnchor = 36;
+const fEDI_cursor_selectionEnd = 37;
 
-const fEDI_cursor_selectionIndexAnchorLine = 44;
-const fEDI_cursor_selectionIndexAnchorColumn = 45;
+const fEDI_cursor_selectionIndexAnchorLine = 38;
+const fEDI_cursor_selectionIndexAnchorColumn = 39;
 
-const fEDI_cursor_selectionIndexEndLine = 46;
-const fEDI_cursor_selectionIndexEndColumn = 47;
+const fEDI_cursor_selectionIndexEndLine = 40;
+const fEDI_cursor_selectionIndexEndColumn = 41;
 
-const fEDI_cursor_DRAWN_selectionAnchor = 48;
-const fEDI_cursor_DRAWN_selectionEnd = 49;
+const fEDI_cursor_DRAWN_selectionAnchor = 42;
+const fEDI_cursor_DRAWN_selectionEnd = 43;
 
-const fEDI_cursor_DRAWN_selection_virtualIndexLine = 50;
-const fEDI_cursor_DRAWN_selection_virtualCount = 51;
+const fEDI_cursor_DRAWN_selection_virtualIndexLine = 44;
+const fEDI_cursor_DRAWN_selection_virtualCount = 45;
 
-const fEDI_cursor_editLength = 52;
-const fEDI_cursor_editPosition = 53;
-const fEDI_cursor_editIndexLine = 54;
-const fEDI_cursor_editIndexColumn = 55;
+const fEDI_cursor_editLength = 46;
+const fEDI_cursor_editPosition = 47;
+const fEDI_cursor_editIndexLine = 48;
+const fEDI_cursor_editIndexColumn = 49;
 /**
  * the amount of characters that UI has changed with respect to the pending edit
  * per 'EDI_render_do', if the displacement is not the editLength then you know you need to "draw more of this edit" on the UI.
  * 
  * The awkward name is to avoid re-using similar words that already are used in other fields on this class.
  */
-const fEDI_cursor_editRenderedDisplacement = 56;
+const fEDI_cursor_editRenderedDisplacement = 50;
 /** TODO: perhaps you could determine this some other way, but tracking it for the moment is easiest and necessary if I'm to not give up on getting an initial solution to work, given my current mood and etc... */
-const fEDI_cursor_editRenderedDisplacement_INDEX_LINE_OFFSET = 57;
-const fEDI_cursor_END_editIndexLine = 58;
-const fEDI_cursor_END_editIndexColumn = 59;
-const fEDI_cursor_gapBufferCount = 60;
+const fEDI_cursor_editRenderedDisplacement_INDEX_LINE_OFFSET = 51;
+const fEDI_cursor_END_editIndexLine = 52;
+const fEDI_cursor_END_editIndexColumn = 53;
+const fEDI_cursor_gapBufferCount = 54;
 
 /**
  * TODO: probably is sensible to use this for the enter key too but I'm firstly adding it for the sake of backspace so
@@ -482,148 +482,148 @@ const fEDI_cursor_gapBufferCount = 60;
  * and then it is a number 0 to ... the offset in the pending line end position list
  * and then you have another number too separately that says the length of line endings that this cursor contributed to modifying.
  */
-const fEDI_cursor_editLineFeedCount = 61;
+const fEDI_cursor_editLineFeedCount = 55;
 /** same comment that pertains to EDI_cursor_EDI_paste_clipboardContent is somewhat relevant here */
-const fEDI_cursor_EDI_duplicate_small = 62;
+const fEDI_cursor_EDI_duplicate_small = 56;
 /** same comment that pertains to EDI_cursor_EDI_paste_clipboardContent is somewhat relevant here */
-const fEDI_cursor_EDI_duplicate_length = 63;
+const fEDI_cursor_EDI_duplicate_length = 57;
 
 // TODO: Avoid re-using these locally after getting the w result (i.e.: avoid re-using over and over in a loop or something, probably make a local variable if accessed enough).
 // TODO: Verify and update all the previously -1 cases
-const fEDI_w_indexColumn_Goal = 76;
-const fEDI_w_indexColumn_Sum = 77;
-const fEDI_w_indexColumn_SpanTextContentRelative = 78;
-const fEDI_w_indexSpan = 79;
+const fEDI_w_indexColumn_Goal = 58;
+const fEDI_w_indexColumn_Sum = 59;
+const fEDI_w_indexColumn_SpanTextContentRelative = 60;
+const fEDI_w_indexSpan = 61;
 // TODO: This -1
-const fEDI_w_ringBufferIndex = 80;
+const fEDI_w_ringBufferIndex = 62;
 
 // And this -1
-const fEDI_ringBuffer_indexZero = 81;
+const fEDI_ringBuffer_indexZero = 63;
 
-const fEDI_EDI_horizontal_scrollbar_widthValue = 83;
+const fEDI_EDI_horizontal_scrollbar_widthValue = 64;
 
 /** The value of 'EDI_baseElement.scrollLeft' at the most recent scroll event that occurred */
-const fEDI_lastReadNumber_scrollLeft = 84;
+const fEDI_lastReadNumber_scrollLeft = 65;
 
 // just floor these on init / resize and set the style so if they want resize they have to explicit and it is non decimal?
-const fEDI_lastReadNumber_offsetHeight = 85;
+const fEDI_lastReadNumber_offsetHeight = 66;
 
-const fEDI_lastReadNumber_offsetWidth = 86;
+const fEDI_lastReadNumber_offsetWidth = 67;
 
-const fEDI_ArrayFrom_textElement_children_length = 87;
+const fEDI_ArrayFrom_textElement_children_length = 68;
 
-const fEDI_EDI_mouseOver_event_clientY = 88;
+const fEDI_EDI_mouseOver_event_clientY = 69;
 
-const fEDI_EDI_mouseOver_event_clientX = 89;
+const fEDI_EDI_mouseOver_event_clientX = 70;
 
 // Move some 'EDI_removeSelection()' state here so I can access it in the render function.
 // TODO: Don't do this long term, I need a simple bridge for this state so I can just get started otherwise I'll spend the rest of my life procrastinating.
 //
-const fEDI_EDI_RemoveSelection_smallPosition = 90;
-const fEDI_EDI_RemoveSelection_largePosition = 91;
+const fEDI_EDI_RemoveSelection_smallPosition = 71;
+const fEDI_EDI_RemoveSelection_largePosition = 72;
 
 // Temporary hack for state access TODO: this
-const fEDI_EDI_indentLess_startingLinePos_end = 92;
+const fEDI_EDI_indentLess_startingLinePos_end = 73;
 
-const fEDI_EDI_cursorBlinkLastTimestamp = 93;
+const fEDI_EDI_cursorBlinkLastTimestamp = 74;
 
 /** 'EDI_init' and 'EDI_drawHorizontalScrollbar' related */
-const fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left = 94;
+const fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left = 75;
 
 /** TODO: What happens when you overflow 'INTS[fEDI_prevVli]' does it overflow such that you're the correct diff? */
-const fEDI_prevVli = 95;
+const fEDI_prevVli = 76;
 /** TODO: What happens when you overflow 'INTS[fEDI_prevVli]' does it overflow such that you're the correct diff? */
-const fEDI_currVli = 96;
+const fEDI_currVli = 77;
 
-const fEDI_onResize_timer = 131;
+const fEDI_onResize_timer = 78;
 
-const fEDI_hoverTimeout = 132;
+const fEDI_hoverTimeout = 79;
 
 // Move some 'EDI_removeSelection()' state here so I can access it in the render function.
 // TODO: Don't do this long term, I need a simple bridge for this state so I can just get started otherwise I'll spend the rest of my life procrastinating.
 //
-const fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexLine = 133;
-const fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexColumn = 134;
+const fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexLine = 80;
+const fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexColumn = 81;
 
-const fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex = 135;
+const fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex = 82;
 
-const fEDI_getLineAndColumnIndices_indexLine = 166;
-const fEDI_getLineAndColumnIndices_indexColumn = 167;
+const fEDI_getLineAndColumnIndices_indexLine = 83;
+const fEDI_getLineAndColumnIndices_indexColumn = 84;
 
-const fEDI_cursorVisualColumnIndex = 171;
-const fEDI_cursorVisualColumnIndex_relativeToThisLineIndex = 172;
-const fEDI_ontab_visualWidth_perCharacter = 173;
+const fEDI_cursorVisualColumnIndex = 85;
+const fEDI_cursorVisualColumnIndex_relativeToThisLineIndex = 86;
+const fEDI_ontab_visualWidth_perCharacter = 87;
 
-const fEDI_getLineBoundaryPositions_start = 174;
-const fEDI_getLineBoundaryPositions_end = 175;
+const fEDI_getLineBoundaryPositions_start = 88;
+const fEDI_getLineBoundaryPositions_end = 89;
 
-const fEDI_getIndexFromX_indexColumn = 176;
-const fEDI_getIndexFromX_visualColumns = 177;
+const fEDI_getIndexFromX_indexColumn = 90;
+const fEDI_getIndexFromX_visualColumns = 91;
 
-const fEDI_cursor_selectionIndexAnchorColumnVISUAL = 178;
-const fEDI_cursor_selectionIndexEndColumnVISUAL = 179;
+const fEDI_cursor_selectionIndexAnchorColumnVISUAL = 92;
+const fEDI_cursor_selectionIndexEndColumnVISUAL = 93;
 
-const fEDI_cursor_selectionIndexAnchorColumnVISUAL_DRAWN = 180;
-const fEDI_cursor_selectionIndexEndColumnVISUAL_DRAWN = 181;
+const fEDI_cursor_selectionIndexAnchorColumnVISUAL_DRAWN = 94;
+const fEDI_cursor_selectionIndexEndColumnVISUAL_DRAWN = 95;
 
-const fEDI_selectionStartWidth = 182;
-const fEDI_selectionEndWidth = 183;
+const fEDI_selectionStartWidth = 96;
+const fEDI_selectionEndWidth = 97;
 
-const fEDI_detail_smallColumnVisual = 184;
-const fEDI_detail_largeColumnVisual = 185;
+const fEDI_detail_smallColumnVisual = 98;
+const fEDI_detail_largeColumnVisual = 99;
 
-const fEDI_cursor_cached_indentation_string_visualWidth = 186;
+const fEDI_cursor_cached_indentation_string_visualWidth = 100;
 
-const fEDI_cursor_editLengthVisual = 189;
+const fEDI_cursor_editLengthVisual = 101;
 
 /**
  * defaults to viewport size then getBoundingClientRect says the exact pixels upon trying to resize
  * need to track resizes and store the useragent width/height by the onmousedown and then on resize get proportion and update left top width height.
  */
-const fDIALOG_left = 64;
-const fDIALOG_top = 65;
-const fDIALOG_width = 66;
-const fDIALOG_height = 67;
+const fDIALOG_left = 102;
+const fDIALOG_top = 103;
+const fDIALOG_width = 104;
+const fDIALOG_height = 105;
 
-const fDIALOG_left_DRAWN = 68;
-const fDIALOG_top_DRAWN = 69;
-const fDIALOG_width_DRAWN = 70;
-const fDIALOG_height_DRAWN = 71;
+const fDIALOG_left_DRAWN = 106;
+const fDIALOG_top_DRAWN = 107;
+const fDIALOG_width_DRAWN = 108;
+const fDIALOG_height_DRAWN = 109;
 
 // TODO: Are 'fDIALOG_before_X' and 'fDIALOG_before_Y' actually doing anything?...
 // ...When it comes to their after counterparts 'fDIALOG_after_X' and 'fDIALOG_after_Y'...
 // ...it is believed that the counterparts are doing nothing, so also check the before.
-const fDIALOG_before_X = 72;
-const fDIALOG_before_Y = 73;
+const fDIALOG_before_X = 110;
+const fDIALOG_before_Y = 111;
 
 // TODO: What does 'fDIALOG_after_X' and 'fDIALOG_after_Y' even get used for? It seems they always only get set to 0 over and over and do nothing?
-const fDIALOG_after_X = 74;
-const fDIALOG_after_Y = 75;
+const fDIALOG_after_X = 112;
+const fDIALOG_after_Y = 113;
 
 // I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
-const fAUTOCOMPLETE_items_slice_start = 97;
-const fAUTOCOMPLETE_items_slice_end = 98;
-const fAUTOCOMPLETE_items_totalLength = 99;
+const fAUTOCOMPLETE_items_slice_start = 114;
+const fAUTOCOMPLETE_items_slice_end = 115;
+const fAUTOCOMPLETE_items_totalLength = 116;
 
-const fAUTOCOMPLETE_cursorIndex = 100;
+const fAUTOCOMPLETE_cursorIndex = 117;
 
-const fAUTOCOMPLETE_rectHeight = 101;
-const fAUTOCOMPLETE_rectLeft = 102;
-const fAUTOCOMPLETE_rectTop = 103;
+const fAUTOCOMPLETE_rectHeight = 118;
+const fAUTOCOMPLETE_rectLeft = 119;
+const fAUTOCOMPLETE_rectTop = 120;
 
-const fAUTOCOMPLETE_sliceVirtualIndex_SLICE = 104;
-const fAUTOCOMPLETE_sliceVirtualCount_SLICE = 105;
-const fAUTOCOMPLETE_sliceRingBufferIndexZero_SLICE = 106;
+const fAUTOCOMPLETE_sliceVirtualIndex_SLICE = 121;
+const fAUTOCOMPLETE_sliceVirtualCount_SLICE = 122;
+const fAUTOCOMPLETE_sliceRingBufferIndexZero_SLICE = 123;
 
-const fAUTOCOMPLETE_virtualCount = 107;
-const fAUTOCOMPLETE_virtualIndex = 108;
-const fAUTOCOMPLETE_ringBufferIndexZero = 109;
+const fAUTOCOMPLETE_virtualCount = 124;
+const fAUTOCOMPLETE_virtualIndex = 125;
+const fAUTOCOMPLETE_ringBufferIndexZero = 126;
 
-const fAUTOCOMPLETE_scrollTop = 110;
+const fAUTOCOMPLETE_scrollTop = 127;
 
-const fAUTOCOMPLETE_scrollEndDeadline = 111;
+const fAUTOCOMPLETE_scrollEndDeadline = 128;
 
-const fAUTOCOMPLETE_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING = 112;
+const fAUTOCOMPLETE_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING = 129;
 INTS[fAUTOCOMPLETE_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING] = 2;
 
 /**
@@ -632,7 +632,7 @@ INTS[fAUTOCOMPLETE_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING] = 2;
  * 
  * TODO: (speculation) I've never liked saying "line height" I believe that deals with the vertical alignment of text within some container is "line height" a good wording.
  * */
-const fAPP_lineHeight = 113;
+const fAPP_lineHeight = 130;
 INTS[fAUTOCOMPLETE_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING] = 20;
 
 /**
@@ -649,106 +649,106 @@ INTS[fAUTOCOMPLETE_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING] = 20;
  * 
  * okay yeah it is a ticket dispenser we're good
  */
-const fWIDGET_ticketId_counter = 114;
+const fWIDGET_ticketId_counter = 131;
 INTS[fWIDGET_ticketId_counter] = 1;
 
-const fWIDGET_ticketId_pending = 115;
-const fWIDGET_ticketId_drawn = 116;
+const fWIDGET_ticketId_pending = 132;
+const fWIDGET_ticketId_drawn = 133;
 
-const fWIDGET_left = 117;
-const fWIDGET_top = 118;
+const fWIDGET_left = 134;
+const fWIDGET_top = 135;
 
-const fWIDGETrenderKind_Show_countOfPendingRequests = 119;
+const fWIDGETrenderKind_Show_countOfPendingRequests = 136;
 
-const fMENU_ticketId_counter = 120;
+const fMENU_ticketId_counter = 137;
 INTS[fMENU_ticketId_counter] = 1;
 
 /** TODO: It might read better to make this 'null' or something after you've drawn the pending. */
-const fMENU_ticketId_pending = 121;
+const fMENU_ticketId_pending = 138;
 
-const fMENU_ticketId_drawn = 122;
+const fMENU_ticketId_drawn = 139;
 
-const fMENU_cursorIndex = 123;
+const fMENU_cursorIndex = 140;
 
 /** By duplicating this you guarantee the initial cursor index is what was expected. */
-const fMENU_SET_index = 124;
+const fMENU_SET_index = 141;
 
-const fMENU_left = 125;
-const fMENU_top = 126;
+const fMENU_left = 142;
+const fMENU_top = 143;
 
-const fMENU_renderKind_Set_countOfPendingRequests = 127;
+const fMENU_renderKind_Set_countOfPendingRequests = 144;
 
-const fTreeView_pooledNode_key = 128;
-const fTreeView_pooledNode_depth = 129;
+const fTreeView_pooledNode_key = 145;
+const fTreeView_pooledNode_depth = 146;
 
-const fMENU_last_handled_ticketId = 130;
+const fMENU_last_handled_ticketId = 147;
 
 /** 8 or the measured value */
-const fEXPLORER_firstSpanWidthValue = 136;
+const fEXPLORER_firstSpanWidthValue = 148;
 INTS[fEXPLORER_firstSpanWidthValue] = 8;
 
-const fEXPLORER_menuOptionX = 137;
-const fEXPLORER_menuOptionY = 138;
+const fEXPLORER_menuOptionX = 149;
+const fEXPLORER_menuOptionY = 150;
 
-const fEXPLORER_lastReadNumber_offsetWidth = 139;
-const fEXPLORER_lastReadNumber_offsetHeight = 140;
+const fEXPLORER_lastReadNumber_offsetWidth = 151;
+const fEXPLORER_lastReadNumber_offsetHeight = 152;
 
-const fEXPLORER_cursorTranslateYNumber = 141;
+const fEXPLORER_cursorTranslateYNumber = 153;
 
-const fEXPLORER_itemHeightTotal = 142;
+const fEXPLORER_itemHeightTotal = 154;
 
 /** Consider the existence of such methods as 'state_cursor_setIndex' before mutating state directly */
-const fEXPLORER_cursorIndex = 143;
+const fEXPLORER_cursorIndex = 155;
 
-const fEXPLORER_virtualIndex_ofScrollTop = 144;
+const fEXPLORER_virtualIndex_ofScrollTop = 156;
 
 /** Hacky: Must initialize to a number other than 0 or else nothing renders. */
-const fEXPLORER_virtualCount = 145
+const fEXPLORER_virtualCount = 157;
 INTS[fEXPLORER_virtualCount] = 1;
 
-const fEXPLORER_ONSCROLLvirtualIndex = 146;
-const fEXPLORER_ONSCROLLvirtualCount = 147;
+const fEXPLORER_ONSCROLLvirtualIndex = 158;
+const fEXPLORER_ONSCROLLvirtualCount = 159;
 
-const fEXPLORER_lastReadNumber_scrollLeft = 148;
-const fEXPLORER_lastReadNumber_scrollTop = 149;
+const fEXPLORER_lastReadNumber_scrollLeft = 160;
+const fEXPLORER_lastReadNumber_scrollTop = 161;
 
-const fEXPLORER_ringBufferIndexZero = 150;
+const fEXPLORER_ringBufferIndexZero = 162;
 
-const fEXPLORER_ringBuffer_length = 151;
+const fEXPLORER_ringBuffer_length = 163;
 
-const fEXPLORER_start = 152;
+const fEXPLORER_start = 164;
 
-const fEXPLORER_length = 153;
+const fEXPLORER_length = 165;
 
-const fEXPLORER_onePositiveDiff_twoNegativeDiff_orThreeFullScreen = 154;
+const fEXPLORER_onePositiveDiff_twoNegativeDiff_orThreeFullScreen = 166;
 
-const fEXPLORER_caseThreeOrigin = 155;
+const fEXPLORER_caseThreeOrigin = 167;
 
 /** TODO: what height should this start at? applicationRendererRoot.ts will eventually run initialization logic that actually does the measuring. */
-const fEXPLORER_itemHeightNumber = 156;
+const fEXPLORER_itemHeightNumber = 168;
 INTS[fEXPLORER_itemHeightNumber] = 20;
 
-const fEXPLORER_SET_ITEMS_itemHeightNumber = 157;
+const fEXPLORER_SET_ITEMS_itemHeightNumber = 169;
 
-const fEXPLORER_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING = 158;
+const fEXPLORER_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING = 170;
 
-const fEXPLORER_LARGEST_DEPTH_SEEN_NOT_THE_CSS_JUST_THE_DEPTH = 159;
+const fEXPLORER_LARGEST_DEPTH_SEEN_NOT_THE_CSS_JUST_THE_DEPTH = 171;
 
-const fEXPLORER_scrollEndDeadline = 160;
+const fEXPLORER_scrollEndDeadline = 172;
 
-const fEXPLORER_scrollFetchData_virtualIndex = 161;
+const fEXPLORER_scrollFetchData_virtualIndex = 173;
 
-const fEXPLORER_scrollFetchData_virtualCount = 162;
+const fEXPLORER_scrollFetchData_virtualCount = 174;
 
-const fEXPLORER_scrollFetchData_ringBufferIndexZero = 163;
+const fEXPLORER_scrollFetchData_ringBufferIndexZero = 175;
 
-const fEXPLORER_pullData_array_count = 164;
+const fEXPLORER_pullData_array_count = 176;
 
-const fEXPLORER_pullData_result_count = 165;
+const fEXPLORER_pullData_result_count = 177;
 
-const fEXPLORER_boundingClientRect_height = 168;
-const fEXPLORER_boundingClientRect_left = 169;
-const fEXPLORER_boundingClientRect_top = 170;
+const fEXPLORER_boundingClientRect_height = 178;
+const fEXPLORER_boundingClientRect_left = 179;
+const fEXPLORER_boundingClientRect_top = 180;
 
 
 

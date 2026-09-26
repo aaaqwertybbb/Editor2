@@ -32,119 +32,36 @@ module.exports = function (babel) {
   const TARGET_VARIABLES = [
 
     "fEDI_findOverlay_isBeingShownDueToMultiCursorMatching_originMatchNumber",
-    
-
     "fEDI_drawn_count_of_digits_longest_line_number",
-
-    
-
     "fEDI_detailRank",
-    
-
     "fEDI_detail_smallPosition",
-    
-
     "fEDI_detail_largePosition",
-
     "fEDI_detailRank3OriginLine",
-    
-
     "fEDI_gutterWidthStyleValue",
-    
-
     "fEDI_gutterWidthTotal",
-    
-
-    
-    
-
-    
-    
-
     "F_didChangeTextDocument_version",
-    
-
     "fEDI_indexCursor",
-    
-
     //"fEDI_offsetLine",
-    
-
     //"fEDI_offsetColumn_withRespectToThisIndexLine",
-    
-
     //"fEDI_offsetColumn",
-    
-
     //"fEDI_totalShift",
-    
-
     //"fEDI_offsetWithinSpan",
-    
-
-    
-    
-
-    
-    
-    
-    
-    
-
     "fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar",
-    
-
     "fEDI_contentWidth",
-    
-
     "fEDI_indent_ORIGINAL_indentBy",
-    
-
     "fEDI_indent_SMALL_lineAndColumnIndices_indexLine",
-    
-
     "fEDI_indent_startingIndex",
-    
-
     "fEDI_recentBoundingClientRect_left",
-    
-
     "fEDI_recentBoundingClientRect_top",
-    
-
     "fEDI_recentBoundingClientRect_isNull_intFalsey",
-    
-
     "fEDI_pooledTrackedSyntax_start",
-    
-
     "fEDI_pooledTrackedSyntax_length",
-    
-
     "fEDI_findOverlay_show",
-    
-
     "fEDI_findOverlay_isBeingShownDueToMultiCursorMatching",
-    
-
     "fEDI_fileStartsWithBom",
-    
-
     "fEDI_findOverlay_wasSearched",
-    
-
     "fEDI_findOverlay_options_matchWord",
-    
-
-    
-
     "fEDI_intFalsey_isScrolling",
-    
-
-
-
-
-
     "fEDI_lineHeight",
     "fEDI_virtualIndexLine",
     "fEDI_virtualCount",
@@ -156,6 +73,78 @@ module.exports = function (babel) {
     "fEDI_sum_diffPositive",
     "fEDI_sum_diffNegative",
     "fEDI_lastReadNumber_scrollTop",
+    "fEDI_cursor_editKind",
+    "fEDI_cursor_indexLine",
+    "fEDI_cursor_indexColumn",
+    "fEDI_cursorVisualColumnIndex",
+    "fEDI_cursorVisualColumnIndex_relativeToThisLineIndex",
+    "fEDI_ontab_visualWidth_perCharacter",
+    "fEDI_cursor_STORED_visualWidth",
+    "fEDI_cursor_cursorTranslateYValue",
+    "fEDI_cursor_cursorTranslateXValue",
+    "fEDI_cursor_selectionAnchor",
+    "fEDI_cursor_selectionEnd",
+    "fEDI_cursor_selectionIndexAnchorLine",
+    "fEDI_cursor_selectionIndexAnchorColumn",
+    "fEDI_cursor_selectionIndexEndLine",
+    "fEDI_cursor_selectionIndexEndColumn",
+    "fEDI_cursor_DRAWN_selectionAnchor",
+    "fEDI_cursor_DRAWN_selectionEnd",
+    "fEDI_cursor_DRAWN_selection_virtualIndexLine",
+    "fEDI_cursor_DRAWN_selection_virtualCount",
+    "fEDI_cursor_editLength",
+    "fEDI_cursor_editPosition",
+    "fEDI_cursor_editIndexLine",
+    "fEDI_cursor_editIndexColumn",
+    "fEDI_cursor_editRenderedDisplacement",
+    "fEDI_cursor_editRenderedDisplacement_INDEX_LINE_OFFSET",
+    "fEDI_cursor_END_editIndexLine",
+    "fEDI_cursor_END_editIndexColumn",
+    "fEDI_cursor_gapBufferCount",
+    "fEDI_cursor_editLineFeedCount",
+    "fEDI_cursor_EDI_duplicate_small",
+    "fEDI_cursor_EDI_duplicate_length",
+    "fEDI_getLineBoundaryPositions_start",
+    "fEDI_getLineBoundaryPositions_end",
+    "fEDI_getIndexFromX_indexColumn",
+    "fEDI_getIndexFromX_visualColumns",
+    "fEDI_cursor_selectionIndexAnchorColumnVISUAL",
+    "fEDI_cursor_selectionIndexEndColumnVISUAL",
+    "fEDI_cursor_selectionIndexAnchorColumnVISUAL_DRAWN",
+    "fEDI_cursor_selectionIndexEndColumnVISUAL_DRAWN",
+    "fEDI_selectionStartWidth",
+    "fEDI_selectionEndWidth",
+    "fEDI_detail_smallColumnVisual",
+    "fEDI_detail_largeColumnVisual",
+    "fEDI_w_indexColumn_Goal",
+    "fEDI_w_indexColumn_Sum",
+    "fEDI_w_indexColumn_SpanTextContentRelative",
+    "fEDI_w_indexSpan",
+    "fEDI_w_ringBufferIndex",
+    "fEDI_ringBuffer_indexZero",
+    //"fEDI_EDI_characterWidth",
+    "fEDI_EDI_horizontal_scrollbar_widthValue",
+    "fEDI_lastReadNumber_scrollLeft",
+    "fEDI_lastReadNumber_offsetHeight",
+    "fEDI_lastReadNumber_offsetWidth",
+    "fEDI_ArrayFrom_textElement_children_length",
+    "fEDI_EDI_mouseOver_event_clientY",
+    "fEDI_EDI_mouseOver_event_clientX",
+    "fEDI_EDI_RemoveSelection_smallPosition",
+    "fEDI_EDI_RemoveSelection_largePosition",
+    "fEDI_EDI_indentLess_startingLinePos_end",
+    "fEDI_EDI_cursorBlinkLastTimestamp",
+    "fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left",
+    "fEDI_prevVli",
+    "fEDI_currVli",
+    "fEDI_onResize_timer",
+    "fEDI_hoverTimeout",
+    "fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexLine",
+    "fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexColumn",
+    "fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex",
+    "fEDI_getLineAndColumnIndices_indexLine",
+    "fEDI_getLineAndColumnIndices_indexColumn",
+    "fEDI_cursor_cached_indentation_string_visualWidth",
 
     "AUTOCOMPLETErenderKind_None",
     "AUTOCOMPLETErenderKind_Show",
@@ -326,7 +315,6 @@ module.exports = function (babel) {
     "CONST_EDI_gutterPaddingLeft",
     "CONST_EDI_gutterPaddingRight",
 
-
     "CONST_DIALOG_minTop",
     "CONST_DIALOG_minLeft",
     "CONST_DIALOG_minHeight",
@@ -336,62 +324,6 @@ module.exports = function (babel) {
 
     "CONST_AUTOCOMPLETE_topPadding",
 
-
-
-
-
-
-
-
-
-
-
-
-    "fEDI_cursor_editKind",
-    "fEDI_cursor_indexLine",
-    "fEDI_cursor_indexColumn",
-    "fEDI_cursorVisualColumnIndex",
-    "fEDI_cursorVisualColumnIndex_relativeToThisLineIndex",
-    "fEDI_ontab_visualWidth_perCharacter",
-    "fEDI_cursor_STORED_visualWidth",
-    "fEDI_cursor_cursorTranslateYValue",
-    "fEDI_cursor_cursorTranslateXValue",
-    "fEDI_cursor_selectionAnchor",
-    "fEDI_cursor_selectionEnd",
-    "fEDI_cursor_selectionIndexAnchorLine",
-    "fEDI_cursor_selectionIndexAnchorColumn",
-    "fEDI_cursor_selectionIndexEndLine",
-    "fEDI_cursor_selectionIndexEndColumn",
-    "fEDI_cursor_DRAWN_selectionAnchor",
-    "fEDI_cursor_DRAWN_selectionEnd",
-    "fEDI_cursor_DRAWN_selection_virtualIndexLine",
-    "fEDI_cursor_DRAWN_selection_virtualCount",
-    "fEDI_cursor_editLength",
-    "fEDI_cursor_editPosition",
-    "fEDI_cursor_editIndexLine",
-    "fEDI_cursor_editIndexColumn",
-    "fEDI_cursor_editRenderedDisplacement",
-    "fEDI_cursor_editRenderedDisplacement_INDEX_LINE_OFFSET",
-    "fEDI_cursor_END_editIndexLine",
-    "fEDI_cursor_END_editIndexColumn",
-    "fEDI_cursor_gapBufferCount",
-    "fEDI_cursor_editLineFeedCount",
-    "fEDI_cursor_EDI_duplicate_small",
-    "fEDI_cursor_EDI_duplicate_length",
-    "fEDI_getLineBoundaryPositions_start",
-    "fEDI_getLineBoundaryPositions_end",
-    "fEDI_getIndexFromX_indexColumn",
-    "fEDI_getIndexFromX_visualColumns",
-    "fEDI_cursor_selectionIndexAnchorColumnVISUAL",
-    "fEDI_cursor_selectionIndexEndColumnVISUAL",
-    "fEDI_cursor_selectionIndexAnchorColumnVISUAL_DRAWN",
-    "fEDI_cursor_selectionIndexEndColumnVISUAL_DRAWN",
-    "fEDI_selectionStartWidth",
-    "fEDI_selectionEndWidth",
-    "fEDI_detail_smallColumnVisual",
-    "fEDI_detail_largeColumnVisual",
-
-
     "byteDIALOG_FindAll_options_matchWord",
     "byteDIALOG_Settings_isDark",
     "byteDIALOG_Settings_trueTabs_falseSpaces",
@@ -399,8 +331,6 @@ module.exports = function (babel) {
     "byteDIALOG_hasBeenMeasured",
     "byteDIALOG_windowExists",
     "byteDIALOG_HIDE_shouldRestoreFocus",
-    
-
 
     "fDIALOG_left",
     "fDIALOG_top",
@@ -414,28 +344,6 @@ module.exports = function (babel) {
     "fDIALOG_before_Y",
     "fDIALOG_after_X",
     "fDIALOG_after_Y",
-
-    "fEDI_w_indexColumn_Goal",
-    "fEDI_w_indexColumn_Sum",
-    "fEDI_w_indexColumn_SpanTextContentRelative",
-    "fEDI_w_indexSpan",
-    "fEDI_w_ringBufferIndex",
-    "fEDI_ringBuffer_indexZero",
-    //"fEDI_EDI_characterWidth",
-    "fEDI_EDI_horizontal_scrollbar_widthValue",
-    "fEDI_lastReadNumber_scrollLeft",
-    "fEDI_lastReadNumber_offsetHeight",
-    "fEDI_lastReadNumber_offsetWidth",
-    "fEDI_ArrayFrom_textElement_children_length",
-    "fEDI_EDI_mouseOver_event_clientY",
-    "fEDI_EDI_mouseOver_event_clientX",
-    "fEDI_EDI_RemoveSelection_smallPosition",
-    "fEDI_EDI_RemoveSelection_largePosition",
-    "fEDI_EDI_indentLess_startingLinePos_end",
-    "fEDI_EDI_cursorBlinkLastTimestamp",
-    "fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left",
-    "fEDI_prevVli",
-    "fEDI_currVli",
 
     "fAUTOCOMPLETE_items_slice_start",
     "fAUTOCOMPLETE_items_slice_end",
@@ -512,14 +420,8 @@ module.exports = function (babel) {
     "byteisProcessingLspQueue",
     "byteEDI_isRenderPending",
     "byteEDI_mousemove_eventListener_isActive",
-    "fEDI_onResize_timer",
-    "fEDI_hoverTimeout",
-    "fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexLine",
-    "fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexColumn",
 
     "CONST_EDI_cursor_htmlId",
-
-    "fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex",
 
     "CONST_EXPLORER_offsetPerDepth",
     "fEXPLORER_firstSpanWidthValue",
@@ -561,16 +463,13 @@ module.exports = function (babel) {
     "byteEXPLORER_isCheckingTrailingEdge",
     "byteEXPLORER_scrollIsFetchingData",
 
-    "fEDI_getLineAndColumnIndices_indexLine",
-    "fEDI_getLineAndColumnIndices_indexColumn",
-
     "fEXPLORER_boundingClientRect_height",
     "fEXPLORER_boundingClientRect_left",
     "fEXPLORER_boundingClientRect_top",
 
     "byteEXPLORER_boundingClientRect_isValid",
 
-    "fEDI_cursor_cached_indentation_string_visualWidth",
+    
   ];
 
   return {

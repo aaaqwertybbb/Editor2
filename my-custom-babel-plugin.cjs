@@ -93,6 +93,7 @@ module.exports = function (babel) {
     "fEDI_cursor_DRAWN_selection_virtualIndexLine",
     "fEDI_cursor_DRAWN_selection_virtualCount",
     "fEDI_cursor_editLength",
+    "fEDI_cursor_editLengthVisual",
     "fEDI_cursor_editPosition",
     "fEDI_cursor_editIndexLine",
     "fEDI_cursor_editIndexColumn",

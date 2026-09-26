@@ -389,16 +389,6 @@ const F_didChangeTextDocument_version = 17;
  * */
 const fEDI_indexCursor = 18;
 
-//const fEDI_offsetLine = 19;
-
-//const fEDI_offsetColumn_withRespectToThisIndexLine = 20;
-
-//const fEDI_offsetColumn = 21;
-
-//const fEDI_totalShift = 22;
-
-//const fEDI_offsetWithinSpan = 23;
-
 const fEDI_longestLine_indexLine = 24;
 
 const fEDI_longestLine_length = 25;
@@ -498,30 +488,6 @@ const fEDI_cursor_EDI_duplicate_small = 62;
 /** same comment that pertains to EDI_cursor_EDI_paste_clipboardContent is somewhat relevant here */
 const fEDI_cursor_EDI_duplicate_length = 63;
 
-/**
- * defaults to viewport size then getBoundingClientRect says the exact pixels upon trying to resize
- * need to track resizes and store the useragent width/height by the onmousedown and then on resize get proportion and update left top width height.
- */
-const fDIALOG_left = 64;
-const fDIALOG_top = 65;
-const fDIALOG_width = 66;
-const fDIALOG_height = 67;
-
-const fDIALOG_left_DRAWN = 68;
-const fDIALOG_top_DRAWN = 69;
-const fDIALOG_width_DRAWN = 70;
-const fDIALOG_height_DRAWN = 71;
-
-// TODO: Are 'fDIALOG_before_X' and 'fDIALOG_before_Y' actually doing anything?...
-// ...When it comes to their after counterparts 'fDIALOG_after_X' and 'fDIALOG_after_Y'...
-// ...it is believed that the counterparts are doing nothing, so also check the before.
-const fDIALOG_before_X = 72;
-const fDIALOG_before_Y = 73;
-
-// TODO: What does 'fDIALOG_after_X' and 'fDIALOG_after_Y' even get used for? It seems they always only get set to 0 over and over and do nothing?
-const fDIALOG_after_X = 74;
-const fDIALOG_after_Y = 75;
-
 // TODO: Avoid re-using these locally after getting the w result (i.e.: avoid re-using over and over in a loop or something, probably make a local variable if accessed enough).
 // TODO: Verify and update all the previously -1 cases
 const fEDI_w_indexColumn_Goal = 76;
@@ -533,8 +499,6 @@ const fEDI_w_ringBufferIndex = 80;
 
 // And this -1
 const fEDI_ringBuffer_indexZero = 81;
-
-//const fEDI_EDI_characterWidth = 82;
 
 const fEDI_EDI_horizontal_scrollbar_widthValue = 83;
 
@@ -570,6 +534,71 @@ const fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left = 94;
 const fEDI_prevVli = 95;
 /** TODO: What happens when you overflow 'INTS[fEDI_prevVli]' does it overflow such that you're the correct diff? */
 const fEDI_currVli = 96;
+
+const fEDI_onResize_timer = 131;
+
+const fEDI_hoverTimeout = 132;
+
+// Move some 'EDI_removeSelection()' state here so I can access it in the render function.
+// TODO: Don't do this long term, I need a simple bridge for this state so I can just get started otherwise I'll spend the rest of my life procrastinating.
+//
+const fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexLine = 133;
+const fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexColumn = 134;
+
+const fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex = 135;
+
+const fEDI_getLineAndColumnIndices_indexLine = 166;
+const fEDI_getLineAndColumnIndices_indexColumn = 167;
+
+const fEDI_cursorVisualColumnIndex = 171;
+const fEDI_cursorVisualColumnIndex_relativeToThisLineIndex = 172;
+const fEDI_ontab_visualWidth_perCharacter = 173;
+
+const fEDI_getLineBoundaryPositions_start = 174;
+const fEDI_getLineBoundaryPositions_end = 175;
+
+const fEDI_getIndexFromX_indexColumn = 176;
+const fEDI_getIndexFromX_visualColumns = 177;
+
+const fEDI_cursor_selectionIndexAnchorColumnVISUAL = 178;
+const fEDI_cursor_selectionIndexEndColumnVISUAL = 179;
+
+const fEDI_cursor_selectionIndexAnchorColumnVISUAL_DRAWN = 180;
+const fEDI_cursor_selectionIndexEndColumnVISUAL_DRAWN = 181;
+
+const fEDI_selectionStartWidth = 182;
+const fEDI_selectionEndWidth = 183;
+
+const fEDI_detail_smallColumnVisual = 184;
+const fEDI_detail_largeColumnVisual = 185;
+
+const fEDI_cursor_cached_indentation_string_visualWidth = 186;
+
+const fEDI_cursor_editLengthVisual = 189;
+
+/**
+ * defaults to viewport size then getBoundingClientRect says the exact pixels upon trying to resize
+ * need to track resizes and store the useragent width/height by the onmousedown and then on resize get proportion and update left top width height.
+ */
+const fDIALOG_left = 64;
+const fDIALOG_top = 65;
+const fDIALOG_width = 66;
+const fDIALOG_height = 67;
+
+const fDIALOG_left_DRAWN = 68;
+const fDIALOG_top_DRAWN = 69;
+const fDIALOG_width_DRAWN = 70;
+const fDIALOG_height_DRAWN = 71;
+
+// TODO: Are 'fDIALOG_before_X' and 'fDIALOG_before_Y' actually doing anything?...
+// ...When it comes to their after counterparts 'fDIALOG_after_X' and 'fDIALOG_after_Y'...
+// ...it is believed that the counterparts are doing nothing, so also check the before.
+const fDIALOG_before_X = 72;
+const fDIALOG_before_Y = 73;
+
+// TODO: What does 'fDIALOG_after_X' and 'fDIALOG_after_Y' even get used for? It seems they always only get set to 0 over and over and do nothing?
+const fDIALOG_after_X = 74;
+const fDIALOG_after_Y = 75;
 
 // I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
 const fAUTOCOMPLETE_items_slice_start = 97;
@@ -654,18 +683,6 @@ const fTreeView_pooledNode_depth = 129;
 
 const fMENU_last_handled_ticketId = 130;
 
-const fEDI_onResize_timer = 131;
-
-const fEDI_hoverTimeout = 132;
-
-// Move some 'EDI_removeSelection()' state here so I can access it in the render function.
-// TODO: Don't do this long term, I need a simple bridge for this state so I can just get started otherwise I'll spend the rest of my life procrastinating.
-//
-const fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexLine = 133;
-const fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexColumn = 134;
-
-const fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex = 135;
-
 /** 8 or the measured value */
 const fEXPLORER_firstSpanWidthValue = 136;
 INTS[fEXPLORER_firstSpanWidthValue] = 8;
@@ -729,43 +746,11 @@ const fEXPLORER_pullData_array_count = 164;
 
 const fEXPLORER_pullData_result_count = 165;
 
-const fEDI_getLineAndColumnIndices_indexLine = 166;
-const fEDI_getLineAndColumnIndices_indexColumn = 167;
-
 const fEXPLORER_boundingClientRect_height = 168;
 const fEXPLORER_boundingClientRect_left = 169;
 const fEXPLORER_boundingClientRect_top = 170;
 
-const fEDI_cursorVisualColumnIndex = 171;
-const fEDI_cursorVisualColumnIndex_relativeToThisLineIndex = 172;
-const fEDI_ontab_visualWidth_perCharacter = 173;
 
-const fEDI_getLineBoundaryPositions_start = 174;
-const fEDI_getLineBoundaryPositions_end = 175;
-
-const fEDI_getIndexFromX_indexColumn = 176;
-const fEDI_getIndexFromX_visualColumns = 177;
-
-const fEDI_cursor_selectionIndexAnchorColumnVISUAL = 178;
-const fEDI_cursor_selectionIndexEndColumnVISUAL = 179;
-
-const fEDI_cursor_selectionIndexAnchorColumnVISUAL_DRAWN = 180;
-const fEDI_cursor_selectionIndexEndColumnVISUAL_DRAWN = 181;
-
-const fEDI_selectionStartWidth = 182;
-const fEDI_selectionEndWidth = 183;
-
-const fEDI_detail_smallColumnVisual = 184;
-const fEDI_detail_largeColumnVisual = 185;
-
-const fEDI_cursor_cached_indentation_string_visualWidth = 186;
-
-const fEDI_cursor_GAP_BUFFER_width_when_each_char_is_1_visual_width = 187;
-
-/** TODO: obsolete */
-const fEDI_longestLine_heapEntry = 188; 
-
-const fEDI_cursor_editLengthVisual = 189;
 
 // INTS[fEDI_cursorVisualColumnIndex]
 

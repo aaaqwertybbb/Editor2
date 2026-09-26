@@ -5680,7 +5680,6 @@ function EDI_drawHorizontalScrollbar() {
         
         INTS[fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar] = INTS[fEDI_longestLine_length];
 
-        //INTS[fEDI_contentWidth] = Math.ceil(INTS[fEDI_longestLine_length] * EDI_characterWidth) + INTS[fEDI_cursor_GAP_BUFFER_width_when_each_char_is_1_visual_width];
         INTS[fEDI_contentWidth] = Math.ceil((INTS[fEDI_longestLine_length] + 6/*characterwidth padding?*/) * EDI_characterWidth);
 
         if ((INTS[fEDI_contentWidth] < (EDI_baseElement.clientWidth - INTS[fEDI_gutterWidthTotal])) && (EDI_baseElement.clientWidth - INTS[fEDI_gutterWidthTotal] > 0)) {
@@ -8041,8 +8040,6 @@ function EDI_measureLineHeightAndCharacterWidth() {
         // avoid layout with if statement
         root.style.setProperty(propertyName, teLineHeight);
     }
-
-    INTS[fEDI_cursor_GAP_BUFFER_width_when_each_char_is_1_visual_width] = Math.ceil(EDI_characterWidth * CONST_EDI_cursor_GAP_BUFFER_CAPACITY);
 }
 
 function EDI_toExtensionKind(extensionWithPeriod) {

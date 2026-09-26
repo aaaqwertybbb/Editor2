@@ -8,15 +8,26 @@
 
 > npm run start
 
-DEBUG CONSIDERATIONS:
+DEBUG CONSIDERATIONS 1:
 
 Open file `./my-custom-babel-plugin.cjs` and comment out 'const TARGET_VARIABLES = [ ... ]' to be 'const TARGET_VARIABLES = [ ]' or whatever other approach gets the same result etc...
+
+DEBUG CONSIDERATIONS 2:
 
 The output of build is more or less these two files (and `./build/__COMPILEDbundle__.js` is the one that actually is used when running the app):
 
 `./preprocessor/__PREPROCESSEDbundle__.js`
 
 `./build/__COMPILEDbundle__.js`
+
+DEBUG CONSIDERATIONS 3:
+
+When you open `./preprocessor/__PREPROCESSEDbundle__.js`
+and search for 'fEDI_' you'll get more than a thousand matches.
+
+Now go to `./build/__COMPILEDbundle__.js` and you should get 0.
+
+This is how you know that your code was inlined.
 
 ==============
 

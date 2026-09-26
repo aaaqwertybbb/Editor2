@@ -10449,4 +10449,8 @@ Also, the folder explorer on  the left when you expand one item it redraws the e
 but then I realized from the above statement that I couldn't get it to work correctly
 because it is exactly the same problem as pressing the enter key optimally.
 
+- [ ] batch enter key
+- [ ] text editor optimized enter key moves ring buffer entries around rather than shifting the content from 1 entry to the next.
+- [ ] ^ use previous point to solve issue of folder explorer you expand and then it wastefully redraws screen.
+
 */

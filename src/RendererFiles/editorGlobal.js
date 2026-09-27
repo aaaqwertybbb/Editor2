@@ -161,6 +161,9 @@ let w_div = null;
 const lspQueue = [];
 
 // Pre-allocate a typed array to prevent memory allocation during runtime
+/**
+ * TODO: If you queue more than 32 renderKinds in a single frame you're gonna lose information. (remedy this?) see 'UI_SLOT_MASK = 31'
+ */
 const EDI_renderKindBuffer = new Uint8Array(BUFFER_SIZE);
 
 // Persistent, flat JS arrays that stay alive forever in memory

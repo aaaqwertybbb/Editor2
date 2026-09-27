@@ -894,6 +894,9 @@ const MASTER_BUFFER_SIZE = 160;
  */
 const UI_SLOT_MASK = 31; // UI_SLOT_SIZE - 1 // 31 (binary: 00011111)
 
+/**
+ * TODO: If you queue more than 32 renderKinds in a single frame you're gonna lose information. (remedy this?) see 'UI_SLOT_MASK = 31'
+ */
 const MASTER_RENDER_BUFFER = new Uint8Array(MASTER_BUFFER_SIZE);
 
 // Define the unique byte offset where each UI's memory space begins

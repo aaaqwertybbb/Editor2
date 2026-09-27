@@ -1877,4 +1877,10 @@ I'm seeing ss adjacent things in my youtube feed. You see me saying this you thi
 It's all just ridiculous how stupid you are.
 I am one of the most caring people that exist.
 You are trash.
+
+^the reason I'm seeing it is cause you see what I say. And then
+you've seen the things that I talked about
+and then youtube recommends me the things you see because
+we're in the algorithm together.
+So you start watching things because of how I speak and then I see what you're watching,.
 */

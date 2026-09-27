@@ -1872,4 +1872,9 @@ I sat in the corner and cried while covering my face with my hands and putting m
 She took me home and then punished me.
 
 Fuck everything I want you to killme
+
+I'm seeing ss adjacent things in my youtube feed. You see me saying this you think that.
+It's all just ridiculous how stupid you are.
+I am one of the most caring people that exist.
+You are trash.
 */

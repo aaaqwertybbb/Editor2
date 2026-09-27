@@ -10922,4 +10922,7 @@ if ((EDI_queueTail - EDI_queueHead) >= BUFFER_SIZE) {
 > Would you like to analyze how many distinct elements usually hit your pipeline during heavy workloads to pick the best size,
 > or should we look at how the while loop handles resetting the pointers once the queue empties?
 
+Random thought:
+if you're targeting a uint8array you can access '.buffer' or something. If I capture a reference to the '.buffer' is this faster than array accessing the uint8array?
+
 */

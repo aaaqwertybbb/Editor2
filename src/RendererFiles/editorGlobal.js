@@ -10926,4 +10926,71 @@ if ((EDI_queueTail - EDI_queueHead) >= BUFFER_SIZE) {
 Random thought:
 if you're targeting a uint8array you can access '.buffer' or something. If I capture a reference to the '.buffer' is this faster than array accessing the uint8array?
 
+=========
+
+> I just had a different thread where I optimized my renderAnimationFramePipeline.
+> Given the context in this thread where I mention my variable 'INTS' which is a Uint32Array, would moving 'EDI_queueHead' and 'EDI_queueTail' be of benefit?
+
+< Yes, moving EDI_queueHead and EDI_queueTail into your typed array setup will provide a benefit, but not because of CPU caching.
+< Instead, the true benefit comes from avoiding a V8 performance pitfall known as deoptimization due to mutating global or module-scoped variables.
+< 
+< By shifting these variables out of standard JavaScript memory and into your byte array or INTS array,
+< you ensure the V8 engine can aggressively optimize your high-frequency render pipeline.
+< 
+< 1. Eliminating Module-Scoped Mutation Overhead
+< In modern JS engines like V8, modifying a module-scoped variable (let EDI_queueTail = 0;)
+< inside frequently executed functions can be slower than reading/writing to a fixed memory buffer.
+< 
+< - When V8's TurboFan JIT compiler tries to optimize EDI_render_request and EDI_render_do, it prefers dealing with strict, typed memory structures or local function variables.
+< - Mutating a top-level module variable forces V8 to maintain specific variable bindings and hidden class/property lookups.
+<   Putting them in a typed array reduces them to simple, raw pointer offsets.
+< 
+< 2. Safeguarding Against Smis and Type Feedback Issues
+< Right now, EDI_queueHead++ and EDI_queueTail++ increment indefinitely.
+< - JavaScript integers are optimized as Smis (Small Integers) in V8, which can go up to 2^31 - 1 on 64-bit systems.
+< - While it would take days of continuous typing to overflow a Smi, keeping these values as floating variables opens up the potential for V8 to
+<   lose track of the variable's strict type assumptions during deep optimization pipelines.
+< - By moving them into your array, you force them into a rigid data structure (Uint32Array or Uint8Array).
+< 
+< How to Implement It
+< Since your queue only relies on a BUFFER_SIZE of 32, you can actually clamp the values directly or just let them overflow naturally inside a Uint8Array or Uint32Array slot.
+< 
+< Assuming you put them into a byte-aligned structure like your BYTES array:
+< 
+< ```js
+// At the top of your file (optimized away by your Babel plugin)
+const byteEDI_queueHead = 1; 
+const byteEDI_queueTail = 2;
+
+function EDI_render_do(timestamp) {
+    // Read from the typed array
+    while (BYTES[byteEDI_queueHead] !== BYTES[byteEDI_queueTail]) {
+        
+        const renderKind = EDI_renderKindBuffer[BYTES[byteEDI_queueHead] & BUFFER_MASK];
+        
+        // Mutating a typed array slot is blazing fast and JIT-friendly
+        BYTES[byteEDI_queueHead]++; 
+
+        switch (renderKind) {
+            case RenderKind_Scroll:
+                EDI_render_do_Scroll(timestamp);
+                break;
+            case RenderKind_InsertLtr:
+                EDI_render_do_InsertLtr();
+                break;
+        }
+    }
+    BYTES[byteEDI_isRenderPending] = 0;
+}
+< ```
+< 
+< The CPU Cache Verdict for this specific case
+< 
+< Just like your main INTS array, EDI_renderKindBuffer (32 bytes) and your BYTES array are incredibly small. They will reside completely inside the L1 cache.
+< Moving the head and tail variables inside your pre-allocated arrays ensures that all state data for the frame queue is entirely localized in the exact same L1 cache line window,
+< which perfectly matches your C-style design philosophy.
+< 
+< Would you like to review how you are managing de-duplication logic in the queue,
+< or check if there are other module-scoped variables in your animation pipeline that should be migrated?
+
 */

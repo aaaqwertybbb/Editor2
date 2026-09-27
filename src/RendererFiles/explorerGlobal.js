@@ -1849,5 +1849,4 @@ async function RenameFile_File_InputText_callback(result) {
 // TODO: look at the "async" events because its nonsensical
 
 /*
-we don't choose emotions but we do choose to give into them... or something like that
 */

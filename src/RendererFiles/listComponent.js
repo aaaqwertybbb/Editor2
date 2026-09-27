@@ -465,5 +465,3 @@ class ListComponent {
         return indexItem;
     }
 }
-
-// if static css gives top but I always change it and override the class this is overhead questionmark?

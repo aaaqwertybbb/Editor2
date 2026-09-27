@@ -48,6 +48,7 @@ function WIDGET_render_request(renderKind) {
 
     const absoluteIndex = OFFSET_WIDGET + (WIDGET_queueTail & UI_SLOT_MASK);
     MASTER_RENDER_BUFFER[absoluteIndex] = renderKind;
+    if (renderKind === WIDGETrenderKind_Show) INTS[fWIDGETrenderKind_Show_countOfPendingRequests]++;
     WIDGET_queueTail++;
     
     if (BYTES[byteWIDGET_isRenderPending] === 0) {

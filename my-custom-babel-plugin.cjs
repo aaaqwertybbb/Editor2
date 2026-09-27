@@ -492,6 +492,8 @@ module.exports = function (babel) {
     
     "byteWIDGET_queueHead",
     "byteWIDGET_queueTail",
+
+    "UI_SLOT_MASK",
   ];
 
   return {

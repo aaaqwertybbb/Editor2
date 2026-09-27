@@ -10720,6 +10720,8 @@ C
 
 ========
 
+const EDI_renderKindArray = [];
+
 function EDI_render_do(timestamp) {
     let renderKind = 0;
 
@@ -10758,5 +10760,83 @@ function EDI_render_request(renderKind) {
 //
 // If you do the fixed size you can have the "entire app" share a single fixed size and then you designate a range of indices to each part of the app
 // that they can use as their own pseudo own array.
+// 
+// The fact that I only put unsigned ints into this array makes me think of using a Uint8Array or something.
+// is the overhead of reading a Uint8Array greater than a normal array? or is the C++ overhead higher?
+
+> I have a different question. It relates to my requestAnimationFrame pipeline.
+> I want to replace my .shift() loop:
+> (...above-ish code is here in the prompt)
+
+< You can achieve a massive performance boost here by replacing the array entirely with a fixed-size TypedArray (like a Uint8Array) and two simple integer pointers.
+< 
+< Array .shift() is an O(N) operation because JavaScript has to re-index every single remaining element in memory every time a value is removed.
+< By using a power-of-2 ring buffer and the bitwise AND mask we just discussed,
+< your dequeue and enqueue operations both become lightning-fast O(1) operations with zero garbage collection (GC) overhead.
+< 
+< Here is how you can implement this efficiently in vanilla JavaScript:
+< 
+< ```js
+// Choose a power of 2 for the buffer size (e.g., 16, 32, 64). 
+// 32 is usually plenty for a single animation frame queue.
+const BUFFER_SIZE = 32; 
+const BUFFER_MASK = BUFFER_SIZE - 1;
+
+// Pre-allocate a typed array to prevent memory allocation during runtime
+const EDI_renderKindBuffer = new Uint8Array(BUFFER_SIZE);
+let EDI_queueHead = 0; // Where we read from
+let EDI_queueTail = 0; // Where we write to
+
+function EDI_render_do(timestamp) {
+    // Process everything in the queue until head catches up to tail
+    while (EDI_queueHead !== EDI_queueTail) {
+        // Read the item at the head and advance the head pointer safely
+        const renderKind = EDI_renderKindBuffer[EDI_queueHead & BUFFER_MASK];
+        EDI_queueHead++; 
+
+        switch (renderKind) {
+            case RenderKind_Scroll:
+                EDI_render_do_Scroll(timestamp);
+                break;
+            case RenderKind_InsertLtr:
+                EDI_render_do_InsertLtr();
+                break;
+            // ...
+        }
+    }
+    
+    BYTES[byteEDI_isRenderPending] = 0;
+}
+
+function EDI_render_request(renderKind) {
+    // Check if the queue is empty
+    if (EDI_queueHead !== EDI_queueTail) {
+        // Get the last inserted item's index
+        const lastIndex = (EDI_queueTail - 1) & BUFFER_MASK;
+        // De-duplicate: if it's the same renderKind, skip adding it
+        if (EDI_renderKindBuffer[lastIndex] === renderKind) {
+            return;
+        }
+    }
+
+    // Insert the item at the tail and advance the tail pointer
+    EDI_renderKindBuffer[EDI_queueTail & BUFFER_MASK] = renderKind;
+    EDI_queueTail++;
+    
+    if (!BYTES[byteEDI_isRenderPending]) {
+        BYTES[byteEDI_isRenderPending] = 1;
+        requestAnimationFrame(EDI_render_do);
+    }
+}
+< ```
+< 
+< Why This Design Fits Perfectly
+< 1. Never Resets Pointers: The EDI_queueHead and EDI_queueTail integers will safely increment upward indefinitely.
+<    Because we apply & BUFFER_MASK every time we access the array, the actual index safely wraps around behind the scenes.
+< 2. Eliminates Garbage Collection: Using .shift() and .push() constantly creates and destroys array slots, forcing the V8 engine to trigger garbage collection spikes.
+<    Because a text editor demands a smooth 60fps/120fps typing experience, avoiding GC pauses in your requestAnimationFrame loop is crucial.
+< 3. True Deduplication: The (EDI_queueTail - 1) & BUFFER_MASK logic preserves your exact deduplication check safely, even when the buffer wraps past the end of the array.
+< 
+< Would you like to review how this setup behaves if the buffer happens to fill up completely, or would you like to adapt this to handle multiple parameters per render event?
 
 */

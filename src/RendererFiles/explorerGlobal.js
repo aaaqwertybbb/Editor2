@@ -1883,4 +1883,7 @@ you've seen the things that I talked about
 and then youtube recommends me the things you see because
 we're in the algorithm together.
 So you start watching things because of how I speak and then I see what you're watching,.
+
+I want to live in a mental hospital.
+Alone.
 */

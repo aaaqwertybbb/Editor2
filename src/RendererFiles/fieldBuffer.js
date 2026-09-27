@@ -888,6 +888,10 @@ const RenderKind_Cursor_n = 18;
 // Master allocation (e.g., 64 bytes total for two subsystems)
 const MASTER_BUFFER_SIZE = 160;
 //const UI_SLOT_SIZE = 32;
+/**
+ * // TODO: you get `32 - 1` no matter whether you include the parenthesis or not / I don't feel like dealing with this right now.
+ * // UI_SLOT_SIZE - 1 // 31 (binary: 00011111)
+ */
 const UI_SLOT_MASK = 31; // UI_SLOT_SIZE - 1 // 31 (binary: 00011111)
 
 const MASTER_RENDER_BUFFER = new Uint8Array(MASTER_BUFFER_SIZE);

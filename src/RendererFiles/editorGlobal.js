@@ -282,7 +282,7 @@ function EDI_render_request(renderKind) {
     EDI_renderKindBuffer[BYTES[byteEDI_queueTail] & BUFFER_MASK] = renderKind;
     BYTES[byteEDI_queueTail]++;
     
-    if (!BYTES[byteEDI_isRenderPending]) {
+    if (BYTES[byteEDI_isRenderPending] === 0) {
         BYTES[byteEDI_isRenderPending] = 1;
         requestAnimationFrame(EDI_render_do);
     }
@@ -521,7 +521,7 @@ function EDI_onScroll_LeadingEdge(local_prevVli, local_currVli) {
     INTS[fEDI_intFalsey_isScrolling] = 1;
 
     // TODO: If you can prove that the leading edge or 'INTS[fEDI_intFalsey_isScrolling]' is "equivalent" to 'BYTES[byteisCheckingTrailingEdge]' then you can reduce the code here.
-    if (!BYTES[byteisCheckingTrailingEdge]) {
+    if (BYTES[byteisCheckingTrailingEdge] === 0) {
         BYTES[byteisCheckingTrailingEdge] = 1;
         requestAnimationFrame(EDI_render_do_ScrollTrailingEdgeCheck);
     }
@@ -650,7 +650,7 @@ function EDI_render_do_SetText(timestamp) {
     INTS[fEDI_ONSCROLLvirtualIndexLine] = INTS[fEDI_virtualIndexLine];
 
     INTS[fEDI_scrollEndDeadline] = timestamp + 1000;
-    if (!BYTES[byteisCheckingTrailingEdge]) {
+    if (BYTES[byteisCheckingTrailingEdge] === 0) {
         BYTES[byteisCheckingTrailingEdge] = 1;
         requestAnimationFrame(EDI_render_do_ScrollTrailingEdgeCheck);
     }
@@ -962,7 +962,7 @@ function EDI_render_do_IndentLess() {
 
         /////////////////////// P_1
         let textSelectionDiv;
-        if (BYTES[byteEDI_cursor_selectionDivExists]) {
+        if (BYTES[byteEDI_cursor_selectionDivExists] === 1) {
             for (var i = 0; i < EDI_presentation.children.length; i++) {
                 if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
                     textSelectionDiv = EDI_presentation.children[i];
@@ -3053,7 +3053,7 @@ function EDI_editEvent(editKind, event, clipboardContent) {
             throw new Error(`The EditKind:${editKind} was not recognized.`);
     }
 
-    if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
+    if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
         EDI_cursorBlink_startChecking();
     }
 }
@@ -4537,7 +4537,7 @@ function enqueueLSPNotification(payload) {
 }
 
 async function processLspQueue() {
-    if (BYTES[byteisProcessingLspQueue]) return;
+    if (BYTES[byteisProcessingLspQueue] === 1) return;
     BYTES[byteisProcessingLspQueue] = 1;
 
     while (lspQueue.length > 0) {
@@ -5972,7 +5972,7 @@ function EDI_onKeyDown_ArrowLeft(event) {
     }
     INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
     EDI_render_request(RenderKind_Cursor_n);
-    if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
+    if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
         EDI_cursorBlink_startChecking();
     }
 }
@@ -6000,7 +6000,7 @@ function EDI_onKeyDown_ArrowDown(event) {
         EDI_postKeyboardMovementSelectionLogic(event.shiftKey);
 
         EDI_render_request(RenderKind_Cursor_n);
-        if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
+        if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
             EDI_cursorBlink_startChecking();
         }
     }
@@ -6029,7 +6029,7 @@ function EDI_onKeyDown_ArrowUp(event) {
         }
         EDI_postKeyboardMovementSelectionLogic(event.shiftKey);
         EDI_render_request(RenderKind_Cursor_n);
-        if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
+        if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
             EDI_cursorBlink_startChecking();
         }
     }
@@ -6119,7 +6119,7 @@ function EDI_onKeyDown_ArrowRight(event) {
     }
     INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
     EDI_render_request(RenderKind_Cursor_n);
-    if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
+    if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
         EDI_cursorBlink_startChecking();
     }
 }
@@ -6155,7 +6155,7 @@ function EDI_onKeyDown_Home(event) {
     EDI_postKeyboardMovementSelectionLogic(event.shiftKey);
     INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
     EDI_render_request(RenderKind_Cursor_n);
-    if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
+    if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
         EDI_cursorBlink_startChecking();
     }
     return false;
@@ -6192,7 +6192,7 @@ function EDI_onKeyDown_End(event) {
     EDI_postKeyboardMovementSelectionLogic(event.shiftKey);
     INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
     EDI_render_request(RenderKind_Cursor_n);
-    if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
+    if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
         EDI_cursorBlink_startChecking();
     }
     return false;
@@ -6216,7 +6216,7 @@ function EDI_onKeyDown_PageDown(event) {
         // TODO: allow someone to select via this keybind, but for now it causes a bad selection if you { 'Ctrl' + 'a' } then use it so I'm clearing any active selection here for now.
         INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_cursor_selectionEnd];
         EDI_render_request(RenderKind_Cursor_n);
-        if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
+        if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
             EDI_cursorBlink_startChecking();
         }
     }
@@ -6240,7 +6240,7 @@ function EDI_onKeyDown_PageUp(event) {
         // TODO: allow someone to select via this keybind, but for now it causes a bad selection if you { 'Ctrl' + 'a' } then use it so I'm clearing any active selection here for now.
         INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_cursor_selectionEnd];
         EDI_render_request(RenderKind_Cursor_n);
-        if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
+        if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
             EDI_cursorBlink_startChecking();
         }
     }
@@ -6293,7 +6293,7 @@ async function EDI_onKeyDown_keyLengthEqualsOne_ctrlKey(event) {
             await EDI_copySelection();
             EDI_removeSelection(); // TODO: Multicursor bad
             EDI_render_request(RenderKind_Cursor_n);
-            if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
+            if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
                 EDI_cursorBlink_startChecking(); // TODO: this one is especially questionable since it invoked 'EDI_removeSelection' prior to the draw cursor?
             }
             break;
@@ -6553,7 +6553,7 @@ function EDI_draw_cursor_debug() {
  */
 function EDI_clearSelectionStyle() {
     let shouldExistSelectionDiv = false;
-    if (BYTES[byteEDI_cursor_selectionDivExists]) {
+    if (BYTES[byteEDI_cursor_selectionDivExists] === 1) {
         for (var i = 0; i < EDI_presentation.children.length; i++) {
             if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
                 let textSelectionDiv = EDI_presentation.children[i];
@@ -6604,7 +6604,7 @@ function EDI_createStyleForSelection() {
 
         let textSelectionDiv;
 
-        if (BYTES[byteEDI_cursor_selectionDivExists]) {
+        if (BYTES[byteEDI_cursor_selectionDivExists] === 1) {
             for (var i = 0; i < EDI_presentation.children.length; i++) {
                 if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
                     textSelectionDiv = EDI_presentation.children[i];
@@ -6624,7 +6624,7 @@ function EDI_createStyleForSelection() {
             BYTES[byteEDI_cursor_selectionDivExists] = 1;
         }
 
-        if (!BYTES[byteEDI_cursor_selectionDivExists]) return;
+        if (BYTES[byteEDI_cursor_selectionDivExists] === 0) return;
 
         // TODO: only somewhat simple viewport based virtualization is implemented from what I remember. i.e.: I think the divs are re-used, but every div is redrawn for the viewport, rather than only recalculating the css for the divs that came or left the viewport.
 
@@ -6738,7 +6738,7 @@ function EDI_createStyleForSelection() {
 
 function EDI_createStyleForSelection_indentMore() {
     let textSelectionDiv;
-    if (BYTES[byteEDI_cursor_selectionDivExists]) {
+    if (BYTES[byteEDI_cursor_selectionDivExists] === 1) {
         for (var i = 0; i < EDI_presentation.children.length; i++) {
             if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
                 textSelectionDiv = EDI_presentation.children[i];
@@ -6892,7 +6892,7 @@ function EDI_onResize_WRAPIT() {
 // 2. The Gatekeeper
 function EDI_onResize_startThrottleTimeout() {
     INTS[fEDI_onResize_timer] = setTimeout(() => {
-        if (BYTES[byteEDI_onResize_hasTrailingCall]) {
+        if (BYTES[byteEDI_onResize_hasTrailingCall] === 1) {
             BYTES[byteEDI_onResize_hasTrailingCall] = 0;
             EDI_onResize();
             
@@ -6978,7 +6978,7 @@ function EDI_requestLspHover() {
     // # GET INDICES
     ///////////
     ///////////
-    if (get_EDI_recentBoundingClientRect_isNull_intFalsey()) {
+    if (get_EDI_recentBoundingClientRect_isNull_intFalsey() === 1) {
         let boundingClientRect = EDI_baseElement.getBoundingClientRect();
         INTS[fEDI_recentBoundingClientRect_left] = boundingClientRect.left;
         INTS[fEDI_recentBoundingClientRect_top] = boundingClientRect.top;
@@ -7005,7 +7005,7 @@ function EDI_requestLspHover() {
     ///////////
 
     // Indices are wrong... they're likely outdated
-    if (!BYTES[byteEDI_mousemove_eventListener_isActive]) {
+    if (BYTES[byteEDI_mousemove_eventListener_isActive] === 0) {
         window.myAPI.editorHoverRequest(indexLine, indexColumn);
     }
 }
@@ -7372,7 +7372,7 @@ function EDI_onMouseDown(event) {
 
     EDI_movementBasedCacheInvalidation();
 
-    if (get_EDI_recentBoundingClientRect_isNull_intFalsey()) {
+    if (get_EDI_recentBoundingClientRect_isNull_intFalsey() === 1) {
         let boundingClientRect = EDI_baseElement.getBoundingClientRect();
         INTS[fEDI_recentBoundingClientRect_left] = boundingClientRect.left;
         INTS[fEDI_recentBoundingClientRect_top] = boundingClientRect.top;
@@ -7429,7 +7429,7 @@ function EDI_onMouseDown(event) {
     if (rX < -1 * CONST_EDI_gutterPaddingRight) {
         set_EDI_detailRank(3);
         EDI_onMouseDownDetailRankThree(event.button, event.shiftKey, indexLine, indexColumn);
-        if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
+        if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
             EDI_cursorBlink_startChecking();
         }
         return;
@@ -7448,7 +7448,7 @@ function EDI_onMouseDown(event) {
         EDI_onMouseDownDetailRankOne(event.button, event.shiftKey, indexLine, indexColumn, indexColumnVisual);
     }
 
-    if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
+    if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
         EDI_cursorBlink_startChecking();
     }
 }
@@ -7671,7 +7671,7 @@ function EDI_onMouseDownDetailRankThree(event_button, event_shiftKey, indexLineC
 
 //#region mousemove
 function EDI_onMouseMove_WRAPIT(event) {
-    if ((event.buttons & 1) && !get_EDI_recentBoundingClientRect_isNull_intFalsey()) {
+    if ((event.buttons & 1) && get_EDI_recentBoundingClientRect_isNull_intFalsey() === 0) {
         // TODO: Consider short circuiting at via event.clientX and clientY by tracking the necessary thresholds for the cursor position to pass rather than the previous and current indices. (you can possibly thereby skip the calculation of the indices entirely for the redundant events).
         // TODO: Is it correct to use the cursor's indexLine and indexColumn directly as a means of determining redundancy? I worry about odd interactions, but I have no proof that such an odd interaction could exist.
 
@@ -7734,7 +7734,7 @@ function EDI_onMouseMove_WRAPIT(event) {
             EDI_onMouseMoveDetailRankOne(indexLine, indexColumn, indexColumnVisual);
         }
 
-        if (!BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]) {
+        if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
             EDI_cursorBlink_startChecking();
         }
     }

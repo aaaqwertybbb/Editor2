@@ -126,7 +126,7 @@ async function window_myAPI_onMessage(data) {
             
             break;
         case 'textDocument/hover':
-            if (!BYTES[byteEDI_mousemove_eventListener_isActive]) {
+            if (BYTES[byteEDI_mousemove_eventListener_isActive] === 0) {
                 TOOLTIP_show(data.result);
             }
             break;

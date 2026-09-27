@@ -608,16 +608,16 @@ function EXPLORER_addSpecificMenuOptionsForTarget(optionList, divItem, target) {
 }
 
 function EXPLORER_render_request(renderKind) {
-    if (EXPLORER_queueHead !== EXPLORER_queueTail) {
-        const lastAbsoluteIndex = OFFSET_EXPLORER + ((EXPLORER_queueTail - 1) & UI_SLOT_MASK);
+    if (BYTES[byteEXPLORER_queueHead] !== BYTES[byteEXPLORER_queueTail]) {
+        const lastAbsoluteIndex = OFFSET_EXPLORER + ((BYTES[byteEXPLORER_queueTail] - 1) & UI_SLOT_MASK);
         if (MASTER_RENDER_BUFFER[lastAbsoluteIndex] === renderKind) {
             return;
         }
     }
 
-    const absoluteIndex = OFFSET_EXPLORER + (EXPLORER_queueTail & UI_SLOT_MASK);
+    const absoluteIndex = OFFSET_EXPLORER + (BYTES[byteEXPLORER_queueTail] & UI_SLOT_MASK);
     MASTER_RENDER_BUFFER[absoluteIndex] = renderKind;
-    EXPLORER_queueTail++;
+    BYTES[byteEXPLORER_queueTail]++;
     
     if (BYTES[byteEXPLORER_isRenderPending] === 0) {
         BYTES[byteEXPLORER_isRenderPending] = 1;
@@ -626,11 +626,11 @@ function EXPLORER_render_request(renderKind) {
 }
 
 function EXPLORER_render_do(timestamp) {
-    while (EXPLORER_queueHead !== EXPLORER_queueTail) {
+    while (BYTES[byteEXPLORER_queueHead] !== BYTES[byteEXPLORER_queueTail]) {
         // Uses the exact same masking logic, but reads from the higher memory region
-        const absoluteIndex = OFFSET_EXPLORER + (EXPLORER_queueHead & UI_SLOT_MASK);
+        const absoluteIndex = OFFSET_EXPLORER + (BYTES[byteEXPLORER_queueHead] & UI_SLOT_MASK);
         const renderKind = MASTER_RENDER_BUFFER[absoluteIndex];
-        EXPLORER_queueHead++; 
+        BYTES[byteEXPLORER_queueHead]++; 
 
         switch (renderKind) {
             case TREEVIEWrenderKind_Cursor:

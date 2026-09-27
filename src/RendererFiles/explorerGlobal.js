@@ -57,9 +57,6 @@ const EXPLORER_itemListElement = document.createElement('div');
 EXPLORER_itemListElement.className = 'TREEVIEW_itemList';
 EXPLORER_rootElement.appendChild(EXPLORER_itemListElement);
 
-let EXPLORER_queueHead = 0;
-let EXPLORER_queueTail = 0;
-
 let EXPLORER_ringBuffer = [];
 
 let EXPLORER_draw_create_request_parentElement = null;

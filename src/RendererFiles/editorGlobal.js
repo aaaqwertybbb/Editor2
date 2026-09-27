@@ -3686,21 +3686,13 @@ function EDI_finalizeEdit_Enter_new(indexLine_editOccurredOn) {
     });
 
     // TODO: bulk insertion of lines
-    if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine_createLineBelow) {
-        // TODO: I think this loop is the same as the 'EnterKeyEventKind_StartOfLine' case
-        for (let i = 0; i < INTS[fEDI_cursor_editLineFeedCount]; i++) {
-            EDI_lineEndPositionList_insert(actualIndexLine, actualLineFeedPosition, actualNewLineVisualWidth);
-            actualIndexLine++;
-            actualLineFeedPosition += per_edit_insertionCount;
-        }
-    }
-    else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine_createLineAbove) {
-        // TODO: I think this loop is the same as the 'EnterKeyEventKind_EndOfLine' case
-        for (let i = 0; i < INTS[fEDI_cursor_editLineFeedCount]; i++) {
-            EDI_lineEndPositionList_insert(actualIndexLine, actualLineFeedPosition, actualNewLineVisualWidth);
-            actualIndexLine++;
-            actualLineFeedPosition += per_edit_insertionCount;
-        }
+    if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine_createLineBelow ||
+        BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine_createLineAbove) {
+            for (let i = 0; i < INTS[fEDI_cursor_editLineFeedCount]; i++) {
+                EDI_lineEndPositionList_insert(actualIndexLine, actualLineFeedPosition, actualNewLineVisualWidth);
+                actualIndexLine++;
+                actualLineFeedPosition += per_edit_insertionCount;
+            }
     }
     
     EDI_finalizeEdit_ClearEditState();

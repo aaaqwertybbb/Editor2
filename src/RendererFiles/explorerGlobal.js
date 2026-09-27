@@ -1886,4 +1886,6 @@ So you start watching things because of how I speak and then I see what you're w
 
 I want to live in a mental hospital.
 Alone.
+
+Just don't poison me with antipsychotics cause I'm not crazy this fucking life is what's crazy
 */

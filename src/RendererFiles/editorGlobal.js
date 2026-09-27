@@ -10653,5 +10653,8 @@ C
         - [ ] removeSelection
         - [ ] delete
         - [ ] backspace
+    - [ ] paste
+    - [ ] duplicate
+    - [ ] ?
 
 */

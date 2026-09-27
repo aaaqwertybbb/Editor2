@@ -90,7 +90,7 @@ function MENU_render_request(renderKind) {
     if (renderKind === MENUrenderKind_Set) INTS[fMENU_renderKind_Set_countOfPendingRequests]++;
     BYTES[byteMENU_queueTail]++;
     
-    if (!BYTES[byteMENU_isRenderPending]) {
+    if (BYTES[byteMENU_isRenderPending] === 0) {
         BYTES[byteMENU_isRenderPending] = 1;
         requestAnimationFrame(MENU_render_do);
     }

@@ -865,9 +865,13 @@ const EditKind_Duplicate = 10;
  */
 const EnterKeyEventKind_None = 0;
 const EnterKeyEventKind_StartOfLine = 1;
-const EnterKeyEventKind_AmongALine = 2;
-const EnterKeyEventKind_EndOfLine = 3;
-const EnterKeyEventKind_EndOfFile = 4;
+/** User specifically input "createLineAbove command (commands don't currently exist, this is just a description)" via { 'Ctrl' + 'Enter' } */
+const EnterKeyEventKind_StartOfLine_createLineAbove = 2;
+const EnterKeyEventKind_AmongALine = 3;
+const EnterKeyEventKind_EndOfLine = 4;
+/** User specifically input "createLineBelow command (commands don't currently exist, this is just a description)" via { 'Shift' + 'Enter' } */
+const EnterKeyEventKind_EndOfLine_createLineBelow = 5;
+const EnterKeyEventKind_EndOfFile = 6;
 
 /**
  * Do not change the order/values of these, they are used in equality comparisons, the larger the number says when double clicking between a character and a punctuation

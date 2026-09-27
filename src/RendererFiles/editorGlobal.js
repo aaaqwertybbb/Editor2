@@ -2042,10 +2042,16 @@ function EDI_EnterKey(ctrlKey, shiftKey) {
     const lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
 
     if (ctrlKey) {
+        if (BYTES[byteEDI_cursor_enterKeyEventKind] === 0) {
+            BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_StartOfLine_createLineAbove;
+        }
         INTS[fEDI_cursor_indexColumn] = 0;
         INTS[fEDI_cursorVisualColumnIndex] = 0;
     }
     else if (shiftKey) {
+        if (BYTES[byteEDI_cursor_enterKeyEventKind] === 0) {
+            BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_EndOfLine_createLineBelow;
+        }
         INTS[fEDI_cursor_indexColumn] = lastValidIndexColumn;
         INTS[fEDI_cursorVisualColumnIndex] = lastValidIndexColumn; // TODO: This should be fine because the cursor is going to move in a moment anyhow
     }
@@ -3178,7 +3184,7 @@ function EDI_NOTcanBatch_enter(event) {
     // And it actually works which makes sense.
     // I might permit the shift key at point then I just need to slowly feel more and more comfortable with this.
     // 
-    return BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfLine ||
+    return (BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfLine && BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_StartOfLine) ||
            INTS[fEDI_cursor_editKind] !== EditKind_Enter ||
            INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_END_editIndexLine] ||
            INTS[fEDI_cursor_indexColumn] !== INTS[fEDI_cursor_END_editIndexColumn] ||
@@ -3540,7 +3546,7 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     let actualIndexLine = INTS[fEDI_cursor_editIndexLine];
     let actualNewLineVisualWidth = INTS[fEDI_cursor_cached_indentation_string_visualWidth];
 
-    if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine) {
+    if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine_createLineBelow) {
         actualEditPosition++; // Move past the current line's '\n'
         actualLineFeedPosition = actualEditPosition;
 
@@ -3582,7 +3588,7 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
         // Bad habit, gonna lose all my progress one day.
         // i.e.: open a file that at minimum doesn't already exist in your git changes.
     }
-    else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine) {
+    else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine_createLineAbove) {
         // Contrary to 'EnterKeyEventKind_EndOfLine' this case actually does NOT have to move past the "current line's '\n'"
         // NOTE: Ctrl + Enter keybind is a known case for why this line of code is needed, perhaps there are more that will come later I have no idea.
         actualLineFeedPosition += INTS[fEDI_cursor_editLength] - 1;
@@ -3640,11 +3646,16 @@ function EDI_finalizeEdit_Enter_new(indexLine_editOccurredOn) {
     let actualIndexLine = INTS[fEDI_cursor_editIndexLine];
     let actualNewLineVisualWidth = INTS[fEDI_cursor_cached_indentation_string_visualWidth];
 
-    if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine) {
+    if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine_createLineBelow) {
         actualEditPosition++; // Move past the current line's '\n'
         actualLineFeedPosition = actualEditPosition;
         actualLineFeedPosition += per_edit_insertionCount - 1;
         actualIndexLine++;
+    }
+    else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine_createLineAbove) {
+        // Contrary to 'EnterKeyEventKind_EndOfLine' this case actually does NOT have to move past the "current line's '\n'"
+        // NOTE: Ctrl + Enter keybind is a known case for why this line of code is needed, perhaps there are more that will come later I have no idea.
+        actualLineFeedPosition += per_edit_insertionCount - 1;
     }
 
     for (var i = actualIndexLine; i < EDI_lineEndPositionList_count; i++) {
@@ -3690,10 +3701,21 @@ function EDI_finalizeEdit_Enter_new(indexLine_editOccurredOn) {
     });
 
     // TODO: bulk insertion of lines
-    for (let i = 0; i < INTS[fEDI_cursor_editLineFeedCount]; i++) {
-        EDI_lineEndPositionList_insert(actualIndexLine, actualLineFeedPosition, actualNewLineVisualWidth);
-        actualIndexLine++;
-        actualLineFeedPosition += per_edit_insertionCount;
+    if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine_createLineBelow) {
+        // TODO: I think this loop is the same as the 'EnterKeyEventKind_StartOfLine' case
+        for (let i = 0; i < INTS[fEDI_cursor_editLineFeedCount]; i++) {
+            EDI_lineEndPositionList_insert(actualIndexLine, actualLineFeedPosition, actualNewLineVisualWidth);
+            actualIndexLine++;
+            actualLineFeedPosition += per_edit_insertionCount;
+        }
+    }
+    else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine_createLineAbove) {
+        // TODO: I think this loop is the same as the 'EnterKeyEventKind_EndOfLine' case
+        for (let i = 0; i < INTS[fEDI_cursor_editLineFeedCount]; i++) {
+            EDI_lineEndPositionList_insert(actualIndexLine, actualLineFeedPosition, actualNewLineVisualWidth);
+            actualIndexLine++;
+            actualLineFeedPosition += per_edit_insertionCount;
+        }
     }
     
     EDI_finalizeEdit_ClearEditState();
@@ -5213,7 +5235,9 @@ function EDI_cacheIndentation(originalIndexLine, originalIndexColumn, lastValidI
 
     switch (BYTES[byteEDI_cursor_enterKeyEventKind]) {
         case EnterKeyEventKind_StartOfLine:
+        case EnterKeyEventKind_StartOfLine_createLineAbove:
         case EnterKeyEventKind_EndOfLine:
+        case EnterKeyEventKind_EndOfLine_createLineBelow:
             setOffset = 0;
             EDI_cursor_enterKey_newLinePlusIndentation_byteList[uint8Array_length - 1] = CONST_EDI_ASCII_LINE_FEED;
             break;
@@ -10660,5 +10684,7 @@ C
 
  8:02
 12:02
+
+- [ ] Enter key start of line batching
 
 */

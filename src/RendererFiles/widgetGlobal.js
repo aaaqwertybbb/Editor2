@@ -30,7 +30,8 @@ let WIDGET_target = null;
 //
 // Although you'd want to ensure that every callback has the 'cancel' passed to it when it gets overwritten
 
-const WIDGET_renderKindArray = [];
+let WIDGET_queueHead = 0;
+let WIDGET_queueTail = 0;
 
 let WIDGET_restoreFocusToElementOverride = null;
 
@@ -38,21 +39,30 @@ let WIDGET_restoreFocusToElementOverride = null;
 //WIDGET_element.addEventListener('focusout', () => WIDGET_hide());
 
 function WIDGET_render_request(renderKind) {
-    if (WIDGET_renderKindArray[WIDGET_renderKindArray.length - 1] !== renderKind) {
-        WIDGET_renderKindArray.push(renderKind);
-        if (renderKind === WIDGETrenderKind_Show) INTS[fWIDGETrenderKind_Show_countOfPendingRequests]++;
+    if (WIDGET_queueHead !== WIDGET_queueTail) {
+        const lastAbsoluteIndex = OFFSET_WIDGET + ((WIDGET_queueTail - 1) & UI_SLOT_MASK);
+        if (MASTER_RENDER_BUFFER[lastAbsoluteIndex] === renderKind) {
+            return;
+        }
     }
+
+    const absoluteIndex = OFFSET_WIDGET + (WIDGET_queueTail & UI_SLOT_MASK);
+    MASTER_RENDER_BUFFER[absoluteIndex] = renderKind;
+    WIDGET_queueTail++;
     
-    if (!BYTES[byteWIDGET_isRenderPending]) {
+    if (BYTES[byteWIDGET_isRenderPending] === 0) {
         BYTES[byteWIDGET_isRenderPending] = 1;
         requestAnimationFrame(WIDGET_render_do);
     }
 }
 
-function WIDGET_render_do() {
-    let renderKind = 0;
-    
-    while (renderKind = WIDGET_renderKindArray.shift()) {
+function WIDGET_render_do(timestamp) {
+    while (WIDGET_queueHead !== WIDGET_queueTail) {
+        // Uses the exact same masking logic, but reads from the higher memory region
+        const absoluteIndex = OFFSET_WIDGET + (WIDGET_queueHead & UI_SLOT_MASK);
+        const renderKind = MASTER_RENDER_BUFFER[absoluteIndex];
+        WIDGET_queueHead++; 
+
         switch (renderKind) {
             case WIDGETrenderKind_Show:
                 if (INTS[fWIDGETrenderKind_Show_countOfPendingRequests]-- > 1) break;
@@ -63,8 +73,7 @@ function WIDGET_render_do() {
                 break;
         }
     }
-    
-    BYTES[byteWIDGET_isRenderPending] = 0; // Reset the paint lock
+    BYTES[byteWIDGET_isRenderPending] = 0;
 }
 
 function WIDGET_render_do_Show() {

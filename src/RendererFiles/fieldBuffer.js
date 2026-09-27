@@ -871,7 +871,7 @@ const RenderKind_Cursor_n = 18;
 
 
 // Master allocation (e.g., 64 bytes total for two subsystems)
-const MASTER_BUFFER_SIZE = 128;
+const MASTER_BUFFER_SIZE = 160;
 const UI_SLOT_SIZE = 32;
 const UI_SLOT_MASK = UI_SLOT_SIZE - 1; // 31 (binary: 00011111)
 
@@ -882,6 +882,7 @@ const OFFSET_DIALOG      = 0;  // Slots 0 to 31
 const OFFSET_EXPLORER = 32; // Slots 32 to 63
 const OFFSET_AUTOCOMPLETE = 64; // Slots 64 to 95
 const OFFSET_WIDGET = 96; // Slots 96 to 127
+const OFFSET_MENU = 128; // Slots 128 to 159
 
 
 // TODO: '..._EDI_indent_ORIGINAL_indentBy()' is no longer in use

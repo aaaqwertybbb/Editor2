@@ -1862,4 +1862,14 @@ I want you to go out and spend time with other people.
 But they shove it down my throat all my life.
 
 I'm so sick of all this shit I want  to die.
+
+You don't get it.
+My brain has been flawed my entire life.
+
+My Mom had to force me to attend someone's birthday party when I was 10.
+I sat in the corner and cried while covering my face with my hands and putting my head in my lap.
+
+She took me home and then punished me.
+
+Fuck everything I want you to killme
 */

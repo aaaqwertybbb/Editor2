@@ -1864,4 +1864,12 @@ and it is hard to deal with
 so you coddle them?
 Does that just make it worse when the stimuli does appear?
 etc...
+
+Getting a job at quickchek was the greatest thing that ever happened to me.
+It was also extremely stressful and it still is.
+And I still feel like panic constantly when I count down the time to my next shift.
+But I'm a million times better off than what I Was.
+and that's due to not being coddled.
+And then it's like this super close balance of having the person experience the stimuli
+but not too much that they break idk
 */

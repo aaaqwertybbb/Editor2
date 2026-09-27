@@ -16,25 +16,22 @@ let DIALOG_restoreFocusToElement = null;
 let DIALOG_SHOW_restoreFocusToElement = null;
 let DIALOG_SHOW_onResizeAction = null;
 
-let DIALOG_queueHead = 0;
-let DIALOG_queueTail = 0;
-
 const DIALOGrenderKind_None = 0;
 const DIALOGrenderKind_Show = 1;
 const DIALOGrenderKind_Hide = 2;
 const DIALOGrenderKind_DimensionsChanged = 3;
 
 function DIALOG_render_request(renderKind) {
-    if (DIALOG_queueHead !== DIALOG_queueTail) {
-        const lastAbsoluteIndex = OFFSET_DIALOG + ((DIALOG_queueTail - 1) & UI_SLOT_MASK);
+    if (BYTES[byteDIALOG_queueHead] !== BYTES[byteDIALOG_queueTail]) {
+        const lastAbsoluteIndex = OFFSET_DIALOG + ((BYTES[byteDIALOG_queueTail] - 1) & UI_SLOT_MASK);
         if (MASTER_RENDER_BUFFER[lastAbsoluteIndex] === renderKind) {
             return; // Deduplicated
         }
     }
 
-    const absoluteIndex = OFFSET_DIALOG + (DIALOG_queueTail & UI_SLOT_MASK);
+    const absoluteIndex = OFFSET_DIALOG + (BYTES[byteDIALOG_queueTail] & UI_SLOT_MASK);
     MASTER_RENDER_BUFFER[absoluteIndex] = renderKind;
-    DIALOG_queueTail++;
+    BYTES[byteDIALOG_queueTail]++;
     
     if (BYTES[byteDIALOG_isRenderPending] === 0) {
         BYTES[byteDIALOG_isRenderPending] = 1;
@@ -43,11 +40,11 @@ function DIALOG_render_request(renderKind) {
 }
 
 function DIALOG_render_do() {
-    while (DIALOG_queueHead !== DIALOG_queueTail) {
+    while (BYTES[byteDIALOG_queueHead] !== BYTES[byteDIALOG_queueTail]) {
         // 1. Wrap the virtual pointer to 0-31, then add the base offset
-        const absoluteIndex = OFFSET_DIALOG + (DIALOG_queueHead & UI_SLOT_MASK);
+        const absoluteIndex = OFFSET_DIALOG + (BYTES[byteDIALOG_queueHead] & UI_SLOT_MASK);
         const renderKind = MASTER_RENDER_BUFFER[absoluteIndex];
-        DIALOG_queueHead++; 
+        BYTES[byteDIALOG_queueHead]++; 
 
         switch (renderKind) {
             case DIALOGrenderKind_Show:

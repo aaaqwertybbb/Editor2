@@ -481,7 +481,8 @@ module.exports = function (babel) {
     "byteAUTOCOMPLETE_queueHead",
     "byteAUTOCOMPLETE_queueTail",
 
-    
+    "byteDIALOG_queueHead",
+    "byteDIALOG_queueTail",
   ];
 
   return {

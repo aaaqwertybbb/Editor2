@@ -382,14 +382,6 @@ function MENU_setCursorIndex(index) {
     MENU_render_request(MENUrenderKind_Cursor);
 }
 
-// My only public C# repo is terrible too lol
-// I threw it together to get a basic language server started I need time to revisit it
-// "he keeps saying oh it's like C#... let's see what kind of C# he writes... well this C# code is even worse than his javascript"
-
-// my body is in emotional pain but ima silently grind this out
-
-// mainly I feel anxious, I feel like a clown. I feel like I'm completely incompetent at coding.
-
 function MENU_validateCursor() {
     if (INTS[fMENU_cursorIndex] >= MENU_ArrayFrom_menuOptionList_children.length) {
         if (MENU_ArrayFrom_menuOptionList_children.length > 0) {
@@ -404,20 +396,6 @@ function MENU_validateCursor() {
         INTS[fMENU_cursorIndex] = 0;
     }
 }
-
-// > In JavaScript, when you have a function which returns a promise but does not await, do you still mark it as async?
-//
-// < No, you should not mark it as async if it simply returns a promise without using await inside.
-//
-// It's the same as C# then I wasn't sure.
-//
-// < The only time you must add async and await when returning a promise is if you want to catch errors inside that specific function.
-// 
-// < Performance Note: Avoid return await at the End
-// |
-// < If your goal is to have a clean final line, you might be tempted to use return await api.getStandardUser(userId).
-// < While this works, it is an anti-pattern.
-// < It forces the function to pause, unpack the promise value, and repack it into a new promise before returning it
 
 function MENU_onKeyDown(event) {
     MENU_validateCursor();
@@ -498,58 +476,4 @@ function MENU_ensure_boundingClientRect() {
 < ...
 
 ==========
-
-Okay this is exactly why AI is so crazy good:
-
-I'm playing guild wars 2 right now.
-
-Someone say in 'map chat':
-"hey guys, got a noob question. is there a way to get enemies to target my summons instead of me?"
-
-I said:
-"I think there's a utility ability that has the purpose of summoning someone that "tanks" for you but I don't think you can do that generally"
-
-Then some random person said:
-"www."
-
-Presumably they either meant to say www.google.com or they said www. as a joking prod towards the idea or whatever but
-
-Then OP said:
-"ah i see, thanks"
-
-=====
-
-Back in the day, you couldn't just "word a google search like you would the question to randoms in map chat while playing an MMO"
-
-These days... you can and it gives you a crystal clear answer immediately.
-
-The times have changed and it is crazy I remember so many map chatters.
-
-All their problems are solved by googling the exact sentence they send to map chat, I'm realizing this now.
-
-Again for emphasis: no you weren't able to just "googling the exact sentence they send to map chat" back in the day.
-Sometimes you got lucky but it actually didn't always work.
-You had to put some extra effort in to wording it exactly right to get the proper search results.
-(more so than you have to today with AI)
-
-btw I had like 98% world completion or something and I realized that I have 0% completion of brisban wilds I think it's called.
-Literally every last POI, waypoint, vista, etc... are all just this one zone lol.
-
-"You've played this character 71 hours 10 minutes in the last 18 days."
-"Among all your characters, you have played 72 hours and 4 minutes during the last 18 days."
-
-Btw I stand firm that I still dislike "intrusive AI".
-Like AI autocomplete and etc... that interrupt your train of thought with something that may or may not be complete fabrication
-so you have to stop what you're thinking to validate whether you're being recommended a sensible code block or etc...
-
-But when you can have your space without any AI
-and then as desired ask AI for their input. That's where it shines.
-
-100% world completion
-100% personal story of central tyria
-71 hours 57 minutes in the last 18 days
-72 hours 51 minutes in the last 18 days across all characters
-
 */
-
-

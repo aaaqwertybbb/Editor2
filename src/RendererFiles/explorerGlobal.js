@@ -1847,3 +1847,10 @@ async function RenameFile_File_InputText_callback(result) {
 }
 
 // TODO: look at the "async" events because its nonsensical
+
+/*
+I've been spending the last 3 hours trying to not have a panic attack.
+My cousins are in the house.
+My end goal in life is to be alone.
+I want to have 0 interaction with anyone.
+*/

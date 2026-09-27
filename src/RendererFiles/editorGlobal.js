@@ -10657,4 +10657,55 @@ C
     - [ ] duplicate
     - [ ] ?
 
+
+> ...
+
+< ...
+
+> I take notes on some of your responses and I found this note that I'd written a while ago.
+> 
+> You said something along the lines of:
+> "
+> Circular Buffers:
+> If you are implementing a fast ring buffer where you want to replace the expensive modulo operator (index % size) with
+> a fast bitwise AND mask (index & (size - 1)).
+> "
+> 
+> I do use a ring buffer. And I also use the so called "expensive modulo operator". Do you know what you were referring to here?
+
+< Yes, I know exactly what I was referring to. This is a classic low-level optimization trick that relies on how binary numbers work.
+< 
+< In a standard ring buffer, you use the modulo operator (index % size) to make the index "wrap around" to 0 when it reaches the end of the array.
+< However, division and modulo are computationally expensive operations for a CPU compared to basic arithmetic or bitwise operations.
+< 
+< If you can guarantee that the size of your ring buffer is always a power of 2 (e.g., 2, 4, 8, 16, 1024, 4096),
+< you can replace that slow modulo operation with a lightning-fast bitwise AND operation: index & (size - 1).
+< 
+< Why This Works (The Math)
+< 
+< When a number is a power of 2, its binary representation is a single 1 followed by zeros (e.g., 8 = 1000₂).
+< 
+< When you subtract 1 from a power of 2, all the bits below it turn into 1s, acting as a perfect bitmask (e.g., 8 - 1 = 7 = 0111₂).
+< 
+< When you perform a bitwise AND (&) with this mask, it completely wipes out any bits higher than the mask, perfectly mimicking the remainder of a division.
+< 
+< Example with Size = 8 (Mask = 7, or 0111 in binary):
+< - Index is 5 (0101): 5 & 7 → 0101 & 0111 = 0101 (5)
+< - Index is 7 (0111): 7 & 7 → 0111 & 0111 = 0111 (7)
+< - Index is 8 (1000): 8 & 7 → 1000 & 0111 = 0000 (0 — it successfully wrapped around!)
+< - Index is 9 (1001): 9 & 7 → 1001 & 0111 = 0001 (1)
+< 
+< Why It Matters for Performance
+< 1. CPU Instructions: Modern CPU architectures can execute a bitwise AND instruction in a single clock cycle.
+<    A division or modulo instruction can take 10 to 40 clock cycles depending on the architecture.
+< 2. V8 Optimization (JavaScript): JavaScript numbers are technically double-precision floats, but the V8 engine (which powers Electron and Node.js) optimizes
+<    numbers to 32-bit integers (Smi) behind the scenes when doing bitwise math. index & (size - 1) forces V8 to treat the operation as a highly optimized,
+<    hardware-level integer bitwise operation.
+< 
+< Should you change it?
+< If your text editor's ring buffer is handling massive amounts of rapid-fire operations (like a high-frequency undo/redo stack, an autocomplete tokenizer,
+< or parsing large files line-by-line), changing the buffer size to a power of 2 and switching to & (size - 1) will give you a noticeable performance boost.
+< 
+< If you'd like, I can help you check if your current ring buffer setup supports this or help you rewrite the indexing logic safely.
+< Would you like to look at that?
 */

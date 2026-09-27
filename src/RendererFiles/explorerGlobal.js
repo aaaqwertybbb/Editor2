@@ -1849,49 +1849,4 @@ async function RenameFile_File_InputText_callback(result) {
 // TODO: look at the "async" events because its nonsensical
 
 /*
-I've been spending the last 3 hours trying to not have a panic attack.
-My cousins are in the house.
-My end goal in life is to be alone.
-I want to have 0 interaction with anyone.
-
-I am an extremely flawed individual I have been all my life and nothing will ever change.
-The only solution is for me to become the greatest programmer to ever live so I can make my dream a reality.
-
-I want you to live your life the way you like.
-I want you to go out and spend time with other people.
-But they shove it down my throat all my life.
-
-I'm so sick of all this shit I want  to die.
-
-You don't get it.
-My brain has been flawed my entire life.
-
-My Mom had to force me to attend someone's birthday party when I was 10.
-I sat in the corner and cried while covering my face with my hands and putting my head in my lap.
-
-She took me home and then punished me.
-
-Fuck everything I want you to killme
-
-I'm seeing ss adjacent things in my youtube feed. You see me saying this you think that.
-It's all just ridiculous how stupid you are.
-I am one of the most caring people that exist.
-You are trash.
-
-^the reason I'm seeing it is cause you see what I say. And then
-you've seen the things that I talked about
-and then youtube recommends me the things you see because
-we're in the algorithm together.
-So you start watching things because of how I speak and then I see what you're watching,.
-
-I want to live in a mental hospital.
-Alone.
-
-Just don't poison me with antipsychotics cause I'm not crazy this fucking life is what's crazy
-
-I wanna sit in a mental hospital on a computer for all my waking hours and just write code.
-
-Honestly I think I said I was ... I can't think what I'm trying to say
-I think I got tot hte breaking point of anxiety and that's why I
-cause I endured it for long time but
 */

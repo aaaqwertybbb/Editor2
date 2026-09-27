@@ -57,7 +57,7 @@ function WIDGET_render_request(renderKind) {
     }
 }
 
-function WIDGET_render_do(timestamp) {
+function WIDGET_render_do() {
     while (WIDGET_queueHead !== WIDGET_queueTail) {
         // Uses the exact same masking logic, but reads from the higher memory region
         const absoluteIndex = OFFSET_WIDGET + (WIDGET_queueHead & UI_SLOT_MASK);

@@ -17,20 +17,17 @@ const AUTOCOMPLETErenderKind_Scroll = 5;
 let AUTOCOMPLETEElement = null;
 let AUTOCOMPLETE_ringBuffer = null;
 
-let AUTOCOMPLETE_queueHead = 0;
-let AUTOCOMPLETE_queueTail = 0;
-
 function AUTOCOMPLETE_render_request(renderKind) {
-    if (AUTOCOMPLETE_queueHead !== AUTOCOMPLETE_queueTail) {
-        const lastAbsoluteIndex = OFFSET_AUTOCOMPLETE + ((AUTOCOMPLETE_queueTail - 1) & UI_SLOT_MASK);
+    if (BYTES[byteAUTOCOMPLETE_queueHead] !== BYTES[byteAUTOCOMPLETE_queueTail]) {
+        const lastAbsoluteIndex = OFFSET_AUTOCOMPLETE + ((BYTES[byteAUTOCOMPLETE_queueTail] - 1) & UI_SLOT_MASK);
         if (MASTER_RENDER_BUFFER[lastAbsoluteIndex] === renderKind) {
             return;
         }
     }
 
-    const absoluteIndex = OFFSET_AUTOCOMPLETE + (AUTOCOMPLETE_queueTail & UI_SLOT_MASK);
+    const absoluteIndex = OFFSET_AUTOCOMPLETE + (BYTES[byteAUTOCOMPLETE_queueTail] & UI_SLOT_MASK);
     MASTER_RENDER_BUFFER[absoluteIndex] = renderKind;
-    AUTOCOMPLETE_queueTail++;
+    BYTES[byteAUTOCOMPLETE_queueTail]++;
     
     if (BYTES[byteAUTOCOMPLETE_isRenderPending] === 0) {
         BYTES[byteAUTOCOMPLETE_isRenderPending] = 1;
@@ -39,11 +36,11 @@ function AUTOCOMPLETE_render_request(renderKind) {
 }
 
 function AUTOCOMPLETE_render_do(timestamp) {
-    while (AUTOCOMPLETE_queueHead !== AUTOCOMPLETE_queueTail) {
+    while (BYTES[byteAUTOCOMPLETE_queueHead] !== BYTES[byteAUTOCOMPLETE_queueTail]) {
         // Uses the exact same masking logic, but reads from the higher memory region
-        const absoluteIndex = OFFSET_AUTOCOMPLETE + (AUTOCOMPLETE_queueHead & UI_SLOT_MASK);
+        const absoluteIndex = OFFSET_AUTOCOMPLETE + (BYTES[byteAUTOCOMPLETE_queueHead] & UI_SLOT_MASK);
         const renderKind = MASTER_RENDER_BUFFER[absoluteIndex];
-        AUTOCOMPLETE_queueHead++; 
+        BYTES[byteAUTOCOMPLETE_queueHead]++; 
 
         switch (renderKind) {
             case AUTOCOMPLETErenderKind_Show:

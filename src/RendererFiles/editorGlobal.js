@@ -3549,11 +3549,8 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
 
     if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_AmongALine) {
         EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_editIndexLine]);
-
-        //let totalVisualWidth_splitLine = EDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
         getIndexFromColumn_RESET(INTS[fEDI_cursor_editIndexColumn], INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
         let firstSplitVisualWidth = INTS[fEDI_getIndexFromX_visualColumns];
-        //let aaa = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_editIndexLine]);
         let lastValidIndexColumn = INTS[fEDI_getLineBoundaryPositions_end] - INTS[fEDI_getLineBoundaryPositions_start];
         getIndexFromColumn_sameLine_newRxIsLarger(
             lastValidIndexColumn,
@@ -3562,21 +3559,8 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
             INTS[fEDI_cursor_editIndexColumn],
             firstSplitVisualWidth);
         let lastSplitVisualWidth = INTS[fEDI_getIndexFromX_visualColumns] - firstSplitVisualWidth;
-        actualNewLineVisualWidth += lastSplitVisualWidth;
-
-        EDI_trackingUint32MaxHeap.updateLength(INTS[fEDI_cursor_editIndexLine], actualNewLineVisualWidth);
-
+        EDI_trackingUint32MaxHeap.updateLength(INTS[fEDI_cursor_editIndexLine], actualNewLineVisualWidth + lastSplitVisualWidth);
         actualNewLineVisualWidth = firstSplitVisualWidth;
-
-        // TODO: this isn't working for me suddenly, but I'm prob done for day
-        // wait I understand
-        // you need to update the length to actualNewLineVisualWidth and then insert with firstSplitVisualWidth
-
-        // Everytime I change editorGlobal.js I "test the code" by building and running the app
-        // and then I open editorGlobal.js in app and see if the thing happens or not
-        // but I REALLY gotta stop doing that.
-        // Bad habit, gonna lose all my progress one day.
-        // i.e.: open a file that at minimum doesn't already exist in your git changes.
     }
     
     EDI_textByteList_insertBytes(actualEditPosition, EDI_cursor_enterKey_newLinePlusIndentation_byteList, /*offset*/ 0, EDI_cursor_enterKey_newLinePlusIndentation_byteList.length);

@@ -1853,4 +1853,7 @@ I've been spending the last 3 hours trying to not have a panic attack.
 My cousins are in the house.
 My end goal in life is to be alone.
 I want to have 0 interaction with anyone.
+
+I am an extremely flawed individual I have been all my life and nothing will ever change.
+The only solution is for me to become the greatest programmer to ever live so I can make my dream a reality.
 */

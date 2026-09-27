@@ -16,7 +16,21 @@ let DIALOG_restoreFocusToElement = null;
 let DIALOG_SHOW_restoreFocusToElement = null;
 let DIALOG_SHOW_onResizeAction = null;
 
-const DIALOG_renderKindArray = [];
+// Master allocation (e.g., 64 bytes total for two subsystems)
+const MASTER_BUFFER_SIZE = 64;
+const UI_SLOT_SIZE = 32;
+const UI_SLOT_MASK = UI_SLOT_SIZE - 1; // 31 (binary: 00011111)
+
+const MASTER_RENDER_BUFFER = new Uint8Array(MASTER_BUFFER_SIZE);
+
+// Define the unique byte offset where each UI's memory space begins
+const OFFSET_DIALOG      = 0;  // Slots 0 to 31
+//const OFFSET_EXPLORER = 32; // Slots 32 to 63
+
+let DIALOG_queueHead = 0;
+let DIALOG_queueTail = 0;
+
+//const DIALOG_renderKindArray = [];
 
 const DIALOGrenderKind_None = 0;
 const DIALOGrenderKind_Show = 1;
@@ -24,20 +38,30 @@ const DIALOGrenderKind_Hide = 2;
 const DIALOGrenderKind_DimensionsChanged = 3;
 
 function DIALOG_render_request(renderKind) {
-    if (DIALOG_renderKindArray[DIALOG_renderKindArray.length - 1] !== renderKind) {
-        DIALOG_renderKindArray.push(renderKind);
+    if (DIALOG_queueHead !== DIALOG_queueTail) {
+        const lastAbsoluteIndex = OFFSET_DIALOG + ((DIALOG_queueTail - 1) & UI_SLOT_MASK);
+        if (MASTER_RENDER_BUFFER[lastAbsoluteIndex] === renderKind) {
+            return; // Deduplicated
+        }
     }
+
+    const absoluteIndex = OFFSET_DIALOG + (DIALOG_queueTail & UI_SLOT_MASK);
+    MASTER_RENDER_BUFFER[absoluteIndex] = renderKind;
+    DIALOG_queueTail++;
     
-    if (!BYTES[byteDIALOG_isRenderPending]) {
+    if (BYTES[byteDIALOG_isRenderPending] === 0) {
         BYTES[byteDIALOG_isRenderPending] = 1;
         requestAnimationFrame(DIALOG_render_do);
     }
 }
 
 function DIALOG_render_do() {
-    let renderKind = 0;
-    
-    while (renderKind = DIALOG_renderKindArray.shift()) {
+    while (DIALOG_queueHead !== DIALOG_queueTail) {
+        // 1. Wrap the virtual pointer to 0-31, then add the base offset
+        const absoluteIndex = OFFSET_DIALOG + (DIALOG_queueHead & UI_SLOT_MASK);
+        const renderKind = MASTER_RENDER_BUFFER[absoluteIndex];
+        DIALOG_queueHead++; 
+
         switch (renderKind) {
             case DIALOGrenderKind_Show:
                 DIALOG_render_do_Show();
@@ -50,8 +74,7 @@ function DIALOG_render_do() {
                 break;
         }
     }
-    
-    BYTES[byteDIALOG_isRenderPending] = 0; // Reset the paint lock
+    BYTES[byteDIALOG_isRenderPending] = 0;
 }
 
 function DIALOG_render_do_DimensionsChanged() {

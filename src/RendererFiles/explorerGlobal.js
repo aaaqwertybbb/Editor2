@@ -1849,14 +1849,4 @@ async function RenameFile_File_InputText_callback(result) {
 // TODO: look at the "async" events because its nonsensical
 
 /*
-I'm such a loser.
-They have pizza and it's in the kitchen.
-And they're at the dinner table.
-And I snuck into the kitchen to get a slice of pizza.
-I'm such a loser.
-
-and my mom came into my room when they arrived and way like "you should say hi"
-so I went over and just waved and said hi then went back to my room.
-
-I'm literally a bad person I am a bad person.
 */

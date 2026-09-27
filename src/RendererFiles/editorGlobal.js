@@ -10648,4 +10648,10 @@ C
 
 - [ ] Enter key start of line batching
 
+- [ ] longest line tracking
+    - [ ] removal of text causes two lines to merge
+        - [ ] removeSelection
+        - [ ] delete
+        - [ ] backspace
+
 */

@@ -3537,8 +3537,9 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     // throws an exception if 'EnterKeyEventKind_None' (...or falsey).
     if (!BYTES[byteEDI_cursor_enterKeyEventKind] || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_None) { EDI_finalizeEdit_ClearEditState(); throw new Error('if (!enterKeyEventKind...)'); }
 
-    if (INTS[fEDI_cursor_editLineFeedCount] > 1) {
-        return EDI_finalizeEdit_Enter_new(indexLine_editOccurredOn);
+    if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine_createLineBelow ||
+        BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine_createLineAbove) {
+            return EDI_finalizeEdit_Enter_new(indexLine_editOccurredOn);
     }
 
     let actualEditPosition = INTS[fEDI_cursor_editPosition];
@@ -3546,18 +3547,7 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     let actualIndexLine = INTS[fEDI_cursor_editIndexLine];
     let actualNewLineVisualWidth = INTS[fEDI_cursor_cached_indentation_string_visualWidth];
 
-    if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine_createLineBelow) {
-        actualEditPosition++; // Move past the current line's '\n'
-        actualLineFeedPosition = actualEditPosition;
-
-        // TODO: Perhaps removing the -1 and no having the 'actualLineFeedPosition = actualEditPosition;' would read better I'm not sure... it would be 1 less statement in this function...
-        // ...i.e.: you could remove the -1 but now you do need that extra 1 accounted for in order to move past the current line's '\n' just like 'actualEditPosition++' did.
-        // -1 => don't count the '\n' itself (it's the indentation that's moving the actualLineFeedPosition.)
-        actualLineFeedPosition += INTS[fEDI_cursor_editLength] - 1;
-
-        actualIndexLine++;
-    }
-    else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_AmongALine) {
+    if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_AmongALine) {
         EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_editIndexLine]);
 
         //let totalVisualWidth_splitLine = EDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
@@ -3587,11 +3577,6 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
         // but I REALLY gotta stop doing that.
         // Bad habit, gonna lose all my progress one day.
         // i.e.: open a file that at minimum doesn't already exist in your git changes.
-    }
-    else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine_createLineAbove) {
-        // Contrary to 'EnterKeyEventKind_EndOfLine' this case actually does NOT have to move past the "current line's '\n'"
-        // NOTE: Ctrl + Enter keybind is a known case for why this line of code is needed, perhaps there are more that will come later I have no idea.
-        actualLineFeedPosition += INTS[fEDI_cursor_editLength] - 1;
     }
     
     EDI_textByteList_insertBytes(actualEditPosition, EDI_cursor_enterKey_newLinePlusIndentation_byteList, /*offset*/ 0, EDI_cursor_enterKey_newLinePlusIndentation_byteList.length);

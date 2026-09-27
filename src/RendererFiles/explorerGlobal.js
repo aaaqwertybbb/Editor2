@@ -258,69 +258,6 @@ function EXPLORER_drawItem_BATCH(start, length, onePositiveDiff_twoNegativeDiff_
     }
 }
 
-/*
-This comment is from 'EXPLORER_drawItem_BATCH', it was in my way
-
-// The main process has similar logic that allocates an array of length in order to return a response that converted the keys to their filesystem entries.
-    // (maybe I could overwrite the same array indices and return that but...)
-    // all in all the GC overhead of the renderer process I believe to be greatly higher than that of the main process,
-    // and since their GC overhead are independent of one another.
-    // Allocating this array in the renderer is far more costly due to the renderer already having generally high GC overhead due to the UI
-    // vs the importance of removing the corresponding array allocation from the main process.
-    //
-    //
-    // I think I'll even introduce a slight "regression" and have the synchronous scrolling use the text '...' for any scrolled into view nodes
-    // synchronously,
-    // then asynchronously I'll have a debounce that fetches the names
-    //
-    // after that I can add a caching layer to remember the filenames that I've already pulled.
-    //
-    // caching layer: 1 byte array you toString the spans from the byte array that represent the node text flattened all together
-    //
-    // you actually don't need to have this logic then.
-    // when you initially get the treeview nodes, they I think have the filename already.
-    // And if you subarray setWithin or something then it moves super quickly
-    // and you can get the min index and max index in the byte array when you en masse remove a chunk of contiguous nodes.
-    //
-    // well wait then you'd have to update what sections of the byte array the nodes have their text at...
-    //
-    // I gave Google AI the comment above...
-    //
-    // Google AI:
-    // < You are dealing with a classic high-performance UI problem: balancing memory footprint, IPC (Inter-Process Communication) bottlenecks, and GC (Garbage Collection) thrashing in a virtualized list.
-    // < 
-    // < Your train of thought moves from a stateless pull model to an asynchronous debounced model, and finally to a flattened byte-array cache.
-    // < 
-    // < Here is an analysis of your architectural ideas, along with concrete recommendations to minimize both memory and GC overhead.
-    // < 
-    // < 1. The Flattened Byte-Array Cache (The Best Idea)
-    // < |
-    // < Your idea of storing text as flat bytes in a single Uint8Array is excellent for memory efficiency, but your concern about updating indices when deleting nodes is valid.
-    // < 
-    // < The Fix: Do not delete or shift data inside the byte array when individual nodes leave the viewport. Instead, use an Append-Only Ring Buffer or a Slot-Based Cache.
-    // < ...
-    // < SharedArrayBuffer: If you want to eliminate the Main-to-Renderer array allocation overhead entirely, look into SharedArrayBuffer. Both processes can map to the same memory space. The main process writes the node data into the buffer, and the renderer reads it without any IPC copy or allocation cost.
-    // < ...
-    //
-    //let arrayKeys = new Array(length);
-    //for (var indexItem = start; indexItem < upperBound; indexItem++) {
-    //    arrayKeys[loopCounter++] = this.nodeList.getKey(indexItem);
-    //}
-    //let arrayEntries = await window.myAPI.getFilesystemEntryById_ARRAY(arrayKeys);
-    //
-    // The main complexity is the goal as a whole. I just gotta decide on a plan for what steps I'm taking to get me to the end goal.
-    // If you don't panic about the goal as whole and just take it step by step it shouldn't be hard.
-    //
-    // I'm gonna get lost in the sauce if I don't take it slow and do the simpler less optimized solution first.
-    // 
-    //
-    // I need to figure out why the entire screen redraws when I scroll
-    // it should only be the ones that came into view.
-    //
-    // TODO: does this have a diff===0 case?
-    //
-*/
-
 async function EXPLORER_drawItem_BATCH_pullData() {
     INTS[fEXPLORER_scrollFetchData_virtualIndex] = INTS[fEXPLORER_ONSCROLLvirtualIndex];
     INTS[fEXPLORER_scrollFetchData_virtualCount] = INTS[fEXPLORER_ONSCROLLvirtualCount];
@@ -840,8 +777,6 @@ function EXPLORER_render_do_Scroll(timestamp) {
                 return;
         }
 
-        // If I delay setting 'INTS[fEXPLORER_ONSCROLLvirtualIndex]' then I can just use that.
-        // I can't bear to do that right now though. I'm just gonna make this variable.
         let prevVli = INTS[fEXPLORER_ONSCROLLvirtualIndex];
         let currVli = INTS[fEXPLORER_virtualIndex_ofScrollTop];
 
@@ -910,123 +845,6 @@ function EXPLORER_render_do_FullReset(timestamp) {
 
         // this is zero'd, could use change for clarity of algorithm and match patterns but focus elsewhere first
         for (let i = 0; i < INTS[fEXPLORER_virtualCount]; i++) {
-
-/*
-Google AI:
-
-> in a javascript for loop that creates HTML elements, would it faster to use javascript to give that newly created HTML element a class, which is then defined in a CSS file, or to assign each style using javascript?
-> 
-> divItem.style.whiteSpace = 'nowrap';
-> divItem.style.position = 'absolute';
-
-< It is significantly faster and better practice to assign a CSS class in Javascript rather than applying individual styles inline.
-<
-< ...
-<
-< Optimization Tip for Loops
-< If you are creating many elements inside a loop, the absolute fastest way to render them is to avoid appending them to the live DOM one by one.
-< Instead, append them to a DocumentFragment in memory first, and then append that fragment to the DOM once the loop is finished:
-< ...
-< 
-< ...
-
-
-======
-
-> I have a treeview UI, it is a "sliding window" such that as you scroll it determines the nodes that need to be redrawn and then recycles the existing DOM elements to do so.
-> 
-> But, I have this "asynchronous" logic where, everytime you scroll it begins listening for the scroll event's trailing edge.
-> 
-> When the trailing edge occurs, I get the actual names of each node. In this case I'm showing a filesystem, and so as you scroll you see '...' and the trailing edge asks the respective file system for the filenames that need to be drawn.
-> 
-> I do this by changing the node's CSS class as a means of marking it for later.
-> 
-> Does this make sense so far?
-
-< Yes, this makes perfect sense. You have built a virtualized scrolling treeview (or a recycling list) that leverages a debounced / trailing-edge scroll listener to fetch data asynchronously.
-<
-< ...
-
-> My concern is in the following CSS declarations I made
-> (that is to say, I'm worried that swapping between these two CSS classes using javascript could cause significant overhead):
-> 
-> !//! .tvn => TreeViewNode...SEE 'tvnN' (this is super hacky I need to mark a node for change...)
-> .tvn {
->   white-space: nowrap;
->   position: absolute;
->   left: 0;
->   top: 0;
-> }
-> !//! .tvnN => TreeViewNode (but NOT "syntax highlighted") (this is super hacky I need to mark a node for change...)
-> .tvnN {
->   white-space: nowrap;
->   position: absolute;
->   left: 0;
->   top: 0;
-> }
-
-< Swapping between these two specific CSS classes in JavaScript will not cause significant rendering overhead.
-<
-< From a browser performance standpoint, because .tvn and .tvnN have the exact same layout properties
-< (position: absolute, left: 0, top: 0, white-space: nowrap), swapping the classes will not trigger a costly reflow (layout recalculation).
-< The browser already knows exactly where the boxes are and how big they are.
-<
-< At most, it will only trigger a fast repaint if you have other rules elsewhere in your CSS that style .tvn or .tvnN with different colors or fonts.
-<
-< The Real Problem: Maintainability & Semantics
-< 
-< While it won't hurt performance, you are right to feel that this setup is "hacky." You are completely duplicating the layout CSS just to use the class name as a temporary flag.
-<
-< If you ever want to change the layout (e.g., changing top: 0 to something else), you now have to update it in two separate places.
-<
-< A Cleaner, Standard Way to Do This
-<
-< Instead of creating a completely separate class that duplicates layout rules, you should use state modifiers or data attributes.
-<
-< Approach A: The BEM Modifier Pattern (Recommended for CSS)
-<
-< Keep your base layout rules in .tvn, and add a second class only to mark the change.
-<
-< ```css
-!//! Base class: Handles all layout
-.tvn {
-  white-space: nowrap;
-  position: absolute;
-  left: 0;
-  top: 0;
-}
-
-!//! Modifier class: Used only as a hook or for visual changes
-.tvn--pending-syntax {
-  !//! You can leave this completely empty if it's just a hook for JS, or put styling here if un-highlighted text needs a gray color
-  color: #888; 
-}
-< ```
-< 
-< In JavaScript:
-< - To mark it: node.classList.add('tvn--pending-syntax');
-< - To clear it: node.classList.remove('tvn--pending-syntax');
-< 
-< Approach B: HTML5 Data Attributes (Recommended for Logic)
-< If the class is purely a marker for your JavaScript asynchronous logic and doesn't change the visual style at all, use a data-* attribute.
-< This completely separates your styling concerns from your JavaScript state logic.
-< 
-< ```js
-// In your scroll logic: Mark the node as needing a fetch
-node.dataset.syntaxPending = "true";
-
-// In your trailing-edge logic: Find all nodes that need updating
-const nodesToUpdate = document.querySelectorAll('.tvn[data-syntax-pending="true"]');
-
-// Once updated: Remove the attribute
-delete node.dataset.syntaxPending;
-< ```
-< 
-< This keeps your CSS incredibly clean, avoids duplication, handles performance perfectly, and makes your code self-documenting without needing comments calling it "hacky."
-< 
-< Would you like to look at how to structure your trailing-edge querySelectorAll batch updates using one of these cleaner approaches?
-*/
-
             let divItem = document.createElement('div');
             divItem.className = 'tvn';
             divItem.style.width = widthAttributeValueString;
@@ -1379,17 +1197,6 @@ TODO: The TreeView after you resize it, you can continually scroll down and it k
         It porbably happens regardless of whether you resized
         and more-so that you just happen to have hit the perfect height for it to happen?
 */
-
-
-
-
-
-// ========
-// ========
-// ========
-// ========
-// ========
-// ========
 
 /** 8px by default or the measured value with px */
 let EXPLORER_firstSpanWidth = '8px';
@@ -2034,4 +1841,3 @@ async function RenameFile_File_InputText_callback(result) {
 }
 
 // TODO: look at the "async" events because its nonsensical
-

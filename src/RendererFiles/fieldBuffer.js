@@ -210,6 +210,14 @@ const byteEDI_queueTail = 50;
 
 // inclusive final index is 44
 
+// Choose a power of 2 for the buffer size (e.g., 16, 32, 64).
+// 32 is usually plenty for a single animation frame queue.
+//const BUFFER_SIZE = 32;
+//const BUFFER_MASK = (BUFFER_SIZE - 1);
+// TODO: you get `32 - 1` no matter whether you include the parenthesis or not / I don't feel like dealing with this right now.
+const BUFFER_SIZE = 32;
+const BUFFER_MASK = 31;
+
 const CONST_EDI_ASCII_LINE_FEED = 10;
 const CONST_EDI_ASCII_TAB = 9;
 const CONST_EDI_ASCII_SPACE = 32;

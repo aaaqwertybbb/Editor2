@@ -149,6 +149,8 @@ module.exports = function (babel) {
 
     "byteEDI_queueHead",
     "byteEDI_queueTail",
+    "BUFFER_SIZE",
+    "BUFFER_MASK",
 
     "AUTOCOMPLETErenderKind_None",
     "AUTOCOMPLETErenderKind_Show",

@@ -160,11 +160,6 @@ let w_div = null;
  */
 const lspQueue = [];
 
-// Choose a power of 2 for the buffer size (e.g., 16, 32, 64). 
-// 32 is usually plenty for a single animation frame queue.
-const BUFFER_SIZE = 32; 
-const BUFFER_MASK = BUFFER_SIZE - 1;
-
 // Pre-allocate a typed array to prevent memory allocation during runtime
 const EDI_renderKindBuffer = new Uint8Array(BUFFER_SIZE);
 

@@ -1856,4 +1856,8 @@ I want to have 0 interaction with anyone.
 
 I am an extremely flawed individual I have been all my life and nothing will ever change.
 The only solution is for me to become the greatest programmer to ever live so I can make my dream a reality.
+
+I want you to live your life the way you like.
+I want you to go out and spend time with other people.
+But they shove it down my throat all my life.
 */

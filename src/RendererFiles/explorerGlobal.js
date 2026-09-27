@@ -1890,4 +1890,8 @@ Alone.
 Just don't poison me with antipsychotics cause I'm not crazy this fucking life is what's crazy
 
 I wanna sit in a mental hospital on a computer for all my waking hours and just write code.
+
+Honestly I think I said I was ... I can't think what I'm trying to say
+I think I got tot hte breaking point of anxiety and that's why I
+cause I endured it for long time but
 */

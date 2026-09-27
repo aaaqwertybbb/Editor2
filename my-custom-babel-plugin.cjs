@@ -486,6 +486,9 @@ module.exports = function (babel) {
 
     "byteEXPLORER_queueHead",
     "byteEXPLORER_queueTail",
+
+    "byteMENU_queueHead",
+    "byteMENU_queueTail",
   ];
 
   return {

@@ -72,26 +72,23 @@ let MENU_ArrayFrom_menuOptionList_children = null;
 /** a delegate of kind: () => Promise */
 let MENU_onHideAction = null;
 
-let MENU_queueHead = 0;
-let MENU_queueTail = 0;
-
 const MENUrenderKind_None = 0;
 const MENUrenderKind_Cursor = 1;
 const MENUrenderKind_Set = 2;
 const MENUrenderKind_Hide = 3;
 
 function MENU_render_request(renderKind) {
-    if (MENU_queueHead !== MENU_queueTail) {
-        const lastAbsoluteIndex = OFFSET_MENU + ((MENU_queueTail - 1) & UI_SLOT_MASK);
+    if (BYTES[byteMENU_queueHead] !== BYTES[byteMENU_queueTail]) {
+        const lastAbsoluteIndex = OFFSET_MENU + ((BYTES[byteMENU_queueTail] - 1) & UI_SLOT_MASK);
         if (MASTER_RENDER_BUFFER[lastAbsoluteIndex] === renderKind) {
             return;
         }
     }
 
-    const absoluteIndex = OFFSET_MENU + (MENU_queueTail & UI_SLOT_MASK);
+    const absoluteIndex = OFFSET_MENU + (BYTES[byteMENU_queueTail] & UI_SLOT_MASK);
     MASTER_RENDER_BUFFER[absoluteIndex] = renderKind;
     if (renderKind === MENUrenderKind_Set) INTS[fMENU_renderKind_Set_countOfPendingRequests]++;
-    MENU_queueTail++;
+    BYTES[byteMENU_queueTail]++;
     
     if (!BYTES[byteMENU_isRenderPending]) {
         BYTES[byteMENU_isRenderPending] = 1;
@@ -100,11 +97,11 @@ function MENU_render_request(renderKind) {
 }
 
 function MENU_render_do() {
-    while (MENU_queueHead !== MENU_queueTail) {
+    while (BYTES[byteMENU_queueHead] !== BYTES[byteMENU_queueTail]) {
         // Uses the exact same masking logic, but reads from the higher memory region
-        const absoluteIndex = OFFSET_MENU + (MENU_queueHead & UI_SLOT_MASK);
+        const absoluteIndex = OFFSET_MENU + (BYTES[byteMENU_queueHead] & UI_SLOT_MASK);
         const renderKind = MASTER_RENDER_BUFFER[absoluteIndex];
-        MENU_queueHead++;
+        BYTES[byteMENU_queueHead]++;
 
         switch (renderKind) {
             case MENUrenderKind_Cursor:

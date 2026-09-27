@@ -10839,4 +10839,87 @@ function EDI_render_request(renderKind) {
 < 
 < Would you like to review how this setup behaves if the buffer happens to fill up completely, or would you like to adapt this to handle multiple parameters per render event?
 
+< "if the buffer happens to fill up completely"
+
+> If a high-frequency event (like rapid scrolling or trackpad physics) floods the queue before requestAnimationFrame fires, a fixed-size ring buffer can overflow.
+> In this specific design, an overflow means the EDI_queueTail catches up to EDI_queueHead from behind, overwriting unread events and causing the while loop to break prematurely.
+> 
+> To prevent this, you have three primary approaches: grow the buffer dynamically, drop or merge incoming requests, or assertively size the buffer.
+> 
+> 1. The Dynamic Growth Approach (Recommended for Text Editors)
+> 
+> Instead of a strict fixed-size Uint8Array, you can fallback to a standard JavaScript array while keeping the exact same pointer and bitwise logic.
+> Standard JavaScript arrays in V8 handle arbitrary growth well, but we can double the size manually when an overflow is detected to maintain the power-of-2 requirement.
+> 
+> ```js
+let BUFFER_SIZE = 32; 
+let BUFFER_MASK = BUFFER_SIZE - 1;
+// Start with a standard array, or a TypedArray that we re-allocate
+let EDI_renderKindBuffer = new Uint8Array(BUFFER_SIZE); 
+let EDI_queueHead = 0;
+let EDI_queueTail = 0;
+
+function EDI_render_request(renderKind) {
+    // 1. Check for overflow: Is the queue full?
+    if ((EDI_queueTail - EDI_queueHead) >= BUFFER_SIZE) {
+        // Double the size to preserve the power-of-2 bitwise mask requirement
+        const oldSize = BUFFER_SIZE;
+        BUFFER_SIZE *= 2;
+        BUFFER_MASK = BUFFER_SIZE - 1;
+        
+        const newBuffer = new Uint8Array(BUFFER_SIZE);
+        // Copy the old data aligned to the new positions
+        for (let i = EDI_queueHead; i < EDI_queueTail; i++) {
+            newBuffer[i & BUFFER_MASK] = EDI_renderKindBuffer[i & (oldSize - 1)];
+        }
+        EDI_renderKindBuffer = newBuffer;
+    }
+
+    // 2. Deduplication check
+    if (EDI_queueHead !== EDI_queueTail) {
+        const lastIndex = (EDI_queueTail - 1) & BUFFER_MASK;
+        if (EDI_renderKindBuffer[lastIndex] === renderKind) {
+            return;
+        }
+    }
+
+    // 3. Insert
+    EDI_renderKindBuffer[EDI_queueTail & BUFFER_MASK] = renderKind;
+    EDI_queueTail++;
+    
+    if (!BYTES[byteEDI_isRenderPending]) {
+        BYTES[byteEDI_isRenderPending] = 1;
+        requestAnimationFrame(EDI_render_do);
+    }
+}
+> ```
+> 
+> 2. The Lossless Coalescing Approach (Drop/Merge)
+> 
+> For UI rendering pipelines, multiple identical operations are usually redundant. You are already deduplicating adjacent identical tasks.
+> If the buffer is full, you can safely choose to ignore subsequent lower-priority render requests or compress them because the screen can only update so fast.
+> 
+> ```js
+// Inside EDI_render_request...
+if ((EDI_queueTail - EDI_queueHead) >= BUFFER_SIZE) {
+    // Queue is entirely full. 
+    // If it's a high-frequency event like a scroll or cursor blink, 
+    // it's already scheduled to render next frame anyway. Drop it.
+    return; 
+}
+> ```
+> 
+> 3. The "Oversize It" Approach
+> 
+> Because renderKind values are just small integers (presumably enums like 0, 1, 2), a Uint8Array takes up practically zero memory.
+> - A Uint8Array(32) takes up 32 bytes.
+> - A Uint8Array(1024) takes up 1 kilobyte.
+> 
+> In a real-world text editor, it is exceptionally rare to stack more than a few dozen distinct types of rendering categories in a single 16.6ms window (one 60Hz frame).
+> If you simply initialize BUFFER_SIZE = 256 or 1024, you will realistically never hit the ceiling, completely bypassing the overflow issue while keeping your codebase strictly
+> static and allocation-free.
+> 
+> Would you like to analyze how many distinct elements usually hit your pipeline during heavy workloads to pick the best size,
+> or should we look at how the while loop handles resetting the pointers once the queue empties?
+
 */

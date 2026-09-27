@@ -30,26 +30,23 @@ let WIDGET_target = null;
 //
 // Although you'd want to ensure that every callback has the 'cancel' passed to it when it gets overwritten
 
-let WIDGET_queueHead = 0;
-let WIDGET_queueTail = 0;
-
 let WIDGET_restoreFocusToElementOverride = null;
 
 // You aren't focusing the widget element itself so blur likely won't work.
 //WIDGET_element.addEventListener('focusout', () => WIDGET_hide());
 
 function WIDGET_render_request(renderKind) {
-    if (WIDGET_queueHead !== WIDGET_queueTail) {
-        const lastAbsoluteIndex = OFFSET_WIDGET + ((WIDGET_queueTail - 1) & UI_SLOT_MASK);
+    if (BYTES[byteWIDGET_queueHead] !== BYTES[byteWIDGET_queueTail]) {
+        const lastAbsoluteIndex = OFFSET_WIDGET + ((BYTES[byteWIDGET_queueTail] - 1) & UI_SLOT_MASK);
         if (MASTER_RENDER_BUFFER[lastAbsoluteIndex] === renderKind) {
             return;
         }
     }
 
-    const absoluteIndex = OFFSET_WIDGET + (WIDGET_queueTail & UI_SLOT_MASK);
+    const absoluteIndex = OFFSET_WIDGET + (BYTES[byteWIDGET_queueTail] & UI_SLOT_MASK);
     MASTER_RENDER_BUFFER[absoluteIndex] = renderKind;
     if (renderKind === WIDGETrenderKind_Show) INTS[fWIDGETrenderKind_Show_countOfPendingRequests]++;
-    WIDGET_queueTail++;
+    BYTES[byteWIDGET_queueTail]++;
     
     if (BYTES[byteWIDGET_isRenderPending] === 0) {
         BYTES[byteWIDGET_isRenderPending] = 1;
@@ -58,11 +55,11 @@ function WIDGET_render_request(renderKind) {
 }
 
 function WIDGET_render_do() {
-    while (WIDGET_queueHead !== WIDGET_queueTail) {
+    while (BYTES[byteWIDGET_queueHead] !== BYTES[byteWIDGET_queueTail]) {
         // Uses the exact same masking logic, but reads from the higher memory region
-        const absoluteIndex = OFFSET_WIDGET + (WIDGET_queueHead & UI_SLOT_MASK);
+        const absoluteIndex = OFFSET_WIDGET + (BYTES[byteWIDGET_queueHead] & UI_SLOT_MASK);
         const renderKind = MASTER_RENDER_BUFFER[absoluteIndex];
-        WIDGET_queueHead++; 
+        BYTES[byteWIDGET_queueHead]++; 
 
         switch (renderKind) {
             case WIDGETrenderKind_Show:

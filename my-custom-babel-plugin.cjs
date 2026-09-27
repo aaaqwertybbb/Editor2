@@ -489,6 +489,9 @@ module.exports = function (babel) {
 
     "byteMENU_queueHead",
     "byteMENU_queueTail",
+    
+    "byteWIDGET_queueHead",
+    "byteWIDGET_queueTail",
   ];
 
   return {

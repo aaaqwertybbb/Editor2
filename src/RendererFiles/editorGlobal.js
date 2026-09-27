@@ -3530,17 +3530,17 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
  * 
 */
 function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
+    if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine_createLineBelow ||
+        BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine_createLineAbove) {
+            return EDI_finalizeEdit_Enter_new(indexLine_editOccurredOn);
+    }
+    
     if (INTS[fEDI_cursor_editRenderedDisplacement] !== INTS[fEDI_cursor_editLineFeedCount]) {
         EDI_render_do_EnterKey();
     }
 
     // throws an exception if 'EnterKeyEventKind_None' (...or falsey).
     if (!BYTES[byteEDI_cursor_enterKeyEventKind] || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_None) { EDI_finalizeEdit_ClearEditState(); throw new Error('if (!enterKeyEventKind...)'); }
-
-    if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine_createLineBelow ||
-        BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine_createLineAbove) {
-            return EDI_finalizeEdit_Enter_new(indexLine_editOccurredOn);
-    }
 
     let actualEditPosition = INTS[fEDI_cursor_editPosition];
     let actualLineFeedPosition = actualEditPosition;

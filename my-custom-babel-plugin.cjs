@@ -478,6 +478,9 @@ module.exports = function (babel) {
 
     "byteEXPLORER_boundingClientRect_isValid",
 
+    "byteAUTOCOMPLETE_queueHead",
+    "byteAUTOCOMPLETE_queueTail",
+
     
   ];
 

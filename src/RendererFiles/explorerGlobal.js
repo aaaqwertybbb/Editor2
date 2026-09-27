@@ -138,7 +138,7 @@ function EXPLORER_render_do_ScrollTrailingEdgeCheck(timestamp) {
 
 function EXPLORER_drawItem_BATCH_trailingEdge() {
     BYTES[byteEXPLORER_isCheckingTrailingEdge] = 0;
-    if (!BYTES[byteEXPLORER_scrollIsFetchingData]) {
+    if (BYTES[byteEXPLORER_scrollIsFetchingData] === 0) {
         BYTES[byteEXPLORER_scrollIsFetchingData] = 1;
         EXPLORER_drawItem_BATCH_pullData(); // no await
     }
@@ -152,7 +152,7 @@ function EXPLORER_drawItem_BATCH(start, length, onePositiveDiff_twoNegativeDiff_
     // TODO: I'm putting this in treeViewComponent.js as well for now when diff === 0:
     INTS[fEXPLORER_scrollEndDeadline] = timestamp + 300;
 
-    if (!BYTES[byteEXPLORER_isCheckingTrailingEdge]) {
+    if (BYTES[byteEXPLORER_isCheckingTrailingEdge] === 0) {
         BYTES[byteEXPLORER_isCheckingTrailingEdge] = 1;
         requestAnimationFrame(EXPLORER_render_do_ScrollTrailingEdgeCheck);
     }
@@ -614,7 +614,7 @@ function EXPLORER_render_request(renderKind) {
         EXPLORER_renderKindArray.push(renderKind);
     }
     
-    if (!BYTES[byteEXPLORER_isRenderPending]) {
+    if (BYTES[byteEXPLORER_isRenderPending] === 0) {
         BYTES[byteEXPLORER_isRenderPending] = 1;
         requestAnimationFrame(EXPLORER_renderDo);
     }
@@ -1084,7 +1084,7 @@ function EXPLORER_event_scroll() {
 }
 
 function EXPLORER_ensure_boundingClientRect() {
-    if (!BYTES[byteEXPLORER_boundingClientRect_isValid]) {
+    if (BYTES[byteEXPLORER_boundingClientRect_isValid] === 0) {
         let rect = EXPLORER_rootElement.getBoundingClientRect();
         INTS[fEXPLORER_boundingClientRect_height] = rect.height;
         INTS[fEXPLORER_boundingClientRect_left] = rect.left;

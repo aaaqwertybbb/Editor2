@@ -1860,4 +1860,6 @@ The only solution is for me to become the greatest programmer to ever live so I 
 I want you to live your life the way you like.
 I want you to go out and spend time with other people.
 But they shove it down my throat all my life.
+
+I'm so sick of all this shit I want  to die.
 */

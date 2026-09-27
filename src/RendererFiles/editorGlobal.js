@@ -160,16 +160,15 @@ let w_div = null;
  */
 const lspQueue = [];
 
-/**
- * You could use a fix sized array for the main loop.
- * 
- * The issue is that I presume you could theoretically fill the fixed size array even though it is unlikely.
- * 
- * But you can make a 'renderKind' that indicates that the fallback array is filled?
- * 
- * And then 99% of the time you'd never hit the fallback array that has to constantly shift the data around?
-*/
-const EDI_renderKindArray = [];
+// Choose a power of 2 for the buffer size (e.g., 16, 32, 64). 
+// 32 is usually plenty for a single animation frame queue.
+const BUFFER_SIZE = 32; 
+const BUFFER_MASK = BUFFER_SIZE - 1;
+
+// Pre-allocate a typed array to prevent memory allocation during runtime
+const EDI_renderKindBuffer = new Uint8Array(BUFFER_SIZE);
+let EDI_queueHead = 0; // Where we read from
+let EDI_queueTail = 0; // Where we write to
 
 // Persistent, flat JS arrays that stay alive forever in memory
 let EDI_ringBuffer_gutter = [];
@@ -207,21 +206,13 @@ function EDI_init() {
     EDI_registerHandlers();
 }
 
-/**
- * All DOM manipulation needs to be done through this function.
- * 
- * You should not invoke this function directly, but instead use 'EDI_render_request()'.
- * 
- * You need to have each switch statement invoke a corresponding function in order to keep the stack frame as small as possible.
- */
 function EDI_render_do(timestamp) {
-    let renderKind = 0;
+    // Process everything in the queue until head catches up to tail
+    while (EDI_queueHead !== EDI_queueTail) {
+        // Read the item at the head and advance the head pointer safely
+        const renderKind = EDI_renderKindBuffer[EDI_queueHead & BUFFER_MASK];
+        EDI_queueHead++; 
 
-    // TODO: Could combining the low frequency RenderKinds somehow such that they invoke another intermediate function that then does a switch within it...
-    // ...as a means of reducing the stackframe size of the function, be performance impactful?
-    //
-    // TODO: (Google AI) Would you like to look at replacing the .shift() loop with an O(1) ring buffer/pointer implementation
-    while (renderKind = EDI_renderKindArray.shift()) {
         switch (renderKind) {
             case RenderKind_Scroll:
                 EDI_render_do_Scroll(timestamp);
@@ -283,11 +274,20 @@ function EDI_render_do(timestamp) {
     BYTES[byteEDI_isRenderPending] = 0;
 }
 
-/** All DOM manipulation needs to be done through this function. */
 function EDI_render_request(renderKind) {
-    if (EDI_renderKindArray[EDI_renderKindArray.length - 1] !== renderKind) {
-        EDI_renderKindArray.push(renderKind);
+    // Check if the queue is empty
+    if (EDI_queueHead !== EDI_queueTail) {
+        // Get the last inserted item's index
+        const lastIndex = (EDI_queueTail - 1) & BUFFER_MASK;
+        // De-duplicate: if it's the same renderKind, skip adding it
+        if (EDI_renderKindBuffer[lastIndex] === renderKind) {
+            return;
+        }
     }
+
+    // Insert the item at the tail and advance the tail pointer
+    EDI_renderKindBuffer[EDI_queueTail & BUFFER_MASK] = renderKind;
+    EDI_queueTail++;
     
     if (!BYTES[byteEDI_isRenderPending]) {
         BYTES[byteEDI_isRenderPending] = 1;
@@ -10757,6 +10757,7 @@ function EDI_render_request(renderKind) {
 // BYTES[byteEDI_isRenderPending]
 //     if you really wanna get weird about the INTS you could move the editor isRenderPending to ints so you have it in cache already maybe or something?
 //     but probably this entirely just needs to change
+//     you'd actually need to check whether setting a value in INTS could somehow disrupt a cache that currently manages to be used or something
 //
 // If you do the fixed size you can have the "entire app" share a single fixed size and then you designate a range of indices to each part of the app
 // that they can use as their own pseudo own array.

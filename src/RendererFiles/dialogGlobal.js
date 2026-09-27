@@ -25,7 +25,7 @@ const MASTER_RENDER_BUFFER = new Uint8Array(MASTER_BUFFER_SIZE);
 
 // Define the unique byte offset where each UI's memory space begins
 const OFFSET_DIALOG      = 0;  // Slots 0 to 31
-//const OFFSET_EXPLORER = 32; // Slots 32 to 63
+const OFFSET_EXPLORER = 32; // Slots 32 to 63
 
 let DIALOG_queueHead = 0;
 let DIALOG_queueTail = 0;

@@ -57,7 +57,9 @@ const EXPLORER_itemListElement = document.createElement('div');
 EXPLORER_itemListElement.className = 'TREEVIEW_itemList';
 EXPLORER_rootElement.appendChild(EXPLORER_itemListElement);
 
-const EXPLORER_renderKindArray = [];
+let EXPLORER_queueHead = 0;
+let EXPLORER_queueTail = 0;
+//const EXPLORER_renderKindArray = [];
 
 let EXPLORER_ringBuffer = [];
 
@@ -610,21 +612,30 @@ function EXPLORER_addSpecificMenuOptionsForTarget(optionList, divItem, target) {
 }
 
 function EXPLORER_render_request(renderKind) {
-    if (EXPLORER_renderKindArray[EXPLORER_renderKindArray.length - 1] !== renderKind) {
-        EXPLORER_renderKindArray.push(renderKind);
+    if (EXPLORER_queueHead !== EXPLORER_queueTail) {
+        const lastAbsoluteIndex = OFFSET_EXPLORER + ((EXPLORER_queueTail - 1) & UI_SLOT_MASK);
+        if (MASTER_RENDER_BUFFER[lastAbsoluteIndex] === renderKind) {
+            return;
+        }
     }
+
+    const absoluteIndex = OFFSET_EXPLORER + (EXPLORER_queueTail & UI_SLOT_MASK);
+    MASTER_RENDER_BUFFER[absoluteIndex] = renderKind;
+    EXPLORER_queueTail++;
     
     if (BYTES[byteEXPLORER_isRenderPending] === 0) {
         BYTES[byteEXPLORER_isRenderPending] = 1;
-        requestAnimationFrame(EXPLORER_renderDo);
+        requestAnimationFrame(EXPLORER_render_do);
     }
 }
 
-function EXPLORER_renderDo(timestamp) {
-    let renderKind = 0;
-    
-    // Synchronously exhaust the item queue for this animation frame
-    while (renderKind = EXPLORER_renderKindArray.shift()) {
+function EXPLORER_render_do(timestamp) {
+    while (EXPLORER_queueHead !== EXPLORER_queueTail) {
+        // Uses the exact same masking logic, but reads from the higher memory region
+        const absoluteIndex = OFFSET_EXPLORER + (EXPLORER_queueHead & UI_SLOT_MASK);
+        const renderKind = MASTER_RENDER_BUFFER[absoluteIndex];
+        EXPLORER_queueHead++; 
+
         switch (renderKind) {
             case TREEVIEWrenderKind_Cursor:
                 EXPLORER_render_do_Cursor();
@@ -652,9 +663,8 @@ function EXPLORER_renderDo(timestamp) {
                 break;
         }
     }
-    
-    BYTES[byteEXPLORER_isRenderPending] = 0; // Reset the paint lock
-};
+    BYTES[byteEXPLORER_isRenderPending] = 0;
+}
 
 /**
  * TODO: Many of these suffer from two invocations sitting in the render queue with something between them so they didn't coallesce then the parameters

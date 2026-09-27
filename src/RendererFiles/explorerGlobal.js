@@ -1849,5 +1849,19 @@ async function RenameFile_File_InputText_callback(result) {
 // TODO: look at the "async" events because its nonsensical
 
 /*
+Okay this is actually such a good moment to comment on this:
 
+The FMV Game that Hid in Plain Sight | Tender Loving Care:
+https://www.youtube.com/watch?v=-nydpBLj9xI
+
+Don't click the link or etc... I'm not tracking views likes dislikes etc...
+but the plot of this is actually so on point some of it specifically I mean
+
+like how do you deal with someone like me.
+
+The anxiety and panic is genuine
+and it is hard to deal with
+so you coddle them?
+Does that just make it worse when the stimuli does appear?
+etc...
 */

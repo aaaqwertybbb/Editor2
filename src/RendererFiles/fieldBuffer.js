@@ -754,72 +754,15 @@ const fEXPLORER_boundingClientRect_top = 180;
 
 // INTS[fEDI_cursorVisualColumnIndex]
 
-/*
-Google AI
-=========
-Circular Buffers:
-If you are implementing a fast ring buffer where you want to replace the expensive modulo operator (index % size) with
-a fast bitwise AND mask (index & (size - 1)).
-*/
-
 
 
 // TODO: if (!MENU_SET_index) { MENU_SET_index = 0; }
-// TODO: track down all the '&' or '|' that were supposed to be '&&' or '||'
 
 
 
 // for the ringBufferIndexZero etc... consider using max value?
 // Although it might "just work" because you're using locals which would become negative?
 // TODO: figure it out
-
-
-// 130 is inclusive final index
-
-
-
-
-// TODO: Sort the field buffer entries so that everything the scroll render function needs is next to eachother...
-// ... / figure out details of caching so you read them all in one go if possible.
-
-// TODO: Move all the other smi's here
-// TODO: a local copy of 'INTS' is likely always a meaningful performance gain once you've moved everything because of how much state is being stored here, but it still depends maybe some functions only access it once or something etc...
-
-/*
-The smi's are when you do a collection you start at the roots
-and if you have 100 smi's at the global scope the GC visits
-100 smi's in order to check that they truly are smi's and that is the non-zero cost.
-If you stick them all into a UInt...Array then the GC only has to visit the UInt...Array
-and then it knows that everything within that array is a primitive that doesn't have to be collected so it skips over them
-bringing 100 visits to just 1.
-
-The global variable access of the UInt...Array can be offset by only doing it once and storing a local copy within whatever function needs it multiple times / within a loop.
-
-Accessing a property on a class is not equivalent to accessing a variable.
-I don't know the difference but property accessing of a class is similar to accessing a global variable?
-Or maybe it only was if the prototype was large?
-
-I remember a bit now so for correctness: I'm pretty sure it is more a matter of
-if there's a large class or something that is close to a global variable in terms of accessing the property speed but I don't know.
-
-Class property accessing is slower than that of a local variable, and approaches the time of accessing a global variable for large enough classes
-
-I think that's the wording, and they try to make it match the speed of a local variable but it is slower
-and the engine has tricks to try and bring the speed similar to a local.
-
-But I don't know
-*/
-
-
-
-
-
-
-
-
-
-
-
 
 
 

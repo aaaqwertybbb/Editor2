@@ -59,7 +59,6 @@ EXPLORER_rootElement.appendChild(EXPLORER_itemListElement);
 
 let EXPLORER_queueHead = 0;
 let EXPLORER_queueTail = 0;
-//const EXPLORER_renderKindArray = [];
 
 let EXPLORER_ringBuffer = [];
 

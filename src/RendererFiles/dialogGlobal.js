@@ -16,21 +16,8 @@ let DIALOG_restoreFocusToElement = null;
 let DIALOG_SHOW_restoreFocusToElement = null;
 let DIALOG_SHOW_onResizeAction = null;
 
-// Master allocation (e.g., 64 bytes total for two subsystems)
-const MASTER_BUFFER_SIZE = 64;
-const UI_SLOT_SIZE = 32;
-const UI_SLOT_MASK = UI_SLOT_SIZE - 1; // 31 (binary: 00011111)
-
-const MASTER_RENDER_BUFFER = new Uint8Array(MASTER_BUFFER_SIZE);
-
-// Define the unique byte offset where each UI's memory space begins
-const OFFSET_DIALOG      = 0;  // Slots 0 to 31
-const OFFSET_EXPLORER = 32; // Slots 32 to 63
-
 let DIALOG_queueHead = 0;
 let DIALOG_queueTail = 0;
-
-//const DIALOG_renderKindArray = [];
 
 const DIALOGrenderKind_None = 0;
 const DIALOGrenderKind_Show = 1;
@@ -162,7 +149,7 @@ async function DIALOG_render_do_Hide() {
     DIALOG_onResizeAction = null;
     DIALOG_element.remove();
     BYTES[byteDIALOG_currentDialogKind] = DialogKind_None;
-    if (shouldRestoreFocus) {
+    if (BYTES[byteDIALOG_HIDE_shouldRestoreFocus]) {
         if (DIALOG_restoreFocusToElement) {
             DIALOG_restoreFocusToElement.focus();
         }

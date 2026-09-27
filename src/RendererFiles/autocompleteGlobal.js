@@ -14,26 +14,37 @@ const AUTOCOMPLETErenderKind_CursorSet = 3;
 const AUTOCOMPLETErenderKind_CreateLines = 4;
 const AUTOCOMPLETErenderKind_Scroll = 5;
 
-const AUTOCOMPLETE_renderKindArray = [];
-
 let AUTOCOMPLETEElement = null;
 let AUTOCOMPLETE_ringBuffer = null;
 
+let AUTOCOMPLETE_queueHead = 0;
+let AUTOCOMPLETE_queueTail = 0;
+
 function AUTOCOMPLETE_render_request(renderKind) {
-    if (AUTOCOMPLETE_renderKindArray[AUTOCOMPLETE_renderKindArray.length - 1] !== renderKind) {
-        AUTOCOMPLETE_renderKindArray.push(renderKind);
+    if (AUTOCOMPLETE_queueHead !== AUTOCOMPLETE_queueTail) {
+        const lastAbsoluteIndex = OFFSET_AUTOCOMPLETE + ((AUTOCOMPLETE_queueTail - 1) & UI_SLOT_MASK);
+        if (MASTER_RENDER_BUFFER[lastAbsoluteIndex] === renderKind) {
+            return;
+        }
     }
+
+    const absoluteIndex = OFFSET_AUTOCOMPLETE + (AUTOCOMPLETE_queueTail & UI_SLOT_MASK);
+    MASTER_RENDER_BUFFER[absoluteIndex] = renderKind;
+    AUTOCOMPLETE_queueTail++;
     
-    if (!BYTES[byteAUTOCOMPLETE_isRenderPending]) {
+    if (BYTES[byteAUTOCOMPLETE_isRenderPending] === 0) {
         BYTES[byteAUTOCOMPLETE_isRenderPending] = 1;
-        requestAnimationFrame(AUTOCOMPLETE_renderDo);
+        requestAnimationFrame(AUTOCOMPLETE_render_do);
     }
 }
 
-function AUTOCOMPLETE_renderDo(timestamp) {
-    let renderKind = 0;
+function AUTOCOMPLETE_render_do(timestamp) {
+    while (AUTOCOMPLETE_queueHead !== AUTOCOMPLETE_queueTail) {
+        // Uses the exact same masking logic, but reads from the higher memory region
+        const absoluteIndex = OFFSET_AUTOCOMPLETE + (AUTOCOMPLETE_queueHead & UI_SLOT_MASK);
+        const renderKind = MASTER_RENDER_BUFFER[absoluteIndex];
+        AUTOCOMPLETE_queueHead++; 
 
-    while (renderKind = AUTOCOMPLETE_renderKindArray.shift()) {
         switch (renderKind) {
             case AUTOCOMPLETErenderKind_Show:
                 AUTOCOMPLETE_render_do_show(timestamp);
@@ -52,8 +63,7 @@ function AUTOCOMPLETE_renderDo(timestamp) {
                 break;
         }
     }
-    
-    BYTES[byteAUTOCOMPLETE_isRenderPending] = 0; // Reset the lock
+    BYTES[byteAUTOCOMPLETE_isRenderPending] = 0;
 }
 
 function AUTOCOMPLETE_render_create_lines(AUTOCOMPLETE_itemList) {

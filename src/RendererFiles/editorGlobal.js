@@ -160,6 +160,15 @@ let w_div = null;
  */
 const lspQueue = [];
 
+/**
+ * You could use a fix sized array for the main loop.
+ * 
+ * The issue is that I presume you could theoretically fill the fixed size array even though it is unlikely.
+ * 
+ * But you can make a 'renderKind' that indicates that the fallback array is filled?
+ * 
+ * And then 99% of the time you'd never hit the fallback array that has to constantly shift the data around?
+*/
 const EDI_renderKindArray = [];
 
 // Persistent, flat JS arrays that stay alive forever in memory

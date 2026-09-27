@@ -207,6 +207,9 @@ class TrackedSyntaxList {
      */
     copyTo(dataSource_literal, sourceStart_abstract, dataDestination_literal, destinationStart_abstract, length_abstract) {
 
+        // TODO: ???
+        // if you're copying all 3 of them then you can just use the set methods / setWithin
+
         if (dataSource_literal === dataDestination_literal) {
             if (dataSource_literal !== this.data_literal) {
                 throw new Error('dataSource_literal === dataDestination_literal ; but dataSource_literal !== this.data_literal');

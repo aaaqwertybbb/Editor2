@@ -10717,4 +10717,46 @@ C
 < 
 < If you'd like, I can help you check if your current ring buffer setup supports this or help you rewrite the indexing logic safely.
 < Would you like to look at that?
+
+========
+
+function EDI_render_do(timestamp) {
+    let renderKind = 0;
+
+    // TODO: (Google AI) Would you like to look at replacing the .shift() loop with an O(1) ring buffer/pointer implementation
+    while (renderKind = EDI_renderKindArray.shift()) {
+        switch (renderKind) {
+            case RenderKind_Scroll:
+                EDI_render_do_Scroll(timestamp);
+                break;
+            case RenderKind_InsertLtr:
+                EDI_render_do_InsertLtr();
+                break;
+            // ...
+        }
+    }
+    
+    BYTES[byteEDI_isRenderPending] = 0;
+}
+
+function EDI_render_request(renderKind) {
+    if (EDI_renderKindArray[EDI_renderKindArray.length - 1] !== renderKind) {
+        EDI_renderKindArray.push(renderKind);
+    }
+    
+    if (!BYTES[byteEDI_isRenderPending]) {
+        BYTES[byteEDI_isRenderPending] = 1;
+        requestAnimationFrame(EDI_render_do);
+    }
+}
+
+// TODO: (Google AI) Would you like to look at replacing the .shift() loop with an O(1) ring buffer/pointer implementation
+// 
+// BYTES[byteEDI_isRenderPending]
+//     if you really wanna get weird about the INTS you could move the editor isRenderPending to ints so you have it in cache already maybe or something?
+//     but probably this entirely just needs to change
+//
+// If you do the fixed size you can have the "entire app" share a single fixed size and then you designate a range of indices to each part of the app
+// that they can use as their own pseudo own array.
+
 */

@@ -71,7 +71,7 @@ it is as if I typed the expression body everywhere I typed the fat arrow functio
  *         - 'true' with '!0'
  *     - i.e.: such an expression is known to be rather performant.
  */
-const BYTES = new Uint8Array(49);
+const BYTES = new Uint8Array(51);
 
 /** returns a number, beware '===' */
 const get_EDI_detailRank = () => BYTES[0];
@@ -196,6 +196,9 @@ const byteEXPLORER_isCheckingTrailingEdge = 46;
 const byteEXPLORER_scrollIsFetchingData = 47;
 
 const byteEXPLORER_boundingClientRect_isValid = 48;
+
+const byteEDI_queueHead = 49;
+const byteEDI_queueTail = 50;
 
 // BYTES[byteEXPLORER_boundingClientRect_isValid]
 

@@ -167,8 +167,6 @@ const BUFFER_MASK = BUFFER_SIZE - 1;
 
 // Pre-allocate a typed array to prevent memory allocation during runtime
 const EDI_renderKindBuffer = new Uint8Array(BUFFER_SIZE);
-let EDI_queueHead = 0; // Where we read from
-let EDI_queueTail = 0; // Where we write to
 
 // Persistent, flat JS arrays that stay alive forever in memory
 let EDI_ringBuffer_gutter = [];
@@ -208,10 +206,10 @@ function EDI_init() {
 
 function EDI_render_do(timestamp) {
     // Process everything in the queue until head catches up to tail
-    while (EDI_queueHead !== EDI_queueTail) {
+    while (BYTES[byteEDI_queueHead] !== BYTES[byteEDI_queueTail]) {
         // Read the item at the head and advance the head pointer safely
-        const renderKind = EDI_renderKindBuffer[EDI_queueHead & BUFFER_MASK];
-        EDI_queueHead++; 
+        const renderKind = EDI_renderKindBuffer[BYTES[byteEDI_queueHead] & BUFFER_MASK];
+        BYTES[byteEDI_queueHead]++; 
 
         switch (renderKind) {
             case RenderKind_Scroll:
@@ -276,9 +274,9 @@ function EDI_render_do(timestamp) {
 
 function EDI_render_request(renderKind) {
     // Check if the queue is empty
-    if (EDI_queueHead !== EDI_queueTail) {
+    if (BYTES[byteEDI_queueHead] !== BYTES[byteEDI_queueTail]) {
         // Get the last inserted item's index
-        const lastIndex = (EDI_queueTail - 1) & BUFFER_MASK;
+        const lastIndex = (BYTES[byteEDI_queueTail] - 1) & BUFFER_MASK;
         // De-duplicate: if it's the same renderKind, skip adding it
         if (EDI_renderKindBuffer[lastIndex] === renderKind) {
             return;
@@ -286,8 +284,8 @@ function EDI_render_request(renderKind) {
     }
 
     // Insert the item at the tail and advance the tail pointer
-    EDI_renderKindBuffer[EDI_queueTail & BUFFER_MASK] = renderKind;
-    EDI_queueTail++;
+    EDI_renderKindBuffer[BYTES[byteEDI_queueTail] & BUFFER_MASK] = renderKind;
+    BYTES[byteEDI_queueTail]++;
     
     if (!BYTES[byteEDI_isRenderPending]) {
         BYTES[byteEDI_isRenderPending] = 1;

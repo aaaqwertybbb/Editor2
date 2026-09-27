@@ -147,6 +147,9 @@ module.exports = function (babel) {
     "fEDI_getLineAndColumnIndices_indexColumn",
     "fEDI_cursor_cached_indentation_string_visualWidth",
 
+    "byteEDI_queueHead",
+    "byteEDI_queueTail",
+
     "AUTOCOMPLETErenderKind_None",
     "AUTOCOMPLETErenderKind_Show",
     "AUTOCOMPLETErenderKind_Hide",

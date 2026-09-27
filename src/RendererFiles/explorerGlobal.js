@@ -1849,5 +1849,9 @@ async function RenameFile_File_InputText_callback(result) {
 // TODO: look at the "async" events because its nonsensical
 
 /*
+Manic:
+https://www.youtube.com/watch?v=xiNrjA2IHVE
+
+also this one is good https://www.youtube.com/watch?v=YW0bEGUYiZQ
 
 */

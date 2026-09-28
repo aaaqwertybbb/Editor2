@@ -2040,34 +2040,8 @@ function EDI_render_do_EnterKey() {
  * - "end of line":
  * - "among a line":
  */
-function EDI_EnterKey(ctrlKey, shiftKey) {
-
-    const originalIndexLine = INTS[fEDI_cursor_indexLine];
-    const originalIndexColumn = INTS[fEDI_cursor_indexColumn];
+function EDI_EnterKey(ctrlKey, originalIndexLine, originalIndexColumn) {
     const lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
-
-    if (ctrlKey) {
-        if (INTS[fEDI_cursor_indexColumn] !== 0 && BYTES[byteEDI_cursor_enterKeyEventKind] !== 0) {
-            EDI_finalizeEdit();
-            INTS[fEDI_cursor_indexColumn] = 0;
-            // TODO: Do not duplicate this code in 'EDI_EnterKey' for the ctrlKey and shiftKey cases
-            EDI_startEdit(EditKind_Enter, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
-        }
-        else if (INTS[fEDI_cursor_indexColumn] !== 0) {
-            INTS[fEDI_cursor_indexColumn] = 0;
-        }
-    }
-    else if (shiftKey) {
-        if (INTS[fEDI_cursor_indexColumn] !== lastValidIndexColumn && BYTES[byteEDI_cursor_enterKeyEventKind] !== 0) {
-            EDI_finalizeEdit();
-            INTS[fEDI_cursor_indexColumn] = lastValidIndexColumn;
-            // TODO: Do not duplicate this code in 'EDI_EnterKey' for the ctrlKey and shiftKey cases
-            EDI_startEdit(EditKind_Enter, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
-        }
-        else if (INTS[fEDI_cursor_indexColumn] !== lastValidIndexColumn) {
-            INTS[fEDI_cursor_indexColumn] = lastValidIndexColumn;
-        }
-    }
 
     if (INTS[fEDI_cursor_editLength] === 0) {
         BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_None;
@@ -3150,11 +3124,25 @@ function EDI_editEvent_theEditIself_Tab(event) {
 }
 
 function EDI_editEvent_theEditIself_Enter(event) {
+    const originalIndexLine = INTS[fEDI_cursor_indexLine];
+    const originalIndexColumn = INTS[fEDI_cursor_indexColumn];
+
     if (INTS[fEDI_cursor_editKind] !== EditKind_Enter) {
-        // TODO: Do not duplicate this code in 'EDI_EnterKey' for the ctrlKey and shiftKey cases
+        if (event.ctrlKey) {
+            if (INTS[fEDI_cursor_indexColumn] !== 0) {
+                INTS[fEDI_cursor_indexColumn] = 0;
+            }
+        }
+        else if (event.shiftKey) {
+            const lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
+            if (INTS[fEDI_cursor_indexColumn] !== lastValidIndexColumn) {
+                INTS[fEDI_cursor_indexColumn] = lastValidIndexColumn;
+            }
+        }
         EDI_startEdit(EditKind_Enter, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
     }
-    EDI_EnterKey(event.ctrlKey, event.shiftKey);
+    
+    EDI_EnterKey(event.ctrlKey, originalIndexLine, originalIndexColumn);
     INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
     EDI_render_request(RenderKind_Cursor_n);
 }

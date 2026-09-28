@@ -11205,4 +11205,10 @@ function EXPLORER_render_request(renderKind) {
  8:46
 12:46
 
+- [ ] batch enter key
+    - [ ] end of file
+    - [ ] among a line
+    - [ ] insertLineAbove
+    - [ ] insertLineBelow
+
 */

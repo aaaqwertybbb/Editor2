@@ -11218,8 +11218,19 @@ function EXPLORER_render_request(renderKind) {
 - [ ] batch enter key
     - [x] end of file
     - [ ] insertLineBelow
-        - [ ] You have to be careful here because your insertLineBelow could cause end of file and then the batch on 'insertLineBelow' bugs
+        - [ ] end of file
+            - [ ] Cursor is already at column index 0
+            - [ ] Cursor is NOT already at column index 0
+        - [ ] end of line
+            - [ ] Cursor is already at column index 0
+            - [ ] Cursor is NOT already at column index 0
     - [ ] insertLineAbove
+        - [ ] start of file
+            - [ ] Cursor is already at column index 0
+            - [ ] Cursor is NOT already at column index 0
+        - [x] start of line
+            - [x] Cursor is already at column index 0
+            - [x] Cursor is NOT already at column index 0
     - [ ] among a line
 
 */

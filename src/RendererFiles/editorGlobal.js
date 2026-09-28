@@ -3185,7 +3185,8 @@ function EDI_NOTcanBatch_enter() {
     return (
                BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfLine &&
                BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_StartOfLine &&
-               BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfFile
+               BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfFile &&
+               BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_AmongALine
            ) ||
            INTS[fEDI_cursor_editKind] !== EditKind_Enter ||
            INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_END_editIndexLine] ||
@@ -3530,78 +3531,6 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
  * 
 */
 function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
-    if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine ||
-        BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine ||
-        BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfFile) {
-            return EDI_finalizeEdit_Enter_new(indexLine_editOccurredOn);
-    }
-    
-    if (INTS[fEDI_cursor_editRenderedDisplacement] !== INTS[fEDI_cursor_editLineFeedCount]) {
-        EDI_render_do_EnterKey();
-    }
-
-    // throws an exception if 'EnterKeyEventKind_None' (...or falsey).
-    if (!BYTES[byteEDI_cursor_enterKeyEventKind] || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_None) { EDI_finalizeEdit_ClearEditState(); throw new Error('if (!enterKeyEventKind...)'); }
-
-    let actualEditPosition = INTS[fEDI_cursor_editPosition];
-    let actualLineFeedPosition = actualEditPosition;
-    let actualIndexLine = INTS[fEDI_cursor_editIndexLine];
-    let actualNewLineVisualWidth = INTS[fEDI_cursor_cached_indentation_string_visualWidth];
-
-    if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_AmongALine) {
-        EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_editIndexLine]);
-        getIndexFromColumn_RESET(INTS[fEDI_cursor_editIndexColumn], INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
-        let firstSplitVisualWidth = INTS[fEDI_getIndexFromX_visualColumns];
-        let lastValidIndexColumn = INTS[fEDI_getLineBoundaryPositions_end] - INTS[fEDI_getLineBoundaryPositions_start];
-        getIndexFromColumn_sameLine_newRxIsLarger(
-            lastValidIndexColumn,
-            INTS[fEDI_getLineBoundaryPositions_start],
-            INTS[fEDI_getLineBoundaryPositions_end],
-            INTS[fEDI_cursor_editIndexColumn],
-            firstSplitVisualWidth);
-        let lastSplitVisualWidth = INTS[fEDI_getIndexFromX_visualColumns] - firstSplitVisualWidth;
-        EDI_trackingUint32MaxHeap.updateLength(INTS[fEDI_cursor_editIndexLine], actualNewLineVisualWidth + lastSplitVisualWidth);
-        actualNewLineVisualWidth = firstSplitVisualWidth;
-    }
-    
-    EDI_textByteList_insertBytes(actualEditPosition, EDI_cursor_enterKey_newLinePlusIndentation_byteList, /*offset*/ 0, EDI_cursor_enterKey_newLinePlusIndentation_byteList.length);
-
-    for (var i = actualIndexLine; i < EDI_lineEndPositionList_count; i++) {
-        EDI_lineEndPositionList_data[i] += INTS[fEDI_cursor_editLength];
-    }
-
-    EDI_lineEndPositionList_insert(actualIndexLine, actualLineFeedPosition, actualNewLineVisualWidth);
-
-    // TODO: 'EDI_trackedSyntaxList_inefficientUpdateStartAndLength' with respect to the 'switch (BYTES[byteEDI_cursor_enterKeyEventKind])'?
-    EDI_trackedSyntaxList_inefficientUpdateStartAndLength(actualEditPosition, INTS[fEDI_cursor_editLength]);
-
-    let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
-    EDI_getLineAndColumnIndices_raw(actualEditPosition);
-    let lineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
-    let lineAndColumnIndices_indexColumn = INTS[fEDI_getLineAndColumnIndices_indexColumn];
-    let text = EDI_decoder.decode(EDI_cursor_enterKey_newLinePlusIndentation_byteList); // EDI_cursor_cached_indentation_string does not include the linefeed
-    INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
-    let version = INTS[fEDI_didChangeTextDocument_version];
-
-    // --- CLEAN INTEGRATION ---
-    enqueueLSPNotification({
-        absolutePath: textSourceIdentifier,
-        version: version,
-        startLine: lineAndColumnIndices_indexLine,
-        startCharacter: lineAndColumnIndices_indexColumn,
-        endLine: lineAndColumnIndices_indexLine,
-        endCharacter: lineAndColumnIndices_indexColumn,
-        text: text
-    });
-    // -------------------------
-
-    EDI_finalizeEdit_ClearEditState();
-
-    return indexLine_editOccurredOn;
-}
-
-/** TODO: Ensure only End of line => End of line hits this for today and then expand tomorrow */
-function EDI_finalizeEdit_Enter_new(indexLine_editOccurredOn) {
     if (INTS[fEDI_cursor_editRenderedDisplacement] !== INTS[fEDI_cursor_editLineFeedCount]) {
         EDI_render_do_EnterKey();
     }
@@ -3626,6 +3555,21 @@ function EDI_finalizeEdit_Enter_new(indexLine_editOccurredOn) {
         // Contrary to 'EnterKeyEventKind_EndOfLine' this case actually does NOT have to move past the "current line's '\n'"
         // NOTE: Ctrl + Enter keybind is a known case for why this line of code is needed, perhaps there are more that will come later I have no idea.
         actualLineFeedPosition += per_edit_insertionCount - 1;
+    }
+    else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_AmongALine) {
+        EDI_getLineBoundaryPositions_raw(INTS[fEDI_cursor_editIndexLine]);
+        getIndexFromColumn_RESET(INTS[fEDI_cursor_editIndexColumn], INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
+        let firstSplitVisualWidth = INTS[fEDI_getIndexFromX_visualColumns];
+        let lastValidIndexColumn = INTS[fEDI_getLineBoundaryPositions_end] - INTS[fEDI_getLineBoundaryPositions_start];
+        getIndexFromColumn_sameLine_newRxIsLarger(
+            lastValidIndexColumn,
+            INTS[fEDI_getLineBoundaryPositions_start],
+            INTS[fEDI_getLineBoundaryPositions_end],
+            INTS[fEDI_cursor_editIndexColumn],
+            firstSplitVisualWidth);
+        let lastSplitVisualWidth = INTS[fEDI_getIndexFromX_visualColumns] - firstSplitVisualWidth;
+        EDI_trackingUint32MaxHeap.updateLength(INTS[fEDI_cursor_editIndexLine], actualNewLineVisualWidth + lastSplitVisualWidth);
+        actualNewLineVisualWidth = firstSplitVisualWidth;
     }
 
     for (var i = actualIndexLine; i < EDI_lineEndPositionList_count; i++) {
@@ -11226,11 +11170,10 @@ What does it mean when github stops showing syntax highlighting when I view my r
 =========================================================
     - [ ] among a line
         - [ ] has indentation
-            - [ ] 0 indentation cursor causing position
             - [ ] less than entire indentation cursor causing position
             - [ ] cursor is at end of indentation
             - [ ] cursor is beyond end of indentation
-        - [ ] no indentation
+        - [x] no indentation
 
 
 

@@ -3189,7 +3189,7 @@ function EDI_NOTcanBatch_enter(event) {
     // And it actually works which makes sense.
     // I might permit the shift key at point then I just need to slowly feel more and more comfortable with this.
     // 
-    return (BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfLine && BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_StartOfLine) ||
+    return (BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfLine && BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_StartOfLine && BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfFile) ||
            INTS[fEDI_cursor_editKind] !== EditKind_Enter ||
            INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_END_editIndexLine] ||
            INTS[fEDI_cursor_indexColumn] !== INTS[fEDI_cursor_END_editIndexColumn] ||
@@ -3536,7 +3536,8 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
 */
 function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine_createLineBelow ||
-        BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine_createLineAbove) {
+        BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine_createLineAbove ||
+        BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfFile) {
             return EDI_finalizeEdit_Enter_new(indexLine_editOccurredOn);
     }
     
@@ -11206,7 +11207,7 @@ function EXPLORER_render_request(renderKind) {
 12:46
 
 - [ ] batch enter key
-    - [ ] end of file
+    - [x] end of file
     - [ ] among a line
     - [ ] insertLineAbove
     - [ ] insertLineBelow

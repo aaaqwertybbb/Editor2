@@ -11231,6 +11231,7 @@ function EXPLORER_render_request(renderKind) {
         - [x] start of line
             - [x] Cursor is already at column index 0
             - [x] Cursor is NOT already at column index 0
+=========================================================
     - [ ] among a line
 
 */

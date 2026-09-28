@@ -2047,7 +2047,8 @@ function EDI_EnterKey(ctrlKey, shiftKey) {
     const lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
 
     if (ctrlKey) {
-        if (INTS[fEDI_cursor_indexColumn] !== 0 && BYTES[byteEDI_cursor_enterKeyEventKind] !== 0) {
+        // TODO: '&& BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_StartOfLine' is PROBABLY superfluous
+        if (INTS[fEDI_cursor_indexColumn] !== 0 && BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_StartOfLine) {
             EDI_finalizeEdit();
             INTS[fEDI_cursor_indexColumn] = 0;
             // TODO: Do not duplicate this code in 'EDI_EnterKey' for the ctrlKey and shiftKey cases
@@ -2055,7 +2056,9 @@ function EDI_EnterKey(ctrlKey, shiftKey) {
         }
     }
     else if (shiftKey) {
-        if (INTS[fEDI_cursor_indexColumn] !== lastValidIndexColumn && BYTES[byteEDI_cursor_enterKeyEventKind] !== 0) {
+        // TODO: '&& (BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfLine && BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfFile)' is PROBABLY superfluous
+        if (INTS[fEDI_cursor_indexColumn] !== lastValidIndexColumn &&
+            (BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfLine && BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfFile)) {
             EDI_finalizeEdit();
             INTS[fEDI_cursor_indexColumn] = lastValidIndexColumn;
             // TODO: Do not duplicate this code in 'EDI_EnterKey' for the ctrlKey and shiftKey cases

@@ -11163,13 +11163,14 @@ What does it mean when github stops showing syntax highlighting when I view my r
             - [x] Cursor is already at column index 0
             - [x] Cursor is NOT already at column index 0
 =========================================================
-    - [ ] among a line
-        - [ ] has indentation
-            - [ ] less than entire indentation cursor causing position
-            - [ ] cursor is at end of indentation
-            - [ ] cursor is beyond end of indentation
+    - [?] among a line
+        - [?] has indentation
+            - [?] less than entire indentation cursor causing position
+            - [?] cursor is at end of indentation
+            - [?] cursor is beyond end of indentation
         - [x] no indentation
-
+I can't think I think this works
+I can't tell I think this has a bug
 
 
 

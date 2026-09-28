@@ -237,7 +237,6 @@ module.exports = function (babel) {
 
     "EnterKeyEventKind_None",
     "EnterKeyEventKind_StartOfLine",
-    "EnterKeyEventKind_StartOfLine_createLineAbove",
     "EnterKeyEventKind_AmongALine",
     "EnterKeyEventKind_EndOfLine",
     "EnterKeyEventKind_EndOfFile",

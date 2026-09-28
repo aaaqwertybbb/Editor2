@@ -2047,20 +2047,14 @@ function EDI_EnterKey(ctrlKey, shiftKey) {
     const lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
 
     if (ctrlKey) {
-        if (BYTES[byteEDI_cursor_enterKeyEventKind] === 0) {
-            BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_StartOfLine_createLineAbove;
+        if ((INTS[fEDI_cursor_indexColumn] !== 0 || INTS[fEDI_cursorVisualColumnIndex] !== 0) &&
+            BYTES[byteEDI_cursor_enterKeyEventKind] !== 0) {
+                EDI_finalizeEdit();
         }
-        //if ((INTS[fEDI_cursor_indexColumn] !== lastValidIndexColumn || INTS[fEDI_cursorVisualColumnIndex] !== lastValidIndexColumn) &&
-        //    BYTES[byteEDI_cursor_enterKeyEventKind] !== 0) {
-        //        EDI_finalizeEdit();
-        //}
         INTS[fEDI_cursor_indexColumn] = 0;
         INTS[fEDI_cursorVisualColumnIndex] = 0;
     }
     else if (shiftKey) {
-        // You have to be careful here because your insertLineBelow could cause end of file and then the batch on 'insertLineBelow' bugs
-        // The solution might more accurately be to drop the distinct 'EnterKeyEventKind_EndOfLine_createLineBelow'.
-        // It was done while working through the details but they seem to be the same and the existence of 'EnterKeyEventKind_EndOfLine_createLineBelow' actually breaks things.
         if ((INTS[fEDI_cursor_indexColumn] !== lastValidIndexColumn || INTS[fEDI_cursorVisualColumnIndex] !== lastValidIndexColumn) &&
             BYTES[byteEDI_cursor_enterKeyEventKind] !== 0) {
                 EDI_finalizeEdit();
@@ -3190,7 +3184,7 @@ function EDI_NOTcanBatch_insert() {
 /**
  * @returns 
  */
-function EDI_NOTcanBatch_enter(event) {
+function EDI_NOTcanBatch_enter() {
     // 
     // Currently: You actually can do shift+enter then enter and it batches just not
     // enter then shift+enter
@@ -3207,8 +3201,7 @@ function EDI_NOTcanBatch_enter(event) {
            INTS[fEDI_cursor_indexColumn] !== INTS[fEDI_cursor_END_editIndexColumn] ||
            INTS[fEDI_cursor_editLength] >= CONST_EDI_cursor_GAP_BUFFER_CAPACITY ||
            !EDI_cursor_enterKey_newLinePlusIndentation_byteList ||
-           EDI_cursor_hasSelection() ||
-           event.ctrlKey;
+           EDI_cursor_hasSelection();
 }
 
 /**
@@ -3385,7 +3378,7 @@ function EDI_editEvent_checkFor_NOTcanBatch_IndentLess() {
 
 /** @returns {boolean} 'shouldFinalizeAllCursors' */
 function EDI_editEvent_checkFor_NOTcanBatch_Enter(event) {
-    return EDI_NOTcanBatch_enter(event);
+    return EDI_NOTcanBatch_enter();
 }
 //#endregion
 
@@ -3547,7 +3540,7 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
 */
 function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine ||
-        BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine_createLineAbove ||
+        BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine ||
         BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfFile) {
             return EDI_finalizeEdit_Enter_new(indexLine_editOccurredOn);
     }
@@ -3638,7 +3631,7 @@ function EDI_finalizeEdit_Enter_new(indexLine_editOccurredOn) {
         actualLineFeedPosition += per_edit_insertionCount - 1;
         actualIndexLine++;
     }
-    else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine_createLineAbove) {
+    else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine) {
         // Contrary to 'EnterKeyEventKind_EndOfLine' this case actually does NOT have to move past the "current line's '\n'"
         // NOTE: Ctrl + Enter keybind is a known case for why this line of code is needed, perhaps there are more that will come later I have no idea.
         actualLineFeedPosition += per_edit_insertionCount - 1;
@@ -5210,7 +5203,6 @@ function EDI_cacheIndentation(originalIndexLine, originalIndexColumn, lastValidI
 
     switch (BYTES[byteEDI_cursor_enterKeyEventKind]) {
         case EnterKeyEventKind_StartOfLine:
-        case EnterKeyEventKind_StartOfLine_createLineAbove:
         case EnterKeyEventKind_EndOfLine:
             setOffset = 0;
             EDI_cursor_enterKey_newLinePlusIndentation_byteList[uint8Array_length - 1] = CONST_EDI_ASCII_LINE_FEED;

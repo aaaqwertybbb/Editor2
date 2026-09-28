@@ -835,8 +835,6 @@ const EditKind_Duplicate = 10;
  */
 const EnterKeyEventKind_None = 0;
 const EnterKeyEventKind_StartOfLine = 1;
-/** User specifically input "createLineAbove command (commands don't currently exist, this is just a description)" via { 'Ctrl' + 'Enter' } */
-const EnterKeyEventKind_StartOfLine_createLineAbove = 2;
 const EnterKeyEventKind_AmongALine = 3;
 const EnterKeyEventKind_EndOfLine = 4;
 const EnterKeyEventKind_EndOfFile = 6;

@@ -11172,6 +11172,11 @@ What does it mean when github stops showing syntax highlighting when I view my r
 I can't think I think this works
 I can't tell I think this has a bug
 
-
+I tried checking but I don't feel great I can't accurately
+determine whether it is working cause I have such a strong sense of anxiety
+that no matter how many times I see something work I have this unending sense that something isn't working
+so then not only that but the anxiety is distracting and I can't tell if I actually tried every edge case
+I just feel panic like there are alarms blaring in my head or something
+I'm gonna go exercise
 
 */

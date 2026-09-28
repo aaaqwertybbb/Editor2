@@ -2047,20 +2047,20 @@ function EDI_EnterKey(ctrlKey, shiftKey) {
     const lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
 
     if (ctrlKey) {
-        if ((INTS[fEDI_cursor_indexColumn] !== 0 || INTS[fEDI_cursorVisualColumnIndex] !== 0) &&
-            BYTES[byteEDI_cursor_enterKeyEventKind] !== 0) {
-                EDI_finalizeEdit();
+        if (INTS[fEDI_cursor_indexColumn] !== 0 && BYTES[byteEDI_cursor_enterKeyEventKind] !== 0) {
+            EDI_finalizeEdit();
+            INTS[fEDI_cursor_indexColumn] = 0;
+            // TODO: Do not duplicate this code in 'EDI_EnterKey' for the ctrlKey and shiftKey cases
+            EDI_startEdit(EditKind_Enter, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
         }
-        INTS[fEDI_cursor_indexColumn] = 0;
-        INTS[fEDI_cursorVisualColumnIndex] = 0;
     }
     else if (shiftKey) {
-        if ((INTS[fEDI_cursor_indexColumn] !== lastValidIndexColumn || INTS[fEDI_cursorVisualColumnIndex] !== lastValidIndexColumn) &&
-            BYTES[byteEDI_cursor_enterKeyEventKind] !== 0) {
-                EDI_finalizeEdit();
+        if (INTS[fEDI_cursor_indexColumn] !== lastValidIndexColumn && BYTES[byteEDI_cursor_enterKeyEventKind] !== 0) {
+            EDI_finalizeEdit();
+            INTS[fEDI_cursor_indexColumn] = lastValidIndexColumn;
+            // TODO: Do not duplicate this code in 'EDI_EnterKey' for the ctrlKey and shiftKey cases
+            EDI_startEdit(EditKind_Enter, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
         }
-        INTS[fEDI_cursor_indexColumn] = lastValidIndexColumn;
-        INTS[fEDI_cursorVisualColumnIndex] = lastValidIndexColumn; // TODO: This should be fine because the cursor is going to move in a moment anyhow
     }
 
     if (INTS[fEDI_cursor_editLength] === 0) {
@@ -3145,6 +3145,7 @@ function EDI_editEvent_theEditIself_Tab(event) {
 
 function EDI_editEvent_theEditIself_Enter(event) {
     if (INTS[fEDI_cursor_editKind] !== EditKind_Enter) {
+        // TODO: Do not duplicate this code in 'EDI_EnterKey' for the ctrlKey and shiftKey cases
         EDI_startEdit(EditKind_Enter, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
     }
     EDI_EnterKey(event.ctrlKey, event.shiftKey);

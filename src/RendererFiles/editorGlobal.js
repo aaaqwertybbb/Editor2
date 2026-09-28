@@ -2050,12 +2050,20 @@ function EDI_EnterKey(ctrlKey, shiftKey) {
         if (BYTES[byteEDI_cursor_enterKeyEventKind] === 0) {
             BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_StartOfLine_createLineAbove;
         }
+        //if ((INTS[fEDI_cursor_indexColumn] !== lastValidIndexColumn || INTS[fEDI_cursorVisualColumnIndex] !== lastValidIndexColumn) &&
+        //    BYTES[byteEDI_cursor_enterKeyEventKind] !== 0) {
+        //        EDI_finalizeEdit();
+        //}
         INTS[fEDI_cursor_indexColumn] = 0;
         INTS[fEDI_cursorVisualColumnIndex] = 0;
     }
     else if (shiftKey) {
-        if (BYTES[byteEDI_cursor_enterKeyEventKind] === 0) {
-            BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_EndOfLine_createLineBelow;
+        // You have to be careful here because your insertLineBelow could cause end of file and then the batch on 'insertLineBelow' bugs
+        // The solution might more accurately be to drop the distinct 'EnterKeyEventKind_EndOfLine_createLineBelow'.
+        // It was done while working through the details but they seem to be the same and the existence of 'EnterKeyEventKind_EndOfLine_createLineBelow' actually breaks things.
+        if ((INTS[fEDI_cursor_indexColumn] !== lastValidIndexColumn || INTS[fEDI_cursorVisualColumnIndex] !== lastValidIndexColumn) &&
+            BYTES[byteEDI_cursor_enterKeyEventKind] !== 0) {
+                EDI_finalizeEdit();
         }
         INTS[fEDI_cursor_indexColumn] = lastValidIndexColumn;
         INTS[fEDI_cursorVisualColumnIndex] = lastValidIndexColumn; // TODO: This should be fine because the cursor is going to move in a moment anyhow
@@ -3191,7 +3199,6 @@ function EDI_NOTcanBatch_enter(event) {
     // 
     return (
                BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfLine &&
-               BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfLine_createLineBelow &&
                BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_StartOfLine &&
                BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfFile
            ) ||
@@ -3539,7 +3546,7 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
  * 
 */
 function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
-    if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine_createLineBelow ||
+    if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine ||
         BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine_createLineAbove ||
         BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfFile) {
             return EDI_finalizeEdit_Enter_new(indexLine_editOccurredOn);
@@ -3625,7 +3632,7 @@ function EDI_finalizeEdit_Enter_new(indexLine_editOccurredOn) {
     let actualIndexLine = INTS[fEDI_cursor_editIndexLine];
     let actualNewLineVisualWidth = INTS[fEDI_cursor_cached_indentation_string_visualWidth];
 
-    if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine_createLineBelow) {
+    if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine) {
         actualEditPosition++; // Move past the current line's '\n'
         actualLineFeedPosition = actualEditPosition;
         actualLineFeedPosition += per_edit_insertionCount - 1;
@@ -3680,13 +3687,10 @@ function EDI_finalizeEdit_Enter_new(indexLine_editOccurredOn) {
     });
 
     // TODO: bulk insertion of lines
-    if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine_createLineBelow ||
-        BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine || BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine_createLineAbove) {
-            for (let i = 0; i < INTS[fEDI_cursor_editLineFeedCount]; i++) {
-                EDI_lineEndPositionList_insert(actualIndexLine, actualLineFeedPosition, actualNewLineVisualWidth);
-                actualIndexLine++;
-                actualLineFeedPosition += per_edit_insertionCount;
-            }
+    for (let i = 0; i < INTS[fEDI_cursor_editLineFeedCount]; i++) {
+        EDI_lineEndPositionList_insert(actualIndexLine, actualLineFeedPosition, actualNewLineVisualWidth);
+        actualIndexLine++;
+        actualLineFeedPosition += per_edit_insertionCount;
     }
     
     EDI_finalizeEdit_ClearEditState();
@@ -5208,7 +5212,6 @@ function EDI_cacheIndentation(originalIndexLine, originalIndexColumn, lastValidI
         case EnterKeyEventKind_StartOfLine:
         case EnterKeyEventKind_StartOfLine_createLineAbove:
         case EnterKeyEventKind_EndOfLine:
-        case EnterKeyEventKind_EndOfLine_createLineBelow:
             setOffset = 0;
             EDI_cursor_enterKey_newLinePlusIndentation_byteList[uint8Array_length - 1] = CONST_EDI_ASCII_LINE_FEED;
             break;

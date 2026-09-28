@@ -240,7 +240,6 @@ module.exports = function (babel) {
     "EnterKeyEventKind_StartOfLine_createLineAbove",
     "EnterKeyEventKind_AmongALine",
     "EnterKeyEventKind_EndOfLine",
-    "EnterKeyEventKind_EndOfLine_createLineBelow",
     "EnterKeyEventKind_EndOfFile",
 
     "CharacterKind_None",

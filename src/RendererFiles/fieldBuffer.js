@@ -831,6 +831,7 @@ const EditKind_Duplicate = 10;
 
 /**
  * TODO: Long term this likely should be removed and all enter key logic reduced into an insertion but this will help in the time being.
+ * TODO: There's tons of '0' checks rather than using 'EnterKeyEventKind_None' that I'm seeing throughout the code...
  */
 const EnterKeyEventKind_None = 0;
 const EnterKeyEventKind_StartOfLine = 1;
@@ -838,8 +839,6 @@ const EnterKeyEventKind_StartOfLine = 1;
 const EnterKeyEventKind_StartOfLine_createLineAbove = 2;
 const EnterKeyEventKind_AmongALine = 3;
 const EnterKeyEventKind_EndOfLine = 4;
-/** User specifically input "createLineBelow command (commands don't currently exist, this is just a description)" via { 'Shift' + 'Enter' } */
-const EnterKeyEventKind_EndOfLine_createLineBelow = 5;
 const EnterKeyEventKind_EndOfFile = 6;
 
 /**

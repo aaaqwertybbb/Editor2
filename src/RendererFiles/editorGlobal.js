@@ -2047,22 +2047,25 @@ function EDI_EnterKey(ctrlKey, shiftKey) {
     const lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
 
     if (ctrlKey) {
-        // TODO: '&& BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_StartOfLine' is PROBABLY superfluous
-        if (INTS[fEDI_cursor_indexColumn] !== 0 && BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_StartOfLine) {
+        if (INTS[fEDI_cursor_indexColumn] !== 0 && BYTES[byteEDI_cursor_enterKeyEventKind] !== 0) {
             EDI_finalizeEdit();
             INTS[fEDI_cursor_indexColumn] = 0;
             // TODO: Do not duplicate this code in 'EDI_EnterKey' for the ctrlKey and shiftKey cases
             EDI_startEdit(EditKind_Enter, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
         }
+        else if (INTS[fEDI_cursor_indexColumn] !== 0) {
+            INTS[fEDI_cursor_indexColumn] = 0;
+        }
     }
     else if (shiftKey) {
-        // TODO: '&& (BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfLine && BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfFile)' is PROBABLY superfluous
-        if (INTS[fEDI_cursor_indexColumn] !== lastValidIndexColumn &&
-            (BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfLine && BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfFile)) {
+        if (INTS[fEDI_cursor_indexColumn] !== lastValidIndexColumn && BYTES[byteEDI_cursor_enterKeyEventKind] !== 0) {
             EDI_finalizeEdit();
             INTS[fEDI_cursor_indexColumn] = lastValidIndexColumn;
             // TODO: Do not duplicate this code in 'EDI_EnterKey' for the ctrlKey and shiftKey cases
             EDI_startEdit(EditKind_Enter, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
+        }
+        else if (INTS[fEDI_cursor_indexColumn] !== lastValidIndexColumn) {
+            INTS[fEDI_cursor_indexColumn] = lastValidIndexColumn;
         }
     }
 
@@ -4536,6 +4539,9 @@ function EDI_finalizeEdit_ClearEditState() {
     INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = 0;
     INTS[fEDI_cursor_editLineFeedCount] = 0;
     EDI_lineEndPositionList_PENDING.clear();
+
+    // TODO: You do indeed have to clear this because of ctrl or shift cases of enter.
+    BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_None;
 }
 //#endregion
 

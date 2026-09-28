@@ -2050,16 +2050,11 @@ function EDI_EnterKey(ctrlKey, originalIndexLine, originalIndexColumn) {
         INTS[fEDI_cursor_editIndexColumn] = INTS[fEDI_cursor_indexColumn];
     }
 
-    if (INTS[fEDI_cursor_indexColumn] === 0) { // start of line
-        if (BYTES[byteEDI_cursor_enterKeyEventKind] === 0) {
+    if (BYTES[byteEDI_cursor_enterKeyEventKind] === 0) {
+        if (INTS[fEDI_cursor_indexColumn] === 0) {
             BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_StartOfLine;
         }
-
-        if (!ctrlKey)
-            INTS[fEDI_cursor_indexLine]++;
-    }
-    else {
-        if (BYTES[byteEDI_cursor_enterKeyEventKind] === 0) {
+        else {
             if (lastValidIndexColumn === INTS[fEDI_cursor_indexColumn]) {
                 if (INTS[fEDI_cursor_editPosition] === EDI_textByteList_count) {
                     BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_EndOfFile;
@@ -2072,10 +2067,10 @@ function EDI_EnterKey(ctrlKey, originalIndexLine, originalIndexColumn) {
                 BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_AmongALine;
             }
         }
-        
-        if (!ctrlKey)
-            INTS[fEDI_cursor_indexLine]++;
     }
+
+    if (!ctrlKey)
+        INTS[fEDI_cursor_indexLine]++;
 
     if (!EDI_cursor_enterKey_newLinePlusIndentation_byteList)
         EDI_cacheIndentation(originalIndexLine, originalIndexColumn, lastValidIndexColumn);

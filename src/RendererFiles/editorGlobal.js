@@ -3182,12 +3182,7 @@ function EDI_NOTcanBatch_enter() {
     // And it actually works which makes sense.
     // I might permit the shift key at point then I just need to slowly feel more and more comfortable with this.
     // 
-    return (
-               BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfLine &&
-               BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_StartOfLine &&
-               BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfFile &&
-               BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_AmongALine
-           ) ||
+    return BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_None ||
            INTS[fEDI_cursor_editKind] !== EditKind_Enter ||
            INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_END_editIndexLine] ||
            INTS[fEDI_cursor_indexColumn] !== INTS[fEDI_cursor_END_editIndexColumn] ||

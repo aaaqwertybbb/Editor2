@@ -11209,10 +11209,10 @@ What does it mean when github stops showing syntax highlighting when I view my r
 
 - [ ] batch enter key
     - [x] end of file
-    - [ ] insertLineBelow
-        - [ ] end of file
-            - [ ] Cursor is already at column index 0
-            - [ ] Cursor is NOT already at column index 0
+    - [x] insertLineBelow
+        - [x] end of file
+            - [x] Cursor is already at last valid column index
+            - [x] Cursor is NOT already at last valid column index
         - [x] end of line
             - [x] Cursor is already at column index 0
             - [x] Cursor is NOT already at column index 0

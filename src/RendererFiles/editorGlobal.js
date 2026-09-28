@@ -3189,14 +3189,18 @@ function EDI_NOTcanBatch_enter(event) {
     // And it actually works which makes sense.
     // I might permit the shift key at point then I just need to slowly feel more and more comfortable with this.
     // 
-    return (BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfLine && BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_StartOfLine && BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfFile) ||
+    return (
+               BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfLine &&
+               BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfLine_createLineBelow &&
+               BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_StartOfLine &&
+               BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_EndOfFile
+           ) ||
            INTS[fEDI_cursor_editKind] !== EditKind_Enter ||
            INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_END_editIndexLine] ||
            INTS[fEDI_cursor_indexColumn] !== INTS[fEDI_cursor_END_editIndexColumn] ||
            INTS[fEDI_cursor_editLength] >= CONST_EDI_cursor_GAP_BUFFER_CAPACITY ||
            !EDI_cursor_enterKey_newLinePlusIndentation_byteList ||
            EDI_cursor_hasSelection() ||
-           event.shiftKey ||
            event.ctrlKey;
 }
 
@@ -11208,8 +11212,9 @@ function EXPLORER_render_request(renderKind) {
 
 - [ ] batch enter key
     - [x] end of file
-    - [ ] among a line
-    - [ ] insertLineAbove
     - [ ] insertLineBelow
+        - [ ] You have to be careful here because your insertLineBelow could cause end of file and then the batch on 'insertLineBelow' bugs
+    - [ ] insertLineAbove
+    - [ ] among a line
 
 */

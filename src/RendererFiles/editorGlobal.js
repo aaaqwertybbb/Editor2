@@ -11215,6 +11215,14 @@ function EXPLORER_render_request(renderKind) {
  8:46
 12:46
 
+
+you can't last valid column index because the raw
+
+What does it mean when github stops showing syntax highlighting when I view my repo?
+
+
+
+
 - [ ] batch enter key
     - [x] end of file
     - [ ] insertLineBelow
@@ -11233,5 +11241,7 @@ function EXPLORER_render_request(renderKind) {
             - [x] Cursor is NOT already at column index 0
 =========================================================
     - [ ] among a line
+
+
 
 */

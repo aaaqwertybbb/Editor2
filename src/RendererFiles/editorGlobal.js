@@ -2073,7 +2073,8 @@ function EDI_EnterKey(ctrlKey, originalIndexLine, originalIndexColumn) {
             }
         }
         
-        INTS[fEDI_cursor_indexLine]++;
+        if (!ctrlKey)
+            INTS[fEDI_cursor_indexLine]++;
     }
 
     if (!EDI_cursor_enterKey_newLinePlusIndentation_byteList)

@@ -869,21 +869,13 @@ function EDI_render_do_IndentMore() {
 
             if (ringBufferIndex >= 0) {
                     let div = EDI_textElement.children[ringBufferIndex];
-                    let span;
-                    if (div.children[0].className === '') {
-                        span = div.children[0];
+                    if (div.textContent.length > 0 &&
+                        (div.textContent[0] === ' ' || div.textContent[0] === '\t') &&
+                        (div.textContent[div.textContent.length - 1] === ' ' || div.textContent[div.textContent.length - 1] === '\t')) {
+                            div.textContent += EDI_on_tab_string;
                     }
                     else {
-                        span = document.createElement('span');
-                        div.insertBefore(span, div.children[0]);
-                    }
-                    if (span.textContent.length > 0 &&
-                        (span.textContent[0] === ' ' || span.textContent[0] === '\t') &&
-                        (span.textContent[span.textContent.length - 1] === ' ' || span.textContent[span.textContent.length - 1] === '\t')) {
-                            span.textContent += EDI_on_tab_string;
-                    }
-                    else {
-                        span.textContent = EDI_on_tab_string + span.textContent;
+                        div.textContent = EDI_on_tab_string + div.textContent;
                     }
             }
         }

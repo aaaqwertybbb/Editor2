@@ -626,6 +626,39 @@ it probably inserted 4 spaces and I was like doh why am I still getting 0 CLS af
     background-color: var(--primary-active-with-focus-background-color);
 }
 
+/*
+--editor-syntax-keyword-color: #569CD6;
+  --editor-syntax-keywordControl-color: #C586C0;
+*/
+
+::highlight(js-keywords) {
+  color: var(--editor-syntax-keyword-color);
+}
+
+::highlight(js-keywords-control) {
+  color: var(--editor-syntax-keywordControl-color);
+}
+
+::highlight(js-member) {
+  color: var(--editor-syntax-member-color);
+}
+
+::highlight(js-function) {
+  color: var(--editor-syntax-function-color);
+}
+
+::highlight(js-identifier) {
+  color: var(--editor-syntax-identifier-color);
+}
+
+::highlight(js-comment) {
+  color: var(--editor-syntax-comment-color);
+}
+
+::highlight(js-string) {
+  color: var(--editor-syntax-string-color);
+}
+
 #DIALOG {
   position: fixed;
   width: 60vw;

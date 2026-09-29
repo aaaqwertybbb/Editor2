@@ -7000,6 +7000,14 @@ function EDI_onblur() {
 */
 function EDI_render_do_SyntaxHighlighting() {
 
+    keywordHighlight.clear();
+    keywordControlHighlight.clear();
+    memberHighlight.clear();
+    functionHighlight.clear();
+    identifierHighlight.clear();
+    commentHighlight.clear();
+    stringHighlight.clear();
+
     if (EDI_cursor_hasSelection()){
         EDI_render_do_RedrawSelection();
     }
@@ -7080,7 +7088,7 @@ function EDI_render_do_SyntaxHighlighting() {
                 lineEnd = lineStart;
             }
     
-            //trackedSyntax_I = JS_line_lex_newVersion(EDI_ringBuffer_text[ringBufferIndexCurrent], ringBufferIndexCurrent, trackedSyntax_I, lineStart);
+            trackedSyntax_I = JS_line_lex_newVersion(EDI_ringBuffer_text[ringBufferIndexCurrent], ringBufferIndexCurrent, trackedSyntax_I, lineStart);
         }
 
         ringBufferIndexCurrent = (ringBufferIndexCurrent + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];

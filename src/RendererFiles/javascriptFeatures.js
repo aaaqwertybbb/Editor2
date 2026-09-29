@@ -880,6 +880,21 @@ function JS_line_lex(div, substart, lineEnd, childIndex) {
     return childIndex;
 }
 
+const keywordHighlight = new Highlight();
+CSS.highlights.set("js-keywords", keywordHighlight);
+const keywordControlHighlight = new Highlight();
+CSS.highlights.set("js-keywords-control", keywordControlHighlight);
+const memberHighlight = new Highlight();
+CSS.highlights.set("js-member", memberHighlight);
+const functionHighlight = new Highlight();
+CSS.highlights.set("js-function", functionHighlight);
+const identifierHighlight = new Highlight();
+CSS.highlights.set("js-identifier", identifierHighlight);
+const commentHighlight = new Highlight();
+CSS.highlights.set("js-comment", commentHighlight);
+const stringHighlight = new Highlight();
+CSS.highlights.set("js-string", stringHighlight);
+
 /**
  * TODO: rename the 'trackedSyntaxExhausted' variable because it makes me anxious that I will manifest that state of being into reality whenever I read the variable name.
  */
@@ -892,6 +907,8 @@ function JS_line_lex_newVersion(div, ringBufferIndexOfDiv, trackedSyntax_I, line
 
     const divSpanTextContent = String(div.children[0].textContent);
     let divSpanTextContentLength = divSpanTextContent.length;
+
+    const textNode = div.children[0].firstChild;
 
     let divChildrenInitialLength = div.children.length;
 
@@ -1388,62 +1405,92 @@ function JS_line_lex_newVersion(div, ringBufferIndexOfDiv, trackedSyntax_I, line
                                 // TODO: If a comment or multi-line comment are the only things on a line, and prior to them on that same line is only whitespace...
                                 // ...preprocessor.cjs should remove the entire line itself rather than take the line and indentation for no reason.
                                 //
-                                flushTextContent = divSpanTextContent.substring(substart, substart = wordstart);
-                                if (childIndex < divChildrenInitialLength) {
-                                    span = div.children[childIndex++];
-                                    span.className = '';
-                                    span.textContent = flushTextContent;
-                                }
-                                else {
-                                    span = document.createElement('span');
-                                    span.textContent = flushTextContent;
-                                    div.appendChild(span);
-                                }
+                                //flushTextContent = divSpanTextContent.substring(substart, substart = wordstart);
+                                //if (childIndex < divChildrenInitialLength) {
+                                //    span = div.children[childIndex++];
+                                //    span.className = '';
+                                //    span.textContent = flushTextContent;
+                                //}
+                                //else {
+                                //    span = document.createElement('span');
+                                //    span.textContent = flushTextContent;
+                                //    div.appendChild(span);
+                                //}
+                                substart = wordstart;
                             }
 
+                            const range = new Range();
+                            range.setStart(textNode, substart);
+                            range.setEnd(textNode, substart += wordlength);
+                            
+
                             if (className === 'eI') {
-                                textContent = divSpanTextContent.substring(substart, substart + wordlength);
+                                //textContent = divSpanTextContent.substring(substart, substart + wordlength);
+
 
                                 if (divSpanTextContent[pos] === '(') {
                                     className = 'eF';
+                                    functionHighlight.add(range);       // Adds a new highlighted span
                                 }
                                 else if (substart > 0 && divSpanTextContent[substart - 1] === '.') {
                                     className = 'eM';
+                                    memberHighlight.add(range);       // Adds a new highlighted span
                                 }
                                 else if (divSpanTextContent[pos] === ':') {
                                     className = 'eM';
+                                    memberHighlight.add(range);       // Adds a new highlighted span
+                                }
+                                else {
+                                    identifierHighlight.add(range);       // Adds a new highlighted span
                                 }
                             }
+                            else if (className === 'eK') {
+                                keywordHighlight.add(range);       // Adds a new highlighted span
+                            }
+                            else if (className === 'eKC') {
+                                keywordControlHighlight.add(range);       // Adds a new highlighted span
+                            }
 
-                            if (childIndex < divChildrenInitialLength) {
-                                span = div.children[childIndex++];
-                                span.className = className;
-                                span.textContent = textContent;
-                            }
-                            else {
-                                span = document.createElement('span');
-                                span.className = className;
-                                span.textContent = textContent;
-                                div.appendChild(span);
-                            }
-                            substart += wordlength;
+                            // Highlight characters from index 0 to 5 (e.g., "const")
+                            
+                            //keywordHighlight.delete(oldRange);    // Removes a highlighted span
+                            //keywordHighlight.clear();             // Wipes all highlights in this group
+
+                            // You can pass multiple ranges into a single Highlight bundle
+                            //const keywordHighlight = new Highlight();
+
+                            //CSS.highlights.set("js-keywords", keywordHighlight);
+                            
+                            //if (childIndex < divChildrenInitialLength) {
+                            //    span = div.children[childIndex++];
+                            //    span.className = className;
+                            //    span.textContent = textContent;
+                            //}
+                            //else {
+                            //    span = document.createElement('span');
+                            //    span.className = className;
+                            //    span.textContent = textContent;
+                            //    div.appendChild(span);
+                            //}
+                            //substart += wordlength;
                         }
                         continue;
                     case CONST_js_FORWARDSLASH_str:
                         if (divSpanTextContent[pos + 1] === CONST_js_FORWARDSLASH_str) {
 
                             if (substart < pos) {
-                                flushTextContent = divSpanTextContent.substring(substart, substart = pos);
-                                if (childIndex < divChildrenInitialLength) {
-                                    span = div.children[childIndex++];
-                                    span.className = '';
-                                    span.textContent = flushTextContent;
-                                }
-                                else {
-                                    span = document.createElement('span');
-                                    span.textContent = flushTextContent;
-                                    div.appendChild(span);
-                                }
+                                substart = pos;
+                                //flushTextContent = divSpanTextContent.substring(substart, substart = pos);
+                                //if (childIndex < divChildrenInitialLength) {
+                                //    span = div.children[childIndex++];
+                                //    span.className = '';
+                                //    span.textContent = flushTextContent;
+                                //}
+                                //else {
+                                //    span = document.createElement('span');
+                                //    span.textContent = flushTextContent;
+                                //    div.appendChild(span);
+                                //}
                             }
 
                             // lex_comment_singleLine(...)
@@ -1462,35 +1509,40 @@ function JS_line_lex_newVersion(div, ringBufferIndexOfDiv, trackedSyntax_I, line
 
                             // TODO: I think checking this is redundant because you guaranteed at least one increment?
                             if (substart < pos) {
-                                textContent = divSpanTextContent.substring(substart, substart = pos);
-                                if (childIndex < divChildrenInitialLength) {
-                                    span = div.children[childIndex++];
-                                    span.className = 'eC';
-                                    span.textContent = textContent;
-                                }
-                                else {
-                                    span = document.createElement('span');
-                                    span.className = 'eC';
-                                    span.textContent = textContent;
-                                    div.appendChild(span);
-                                }
+                                //textContent = divSpanTextContent.substring(substart, substart = pos);
+                                //if (childIndex < divChildrenInitialLength) {
+                                //    span = div.children[childIndex++];
+                                //    span.className = 'eC';
+                                //    span.textContent = textContent;
+                                //}
+                                //else {
+                                //    span = document.createElement('span');
+                                //    span.className = 'eC';
+                                //    span.textContent = textContent;
+                                //    div.appendChild(span);
+                                //}
+                                const range = new Range();
+                                range.setStart(textNode, substart);
+                                range.setEnd(textNode, substart = pos);
+                                commentHighlight.add(range);
                             }
 
                             continue;
                         }
                         else if (divSpanTextContent[pos + 1] === CONST_js_ASTERISK_str) {
                             if (substart < pos) { // write any text that came prior, and on the same line.
-                                flushTextContent = divSpanTextContent.substring(substart, substart = pos);
-                                if (childIndex < divChildrenInitialLength) {
-                                    span = div.children[childIndex++];
-                                    span.className = '';
-                                    span.textContent = flushTextContent;
-                                }
-                                else {
-                                    span = document.createElement('span');
-                                    span.textContent = flushTextContent;
-                                    div.appendChild(span);
-                                }
+                                //flushTextContent = divSpanTextContent.substring(substart, substart = pos);
+                                //if (childIndex < divChildrenInitialLength) {
+                                //    span = div.children[childIndex++];
+                                //    span.className = '';
+                                //    span.textContent = flushTextContent;
+                                //}
+                                //else {
+                                //    span = document.createElement('span');
+                                //    span.textContent = flushTextContent;
+                                //    div.appendChild(span);
+                                //}
+                                substart = pos;
                             }
 
                             // Move past the 'forwardslash and asterisk'
@@ -1524,18 +1576,22 @@ function JS_line_lex_newVersion(div, ringBufferIndexOfDiv, trackedSyntax_I, line
                                 }
                             }
 
-                            textContent = divSpanTextContent.substring(substart, substart = pos);
-                            if (childIndex < divChildrenInitialLength) {
-                                span = div.children[childIndex++];
-                                span.className = 'eCm';
-                                span.textContent = textContent;
-                            }
-                            else {
-                                span = document.createElement('span');
-                                span.className = 'eCm';
-                                span.textContent = textContent;
-                                div.appendChild(span);
-                            }
+                            const range = new Range();
+                            range.setStart(textNode, substart);
+                            range.setEnd(textNode, substart = pos);
+                            commentHighlight.add(range);
+                            //textContent = divSpanTextContent.substring(substart, substart = pos);
+                            //if (childIndex < divChildrenInitialLength) {
+                            //    span = div.children[childIndex++];
+                            //    span.className = 'eCm';
+                            //    span.textContent = textContent;
+                            //}
+                            //else {
+                            //    span = document.createElement('span');
+                            //    span.className = 'eCm';
+                            //    span.textContent = textContent;
+                            //    div.appendChild(span);
+                            //}
 
                             continue;
                         }
@@ -1544,17 +1600,18 @@ function JS_line_lex_newVersion(div, ringBufferIndexOfDiv, trackedSyntax_I, line
                         break;
                     case CONST_js_DOUBLEQUOTE_str:
                         if (substart < pos) {
-                            flushTextContent = divSpanTextContent.substring(substart, substart = pos);
-                            if (childIndex < divChildrenInitialLength) {
-                                span = div.children[childIndex++];
-                                span.className = '';
-                                span.textContent = flushTextContent;
-                            }
-                            else {
-                                span = document.createElement('span');
-                                span.textContent = flushTextContent;
-                                div.appendChild(span);
-                            }
+                            //flushTextContent = divSpanTextContent.substring(substart, substart = pos);
+                            //if (childIndex < divChildrenInitialLength) {
+                            //    span = div.children[childIndex++];
+                            //    span.className = '';
+                            //    span.textContent = flushTextContent;
+                            //}
+                            //else {
+                            //    span = document.createElement('span');
+                            //    span.textContent = flushTextContent;
+                            //    div.appendChild(span);
+                            //}
+                            substart = pos;
                         }
                         // This code is somewhat a duplication of 'function lex_string(...)'
                         //
@@ -1576,32 +1633,37 @@ function JS_line_lex_newVersion(div, ringBufferIndexOfDiv, trackedSyntax_I, line
                                     break;
                             }
                         }
-                        textContent = divSpanTextContent.substring(substart, substart = pos);
-                        if (childIndex < divChildrenInitialLength) {
-                            span = div.children[childIndex++];
-                            span.className = 'eS';
-                            span.textContent = textContent;
-                        }
-                        else {
-                            span = document.createElement('span');
-                            span.className = 'eS';
-                            span.textContent = textContent;
-                            div.appendChild(span);
-                        }
+                        //textContent = divSpanTextContent.substring(substart, substart = pos);
+                        const range = new Range();
+                        range.setStart(textNode, substart);
+                        range.setEnd(textNode, substart = pos);
+                        stringHighlight.add(range);
+                        //if (childIndex < divChildrenInitialLength) {
+                        //    span = div.children[childIndex++];
+                        //    span.className = 'eS';
+                        //    span.textContent = textContent;
+                        //}
+                        //else {
+                        //    span = document.createElement('span');
+                        //    span.className = 'eS';
+                        //    span.textContent = textContent;
+                        //    div.appendChild(span);
+                        //}
                         continue;
                     case CONST_js_SINGLEQUOTE_str:
                         if (substart < pos) {
-                            flushTextContent = divSpanTextContent.substring(substart, substart = pos);
-                            if (childIndex < divChildrenInitialLength) {
-                                span = div.children[childIndex++];
-                                span.className = '';
-                                span.textContent = flushTextContent;
-                            }
-                            else {
-                                span = document.createElement('span');
-                                span.textContent = flushTextContent;
-                                div.appendChild(span);
-                            }
+                            //flushTextContent = divSpanTextContent.substring(substart, substart = pos);
+                            //if (childIndex < divChildrenInitialLength) {
+                            //    span = div.children[childIndex++];
+                            //    span.className = '';
+                            //    span.textContent = flushTextContent;
+                            //}
+                            //else {
+                            //    span = document.createElement('span');
+                            //    span.textContent = flushTextContent;
+                            //    div.appendChild(span);
+                            //}
+                            substart = pos;
                         }
                         // This code is somewhat a duplication of 'function lex_string(...)'
                         //
@@ -1623,32 +1685,37 @@ function JS_line_lex_newVersion(div, ringBufferIndexOfDiv, trackedSyntax_I, line
                                     break;
                             }
                         }
-                        textContent = divSpanTextContent.substring(substart, substart = pos);
-                        if (childIndex < divChildrenInitialLength) {
-                            span = div.children[childIndex++];
-                            span.className = 'eS';
-                            span.textContent = textContent;
-                        }
-                        else {
-                            span = document.createElement('span');
-                            span.className = 'eS';
-                            span.textContent = textContent;
-                            div.appendChild(span);
-                        }
+                        //textContent = divSpanTextContent.substring(substart, substart = pos);
+                        const range2 = new Range();
+                        range2.setStart(textNode, substart);
+                        range2.setEnd(textNode, substart = pos);
+                        stringHighlight.add(range2);
+                        //if (childIndex < divChildrenInitialLength) {
+                        //    span = div.children[childIndex++];
+                        //    span.className = 'eS';
+                        //    span.textContent = textContent;
+                        //}
+                        //else {
+                        //    span = document.createElement('span');
+                        //    span.className = 'eS';
+                        //    span.textContent = textContent;
+                        //    div.appendChild(span);
+                        //}
                         continue;
                     case CONST_js_BACKTICK_str:
                         if (substart < pos) {
-                            flushTextContent = divSpanTextContent.substring(substart, substart = pos);
-                            if (childIndex < divChildrenInitialLength) {
-                                span = div.children[childIndex++];
-                                span.className = '';
-                                span.textContent = flushTextContent;
-                            }
-                            else {
-                                span = document.createElement('span');
-                                span.textContent = flushTextContent;
-                                div.appendChild(span);
-                            }
+                            //flushTextContent = divSpanTextContent.substring(substart, substart = pos);
+                            substart = pos;
+                            //if (childIndex < divChildrenInitialLength) {
+                            //    span = div.children[childIndex++];
+                            //    span.className = '';
+                            //    span.textContent = flushTextContent;
+                            //}
+                            //else {
+                            //    span = document.createElement('span');
+                            //    span.textContent = flushTextContent;
+                            //    div.appendChild(span);
+                            //}
                         }
                         // This code is somewhat a duplication of 'function lex_string(...)'
                         //
@@ -1670,18 +1737,22 @@ function JS_line_lex_newVersion(div, ringBufferIndexOfDiv, trackedSyntax_I, line
                                     break;
                             }
                         }
-                        textContent = divSpanTextContent.substring(substart, substart = pos);
-                        if (childIndex < divChildrenInitialLength) {
-                            span = div.children[childIndex++];
-                            span.className = 'eSm';
-                            span.textContent = textContent;
-                        }
-                        else {
-                            span = document.createElement('span');
-                            span.className = 'eSm';
-                            span.textContent = textContent;
-                            div.appendChild(span);
-                        }
+                        //textContent = divSpanTextContent.substring(substart, substart = pos);
+                        const range3 = new Range();
+                        range3.setStart(textNode, substart);
+                        range3.setEnd(textNode, substart = pos);
+                        stringHighlight.add(range3);
+                        //if (childIndex < divChildrenInitialLength) {
+                        //    span = div.children[childIndex++];
+                        //    span.className = 'eSm';
+                        //    span.textContent = textContent;
+                        //}
+                        //else {
+                        //    span = document.createElement('span');
+                        //    span.className = 'eSm';
+                        //    span.textContent = textContent;
+                        //    div.appendChild(span);
+                        //}
                         continue;
                 }
                 pos++;
@@ -1689,17 +1760,18 @@ function JS_line_lex_newVersion(div, ringBufferIndexOfDiv, trackedSyntax_I, line
 
             // TODO: Consider the final pos? Is this gonna bug? I don't think it will.
             if (substart < pos && pos !== 0) {
-                flushTextContent = divSpanTextContent.substring(substart, substart = pos);
-                if (childIndex < divChildrenInitialLength) {
-                    span = div.children[childIndex++];
-                    span.className = '';
-                    span.textContent = flushTextContent;
-                }
-                else {
-                    span = document.createElement('span');
-                    span.textContent = flushTextContent;
-                    div.appendChild(span);
-                }
+                //flushTextContent = divSpanTextContent.substring(substart, substart = pos);
+                //if (childIndex < divChildrenInitialLength) {
+                //    span = div.children[childIndex++];
+                //    span.className = '';
+                //    span.textContent = flushTextContent;
+                //}
+                //else {
+                //    span = document.createElement('span');
+                //    span.textContent = flushTextContent;
+                //    div.appendChild(span);
+                //}
+                substart = pos;
             }
 
             if (!trackedSyntaxExhausted) {
@@ -1711,32 +1783,37 @@ function JS_line_lex_newVersion(div, ringBufferIndexOfDiv, trackedSyntax_I, line
             
             createTrackedSyntaxFlag = false;
 
-            let span;
-            if (childIndex < divChildrenInitialLength) {
-                span = div.children[childIndex++];
-                //span.className = ''; className is guaranteed to be set in this specific case
-            }
-            else {
-                span = document.createElement('span');
-                div.appendChild(span);
-            }
+            //let span;
+            //if (childIndex < divChildrenInitialLength) {
+                //span = div.children[childIndex++];
+                ////span.className = ''; className is guaranteed to be set in this specific case
+            //}
+            //else {
+                //span = document.createElement('span');
+                //div.appendChild(span);
+            //}
 
             let trackedSyntaxEnd = INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length];
             subend = trackedSyntaxEnd > divSpanTextContentLength ? divSpanTextContentLength : trackedSyntaxEnd;
             
             let length = subend - substart;
-            span.textContent = divSpanTextContent.substring(substart, subend);
+            //span.textContent = divSpanTextContent.substring(substart, subend);
+            const range = new Range();
+            range.setStart(textNode, substart);
+            range.setEnd(textNode, subend);
             substart += length;
             pos += length;
             switch (BYTES[byteEDI_pooledTrackedSyntax_trackedSyntaxKind]) {
                 case TrackedSyntaxKind_Comment:
-                    span.className = 'eCM';
+                    commentHighlight.add(range);
+                    //span.className = 'eCM';
                     break;
                 case TrackedSyntaxKind_String:
-                    span.className = 'eSM';
+                    stringHighlight.add(range);
+                    //span.className = 'eSM';
                     break;
                 default:
-                    span.className = '';
+                    //span.className = '';
                     break;
             }
         }

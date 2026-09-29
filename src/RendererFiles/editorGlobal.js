@@ -1489,7 +1489,6 @@ function EDI_render_do_DuplicateOrPaste() {
                 if (INTS[fEDI_cursor_indexColumn] === 0 && last_valid_indexColumn_currentLine !== 0) { // start of line
                     
                     EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, ringBufferIndex_current);
-                    EDI_textElement.children[ringBufferIndex_current].appendChild(document.createElement('span'));
 
                     ringBufferIndex_current = (ringBufferIndex_current + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
                     let lineDiv = EDI_textElement.children[ringBufferIndex_current];
@@ -5151,8 +5150,6 @@ function EDI_trackedSyntaxList_inefficientUpdateStartAndLength(indexPosition, in
 }
 
 /**
- * CORRUPT_STATE: The invoker needs to ensure there is at least one empty span on the 'inclusiveSmallestRingBufferIndexToShift' after they invoke this function.
- * 
  * TODO: implement this but by an arbitrary distance
  */
 function EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, inclusiveSmallestRingBufferIndexToShift) {
@@ -5168,15 +5165,17 @@ function EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, in
     // 
     let local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
 
+    // 1. Properly clear the last line (including its raw text node)
     let lastDiv = EDI_textElement.children[ringBufferIndex_last];
-    for (let i = lastDiv.children.length - 1; i >= 0; i--) {
-        lastDiv.removeChild(lastDiv.children[i]);
-    }
+    lastDiv.textContent = ''; // Fast, native way to wipe all text nodes and children
 
+    // 2. Shift the text nodes across your ring buffer
     for (let i = ringBufferIndex_last; i !== inclusiveSmallestRingBufferIndexToShift;) {
         let destinationDiv = EDI_textElement.children[i];
         i = (i - 1 + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
         let sourceDiv = EDI_textElement.children[i];
+        
+        // Move the raw text node from source to destination
         destinationDiv.replaceChildren(...sourceDiv.childNodes);
     }
 }

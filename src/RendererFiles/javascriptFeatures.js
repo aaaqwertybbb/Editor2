@@ -458,22 +458,28 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
 
                             if (className === 'eI') {
                                 if (divSpanTextContent[pos] === '(') {
+                                    EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
                                     functionHighlight.add(range);
                                 }
                                 else if (substart > 0 && divSpanTextContent[substart - 1] === '.') {
+                                    EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
                                     memberHighlight.add(range);
                                 }
                                 else if (divSpanTextContent[pos] === ':') {
+                                    EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
                                     memberHighlight.add(range);
                                 }
                                 else {
+                                    EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
                                     identifierHighlight.add(range);
                                 }
                             }
                             else if (className === 'eK') {
+                                EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
                                 keywordHighlight.add(range);
                             }
                             else if (className === 'eKC') {
+                                EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
                                 keywordControlHighlight.add(range);
                             }
                             substart += wordlength; // goes here or there? (1 of 2)
@@ -506,6 +512,7 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
                                 const range = new Range();
                                 range.setStart(textNode, substart);
                                 range.setEnd(textNode, substart = pos);
+                                EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
                                 commentHighlight.add(range);
                             }
 
@@ -550,6 +557,7 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
                             const range = new Range();
                             range.setStart(textNode, substart);
                             range.setEnd(textNode, substart = pos);
+                            EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
                             commentHighlight.add(range);
 
                             continue;
@@ -585,6 +593,7 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
                         const range = new Range();
                         range.setStart(textNode, substart);
                         range.setEnd(textNode, substart = pos);
+                        EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
                         stringHighlight.add(range);
                         continue;
                     case CONST_js_SINGLEQUOTE_str:
@@ -615,6 +624,7 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
                         const range2 = new Range();
                         range2.setStart(textNode, substart);
                         range2.setEnd(textNode, substart = pos);
+                        EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range2);
                         stringHighlight.add(range2);
                         
                         continue;
@@ -646,6 +656,7 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
                         const range3 = new Range();
                         range3.setStart(textNode, substart);
                         range3.setEnd(textNode, substart = pos);
+                        EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range3);
                         stringHighlight.add(range3);
 
                         continue;
@@ -684,9 +695,11 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
             pos += length;
             switch (BYTES[byteEDI_pooledTrackedSyntax_trackedSyntaxKind]) {
                 case TrackedSyntaxKind_Comment:
+                    EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
                     commentHighlight.add(range);
                     break;
                 case TrackedSyntaxKind_String:
+                    EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
                     stringHighlight.add(range);
                     break;
                 default:

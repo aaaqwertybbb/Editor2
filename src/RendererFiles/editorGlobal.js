@@ -170,6 +170,12 @@ const EDI_renderKindBuffer = new Uint8Array(BUFFER_SIZE);
 let EDI_ringBuffer_gutter = [];
 let EDI_ringBuffer_text = [];
 
+/**
+ * TODO: Long term you'd want to permit shifting nodes in the ringBuffer to avoid literally replacing child nodes foreach visible
+ * line below you on enter keystroke but that isn't currently a thing, and I'm trying to work out the details of how to do this.
+ */
+let EDI_ringBuffer_mapHighlights = [];
+
 let EDI_language_line_lex = null;
 
 function EDI_init() {
@@ -291,14 +297,39 @@ function EDI_render_request(renderKind) {
     }
 }
 
-function EDI_clearHighlights() {
-    keywordHighlight.clear();
-    keywordControlHighlight.clear();
-    memberHighlight.clear();
-    functionHighlight.clear();
-    identifierHighlight.clear();
-    commentHighlight.clear();
-    stringHighlight.clear();
+/** If 'ringBufferIndexOfDiv' is falsey clear everything, otherwise clear only what is related to the 'ringBufferIndexOfDiv'. */
+function EDI_clearHighlights(ringBufferIndexOfDiv) {
+    if (!ringBufferIndexOfDiv) {
+        for (let i = EDI_ringBuffer_mapHighlights.length - 1; i >= 0; i--) {
+            // TODO: length = 0?
+            let p = EDI_ringBuffer_mapHighlights[i];
+            let k = p.pop();
+            while (k) {
+                k = p.pop();
+            }
+        }
+        keywordHighlight.clear();
+        keywordControlHighlight.clear();
+        memberHighlight.clear();
+        functionHighlight.clear();
+        identifierHighlight.clear();
+        commentHighlight.clear();
+        stringHighlight.clear();
+    }
+    else {
+        const p = EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv];
+        let k = p.pop();
+        while (k) {
+            if (identifierHighlight.has(k)) { identifierHighlight.delete(k); }
+            else if (keywordHighlight.has(k)) { keywordHighlight.delete(k); }
+            else if (memberHighlight.has(k)) { memberHighlight.delete(k); }
+            else if (keywordControlHighlight.has(k)) { keywordControlHighlight.delete(k); }
+            else if (functionHighlight.has(k)) { functionHighlight.delete(k); }
+            else if (commentHighlight.has(k)) { commentHighlight.delete(k); }
+            else if (stringHighlight.has(k)) { stringHighlight.delete(k); }
+            k = p.pop();
+        }
+    }
 }
 
 function EDI_render_do_CreateViewport() {
@@ -347,6 +378,13 @@ function EDI_render_do_CreateViewport() {
     EDI_ringBuffer_gutter = Array.from(EDI_gutter.children);
     EDI_ringBuffer_text = Array.from(EDI_textElement.children);
     INTS[fEDI_ArrayFrom_textElement_children_length] = EDI_ringBuffer_text.length;
+
+    while (EDI_ringBuffer_mapHighlights.length > INTS[fEDI_ArrayFrom_textElement_children_length]) {
+        EDI_ringBuffer_mapHighlights.pop();
+    }
+    while (EDI_ringBuffer_mapHighlights.length < INTS[fEDI_ArrayFrom_textElement_children_length]) {
+        EDI_ringBuffer_mapHighlights.push([]);
+    }
 
     EDI_drawHorizontalScrollbar();
 }

@@ -2646,12 +2646,28 @@ function EDI_render_do_Backspace() {
                             EDI_stopTrackingIfTrackedSyntaxMadeToSpanSingleLine();
                         }
 
+                        // Merge the lines if both are visible.
+                        // TODO: Use NEXT here (... + 1)
+                        
                         // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
-                        let ringBufferIndex_last = (INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1) - INTS[fEDI_virtualIndexLine];
-                        if (ringBufferIndex_last >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_last < 0) ringBufferIndex_last = -1;
-                        else ringBufferIndex_last = (ringBufferIndex_last + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
+                        let ringBufferIndex_next = (INTS[fEDI_cursor_indexLine] + 1) - INTS[fEDI_virtualIndexLine];
+                        if (ringBufferIndex_next >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_next < 0) ringBufferIndex_next = -1;
+                        else ringBufferIndex_next = (ringBufferIndex_next + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
 
-                        EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_last, INTS[fEDI_w_ringBufferIndex], 1);
+                        if (ringBufferIndex_next >= 0) {
+                            let keepingDiv = w_div;
+                            let removingDiv = EDI_textElement.children[ringBufferIndex_next];
+
+                            // TODO: it is just 1 textNode?
+                            keepingDiv.replaceChildren(...removingDiv.childNodes);
+
+                            // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
+                            let ringBufferIndex_last = (INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1) - INTS[fEDI_virtualIndexLine];
+                            if (ringBufferIndex_last >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_last < 0) ringBufferIndex_last = -1;
+                            else ringBufferIndex_last = (ringBufferIndex_last + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
+
+                            EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_last, ringBufferIndex_next, 1);
+                        }
                     }
                     else {
                         return;
@@ -5033,8 +5049,6 @@ function EDI_cacheIndentation(originalIndexLine, originalIndexColumn, lastValidI
     EDI_cursor_enterKey_newLinePlusIndentation_byteList = new Uint8Array(uint8Array_length);
 
     let setOffset = 1;
-
-    // mawnstur
 
     switch (BYTES[byteEDI_cursor_enterKeyEventKind]) {
         case EnterKeyEventKind_StartOfLine:

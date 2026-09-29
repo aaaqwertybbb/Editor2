@@ -2456,20 +2456,8 @@ function EDI_render_do_Delete() {
                             let keepingDiv = w_div;
                             let removingDiv = EDI_textElement.children[ringBufferIndex_next];
 
-                            let rememberRemovingDivLength = removingDiv.children.length;
-                            for (let k = 0; k < rememberRemovingDivLength; k++) {
-                                if (removingDiv.children[0].textContent.length > 0) {
-                                    keepingDiv.appendChild(removingDiv.children[0]);
-                                }
-                                else {
-                                    removingDiv.removeChild(removingDiv.children[0]);
-                                }
-                            }
-
-                            // TODO: This is NOT an optimal solution to removing the empty span after joining the lines
-                            if (keepingDiv.children.length > 1 && keepingDiv.children[0].textContent.length === 0) {
-                                keepingDiv.removeChild(keepingDiv.children[0]);
-                            }
+                            // TODO: it is just 1 textNode?
+                            keepingDiv.replaceChildren(...removingDiv.childNodes);
 
                             // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
                             let ringBufferIndex_last = (INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1) - INTS[fEDI_virtualIndexLine];

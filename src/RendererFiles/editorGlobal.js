@@ -117,8 +117,9 @@ let EDI_documentSymbolResult = null;
  */
 let EDI_listComponent = null;
 
-let w_span = null;
-let w_div = null;
+/** TODO: This allocation upsets me. */
+const w_divNONE = document.createElement('div');
+let w_div = w_divNONE;
 
 /**
  * This queueing is currently a complete copy and paste of what Google AI generated.
@@ -370,7 +371,6 @@ function EDI_render_do_CreateViewport() {
         textLineElement.className = 'eT';
         textLineElement.style.left = left;
         textLineElement.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
-        textLineElement.appendChild(document.createElement('span'));
         textFragment.appendChild(textLineElement);
     }
 
@@ -379,12 +379,14 @@ function EDI_render_do_CreateViewport() {
 
     EDI_ringBuffer_gutter = Array.from(EDI_gutter.children);
     EDI_ringBuffer_text = Array.from(EDI_textElement.children);
-    INTS[fEDI_ArrayFrom_textElement_children_length] = EDI_ringBuffer_text.length;
 
-    while (EDI_ringBuffer_mapHighlights.length > INTS[fEDI_ArrayFrom_textElement_children_length]) {
+    const local_ArrayFrom_textElement_children_length = EDI_ringBuffer_text.length;
+    INTS[fEDI_ArrayFrom_textElement_children_length] = local_ArrayFrom_textElement_children_length;
+
+    while (EDI_ringBuffer_mapHighlights.length > local_ArrayFrom_textElement_children_length) {
         EDI_ringBuffer_mapHighlights.pop();
     }
-    while (EDI_ringBuffer_mapHighlights.length < INTS[fEDI_ArrayFrom_textElement_children_length]) {
+    while (EDI_ringBuffer_mapHighlights.length < local_ArrayFrom_textElement_children_length) {
         EDI_ringBuffer_mapHighlights.push([]);
     }
 
@@ -543,14 +545,8 @@ function EDI_render_do_Scroll(timestamp) {
             lineEnd = lineStart;
         }
 
-        // Corrupt state if assumption is not met: - All lines of text are to contain at least 1 span at all times even if that span is just an empty one.
-        const span = div.firstChild;
-        span.className = 'eN';
-        span.textContent = lineStart === lineEnd ? '' : EDI_decoder.decode(bytes.subarray(lineStart, lineEnd));
-
-        //while (div.lastChild && div.lastChild !== div.firstChild) {
-        //    div.removeChild(div.lastChild);
-        //}
+        div.className = 'eTN';
+        div.textContent = lineStart === lineEnd ? '' : EDI_decoder.decode(bytes.subarray(lineStart, lineEnd));
 
         const translateY = `${vertical}px`;
         gutter.style.top = translateY;
@@ -1349,7 +1345,7 @@ function EDI_render_do_DuplicateOrPaste() {
         }
 
         walkLineUntilIndexColumn();
-        if (!w_span || !w_div) {
+        if (w_div === w_divNONE) {
             // TODO: silent error bad
             //alert('// EDI_paste TODO: silent error bad');
             return;
@@ -1394,7 +1390,7 @@ function EDI_render_do_DuplicateOrPaste() {
         let hasSeenLinefeed = false;
 
         let original_indexColumn_SpanTextContentRelative = INTS[fEDI_w_indexColumn_SpanTextContentRelative];
-        let original_span_textContent_length = w_span.textContent.length;
+        let original_span_textContent_length = w_div.textContent.length;
         let original_tracked_syntax_start = positionIndex - INTS[fEDI_cursor_indexColumn] + INTS[fEDI_w_indexColumn_Sum];
 
         let offset = 0;
@@ -1506,8 +1502,6 @@ function EDI_render_do_DuplicateOrPaste() {
                     ringBufferIndex_current = (ringBufferIndex_current + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
                     let lineDiv = EDI_textElement.children[ringBufferIndex_current];
                     w_div = lineDiv;
-                    INTS[fEDI_w_indexSpan] = 0;
-                    w_span = lineDiv.children[INTS[fEDI_w_indexSpan]];
                     INTS[fEDI_w_indexColumn_Goal] = 0;
                     INTS[fEDI_w_indexColumn_Sum] = 0;
                     INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
@@ -1530,8 +1524,6 @@ function EDI_render_do_DuplicateOrPaste() {
 
                         let lineDiv = EDI_textElement.children[ringBufferIndex_current];
                         w_div = lineDiv;
-                        INTS[fEDI_w_indexSpan] = 0;
-                        w_span = lineDiv.children[INTS[fEDI_w_indexSpan]];
                         INTS[fEDI_w_indexColumn_Goal] = 0;
                         INTS[fEDI_w_indexColumn_Sum] = 0;
                         INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
@@ -1551,14 +1543,14 @@ function EDI_render_do_DuplicateOrPaste() {
                         let spanText = '';
 
                         if (INTS[fEDI_w_indexColumn_Goal] > 0) {
-                            if (INTS[fEDI_w_indexColumn_Goal] !== INTS[fEDI_w_indexColumn_Sum] + w_span.textContent.length) {
-                                let firstText = w_span.textContent.substring(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
-                                let lastText = w_span.textContent.substring(INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
+                            if (INTS[fEDI_w_indexColumn_Goal] !== INTS[fEDI_w_indexColumn_Sum] + w_div.textContent.length) {
+                                let firstText = w_div.textContent.substring(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
+                                let lastText = w_div.textContent.substring(INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
                                 last_valid_indexColumn_currentLine = lastText.length;
-                                w_span.textContent = firstText;
+                                w_div.textContent = firstText;
                                 spanText += lastText; // This might NOT have to be +=, but it is due to the enter key method having needed += and this continues the pattern.
                                 if (shouldPreserveCssClassWhenSplittingAmongLine) {
-                                    spanClassName = w_span.className;
+                                    spanClassName = wx_xsxpxaxn.className;
                                 }
                             }
                         }
@@ -1573,16 +1565,8 @@ function EDI_render_do_DuplicateOrPaste() {
                         span.textContent = spanText;
                         aaa.appendChild(span);
 
-                        let rememberIndex = INTS[fEDI_w_indexSpan] + 1;
-                        let rememberLength = w_div.children.length;
-                        for (let i = rememberIndex; i < rememberLength; i++) {
-                            aaa.appendChild(w_div.children[rememberIndex]);
-                        }
-
                         let lineDiv = EDI_textElement.children[ringBufferIndex_current];
                         w_div = lineDiv;
-                        INTS[fEDI_w_indexSpan] = 0;
-                        w_span = lineDiv.children[INTS[fEDI_w_indexSpan]];
                         INTS[fEDI_w_indexColumn_Goal] = 0;
                         INTS[fEDI_w_indexColumn_Sum] = 0;
                         INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
@@ -1601,10 +1585,10 @@ function EDI_render_do_DuplicateOrPaste() {
         }
 
         function EDI_duplicate_and_paste_writeWord(wordLength, word) {
-            w_span.textContent = 
-                w_span.textContent.slice(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]) +
+            w_div.textContent = 
+                w_div.textContent.slice(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]) +
                 word +
-                w_span.textContent.slice(INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
+                w_div.textContent.slice(INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
 
             INTS[fEDI_cursor_indexColumn] += wordLength;
             INTS[fEDI_cursorVisualColumnIndex] += wordLength;
@@ -1675,7 +1659,7 @@ function EDI_paste(content) {
     let hasSeenLinefeed = false;
 
     //let original_indexColumn_SpanTextContentRelative = INTS[fEDI_w_indexColumn_SpanTextContentRelative];
-    //let original_span_textContent_length = w_span.textContent.length;
+    //let original_span_textContent_length = w_div.textContent.length;
     //let original_tracked_syntax_start = positionIndex - INTS[fEDI_cursor_indexColumn] + INTS[fEDI_w_indexColumn_Sum];
 
     for (var sourceI = 0; sourceI < content.length; sourceI++) {
@@ -1772,35 +1756,8 @@ function EDI_paste(content) {
  * @returns {boolean} 'shouldPreserveCssClassWhenSplittingAmongLine'
  */
 function EDI_duplicate_and_paste_handleNotHasSeenLinefeed(hasSeenLinefeed, original_indexColumn_SpanTextContentRelative, original_span_textContent_length, indexPosition) {
-    // The only way to invoke this is if you encountered a linefeed for the first time,
-    // therefore 'w_span' is the original span and no variable for the original needs to be made.
-    // (unless in the future you don't end up using the w_span in some way or etc...)
-    //
+    // code has been removed from this function to avoid cluttering my find all
     hasSeenLinefeed = true;
-    switch (w_span.className) {
-        case 'eCm':
-            if (original_indexColumn_SpanTextContentRelative >= 2 && (original_indexColumn_SpanTextContentRelative <= original_span_textContent_length - 2)) {
-                w_span.className = 'eCM';
-                let indexOfGreaterThanOrEqual = EDI_trackedSyntaxReposition_find(indexPosition);
-                EDI_trackedSyntaxList.insert(indexOfGreaterThanOrEqual, TrackedSyntaxKind_Comment, indexPosition - INTS[fEDI_cursor_indexColumn] + INTS[fEDI_w_indexColumn_Sum], original_span_textContent_length);
-                return true;
-            }
-            return false;
-        case 'eCM':
-            return true;
-        case 'eSm':
-            if (original_indexColumn_SpanTextContentRelative >= 1 && (original_indexColumn_SpanTextContentRelative <= original_span_textContent_length - 1)) {
-                w_span.className = 'eSM';
-                let indexOfGreaterThanOrEqual = EDI_trackedSyntaxReposition_find(indexPosition);
-                EDI_trackedSyntaxList.insert(indexOfGreaterThanOrEqual, TrackedSyntaxKind_String, indexPosition - INTS[fEDI_cursor_indexColumn] + INTS[fEDI_w_indexColumn_Sum], original_span_textContent_length);
-                return true;
-            }
-            return false;
-        case 'eSM':
-            return true;
-        default:
-            return false;
-    }
 }
 
 function EDI_render_do_TabKey() {
@@ -1815,7 +1772,7 @@ function EDI_render_do_TabKey() {
 
         walkLineUntilIndexColumn();
 
-        if (!w_span || !w_div) {
+        if (w_div === w_divNONE) {
             // TODO: silent error bad
             return;
         }
@@ -1828,10 +1785,10 @@ function EDI_render_do_TabKey() {
             EDI_on_tab_string += String.fromCharCode(EDI_on_tab_bytes[i]);
         }
 
-        w_span.textContent = 
-            w_span.textContent.slice(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]) +
+        w_div.textContent = 
+            w_div.textContent.slice(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]) +
             EDI_on_tab_string +
-            w_span.textContent.slice(INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
+            w_div.textContent.slice(INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
 
         INTS[fEDI_cursor_indexColumn] += EDI_on_tab_bytes.length; // awkward thing to have 'walkLineUntilIndexColumn' invocation work then at end of block I '+= EDI_on_tab_bytes.length'.
     }
@@ -2003,7 +1960,7 @@ function EDI_render_do_EnterKey() {
                     let spanText = EDI_cursor_cached_indentation_string;
 
                     walkLineUntilIndexColumn();
-                    if (!w_span || !w_div) {
+                    if (w_div === w_divNONE) {
                         // TODO: silent error bad
                         //console.log('// EDI_enter TODO: silent error bad');
                         // It's awkward because this isn't so much an "error" it actually
@@ -2014,41 +1971,16 @@ function EDI_render_do_EnterKey() {
 
                     let shouldPreserveCssClassWhenSplittingAmongLine = false;
                     
-                    switch (w_span.className) {
-                        case 'eCm':
-                            if (INTS[fEDI_w_indexColumn_SpanTextContentRelative] >= 2 && (INTS[fEDI_w_indexColumn_SpanTextContentRelative] <= w_span.textContent.length - 2)) {
-                                w_span.className = 'eCM';
-                                let indexPosition = EDI_getPositionIndex_cursor_raw();
-                                let indexOfGreaterThanOrEqual = EDI_trackedSyntaxReposition_find(indexPosition);
-                                EDI_trackedSyntaxList.insert(indexOfGreaterThanOrEqual, TrackedSyntaxKind_Comment, indexPosition - INTS[fEDI_cursor_indexColumn] + INTS[fEDI_w_indexColumn_Sum], w_span.textContent.length);
-                                shouldPreserveCssClassWhenSplittingAmongLine = true;
-                            }
-                            break;
-                        case 'eCM':
-                            shouldPreserveCssClassWhenSplittingAmongLine = true;
-                            break;
-                        case 'eSm':
-                            if (INTS[fEDI_w_indexColumn_SpanTextContentRelative] >= 1 && (INTS[fEDI_w_indexColumn_SpanTextContentRelative] <= w_span.textContent.length - 1)) {
-                                w_span.className = 'eSM';
-                                let indexPosition = EDI_getPositionIndex_cursor_raw();
-                                let indexOfGreaterThanOrEqual = EDI_trackedSyntaxReposition_find(indexPosition);
-                                EDI_trackedSyntaxList.insert(indexOfGreaterThanOrEqual, TrackedSyntaxKind_String, indexPosition - INTS[fEDI_cursor_indexColumn] + INTS[fEDI_w_indexColumn_Sum], w_span.textContent.length);
-                                shouldPreserveCssClassWhenSplittingAmongLine = true;
-                            }
-                            break;
-                        case 'eSM':
-                            shouldPreserveCssClassWhenSplittingAmongLine = true;
-                            break;
-                    }
+                    // code has been removed from this function to avoid cluttering my find all
                     
                     if (INTS[fEDI_w_indexColumn_Goal] > 0) {
-                        if (INTS[fEDI_w_indexColumn_Goal] !== INTS[fEDI_w_indexColumn_Sum] + w_span.textContent.length) {
-                            let firstText = w_span.textContent.substring(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
-                            let lastText = w_span.textContent.substring(INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
-                            w_span.textContent = firstText;
+                        if (INTS[fEDI_w_indexColumn_Goal] !== INTS[fEDI_w_indexColumn_Sum] + w_div.textContent.length) {
+                            let firstText = w_div.textContent.substring(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
+                            let lastText = w_div.textContent.substring(INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
+                            w_div.textContent = firstText;
                             spanText += lastText; // += due to the possibility of indentation
                             if (shouldPreserveCssClassWhenSplittingAmongLine) {
-                                spanClassName = w_span.className;
+                                spanClassName = wx_xsxpxaxn.className;
                             }
                         }
                     }
@@ -2062,12 +1994,6 @@ function EDI_render_do_EnterKey() {
                     span.className = spanClassName;
                     span.textContent = spanText;
                     aaa.appendChild(span);
-
-                    let rememberIndex = INTS[fEDI_w_indexSpan] + 1;
-                    let rememberLength = w_div.children.length;
-                    for (let i = rememberIndex; i < rememberLength; i++) {
-                        aaa.appendChild(w_div.children[rememberIndex]);
-                    }
 
                     EDI_lineWasInsertedValidateGutter();
 
@@ -2366,28 +2292,15 @@ function EDI_render_do_RemoveSelection() {
                 remaining = largePosition - smallPosition;
             }
 
-            if (w_span && INTS[fEDI_w_indexColumn_SpanTextContentRelative] >= 0) {
+            if (w_div && INTS[fEDI_w_indexColumn_SpanTextContentRelative] >= 0) {
                 smallLineDiv = w_div;
                 while (remaining > 0) {
-                    let available = w_span.textContent.length - INTS[fEDI_w_indexColumn_SpanTextContentRelative];
+                    let available = w_div.textContent.length - INTS[fEDI_w_indexColumn_SpanTextContentRelative];
                     let count = remaining > available ? available : remaining;
                     remaining -= count;    
                     
                     if (count > 0) {
-                        w_span.textContent = w_span.textContent.slice(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]) + w_span.textContent.slice(INTS[fEDI_w_indexColumn_SpanTextContentRelative] + count);
-                    }
-
-                    if (w_div.children.length > 1 && w_span.textContent.length === 0) {
-                        w_div.removeChild(w_span);
-                    }
-                    else {
-                        INTS[fEDI_w_indexSpan]++;
-                    }
-        
-                    if (remaining > 0) {
-                        if (INTS[fEDI_w_indexSpan] >= w_div.children.length) break;
-                        w_span = w_div.children[INTS[fEDI_w_indexSpan]];
-                        INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
+                        w_div.textContent = w_div.textContent.slice(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]) + w_div.textContent.slice(INTS[fEDI_w_indexColumn_SpanTextContentRelative] + count);
                     }
                 }
             }
@@ -2407,26 +2320,15 @@ function EDI_render_do_RemoveSelection() {
 
             walkLineUntilIndexColumn();
 
-            if (w_span && INTS[fEDI_w_indexColumn_SpanTextContentRelative] >= 0) {
+            if (w_div && INTS[fEDI_w_indexColumn_SpanTextContentRelative] >= 0) {
                 largeLineDiv = w_div;
                 while (remaining > 0) {
-                    let available = w_span.textContent.length - INTS[fEDI_w_indexColumn_SpanTextContentRelative];
+                    let available = w_div.textContent.length - INTS[fEDI_w_indexColumn_SpanTextContentRelative];
                     let count = remaining > available ? available : remaining;
                     remaining -= count;
 
                     if (count > 0)
-                        w_span.textContent = w_span.textContent.slice(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]) + w_span.textContent.slice(INTS[fEDI_w_indexColumn_SpanTextContentRelative] + count);
-
-                    if (w_div.children.length > 1 && w_span.textContent.length === 0)
-                        w_div.removeChild(w_span);
-                    else
-                        INTS[fEDI_w_indexSpan]++;
-        
-                    if (remaining > 0) {
-                        if (INTS[fEDI_w_indexSpan] >= w_div.children.length) break;
-                        w_span = w_div.children[INTS[fEDI_w_indexSpan]];
-                        INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
-                    }
+                        w_div.textContent = w_div.textContent.slice(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]) + w_div.textContent.slice(INTS[fEDI_w_indexColumn_SpanTextContentRelative] + count);
                 }
             }
         }
@@ -2513,7 +2415,7 @@ function EDI_render_do_Delete() {
     if (INTS[fEDI_cursor_editRenderedDisplacement] < INTS[fEDI_cursor_editLength]) {
         walkLineUntilIndexColumn();
 
-        if (!w_span) {
+        if (w_div === w_divNONE) {
             // TODO: this
         }
         else {
@@ -2521,23 +2423,16 @@ function EDI_render_do_Delete() {
             INTS[fEDI_cursor_editRenderedDisplacement] = INTS[fEDI_cursor_editLength];
             while (remaining > 0) {
                 // When the cursor is at the end of a span, there is no text to delete, because the text starts in the next span.
-                let available = w_span.textContent.length - INTS[fEDI_w_indexColumn_SpanTextContentRelative];
+                let available = w_div.textContent.length - INTS[fEDI_w_indexColumn_SpanTextContentRelative];
                 let count = remaining > available ? available : remaining;
                 remaining -= count;
 
                 if (count > 0) {
-                    w_span.textContent = w_span.textContent.slice(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]) + w_span.textContent.slice(INTS[fEDI_w_indexColumn_SpanTextContentRelative] + count);
-                }
-
-                if (w_div.children.length > 1 && w_span.textContent.length === 0) {
-                    w_div.removeChild(w_span);
-                }
-                else {
-                    INTS[fEDI_w_indexSpan]++;
+                    w_div.textContent = w_div.textContent.slice(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]) + w_div.textContent.slice(INTS[fEDI_w_indexColumn_SpanTextContentRelative] + count);
                 }
 
                 if (remaining > 0) {
-                    if (INTS[fEDI_w_indexSpan] >= w_div.children.length) {
+                    if (INTS[fEDI_w_indexSpan] >= 1) {
 
                         // This is a pain I'm not sure if the finalizeEdit will bug it all out timing wise
                         // but I'll presume for now that it won't and then everything should become clear in time (not always but in this scenario I feel it is the case).
@@ -2549,7 +2444,7 @@ function EDI_render_do_Delete() {
 
                             remaining--;
 
-                            if (w_span.className === 'eCM') {
+                            if (w_div.className === 'eCM') {
                                 EDI_stopTrackingIfTrackedSyntaxMadeToSpanSingleLine();
                             }
 
@@ -2593,8 +2488,9 @@ function EDI_render_do_Delete() {
                         }
                     }
                     else {
-                        w_span = w_div.children[INTS[fEDI_w_indexSpan]];
-                        INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
+                        // ???
+                        //w_span = w_div.children[INTS[fEDI_w_indexSpan]];
+                        //INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
                     }
                 }
             }
@@ -2735,36 +2631,29 @@ function EDI_render_do_Backspace() {
     if (INTS[fEDI_cursor_editRenderedDisplacement] < INTS[fEDI_cursor_editLength]) {
         walkLineUntilIndexColumn();
 
-        if (!w_span) {
+        if (w_div === w_divNONE) {
             // TODO: this
         }
         else {
             let remaining = INTS[fEDI_cursor_editLength] - INTS[fEDI_cursor_editRenderedDisplacement];
             INTS[fEDI_cursor_editRenderedDisplacement] = INTS[fEDI_cursor_editLength];
             while (remaining > 0) {
-                let available = w_span.textContent.length - INTS[fEDI_w_indexColumn_SpanTextContentRelative];
+                let available = w_div.textContent.length - INTS[fEDI_w_indexColumn_SpanTextContentRelative];
                 let count = remaining > available ? available : remaining;
                 remaining -= count;
     
                 // When the cursor is at the end of a span, there is no text to delete, because the text starts in the next span.
                 if (count > 0) {
-                    w_span.textContent = w_span.textContent.slice(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]) + w_span.textContent.slice(INTS[fEDI_w_indexColumn_SpanTextContentRelative] + count);
+                    w_div.textContent = w_div.textContent.slice(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]) + w_div.textContent.slice(INTS[fEDI_w_indexColumn_SpanTextContentRelative] + count);
                 }
 
-                if (w_div.children.length > 1 && w_span.textContent.length === 0) {
-                    w_div.removeChild(w_span);
-                }
-                else {
-                    INTS[fEDI_w_indexSpan]++;
-                }
-    
                 if (remaining > 0) {
-                    if (INTS[fEDI_w_indexSpan] >= w_div.children.length) {
+                    if (INTS[fEDI_w_indexSpan] >= 1) {
                         if (INTS[fEDI_cursor_indexLine] < EDI_lineEndPositionList_count - 1) {
 
                             remaining--;
 
-                            if (w_span.className === 'eCM') {
+                            if (w_div.className === 'eCM') {
                                 EDI_stopTrackingIfTrackedSyntaxMadeToSpanSingleLine();
                             }
 
@@ -2808,8 +2697,9 @@ function EDI_render_do_Backspace() {
                         }
                     }
                     else {
-                        w_span = w_div.children[INTS[fEDI_w_indexSpan]];
-                        INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
+                        // ???
+                        // w_span = w_div.children[INTS[fEDI_w_indexSpan]];
+                        // INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
                     }
                 }
             }
@@ -5690,19 +5580,18 @@ function EDI_drawHorizontalScrollbar() {
  */
 function EDI_insertGapBufferSpan() {
     walkLineUntilIndexColumn();
-    if (!w_span || !w_div) {
+    if (w_div === w_divNONE) {
         EDI_cursor_gapBufferWriteToSpanElement = null;
         INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = 0;
         return;
     }
 
     if (INTS[fEDI_w_indexColumn_Goal] == 0) {
-        // TODO: Ensure 'w_div.children[0]' is equal to the 'w_span' and then change this line to use 'w_span'
-        EDI_cursor_gapBufferWriteToSpanElement = w_span;
+        EDI_cursor_gapBufferWriteToSpanElement = w_div;
         INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = 0;
     }
     else {
-        EDI_cursor_gapBufferWriteToSpanElement = w_div.children[INTS[fEDI_w_indexSpan]];
+        EDI_cursor_gapBufferWriteToSpanElement = w_div;
 
         if (INTS[fEDI_w_indexColumn_Goal] === INTS[fEDI_w_indexColumn_Sum] + EDI_cursor_gapBufferWriteToSpanElement.textContent.length) {
             INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = EDI_cursor_gapBufferWriteToSpanElement.textContent.length;
@@ -7124,8 +7013,8 @@ function EDI_render_do_SyntaxHighlighting() {
         // TODO: Would in some way reading 'EDI_ringBuffer_text[ringBufferIndexCurrent].children[0]' into a variable be beneficial to avoid the double read.
         //
         // short circuit avoid double dipping of c++ internals, only the 'bothButNotFull' is inaccurate at the moment.
-        if (!bothButNotFull || EDI_ringBuffer_text[ringBufferIndexCurrent].children[0].className === 'eN') {
-            EDI_ringBuffer_text[ringBufferIndexCurrent].children[0].className = '';
+        if (!bothButNotFull || EDI_ringBuffer_text[ringBufferIndexCurrent].className === 'eTN') {
+            EDI_ringBuffer_text[ringBufferIndexCurrent].className = 'eT';
     
             lineStart = lineEnd + 1;
             if (indexLine < local_EDI_lineEndPositionList_count) {
@@ -7188,44 +7077,34 @@ function walkLineUntilIndexColumn() {
         INTS[fEDI_w_indexColumn_Goal] = 0;
         INTS[fEDI_w_indexColumn_Sum] = 0;
         INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
-        INTS[fEDI_w_indexSpan] = 0;
-        w_span = null;
-        w_div = null;
-        INTS[fEDI_w_ringBufferIndex] = INTS[fEDI_w_ringBufferIndex]; // double assignment but not all that pressing of a matter at the moment I think it reads better to just set it / avoid the temporary 'let' local variable each invocation.
+        w_div = w_divNONE;
+        //INTS[fEDI_w_ringBufferIndex] = INTS[fEDI_w_ringBufferIndex]; // double assignment but not all that pressing of a matter at the moment I think it reads better to just set it / avoid the temporary 'let' local variable each invocation.
         return;
     }
     
-    let div = EDI_ringBuffer_text[INTS[fEDI_w_ringBufferIndex]];
+    w_div = EDI_ringBuffer_text[INTS[fEDI_w_ringBufferIndex]];
     let indexColumn_Goal = INTS[fEDI_cursor_indexColumn];
     let indexColumn_Sum = 0;
 
-    for (var indexSpan = 0; indexSpan < div.children.length; indexSpan++) {
-        let span = div.children[indexSpan];
-        if (indexColumn_Goal <= indexColumn_Sum + span.textContent.length) {
-            // '<=' because end-of-line text insertion (end of line but prior to the line ending itself).
-            // The line ending isn't written to the span, it is represented by the encompassing div itself.
-            INTS[fEDI_w_indexColumn_Goal] = indexColumn_Goal;
-            INTS[fEDI_w_indexColumn_Sum] = indexColumn_Sum;
-            INTS[fEDI_w_indexColumn_SpanTextContentRelative] = indexColumn_Goal - indexColumn_Sum;
-            INTS[fEDI_w_indexSpan] = indexSpan;
-            w_span = span;
-            w_div = div;
-            INTS[fEDI_w_ringBufferIndex] = INTS[fEDI_w_ringBufferIndex];
-            return;
-        }
-        else {
-            indexColumn_Sum += span.textContent.length;
-        }
+    if (indexColumn_Goal <= indexColumn_Sum + div.textContent.length) {
+        // '<=' because end-of-line text insertion (end of line but prior to the line ending itself).
+        // The line ending isn't written to the span, it is represented by the encompassing div itself.
+        INTS[fEDI_w_indexColumn_Goal] = indexColumn_Goal;
+        INTS[fEDI_w_indexColumn_Sum] = indexColumn_Sum;
+        INTS[fEDI_w_indexColumn_SpanTextContentRelative] = indexColumn_Goal - indexColumn_Sum;
+        //INTS[fEDI_w_ringBufferIndex] = INTS[fEDI_w_ringBufferIndex]; // double assignment but not all that pressing of a matter at the moment I think it reads better to just set it / avoid the temporary 'let' local variable each invocation.
+        return;
+    }
+    else {
+        indexColumn_Sum += span.textContent.length;
     }
 
     // TODO: When the column index is too large, how should this be handled?
     INTS[fEDI_w_indexColumn_Goal] = 0;
     INTS[fEDI_w_indexColumn_Sum] = 0;
     INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
-    INTS[fEDI_w_indexSpan] = 0;
-    w_span = null;
-    w_div = null;
-    INTS[fEDI_w_ringBufferIndex] = INTS[fEDI_w_ringBufferIndex];
+    w_div = w_divNONE;
+    // INTS[fEDI_w_ringBufferIndex] = INTS[fEDI_w_ringBufferIndex]; // double assignment but not all that pressing of a matter at the moment I think it reads better to just set it / avoid the temporary 'let' local variable each invocation.
     return;
 }
 

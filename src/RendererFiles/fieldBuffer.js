@@ -518,7 +518,9 @@ const fEDI_cursor_EDI_duplicate_length = 57;
 // TODO: Verify and update all the previously -1 cases
 const fEDI_w_indexColumn_Goal = 58;
 const fEDI_w_indexColumn_Sum = 59;
+/** TODO: MAYBEo-b-s-o-l-e-t-eMAYBE */
 const fEDI_w_indexColumn_SpanTextContentRelative = 60;
+/** TODO: Obsolete */
 const fEDI_w_indexSpan = 61;
 // TODO: This -1
 const fEDI_w_ringBufferIndex = 62;

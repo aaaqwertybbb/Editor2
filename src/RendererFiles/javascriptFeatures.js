@@ -26,10 +26,10 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
     // Do this ONCE before entering the scanner engine
     //const sourceText = String(div.children[0].textContent); 
 
-    const divSpanTextContent = String(div.children[0].textContent);
+    const divSpanTextContent = String(div.textContent);
     let divSpanTextContentLength = divSpanTextContent.length;
 
-    const textNode = div.children[0].firstChild;
+    const textNode = div.firstChild;
 
     let substart = 0;
     

@@ -411,11 +411,38 @@ TODO: Is it better to have one virtualization element that has both the width an
   contain: size layout;
 }
 
-/* .EDI_line is being renamed to .eT (i.e.: Editor Text line) */
+/*
+.EDI_line is being renamed to .eT (i.e.: Editor Text line)
+
+Ensure that '.eTN' is an exact replica of '.eT';
+'.eTN' is used as a way to mark the div as "needing syntax highlighting".
+*/
 .eT {
   width: 100%;
   height: var(--EDITOR-line-height);
   position: absolute;
+
+  /* Tells the browser's layout engine to render every space byte exactly as an isolated glyph */
+  white-space: pre !important;
+
+  top: 0;
+  /*left: 0;*/
+
+  overflow: hidden;
+  contain: size layout;
+}
+
+/*
+Ensure that '.eTN' is an exact replica of '.eT';
+'.eTN' is used as a way to mark the div as "needing syntax highlighting".
+*/
+.eTN {
+  width: 100%;
+  height: var(--EDITOR-line-height);
+  position: absolute;
+
+  /* Tells the browser's layout engine to render every space byte exactly as an isolated glyph */
+  white-space: pre !important;
 
   top: 0;
   /*left: 0;*/
@@ -612,11 +639,6 @@ it probably inserted 4 spaces and I was like doh why am I still getting 0 CLS af
   /* Locks down standard font sizing characteristics */
   font-weight: normal !important;
   font-style: normal !important;
-}
-
-.eT {
-  /* Tells the browser's layout engine to render every space byte exactly as an isolated glyph */
-  white-space: pre !important;
 }
 
 .EDI_selection {

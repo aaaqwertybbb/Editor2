@@ -53,7 +53,72 @@ Google AI:
 < To narrow down the best implementation path for your monolithic setup, are you planning to support massive files (10,000+ lines),
 < or is this editor optimized for smaller, standard code scripts?
 
+> Can you tell me more about 'CSS Custom Highlight API'
 
+< The CSS Custom Highlight API decouples text styling from the DOM structure.
+< 
+< Traditionally, to highlight text (like a code token), you had to split text nodes and wrap strings in HTML tags: <span class="keyword">function</span>.
+< If you have a 1,000-line file with thousands of tokens, this generates a massive DOM tree that bogs down memory, triggers heavy layout recalculations (reflows),
+< and interferes with text selection and screen readers.
+< 
+< The Custom Highlight API solves this by allowing you to map character ranges to a CSS pseudo-element.
+< The DOM remains completely raw, unfragmented plain text, while the browser paints the colors directly on top of it.
+< 
+< How It Works (The 4-Step Pipeline)
+< Implementing it takes four steps: defining the text spans in JavaScript, bundling them, registering them globally, and styling them in CSS.
+< 
+< Step 1: Create JavaScript Range Objects
+< You pinpoint exactly where the code tokens start and end inside your text node using standard DOM ranges.
+< 
+< ```js
+const textNode = document.getElementById("editor-line-1").firstChild;
+
+// Highlight characters from index 0 to 5 (e.g., "const")
+const keywordRange = new Range();
+keywordRange.setStart(textNode, 0);
+keywordRange.setEnd(textNode, 5);
+< ```
+< 
+< Step 2: Bundle Ranges into a Highlight Object
+< You group multiple ranges of the same token type into a collection.
+< 
+< // You can pass multiple ranges into a single Highlight bundle
+< const keywordHighlight = new Highlight(keywordRange, anotherKeywordRange);
+< 
+< Step 3: Register Globally with CSS.highlights
+< You pass your bundle to the browser’s global highlight registry and give it a custom name identifier.
+< 
+< ```js
+CSS.highlights.set("js-keywords", keywordHighlight);
+< ```
+< 
+< Step 4: Apply Styles via CSS
+< 
+< Finally, you use the ::highlight() pseudo-element in your stylesheet to target the identifier you registered.
+< 
+< ```csss
+::highlight(js-keywords) {
+  color: #ff79c6;
+  font-weight: bold;
+}
+< ```
+< 
+< The Performance Advantage
+< When a user types a new character in a traditional editor, the editor often has to tear down and rebuild hundreds of <span> elements to update the syntax highlighting.
+< 
+< With this API, updating a highlight requires zero DOM mutations. You simply shift or recreate the lightweight Range objects in JavaScript.
+< The browser updates the pixels instantly without triggering a layout recalculation or reflow.
+< 
+< The Constraints (Why it hasn't completely replaced everything yet)
+< 1. Strictly Limited CSS Styles: To keep rendering ultra-fast, the browser restricts what styles you can apply inside ::highlight(). You can change text colors (color, background-color,
+<    text-shadow) and text decorations (text-decoration). However, you cannot use properties that alter geometry or layout, such as margin, padding, border, or display.
+< 2. Coordinate Synchronization: As text changes, you must recalculate the Range start/end offsets manually. If a user inserts a character at line index 2,
+<    every single subsequent range on that line must have its offset incremented by 1, or the highlights will drift out of alignment.
+< 
+< Ecosystem Status
+< The API is fully supported across all modern engines (Chromium/Electron, WebKit, and Gecko). It is widely used by production apps for find-in-page searches, collaborative editing cursors, and virtualized syntax editors.
+< 
+< Would you like to explore how to automatically keep range offsets synchronized when a user edits text, or should we look at how to hook this API up to a worker-driven parser?
 
 
 

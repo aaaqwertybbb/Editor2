@@ -5034,6 +5034,8 @@ function EDI_cacheIndentation(originalIndexLine, originalIndexColumn, lastValidI
 
     let setOffset = 1;
 
+    // mawnstur
+
     switch (BYTES[byteEDI_cursor_enterKeyEventKind]) {
         case EnterKeyEventKind_StartOfLine:
         case EnterKeyEventKind_EndOfLine:

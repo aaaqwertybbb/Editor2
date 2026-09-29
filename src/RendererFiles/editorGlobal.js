@@ -2351,18 +2351,8 @@ function EDI_render_do_RemoveSelection() {
 
             if (smallLineDiv) {
                 if (largeLineDiv) { // - [x] keeping, removing
-                    let rememberLargeLineDivLength = largeLineDiv.children.length;
-                    for (var i = 0; i < rememberLargeLineDivLength; i++) {
-                        if (largeLineDiv.children[0].textContent.length > 0) {
-                            smallLineDiv.appendChild(largeLineDiv.children[0]);
-                        }
-                        else {
-                            largeLineDiv.removeChild(largeLineDiv.children[0]);
-                        }
-                    }
+                    smallLineDiv.appendChild(largeLineDiv.firstChild);
                     visibleLinesRemovedCount++;
-                    //largeLineDiv.innerHTML = '';
-                    //EDI_textElement.appendChild(largeLineDiv);
                 }
                 else { // - [ ] keeping, !removing
 

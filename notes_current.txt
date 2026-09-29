@@ -311,7 +311,7 @@ npm run package
 TODO: Remember it said use DOM API to modify textContent not concatenate in JS or something?
 TODO: look into it.
 
-
+TODO: Don't go beyond the first sesson please I hate myself for doing this. I feel like garbage and I gotta keep looking at this now.
 
 
 

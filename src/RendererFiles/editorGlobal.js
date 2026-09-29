@@ -2646,40 +2646,12 @@ function EDI_render_do_Backspace() {
                             EDI_stopTrackingIfTrackedSyntaxMadeToSpanSingleLine();
                         }
 
-                        // Merge the lines if both are visible.
-                        // TODO: Use NEXT here (... + 1)
-                        
                         // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
-                        let ringBufferIndex_next = (INTS[fEDI_cursor_indexLine] + 1) - INTS[fEDI_virtualIndexLine];
-                        if (ringBufferIndex_next >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_next < 0) ringBufferIndex_next = -1;
-                        else ringBufferIndex_next = (ringBufferIndex_next + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
+                        let ringBufferIndex_last = (INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1) - INTS[fEDI_virtualIndexLine];
+                        if (ringBufferIndex_last >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_last < 0) ringBufferIndex_last = -1;
+                        else ringBufferIndex_last = (ringBufferIndex_last + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
 
-                        if (ringBufferIndex_next >= 0) {
-                            let keepingDiv = w_div;
-                            let removingDiv = EDI_textElement.children[ringBufferIndex_next];
-
-                            let rememberRemovingDivLength = removingDiv.children.length;
-                            for (let k = 0; k < rememberRemovingDivLength; k++) {
-                                if (removingDiv.children[0].textContent.length > 0) {
-                                    keepingDiv.appendChild(removingDiv.children[0]);
-                                }
-                                else {
-                                    removingDiv.removeChild(removingDiv.children[0]);
-                                }
-                            }
-
-                            // TODO: This is NOT an optimal solution to removing the empty span after joining the lines
-                            if (keepingDiv.children.length > 1 && keepingDiv.children[0].textContent.length === 0) {
-                                keepingDiv.removeChild(keepingDiv.children[0]);
-                            }
-
-                            // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
-                            let ringBufferIndex_last = (INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1) - INTS[fEDI_virtualIndexLine];
-                            if (ringBufferIndex_last >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_last < 0) ringBufferIndex_last = -1;
-                            else ringBufferIndex_last = (ringBufferIndex_last + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
-
-                            EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_last, ringBufferIndex_next, 1);
-                        }
+                        EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_last, INTS[fEDI_w_ringBufferIndex], 1);
                     }
                     else {
                         return;

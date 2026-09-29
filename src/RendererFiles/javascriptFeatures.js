@@ -526,7 +526,7 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
                             let ticketSource = 2;
                             let ticketAsterisk = -1;
                             let ticketForwardSlash = -1;
-                            while (pos < subend) {
+                            outer: while (pos < subend) {
                                 switch (divSpanTextContent[pos]) {
                                     case CONST_js_ASTERISK_str:
                                         ticketAsterisk = ticketSource++;
@@ -536,7 +536,7 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
                                         break;
                                     case CONST_js_LINEFEED_str:
                                         ticketSource++;
-                                        break;
+                                        break outer;
                                     default:
                                         ticketSource++;
                                         break;
@@ -720,7 +720,13 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
             if (INTS[fEDI_pooledTrackedSyntax_start] > lineStart + substart) {
                 createDoLexFlag = true;
                 trackedSyntaxExhausted = false;
-                subend = INTS[fEDI_pooledTrackedSyntax_start] > lineStart + divSpanTextContentLength ? lineStart + divSpanTextContentLength : INTS[fEDI_pooledTrackedSyntax_start]; // probably a nonsense line of code given the previous if statements
+                const r_trackedSyntaxStart = INTS[fEDI_pooledTrackedSyntax_start] - lineStart;
+                if (r_trackedSyntaxStart < divSpanTextContentLength) {
+                    subend = r_trackedSyntaxStart;
+                }
+                else {
+                    subend = divSpanTextContentLength;
+                }
                 continue;
             }
 

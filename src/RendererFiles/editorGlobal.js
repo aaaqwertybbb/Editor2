@@ -2351,7 +2351,9 @@ function EDI_render_do_RemoveSelection() {
 
             if (smallLineDiv) {
                 if (largeLineDiv) { // - [x] keeping, removing
-                    smallLineDiv.appendChild(largeLineDiv.firstChild);
+                    if (largeLineDiv.firstChild) {
+                        smallLineDiv.appendChild(largeLineDiv.firstChild);
+                    }
                     visibleLinesRemovedCount++;
                 }
                 else { // - [ ] keeping, !removing
@@ -2446,7 +2448,9 @@ function EDI_render_do_Delete() {
                             let keepingDiv = w_div;
                             let removingDiv = EDI_textElement.children[ringBufferIndex_next];
 
-                            keepingDiv.appendChild(removingDiv.firstChild);
+                            if (removingDiv.firstChild) {
+                                keepingDiv.appendChild(removingDiv.firstChild);
+                            }
 
                             // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
                             let ringBufferIndex_last = (INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1) - INTS[fEDI_virtualIndexLine];
@@ -2635,7 +2639,9 @@ function EDI_render_do_Backspace() {
                             let keepingDiv = w_div;
                             let removingDiv = EDI_textElement.children[ringBufferIndex_next];
 
-                            keepingDiv.appendChild(removingDiv.firstChild);
+                            if (removingDiv.firstChild) {
+                                keepingDiv.appendChild(removingDiv.firstChild);
+                            }
 
                             // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
                             let ringBufferIndex_last = (INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1) - INTS[fEDI_virtualIndexLine];

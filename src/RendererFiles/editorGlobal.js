@@ -7128,100 +7128,6 @@ function EDI_getFinalizedEditsAndRawSaveFileData(NOTfinalizePendingEdits) {
     };
 }
 
-/**
- * If you were to make a function for this logic, it presumably would look like this.
- * I'm not sure if I like the idea of having a function for this though, given it is inside a loop, I'd want to investigate whether it has any performance impacts.
- * TODO: make a decision
- * 
- * @returns trackedSyntax_I the index that was left off on
- */
-function EDI_createSpansForLineOfText(div, lineStart, lineEnd, trackedSyntax_I) {
-	let childIndex = 0;
-
-    if (lineStart === lineEnd) {
-    	if (childIndex < div.children.length) {
-            let span = div.children[childIndex++];
-			span.textContent = '';
-            span.className = '';
-		}
-		else {
-			div.appendChild(document.createElement('span'));
-            childIndex++;
-		}
-    }
-    else {
-        let substart = lineStart;
-        for (; trackedSyntax_I < EDI_trackedSyntaxList.count_abstract;) {
-            EDI_trackedSyntaxList.getElementAt(trackedSyntax_I);
-    
-            if (substart >= lineEnd) {
-                break;
-            }
-    
-            if (INTS[fEDI_pooledTrackedSyntax_start] >= lineEnd) {
-                break;
-            }
-    
-            if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] < lineStart) {
-                trackedSyntax_I++;
-                continue;
-            }
-    
-            if (INTS[fEDI_pooledTrackedSyntax_start] > substart) {
-                let subend = INTS[fEDI_pooledTrackedSyntax_start] > lineEnd ? lineEnd : INTS[fEDI_pooledTrackedSyntax_start]; // probably a nonsense line of code given the previous if statements
-                childIndex = EDI_language_line_lex(div, substart, subend, childIndex);
-                substart += (subend - substart);
-            }
-    
-            {
-                let span;
-                if (childIndex < div.children.length) {
-					span = div.children[childIndex++];
-                    //span.className = ''; className is guaranteed to be set in this specific case
-				}
-				else {
-					span = document.createElement('span');
-                    div.appendChild(span);
-                    childIndex++;
-				}
-                let trackedSyntaxEnd = INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length];
-                let subend = trackedSyntaxEnd > lineEnd ? lineEnd : trackedSyntaxEnd;
-                span.textContent = EDI_decoder.decode(EDI_textByteList_bytes.subarray(substart, subend));
-                substart += (subend - substart);
-                switch (BYTES[byteEDI_pooledTrackedSyntax_trackedSyntaxKind]) {
-                    case TrackedSyntaxKind_Comment:
-                        span.className = 'eCM';
-                        break;
-                    case TrackedSyntaxKind_String:
-                        span.className = 'eSM';
-                        break;
-                    default:
-                        span.className = '';
-                        break;
-                }
-            }
-    
-            if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] <= lineEnd) {
-                trackedSyntax_I++;
-                continue;
-            }
-    
-            break;
-        }
-    
-        if (substart < lineEnd) {
-            childIndex = EDI_language_line_lex(div, substart, lineEnd, childIndex);
-        }
-    }
-
-    let aaa = div.children.length - childIndex;
-    for (let i = 0; i < aaa; i++) {
-        div.removeChild(div.children[childIndex]);
-    }
-
-    return trackedSyntax_I;
-}
-
 function walkLineUntilIndexColumn() {
     // TODO: delete key until you delete a linefeed and join the next line onto your own then press backspace everything breaks.
 
@@ -7304,7 +7210,7 @@ function EDI_drawLine(indexLine, gutterLineElement, textLineElement) {
         trackedSyntax_StartingIndex = EDI_trackedSyntaxList.count_abstract;
     }
     EDI_getLineBoundaryPositions_raw(indexLine);
-    //EDI_createSpansForLineOfText(textLineElement, INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end], trackedSyntax_StartingIndex);
+    //JS_line_lex(???----textLineElement, INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end], trackedSyntax_StartingIndex);
 }
 
 //#region mousedown

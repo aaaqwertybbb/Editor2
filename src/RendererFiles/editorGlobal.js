@@ -1283,6 +1283,7 @@ function EDI_render_do_DuplicateOrPaste() {
                         }
                         break;
                     case CONST_EDI_ASCII_TAB:
+                        // huh???
                         // '\t\0\0\0' was likely a bad idea and should "TODO: be changed", but nevertheless it is how the editor works at the moment.
                         //
                         lengthBytes += 4;

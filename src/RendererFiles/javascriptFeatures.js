@@ -31,25 +31,11 @@ function JS_line_lex_newVersion(div, ringBufferIndexOfDiv, trackedSyntax_I, line
 
     const textNode = div.children[0].firstChild;
 
-    let divChildrenInitialLength = div.children.length;
-
-    let childIndex = 0;
-
     let substart = 0;
     
     let pos = 0;
 
-    let textContent;
     let className;
-
-    /**
-     * At times you are accumulating a larger and larger span of text, up until the point of encountering a differing syntax.
-     * The textContent variable might already be in use for the differing syntax.
-     * Thus in those scenarios the flushTextContent contains the prior accumulated text that you need to write out prior to the encountered syntax.
-     */
-    let flushTextContent;
-
-    let shouldSkipContiguous;
 
     let createTrackedSyntaxFlag = false;
     let createDoLexFlag = false;
@@ -736,8 +722,6 @@ function JS_line_lex_newVersion(div, ringBufferIndexOfDiv, trackedSyntax_I, line
                 trackedSyntaxExhausted = false;
                 subend = INTS[fEDI_pooledTrackedSyntax_start] > lineStart + divSpanTextContentLength ? lineStart + divSpanTextContentLength : INTS[fEDI_pooledTrackedSyntax_start]; // probably a nonsense line of code given the previous if statements
                 continue;
-                //childIndex = EDI_language_line_lex(div, substart, subend, childIndex);
-                //substart += (subend - substart);
             }
 
             {
@@ -750,17 +734,6 @@ function JS_line_lex_newVersion(div, ringBufferIndexOfDiv, trackedSyntax_I, line
                 trackedSyntax_I++;
                 continue;
             }
-        
-            //if (substart < divSpanTextContentLength) {
-            //    childIndex = EDI_language_line_lex(div, substart, divSpanTextContentLength, childIndex);
-            //}
-
-            //let aaa = divChildrenInitialLength - childIndex;
-            //for (let i = 0; i < aaa; i++) {
-            //    div.removeChild(div.children[childIndex]);
-            //}
-
-            //return trackedSyntax_I;
         }
     }
 

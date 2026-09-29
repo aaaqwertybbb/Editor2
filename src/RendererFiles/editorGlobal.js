@@ -2302,6 +2302,9 @@ function EDI_render_do_RemoveSelection() {
                     if (count > 0) {
                         w_div.textContent = w_div.textContent.slice(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]) + w_div.textContent.slice(INTS[fEDI_w_indexColumn_SpanTextContentRelative] + count);
                     }
+                    else {
+                        break; // silent error?
+                    }
                 }
             }
         }
@@ -2327,8 +2330,12 @@ function EDI_render_do_RemoveSelection() {
                     let count = remaining > available ? available : remaining;
                     remaining -= count;
 
-                    if (count > 0)
+                    if (count > 0) {
                         w_div.textContent = w_div.textContent.slice(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]) + w_div.textContent.slice(INTS[fEDI_w_indexColumn_SpanTextContentRelative] + count);
+                    }
+                    else {
+                        break; // silent error?
+                    }
                 }
             }
         }

@@ -668,13 +668,19 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
             createTrackedSyntaxFlag = false;
 
             let trackedSyntaxEnd = INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length];
-            subend = trackedSyntaxEnd > divSpanTextContentLength ? divSpanTextContentLength : trackedSyntaxEnd;
+            const r_trackedSyntaxEnd = trackedSyntaxEnd - lineStart;
+            subend = r_trackedSyntaxEnd > divSpanTextContentLength ? divSpanTextContentLength : r_trackedSyntaxEnd;
             
             let length = subend - substart;
+            if (length <= 0) {
+                trackedSyntax_I++;
+                continue;
+            }
             const range = new Range();
             range.setStart(textNode, substart);
             range.setEnd(textNode, subend);
             substart += length;
+            subend = divSpanTextContentLength;
             pos += length;
             switch (BYTES[byteEDI_pooledTrackedSyntax_trackedSyntaxKind]) {
                 case TrackedSyntaxKind_Comment:
@@ -732,12 +738,6 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
 
             {
                 createTrackedSyntaxFlag = true;
-                continue;
-                
-            }
-
-            if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] <= divSpanTextContentLength) {
-                trackedSyntax_I++;
                 continue;
             }
         }

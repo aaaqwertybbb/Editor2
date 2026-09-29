@@ -11179,4 +11179,7 @@ so then not only that but the anxiety is distracting and I can't tell if I actua
 I just feel panic like there are alarms blaring in my head or something
 I'm gonna go exercise
 
+ 8:04
+12:04
+
 */

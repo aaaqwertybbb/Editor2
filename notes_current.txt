@@ -157,9 +157,13 @@ I played it when I was a teenager and I got kingdoms of amalur re-reckoning I th
 
 =======
 
-Check List for whether I just broke everything
+sCheck List for whether I just broke evesrythings
 ----------------------------------------------
-- [ ] EditKind_InsertLtr
+- [x] EditKind_InsertLtr
+	- [x] start of line
+	- [x] among line
+	- [x] end of line
+	- [ ] TODO: I'm selecting the space between the '[' and ']' then typing an 'x', the visual spacing bugs out until I scroll the line out and back into view.
 - [ ] EditKind_Enter
 - [ ] EditKind_Tab
 - [ ] EditKind_IndentMore

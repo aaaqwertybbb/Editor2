@@ -1907,8 +1907,6 @@ function EDI_render_do_EnterKey() {
 
         if (!shouldRenderEntireViewport && INTS[fEDI_cursor_editIndexColumn] === 0) { // start of line
             EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, ringBufferIndex_current);
-            EDI_textElement.children[ringBufferIndex_current].appendChild(document.createElement('span'));
-
             EDI_lineWasInsertedValidateGutter();
             return;
         }
@@ -1918,14 +1916,9 @@ function EDI_render_do_EnterKey() {
                 let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_editIndexLine]);
 
                 if (lastValidIndexColumn === INTS[fEDI_cursor_editIndexColumn]) { // end of line
-                    
                     let next_ringBufferIndex = (ringBufferIndex_current + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
-
                     EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, next_ringBufferIndex);
-                    let span = document.createElement('span');
-                    span.textContent = EDI_cursor_cached_indentation_string;
-                    EDI_textElement.children[next_ringBufferIndex].appendChild(span);
-
+                    EDI_textElement.children[next_ringBufferIndex].textContent = EDI_cursor_cached_indentation_string;
                     EDI_lineWasInsertedValidateGutter();
                     return;
                 }
@@ -1976,15 +1969,8 @@ function EDI_render_do_EnterKey() {
                     }
 
                     let next_ringBufferIndex = (INTS[fEDI_w_ringBufferIndex] + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
-
                     EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, next_ringBufferIndex);
-
-                    let aaa = EDI_textElement.children[next_ringBufferIndex];
-                    let span = document.createElement('span');
-                    span.className = spanClassName;
-                    span.textContent = spanText;
-                    aaa.appendChild(span);
-
+                    EDI_textElement.children[next_ringBufferIndex].textContent = spanText;
                     EDI_lineWasInsertedValidateGutter();
 
                     INTS[fEDI_cursor_indexLine] = remember_cursorIndexLine;

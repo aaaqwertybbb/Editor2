@@ -7080,7 +7080,7 @@ function EDI_render_do_SyntaxHighlighting() {
                 lineEnd = lineStart;
             }
     
-            trackedSyntax_I = JS_line_lex_newVersion(EDI_ringBuffer_text[ringBufferIndexCurrent], ringBufferIndexCurrent, trackedSyntax_I, lineStart);
+            //trackedSyntax_I = JS_line_lex_newVersion(EDI_ringBuffer_text[ringBufferIndexCurrent], ringBufferIndexCurrent, trackedSyntax_I, lineStart);
         }
 
         ringBufferIndexCurrent = (ringBufferIndexCurrent + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
@@ -7296,7 +7296,7 @@ function EDI_drawLine(indexLine, gutterLineElement, textLineElement) {
         trackedSyntax_StartingIndex = EDI_trackedSyntaxList.count_abstract;
     }
     EDI_getLineBoundaryPositions_raw(indexLine);
-    EDI_createSpansForLineOfText(textLineElement, INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end], trackedSyntax_StartingIndex);
+    //EDI_createSpansForLineOfText(textLineElement, INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end], trackedSyntax_StartingIndex);
 }
 
 //#region mousedown

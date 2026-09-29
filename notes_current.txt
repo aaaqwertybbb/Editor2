@@ -262,10 +262,37 @@ npm run package
 < 
 < If you run into any blank screens or path errors when you boot up the .exe, let me know what error messages pop up and we can fix them!
 
+> what is the difference between package and make?
 
+< The difference comes down to whether you just want a runnable folder or a distributable installer.
+< - npm run package creates a loose folder containing your app's code and the .exe.
+< - npm run make takes that folder and wraps it into a single setup installer (like a .exe setup file or an .msi file) that you can share with other people.
+< 
+< Direct Comparison
+< 
+< Feature         | npm run package                                                    | npm run make
+< -----------------------------------------------------------------------------------------------------------------------------------------------------------
+< Output Type     | A folder filled with files (including your app's .exe).            | A single installer file (e.g., Setup.exe).
+< Primary Purpose | Local testing & performance benchmarking.                          | Distribution and sharing with users.
+< Speed           | Fast (just copies and packs files).                                | Slower (compiles and compresses everything into an installer).
+< User Experience | You open the folder and double-click the .exe to run it instantly. | The user runs the installer, which installs the app to their system.
+< 
+< Which one should you use right now?
+< 
+< Use npm run package.
+< 
+< Since you are testing performance changes for your text editor, you only need the raw executable folder inside /out to run your benchmarks.
+< You don't need to waste time waiting for Electron Forge to compress everything into a setup installer every time you make a code change.
+< 
+< If you decide to distribute your text editor to other people later on, you can configure Electron Forge Makers in your forge.config.js to
+< customize how your final setup installer looks and acts when you run npm run make.
+< 
+< Are you ready to test out your CSS Custom Highlight API changes in the packaged version, or do you want to verify your package.json setup first?
 
+====
 
-
+TODO: Remember it said use DOM API to modify textContent not concatenate in JS or something?
+TODO: look into it.
 
 
 

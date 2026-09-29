@@ -299,7 +299,7 @@ function EDI_render_request(renderKind) {
 
 /** If 'ringBufferIndexOfDiv' is falsey clear everything, otherwise clear only what is related to the 'ringBufferIndexOfDiv'. */
 function EDI_clearHighlights(ringBufferIndexOfDiv) {
-    if (!ringBufferIndexOfDiv) {
+    if (!ringBufferIndexOfDiv && ringBufferIndexOfDiv !== 0) {
         for (let i = EDI_ringBuffer_mapHighlights.length - 1; i >= 0; i--) {
             // TODO: length = 0?
             let p = EDI_ringBuffer_mapHighlights[i];
@@ -7053,8 +7053,6 @@ function EDI_onblur() {
 */
 function EDI_render_do_SyntaxHighlighting() {
 
-    EDI_clearHighlights();
-
     if (EDI_cursor_hasSelection()){
         EDI_render_do_RedrawSelection();
     }
@@ -7135,6 +7133,7 @@ function EDI_render_do_SyntaxHighlighting() {
                 lineEnd = lineStart;
             }
     
+            EDI_clearHighlights(ringBufferIndexCurrent);
             trackedSyntax_I = JS_line_lex(EDI_ringBuffer_text[ringBufferIndexCurrent], ringBufferIndexCurrent, trackedSyntax_I, lineStart);
         }
 

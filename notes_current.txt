@@ -125,14 +125,35 @@ I played it when I was a teenager and I got kingdoms of amalur re-reckoning I th
 
 
 
+==================
+==================
+==================
 
 
+> I am making a text editor app. A lot of the code is written already,and so my question is more specifically going to relate to a generalized performance question.
+> The app uses electron, and vanilla javascript as a single monolithic ES6 module.
+> Do not respond with much if anything I'll ask the question in the next question, this is just context.
 
+< ...
 
+> I just changed from each line of text being a div that contained one or more spans, where each span represented a different syntax highlighting. To 'CSS Custom Highlight API'.
+> 
+> One thing I notice I can do now, (and I've actually made the change in a dev environment to see how it feels).
+> I notice I can have each line of text solely being a div. There is no need for spans at all now.
+> 
+> I have some concerns with this myself, but I was wondering what you'd say.
 
+< ...
 
+> I actually want to do this: each line of text is a div that 99% of the time is just a single span.
+> 
+> My biggest concern is actually editing a very long line of text. By keeping the logic that handles multiple spans and just having it 99% of the time target a
+> div that only has a single span in it.
+> 
+> Then I can for very long lines of text chunk the text into 1024 length text content spans. This way I can update the DOM by updating a 1024 chunk of text content
+> rather than the text content of the entire div.
 
-
+< ...
 
 
 

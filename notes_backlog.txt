@@ -782,8 +782,7 @@ because it is exactly the same problem as pressing the enter key optimally.
 
 
 
- 8:04
-12:04
+
 
 */
 

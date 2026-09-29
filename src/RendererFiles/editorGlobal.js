@@ -1549,9 +1549,9 @@ function EDI_render_do_DuplicateOrPaste() {
                                 last_valid_indexColumn_currentLine = lastText.length;
                                 w_div.textContent = firstText;
                                 spanText += lastText; // This might NOT have to be +=, but it is due to the enter key method having needed += and this continues the pattern.
-                                if (shouldPreserveCssClassWhenSplittingAmongLine) {
-                                    spanClassName = wx_xsxpxaxn.className;
-                                }
+                                //if (shouldPreserveCssClassWhenSplittingAmongLine) {
+                                //    spanClassName = wx_xsxpxaxn.className;
+                                //}
                             }
                         }
 
@@ -1979,9 +1979,9 @@ function EDI_render_do_EnterKey() {
                             let lastText = w_div.textContent.substring(INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
                             w_div.textContent = firstText;
                             spanText += lastText; // += due to the possibility of indentation
-                            if (shouldPreserveCssClassWhenSplittingAmongLine) {
-                                spanClassName = wx_xsxpxaxn.className;
-                            }
+                            //if (shouldPreserveCssClassWhenSplittingAmongLine) {
+                            //    spanClassName = wx_xsxpxaxn.className;
+                            //}
                         }
                     }
 

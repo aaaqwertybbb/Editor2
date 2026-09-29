@@ -1,3 +1,55 @@
  8:04
 12:04
 
+Google AI:
+
+> I am making a text editor app. A lot of the code is written already, and so my question is more specifically going to relate to a generalized
+> performance question. The app uses electron, and vanilla javascript as a single monolithic ES6 module.
+> Do not respond with much if anything I'll ask the question in the next question, this is just context.
+
+< Got it. I am ready for your question whenever you are.
+< What performance aspect are you looking to optimize?
+
+> ...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

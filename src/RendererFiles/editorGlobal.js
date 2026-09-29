@@ -548,9 +548,9 @@ function EDI_render_do_Scroll(timestamp) {
         span.className = 'eN';
         span.textContent = lineStart === lineEnd ? '' : EDI_decoder.decode(bytes.subarray(lineStart, lineEnd));
 
-        while (div.lastChild && div.lastChild !== div.firstChild) {
-            div.removeChild(div.lastChild);
-        }
+        //while (div.lastChild && div.lastChild !== div.firstChild) {
+        //    div.removeChild(div.lastChild);
+        //}
 
         const translateY = `${vertical}px`;
         gutter.style.top = translateY;

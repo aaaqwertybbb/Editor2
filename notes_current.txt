@@ -164,7 +164,13 @@ sCheck List for whether I just broke evesrythings
 	- [x] among line
 	- [x] end of line
 	- [ ] TODO: I'm selecting the space between the '[' and ']' then typing an 'x', the visual spacing bugs out until I scroll the line out and back into view.
+
+
 - [ ] EditKind_Enter
+
+
+
+
 - [ ] EditKind_Tab
 - [ ] EditKind_IndentMore
 - [ ] EditKind_IndentLess
@@ -172,6 +178,10 @@ sCheck List for whether I just broke evesrythings
 - [ ] EditKind_Duplicate
 - [ ] EditKind_DeleteLtr
 - [ ] EditKind_BackspaceRtl
+  - [ ] start of line
+    - [ ] this gave me an infinite loop
+  - [ ] among line
+  - [ ] end of line
 - [ ] EditKind_RemoveTextNoBatching
 
 > Does an electron app run more optimized code or (???) depending on what CLI command I use, or if I use the .exe or such and such?

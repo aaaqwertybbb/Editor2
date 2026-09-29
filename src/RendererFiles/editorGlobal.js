@@ -7985,9 +7985,9 @@ function EDI_toExtensionKind(extensionWithPeriod) {
 
 function EDI_language_line_lex_SET(extensionKind) {
     switch (extensionKind) {
-        case ExtensionKind_JavaScript:
-            EDI_language_line_lex = JS_line_lex;
-            break;
+        //case ExtensionKind_JavaScript:
+            //EDI_language_line_lex = JS_line_lex;
+            //break;
         default:
             EDI_language_line_lex = PLAINTEXT_line_lex;
             break;

@@ -171,10 +171,10 @@ sCheck List for whether I just broke evesrythings
 
 
 
-- [ ] EditKind_IndentLess
 - [ ] EditKind_Paste
 - [ ] EditKind_Duplicate
 - [ ] EditKind_RemoveTextNoBatching
+- [x] EditKind_IndentLess
 - [x] EditKind_Tab
 - [x] EditKind_IndentMore
 - [x] EditKind_DeleteLtr

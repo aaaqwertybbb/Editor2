@@ -1094,9 +1094,8 @@ function EDI_render_do_IndentLess() {
             else ringBufferIndex = (ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
 
             if (ringBufferIndex >= 0) {
-                    let div = EDI_textElement.children[ringBufferIndex];
-                    let span = div.children[0];
-                    span.textContent = span.textContent.slice(innerRemoveCount);
+                let div = EDI_textElement.children[ringBufferIndex];
+                div.textContent = div.textContent.slice(innerRemoveCount);
             }
         }
 

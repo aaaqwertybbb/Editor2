@@ -1242,7 +1242,6 @@ async function EDI_duplicateSelection() {
     EDI_render_request(RenderKind_DuplicateOrPaste);
 }
 
-// buy one get one deal? In this economy?
 function EDI_render_do_DuplicateOrPaste() {
     let hasSeenLinefeed = false;
 
@@ -1255,6 +1254,7 @@ function EDI_render_do_DuplicateOrPaste() {
         let length = INTS[fEDI_cursor_EDI_duplicate_length];
         let large = small + length;
         
+        // TODO: This code looks wrong in terms of 'INTS[fEDI_cursor_editRenderedDisplacement]'
         // TODO: update the 'INTS[fEDI_cursor_editRenderedDisplacement]'
 
         let byteArray;
@@ -1450,6 +1450,8 @@ function EDI_render_do_DuplicateOrPaste() {
             // TODO: draw gutter?
         }
 
+        // TODO: You might want to do a reset and get cursor correct visual position (or modify the above logic to track that)
+
         /**
          * TODO: If this ends up working don't duplicate this code, this is the 'EDI_EnterKey' function; copy, paste, and probably modified.
          */
@@ -1475,8 +1477,7 @@ function EDI_render_do_DuplicateOrPaste() {
                     EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, ringBufferIndex_current);
 
                     ringBufferIndex_current = (ringBufferIndex_current + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
-                    let lineDiv = EDI_textElement.children[ringBufferIndex_current];
-                    w_div = lineDiv;
+                    w_div = EDI_textElement.children[ringBufferIndex_current];
                     INTS[fEDI_w_indexColumn_Goal] = 0;
                     INTS[fEDI_w_indexColumn_Sum] = 0;
                     INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
@@ -1494,11 +1495,8 @@ function EDI_render_do_DuplicateOrPaste() {
                         ringBufferIndex_current = (ringBufferIndex_current + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
                         
                         EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, ringBufferIndex_current);
-                        let span = document.createElement('span');
-                        EDI_textElement.children[ringBufferIndex_current].appendChild(span);
 
-                        let lineDiv = EDI_textElement.children[ringBufferIndex_current];
-                        w_div = lineDiv;
+                        w_div = EDI_textElement.children[ringBufferIndex_current];
                         INTS[fEDI_w_indexColumn_Goal] = 0;
                         INTS[fEDI_w_indexColumn_Sum] = 0;
                         INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
@@ -1507,7 +1505,6 @@ function EDI_render_do_DuplicateOrPaste() {
                         INTS[fEDI_cursorVisualColumnIndex] = 0;
                         INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex]++;
                         last_valid_indexColumn_currentLine = 0;
-                        
 
                         continue;
                     }
@@ -1534,14 +1531,9 @@ function EDI_render_do_DuplicateOrPaste() {
 
                         EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, ringBufferIndex_current);
 
-                        let aaa = EDI_textElement.children[ringBufferIndex_current];
-                        let span = document.createElement('span');
-                        span.className = spanClassName;
-                        span.textContent = spanText;
-                        aaa.appendChild(span);
+                        EDI_textElement.children[ringBufferIndex_current].textContent = spanText;
 
-                        let lineDiv = EDI_textElement.children[ringBufferIndex_current];
-                        w_div = lineDiv;
+                        w_div = EDI_textElement.children[ringBufferIndex_current];
                         INTS[fEDI_w_indexColumn_Goal] = 0;
                         INTS[fEDI_w_indexColumn_Sum] = 0;
                         INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;

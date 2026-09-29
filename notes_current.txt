@@ -177,9 +177,45 @@ Check List for whether I just broke everything
 < Yes, Electron can run significantly faster and more optimized when running as a production build (.exe) compared to running via npm run start in development.
 < 
 < When you use npm run start, Electron prioritizes the developer experience over raw speed and performance.
-
-
-
+<
+< Production (.exe) vs. Development (npm run start)
+< 
+< Feature | Development (npm run start) | Production (.exe)
+< -----------------------------------------------------
+< V8 Engine Optimization | JIT compiler runs with debug flags active         | Full Ahead-of-Time / JIT compiler optimizations
+< Source Code Execution  | Raw, unminified JS files read dynamically         | Asar-packed, often minified/bundled code
+< Chromium DevTools      | Overhead from keeping DevTools open or hook-ready | DevTools completely detached (Zero overhead)
+< Console & Logging      | Spams terminal, blocking synchronous I/O          | Stripped/ignored, freeing up the main thread
+< Memory Footprint       | Higher (due to source maps, hot-reloading, hooks) | Lower (lean runtime memory allocation)
+< 
+< The Performance Bottlenecks of npm run start
+< 
+< If you are testing your text editor's performance with a 100,000-line file using npm run start, your performance benchmarks will be skewed due to three main factors:
+< 
+< 1. Chromium DevTools Overhead
+< 
+< If you have DevTools open while testing typing latency, Chromium heavily throttles the rendering pipeline. DevTools continuously monitors the DOM, watches memory allocations,
+< and records style updates. This makes things like the CSS Custom Highlight API feel slightly sluggish, whereas in a packaged .exe, it runs at native speed.
+< 
+< 2. The console.log Trap
+< 
+< If your editor logs information during input—such as typing coordinates, character offsets, or syntax updates—npm run start forces Electron to write those logs out to your
+< terminal via standard I/O streams. In Node.js/Electron, writing to a terminal console is a blocking, synchronous operation that will cause massive frames-per-second drops.
+< 
+< 3. Disk I/O and Code Packing
+< 
+< In development, Electron reads your files directly from the hard drive as loose files. When you compile into an .exe using tools like electron-builder or electron-forge,
+< your code is packed into an ASAR archive (a specialized virtual filesystem). Reading from an ASAR file is highly optimized and cached by Electron,
+< making app initialization and module loading significantly faster.
+< 
+< Pro-Tip: How to Profile Correctly
+< 
+< To see how fast your text editor actually is without building a full .exe every time, you can run Electron in production mode via the CLI:
+< 1. Strip Environment Flags: Ensure NODE_ENV=production is set in your environment.
+< 2. Close DevTools: Do your heavy performance testing (like stress-testing ultra-long lines) with DevTools completely closed.
+< 3. Turn off logs: Use a production flag to completely mute console.log statements during rendering loops.
+< 
+< If you are trying to squeeze every ounce of speed out of your app, are you currently bundling or minifying your single monolithic ES6 module before running it, or loading it raw?
 
 
 

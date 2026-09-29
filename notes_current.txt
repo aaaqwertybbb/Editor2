@@ -170,8 +170,13 @@ Check List for whether I just broke everything
 - [ ] EditKind_BackspaceRtl
 - [ ] EditKind_RemoveTextNoBatching
 
+> Does an electron app run more optimized code or (???) depending on what CLI command I use, or if I use the .exe or such and such?
+> 
+> I use 'npm run start' 99% of the time
 
-
+< Yes, Electron can run significantly faster and more optimized when running as a production build (.exe) compared to running via npm run start in development.
+< 
+< When you use npm run start, Electron prioritizes the developer experience over raw speed and performance.
 
 
 

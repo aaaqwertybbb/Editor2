@@ -120,7 +120,8 @@ CSS.highlights.set("js-keywords", keywordHighlight);
 < 
 < Would you like to explore how to automatically keep range offsets synchronized when a user edits text, or should we look at how to hook this API up to a worker-driven parser?
 
-
+you guys ever play kingdoms of amalur?
+I played it when I was a teenager and I got kingdoms of amalur re-reckoning I think it was called yesterday for 75% off
 
 
 

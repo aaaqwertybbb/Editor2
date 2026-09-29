@@ -7121,6 +7121,19 @@ function EDI_drawLine(indexLine, gutterLineElement, textLineElement) {
     }
     EDI_getLineBoundaryPositions_raw(indexLine);
     //JS_line_lex(???----textLineElement, INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end], trackedSyntax_StartingIndex);
+    const lineStart = INTS[fEDI_getLineBoundaryPositions_start];
+    const lineEnd = INTS[fEDI_getLineBoundaryPositions_end];
+
+    //ringBufferIndex = (ringBufferIndex + 1) % local_ArrayFrom_textElement_children_length;
+
+    textLineElement.className = 'eT';
+    textLineElement.textContent = lineStart === lineEnd ? '' : EDI_decoder.decode(EDI_textByteList_bytes.subarray(lineStart, lineEnd));
+
+    //const translateY = `${vertical}px`;
+    //gutter.style.top = translateY;
+    //div.style.top = translateY;
+//
+    //vertical += local_lineHeight;
 }
 
 //#region mousedown

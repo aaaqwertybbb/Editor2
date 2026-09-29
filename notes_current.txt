@@ -1,6 +1,9 @@
  8:04
 12:04
 
+- [ ] syntax highlighting
+- [ ] find all references
+
 Google AI:
 
 > I am making a text editor app. A lot of the code is written already, and so my question is more specifically going to relate to a generalized
@@ -10,9 +13,45 @@ Google AI:
 < Got it. I am ready for your question whenever you are.
 < What performance aspect are you looking to optimize?
 
-> ...
+> If you were to implement 'syntax highlighting' in a greenfield text editor how would you do it?
 
-
+< To implement syntax highlighting in a greenfield text editor, you should separate the parsing logic (lexing) from the rendering process to keep
+< the editor responsive.
+< 
+< Here is the architectural blueprint for a modern, high-performance highlighting system:
+< 
+< 1. Tokenization (The Brains)
+< 
+< Do not write a custom Regex-heavy parser from scratch for every language. Instead, leverage established ecosystem tools:
+< 
+< - Tree-sitter (Recommended): It builds an Incremental Abstract Syntax Tree (AST). When a user types, it only re-parses the changed edit,
+<   making it lightning-fast and highly accurate.
+< - TextMate Grammars: The legacy standard used by VS Code (via vscode-textmate). It relies on complex regular expressions.
+<   It is easier to find existing language themes for it, but it is less performant than Tree-sitter.
+< 
+< 2. Concurrency (The Engine)
+< Never run the tokenization engine on the main browser thread.
+< - Move the parser into a Web Worker.
+< - Pass the raw text to the worker, let it calculate the tokens (character offsets and scope names like keyword, string, function),
+<   and pass the token array back to the main thread.
+< 
+< 3. Rendering Strategies (The Visuals)
+< You have three main choices for rendering the highlighted text, depending on how custom your editor needs to be:
+< 
+< Strategy                 | Implementation                                                                                                | Pros                                                                | Cons
+< ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+< Custom Canvas	           | Render text manually onto a <canvas> element (like Google Docs).                                              | Absolute control over performance and rendering.                    | Massive overhead; you must manually calculate cursor position, text selection, and accessibility.
+< Virtualized DOM          | Render only the visible lines using standard HTML components (e.g., <div><span>).                             | Easier to build; utilizes CSS for themes; accessible.               | Offscreen lines must be constantly mounted/unmounted during scrolling to prevent DOM bloat.
+< CSS Custom Highlight API | Use the browser's native highlighting engine to style ranges of raw text without wrapping them in HTML spans. | Best performance for hybrid approaches. No DOM overhead for styles. | Requires careful coordinate tracking; text styling options are limited compared to full CSS.
+< 
+< How to approach this in Electron
+< 
+< Since your app is a single monolithic ES6 module in Electron, you have a unique advantage: you can use high-performance Node native modules
+< (like the C bindings for Tree-sitter) directly if you spawn them via Electron's utility processes, or fallback to the WebAssembly (WASM)
+< version of Tree-sitter inside a standard Web Worker.
+< 
+< To narrow down the best implementation path for your monolithic setup, are you planning to support massive files (10,000+ lines),
+< or is this editor optimized for smaller, standard code scripts?
 
 
 

@@ -320,13 +320,15 @@ function EDI_clearHighlights(ringBufferIndexOfDiv) {
         const p = EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv];
         let k = p.pop();
         while (k) {
-            if (identifierHighlight.has(k)) { identifierHighlight.delete(k); }
-            else if (keywordHighlight.has(k)) { keywordHighlight.delete(k); }
-            else if (memberHighlight.has(k)) { memberHighlight.delete(k); }
-            else if (keywordControlHighlight.has(k)) { keywordControlHighlight.delete(k); }
-            else if (functionHighlight.has(k)) { functionHighlight.delete(k); }
-            else if (commentHighlight.has(k)) { commentHighlight.delete(k); }
-            else if (stringHighlight.has(k)) { stringHighlight.delete(k); }
+            if (identifierHighlight.delete(k) ||
+                keywordHighlight.delete(k) ||
+                memberHighlight.delete(k) ||
+                keywordControlHighlight.delete(k) ||
+                functionHighlight.delete(k) ||
+                commentHighlight.delete(k) ||
+                stringHighlight.delete(k)) {
+                    // literally do nothing
+            }
             k = p.pop();
         }
     }

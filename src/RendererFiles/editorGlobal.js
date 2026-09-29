@@ -1282,13 +1282,6 @@ function EDI_render_do_DuplicateOrPaste() {
                             pos++;
                         }
                         break;
-                    case CONST_EDI_ASCII_TAB:
-                        // huh???
-                        // '\t\0\0\0' was likely a bad idea and should "TODO: be changed", but nevertheless it is how the editor works at the moment.
-                        //
-                        lengthBytes += 4;
-                        pos++;
-                        break;
                     default:
                         lengthBytes++;
                         pos++;
@@ -1316,15 +1309,6 @@ function EDI_render_do_DuplicateOrPaste() {
                         else {
                             pos++;
                         }
-                        break;
-                    case CONST_EDI_ASCII_TAB:
-                        // '\t\0\0\0' was likely a bad idea and should "TODO: be changed", but nevertheless it is how the editor works at the moment.
-                        //
-                        byteArray[lengthBytes++] = 9; // char code for '\t' is 9
-                        byteArray[lengthBytes++] = 0; // char code for '·' is 0
-                        byteArray[lengthBytes++] = 0; // char code for '·' is 0
-                        byteArray[lengthBytes++] = 0; // char code for '·' is 0
-                        pos++;
                         break;
                     default:
                         byteArray[lengthBytes++] = code;
@@ -1372,7 +1356,6 @@ function EDI_render_do_DuplicateOrPaste() {
         let ringBufferIndex_last = (INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1) - INTS[fEDI_virtualIndexLine];
         if (ringBufferIndex_last >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_last < 0) ringBufferIndex_last = -1;
         else ringBufferIndex_last = (ringBufferIndex_last + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
-
 
         let last_valid_indexColumn_currentLine = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
 
@@ -1617,7 +1600,6 @@ function EDI_paste(content) {
     let wordStart = 0;
     let wordLength = 0;
 
-    // Consider '\t\0\0\0'
     let tabLength = 0;
     let previouslyGeneratedTabString_value = null;
     let previouslyGeneratedTabString_tabLengthThatWasUsed = 0;

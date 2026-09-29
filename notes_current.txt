@@ -172,14 +172,20 @@ sCheck List for whether I just broke evesrythings
 
 
 - [ ] EditKind_Tab
-- [ ] EditKind_IndentMore
+- [x] EditKind_IndentMore
 - [ ] EditKind_IndentLess
 - [ ] EditKind_Paste
 - [ ] EditKind_Duplicate
 - [ ] EditKind_DeleteLtr
-- [ ] EditKind_BackspaceRtl
   - [ ] start of line
-    - [ ] this gave me an infinite loop
+  - [ ] among line
+  - [x] end of line
+    - [x] merge with an empty line
+    - [ ] merge with a NON empty line
+- [ ] EditKind_BackspaceRtl
+  - [x] start of line
+    - [x] merge with an empty line
+    - [ ] merge with a NON empty line
   - [ ] among line
   - [ ] end of line
 - [ ] EditKind_RemoveTextNoBatching

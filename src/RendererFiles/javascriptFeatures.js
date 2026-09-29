@@ -536,7 +536,7 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
                                         break;
                                     case CONST_js_LINEFEED_str:
                                         ticketSource++;
-                                        break outer;
+                                        break outer; // this actually is because 'switch (divSpanTextContent[pos])' was reading undefined, this 'outer' is doing nothing I imagine. The fix was to use the correct subend for tracked syntax
                                     default:
                                         ticketSource++;
                                         break;

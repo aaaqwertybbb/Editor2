@@ -39,7 +39,6 @@ function JS_line_lex_newVersion(div, ringBufferIndexOfDiv, trackedSyntax_I, line
     
     let pos = 0;
 
-    let span;
     let textContent;
     let className;
 
@@ -282,252 +281,194 @@ function JS_line_lex_newVersion(div, ringBufferIndexOfDiv, trackedSyntax_I, line
 
 
                         let wordlength = pos - wordstart;
+                        className = 'eI';
                         switch (charIntSum) {
                             case 94844771: // const
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'const') {
                                         className = 'eK';
-                                        textContent = 'const';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case 107035: // let
                                 if (wordlength === 3 && divSpanTextContent.substring(wordstart, pos) === 'let') {
                                         className = 'eK';
-                                        textContent = 'let';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case 1380938712: // function
                                 if (wordlength === 8 && divSpanTextContent.substring(wordstart, pos) === 'function') {
                                         className = 'eK';
-                                        textContent = 'function';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case 3357: // if
                                 if (wordlength === 2 && divSpanTextContent.substring(wordstart, pos) === 'if') {
                                         className = 'eKC';
-                                        textContent = 'if';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case 115131: // try
                                 if (wordlength === 3 && divSpanTextContent.substring(wordstart, pos) === 'try') {
                                         className = 'eK';
-                                        textContent = 'try';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case 101577: // for
                                 if (wordlength === 3 && divSpanTextContent.substring(wordstart, pos) === 'for') {
                                         className = 'eKC';
-                                        textContent = 'for';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case 116519: // var
                                 if (wordlength === 3 && divSpanTextContent.substring(wordstart, pos) === 'var') {
                                         className = 'eK';
-                                        textContent = 'var';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case 94432955: // catch
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'catch') {
                                         className = 'eK';
-                                        textContent = 'catch';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case -934396624: // return
                                 if (wordlength === 6 && divSpanTextContent.substring(wordstart, pos) === 'return') {
                                         className = 'eKC';
-                                        textContent = 'return';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case -889473228: // switch
                                 if (wordlength === 6 && divSpanTextContent.substring(wordstart, pos) === 'switch') {
                                         className = 'eKC';
-                                        textContent = 'switch';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case 3046192: // case
                                 if (wordlength === 4 && divSpanTextContent.substring(wordstart, pos) === 'case') {
                                         className = 'eKC';
-                                        textContent = 'case';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case 93127292: // async
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'async') {
                                         className = 'eK';
-                                        textContent = 'async';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case 3116345: // else
                                 if (wordlength === 4 && divSpanTextContent.substring(wordstart, pos) === 'else') {
                                         className = 'eKC';
-                                        textContent = 'else';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case 1544803905: // default
                                 if (wordlength === 7 && divSpanTextContent.substring(wordstart, pos) === 'default') {
                                         className = 'eK';
-                                        textContent = 'default';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case 110339814: // throw
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'throw') {
                                         className = 'eK';
-                                        textContent = 'throw';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case 108960: // new
                                 if (wordlength === 3 && divSpanTextContent.substring(wordstart, pos) === 'new') {
                                         className = 'eK';
-                                        textContent = 'new';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case 93223254: // await
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'await') {
                                         className = 'eK';
-                                        textContent = 'await';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case 94742904: // class
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'class') {
                                         className = 'eK';
-                                        textContent = 'class';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case -1588406278: // constructor
                                 if (wordlength === 11 && divSpanTextContent.substring(wordstart, pos) === 'constructor') {
                                         className = 'eK';
-                                        textContent = 'constructor';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case -1184795739: // import
                                 if (wordlength === 6 && divSpanTextContent.substring(wordstart, pos) === 'import') {
                                         className = 'eKC';
-                                        textContent = 'import';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case 3151786: // from
                                 if (wordlength === 4 && divSpanTextContent.substring(wordstart, pos) === 'from') {
                                         className = 'eKC';
-                                        textContent = 'from';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case -1289153612: // export
                                 if (wordlength === 6 && divSpanTextContent.substring(wordstart, pos) === 'export') {
                                         className = 'eK';
-                                        textContent = 'export';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case 3559070: // this
                                 if (wordlength === 4 && divSpanTextContent.substring(wordstart, pos) === 'this') {
                                         className = 'eK';
-                                        textContent = 'this';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case 113101617: // while
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'while') {
                                         className = 'eKC';
-                                        textContent = 'while';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case 94001407: // break
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'break') {
                                         className = 'eKC';
-                                        textContent = 'break';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case -567202649: // continue
                                 if (wordlength === 8 && divSpanTextContent.substring(wordstart, pos) === 'continue') {
                                         className = 'eKC';
-                                        textContent = 'continue';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case 3569038: // true
                                 if (wordlength === 4 && divSpanTextContent.substring(wordstart, pos) === 'true') {
                                         className = 'eK';
-                                        textContent = 'true';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case 97196323: // false
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'false') {
                                         className = 'eK';
-                                        textContent = 'false';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             case 3392903: // null
                                 if (wordlength === 4 && divSpanTextContent.substring(wordstart, pos) === 'null') {
                                         className = 'eK';
-                                        textContent = 'null';
                                         break;
                                 }
-                                className = 'eI';
                                 break;
                             default:
-                                className = 'eI';
                                 break;
                         }
-                        if (className) {
+                        if (className) { // TODO: There always is a class now you can remove this branching?
                             // is done when there IS a valid match, in order to write out any pending text that came prior to the keyword.
                             if (substart < wordstart) {
-                                substart = wordstart;
+                                substart = wordstart; // TODO: Always do this just so you remove the branching?
                             }
 
                             const range = new Range();
                             range.setStart(textNode, substart);
-                            range.setEnd(textNode, substart += wordlength);
+                            range.setEnd(textNode, substart + wordlength);
 
                             if (className === 'eI') {
                                 if (divSpanTextContent[pos] === '(') {
@@ -549,7 +490,9 @@ function JS_line_lex_newVersion(div, ringBufferIndexOfDiv, trackedSyntax_I, line
                             else if (className === 'eKC') {
                                 keywordControlHighlight.add(range);
                             }
+                            substart += wordlength; // goes here or there? (1 of 2)
                         }
+                        //substart += wordlength; // goes here or there? (2 of 2)
                         continue;
                     case CONST_js_FORWARDSLASH_str:
                         if (divSpanTextContent[pos + 1] === CONST_js_FORWARDSLASH_str) {

@@ -155,7 +155,20 @@ I played it when I was a teenager and I got kingdoms of amalur re-reckoning I th
 
 < ...
 
+=======
 
+Check List for whether I just broke everything
+----------------------------------------------
+- [ ] EditKind_InsertLtr
+- [ ] EditKind_Enter
+- [ ] EditKind_Tab
+- [ ] EditKind_IndentMore
+- [ ] EditKind_IndentLess
+- [ ] EditKind_Paste
+- [ ] EditKind_Duplicate
+- [ ] EditKind_DeleteLtr
+- [ ] EditKind_BackspaceRtl
+- [ ] EditKind_RemoveTextNoBatching
 
 
 

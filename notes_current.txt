@@ -172,23 +172,15 @@ sCheck List for whether I just broke evesrythings
 
 
 - [ ] EditKind_Tab
-- [x] EditKind_IndentMore
 - [ ] EditKind_IndentLess
 - [ ] EditKind_Paste
 - [ ] EditKind_Duplicate
-- [ ] EditKind_DeleteLtr
-  - [ ] start of line
-  - [ ] among line
-  - [x] end of line
-    - [x] merge with an empty line
-    - [x] merge with a NON empty line
-- [ ] EditKind_BackspaceRtl
-  - [x] start of line
-    - [x] merge with an empty line
-    - [x] merge with a NON empty line
-  - [ ] among line
-  - [ ] end of line
 - [ ] EditKind_RemoveTextNoBatching
+- [x] EditKind_IndentMore
+- [x] EditKind_DeleteLtr
+- [x] EditKind_BackspaceRtl
+
+- [ ] try some mixtures I did 'delete'=>'insert'=>'moveCursorLineOfSmallerIndex'=>'insert'=>firstChild is not ??? error
 
 TODO: you can finalize a backspace without having done the render function.
 TODO: especially it seems if your dev tools become focused when hitting a breakpoint and then cover the UI of the app then you press play it won't hit the render function until you move the app window back into view.

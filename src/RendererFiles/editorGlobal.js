@@ -6992,7 +6992,7 @@ function EDI_onblur() {
  * 
  * - [ ] TODO: There is something in this method that is decently pointless overhead relating to...:
  *     - An empty line, a line only consisting of whitespace, or a line that is indented.
- *         - ...this one is perhaps less obvious from a non-branching perspective. And perhaps even just adding a conditional branch that avoids invoking 'JS_line_lex_newVersion' in this case is worthwhile.
+ *         - ...this one is perhaps less obvious from a non-branching perspective. And perhaps even just adding a conditional branch that avoids invoking 'JS_line_lex' in this case is worthwhile.
  *     - A line that is out of bounds of 'indexLine < EDI_lineEndPositionList_count'
  *         - ...consider separating the loop bounds in some way to remove conditional branches related to 'if (indexLine < EDI_lineEndPositionList_count)'
  * 
@@ -7088,7 +7088,7 @@ function EDI_render_do_SyntaxHighlighting() {
                 lineEnd = lineStart;
             }
     
-            trackedSyntax_I = JS_line_lex_newVersion(EDI_ringBuffer_text[ringBufferIndexCurrent], ringBufferIndexCurrent, trackedSyntax_I, lineStart);
+            trackedSyntax_I = JS_line_lex(EDI_ringBuffer_text[ringBufferIndexCurrent], ringBufferIndexCurrent, trackedSyntax_I, lineStart);
         }
 
         ringBufferIndexCurrent = (ringBufferIndexCurrent + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];

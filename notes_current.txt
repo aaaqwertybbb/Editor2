@@ -181,11 +181,11 @@ sCheck List for whether I just broke evesrythings
   - [ ] among line
   - [x] end of line
     - [x] merge with an empty line
-    - [ ] merge with a NON empty line
+    - [x] merge with a NON empty line
 - [ ] EditKind_BackspaceRtl
   - [x] start of line
     - [x] merge with an empty line
-    - [ ] merge with a NON empty line
+    - [x] merge with a NON empty line
   - [ ] among line
   - [ ] end of line
 - [ ] EditKind_RemoveTextNoBatching

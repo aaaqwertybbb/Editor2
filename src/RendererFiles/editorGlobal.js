@@ -3437,7 +3437,7 @@ function EDI_finalizeEdit() {
     // When gap buffer is finalized editor tries to redraw the line in order to lex it again.
     // You need to NOT do this when you are working with multiple cursors however, because it bugs everything out.
     // 
-    if (indexLine_editOccurredOn >= 0 && indexLine_editOccurredOn < EDI_lineEndPositionList_count) {
+    /*if (indexLine_editOccurredOn >= 0 && indexLine_editOccurredOn < EDI_lineEndPositionList_count) {
         if (EDI_gutter.children.length === INTS[fEDI_virtualCount] &&
             EDI_textElement.children.length === INTS[fEDI_virtualCount]) {
                 
@@ -3460,7 +3460,7 @@ function EDI_finalizeEdit() {
         else {
             // TODO: Consider what to do in this case.
         }
-    }
+    }*/
 }
 
 function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {

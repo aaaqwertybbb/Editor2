@@ -1242,6 +1242,7 @@ async function EDI_duplicateSelection() {
     EDI_render_request(RenderKind_DuplicateOrPaste);
 }
 
+// buy one get one deal? In this economy?
 function EDI_render_do_DuplicateOrPaste() {
     let hasSeenLinefeed = false;
 

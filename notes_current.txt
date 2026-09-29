@@ -217,8 +217,50 @@ Check List for whether I just broke everything
 < 
 < If you are trying to squeeze every ounce of speed out of your app, are you currently bundling or minifying your single monolithic ES6 module before running it, or loading it raw?
 
+> How do I run it as the exe?
 
-
+< To run your Electron app as a true, standalone .exe file, you need to compile and package it. The standard, modern tool for this is Electron Forge
+< (or its popular alternative, electron-builder).
+< 
+< Since you are using a raw, single monolithic ES6 module without a bundler, the easiest path is to use Electron Forge with its default template,
+< which will package your files exactly as they are into an executable.
+< 
+< Here is the fastest way to get your .exe up and running:
+< 
+< 1. Install Electron Forge Import Tool
+< 
+< Run this command in your project root folder. It will scan your existing package.json and automatically configure it for packaging:
+< ```bash
+npx @electron-forge/cli@latest import
+< ```
+< 
+< This will add a few new scripts to your package.json, such as "package" and "make".
+< 
+< 2. Build the Executable
+< 
+< Once the import is complete, run the package command:
+< ```bash
+npm run package
+< ```
+< 
+< Electron Forge will bundle your Javascript files into an ASAR archive, copy the Chromium binaries, and generate a folder containing your runnable .exe.
+< 
+< 3. Find and Run Your .exe
+< 
+< Look inside your project directory for a newly created folder named /out.
+< Inside, you will find a folder named something like your-app-win32-x64/. Open it, double-click your-app.exe, and your text editor will launch in pure production mode.
+< 
+< Crucial Check for ES6 Modules
+< 
+< Because you are using vanilla ES6 modules (import/export), double-check that your package.json contains:
+< ```json
+"type": "module"
+< ```
+< 
+< If your app runs fine during npm run start, it should work perfectly in the .exe. However, make sure any local file paths inside your code (like icons or child processes)
+< use import.meta.url or path.resolve rather than hardcoded string paths, as the internal directory structure changes slightly once packed into the executable.
+< 
+< If you run into any blank screens or path errors when you boot up the .exe, let me know what error messages pop up and we can fix them!
 
 
 

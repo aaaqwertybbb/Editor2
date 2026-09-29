@@ -291,7 +291,20 @@ function EDI_render_request(renderKind) {
     }
 }
 
+function EDI_clearHighlights() {
+    keywordHighlight.clear();
+    keywordControlHighlight.clear();
+    memberHighlight.clear();
+    functionHighlight.clear();
+    identifierHighlight.clear();
+    commentHighlight.clear();
+    stringHighlight.clear();
+}
+
 function EDI_render_do_CreateViewport() {
+
+    EDI_clearHighlights();
+
     const virtualCount = INTS[fEDI_virtualCount];
 
     INTS[fEDI_ONSCROLLvirtualCount] = virtualCount;
@@ -604,6 +617,8 @@ function EDI_onScroll_TrailingEdge() {
 }
 
 function EDI_render_do_Clear() {
+    EDI_clearHighlights();
+
     EDI_drawCursor(/*timestamp*/ 0, /*NOTscrollCursorIntoView*/ false);
     EDI_clearSelectionStyle();
     EDI_textElement.innerHTML = '';
@@ -7000,13 +7015,7 @@ function EDI_onblur() {
 */
 function EDI_render_do_SyntaxHighlighting() {
 
-    keywordHighlight.clear();
-    keywordControlHighlight.clear();
-    memberHighlight.clear();
-    functionHighlight.clear();
-    identifierHighlight.clear();
-    commentHighlight.clear();
-    stringHighlight.clear();
+    EDI_clearHighlights();
 
     if (EDI_cursor_hasSelection()){
         EDI_render_do_RedrawSelection();

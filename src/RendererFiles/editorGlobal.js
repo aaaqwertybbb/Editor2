@@ -7086,7 +7086,7 @@ function walkLineUntilIndexColumn() {
     let indexColumn_Goal = INTS[fEDI_cursor_indexColumn];
     let indexColumn_Sum = 0;
 
-    if (indexColumn_Goal <= indexColumn_Sum + div.textContent.length) {
+    if (indexColumn_Goal <= indexColumn_Sum + w_div.textContent.length) {
         // '<=' because end-of-line text insertion (end of line but prior to the line ending itself).
         // The line ending isn't written to the span, it is represented by the encompassing div itself.
         INTS[fEDI_w_indexColumn_Goal] = indexColumn_Goal;

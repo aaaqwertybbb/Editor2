@@ -166,7 +166,7 @@ sCheck List for whether I just broke evesrythings
 	- [ ] TODO: I'm selecting the space between the '[' and ']' then typing an 'x', the visual spacing bugs out until I scroll the line out and back into view.
 
 
-- [ ] EditKind_RemoveTextNoBatching
+- [x] EditKind_RemoveTextNoBatching
 - [x] EditKind_Paste
 - [x] EditKind_Duplicate
 - [x] EditKind_Enter

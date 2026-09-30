@@ -853,15 +853,19 @@ function EXPLORER_render_do_FullReset(timestamp) {
         let widthAttributeValueString = widthAttributeValueNumber + 'px';
         EXPLORER_cursorElement.style.width = widthAttributeValueString;
 
+        const fragment = document.createDocumentFragment();
+
         // this is zero'd, could use change for clarity of algorithm and match patterns but focus elsewhere first
         for (let i = 0; i < INTS[fEXPLORER_virtualCount]; i++) {
             let divItem = document.createElement('div');
             divItem.className = 'tvn';
             divItem.style.width = widthAttributeValueString;
             divItem.style.height = EXPLORER_itemHeightStyleAttributeValueString;
-            divItem.appendChild(document.createTextNode(i));
-            EXPLORER_itemListElement.appendChild(divItem);
+            divItem.appendChild(document.createTextNode(''));
+            fragment.appendChild(divItem);
         }
+
+        EXPLORER_itemListElement.appendChild(fragment);
         
         // TODO: check the resize logic, that it works
         if (EXPLORER_pullData_array) {

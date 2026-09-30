@@ -320,6 +320,10 @@ Anxiety cause if that is in my peripheral view I Won't be able to intake stimuli
 that is in my peripheral vision because the gradient of the toolbar/appbar/windowbar
 takes up too much of cognitive load perpetually when in view?
 
+I actually only use firefox to be on hte left 33% of my montior width so I Can
+watch youtube while I code I have vscode and github 67% monitor width on the right
+and I have microsoft edge for using the webbrowser for anything other than the youtube that I uose with fireifox.
+
 
 
 

@@ -442,7 +442,7 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem) {
     let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
 
     if (nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded) {
-        divItem.firstChild.nodeValue = '-' + divItem.firstChild.nodeValue.slice(1);
+        divItem.firstChild.replaceData(0, 1, '-');
 
         EXPLORER_treeViewNodes.setNodeKind(indexItem, TreeViewNodeKind_isExpandable_isExpanded);
 
@@ -467,7 +467,7 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem) {
     }
     else if (nodeKind === TreeViewNodeKind_isExpandable_isExpanded) {
 
-        divItem.firstChild.nodeValue = '+' + divItem.firstChild.nodeValue.slice(1);
+        divItem.firstChild.replaceData(0, 1, '+');
         EXPLORER_treeViewNodes.setNodeKind(indexItem, TreeViewNodeKind_isExpandable_NOTisExpanded);
 
         let countChildren = 0;
@@ -1826,7 +1826,7 @@ async function RenameFile_Directory_InputText_callback(result) {
     if (renameFileResult.success) {
         EXPLORER_setNodeListEntryId(WIDGET_target.indexItem, renameFileResult.pathId);
         let divItem = EXPLORER_itemListElement.children[WIDGET_target.divRelativeIndex];
-        divItem.firstChild.nodeValue = divItem.firstChild.nodeValue.slice(0, 1) + result.value;
+        divItem.firstChild.replaceData(1, textNode.length - 1, result.value);
     }
 }
 
@@ -1839,7 +1839,7 @@ async function RenameFile_File_InputText_callback(result) {
     if (renameFileResult.success) {
         EXPLORER_setNodeListEntryId(WIDGET_target.indexItem, renameFileResult.pathId);
         let divItem = EXPLORER_itemListElement.children[WIDGET_target.divRelativeIndex];
-        divItem.firstChild.nodeValue = divItem.firstChild.nodeValue.slice(0, 1) + result.value;
+        divItem.firstChild.replaceData(1, textNode.length - 1, result.value);
     }
 }
 

@@ -5150,7 +5150,11 @@ function EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_la
     let ringBufferIndex = ringBufferIndex_last;
     for (let i = 0; ; i++) {
         // the line numbers are wrong hang on
-        EDI_drawLine((local_virtualIndexLine + local_virtualCount - 1 - i) + distance, EDI_gutter.children[ringBufferIndex], EDI_textElement.children[ringBufferIndex]);
+        EDI_drawLine(
+            (local_virtualIndexLine + local_virtualCount - 1 - i) + distance,
+            EDI_gutter.children[ringBufferIndex],
+            EDI_textElement.children[ringBufferIndex],
+            (local_virtualIndexLine + local_virtualCount - 1 - i));
         if (ringBufferIndex === breakingPoint) break; // awkward positioning of this break, it seems somewhat necessary but need to take time to read the code further and try to have it moved somewhere more sensible.
         ringBufferIndex = (ringBufferIndex - 1 + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
     }
@@ -7044,12 +7048,12 @@ function walkLineUntilIndexColumn() {
  * @param {HTMLElement} gutterLineElement 
  * @param {HTMLElement} divElement 
  */
-function EDI_drawLine(indexLine, gutterLineElement, textLineElement) {
+function EDI_drawLine(indexLine, gutterLineElement, textLineElement, indexLineVisually) {
     if (indexLine >= EDI_lineEndPositionList_count) {
         gutterLineElement.textContent = '~';
     }
     else {
-        gutterLineElement.textContent = indexLine + 1;
+        gutterLineElement.textContent = indexLineVisually + 1;
     }
 
     let trackedSyntax_StartingIndex = EDI_drawViewPort_FindTrackedSyntax_StartingIndex(indexLine);

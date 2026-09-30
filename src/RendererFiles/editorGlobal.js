@@ -6991,6 +6991,7 @@ function walkLineUntilIndexColumn() {
     else INTS[fEDI_w_ringBufferIndex] = (INTS[fEDI_w_ringBufferIndex] + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
     
     // This is the only time the "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" was stored in a uint32 slot
+    // It still throws an error, just elsewhere "downstream". I'll save that for someone else.
     if (INTS[fEDI_w_ringBufferIndex] < 0 || INTS[fEDI_w_ringBufferIndex] === 4294967295) {
         INTS[fEDI_w_indexColumn_Goal] = 0;
         INTS[fEDI_w_indexColumn_Sum] = 0;

@@ -1626,6 +1626,9 @@ function EDI_paste(content) {
     //let original_span_textContent_length = w_div.textContent.length;
     //let original_tracked_syntax_start = positionIndex - INTS[fEDI_cursor_indexColumn] + INTS[fEDI_w_indexColumn_Sum];
 
+    // TODO: You need to move the cursor immediately and you need to cache MOST calculated information relative to the text being pasted...
+    // ...because it is all quite expensive what needs to be done to do it when holding down ctrl+v or something.
+
     for (var sourceI = 0; sourceI < content.length; sourceI++) {
         switch (content.charCodeAt(sourceI)) {
             case CONST_EDI_ASCII_LINE_FEED:
@@ -1672,7 +1675,7 @@ function EDI_paste(content) {
                 //else if (linefeedLength > 0) writeLinefeed();
                 // TODO: Extremely important next line but it doesn't fully pattern with every case so it is somewhat out of nowhere
                 // TODO: This is nonsensical you cannot numerically compare a ringBuffer index because the zeroth index isn't necessarily 0
-                if (ringBufferIndex_current > ringBufferIndex_last) return;
+                //if (ringBufferIndex_current > ringBufferIndex_last) return;
                 //
                 insertionLength += 4;
                 //
@@ -1685,7 +1688,7 @@ function EDI_paste(content) {
                 // TODO: Extremely important next line but it doesn't fully pattern with every case so it is somewhat out of nowhere
                 // TODO: This is nonsensical you cannot numerically compare a ringBuffer index because the zeroth index isn't necessarily 0
                 // bro who wrote this?
-                if (ringBufferIndex_current > ringBufferIndex_last) return;
+                //if (ringBufferIndex_current > ringBufferIndex_last) return;
                 //
                 insertionLength++;
                 //

@@ -608,8 +608,8 @@ Check List for whether I just broke everything
 ----------------------------------------------
 Positive
 ========
-- [ ] EditKind_Paste
-- [ ] EditKind_Duplicate
+- [x] EditKind_Paste
+- [x] EditKind_Duplicate
 - [x] EditKind_Enter
 - [x] EditKind_IndentMore
 - [x] EditKind_Tab

@@ -140,7 +140,7 @@ function EXPLORER_drawItem_BATCH_trailingEdge() {
         BYTES[byteEXPLORER_scrollIsFetchingData] = 1;
         EXPLORER_drawItem_BATCH_pullData(); // no await
     }
-};
+}
 
 /** 
  * @param {number} caseThreeOrigin if left undefined or (falsey but not 0), this will default to 'INTS[fEXPLORER_ringBufferIndexZero]'
@@ -195,23 +195,19 @@ function EXPLORER_drawItem_BATCH(start, length, onePositiveDiff_twoNegativeDiff_
         }
         divItem = EXPLORER_ringBuffer[divIndex];
 
+        const textNode = divItem.firstChild;
+
         if (indexItem >= totalCount) {
-            // TODO: Will the user agent remove a text node that has an "empty" nodeValue?
-            divItem.firstChild.nodeValue = '~';
-            divItem.title = '';
+            textNode.replaceData(1, textNode.length - 1, '~');
+            divItem.title = ''; // TODO: Optimized title setting?
         }
         else {
             EXPLORER_treeViewNodes.getElementAt(indexItem);
             depth = INTS[fTreeView_pooledNode_depth];
             nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
-
-            // TODO: How does setting textContent work?
-            // if there's a text node it re-uses it internally?
-            // div.textContent vs div.firstChild.textContent.
             
             //let entry = arrayEntries[loopCounter];
-            let textNode = divItem.firstChild;
-            textNode.nodeValue = '...';//entry.basename;
+            textNode.replaceData(1, textNode.length - 1, '...');//entry.basename;
             divItem.title = '...';//entry.absolutePath;
             divItem.className = 'tvnN';
 
@@ -227,16 +223,16 @@ function EXPLORER_drawItem_BATCH(start, length, onePositiveDiff_twoNegativeDiff_
         
         switch (nodeKind) {
             case TreeViewNodeKind_isExpandable_isExpanded:
-                divItem.firstChild.nodeValue = '-' + divItem.firstChild.nodeValue;
+                textNode.replaceData(0, 1, '-');
                 break;
             case TreeViewNodeKind_isExpandable_NOTisExpanded:
-                divItem.firstChild.nodeValue = '+' + divItem.firstChild.nodeValue;
+                textNode.replaceData(0, 1, '+');
                 break;
             case TreeViewNodeKind_NOTisExpandable_isExpanded:
-                divItem.firstChild.nodeValue = ' ' + divItem.firstChild.nodeValue;
+                textNode.replaceData(0, 1, ' ');
                 break;
             case TreeViewNodeKind_NOTisExpandable_NOTisExpanded:
-                divItem.firstChild.nodeValue = ' ' + divItem.firstChild.nodeValue;
+                textNode.replaceData(0, 1, ' ');
                 break;
         }
 
@@ -861,7 +857,7 @@ function EXPLORER_render_do_FullReset(timestamp) {
             divItem.className = 'tvn';
             divItem.style.width = widthAttributeValueString;
             divItem.style.height = EXPLORER_itemHeightStyleAttributeValueString;
-            divItem.appendChild(document.createTextNode(''));
+            divItem.appendChild(document.createTextNode(' '));
             fragment.appendChild(divItem);
         }
 

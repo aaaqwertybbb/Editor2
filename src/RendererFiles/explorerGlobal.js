@@ -319,7 +319,7 @@ function EXPLORER_drawItem_BATCH_PullDataDrawResult() {
             nodeElement.className = 'tvn';
             let textNode = nodeElement.firstChild;
             let entry = EXPLORER_arrayEntries[i];
-            textNode.nodeValue = nodeElement.firstChild.nodeValue.slice(0, 1) + entry.basename;
+            textNode.replaceData(1, textNode.length - 1, entry.basename);
             nodeElement.title = entry.absolutePath;
 
             // TODO: Reduce drawn width under some circumstance too

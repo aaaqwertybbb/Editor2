@@ -528,16 +528,13 @@ function EDI_render_do_Scroll(timestamp) {
 
     // TODO: I've looked a lot at this 'var' usage versus 'let'... TODO: finalize a thought on this.
     for (var indexLine = lowerBound; indexLine < upperBound; indexLine++) {
-        
-        // I'm realizing this might be called 'Circular buffer layout indexing' TODO: is it? and if so rename everything.
+
         ringBufferIndex = (ringBufferIndex + 1) % local_ArrayFrom_textElement_children_length;
 
         const gutter = local_EDI_ringBuffer_gutter[ringBufferIndex];
         const div = local_EDI_ringBuffer_text[ringBufferIndex];
 
-        // TODO: If you wrote to a or I gotta to the bathroom but I mean...
-        // ...instead of setting the class you can do something with an array or a small typed array...
-        // ... to flag the ones that need to be updated.
+        // TODO: If you make a (Uint8Array?) of size ring buffer when doing Array.From you can write to the ringBufferIndex to indicate needs to be syntax highlighted.
 
         let textNode = gutter.firstChild;
         if (!textNode) {

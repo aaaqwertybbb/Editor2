@@ -6990,7 +6990,8 @@ function walkLineUntilIndexColumn() {
     if (INTS[fEDI_w_ringBufferIndex] >= INTS[fEDI_ArrayFrom_textElement_children_length] || INTS[fEDI_w_ringBufferIndex] < 0) INTS[fEDI_w_ringBufferIndex] = -1;
     else INTS[fEDI_w_ringBufferIndex] = (INTS[fEDI_w_ringBufferIndex] + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
     
-    if (INTS[fEDI_w_ringBufferIndex] < 0) {
+    // This is the only time the "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" was stored in a uint32 slot
+    if (INTS[fEDI_w_ringBufferIndex] < 0 || INTS[fEDI_w_ringBufferIndex] === 4294967295) {
         INTS[fEDI_w_indexColumn_Goal] = 0;
         INTS[fEDI_w_indexColumn_Sum] = 0;
         INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;

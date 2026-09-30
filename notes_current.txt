@@ -446,9 +446,64 @@ textNode.insertData(6, "beautiful ");
 < 
 < Would you like to see how to structure your data layer to easily map keystroke offsets (like a cursor position) directly to these Text node methods?
 
+> As the user scrolls, I have a "sliding window ring buffer" implementation. And I re-use the divs of the "lines of text" that were scrolled out of view in order to show the
+> "lines of text" that came into view.
+> 
+> The API you showed me looks extremely useful in general but I also wonder about scrolling. With scrolling I'm doing a complete replacement of the div's textContent.
+> I can use 'replaceData' for this to avoid the textNode overhead?
 
-
-
+< Yes, absolutely. You can use replaceData to avoid Text node destruction overhead during scrolling,
+< and it is a brilliant optimization for a virtualized scrolling ("sliding window") text editor
+< 
+< However, there is a catch you need to watch out for when completely swapping lines.
+< Here is exactly how replaceData performs compared to textContent during a scroll, and how to implement it safely.
+< 
+< Why replaceData is Faster for Scrolling
+< When you use div.textContent = "new line content", the V8 engine and Chromium (the foundation of Electron) do this under the hood:
+< 1. Destroy the existing child Text node inside the div.
+< 2. Deallocate the old string's memory.
+< 3. Create a brand-new Text node object in memory.
+< 4. Attach it back to the div.
+< 
+< When scrolling rapidly, your ring buffer will constantly destroy and recreate thousands of DOM nodes,
+< causing a spike in Garbage Collection (GC) pauses, which triggers frame drops (stutter).
+< 
+< By using replaceData, you tell the browser: "Keep this exact Text node object alive in the DOM, but clear its internal C++ character buffer and fill it with this new string."
+< You get a flat 0% DOM object recreation rate.
+< 
+< The Implementation
+< To do a full replacement using replaceData, you target the existing text node, look at its current length, and replace everything from index 0:
+< ```js
+function reuseLineDiv(divElement, newTextString) {
+  let textNode = divElement.firstChild;
+  
+  // Edge case safety check (explained below)
+  if (!textNode) {
+    textNode = document.createTextNode(newTextString);
+    divElement.appendChild(textNode);
+    return;
+  }
+  
+  // Completely swap out the string content in-place
+  textNode.replaceData(0, textNode.length, newTextString);
+}
+< ```
+< 
+< The Critical Edge Case: Blank Lines
+< 
+< There is a massive trap with textContent that will break replaceData if you aren't careful.
+< 
+< If one of the lines scrolling into view is completely empty (""), and you accidentally use div.textContent = "",
+< the browser will instantly delete the Text node from the DOM. The next time that div is recycled by your ring buffer, div.firstChild will be null,
+< and trying to call .replaceData() on it will throw a fatal JavaScript error.
+< 
+< To prevent this from breaking your ring buffer, use one of these two strategies:
+< 1. The Safety Check (Recommended): Use the if (!textNode) block shown in the code above to gracefully generate a node if it goes missing.
+< 2. The Space Character Hack: Instead of passing an empty string "" for blank lines, pass a single space " ", or a non-breaking space "\u00A0".
+<    This keeps the text node alive at all times, meaning textNode.length will simply scale between 1 and whatever the new line length is.
+< 
+< If you'd like, we can look at how to benchmark the Garbage Collection impact in Electron's DevTools so you can see the exact memory savings of replaceData versus
+< textContent during active scrolling.
 
 
 

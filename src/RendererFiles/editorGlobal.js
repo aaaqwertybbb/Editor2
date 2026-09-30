@@ -1513,10 +1513,13 @@ function EDI_render_do_DuplicateOrPaste() {
 
                         if (INTS[fEDI_w_indexColumn_Goal] > 0) {
                             if (INTS[fEDI_w_indexColumn_Goal] !== INTS[fEDI_w_indexColumn_Sum] + w_div.textContent.length) {
-                                let firstText = w_div.textContent.substring(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
-                                let lastText = w_div.textContent.substring(INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
+                                const textNode = w_div.firstChild;
+                                const data = textNode.data;
+
+                                let firstText = data.substring(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
+                                let lastText = data.substring(INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
                                 last_valid_indexColumn_currentLine = lastText.length;
-                                w_div.textContent = firstText;
+                                textNode.replaceData(0, textNode.length, firstText);
                                 spanText += lastText; // This might NOT have to be +=, but it is due to the enter key method having needed += and this continues the pattern.
                                 //if (shouldPreserveCssClassWhenSplittingAmongLine) {
                                 //    spanClassName = wx_xsxpxaxn.className;
@@ -1528,7 +1531,8 @@ function EDI_render_do_DuplicateOrPaste() {
 
                         EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, ringBufferIndex_current);
 
-                        EDI_textElement.children[ringBufferIndex_current].textContent = spanText;
+                        const textNode = EDI_textElement.children[ringBufferIndex_current].firstChild;
+                        textNode.replaceData(0, textNode.length, spanText);
 
                         w_div = EDI_textElement.children[ringBufferIndex_current];
                         INTS[fEDI_w_indexColumn_Goal] = 0;
@@ -1549,10 +1553,7 @@ function EDI_render_do_DuplicateOrPaste() {
         }
 
         function EDI_duplicate_and_paste_writeWord(wordLength, word) {
-            w_div.textContent = 
-                w_div.textContent.slice(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]) +
-                word +
-                w_div.textContent.slice(INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
+            w_div.firstChild.insertData(INTS[fEDI_w_indexColumn_SpanTextContentRelative], word);
 
             INTS[fEDI_cursor_indexColumn] += wordLength;
             INTS[fEDI_cursorVisualColumnIndex] += wordLength;
@@ -1683,6 +1684,7 @@ function EDI_paste(content) {
                 //else if (linefeedLength > 0) writeLinefeed();
                 // TODO: Extremely important next line but it doesn't fully pattern with every case so it is somewhat out of nowhere
                 // TODO: This is nonsensical you cannot numerically compare a ringBuffer index because the zeroth index isn't necessarily 0
+                // bro who wrote this?
                 if (ringBufferIndex_current > ringBufferIndex_last) return;
                 //
                 insertionLength++;

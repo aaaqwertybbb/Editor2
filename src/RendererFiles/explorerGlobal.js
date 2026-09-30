@@ -838,8 +838,6 @@ function EXPLORER_render_do_FullReset(timestamp) {
     INTS[fEXPLORER_ringBufferIndexZero] = 0;
 
     if (EXPLORER_itemListElement.children.length !== INTS[fEXPLORER_virtualCount]) {
-        EXPLORER_itemListElement.innerHTML = '';
-
         // padding of 2ch (the style attribute receives the width as a pixel by using 'INTS[fEXPLORER_firstSpanWidthValue]' as a baseline (not quite ch))
         // TODO: this is all very inaccurate and prone to eventual rounding issues due to not monospace font.
         //
@@ -865,7 +863,7 @@ function EXPLORER_render_do_FullReset(timestamp) {
             fragment.appendChild(divItem);
         }
 
-        EXPLORER_itemListElement.appendChild(fragment);
+        EXPLORER_itemListElement.replaceChildren(fragment);
         
         // TODO: check the resize logic, that it works
         if (EXPLORER_pullData_array) {

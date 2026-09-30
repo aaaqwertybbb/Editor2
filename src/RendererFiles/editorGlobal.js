@@ -535,18 +535,33 @@ function EDI_render_do_Scroll(timestamp) {
         const gutter = local_EDI_ringBuffer_gutter[ringBufferIndex];
         const div = local_EDI_ringBuffer_text[ringBufferIndex];
 
+        let textNode = gutter.firstChild;
+        if (!textNode) {
+            textNode = document.createTextNode(' ');
+            gutter.appendChild(textNode);
+        }
         lineStart = lineEnd + 1;
         if (indexLine < local_EDI_lineEndPositionList_count) {
-            gutter.textContent = indexLine + 1;
+            textNode.replaceData(0, textNode.length, indexLine + 1); // TODO: Do I need to cast the final arg?
             lineEnd = local_EDI_lineEndPositionList_data[indexLine];
         }
         else {
-            gutter.textContent = '~';
+            textNode.replaceData(0, textNode.length, '~'); // TODO: Do I need to cast the final arg?
             lineEnd = lineStart;
         }
 
         div.className = 'eTN';
-        div.textContent = lineStart === lineEnd ? '' : EDI_decoder.decode(bytes.subarray(lineStart, lineEnd));
+        textNode = div.firstChild;
+        if (!textNode) {
+            textNode = document.createTextNode(' ');
+            div.appendChild(textNode);
+        }
+        // TODO: If you can ensure that none of the code breaks and then you document the following...
+        // ...then you can use ' ' here but make sure that all empty line logic doesn't break.
+        //
+        // TODO: you can avoid losing the textNode actually depending on how you set things. so you CAN keep it an empty string IF you guarantee that you only use those and avoid "..."
+        //
+        textNode.replaceData(0, textNode.length, lineStart === lineEnd ? '' : EDI_decoder.decode(bytes.subarray(lineStart, lineEnd)));
 
         const translateY = `${vertical}px`;
         gutter.style.top = translateY;

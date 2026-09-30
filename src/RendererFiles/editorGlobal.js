@@ -872,15 +872,8 @@ function EDI_render_do_IndentMore() {
             else ringBufferIndex = (ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
 
             if (ringBufferIndex >= 0) {
-                    let div = EDI_textElement.children[ringBufferIndex];
-                    if (div.textContent.length > 0 &&
-                        (div.textContent[0] === ' ' || div.textContent[0] === '\t') &&
-                        (div.textContent[div.textContent.length - 1] === ' ' || div.textContent[div.textContent.length - 1] === '\t')) {
-                            div.textContent += EDI_on_tab_string;
-                    }
-                    else {
-                        div.textContent = EDI_on_tab_string + div.textContent;
-                    }
+                const div = EDI_textElement.children[ringBufferIndex];
+                div.firstChild.insertData(0, EDI_on_tab_string);
             }
         }
 

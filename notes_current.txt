@@ -602,8 +602,8 @@ TODO "If your codebase calls element.normalize() anywhere on the line containers
 
 
 	banana	dillPickleapplecucumber		
-
-
+	 	
+	
 Check List for whether I just broke everything
 ----------------------------------------------
 Positive
@@ -611,7 +611,7 @@ Positive
 - [ ] EditKind_Paste
 - [ ] EditKind_Duplicate
 - [ ] EditKind_Enter
-- [ ] EditKind_IndentMore
+- [x] EditKind_IndentMore
 - [x] EditKind_Tab
 - [x] EditKind_InsertLtr
 

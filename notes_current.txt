@@ -604,10 +604,23 @@ TODO "If your codebase calls element.normalize() anywhere on the line containers
 
 
 
+Check List for whether I just broke everything
+----------------------------------------------
+- [ ] EditKind_InsertLtr
+- [ ] EditKind_RemoveTextNoBatching
+- [ ] EditKind_Paste
+- [ ] EditKind_Duplicate
+- [ ] EditKind_Enter
+- [ ] EditKind_IndentLess
+- [ ] EditKind_Tab
+- [ ] EditKind_IndentMore
+- [ ] EditKind_DeleteLtr
+- [ ] EditKind_BackspaceRtl
+
+- [ ] try some mixtures I did 'delete'=>'insert'=>'moveCursorLineOfSmallerIndex'=>'insert'=>firstChild is not ??? error
 
 
 
-
-
+`textNode.insertData(offset, string)` and `textNode.deleteData(offset, count)` are safe from having the textNode be removed?
 
 

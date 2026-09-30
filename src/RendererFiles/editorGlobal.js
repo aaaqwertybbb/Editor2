@@ -359,18 +359,14 @@ function EDI_render_do_CreateViewport() {
         const gutterLineElement = document.createElement('div');
         gutterLineElement.className = 'eG';
         gutterLineElement.style.width = gutterWidth;
-        if (indexLine >= EDI_lineEndPositionList_count) {
-            gutterLineElement.textContent = '~';
-        }
-        else {
-            gutterLineElement.textContent = indexLine + 1;
-        }
+        gutterLineElement.appendChild(document.createTextNode(''));
         gutterFragment.appendChild(gutterLineElement);
 
         const textLineElement = document.createElement('div');
         textLineElement.className = 'eT';
         textLineElement.style.left = left;
         textLineElement.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
+        textLineElement.appendChild(document.createTextNode(''));
         textFragment.appendChild(textLineElement);
     }
 
@@ -537,10 +533,6 @@ function EDI_render_do_Scroll(timestamp) {
         // TODO: If you make a (Uint8Array?) of size ring buffer when doing Array.From you can write to the ringBufferIndex to indicate needs to be syntax highlighted.
 
         let textNode = gutter.firstChild;
-        if (!textNode) {
-            textNode = document.createTextNode(' ');
-            gutter.appendChild(textNode);
-        }
         lineStart = lineEnd + 1;
         if (indexLine < local_EDI_lineEndPositionList_count) {
             textNode.replaceData(0, textNode.length, indexLine + 1); // TODO: Do I need to cast the final arg?
@@ -553,10 +545,6 @@ function EDI_render_do_Scroll(timestamp) {
 
         div.className = 'eTN';
         textNode = div.firstChild;
-        if (!textNode) {
-            textNode = document.createTextNode(' ');
-            div.appendChild(textNode);
-        }
         // TODO: If you can ensure that none of the code breaks and then you document the following...
         // ...then you can use ' ' here but make sure that all empty line logic doesn't break.
         //
@@ -2765,10 +2753,10 @@ function EDI_render_do_InsertLtr() {
     if (INTS[fEDI_cursor_editRenderedDisplacement] < INTS[fEDI_cursor_editLength]) {
         if (EDI_cursor_gapBufferWriteToSpanElement) {
 
-            EDI_cursor_gapBufferWriteToSpanElement.textContent = 
-                EDI_cursor_gapBufferWriteToSpanElement.textContent.slice(0, (INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex]) + INTS[fEDI_cursor_editRenderedDisplacement]) +
-                EDI_decoder.decode(EDI_cursor_gapBuffer.subarray(INTS[fEDI_cursor_editRenderedDisplacement], INTS[fEDI_cursor_editLength])) +
-                EDI_cursor_gapBufferWriteToSpanElement.textContent.slice((INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex]) + INTS[fEDI_cursor_editRenderedDisplacement]);
+            // textNode.insertData(offset, string)
+            EDI_cursor_gapBufferWriteToSpanElement.firstChild.insertData(
+                (INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex]) + INTS[fEDI_cursor_editRenderedDisplacement],
+                EDI_decoder.decode(EDI_cursor_gapBuffer.subarray(INTS[fEDI_cursor_editRenderedDisplacement], INTS[fEDI_cursor_editLength])));
 
             INTS[fEDI_cursor_editRenderedDisplacement] = INTS[fEDI_cursor_editLength];
         }

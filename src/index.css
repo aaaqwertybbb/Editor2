@@ -409,7 +409,7 @@ TODO: Is it better to have one virtualization element that has both the width an
   top: 0;
 
   overflow: hidden;
-  contain: size layout;
+  contain: strict;
 }
 
 /*

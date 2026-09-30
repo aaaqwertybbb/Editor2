@@ -5082,6 +5082,8 @@ function EDI_trackedSyntaxList_inefficientUpdateStartAndLength(indexPosition, in
 
 /**
  * TODO: implement this but by an arbitrary distance
+ * 
+ * TODO: Try these functions at the limits i.e.: I think you got _last and then ... the ... should be _last or like the one before it or something or both try both.
  */
 function EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, inclusiveSmallestRingBufferIndexToShift) {
     // TODO: This remove logic for the last line wasn't written with the correct understanding...
@@ -5112,7 +5114,9 @@ function EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, in
  * 'smallestRingBufferIndexToReceive' somewhat 'exclusive' in that it doesn't get shifted. It is the smallest line that receives the shift of the next line, and thus all content on this line is lost in the process.
  * 
  * TODO: an idea that you might be able to short circuit if you start shifting 'out of bounds lines of text' into 'out of bounds lines of text'?
- * */
+ * 
+ * TODO: Try these functions at the limits i.e.: I think you got _last and then ... the ... should be _last or like the one before it or something or both try both.
+ */
 function EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_last, smallestRingBufferIndexToReceive, distance, local_virtualIndexLine, local_virtualCount) {
 
     // TODO: Does 'coalesce assignment' exist, and is it equivalent?
@@ -5134,7 +5138,9 @@ function EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_la
         for (let i = 0; i < distance; i++) {
             sourceIndex = (sourceIndex + 1) % local_ArrayFrom_textElement_children_length;
         }
-        destinationDiv.replaceChildren(...EDI_textElement.children[sourceIndex].childNodes);
+        destinationDiv.textContent = EDI_textElement.children[sourceIndex].textContent;
+        // You don't need to clear 'EDI_textElement.children[sourceIndex].textContent', that's done in the final step of this function
+        // when invoking 'EDI_drawLine'.
         if (EDI_gutter.children[sourceIndex].textContent === '~') {
             EDI_gutter.children[destinationIndex].textContent = '~';
         }

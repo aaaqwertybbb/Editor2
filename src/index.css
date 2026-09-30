@@ -430,7 +430,7 @@ Ensure that '.eTN' is an exact replica of '.eT';
   /*left: 0;*/
 
   overflow: hidden;
-  contain: size layout;
+  contain: strict;
 }
 
 /*
@@ -449,7 +449,7 @@ Ensure that '.eTN' is an exact replica of '.eT';
   /*left: 0;*/
 
   overflow: hidden;
-  contain: size layout;
+  contain: strict;
 }
 
 #EDI_body {

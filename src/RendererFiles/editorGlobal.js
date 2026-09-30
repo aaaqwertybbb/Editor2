@@ -5149,7 +5149,6 @@ function EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_la
 
     let ringBufferIndex = ringBufferIndex_last;
     for (let i = 0; ; i++) {
-        // the line numbers are wrong hang on
         EDI_drawLine(
             (local_virtualIndexLine + local_virtualCount - 1 - i) + distance,
             EDI_gutter.children[ringBufferIndex],

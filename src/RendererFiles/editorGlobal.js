@@ -5096,18 +5096,15 @@ function EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, in
     // 
     let local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
 
-    // 1. Properly clear the last line (including its raw text node)
     let lastDiv = EDI_textElement.children[ringBufferIndex_last];
     lastDiv.textContent = ''; // Fast, native way to wipe all text nodes and children
 
-    // 2. Shift the text nodes across your ring buffer
     for (let i = ringBufferIndex_last; i !== inclusiveSmallestRingBufferIndexToShift;) {
         let destinationDiv = EDI_textElement.children[i];
         i = (i - 1 + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
         let sourceDiv = EDI_textElement.children[i];
-        
-        // Move the raw text node from source to destination
-        destinationDiv.replaceChildren(...sourceDiv.childNodes);
+        destinationDiv.textContent = sourceDiv.textContent;
+        sourceDiv.textContent = '';
     }
 }
 
@@ -5144,11 +5141,11 @@ function EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_la
         destinationIndex = (destinationIndex + 1) % local_ArrayFrom_textElement_children_length;
     }
 
-    let ringBufferIndex = breakingPoint;
+    let ringBufferIndex = ringBufferIndex_last;
     for (let i = 0; ; i++) {
-        EDI_drawLine(local_virtualIndexLine + local_virtualCount - (distance - i), EDI_gutter.children[ringBufferIndex], EDI_textElement.children[ringBufferIndex]);
-        if (ringBufferIndex === ringBufferIndex_last) break; // awkward positioning of this break, it seems somewhat necessary but need to take time to read the code further and try to have it moved somewhere more sensible.
-        ringBufferIndex = (ringBufferIndex + 1) % local_ArrayFrom_textElement_children_length;
+        EDI_drawLine((local_virtualIndexLine + local_virtualCount - 1 - i) + distance, EDI_gutter.children[ringBufferIndex], EDI_textElement.children[ringBufferIndex]);
+        if (ringBufferIndex === breakingPoint) break; // awkward positioning of this break, it seems somewhat necessary but need to take time to read the code further and try to have it moved somewhere more sensible.
+        ringBufferIndex = (ringBufferIndex - 1 + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
     }
 }
 

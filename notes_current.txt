@@ -325,6 +325,16 @@ watch youtube while I code I have vscode and github 67% monitor width on the rig
 and I have microsoft edge for using the webbrowser for anything other than the youtube that I uose with fireifox.
 
 
+11:06
+ 3:06
 
-
+- [ ] Change tree view to be just a div per line
+	- [ ] currently they are a div per line that contain:
+		- [ ] a span with a fixed width
+		- [ ] a text node
+	- [ ] after they will be a div per line that contain:
+		- [ ] a text node
+			- [ ] the first character will be '+', '-', or ' '.
+			- [ ] I'm thinking about going with a monospace font so that the '+', '-', and ' ' align.
+- [ ] Modify textContent by using the API instead of setting a new string value to textContent?
 

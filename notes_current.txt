@@ -505,7 +505,38 @@ function reuseLineDiv(divElement, newTextString) {
 < If you'd like, we can look at how to benchmark the Garbage Collection impact in Electron's DevTools so you can see the exact memory savings of replaceData versus
 < textContent during active scrolling.
 
+> Garbage Collection impact
 
+< To see the raw performance gains of replaceData over textContent, you want to profile Garbage Collection (GC) overhead. When a user scrolls fast, textContent floods the heap with
+< thousands of dead string allocations and abandoned DOM text nodes, triggering the V8 engine's GC to pause your main thread and causing noticeable micro-stutters (jank).
+< 
+< Here is how to visually prove and measure this difference inside your Electron / Chromium DevTools:
+< 
+< 1. Spotting GC Jank via the Performance Panel
+< 
+< 1. Open your Electron DevTools, go to the Performance tab, and make sure Memory is checked.
+< 2. Click Record, scroll up and down heavily inside your editor for 5–10 seconds, then click Stop.
+< 3. Look at the Main thread timeline. You are looking for bright orange/red bars labeled Major GC or Minor GC (Scavenger).
+<     1. With textContent: You will likely see a "sawtooth" pattern in the blue memory graph (it climbs rapidly as lines are scrolled, then drops instantly as the GC runs).
+<        Right during those drops, you will see long horizontal bars blocking your layout frames.
+<     2. With replaceData: The memory graph should remain almost perfectly flat, and GC execution blocks will practically vanish.
+< 
+< 2. Capturing the Exact Allocation Lifespan (The Ultimate Proof)
+< To see exactly how many strings you are throwing away, use the Memory tab:
+< 1. Go to the Memory tab and select Allocation instrumentation on timeline (or Allocation sampling).
+< 2. Start recording and scroll your ring buffer.
+< 3. You will see a timeline of blue and gray vertical bars:
+<     1. Blue bars represent memory allocated that is still alive.
+<     2. Gray bars represent memory allocated but already garbage collected.
+< 4. With textContent, you will see a massive sea of gray bars representing the strings and text nodes created and immediately destroyed during the scroll. With replaceData,
+<    those gray spikes disappear because you are mutating the same buffer.
+< 
+< Bonus Optimization for Electron Ring Buffers
+< Since you are using a monolithic ES6 structure, ensure the new strings you pass into replaceData aren't being aggressively concatenated in JavaScript right before the update.
+< 
+< For instance, if a line has tabs or trailing spaces, try to avoid operations like lineText + '    ' inside your scroll loop. Every + operation creates a temporary JS string that V8 must eventually clean up. Instead, map directly from your raw data array or buffer into replaceData.
+< 
+< Would you like to explore how to track the exact frame rate (FPS) during scrolling to see if GC pauses are causing you to drop below 60fps?
 
 ========
 

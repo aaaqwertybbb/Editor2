@@ -344,3 +344,6 @@ But I also am not in a great mood so maybe that's the actual issue idk.
 Nevertheless I need to cross this off a list of bad ideas so it will stay until I've endured it long enough to
 know when I put it back to what it was that the thought of it being just a div won't be (I lost my words anyways)
 
+The string changing I did is not great I have that as the next task related to the Editor and the explorer
+
+

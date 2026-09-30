@@ -617,10 +617,10 @@ Positive
 
 Negative
 ========
+- [x] EditKind_DeleteLtr
+- [x] EditKind_BackspaceRtl
 - [ ] EditKind_RemoveTextNoBatching
 - [ ] EditKind_IndentLess
-- [ ] EditKind_DeleteLtr
-- [ ] EditKind_BackspaceRtl
 
 - [ ] try some mixtures I did 'delete'=>'insert'=>'moveCursorLineOfSmallerIndex'=>'insert'=>firstChild is not ??? error
 
@@ -628,4 +628,7 @@ Negative
 
 `textNode.insertData(offset, string)` and `textNode.deleteData(offset, count)` are safe from having the textNode be removed?
 
-
+TODO:
+- [ ] EditKind_DeleteLtr
+  - [ ] delete key
+      - [ ] then ctrl delete key

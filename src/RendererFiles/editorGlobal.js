@@ -2384,7 +2384,7 @@ function EDI_render_do_Delete() {
                 remaining -= count;
 
                 if (count > 0) {
-                    w_div.textContent = w_div.textContent.slice(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]) + w_div.textContent.slice(INTS[fEDI_w_indexColumn_SpanTextContentRelative] + count);
+                    w_div.firstChild.deleteData(INTS[fEDI_w_indexColumn_SpanTextContentRelative], count);
                 }
 
                 if (remaining > 0) {
@@ -2411,12 +2411,11 @@ function EDI_render_do_Delete() {
                         else ringBufferIndex_next = (ringBufferIndex_next + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
 
                         if (ringBufferIndex_next >= 0) {
-                            let keepingDiv = w_div;
-                            let removingDiv = EDI_textElement.children[ringBufferIndex_next];
+                            const keepingTextNode = w_div.firstChild;
+                            const removingTextNode = EDI_textElement.children[ringBufferIndex_next].firstChild;
 
-                            if (removingDiv.firstChild) {
-                                keepingDiv.appendChild(removingDiv.firstChild);
-                            }
+                            keepingTextNode.insertData(keepingTextNode.length, removingTextNode.data);
+                            removingTextNode.deleteData(0, removingTextNode.length);
 
                             // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
                             let ringBufferIndex_last = (INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1) - INTS[fEDI_virtualIndexLine];
@@ -2602,12 +2601,11 @@ function EDI_render_do_Backspace() {
                         else ringBufferIndex_next = (ringBufferIndex_next + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
 
                         if (ringBufferIndex_next >= 0) {
-                            let keepingDiv = w_div;
-                            let removingDiv = EDI_textElement.children[ringBufferIndex_next];
+                            const keepingTextNode = w_div.firstChild;
+                            const removingTextNode = EDI_textElement.children[ringBufferIndex_next].firstChild;
 
-                            if (removingDiv.firstChild) {
-                                keepingDiv.appendChild(removingDiv.firstChild);
-                            }
+                            keepingTextNode.insertData(keepingTextNode.length, removingTextNode.data);
+                            removingTextNode.deleteData(0, removingTextNode.length);
 
                             // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
                             let ringBufferIndex_last = (INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1) - INTS[fEDI_virtualIndexLine];
@@ -5130,7 +5128,7 @@ function EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_la
 
     // TODO: if smallestRingBufferIndexToReceive < 0 throw an error?
 
-    let local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
+    const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
 
     let breakingPoint = ringBufferIndex_last;
     for (let i = 1 /*starts at one*/; i < distance; i++) {
@@ -5138,16 +5136,17 @@ function EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_la
     }
 
     for (let destinationIndex = smallestRingBufferIndexToReceive; destinationIndex !== breakingPoint;) {
-        let destinationDiv = EDI_textElement.children[destinationIndex];
+        const destinationDivTextNode = EDI_textElement.children[destinationIndex].firstChild;
         let sourceIndex = destinationIndex;
         for (let i = 0; i < distance; i++) {
             sourceIndex = (sourceIndex + 1) % local_ArrayFrom_textElement_children_length;
         }
-        destinationDiv.textContent = EDI_textElement.children[sourceIndex].textContent;
+        destinationDivTextNode.replaceData(0, destinationDivTextNode.length, EDI_textElement.children[sourceIndex].textContent);
         // You don't need to clear 'EDI_textElement.children[sourceIndex].textContent', that's done in the final step of this function
         // when invoking 'EDI_drawLine'.
         if (EDI_gutter.children[sourceIndex].textContent === '~') {
-            EDI_gutter.children[destinationIndex].textContent = '~';
+            const destination_textNode_gutter = EDI_gutter.children[destinationIndex];
+            destination_textNode_gutter.replaceData(0, destination_textNode_gutter.length, '~');
         }
         destinationIndex = (destinationIndex + 1) % local_ArrayFrom_textElement_children_length;
     }
@@ -7053,11 +7052,12 @@ function walkLineUntilIndexColumn() {
  * @param {HTMLElement} divElement 
  */
 function EDI_drawLine(indexLine, gutterLineElement, textLineElement, indexLineVisually) {
+    let textNode = gutterLineElement.firstChild;
     if (indexLine >= EDI_lineEndPositionList_count) {
-        gutterLineElement.textContent = '~';
+        textNode.replaceData(0, textNode.length, '~');
     }
     else {
-        gutterLineElement.textContent = indexLineVisually + 1;
+        textNode.replaceData(0, textNode.length, `${indexLineVisually + 1}`);
     }
 
     let trackedSyntax_StartingIndex = EDI_drawViewPort_FindTrackedSyntax_StartingIndex(indexLine);
@@ -7072,7 +7072,8 @@ function EDI_drawLine(indexLine, gutterLineElement, textLineElement, indexLineVi
     //ringBufferIndex = (ringBufferIndex + 1) % local_ArrayFrom_textElement_children_length;
 
     textLineElement.className = 'eT';
-    textLineElement.textContent = lineStart === lineEnd ? '' : EDI_decoder.decode(EDI_textByteList_bytes.subarray(lineStart, lineEnd));
+    textNode = textLineElement.firstChild;
+    textNode.replaceData(0, textNode.length, lineStart === lineEnd ? '' : EDI_decoder.decode(EDI_textByteList_bytes.subarray(lineStart, lineEnd)));
 
     //const translateY = `${vertical}px`;
     //gutter.style.top = translateY;

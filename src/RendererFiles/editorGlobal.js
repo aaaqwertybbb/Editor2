@@ -1755,10 +1755,7 @@ function EDI_render_do_TabKey() {
             EDI_on_tab_string += String.fromCharCode(EDI_on_tab_bytes[i]);
         }
 
-        w_div.textContent = 
-            w_div.textContent.slice(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]) +
-            EDI_on_tab_string +
-            w_div.textContent.slice(INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
+        w_div.firstChild.insertData(INTS[fEDI_w_indexColumn_SpanTextContentRelative], EDI_on_tab_string);
 
         INTS[fEDI_cursor_indexColumn] += EDI_on_tab_bytes.length; // awkward thing to have 'walkLineUntilIndexColumn' invocation work then at end of block I '+= EDI_on_tab_bytes.length'.
     }

@@ -601,7 +601,7 @@ TODO "If your codebase calls element.normalize() anywhere on the line containers
 ^ How far an ancestor can you be to where this normalize() effects the textNode? is it the literal immediate parent only?
 
 
-bananadillPickleapplecucumber
+	banana	dillPickleapplecucumber		
 
 
 Check List for whether I just broke everything
@@ -611,8 +611,8 @@ Positive
 - [ ] EditKind_Paste
 - [ ] EditKind_Duplicate
 - [ ] EditKind_Enter
-- [ ] EditKind_Tab
 - [ ] EditKind_IndentMore
+- [x] EditKind_Tab
 - [x] EditKind_InsertLtr
 
 Negative

@@ -535,11 +535,11 @@ function EDI_render_do_Scroll(timestamp) {
         let textNode = gutter.firstChild;
         lineStart = lineEnd + 1;
         if (indexLine < local_EDI_lineEndPositionList_count) {
-            textNode.replaceData(0, textNode.length, indexLine + 1); // TODO: Do I need to cast the final arg?
+            textNode.replaceData(0, textNode.length, `${indexLine + 1}`);
             lineEnd = local_EDI_lineEndPositionList_data[indexLine];
         }
         else {
-            textNode.replaceData(0, textNode.length, '~'); // TODO: Do I need to cast the final arg?
+            textNode.replaceData(0, textNode.length, '~');
             lineEnd = lineStart;
         }
 
@@ -1833,7 +1833,8 @@ function EDI_render_do_EnterKey() {
         else ringBufferIndex_firstTilde = (ringBufferIndex_firstTilde + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
 
         if (ringBufferIndex_firstTilde >= 0) {
-            EDI_gutter.children[ringBufferIndex_firstTilde].textContent = local_EDI_lineEndPositionList_count + 1;
+            const gutterTextNode = EDI_gutter.children[ringBufferIndex_firstTilde].firstChild;
+            gutterTextNode.replaceData(0, gutterTextNode.length, `${local_EDI_lineEndPositionList_count + 1}`);
         }
         
         let shouldRenderEntireViewport = false;
@@ -1888,7 +1889,8 @@ function EDI_render_do_EnterKey() {
                 if (lastValidIndexColumn === INTS[fEDI_cursor_editIndexColumn]) { // end of line
                     let next_ringBufferIndex = (ringBufferIndex_current + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
                     EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, next_ringBufferIndex);
-                    EDI_textElement.children[next_ringBufferIndex].textContent = EDI_cursor_cached_indentation_string;
+                    const textNode = EDI_textElement.children[next_ringBufferIndex].firstChild;
+                    textNode.replaceData(0, textNode.length, EDI_cursor_cached_indentation_string);
                     EDI_lineWasInsertedValidateGutter();
                     return;
                 }
@@ -1928,9 +1930,12 @@ function EDI_render_do_EnterKey() {
                     
                     if (INTS[fEDI_w_indexColumn_Goal] > 0) {
                         if (INTS[fEDI_w_indexColumn_Goal] !== INTS[fEDI_w_indexColumn_Sum] + w_div.textContent.length) {
-                            let firstText = w_div.textContent.substring(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
-                            let lastText = w_div.textContent.substring(INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
-                            w_div.textContent = firstText;
+                            const textNode = w_div.firstChild;
+                            const data = textNode.data;
+
+                            let firstText = data.substring(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
+                            let lastText = data.substring(INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
+                            textNode.replaceData(0, textNode.length, firstText);
                             spanText += lastText; // += due to the possibility of indentation
                             //if (shouldPreserveCssClassWhenSplittingAmongLine) {
                             //    spanClassName = wx_xsxpxaxn.className;
@@ -1940,7 +1945,8 @@ function EDI_render_do_EnterKey() {
 
                     let next_ringBufferIndex = (INTS[fEDI_w_ringBufferIndex] + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
                     EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, next_ringBufferIndex);
-                    EDI_textElement.children[next_ringBufferIndex].textContent = spanText;
+                    const textNode = EDI_textElement.children[next_ringBufferIndex].firstChild;
+                    textNode.replaceData(0, textNode.length, spanText);
                     EDI_lineWasInsertedValidateGutter();
 
                     INTS[fEDI_cursor_indexLine] = remember_cursorIndexLine;
@@ -5089,17 +5095,18 @@ function EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, in
     // - for some reason only had a virtualization count of '1',
     // you might need to run this logic otherwise an enter key at column index 0 of a line wouldn't show any changes.
     // 
-    let local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
+    const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
 
-    let lastDiv = EDI_textElement.children[ringBufferIndex_last];
-    lastDiv.textContent = ''; // Fast, native way to wipe all text nodes and children
+    const lastDivTextNode = EDI_textElement.children[ringBufferIndex_last].firstChild;
+    lastDivTextNode.deleteData(0, lastDivTextNode.length);
 
+    // TODO: I could swear I just saw this run where 'destinationDivTextNode' was 'sourceDivTextSpan' and both i values were 'inclusiveSmallestRingBufferIndexToShift'?
     for (let i = ringBufferIndex_last; i !== inclusiveSmallestRingBufferIndexToShift;) {
-        let destinationDiv = EDI_textElement.children[i];
+        const destinationDivTextNode = EDI_textElement.children[i].firstChild;
         i = (i - 1 + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
-        let sourceDiv = EDI_textElement.children[i];
-        destinationDiv.textContent = sourceDiv.textContent;
-        sourceDiv.textContent = '';
+        const sourceDivTextSpan = EDI_textElement.children[i].firstChild;
+        destinationDivTextNode.replaceData(0, destinationDivTextNode.length, sourceDivTextSpan.data);
+        sourceDivTextSpan.deleteData(0, sourceDivTextSpan.length);
     }
 }
 

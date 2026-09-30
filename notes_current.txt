@@ -610,7 +610,7 @@ Positive
 ========
 - [ ] EditKind_Paste
 - [ ] EditKind_Duplicate
-- [ ] EditKind_Enter
+- [x] EditKind_Enter
 - [x] EditKind_IndentMore
 - [x] EditKind_Tab
 - [x] EditKind_InsertLtr

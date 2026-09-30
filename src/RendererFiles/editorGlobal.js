@@ -2249,15 +2249,16 @@ function EDI_render_do_RemoveSelection() {
                 remaining = largePosition - smallPosition;
             }
 
-            if (w_div && INTS[fEDI_w_indexColumn_SpanTextContentRelative] >= 0) {
+            if (w_div !== w_divNONE && INTS[fEDI_w_indexColumn_SpanTextContentRelative] >= 0) {
                 smallLineDiv = w_div;
+                const textNode = w_div.firstChild;
                 while (remaining > 0) {
                     let available = w_div.textContent.length - INTS[fEDI_w_indexColumn_SpanTextContentRelative];
                     let count = remaining > available ? available : remaining;
-                    remaining -= count;    
+                    remaining -= count;
                     
                     if (count > 0) {
-                        w_div.textContent = w_div.textContent.slice(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]) + w_div.textContent.slice(INTS[fEDI_w_indexColumn_SpanTextContentRelative] + count);
+                        textNode.deleteData(INTS[fEDI_w_indexColumn_SpanTextContentRelative], count);
                     }
                     else {
                         break; // silent error?
@@ -2280,15 +2281,16 @@ function EDI_render_do_RemoveSelection() {
 
             walkLineUntilIndexColumn();
 
-            if (w_div && INTS[fEDI_w_indexColumn_SpanTextContentRelative] >= 0) {
+            if (w_div !== w_divNONE && INTS[fEDI_w_indexColumn_SpanTextContentRelative] >= 0) {
                 largeLineDiv = w_div;
+                const textNode = w_div.firstChild;
                 while (remaining > 0) {
                     let available = w_div.textContent.length - INTS[fEDI_w_indexColumn_SpanTextContentRelative];
                     let count = remaining > available ? available : remaining;
                     remaining -= count;
 
                     if (count > 0) {
-                        w_div.textContent = w_div.textContent.slice(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]) + w_div.textContent.slice(INTS[fEDI_w_indexColumn_SpanTextContentRelative] + count);
+                        textNode.deleteData(INTS[fEDI_w_indexColumn_SpanTextContentRelative], count);
                     }
                     else {
                         break; // silent error?
@@ -2317,9 +2319,10 @@ function EDI_render_do_RemoveSelection() {
 
             if (smallLineDiv) {
                 if (largeLineDiv) { // - [x] keeping, removing
-                    if (largeLineDiv.firstChild) {
-                        smallLineDiv.appendChild(largeLineDiv.firstChild);
-                    }
+                    const smallLineTextNode = smallLineDiv.firstChild;
+                    const largeLineTextNode = largeLineDiv.firstChild;
+                    smallLineTextNode.insertData(smallLineTextNode.length, largeLineTextNode.data);
+                    largeLineTextNode.deleteData(0, largeLineTextNode.length);
                     visibleLinesRemovedCount++;
                 }
                 else { // - [ ] keeping, !removing
@@ -7728,6 +7731,9 @@ function EDI_measureLineHeightAndCharacterWidth() {
 
     wrapper.appendChild(measureElement);
     EDI_textElement.appendChild(wrapper);
+
+    // TODO: save 2 TextNode allocations in the app line/character measurements (not here)
+    // because you could be replacing the data but you are replacing the textContent.
 
     let len = 396;
     measureElement.innerHTML = 'A'.repeat(len);

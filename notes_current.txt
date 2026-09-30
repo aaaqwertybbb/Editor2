@@ -338,3 +338,9 @@ and I have microsoft edge for using the webbrowser for anything other than the y
 			- [ ] I'm thinking about going with a monospace font so that the '+', '-', and ' ' align.
 - [ ] Modify textContent by using the API instead of setting a new string value to textContent?
 
+*sigh*
+I made the change but it is bothering me I don't like it.
+But I also am not in a great mood so maybe that's the actual issue idk.
+Never the less I need to cross this off a list of bad ideas so it will stay until I've endured it long enough to
+know when I put it back to what it was that the thought of it being just a div won't be (I lost my words anyways)
+

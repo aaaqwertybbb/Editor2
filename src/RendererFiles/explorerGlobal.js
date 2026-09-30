@@ -197,18 +197,22 @@ function EXPLORER_drawItem_BATCH(start, length, onePositiveDiff_twoNegativeDiff_
 
         if (indexItem >= totalCount) {
             // TODO: Will the user agent remove a text node that has an "empty" nodeValue?
-            divItem.lastChild.nodeValue = '~';
-            divItem.lastChild.title = '';
+            divItem.firstChild.nodeValue = '~';
+            divItem.title = '';
         }
         else {
             EXPLORER_treeViewNodes.getElementAt(indexItem);
             depth = INTS[fTreeView_pooledNode_depth];
             nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
+
+            // TODO: How does setting textContent work?
+            // if there's a text node it re-uses it internally?
+            // div.textContent vs div.firstChild.textContent.
             
             //let entry = arrayEntries[loopCounter];
-            let textNode = divItem.lastChild;
+            let textNode = divItem.firstChild;
             textNode.nodeValue = '...';//entry.basename;
-            textNode.title = '...';//entry.absolutePath;
+            divItem.title = '...';//entry.absolutePath;
             divItem.className = 'tvnN';
 
             //let isDirectory = nodeKind === TreeViewNodeKind_isExpandable_isExpanded ||
@@ -223,16 +227,16 @@ function EXPLORER_drawItem_BATCH(start, length, onePositiveDiff_twoNegativeDiff_
         
         switch (nodeKind) {
             case TreeViewNodeKind_isExpandable_isExpanded:
-                divItem.children[0].textContent = '-';
+                divItem.firstChild.nodeValue = '-' + divItem.firstChild.nodeValue;
                 break;
             case TreeViewNodeKind_isExpandable_NOTisExpanded:
-                divItem.children[0].textContent = '+';
+                divItem.firstChild.nodeValue = '+' + divItem.firstChild.nodeValue;
                 break;
             case TreeViewNodeKind_NOTisExpandable_isExpanded:
-                divItem.children[0].textContent = '';
+                divItem.firstChild.nodeValue = ' ' + divItem.firstChild.nodeValue;
                 break;
             case TreeViewNodeKind_NOTisExpandable_NOTisExpanded:
-                divItem.children[0].textContent = '';
+                divItem.firstChild.nodeValue = ' ' + divItem.firstChild.nodeValue;
                 break;
         }
 
@@ -242,7 +246,7 @@ function EXPLORER_drawItem_BATCH(start, length, onePositiveDiff_twoNegativeDiff_
         }
 
         divItem.style.top = `${verticalStyleNumber}px`;
-        divItem.style.marginLeft = `${CONST_EXPLORER_offsetPerDepth * depth}px`;
+        divItem.style.paddingLeft = `${CONST_EXPLORER_offsetPerDepth * depth}px`;
         verticalStyleNumber += INTS[fEXPLORER_itemHeightNumber];
 
         loopCounter++;
@@ -317,10 +321,10 @@ function EXPLORER_drawItem_BATCH_PullDataDrawResult() {
 
             let nodeElement = itemListElement_children[ringBufferIndexItem];
             nodeElement.className = 'tvn';
-            let textNode = nodeElement.lastChild;
+            let textNode = nodeElement.firstChild;
             let entry = EXPLORER_arrayEntries[i];
-            textNode.nodeValue = entry.basename;
-            textNode.title = entry.absolutePath;
+            textNode.nodeValue = nodeElement.firstChild.nodeValue.slice(0, 1) + entry.basename;
+            nodeElement.title = entry.absolutePath;
 
             // TODO: Reduce drawn width under some circumstance too
             if (entry.basename.length > NEXT_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING) {
@@ -442,8 +446,8 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem) {
     let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
 
     if (nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded) {
+        divItem.firstChild.nodeValue = '-' + divItem.firstChild.nodeValue.slice(1);
 
-        divItem.children[0].textContent = '-';
         EXPLORER_treeViewNodes.setNodeKind(indexItem, TreeViewNodeKind_isExpandable_isExpanded);
 
         const filesystemEntries = await window.myAPI.getFilesystemEntries_argumentIsId(key);
@@ -467,7 +471,7 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem) {
     }
     else if (nodeKind === TreeViewNodeKind_isExpandable_isExpanded) {
 
-        divItem.children[0].textContent = '+';
+        divItem.firstChild.nodeValue = '+' + divItem.firstChild.nodeValue.slice(1);
         EXPLORER_treeViewNodes.setNodeKind(indexItem, TreeViewNodeKind_isExpandable_NOTisExpanded);
 
         let countChildren = 0;
@@ -855,13 +859,8 @@ function EXPLORER_render_do_FullReset(timestamp) {
             divItem.className = 'tvn';
             divItem.style.width = widthAttributeValueString;
             divItem.style.height = EXPLORER_itemHeightStyleAttributeValueString;
-            EXPLORER_itemListElement.appendChild(divItem);
-            let iconSpan = document.createElement('span');
-            iconSpan.style.width = EXPLORER_firstSpanWidth;
-            iconSpan.style.display = 'inline-block';
-            // TODO: Consider what differences if any exist between the '' iconSpan having an empty height of 0 when left unset, versus if you were to set it to 1px, does this matter? It doesn't seem to impact the "horizontal" space being taken.
-            divItem.appendChild(iconSpan);
             divItem.appendChild(document.createTextNode(i));
+            EXPLORER_itemListElement.appendChild(divItem);
         }
         
         // TODO: check the resize logic, that it works
@@ -896,24 +895,25 @@ function EXPLORER_draw_render_fullReset_request() {
  * @param {*} event 
  */
 function EXPLORER_event_click(event) {
-     let event_clientY = event.clientY;
-     let event_target = event.target;
+     const event_clientX = event.clientX;
+     const event_clientY = event.clientY;
 
     EXPLORER_ensure_boundingClientRect();
 
-    let rY = event_clientY - INTS[fEXPLORER_boundingClientRect_top] + INTS[fEXPLORER_lastReadNumber_scrollTop];
-    let indexItem = Math.floor(rY / INTS[fEXPLORER_itemHeightNumber]);
-    indexItem = EXPLORER_state_cursor_validateIndex(indexItem);
+    const rY = event_clientY - INTS[fEXPLORER_boundingClientRect_top] + INTS[fEXPLORER_lastReadNumber_scrollTop];
+    const indexItem = EXPLORER_state_cursor_validateIndex(Math.floor(rY / INTS[fEXPLORER_itemHeightNumber]));
 
     // See comment "Awkward explicit inlining of 'EXPLORER_indexItemTo_ringBufferIndexItem'" for more information.
     let ringBufferIndexItem = ((indexItem)) - INTS[fEXPLORER_virtualIndex_ofScrollTop];
     if (ringBufferIndexItem >= INTS[fEXPLORER_ringBuffer_length] || ringBufferIndexItem < 0) ringBufferIndexItem = -1;
     else ringBufferIndexItem = (ringBufferIndexItem + INTS[fEXPLORER_ringBufferIndexZero]) % INTS[fEXPLORER_virtualCount];
-
     if (ringBufferIndexItem < 0) return;
+
     let divItem = EXPLORER_ringBuffer[ringBufferIndexItem];
 
-    if (event_target === divItem.children[0]) {
+    const depth = EXPLORER_treeViewNodes.getDepth(indexItem);
+    const rX = (event_clientX - INTS[fEXPLORER_boundingClientRect_left] + INTS[fEXPLORER_lastReadNumber_scrollLeft]) - (depth * CONST_EXPLORER_offsetPerDepth);
+    if (rX >= 0 && rX <= EDI_characterWidth) {
         return EXPLORER_expandCollapseIconWasClicked(divItem, indexItem);
     }
     else {
@@ -922,8 +922,8 @@ function EXPLORER_event_click(event) {
 }
 
 function EXPLORER_event_dblclick(event) {
+    let event_clientX = event.clientX;
     let event_clientY = event.clientY;
-    let event_target = event.target;
 
     EXPLORER_ensure_boundingClientRect();
 
@@ -935,12 +935,12 @@ function EXPLORER_event_dblclick(event) {
     let ringBufferIndexItem = ((indexItem)) - INTS[fEXPLORER_virtualIndex_ofScrollTop];
     if (ringBufferIndexItem >= INTS[fEXPLORER_ringBuffer_length] || ringBufferIndexItem < 0) ringBufferIndexItem = -1;
     else ringBufferIndexItem = (ringBufferIndexItem + INTS[fEXPLORER_ringBufferIndexZero]) % INTS[fEXPLORER_virtualCount];
-
     if (ringBufferIndexItem < 0) return;
-    let divItem = EXPLORER_ringBuffer[ringBufferIndexItem];
 
+    const depth = EXPLORER_treeViewNodes.getDepth(indexItem);
+    const rX = (event_clientX - INTS[fEXPLORER_boundingClientRect_left] + INTS[fEXPLORER_lastReadNumber_scrollLeft]) - (depth * CONST_EXPLORER_offsetPerDepth);
     // if not clicked "chevron"
-    if (event_target !== divItem.children[0]) {
+    if (rX < 0 || rX > EDI_characterWidth) {
         // See comment "Awkward explicit inlining of 'EXPLORER_indexItemTo_ringBufferIndexItem'" for more information.
         let ringBufferIndexItem = ((INTS[fEXPLORER_cursorIndex])) - INTS[fEXPLORER_virtualIndex_ofScrollTop];
         if (ringBufferIndexItem >= INTS[fEXPLORER_ringBuffer_length] || ringBufferIndexItem < 0) ringBufferIndexItem = -1;
@@ -1327,7 +1327,7 @@ async function EXPLORER_pickFolderOrWorkspaceButton_MenuOnClick(indexClicked, el
                 EXPLORER_PickFolder.title = chosenDirectory;
     
                 EXPLORER_setChosenDirectory(chosenDirectory, chooseDirectoryResult.id);
-                EXPLORER_setItems(INTS[fAPP_lineHeight], INTS[fAPP_lineHeight] + 'px');
+                EXPLORER_setItems(INTS[fEDI_lineHeight], INTS[fEDI_lineHeight] + 'px');
                 EXPLORER_draw_create_request(EXPLORER_Element, null);
             }
             break;
@@ -1346,7 +1346,7 @@ async function EXPLORER_pickFolderOrWorkspaceButton_MenuOnClick(indexClicked, el
                 pickWorkspaceButton.title = chooseWorkspaceResult.workspaceFileAbsolutePath;
     
                 EXPLORER_setChosenWorkspace(chooseWorkspaceResult);
-                EXPLORER_setItems(INTS[fAPP_lineHeight], INTS[fAPP_lineHeight] + 'px');
+                EXPLORER_setItems(INTS[fEDI_lineHeight], INTS[fEDI_lineHeight] + 'px');
                 EXPLORER_draw_create_request(EXPLORER_Element, null);
             }
             break;
@@ -1829,7 +1829,7 @@ async function RenameFile_Directory_InputText_callback(result) {
     if (renameFileResult.success) {
         EXPLORER_setNodeListEntryId(WIDGET_target.indexItem, renameFileResult.pathId);
         let divItem = EXPLORER_itemListElement.children[WIDGET_target.divRelativeIndex];
-        divItem.lastChild.nodeValue = result.value;
+        divItem.firstChild.nodeValue = divItem.firstChild.nodeValue.slice(0, 1) + result.value;
     }
 }
 
@@ -1842,7 +1842,7 @@ async function RenameFile_File_InputText_callback(result) {
     if (renameFileResult.success) {
         EXPLORER_setNodeListEntryId(WIDGET_target.indexItem, renameFileResult.pathId);
         let divItem = EXPLORER_itemListElement.children[WIDGET_target.divRelativeIndex];
-        divItem.lastChild.nodeValue = result.value;
+        divItem.firstChild.nodeValue = divItem.firstChild.nodeValue.slice(0, 1) + result.value;
     }
 }
 

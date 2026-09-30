@@ -207,6 +207,7 @@ body {
   position: absolute;
   left: 0;
   top: 0;
+  contain: strict;
 }
 /* .tvnN => TreeViewNode (but NOT "syntax highlighted") (this is super hacky I need to mark a node for change...)*/
 .tvnN {

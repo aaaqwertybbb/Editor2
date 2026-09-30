@@ -535,6 +535,10 @@ function EDI_render_do_Scroll(timestamp) {
         const gutter = local_EDI_ringBuffer_gutter[ringBufferIndex];
         const div = local_EDI_ringBuffer_text[ringBufferIndex];
 
+        // TODO: If you wrote to a or I gotta to the bathroom but I mean...
+        // ...instead of setting the class you can do something with an array or a small typed array...
+        // ... to flag the ones that need to be updated.
+
         let textNode = gutter.firstChild;
         if (!textNode) {
             textNode = document.createTextNode(' ');

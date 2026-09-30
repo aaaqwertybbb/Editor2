@@ -2753,7 +2753,6 @@ function EDI_render_do_InsertLtr() {
     if (INTS[fEDI_cursor_editRenderedDisplacement] < INTS[fEDI_cursor_editLength]) {
         if (EDI_cursor_gapBufferWriteToSpanElement) {
 
-            // textNode.insertData(offset, string)
             EDI_cursor_gapBufferWriteToSpanElement.firstChild.insertData(
                 (INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex]) + INTS[fEDI_cursor_editRenderedDisplacement],
                 EDI_decoder.decode(EDI_cursor_gapBuffer.subarray(INTS[fEDI_cursor_editRenderedDisplacement], INTS[fEDI_cursor_editLength])));

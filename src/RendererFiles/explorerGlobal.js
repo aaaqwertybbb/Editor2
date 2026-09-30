@@ -834,7 +834,9 @@ function EXPLORER_render_do_FullReset(timestamp) {
 
     INTS[fEXPLORER_ONSCROLLvirtualCount] = INTS[fEXPLORER_virtualCount];
 
-    INTS[fEXPLORER_virtualIndex_ofScrollTop] = Math.floor(INTS[fEXPLORER_lastReadNumber_scrollTop] / INTS[fEXPLORER_itemHeightNumber]);
+    // High-performance CPU truncation (Bypasses Math.floor)... take care if your numbers might be negative, I read that the behavior is different in that case.
+    INTS[fEXPLORER_virtualIndex_ofScrollTop] = (INTS[fEXPLORER_lastReadNumber_scrollTop] / INTS[fEXPLORER_itemHeightNumber]) | 0;
+
     INTS[fEXPLORER_ringBufferIndexZero] = 0;
 
     if (EXPLORER_itemListElement.children.length !== INTS[fEXPLORER_virtualCount]) {
@@ -875,10 +877,7 @@ function EXPLORER_render_do_FullReset(timestamp) {
         INTS[fEXPLORER_ringBuffer_length] = EXPLORER_ringBuffer.length;
     }
 
-    // TODO: This if statement check is awkward because the previous if statement ought to have guaranteed this one to be true.
-    if (EXPLORER_itemListElement.children.length === INTS[fEXPLORER_virtualCount]) {
-        EXPLORER_drawItem_BATCH(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3, undefined, timestamp);
-    }
+    EXPLORER_drawItem_BATCH(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3, undefined, timestamp);
 }
 
 /**

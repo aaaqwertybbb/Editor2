@@ -606,14 +606,19 @@ bananadillPickleapplecucumber
 
 Check List for whether I just broke everything
 ----------------------------------------------
-- [x] EditKind_InsertLtr
-- [ ] EditKind_RemoveTextNoBatching
+Positive
+========
 - [ ] EditKind_Paste
 - [ ] EditKind_Duplicate
 - [ ] EditKind_Enter
-- [ ] EditKind_IndentLess
 - [ ] EditKind_Tab
 - [ ] EditKind_IndentMore
+- [x] EditKind_InsertLtr
+
+Negative
+========
+- [ ] EditKind_RemoveTextNoBatching
+- [ ] EditKind_IndentLess
 - [ ] EditKind_DeleteLtr
 - [ ] EditKind_BackspaceRtl
 

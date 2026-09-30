@@ -2583,7 +2583,7 @@ function EDI_render_do_Backspace() {
     
                 // When the cursor is at the end of a span, there is no text to delete, because the text starts in the next span.
                 if (count > 0) {
-                    w_div.textContent = w_div.textContent.slice(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]) + w_div.textContent.slice(INTS[fEDI_w_indexColumn_SpanTextContentRelative] + count);
+                    w_div.firstChild.deleteData(INTS[fEDI_w_indexColumn_SpanTextContentRelative], count);
                 }
 
                 if (remaining > 0) {
@@ -7806,6 +7806,7 @@ function PLAINTEXT_line_lex(div, substart, lineEnd, childIndex) {
             div.appendChild(span);
             childIndex++;
         }
+        // This function isn't actually used at the moment I'll deal with this tomorrow or etc...
         span.textContent = EDI_decoder.decode(bytes.subarray(substart, substart + length));
     }
 

@@ -620,7 +620,7 @@ Negative
 - [x] EditKind_DeleteLtr
 - [x] EditKind_BackspaceRtl
 - [x] EditKind_RemoveTextNoBatching
-- [ ] EditKind_IndentLess
+- [x] EditKind_IndentLess
 
 - [ ] try some mixtures I did 'delete'=>'insert'=>'moveCursorLineOfSmallerIndex'=>'insert'=>firstChild is not ??? error
 

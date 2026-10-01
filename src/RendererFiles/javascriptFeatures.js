@@ -35,7 +35,10 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
     
     let pos = 0;
 
-    let className;
+    // 0 => identifier
+    // 1 => keyword
+    // 2 => keywordControl
+    let className_flag = 0;
 
     let createTrackedSyntaxFlag = false;
     let createDoLexFlag = false;
@@ -267,223 +270,222 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
 
 
                         let wordlength = pos - wordstart;
-                        className = 'eI';
+                        className_flag = 0;
                         switch (charIntSum) {
                             case 94844771: // const
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'const') {
-                                        className = 'eK';
+                                        className_flag = 1;
                                         break;
                                 }
                                 break;
                             case 107035: // let
                                 if (wordlength === 3 && divSpanTextContent.substring(wordstart, pos) === 'let') {
-                                        className = 'eK';
+                                        className_flag = 1;
                                         break;
                                 }
                                 break;
                             case 1380938712: // function
                                 if (wordlength === 8 && divSpanTextContent.substring(wordstart, pos) === 'function') {
-                                        className = 'eK';
+                                        className_flag = 1;
                                         break;
                                 }
                                 break;
                             case 3357: // if
                                 if (wordlength === 2 && divSpanTextContent.substring(wordstart, pos) === 'if') {
-                                        className = 'eKC';
+                                        className_flag = 2;
                                         break;
                                 }
                                 break;
                             case 115131: // try
                                 if (wordlength === 3 && divSpanTextContent.substring(wordstart, pos) === 'try') {
-                                        className = 'eK';
+                                        className_flag = 1;
                                         break;
                                 }
                                 break;
                             case 101577: // for
                                 if (wordlength === 3 && divSpanTextContent.substring(wordstart, pos) === 'for') {
-                                        className = 'eKC';
+                                        className_flag = 2;
                                         break;
                                 }
                                 break;
                             case 116519: // var
                                 if (wordlength === 3 && divSpanTextContent.substring(wordstart, pos) === 'var') {
-                                        className = 'eK';
+                                        className_flag = 1;
                                         break;
                                 }
                                 break;
                             case 94432955: // catch
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'catch') {
-                                        className = 'eK';
+                                        className_flag = 1;
                                         break;
                                 }
                                 break;
                             case -934396624: // return
                                 if (wordlength === 6 && divSpanTextContent.substring(wordstart, pos) === 'return') {
-                                        className = 'eKC';
+                                        className_flag = 2;
                                         break;
                                 }
                                 break;
                             case -889473228: // switch
                                 if (wordlength === 6 && divSpanTextContent.substring(wordstart, pos) === 'switch') {
-                                        className = 'eKC';
+                                        className_flag = 2;
                                         break;
                                 }
                                 break;
                             case 3046192: // case
                                 if (wordlength === 4 && divSpanTextContent.substring(wordstart, pos) === 'case') {
-                                        className = 'eKC';
+                                        className_flag = 2;
                                         break;
                                 }
                                 break;
                             case 93127292: // async
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'async') {
-                                        className = 'eK';
+                                        className_flag = 1;
                                         break;
                                 }
                                 break;
                             case 3116345: // else
                                 if (wordlength === 4 && divSpanTextContent.substring(wordstart, pos) === 'else') {
-                                        className = 'eKC';
+                                        className_flag = 2;
                                         break;
                                 }
                                 break;
                             case 1544803905: // default
                                 if (wordlength === 7 && divSpanTextContent.substring(wordstart, pos) === 'default') {
-                                        className = 'eK';
+                                        className_flag = 1;
                                         break;
                                 }
                                 break;
                             case 110339814: // throw
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'throw') {
-                                        className = 'eK';
+                                        className_flag = 1;
                                         break;
                                 }
                                 break;
                             case 108960: // new
                                 if (wordlength === 3 && divSpanTextContent.substring(wordstart, pos) === 'new') {
-                                        className = 'eK';
+                                        className_flag = 1;
                                         break;
                                 }
                                 break;
                             case 93223254: // await
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'await') {
-                                        className = 'eK';
+                                        className_flag = 1;
                                         break;
                                 }
                                 break;
                             case 94742904: // class
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'class') {
-                                        className = 'eK';
+                                        className_flag = 1;
                                         break;
                                 }
                                 break;
                             case -1588406278: // constructor
                                 if (wordlength === 11 && divSpanTextContent.substring(wordstart, pos) === 'constructor') {
-                                        className = 'eK';
+                                        className_flag = 1;
                                         break;
                                 }
                                 break;
                             case -1184795739: // import
                                 if (wordlength === 6 && divSpanTextContent.substring(wordstart, pos) === 'import') {
-                                        className = 'eKC';
+                                        className_flag = 2;
                                         break;
                                 }
                                 break;
                             case 3151786: // from
                                 if (wordlength === 4 && divSpanTextContent.substring(wordstart, pos) === 'from') {
-                                        className = 'eKC';
+                                        className_flag = 2;
                                         break;
                                 }
                                 break;
                             case -1289153612: // export
                                 if (wordlength === 6 && divSpanTextContent.substring(wordstart, pos) === 'export') {
-                                        className = 'eK';
+                                        className_flag = 1;
                                         break;
                                 }
                                 break;
                             case 3559070: // this
                                 if (wordlength === 4 && divSpanTextContent.substring(wordstart, pos) === 'this') {
-                                        className = 'eK';
+                                        className_flag = 1;
                                         break;
                                 }
                                 break;
                             case 113101617: // while
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'while') {
-                                        className = 'eKC';
+                                        className_flag = 2;
                                         break;
                                 }
                                 break;
                             case 94001407: // break
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'break') {
-                                        className = 'eKC';
+                                        className_flag = 2;
                                         break;
                                 }
                                 break;
                             case -567202649: // continue
                                 if (wordlength === 8 && divSpanTextContent.substring(wordstart, pos) === 'continue') {
-                                        className = 'eKC';
+                                        className_flag = 2;
                                         break;
                                 }
                                 break;
                             case 3569038: // true
                                 if (wordlength === 4 && divSpanTextContent.substring(wordstart, pos) === 'true') {
-                                        className = 'eK';
+                                        className_flag = 1;
                                         break;
                                 }
                                 break;
                             case 97196323: // false
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'false') {
-                                        className = 'eK';
+                                        className_flag = 1;
                                         break;
                                 }
                                 break;
                             case 3392903: // null
                                 if (wordlength === 4 && divSpanTextContent.substring(wordstart, pos) === 'null') {
-                                        className = 'eK';
+                                        className_flag = 1;
                                         break;
                                 }
                                 break;
                             default:
                                 break;
                         }
-                        if (className) { // TODO: There always is a class now you can remove this branching?
-                            // is done when there IS a valid match, in order to write out any pending text that came prior to the keyword.
-                            if (substart < wordstart) {
-                                substart = wordstart; // TODO: Always do this just so you remove the branching?
-                            }
 
-                            const range = new Range();
-                            range.setStart(textNode, substart);
-                            range.setEnd(textNode, substart + wordlength);
-
-                            if (className === 'eI') {
-                                if (divSpanTextContent[pos] === '(') {
-                                    EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
-                                    functionHighlight.add(range);
-                                }
-                                else if (substart > 0 && divSpanTextContent[substart - 1] === '.') {
-                                    EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
-                                    memberHighlight.add(range);
-                                }
-                                else if (divSpanTextContent[pos] === ':') {
-                                    EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
-                                    memberHighlight.add(range);
-                                }
-                                else {
-                                    EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
-                                    identifierHighlight.add(range);
-                                }
-                            }
-                            else if (className === 'eK') {
-                                EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
-                                keywordHighlight.add(range);
-                            }
-                            else if (className === 'eKC') {
-                                EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
-                                keywordControlHighlight.add(range);
-                            }
-                            substart += wordlength; // goes here or there? (1 of 2)
+                        // is done when there IS a valid match, in order to write out any pending text that came prior to the keyword.
+                        if (substart < wordstart) {
+                            substart = wordstart; // TODO: Always do this just so you remove the branching?
                         }
+
+                        const range4 = new Range();
+                        range4.setStart(textNode, substart);
+                        range4.setEnd(textNode, substart + wordlength);
+
+                        if (className_flag === 0) {
+                            if (divSpanTextContent[pos] === '(') {
+                                EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range4);
+                                functionHighlight.add(range4);
+                            }
+                            else if (substart > 0 && divSpanTextContent[substart - 1] === '.') {
+                                EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range4);
+                                memberHighlight.add(range4);
+                            }
+                            else if (divSpanTextContent[pos] === ':') {
+                                EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range4);
+                                memberHighlight.add(range4);
+                            }
+                            else {
+                                EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range4);
+                                identifierHighlight.add(range4);
+                            }
+                        }
+                        else if (className_flag === 1) {
+                            EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range4);
+                            keywordHighlight.add(range4);
+                        }
+                        else if (className_flag === 2) {
+                            EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range4);
+                            keywordControlHighlight.add(range4);
+                        }
+                        substart += wordlength; // goes here or there? (1 of 2)
                         //substart += wordlength; // goes here or there? (2 of 2)
                         continue;
                     case CONST_js_FORWARDSLASH_str:

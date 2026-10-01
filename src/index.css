@@ -247,21 +247,6 @@ body {
   transform: translate3d(0px, 0px, 0px);
 }
 
-/* .EDI_keyword is being renamed to .eK (i.e.: Editor Keyword) */
-.eK {
-  color: var(--editor-syntax-keyword-color);
-}
-
-/* .EDI_keywordControl is being renamed to .eKC (i.e.: Editor KeywordControl) */
-.eKC {
-  color: var(--editor-syntax-keywordControl-color);
-}
-
-/* (i.e.: Editor Identifier) */
-.eI {
-  color: var(--editor-syntax-identifier-color);
-}
-
 /* .eN (i.e.: Editor Not_yet_syntax_highlighted) */
 .eN {
   color: var(--editor-syntax-operatorAssignment-color);

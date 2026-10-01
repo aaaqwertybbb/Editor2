@@ -636,6 +636,74 @@ TODO:
  8:29
 12:29
 
+> I am making a text editor app. (... the usual starting prompt) Do not respond with much if anything I'll ask the question in the next question, this is just context.
+
+< ...
+
+> (you don't have to respond to this) One of my goals today is to use the minimum necessary HTML elements that are required.
+> (note: the syntax highlighting is done via 'CSS Custom Highlight API'). If I use developer tools to copy the inner HTML of the editor, and then manually try to reduce the HTML snippet to only contain vital pieces in the name of demonstrating how my HTML is laid out it looks like this:
+> 
+> <div id="EDITOR" tabindex="0">
+>     <div id="EDI_virtualization_horizontal" style="width: 4233px;"></div>
+>     <div id="EDI_virtualization_vertical" style="height: 142470px;"></div>
+>     <div id="EDI_horizontal_scrollbar_sticky">
+>         <div id="EDI_horizontal_scrollbar" style="left: 38px; width: 536px;">
+>             <div id="EDI_horizontal_scrollbar_virtualization_boundary" style="width: 4195px;"></div>
+>         </div>
+>     </div>
+>     <div id="EDI_gutter_background_color" style="padding-left: 3px; padding-right: 6px; width: 29px;"></div>
+>     <div id="EDI_gutter_container" style="padding-left: 3px; padding-right: 6px; width: 29px;">
+>         <div class="eG" style="width: 29px; top: 0px;">1</div>
+>         <div class="eG" style="width: 29px; top: 15px;">2</div>
+>     </div>
+>     <div id="EDI_body">
+>         <div id="EDI_presentation"></div>
+>         <div id="EDI_cursorList">
+>             <div id="EDI_caretRow-1" class="EDI_caretRow" style="left: 38px; width: 4195px; top: 165px;">
+>                 <div id="EDI_cursor-1" class="EDI_cursor" style="left: 150px;"></div>
+>             </div>
+>         </div>
+>         <div id="EDI_text">
+>             <div class="eT" style="left: 38px; width: 4195px; top: 0px;">
+>                 //__#__
+>             </div>
+>             <div class="eT" style="left: 38px; width: 4195px; top: 15px;">
+>                 // preprocessor.cjs
+>             </div>
+>         </div>
+>     </div>
+> </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+TODO: Update the initial prompt to include something along the lines of "(note: the syntax highlighting is done via 'CSS Custom Highlight API')"
+
+
+
+
+
+
+
+
+
+
 
 
 

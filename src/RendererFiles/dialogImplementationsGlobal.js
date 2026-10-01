@@ -314,7 +314,7 @@ async function DIALOG_FindAll_Create_async() {
     // But this behavior is contrary to the ctrl+f. So I wanted to note it in some way with some immediacy before I continued.
     let spanNotes = document.createElement('span');
     spanNotes.id = 'DIALOG_FindAll_spanNotes';
-    spanNotes.className = 'eC';
+    spanNotes.style.color = 'var(--editor-syntax-comment-color)';
     divOptions.appendChild(spanNotes);
     dialogBody.appendChild(divOptions);
 

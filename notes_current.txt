@@ -941,10 +941,65 @@ TODO:
 < - Do you want to review the CSS properties currently assigned to both elements?
 
 
+> I'm somewhat remembering what the issue was.
+> 
+> Each "line number in the gutter" needs to receive a CSS 'top' value.
+> 
+> And then, when you scroll horizontally you need to have each line number be "horizontally sticky".
+> 
+> Furthermore, I worried that adding the background color to each individual line number would be
+> less performant from a CSS/"painting?" perspective than if I had just 1 element with the background color.
+> 
+> All in all, a few of these details come together and it gets tricky.
 
+< That makes perfect sense. You decoupled the background from the container to solve a very real architectural challenge:
+< balancing horizontal stickiness with efficient background painting during scrolls.
+< 
+< Your concern about painting performance was spot on, but with modern Chromium layout engines,
+< you can actually achieve the best of both worlds—removing the element while keeping performance high.
+< 
+< How to Merge Them Without Pixel Bugs or Paint Overhead
+< 
+< The trick is to apply the background color directly to #EDI_gutter_container, and make that entire container sticky, rather than the individual line numbers (.eG).
+< 
+< 1. The Paint Solution
+< You are 100% right that applying a background color to every single individual .eG node is bad for performance. It forces the browser to paint dozens of tiny rects.
+< By putting the background color on the #EDI_gutter_container parent, the browser paints one single background block.
+< 
+< 2. The Sticky Solution
+< If #EDI_gutter_container has a fixed width (e.g., width: 29px) and a background color,
+< you can stick the entire container using CSS position: sticky; left: 0; z-index: 2; (or by using transform: translateX() in JS linked to your horizontal scroll listener).
+< 
+< Because the container moves as a single layer when scrolling horizontally, its children (.eG) automatically stay horizontally stuck with it.
+< Your virtualized scroll loop only has to worry about updating top for vertical movement.
+< 
+< The Refactored DOM Layout
+< By letting the container handle both the background paint and the horizontal stickiness, your HTML shrinks down cleanly:
+< ```html
+<div id="EDITOR" tabindex="0">
+    <!-- Virtualization markers remain same -->
+    <div id="EDI_virtualization_horizontal" style="width: 4233px;"></div>
+    <div id="EDI_virtualization_vertical" style="height: 142470px;"></div>
+    
+    <!-- Merged Gutter: Handles background paint, padding, and horizontal sticking -->
+    <div id="EDI_gutter_container" style="position: sticky; left: 0; z-index: 2; background-color: #1e1e1e; padding-left: 3px; padding-right: 6px; width: 29px;">
+        <div class="eG" style="width: 29px; top: 0px;">1</div>
+        <div class="eG" style="width: 29px; top: 15px;">2</div>
+    </div>
 
-
-
+    <!-- Rest of your EDI_body / EDI_text structures -->
+</div>
+< ```
+< 
+< Why Chromium Prefers This
+< 
+< When you give an element position: sticky (or isolate it via a transform), Chromium often promotes it to its own composited layer.
+< - When you scroll horizontally, the browser doesn't trigger a heavy layout "repaint" for the gutter.
+< - Instead, it shifts the entire pre-rendered gutter layer on the GPU. This completely bypasses the paint pipeline, making horizontal scrolling incredibly cheap.
+< 
+< To see if this fits your current CSS setup, tell me:
+< - How are you currently implementing the horizontal scroll logic? Is #EDITOR an element with overflow: scroll, or are you capturing wheel/scroll events and shifting layers manually?
+< - Do you already have a compositing/layer hint (like will-change: transform or a z-index stack) on the gutter?
 
 
 

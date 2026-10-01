@@ -7403,6 +7403,10 @@ function EDI_onMouseMove_WRAPIT(event) {
         let rX = event.clientX - INTS[fEDI_recentBoundingClientRect_left] - INTS[fEDI_gutterWidthTotal] + INTS[fEDI_lastReadNumber_scrollLeft];
         let rY = event.clientY - INTS[fEDI_recentBoundingClientRect_top] + INTS[fEDI_lastReadNumber_scrollTop];
 
+        // I was debugging this function because if I click and drag below column 0 it jumps the cursor to the max value of uint32 it seems.
+        // I saw -0 in the debugger as the indexColumn and just started laughing.
+        // 
+
         let indexColumn = Math.round(rX / EDI_characterWidth);
         let indexLine = Math.floor(rY / INTS[fEDI_lineHeight]);
         let indexColumnVisual = indexColumn;

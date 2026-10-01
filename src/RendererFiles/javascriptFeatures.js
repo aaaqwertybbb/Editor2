@@ -22,18 +22,13 @@ CSS.highlights.set("js-string", stringHighlight);
  * TODO: rename the 'trackedSyntaxExhausted' variable because it makes me anxious that I will manifest that state of being into reality whenever I read the variable name.
  */
 function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
-    // 3. V8 Hidden Optimization Trick: textContent Hardcoding.
-    // Do this ONCE before entering the scanner engine
-    //const sourceText = String(div.children[0].textContent); 
-
     const divSpanTextContent = String(div.textContent);
-    let divSpanTextContentLength = divSpanTextContent.length;
-
+    const divSpanTextContentLength = divSpanTextContent.length;
     const textNode = div.firstChild;
 
-    let substart = 0;
-    
     let pos = 0;
+    let substart = 0;
+    let subend = divSpanTextContentLength;
 
     // 0 => identifier
     // 1 => keyword
@@ -42,27 +37,11 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
 
     let createTrackedSyntaxFlag = false;
     let createDoLexFlag = false;
-    // I keep reading this variable name and it makes me extremely anxious
-    // I'm worried that by calling the variable this that I will become exhausted by nature of having named the variable that
-    // and that like saying the variable in my mind is making me exhausted.
     let trackedSyntaxExhausted = false;
-
-    let subend = divSpanTextContentLength;
 
     while (pos < divSpanTextContentLength) {
         if (createDoLexFlag) {
-
             while (pos < subend) {
-
-// > I have an upsetting switch statement that checks for non-digits, then within that a switch statement that has all the outer cases however additionally has 0,1...9
-// 
-// < ...
-// < Instead of duplicating your entire keyword switch block inside an inner nesting, you can cleanly solve this by separating your scanner logic into two steps:
-// < The Initial Character Check (the gatekeeper) and The Loop (the collector).
-// < ...
-
-// not doing this right now though tired
-
                 switch (divSpanTextContent[pos]) {
                     case 'a':
                     case 'b':
@@ -118,11 +97,6 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
                     case 'Z':
                     case '_':
                         let wordstart = pos;
-
-                        // you don't know if a word is a keyword until you've read the keyword.
-                        // so until that point you're tracking it along with all the other text/whitespace on the line
-                        // and planning to make everything just a single span.
-
                         let charIntSum = 0;
 
                         outer: while (pos < subend) {
@@ -192,265 +166,193 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
                                 case '9':
                                     charIntSum = ((charIntSum << 5) - charIntSum) + divSpanTextContent.charCodeAt(pos);
                                     pos++;
-
-                                    /*
-                                    < perfect hashing on a closed set
-                                    < ...
-
-                                    This isn't actually unique btw it is unique across this closed set*
-                                    I realize it was saying that
-
-                                    And then it wants me to allocate a string to compare against a hardcoded version of the keyword.
-                                    I feel like I'm just super decision making out'd right now
-                                    every little detail of this just feels far more stressful to think about
-
-> do you remember this too? '2. Manual Character Validation vs. V8 Monomorphism'
-
-< Yes, absolutely. That was the core engine-level optimization we discussed right after fixing the hash calculation.
-<
-< We were targeting how V8 (the engine behind Chrome and Node.js) optimizes your JavaScript code under the hood.
-< Specifically, we analyzed why writing a manual character-by-character validation loop for'
-< the fallback verification was actually slower than just using a native string check due to how V8 handles monomorphism and inline caches (ICs).
-<
-< ...
-< Why Native Strings Win: V8 Monomorphism
-< 
-< While the manual code looks lean, it defeats V8's internal optimizations. Here is exactly why we decided to drop manual validation and use a standard string comparison:
-<
-< 1. V8 String Interning: V8 keeps a hidden internal table of "interned strings" for all constants in your source code.
-< The literal string "const" in your validation check === "const" is already allocated once when your engine boots up.
-< It lives permanently in V8's "Old Space" memory heap and is never garbage collected.
-<
-< 2. Monomorphic Inline Caches: When you pull a substring out of your buffer and compare it to a string literal,
-< V8 creates a monomorphic (single-shape) optimized code path.
-< If the comparison operation always receives the same hidden class of string shapes,
-< V8 optimizes the comparison down to raw assembly instructions that execute instantly
-< 
-< 3. The Sliced String Optimization: When you slice or substring text in modern JS engines,
-< V8 often doesn't actually copy the characters. Instead, it creates a SlicedString object,
-< which is just a tiny pointer pointing directly to your original divSpanTextContent string buffer with a start and length property.
-< The actual comparison happens via highly optimized C++ memory operations inside the engine, beating manual JS loops every single time
-
-> should I include the check on wordLength?
-
-< Yes, adding a word length check is a massive performance win
-                                    */
-
                                     break;
                                 default:
                                     break outer;
                             }
                         }
-                        // heuristic for possible keyword is comparing char int sum:
-                        //
-                        // const
-                        // c 99
-                        // o 111
-                        // n 110
-                        // s 115
-                        // t 116
-                        //
-                        // 551
-                        // 
-                        // TODO: These 'divSpanTextContent.substring(wordstart, pos) ===' perhaps look wasteful at a glance...
-                        // ...but it is solely with the goal of cheap confirmation that the text is truly the keyword, rather than some other identifier.
-                        // The 'charIntSum' TODO: rename the variable to reflect the hashing logic...
-                        // the variable is only distinct among the set of keywords.
-                        // Thus you get a simple switch but you still gotta verify that you don't have a false positive due to all the other possible non-keyword identifiers.
-                        // 
-                        // "Why Native Strings Win: V8 Monomorphism"
-                        // 'Monomorphic Inline Caches:'... raw assembly instructions that execute instantly
-                        //
-
-                        //
-                        // I need to look into this more.
-                        // I do believe that the short term "time taken to compare" is lower.
-                        // but you later on have this massive GC hit that causes staggering in the UI.
-                        // 
-
 
                         let wordlength = pos - wordstart;
                         className_flag = 0;
                         switch (charIntSum) {
                             case 94844771: // const
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'const') {
-                                        className_flag = 1;
-                                        break;
+                                    className_flag = 1;
+                                    break;
                                 }
                                 break;
                             case 107035: // let
                                 if (wordlength === 3 && divSpanTextContent.substring(wordstart, pos) === 'let') {
-                                        className_flag = 1;
-                                        break;
+                                    className_flag = 1;
+                                    break;
                                 }
                                 break;
                             case 1380938712: // function
                                 if (wordlength === 8 && divSpanTextContent.substring(wordstart, pos) === 'function') {
-                                        className_flag = 1;
-                                        break;
+                                    className_flag = 1;
+                                    break;
                                 }
                                 break;
                             case 3357: // if
                                 if (wordlength === 2 && divSpanTextContent.substring(wordstart, pos) === 'if') {
-                                        className_flag = 2;
-                                        break;
+                                    className_flag = 2;
+                                    break;
                                 }
                                 break;
                             case 115131: // try
                                 if (wordlength === 3 && divSpanTextContent.substring(wordstart, pos) === 'try') {
-                                        className_flag = 1;
-                                        break;
+                                    className_flag = 1;
+                                    break;
                                 }
                                 break;
                             case 101577: // for
                                 if (wordlength === 3 && divSpanTextContent.substring(wordstart, pos) === 'for') {
-                                        className_flag = 2;
-                                        break;
+                                    className_flag = 2;
+                                    break;
                                 }
                                 break;
                             case 116519: // var
                                 if (wordlength === 3 && divSpanTextContent.substring(wordstart, pos) === 'var') {
-                                        className_flag = 1;
-                                        break;
+                                    className_flag = 1;
+                                    break;
                                 }
                                 break;
                             case 94432955: // catch
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'catch') {
-                                        className_flag = 1;
-                                        break;
+                                    className_flag = 1;
+                                    break;
                                 }
                                 break;
                             case -934396624: // return
                                 if (wordlength === 6 && divSpanTextContent.substring(wordstart, pos) === 'return') {
-                                        className_flag = 2;
-                                        break;
+                                    className_flag = 2;
+                                    break;
                                 }
                                 break;
                             case -889473228: // switch
                                 if (wordlength === 6 && divSpanTextContent.substring(wordstart, pos) === 'switch') {
-                                        className_flag = 2;
-                                        break;
+                                    className_flag = 2;
+                                    break;
                                 }
                                 break;
                             case 3046192: // case
                                 if (wordlength === 4 && divSpanTextContent.substring(wordstart, pos) === 'case') {
-                                        className_flag = 2;
-                                        break;
+                                    className_flag = 2;
+                                    break;
                                 }
                                 break;
                             case 93127292: // async
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'async') {
-                                        className_flag = 1;
-                                        break;
+                                    className_flag = 1;
+                                    break;
                                 }
                                 break;
                             case 3116345: // else
                                 if (wordlength === 4 && divSpanTextContent.substring(wordstart, pos) === 'else') {
-                                        className_flag = 2;
-                                        break;
+                                    className_flag = 2;
+                                    break;
                                 }
                                 break;
                             case 1544803905: // default
                                 if (wordlength === 7 && divSpanTextContent.substring(wordstart, pos) === 'default') {
-                                        className_flag = 1;
-                                        break;
+                                    className_flag = 1;
+                                    break;
                                 }
                                 break;
                             case 110339814: // throw
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'throw') {
-                                        className_flag = 1;
-                                        break;
+                                    className_flag = 1;
+                                    break;
                                 }
                                 break;
                             case 108960: // new
                                 if (wordlength === 3 && divSpanTextContent.substring(wordstart, pos) === 'new') {
-                                        className_flag = 1;
-                                        break;
+                                    className_flag = 1;
+                                    break;
                                 }
                                 break;
                             case 93223254: // await
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'await') {
-                                        className_flag = 1;
-                                        break;
+                                    className_flag = 1;
+                                    break;
                                 }
                                 break;
                             case 94742904: // class
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'class') {
-                                        className_flag = 1;
-                                        break;
+                                    className_flag = 1;
+                                    break;
                                 }
                                 break;
                             case -1588406278: // constructor
                                 if (wordlength === 11 && divSpanTextContent.substring(wordstart, pos) === 'constructor') {
-                                        className_flag = 1;
-                                        break;
+                                    className_flag = 1;
+                                    break;
                                 }
                                 break;
                             case -1184795739: // import
                                 if (wordlength === 6 && divSpanTextContent.substring(wordstart, pos) === 'import') {
-                                        className_flag = 2;
-                                        break;
+                                    className_flag = 2;
+                                    break;
                                 }
                                 break;
                             case 3151786: // from
                                 if (wordlength === 4 && divSpanTextContent.substring(wordstart, pos) === 'from') {
-                                        className_flag = 2;
-                                        break;
+                                    className_flag = 2;
+                                    break;
                                 }
                                 break;
                             case -1289153612: // export
                                 if (wordlength === 6 && divSpanTextContent.substring(wordstart, pos) === 'export') {
-                                        className_flag = 1;
-                                        break;
+                                    className_flag = 1;
+                                    break;
                                 }
                                 break;
                             case 3559070: // this
                                 if (wordlength === 4 && divSpanTextContent.substring(wordstart, pos) === 'this') {
-                                        className_flag = 1;
-                                        break;
+                                    className_flag = 1;
+                                    break;
                                 }
                                 break;
                             case 113101617: // while
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'while') {
-                                        className_flag = 2;
-                                        break;
+                                    className_flag = 2;
+                                    break;
                                 }
                                 break;
                             case 94001407: // break
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'break') {
-                                        className_flag = 2;
-                                        break;
+                                    className_flag = 2;
+                                    break;
                                 }
                                 break;
                             case -567202649: // continue
                                 if (wordlength === 8 && divSpanTextContent.substring(wordstart, pos) === 'continue') {
-                                        className_flag = 2;
-                                        break;
+                                    className_flag = 2;
+                                    break;
                                 }
                                 break;
                             case 3569038: // true
                                 if (wordlength === 4 && divSpanTextContent.substring(wordstart, pos) === 'true') {
-                                        className_flag = 1;
-                                        break;
+                                    className_flag = 1;
+                                    break;
                                 }
                                 break;
                             case 97196323: // false
                                 if (wordlength === 5 && divSpanTextContent.substring(wordstart, pos) === 'false') {
-                                        className_flag = 1;
-                                        break;
+                                    className_flag = 1;
+                                    break;
                                 }
                                 break;
                             case 3392903: // null
                                 if (wordlength === 4 && divSpanTextContent.substring(wordstart, pos) === 'null') {
-                                        className_flag = 1;
-                                        break;
+                                    className_flag = 1;
+                                    break;
                                 }
                                 break;
                             default:
                                 break;
                         }
 
-                        // is done when there IS a valid match, in order to write out any pending text that came prior to the keyword.
                         if (substart < wordstart) {
                             substart = wordstart; // TODO: Always do this just so you remove the branching?
                         }
@@ -485,8 +387,7 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
                             EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range4);
                             keywordControlHighlight.add(range4);
                         }
-                        substart += wordlength; // goes here or there? (1 of 2)
-                        //substart += wordlength; // goes here or there? (2 of 2)
+                        substart += wordlength;
                         continue;
                     case CONST_js_FORWARDSLASH_str:
                         if (divSpanTextContent[pos + 1] === CONST_js_FORWARDSLASH_str) {

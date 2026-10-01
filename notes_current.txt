@@ -632,3 +632,10 @@ TODO:
 - [ ] EditKind_DeleteLtr
   - [ ] delete key
       - [ ] then ctrl delete key
+
+ 8:29
+12:29
+
+
+
+

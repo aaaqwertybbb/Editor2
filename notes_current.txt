@@ -8,6 +8,37 @@ Google AI:
 > the syntax highlighting is done via 'CSS Custom Highlight API'
 > Do not respond with much if anything I'll ask the question in the next question, this is just context.
 
+I wasn't going to type out the responses but this feels promising?
+
+< Got it. I have the context about your Electron text editor using a monolithic ES6 module, one div per line, and the CSS Custom Highlight API.
+< 
+< Whenever you are ready, go ahead and ask your performance question!
+
+> The editor has some LSP implemented I'm not finished yet, but I am writing a language server for JavaScript and written in C#. I published my code so I can use it as a language server when I run the editor client. So I have both project's source code.
+> 
+> My editor when opening a file will ask the server to do a full file parse of the file's text contents. This not only builds the AST in the language server, but I have some "custom LSP logic".
+> 
+> I decided to implement syntax highlighting that I'd have the server tell me where all the "multi-line spanning syntax" is.
+> 
+> And that the Editor itself would perform single line at a time lexing.
+> 
+> This way if a multiline comment spans multiple lines. But from the perspective of a single line you cannot tell that some line of text is encompassed by that multiline comment, that the Editor would know to just mark it as a comment and move on.
+> 
+> Does what I'm saying make sense so far?
+
+< Yes, this makes complete sense, and it is actually a very practical approach to balancing performance and complexity.
+< 
+< By dividing the labor this way, you are leveraging the strengths of both sides:
+< - The Language Server (C#) handles the heavy lifting of full-file parsing and AST construction. It is perfectly suited to track complex, stateful, and
+<   non-local structures like multi-line comments, template literals, and multi-line strings that a single-line parser would fail to recognize.
+< - The Client Editor (Vanilla JS) maintains high responsiveness by performing fast, stateless, single-line-at-a-time lexing.
+<   This keeps typing latency low because the editor only needs to re-lex the lines that are actively changing.
+< 
+< By sending the multi-line boundaries from the server to the client, your single-line client lexer can just check if the current line falls inside a known multi-line block,
+< override its local rules accordingly, and move on.
+< 
+< Please go ahead with your specific performance question or the next part of your architecture!
+
 TODO: I think you can also remove 'EDI_virtualization_horizontal' due to always at least 1 caret row / cursor being on screen and the caret row
 is gutter total width + widthContent.
 

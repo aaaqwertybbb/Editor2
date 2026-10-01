@@ -907,10 +907,38 @@ TODO:
 < - Are you using any CSS grid or flexbox styling on the grandfather element that relies on these items being direct children?
 < - Do you notice any layout shifting or frame drops specifically during rapid, long-distance scrolling?
 
-<div id="EDI_text">...</div>
+> I made the changes.
+> 
+> The next question: when I look at the HTML there's a part about the gutter that looks odd to me. Does this look odd to you as well?
+> 
+> <div id="EDI_gutter_background_color"></div>
+> <div id="EDI_gutter_container"></div>
 
-
-
+< Yes, it looks redundant. Having a separate #EDI_gutter_background_color element alongside #EDI_gutter_container is an unnecessary DOM complication that adds rendering overhead.
+< 
+< Why It's Odd
+< 
+< In a performance-critical editor, you want to minimize the number of independent layers Chromium has to composite.
+< 1. Double Style Costs: You are forced to sync layouts (like width, padding-left, padding-right) across two separate elements.
+< 2. Extra Layer Complexity: If the background color layer triggers a new compositing layer, the browser wastes resources blending it with the container layer sitting right on top of it.
+< 
+< The Optimization
+< You can completely remove <div id="EDI_gutter_background_color"></div> and move its background color styling directly onto #EDI_gutter_container.
+< ```html
+<!-- Optimized Single Element -->
+<div id="EDI_gutter_container" style="padding-left: 3px; padding-right: 6px; width: 29px; background-color: #your-color;">
+    <div class="eG" style="width: 29px; top: 0px;">1</div>
+    <div class="eG" style="width: 29px; top: 15px;">2</div>
+</div>
+< ```
+< 
+< The only architectural reason to keep them separate is if you are using an explicit mix-blend-mode or complex opacity filters that require an isolated background element—but
+< for a standard editor gutter, a single container handles this perfectly.
+< 
+< If you want to clean this up, let me know:
+< - Does the gutter background color ever change dynamically independent of the container?
+< - Are there any z-index or absolute positioning rules applied to the background that might break if merged?
+< - Do you want to review the CSS properties currently assigned to both elements?
 
 
 

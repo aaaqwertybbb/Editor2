@@ -384,13 +384,13 @@ TODO: Is it better to have one virtualization element that has both the width an
   /*min-height: 100%;*/
   /*background-color: var(--gutter-background-color);*/
 
-  position: absolute;
+  position: sticky;
   left: 0;
   top: 0;
-  bottom: 0;
+  height: 100%;
   z-index: 2; /* Keeps it layered above the text layers sliding beneath it */
   background-color: var(--gutter-background-color);
-  
+
   will-change: transform; /* Hint to Chromium to isolate this as a GPU layer */
 
   text-align: end;

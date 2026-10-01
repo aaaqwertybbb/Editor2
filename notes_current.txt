@@ -1216,6 +1216,67 @@ TODO:
 < - Are you ready to dive into optimizing the if/else if/else block inside your EDI_render_do_Scroll function next?
 
 
+> The horizontal pin works perfectly now.
+> 
+> However, this another part of the tricky scenario I was referring to.
+> At the moment, as I scroll vertically the line numbers move more and more off screen. I know why this is:
+> 
+> As I scroll vertically, the CSS `top: 0;` causes the parent container to also pin to the top of scrollable content.
+> 
+> Then each separate "line number div" has a top that is relative to "y = 0" so to speak.
+> 
+> But now "y != 0" because the parent element causes "y = top". Again "so to speak" what I said was a bit handwavy.
+
+< That makes perfect sense. Your "handwavy" description is spot on: by setting top: 0; on a position: sticky; element,
+< the browser pins the entire container to the top of the visible viewport.
+< 
+< Because the container stays at the top of the screen (y = scrollTop), your virtualized scroll loop is calculating style.top relative to an origin that is already moving!
+< 
+< For example, when scrollTop = 1000px, a line number assigned style.top = 1000px gets pushed down an additional 1000px relative to the viewport, shoving it completely off screen.
+< 
+< You can fix this easily with one of two architectural patterns:
+< 
+< Option A: The "Free Gutter" Approach (Easiest)
+< 
+< If you remove top: 0; from #EDI_gutter_container, the container will only stick horizontally and will scroll natively with the vertical axis.
+< 
+< ```css
+#EDI_gutter_container {
+  position: sticky;
+  left: 0; /* Sticks horizontally */
+  /* Remove top: 0; */
+  height: 100%; 
+  z-index: 2;
+  background-color: var(--gutter-background-color);
+  will-change: transform;
+}
+< ```
+< 
+< Why this works: The container's origin stays at the top of the entire scrollable area (\(y = 0\)). Your style.top calculations in EDI_render_do_Scroll will instantly match up again.
+< The only catch is that the background color won't automatically stretch past the visible height unless you manage its wrapper height.
+< 
+< Option B: The "Virtual Offset" Approach (Highest Performance)
+< If you want to keep top: 0; so the background color perfectly covers the viewport at all times,
+< you must adjust your JavaScript loop to calculate positions relative to the visible viewport, not the absolute document.
+< 
+< Inside EDI_render_do_Scroll, change your vertical calculation to subtract the current scroll offset:
+< ```js
+// Calculate vertical position relative to the sticky parent's pinned origin
+let vertical = (lowerBound * local_lineHeight) - INTS[fEDI_lastReadNumber_scrollTop];
+< ```
+< 
+< Why this works: Since the container is pinned to the top of the screen, style.top = 0px means the very top line visible.
+< Subtracting scrollTop translates your absolute document lines into local viewport coordinates.
+< 
+< Let me know which option fits best, or if we should jump right into optimizing that if/else if/else block inside your scroll handler next!
+
+
+
+
+
+
+
+
 
 
 

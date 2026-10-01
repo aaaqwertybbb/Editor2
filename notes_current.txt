@@ -2,13 +2,14 @@
 
 Google AI:
 
+I wasn't going to type out the responses but this feels promising?
+
 > I am making a text editor app. A lot of the code is written already, and so my question is more specifically going to relate to a generalized performance question.
 > The app uses electron, and vanilla javascript as a single monolithic ES6 module.
 > Each line of text corresponds to just a div element.
 > the syntax highlighting is done via 'CSS Custom Highlight API'
 > Do not respond with much if anything I'll ask the question in the next question, this is just context.
 
-I wasn't going to type out the responses but this feels promising?
 
 < Got it. I have the context about your Electron text editor using a monolithic ES6 module, one div per line, and the CSS Custom Highlight API.
 < 
@@ -38,6 +39,62 @@ I wasn't going to type out the responses but this feels promising?
 < override its local rules accordingly, and move on.
 < 
 < Please go ahead with your specific performance question or the next part of your architecture!
+
+> The syntax highlighting is applied via a 1 second debounce on the scroll events.
+> 
+> It only syntax highlights the newly scrolled into view lines.
+> 
+> Thus, everytime you scroll a line of text into view it always is not syntax highlighted unless you wait for the 1 second debounce.
+> 
+> There's two things on my mind.
+> - How do editors scroll the line into view with syntax highlighting, without extreme amounts of overhead?
+> - Optimize my line lexing function itself.
+>     - Move the line lexing function to the LSP and receive the results as a byte array. The byte array tells me what color to apply to the text via "contiguous same byte spans".
+>         If the first 4 characters should be green, the first 4 bytes are the byte that represents the color green.
+>     - Literally optimize my line lexing function (the JavaScript version).
+> 
+> Don't worry much about a response. I'd like to know what you think of the two "things on my mind" but ultimately I'd understand if you didn't have a response
+> since I sort of just dumped a bunch of ideas on you.
+
+< It is completely fine to dump these ideas—this is exactly how great architecture comes together! You are hitting the classic engineering hurdles of building a text editor.
+< 
+< Here is a direct breakdown of how production editors handle scrolling, along with a critique of your two optimization ideas.
+< 
+< 1. How do production editors scroll with syntax highlighting (without lag)?
+< 
+< Production editors (like VS Code or Sublime Text) do not wait for a debounce to highlight text because a 1-second delay breaks the illusion of a native app.
+< They achieve instant highlighting during scrolling using two main strategies:
+< - Synchronous Viewport Lexing: Instead of debouncing, they lex newly visible lines synchronously as they appear in the viewport. Because a standard screen only displays about
+<   40–60 lines at a time, running a fast, stateless single-line lexer over just those 50 lines takes less than 1–2 milliseconds—well under the 16.6ms budget for a 60Hz frame.
+< - Viewport Virtualization: They only render div elements for the lines currently visible on screen (plus a small buffer of 5–10 lines above and below).
+<   As you scroll, divs that leave the top are recycled or destroyed, and new ones at the bottom are created and highlighted instantly.
+< 
+< 2. Critiquing Your Optimization Ideas
+< 
+< Idea A: Moving line lexing to the LSP (Byte Array)
+< While sending a byte array is clever, this will likely hurt performance rather than help it for typing and scrolling.
+< - The Issue: The main bottleneck in Electron isn't the JavaScript CPU time; it is the IPC (Inter-Process Communication) overhead between the Electron client and your C# server.
+< - Why it fails for scrolling: If you scroll rapidly, you would have to constantly fire IPC messages asking for highlights, wait for the C# server to process them,
+<   and wait for the byte array to travel back. This introduces massive asynchronous latency, meaning text would still appear blank while scrolling.
+< 
+< Idea B: Literally optimizing the JavaScript Line Lexer
+< 
+< This is the winning approach. Running a highly optimized, stateless regex or state-machine lexer directly in Vanilla JS on the main thread is incredibly fast.
+< 
+< Since you are already using the CSS Custom Highlight API, you have a massive performance advantage: you don't need to inject heavy <span> tags into the DOM.
+< You just calculate character offsets and create Highlight ranges.
+< 
+< The Recommended Hybrid Strategy
+< 1. Drop the 1-second debounce for visible lines: When a line enters the viewport, lex it and apply the CSS Highlight instantly.
+< 2. Keep the LSP for Background State: Let the C# server casually update the editor in the background regarding where the multi-line comments start and end.
+<    If the user scrolls into a multi-line comment before the LSP responds, you can fallback to standard single-line highlighting,
+<    and then softly re-apply the comment highlight once the LSP payload arrives.
+< 
+< To help narrow down the next steps, could you tell me:
+< - How are you currently detecting which lines are in the viewport (e.g., IntersectionObserver, or calculating scroll offsets)?
+< - What does your current JavaScript line lexer look like (e.g., heavily reliant on String.split, complex RegEx loops, or a character-by-character loop)?
+<
+< I can help you audit the JS lexer to make it fast enough to run synchronously on scroll.
 
 TODO: I think you can also remove 'EDI_virtualization_horizontal' due to always at least 1 caret row / cursor being on screen and the caret row
 is gutter total width + widthContent.

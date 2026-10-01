@@ -335,11 +335,6 @@ TODO: Is it better to have one virtualization element that has both the width an
 ...or separate them? i.e.: is it easier to render an element that has a 1px width or height than both measurements being large?
 */
 
-#EDI_virtualization_vertical {
-  width: 1px;
-  position: absolute;
-}
-
 #EDI_virtualization_horizontal {
   height: 1px;
   position: absolute;

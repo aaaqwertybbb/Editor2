@@ -797,13 +797,12 @@ const fEXPLORER_boundingClientRect_top = 180;
 const EDI_baseElement = document.getElementById('EDITOR');
 
 const EDI_virtualization_horizontal = EDI_baseElement.children[0];
-const EDI_virtualization_vertical = EDI_baseElement.children[1];
-const EDI_gutter = EDI_baseElement.children[3];
-const EDI_horizontal_scrollbar = EDI_baseElement.children[2].children[0];
-const EDI_horizontal_scrollbar_virtualization_boundary = EDI_baseElement.children[2].children[0].children[0];
-const EDI_body = EDI_baseElement.children[4];
-const EDI_presentation = EDI_baseElement.children[4].children[0];
-const EDI_cursorListElement = EDI_baseElement.children[4].children[1];
+const EDI_gutter = EDI_baseElement.children[2];
+const EDI_horizontal_scrollbar = EDI_baseElement.children[1].children[0];
+const EDI_horizontal_scrollbar_virtualization_boundary = EDI_baseElement.children[1].children[0].children[0];
+const EDI_body = EDI_baseElement.children[3];
+const EDI_presentation = EDI_baseElement.children[3].children[0];
+const EDI_cursorListElement = EDI_baseElement.children[3].children[1];
 
 /**
  * If you have an extension listed here, it is expected that the "function to invoke" exists.

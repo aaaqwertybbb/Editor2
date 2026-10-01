@@ -1387,6 +1387,47 @@ EDI_gutter_container.style.height = `${INTS[fEDI_totalScrollHeight]}px`;
 < - Explore a different bottleneck you have encountered today.
 
 
+> It's working!
+> 
+> It seems I can completely remove `<div id="EDI_virtualization_vertical"></div>`, you agree?
+
+
+< Yes, you can absolutely remove it!
+< 
+< Since your #EDI_gutter_container now explicitly stretches to the full height of your file contents (e.g., 142470px), it acts as the vertical scroll anchor for the parent #EDITOR.
+< 
+< Why This Works
+< 
+< The browser calculates the scrollable region (the scrollHeight) based on the tallest or widest child element inside a container.
+< Previously, <div id="EDI_virtualization_vertical"></div> was your invisible spacer holding that height.
+< 
+< Now, #EDI_gutter_container has that exact same large height value assigned to its inline styles.
+< 
+< Because the gutter container fulfills this exact layout requirement, your old spacer element is now 100% redundant.
+< 
+< What to Verify Before Deleting
+< Before you strip it out entirely, double-check one small thing:
+< - Does your horizontal virtualization element (#EDI_virtualization_horizontal) rely on sitting alongside that vertical element, or is its width mapped to a separate structural element?
+< 
+< As long as your text lines or your horizontal virtualization spacer still hold the maximum code-line width,
+< you can confidently delete <div id="EDI_virtualization_vertical"></div> from your HTML snippet and your initialization code.
+< That is one less completely detached DOM node for your app to track!
+< 
+< Now that your DOM footprint is beautifully minimized and your layout madness is resolved, where should we go from here? We can:
+< - Take a look at optimizing the if / else if / else chunk inside EDI_render_do_Scroll.
+< - Inspect how EDI_virtualization_horizontal is behaving under this cleaner structure.
+< - Dive into any other performance ideas you have queued up!
+
+
+
+
+
+
+TODO: I think you can also remove 'EDI_virtualization_horizontal' due to always at least 1 caret row / cursor being on screen and the caret row
+is gutter total width + widthContent.
+
+
+
 
 
 

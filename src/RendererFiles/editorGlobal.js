@@ -4891,7 +4891,8 @@ function getIndexFromX_sameLine_newRxIsSmaller(goalRx, lineStart, startColumn, s
  */
 function update_verticalVirtualizationBoundary(lineCount) {
     if (!lineCount) lineCount = EDI_lineEndPositionList_count;
-    EDI_virtualization_vertical.style.height = ((lineCount + INTS[fEDI_virtualCount] - 1) * INTS[fEDI_lineHeight]) + 'px';
+    //EDI_virtualization_vertical.style.height = ((lineCount + INTS[fEDI_virtualCount] - 1) * INTS[fEDI_lineHeight]) + 'px';
+    EDI_gutter.style.height = ((lineCount + INTS[fEDI_virtualCount] - 1) * INTS[fEDI_lineHeight]) + 'px';
 }
 
 /**

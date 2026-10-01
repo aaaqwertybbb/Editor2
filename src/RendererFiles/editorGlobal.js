@@ -22,7 +22,15 @@ const EDI_decoder = new TextDecoder();
 
 let gutterWidthTotal_withPxUnits = '';
 
-/** This is likely a decimal value once it gets measured for real, do not try to put it in an int container. */
+/**
+ * This is likely a decimal value once it gets measured for real, do not try to put it in an int container.
+ * 
+ * This is assumed to never be a negative value.
+ * // mouse move only checks the relativeX of the event for being less than 0. Because the column is relativeX divided by 'EDI_characterWidth'.
+ * Thus the only negative that can come from the column is because the 'EDI_characterWidth' were negative. So it isn't checked less than 0 the column.
+ * 
+ * TODO: "this is assumed to never be 0"?
+ */
 let EDI_characterWidth = 8;
 
 /**
@@ -7400,58 +7408,12 @@ function EDI_onMouseMove_WRAPIT(event) {
         // TODO: Consider short circuiting at via event.clientX and clientY by tracking the necessary thresholds for the cursor position to pass rather than the previous and current indices. (you can possibly thereby skip the calculation of the indices entirely for the redundant events).
         // TODO: Is it correct to use the cursor's indexLine and indexColumn directly as a means of determining redundancy? I worry about odd interactions, but I have no proof that such an odd interaction could exist.
 
-/*
-Oh wow I got something good from this extra hour so far
-
-> vscode tells me the signature for Math.max is 'max(...values: number[]): number'.
-> 
-> Is this going to allocate an array even if I only pass in 2 numbers?
-
-< No, Math.max(0, rX) will not allocate an array.
-< 
-< The signature you are seeing in VS Code is written in TypeScript syntax, which uses the rest parameter syntax
-< (...values: number[]) purely as a way to type-hint that the function accepts a variable number of arguments (e.g., Math.max(a), Math.max(a, b), Math.max(a, b, c, d)).
-< 
-< How JavaScript Engines Actually Handle It
-< 
-< Modern JavaScript engines (like V8 in Chrome/Node.js, SpiderMonkey in Firefox, and JavaScriptCore in Safari) handle Math.max as a builtin compiler intrinsic.
-< - No Array Allocation: When the engine compiles your JavaScript into machine code, it sees Math.max(0, rX) and compiles it down to a direct,
-<   low-level CPU comparison instruction (like MAXSD on x86 architectures).
-< - No Arguments Object Overhead: It doesn't allocate an array, nor does it create a JavaScript arguments object behind the scenes when you pass a fixed number of arguments.
-< 
-< When does it allocate?
-< The only time allocation becomes a concern is if you manually use the spread operator to pass an existing array, like this:
-< ```js
-// This creates a shallow copy of the array elements on the call stack
-const max = Math.max(...myLargeArray); 
-< ```
-< 
-< But passing individual variables like Math.max(0, rX) is completely stack-safe, allocation-free, and runs at native CPU speeds.
-< You can safely leave it in your high-frequency mousemove loop!
-< 
-< Are you working on other logic inside this handler—like clamping a maximum width or calculating character offsets—where you want to double-check the performance impacts?
-*/
-
         let rX = Math.max(0, event.clientX - INTS[fEDI_recentBoundingClientRect_left] - INTS[fEDI_gutterWidthTotal] + INTS[fEDI_lastReadNumber_scrollLeft]);
-
-        let rY = event.clientY - INTS[fEDI_recentBoundingClientRect_top] + INTS[fEDI_lastReadNumber_scrollTop];
-
-        // I was debugging this function because if I click and drag below column 0 it jumps the cursor to the max value of uint32 it seems.
-        // I saw -0 in the debugger as the indexColumn and just started laughing.
-        // 
-        // I don't know what the bug is but that took me off guard is all
+        let rY = Math.max(0, event.clientY - INTS[fEDI_recentBoundingClientRect_top] + INTS[fEDI_lastReadNumber_scrollTop]);
 
         let indexColumn = Math.round(rX / EDI_characterWidth);
         let indexLine = Math.floor(rY / INTS[fEDI_lineHeight]);
         let indexColumnVisual = indexColumn;
-
-        if (indexColumn < 0) {
-            indexColumn = 0;
-        }
-        
-        if (indexLine < 0) {
-            indexLine = 0;
-        }
 
         if (indexLine >= EDI_lineEndPositionList_count) {
             indexLine = EDI_lineEndPositionList_count - 1;

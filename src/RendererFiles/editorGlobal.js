@@ -353,6 +353,10 @@ function EDI_render_do_CreateViewport() {
     const lower = INTS[fEDI_virtualIndexLine];
     const upper = lower + virtualCount;
 
+    EDI_ringBuffer_text = new Array(upper - lower);
+
+    let loopIndex = 0;
+
     for (var indexLine = lower; indexLine < upper; indexLine++) {
 
         const gutterLineElement = document.createElement('div');
@@ -367,13 +371,15 @@ function EDI_render_do_CreateViewport() {
         textLineElement.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
         textLineElement.appendChild(document.createTextNode(''));
         textFragment.appendChild(textLineElement);
+        EDI_ringBuffer_text[loopIndex] = textLineElement;
+
+        loopIndex++;
     }
 
     EDI_gutter.replaceChildren(gutterFragment);
-    EDI_textElement.replaceChildren(textFragment);
+    EDI_body.appendChild(textFragment);
 
     EDI_ringBuffer_gutter = Array.from(EDI_gutter.children);
-    EDI_ringBuffer_text = Array.from(EDI_textElement.children);
 
     const local_ArrayFrom_textElement_children_length = EDI_ringBuffer_text.length;
     INTS[fEDI_ArrayFrom_textElement_children_length] = local_ArrayFrom_textElement_children_length;
@@ -660,7 +666,11 @@ function EDI_render_do_Clear() {
 
     EDI_drawCursor(/*timestamp*/ 0, /*NOTscrollCursorIntoView*/ false);
     EDI_clearSelectionStyle();
-    EDI_textElement.innerHTML = '';
+    // TODO: Wait what? Setting the text invokes clear.
+    // So everytime you change the text you've been re-initializing the editor?
+    for (let i = 0; i < EDI_ringBuffer_text.length; i++) {
+        EDI_ringBuffer_text[i].remove();
+    }
     EDI_gutter.innerHTML = '';
     // TODO: Clear the ring buffer state?
 
@@ -871,7 +881,7 @@ function EDI_render_do_IndentMore() {
             else ringBufferIndex = (ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
 
             if (ringBufferIndex >= 0) {
-                const div = EDI_textElement.children[ringBufferIndex];
+                const div = EDI_ringBuffer_text[ringBufferIndex];
                 div.firstChild.insertData(0, EDI_on_tab_string);
             }
         }
@@ -1090,7 +1100,7 @@ function EDI_render_do_IndentLess() {
             else ringBufferIndex = (ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
 
             if (ringBufferIndex >= 0) {
-                const textNode = EDI_textElement.children[ringBufferIndex].firstChild;
+                const textNode = EDI_ringBuffer_text[ringBufferIndex].firstChild;
                 textNode.deleteData(0, innerRemoveCount);
             }
         }
@@ -1473,7 +1483,7 @@ function EDI_render_do_DuplicateOrPaste() {
                     EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, ringBufferIndex_current);
 
                     ringBufferIndex_current = (ringBufferIndex_current + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
-                    w_div = EDI_textElement.children[ringBufferIndex_current];
+                    w_div = EDI_ringBuffer_text[ringBufferIndex_current];
                     INTS[fEDI_w_indexColumn_Goal] = 0;
                     INTS[fEDI_w_indexColumn_Sum] = 0;
                     INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
@@ -1492,7 +1502,7 @@ function EDI_render_do_DuplicateOrPaste() {
                         
                         EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, ringBufferIndex_current);
 
-                        w_div = EDI_textElement.children[ringBufferIndex_current];
+                        w_div = EDI_ringBuffer_text[ringBufferIndex_current];
                         INTS[fEDI_w_indexColumn_Goal] = 0;
                         INTS[fEDI_w_indexColumn_Sum] = 0;
                         INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
@@ -1530,10 +1540,10 @@ function EDI_render_do_DuplicateOrPaste() {
 
                         EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, ringBufferIndex_current);
 
-                        const textNode = EDI_textElement.children[ringBufferIndex_current].firstChild;
+                        const textNode = EDI_ringBuffer_text[ringBufferIndex_current].firstChild;
                         textNode.replaceData(0, textNode.length, spanText);
 
-                        w_div = EDI_textElement.children[ringBufferIndex_current];
+                        w_div = EDI_ringBuffer_text[ringBufferIndex_current];
                         INTS[fEDI_w_indexColumn_Goal] = 0;
                         INTS[fEDI_w_indexColumn_Sum] = 0;
                         INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
@@ -1852,7 +1862,7 @@ function EDI_render_do_EnterKey() {
             shouldRenderEntireViewport = true;
 
         // There are some cases that I don't feel like thinking about at the moment, this if statement singles them out.
-        if (INTS[fEDI_virtualCount] <= 1 || EDI_textElement.children.length !== INTS[fEDI_virtualCount])
+        if (INTS[fEDI_virtualCount] <= 1 || EDI_ringBuffer_text.length !== INTS[fEDI_virtualCount])
             shouldRenderEntireViewport = true;
 
         // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
@@ -1893,7 +1903,7 @@ function EDI_render_do_EnterKey() {
                 if (lastValidIndexColumn === INTS[fEDI_cursor_editIndexColumn]) { // end of line
                     let next_ringBufferIndex = (ringBufferIndex_current + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
                     EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, next_ringBufferIndex);
-                    const textNode = EDI_textElement.children[next_ringBufferIndex].firstChild;
+                    const textNode = EDI_ringBuffer_text[next_ringBufferIndex].firstChild;
                     textNode.replaceData(0, textNode.length, EDI_cursor_cached_indentation_string);
                     EDI_lineWasInsertedValidateGutter();
                     return;
@@ -1949,7 +1959,7 @@ function EDI_render_do_EnterKey() {
 
                     let next_ringBufferIndex = (INTS[fEDI_w_ringBufferIndex] + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
                     EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, next_ringBufferIndex);
-                    const textNode = EDI_textElement.children[next_ringBufferIndex].firstChild;
+                    const textNode = EDI_ringBuffer_text[next_ringBufferIndex].firstChild;
                     textNode.replaceData(0, textNode.length, spanText);
                     EDI_lineWasInsertedValidateGutter();
 
@@ -2414,7 +2424,7 @@ function EDI_render_do_Delete() {
 
                         if (ringBufferIndex_next >= 0) {
                             const keepingTextNode = w_div.firstChild;
-                            const removingTextNode = EDI_textElement.children[ringBufferIndex_next].firstChild;
+                            const removingTextNode = EDI_ringBuffer_text[ringBufferIndex_next].firstChild;
 
                             keepingTextNode.insertData(keepingTextNode.length, removingTextNode.data);
                             removingTextNode.deleteData(0, removingTextNode.length);
@@ -2604,7 +2614,7 @@ function EDI_render_do_Backspace() {
 
                         if (ringBufferIndex_next >= 0) {
                             const keepingTextNode = w_div.firstChild;
-                            const removingTextNode = EDI_textElement.children[ringBufferIndex_next].firstChild;
+                            const removingTextNode = EDI_ringBuffer_text[ringBufferIndex_next].firstChild;
 
                             keepingTextNode.insertData(keepingTextNode.length, removingTextNode.data);
                             removingTextNode.deleteData(0, removingTextNode.length);
@@ -5102,14 +5112,14 @@ function EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, in
     // 
     const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
 
-    const lastDivTextNode = EDI_textElement.children[ringBufferIndex_last].firstChild;
+    const lastDivTextNode = EDI_ringBuffer_text[ringBufferIndex_last].firstChild;
     lastDivTextNode.deleteData(0, lastDivTextNode.length);
 
     // TODO: I could swear I just saw this run where 'destinationDivTextNode' was 'sourceDivTextSpan' and both i values were 'inclusiveSmallestRingBufferIndexToShift'?
     for (let i = ringBufferIndex_last; i !== inclusiveSmallestRingBufferIndexToShift;) {
-        const destinationDivTextNode = EDI_textElement.children[i].firstChild;
+        const destinationDivTextNode = EDI_ringBuffer_text[i].firstChild;
         i = (i - 1 + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
-        const sourceDivTextSpan = EDI_textElement.children[i].firstChild;
+        const sourceDivTextSpan = EDI_ringBuffer_text[i].firstChild;
         destinationDivTextNode.replaceData(0, destinationDivTextNode.length, sourceDivTextSpan.data);
         sourceDivTextSpan.deleteData(0, sourceDivTextSpan.length);
     }
@@ -5138,13 +5148,13 @@ function EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_la
     }
 
     for (let destinationIndex = smallestRingBufferIndexToReceive; destinationIndex !== breakingPoint;) {
-        const destinationDivTextNode = EDI_textElement.children[destinationIndex].firstChild;
+        const destinationDivTextNode = EDI_ringBuffer_text[destinationIndex].firstChild;
         let sourceIndex = destinationIndex;
         for (let i = 0; i < distance; i++) {
             sourceIndex = (sourceIndex + 1) % local_ArrayFrom_textElement_children_length;
         }
-        destinationDivTextNode.replaceData(0, destinationDivTextNode.length, EDI_textElement.children[sourceIndex].textContent);
-        // You don't need to clear 'EDI_textElement.children[sourceIndex].textContent', that's done in the final step of this function
+        destinationDivTextNode.replaceData(0, destinationDivTextNode.length, EDI_ringBuffer_text[sourceIndex].textContent);
+        // You don't need to clear 'EDI_ringBuffer_text[sourceIndex].textContent', that's done in the final step of this function
         // when invoking 'EDI_drawLine'.
         if (EDI_gutter.children[sourceIndex].textContent === '~') {
             const destination_textNode_gutter = EDI_gutter.children[destinationIndex];
@@ -5158,7 +5168,7 @@ function EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_la
         EDI_drawLine(
             (local_virtualIndexLine + local_virtualCount - 1 - i) + distance,
             EDI_gutter.children[ringBufferIndex],
-            EDI_textElement.children[ringBufferIndex],
+            EDI_ringBuffer_text[ringBufferIndex],
             (local_virtualIndexLine + local_virtualCount - 1 - i));
         if (ringBufferIndex === breakingPoint) break; // awkward positioning of this break, it seems somewhat necessary but need to take time to read the code further and try to have it moved somewhere more sensible.
         ringBufferIndex = (ringBufferIndex - 1 + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
@@ -7729,7 +7739,7 @@ function EDI_measureLineHeightAndCharacterWidth() {
     wrapper.style.visibility = 'hidden'; // Keeps it completely invisible to the user
 
     wrapper.appendChild(measureElement);
-    EDI_textElement.appendChild(wrapper);
+    EDI_body.appendChild(wrapper);
 
     // TODO: save 2 TextNode allocations in the app line/character measurements (not here)
     // because you could be replacing the data but you are replacing the textContent.
@@ -7741,7 +7751,7 @@ function EDI_measureLineHeightAndCharacterWidth() {
     INTS[fEDI_lineHeight] = Math.ceil(measureElementBoundingClientRect.height); // 15
 
     wrapper.removeChild(measureElement);
-    EDI_textElement.removeChild(wrapper);
+    EDI_body.removeChild(wrapper);
 
     const root = document.documentElement;
     const computedStyles = window.getComputedStyle(root);

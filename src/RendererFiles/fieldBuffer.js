@@ -804,7 +804,6 @@ const EDI_horizontal_scrollbar_virtualization_boundary = EDI_baseElement.childre
 const EDI_body = EDI_baseElement.children[5];
 const EDI_presentation = EDI_baseElement.children[5].children[0];
 const EDI_cursorListElement = EDI_baseElement.children[5].children[1];
-const EDI_textElement = EDI_baseElement.children[5].children[2];
 
 /**
  * If you have an extension listed here, it is expected that the "function to invoke" exists.

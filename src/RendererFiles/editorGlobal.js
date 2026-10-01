@@ -7400,7 +7400,40 @@ function EDI_onMouseMove_WRAPIT(event) {
         // TODO: Consider short circuiting at via event.clientX and clientY by tracking the necessary thresholds for the cursor position to pass rather than the previous and current indices. (you can possibly thereby skip the calculation of the indices entirely for the redundant events).
         // TODO: Is it correct to use the cursor's indexLine and indexColumn directly as a means of determining redundancy? I worry about odd interactions, but I have no proof that such an odd interaction could exist.
 
-        let rX = event.clientX - INTS[fEDI_recentBoundingClientRect_left] - INTS[fEDI_gutterWidthTotal] + INTS[fEDI_lastReadNumber_scrollLeft];
+/*
+Oh wow I got something good from this extra hour so far
+
+> vscode tells me the signature for Math.max is 'max(...values: number[]): number'.
+> 
+> Is this going to allocate an array even if I only pass in 2 numbers?
+
+< No, Math.max(0, rX) will not allocate an array.
+< 
+< The signature you are seeing in VS Code is written in TypeScript syntax, which uses the rest parameter syntax
+< (...values: number[]) purely as a way to type-hint that the function accepts a variable number of arguments (e.g., Math.max(a), Math.max(a, b), Math.max(a, b, c, d)).
+< 
+< How JavaScript Engines Actually Handle It
+< 
+< Modern JavaScript engines (like V8 in Chrome/Node.js, SpiderMonkey in Firefox, and JavaScriptCore in Safari) handle Math.max as a builtin compiler intrinsic.
+< - No Array Allocation: When the engine compiles your JavaScript into machine code, it sees Math.max(0, rX) and compiles it down to a direct,
+<   low-level CPU comparison instruction (like MAXSD on x86 architectures).
+< - No Arguments Object Overhead: It doesn't allocate an array, nor does it create a JavaScript arguments object behind the scenes when you pass a fixed number of arguments.
+< 
+< When does it allocate?
+< The only time allocation becomes a concern is if you manually use the spread operator to pass an existing array, like this:
+< ```js
+// This creates a shallow copy of the array elements on the call stack
+const max = Math.max(...myLargeArray); 
+< ```
+< 
+< But passing individual variables like Math.max(0, rX) is completely stack-safe, allocation-free, and runs at native CPU speeds.
+< You can safely leave it in your high-frequency mousemove loop!
+< 
+< Are you working on other logic inside this handler—like clamping a maximum width or calculating character offsets—where you want to double-check the performance impacts?
+*/
+
+        let rX = Math.max(0, event.clientX - INTS[fEDI_recentBoundingClientRect_left] - INTS[fEDI_gutterWidthTotal] + INTS[fEDI_lastReadNumber_scrollLeft]);
+
         let rY = event.clientY - INTS[fEDI_recentBoundingClientRect_top] + INTS[fEDI_lastReadNumber_scrollTop];
 
         // I was debugging this function because if I click and drag below column 0 it jumps the cursor to the max value of uint32 it seems.

@@ -1319,8 +1319,6 @@ let vertical = (lowerBound * local_lineHeight) - INTS[fEDI_lastReadNumber_scroll
 < 
 < Right now, your HTML snippet looks like this:
 < 
-< Right now, your HTML snippet looks like this:
-< 
 < ```html
 <div id="EDITOR">
     <div id="EDI_virtualization_vertical" style="height: 142470px;"></div>
@@ -1361,9 +1359,32 @@ let vertical = (lowerBound * local_lineHeight) - INTS[fEDI_lastReadNumber_scroll
 < - Are you ready to dive into the if / else if / else optimization inside EDI_render_do_Scroll to make the ring-buffer index swapping cleaner?
 
 
+> This looks extremely promising. There is a slight bug but I know exactly what is happening.
+> 
+> `height: 100%;` I think is to say "100% of the viewable height". Not, "100% of the scroll height".
+> 
+> I know the scroll height due to my "vertical virtualization div" so I can just swap this out with JavaScript.
 
-
-
+< You nailed it. In a standard CSS layout context, height: 100%; resolves to the height of the visible viewport container (#EDITOR), not its total scrollable height.
+< 
+< Because it stops short at the viewport boundary, once you scroll past that first screen's worth of content, the container ends and its background color clips out.
+< 
+< Swapping it out with JavaScript during initialization or resize to match your total scroll height (INTS[fEDI_virtualization_vertical_height]) is the exact right play.
+< 
+< The Fix
+< When you compute the layout or when the total line count changes, simply map that total vertical scroll height directly to the gutter:
+< ```js
+// Inside your initialization or height-calculation function
+EDI_gutter_container.style.height = `${INTS[fEDI_totalScrollHeight]}px`;
+< ```
+< 
+< By explicitly setting the height of the gutter container to match your vertical virtualization boundary, you ensure that it remains a solid track for the
+< entire duration of the file. Chromium will tile this long container beautifully, painting only the active viewport coordinates as you fly through your code.
+< 
+< Now that the gutter is solid, optimized, and perfectly unified with the text coordinate space, what would you like to focus on next?
+< - We can dissect the if / else if / else boundary checks inside EDI_render_do_Scroll to see if we can streamline the index math.
+< - Look closely at the replaceData and subarray slicing logic to shave off microsecond allocations.
+< - Explore a different bottleneck you have encountered today.
 
 
 
@@ -1373,7 +1394,7 @@ TODO: Update the initial prompt to include something along the lines of "(note: 
 
 
 
-
+TODO: That means I can use the gutter as the vertical virtualization div yes?
 
 
 

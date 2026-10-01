@@ -386,8 +386,8 @@ TODO: Is it better to have one virtualization element that has both the width an
 
   position: sticky;
   left: 0;
-  top: 0;
-  height: 100%;
+  /*top: 0;*/ /* NO top: 0! Let it anchor at y=0 of the scroll container */
+  height: 100%; /* Or let it naturally occupy the full height */
   z-index: 2; /* Keeps it layered above the text layers sliding beneath it */
   background-color: var(--gutter-background-color);
 

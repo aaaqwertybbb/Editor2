@@ -432,3 +432,17 @@ is gutter total width + widthContent.
 
 I just want 1 more hour today.
 
+
+==========
+
+I remember a youtube comment I saw one time on a video that was talking about editors.
+Like probably was something vim related I can't remember.
+
+But the guy said something like:
+"I can't believe we put up with this software quality that we get these days
+ just look at the cursor in vscode when you select text and how much it lags behind the selection".
+
+I feel like I've looked into the abyss by this point.
+I love vscode more and more.
+
+

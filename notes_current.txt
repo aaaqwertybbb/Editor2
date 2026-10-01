@@ -96,6 +96,144 @@ I wasn't going to type out the responses but this feels promising?
 <
 < I can help you audit the JS lexer to make it fast enough to run synchronously on scroll.
 
+> I have something like this:
+> ```js
+const keywordHighlight = new Highlight();
+CSS.highlights.set("js-keywords", keywordHighlight);
+const keywordControlHighlight = new Highlight();
+CSS.highlights.set("js-keywords-control", keywordControlHighlight);
+const memberHighlight = new Highlight();
+CSS.highlights.set("js-member", memberHighlight);
+const functionHighlight = new Highlight();
+CSS.highlights.set("js-function", functionHighlight);
+const identifierHighlight = new Highlight();
+CSS.highlights.set("js-identifier", identifierHighlight);
+const commentHighlight = new Highlight();
+CSS.highlights.set("js-comment", commentHighlight);
+const stringHighlight = new Highlight();
+CSS.highlights.set("js-string", stringHighlight);
+
+function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
+    const divSpanTextContent = String(div.textContent);
+    const divSpanTextContentLength = divSpanTextContent.length;
+    const textNode = div.firstChild;
+
+    let pos = 0;
+    let substart = 0;
+    let subend = divSpanTextContentLength;
+
+    // 0 => identifier
+    // 1 => keyword
+    // 2 => keywordControl
+    let className_flag = 0;
+
+    let createTrackedSyntaxFlag = false;
+    let createDoLexFlag = false;
+    let trackedSyntaxExhausted = false;
+
+    let range = new Range();
+
+    while (pos < divSpanTextContentLength) {
+        if (createDoLexFlag) {
+            // ...
+        }
+        else if (createTrackedSyntaxFlag) {
+            // ...
+        }
+        else {
+            // ...
+        }
+    }
+
+    return trackedSyntax_I;
+}
+> ```
+
+< Looking at your architecture, using a single Highlight object per token type (e.g., keywordHighlight) and clearing/re-adding ranges
+< is exactly how the CSS Custom Highlight API is designed to scale.
+< 
+< However, looking at the layout of your JS_line_lex loop, there are a few massive architectural and performance bottlenecks lurking here.
+< 
+< 1. The Global Range Bottleneck (Critical)
+< 
+< Because you instantiate your Highlight objects globally at the top, if you run this lexer on every line,
+< you are likely appending new Range objects to the same global highlights continuously.
+< - The Issue: If you don't clear the ranges for the specific lines being re-lexed or out of view, the Highlight sets will grow indefinitely.
+<   The browser will eventually choke trying to track hundreds of thousands of overlapping ranges.
+< - The Fix: You need a system to cleanly remove a line's old ranges before calculating its new ones.
+<   Usually, editors map a line's ID to its active Range objects so they can be .delete()d from the global Highlight set when the line changes or leaves the viewport.
+< 
+< 2. High-Performance Garbage Collection Rules
+< 
+< Inside a fast, synchronous scrolling loop, allocating objects inside the while loop is the #1 cause of frame drops (jank).
+< When the browser garbage collects hundreds of temporary objects, the UI freezes.
+< - let range = new Range(); should never be instantiated inside the line loop if you can avoid it, and absolutely never inside the while loop.
+< - The Trick: Instantiation of a Range is relatively expensive. Instead, instantiate a pool of Range objects, or only create them exactly when a token match is finalized.
+< 
+< 3. The Dom Interaction Overhead
+< 
+< const textNode = div.firstChild; and div.textContent are relatively fast, but accessing DOM properties inside your lexing pass adds up.
+< It is significantly faster to store the raw text lines in a plain JavaScript array (your document model) and pass the string directly into JS_line_lex,
+< rather than extracting it from the div on the fly.
+< 
+< How to optimize this into a Synchronous Lexer
+< 
+< To make this fast enough to run instantly on scroll without a debounce, you want a tight, branchless state machine.
+< Here is an optimized layout for how you should structure the token resolution:
+< 
+< ```js
+// A single registry tracking ranges per line so we can clean up easily
+const lineRangeRegistry = new Map(); // Map<lineIndex, Range[]>
+
+function clearLineHighlights(lineIndex) {
+    const oldRanges = lineRangeRegistry.get(lineIndex);
+    if (oldRanges) {
+        for (const range of oldRanges) {
+            keywordHighlight.delete(range);
+            keywordControlHighlight.delete(range);
+            // ... delete from other highlights
+        }
+    }
+    lineRangeRegistry.set(lineIndex, []);
+}
+
+function JS_line_lex_optimized(textNode, textContent, lineIndex, lineStartOffset) {
+    // 1. Clear old highlights for this line first
+    clearLineHighlights(lineIndex);
+    
+    const len = textContent.length;
+    const activeRanges = lineRangeRegistry.get(lineIndex);
+    let pos = 0;
+
+    while (pos < len) {
+        const char = textContent[pos];
+
+        // Example: Skip Whitespace rapidly
+        if (char === ' ' || char === '\t') {
+            pos++;
+            continue;
+        }
+
+        // Fast path for identifiers/keywords using a regex or state check
+        let start = pos;
+        
+        // ... text consumption logic ...
+        
+        // When a token is found (e.g., a keyword):
+        const range = new Range();
+        range.setStart(textNode, start);
+        range.setEnd(textNode, pos);
+        
+        keywordHighlight.add(range);
+        activeRanges.push(range); // Track it so we can delete it later
+    }
+}
+< ```
+< 
+< If you are interested, we can dive deeper into the token consumption strategies. To help tailor the next steps:
+< - How are you currently handling the conditional branches (createDoLexFlag, createTrackedSyntaxFlag)? Are they checking state passed down from the C# LSP?
+< - Are you currently clearing ranges anywhere in your codebase when a line gets modified or scrolled out of view?
+
 TODO: I think you can also remove 'EDI_virtualization_horizontal' due to always at least 1 caret row / cursor being on screen and the caret row
 is gutter total width + widthContent.
 

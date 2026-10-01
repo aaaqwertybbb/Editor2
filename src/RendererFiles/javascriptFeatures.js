@@ -39,6 +39,8 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
     let createDoLexFlag = false;
     let trackedSyntaxExhausted = false;
 
+    let range = new Range();
+
     while (pos < divSpanTextContentLength) {
         if (createDoLexFlag) {
             while (pos < subend) {
@@ -357,35 +359,35 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
                             substart = wordstart; // TODO: Always do this just so you remove the branching?
                         }
 
-                        const range4 = new Range();
-                        range4.setStart(textNode, substart);
-                        range4.setEnd(textNode, substart + wordlength);
+                        range = new Range();
+                        range.setStart(textNode, substart);
+                        range.setEnd(textNode, substart + wordlength);
 
                         if (className_flag === 0) {
                             if (divSpanTextContent[pos] === '(') {
-                                EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range4);
-                                functionHighlight.add(range4);
+                                EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
+                                functionHighlight.add(range);
                             }
                             else if (substart > 0 && divSpanTextContent[substart - 1] === '.') {
-                                EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range4);
-                                memberHighlight.add(range4);
+                                EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
+                                memberHighlight.add(range);
                             }
                             else if (divSpanTextContent[pos] === ':') {
-                                EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range4);
-                                memberHighlight.add(range4);
+                                EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
+                                memberHighlight.add(range);
                             }
                             else {
-                                EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range4);
-                                identifierHighlight.add(range4);
+                                EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
+                                identifierHighlight.add(range);
                             }
                         }
                         else if (className_flag === 1) {
-                            EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range4);
-                            keywordHighlight.add(range4);
+                            EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
+                            keywordHighlight.add(range);
                         }
                         else if (className_flag === 2) {
-                            EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range4);
-                            keywordControlHighlight.add(range4);
+                            EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
+                            keywordControlHighlight.add(range);
                         }
                         substart += wordlength;
                         continue;
@@ -412,7 +414,7 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
 
                             // TODO: I think checking this is redundant because you guaranteed at least one increment?
                             if (substart < pos) {
-                                const range = new Range();
+                                range = new Range();
                                 range.setStart(textNode, substart);
                                 range.setEnd(textNode, substart = pos);
                                 EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
@@ -457,7 +459,7 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
                                 }
                             }
 
-                            const range = new Range();
+                            range = new Range();
                             range.setStart(textNode, substart);
                             range.setEnd(textNode, substart = pos);
                             EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
@@ -493,7 +495,7 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
                             }
                         }
 
-                        const range = new Range();
+                        range = new Range();
                         range.setStart(textNode, substart);
                         range.setEnd(textNode, substart = pos);
                         EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
@@ -524,11 +526,11 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
                             }
                         }
 
-                        const range2 = new Range();
-                        range2.setStart(textNode, substart);
-                        range2.setEnd(textNode, substart = pos);
-                        EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range2);
-                        stringHighlight.add(range2);
+                        range = new Range();
+                        range.setStart(textNode, substart);
+                        range.setEnd(textNode, substart = pos);
+                        EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
+                        stringHighlight.add(range);
                         
                         continue;
                     case CONST_js_BACKTICK_str:
@@ -556,11 +558,11 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
                             }
                         }
 
-                        const range3 = new Range();
-                        range3.setStart(textNode, substart);
-                        range3.setEnd(textNode, substart = pos);
-                        EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range3);
-                        stringHighlight.add(range3);
+                        range = new Range();
+                        range.setStart(textNode, substart);
+                        range.setEnd(textNode, substart = pos);
+                        EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
+                        stringHighlight.add(range);
 
                         continue;
                 }
@@ -590,7 +592,7 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
                 trackedSyntax_I++;
                 continue;
             }
-            const range = new Range();
+            range = new Range();
             range.setStart(textNode, substart);
             range.setEnd(textNode, subend);
             substart += length;

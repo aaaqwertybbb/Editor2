@@ -1153,10 +1153,67 @@ TODO:
 < - What does the inside of EDI_drawGutter_Width() look like so we can strip the redundant node assignments?
 < - How are you handling the left offset of EDI_body or EDI_text? Do they have a hardcoded left margin/padding to prevent the text from sliding behind the absolute-positioned gutter?
 
+> I made the changes. When I scroll horizontally, it doesn't pin. Did you mean to use 'sticky' rather than 'absolute'? The current CSS declarations in this non-functioning state are:
+> 
+> #EDI_gutter_container {
+>   
+>   /*display: contents;*/
+>   /*left: 0;*/
+>   /*cursor: default;*/
+>   /*min-height: 100%;*/
+>   /*background-color: var(--gutter-background-color);*/
+> 
+>   position: absolute;
+>   left: 0;
+>   top: 0;
+>   bottom: 0;
+>   z-index: 2; /* Keeps it layered above the text layers sliding beneath it */
+>   background-color: var(--gutter-background-color);
+>   
+>   will-change: transform; /* Hint to Chromium to isolate this as a GPU layer */
+> 
+>   text-align: end;
+> 
+>   cursor: default;
+> }
 
-
-
-
+< Ah, good catch! You are entirely right. I miscalculated how position: absolute behaves inside a native scroll container.
+< 
+< Inside an element with overflow-y: scroll, an absolute child anchors to the element's scrollable content boundaries, not the viewport window.
+< When you scroll horizontally, the absolute element slides right out of view along with the text.
+< 
+< To fix this and keep the gutter perfectly pinned to the screen while scrolling horizontally, change position: absolute to position: sticky.
+< 
+< The Updated CSS
+< 
+< Update your #EDI_gutter_container rules to use sticky:
+< 
+< ```css
+#EDI_gutter_container {
+  position: sticky; /* Acts like relative, but locks to viewport bounds when scrolling */
+  left: 0;
+  top: 0;
+  height: 100%; /* Keeps the background full height without stretching the scroll bounds */
+  z-index: 2; /* Keeps it layered above the text layers sliding beneath it */
+  background-color: var(--gutter-background-color);
+  
+  will-change: transform; /* Hint to Chromium to isolate this as a GPU layer */
+  text-align: end;
+  cursor: default;
+}
+< ```
+< 
+< Why position: sticky is the perfect fit here
+< - Horizontal Lock: Because left: 0 is set, the browser will constantly counteract the horizontal scroll offset.
+<   As you scroll horizontally, Chromium automatically pins the gutter to the physical left edge of the screen using hardware acceleration.
+< - Vertical Freedom: Since you didn't set a sticky vertical boundary (or because you are managing the vertical layout elements manually with top),
+<   the browser leaves the vertical rendering entirely up to your virtualized loop. Your style.top logic on the individual .eG elements will continue to work perfectly.
+< 
+< Give position: sticky and height: 100% a try, and let me know if the horizontal lock snaps right into place!
+< 
+< Once the horizontal pin is working smoothly, let me know:
+< - Does the text sliding underneath look right, or do we need to check if a background color or offset is needed on the text container?
+< - Are you ready to dive into optimizing the if/else if/else block inside your EDI_render_do_Scroll function next?
 
 
 

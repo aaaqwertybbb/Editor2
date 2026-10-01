@@ -86,8 +86,6 @@ const EDI_debug = document.getElementById('EDI_debug');
 const EDI_findOverlay = document.getElementById('EDI_findOverlay');
 EDI_findOverlay.style.visibility = 'hidden';
 
-const EDI_gutterBackgroundColor = document.getElementById('EDI_gutter_background_color');
-
 /**
  * TODO: This used to be const so make sure you check all the references that they weren't relying on that for either behavior or optimization.
  * TODO: Prior to this changing you need to finalize the edits
@@ -192,9 +190,6 @@ function EDI_init() {
 
     EDI_gutter.style.paddingLeft = gutterPaddingLeft;
     EDI_gutter.style.paddingRight = gutterPaddingRight;
-
-    EDI_gutterBackgroundColor.style.paddingLeft = gutterPaddingLeft;
-    EDI_gutterBackgroundColor.style.paddingRight = gutterPaddingRight;
 
     INTS[fEDI_gutterWidthStyleValue] = EDI_characterWidth;
 
@@ -5450,7 +5445,6 @@ function EDI_drawGutter_Width() {
 
     let gutterWidth = INTS[fEDI_gutterWidthStyleValue] + 'px';
     EDI_gutter.style.width = gutterWidth;
-    EDI_gutterBackgroundColor.style.width = gutterWidth;
 
     for (let i = 0; i < INTS[fEDI_ArrayFrom_textElement_children_length]/*a 'ArrayFrom_gutter_children_length' would always be equal to the textElement equivalent*/; i++) {
         EDI_ringBuffer_gutter[i].style.width = gutterWidth;

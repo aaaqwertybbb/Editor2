@@ -377,29 +377,36 @@ TODO: Is it better to have one virtualization element that has both the width an
 }
 
 #EDI_gutter_container {
-  position: absolute;
-  display: contents;
+  
+  /*display: contents;*/
   /*left: 0;*/
   /*cursor: default;*/
   /*min-height: 100%;*/
   /*background-color: var(--gutter-background-color);*/
+
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 2; /* Keeps it layered above the text layers sliding beneath it */
+  background-color: var(--gutter-background-color);
+  
+  will-change: transform; /* Hint to Chromium to isolate this as a GPU layer */
+
   text-align: end;
+
+  cursor: default;
 }
 
 /* can the gutter be used as vertical virtualization boundary? */
-#EDI_gutter_background_color {
+/*#EDI_gutter_background_color {
   position: sticky;
   left: 0;
   top: 0;
   cursor: default;
   min-height: 100%;
   background-color: var(--gutter-background-color);
-}
-
-#EDI_gutter_sticky {
-  position: sticky;
-  left: 0;
-}
+}*/
 
 /*
 Google AI mentioned to me this CSS when describing a textNode with text length 0 height collapsing to 0:

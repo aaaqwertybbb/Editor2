@@ -234,6 +234,85 @@ function JS_line_lex_optimized(textNode, textContent, lineIndex, lineStartOffset
 < - How are you currently handling the conditional branches (createDoLexFlag, createTrackedSyntaxFlag)? Are they checking state passed down from the C# LSP?
 < - Are you currently clearing ranges anywhere in your codebase when a line gets modified or scrolled out of view?
 
+> I have a mapping so that I can delete the Range objects that were on a line the previous time it was syntax highlighted.
+> I clear this for the line that I'm going to lex prior to invoking `JS_line_lex`.
+> The way I clear the Range objects is very rudimentary at the moment it's just a first draft implementation at the moment.
+> 
+> The conditional branching starts with the 'else' branch.
+> And, I feel pretty terrible looking at this code right now even.
+> I feel very spread thin. I decided to undertake this effort and I'm glad I'm doing it
+> because I enjoy the learning of it all.
+> I understand that if I really wanted to accomplish this I could just "tape together" existing libraries but that wouldn't be nearly as interesting.
+> I don't know I feel moody and I just wanted to say that I think.
+> 
+> I've been implementing something to where it "works". and then jumping to the next feature and going round and round iterating each time.
+> I feel the worst about this because when it comes to writing code for the real world you'd presumably be given some more isolated tasks.
+> and be entrusted to actually really intake the problem and solve it fully and people must think I'm so stupid seeing some of this code but I
+> do believe I'm doing the right thing in terms of this specific type of project.
+> ```js
+function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
+    // ...
+
+    while (pos < divSpanTextContentLength) {
+        if (createDoLexFlag) {
+            // ...
+        }
+        else if (createTrackedSyntaxFlag) {
+            // ...
+        }
+        else {
+            if (trackedSyntax_I >= EDI_trackedSyntaxList.count_abstract) {
+                createDoLexFlag = true;
+                trackedSyntaxExhausted = true;
+                subend = divSpanTextContentLength;
+                continue;
+            }
+
+            EDI_trackedSyntaxList.getElementAt(trackedSyntax_I);
+
+            if (substart >= divSpanTextContentLength) {
+                createDoLexFlag = true;
+                trackedSyntaxExhausted = true;
+                subend = divSpanTextContentLength;
+                continue;
+            }
+
+            if (INTS[fEDI_pooledTrackedSyntax_start] >= lineStart + divSpanTextContentLength) {
+                createDoLexFlag = true;
+                trackedSyntaxExhausted = true;
+                subend = divSpanTextContentLength;
+                continue;
+            }
+
+            if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] < lineStart) {
+                trackedSyntax_I++;
+                continue;
+            }
+
+            if (INTS[fEDI_pooledTrackedSyntax_start] > lineStart + substart) {
+                createDoLexFlag = true;
+                trackedSyntaxExhausted = false;
+                const r_trackedSyntaxStart = INTS[fEDI_pooledTrackedSyntax_start] - lineStart;
+                if (r_trackedSyntaxStart < divSpanTextContentLength) {
+                    subend = r_trackedSyntaxStart;
+                }
+                else {
+                    subend = divSpanTextContentLength;
+                }
+                continue;
+            }
+
+            {
+                createTrackedSyntaxFlag = true;
+                continue;
+            }
+        }
+    }
+
+    return trackedSyntax_I;
+}
+> ```
+
 TODO: I think you can also remove 'EDI_virtualization_horizontal' due to always at least 1 caret row / cursor being on screen and the caret row
 is gutter total width + widthContent.
 

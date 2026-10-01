@@ -449,4 +449,6 @@ I guess I should use an example of my own fault to really drill it in.
 I collapsed something in vscode and was like "lol the cursor can't go behind the three dots".
 Oh my... you fool
 
+I actually have to delete this immediately because of how much shame and embarassment I feel from thinking about it
+
 

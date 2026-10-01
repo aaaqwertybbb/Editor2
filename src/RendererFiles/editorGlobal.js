@@ -167,7 +167,6 @@ const lspQueue = [];
  */
 const EDI_renderKindBuffer = new Uint8Array(BUFFER_SIZE);
 
-// Persistent, flat JS arrays that stay alive forever in memory
 let EDI_ringBuffer_gutter = [];
 let EDI_ringBuffer_text = [];
 

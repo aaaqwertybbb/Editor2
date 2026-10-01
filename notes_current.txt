@@ -674,7 +674,201 @@ TODO:
 >     </div>
 > </div>
 
+> Understood. Standing by for the specific performance question regarding this DOM layout!
 
+> (you don't have to respond to this) My goal today requires the following knowledge of how the JavaScript is written.
+> This knowledge in total is just 3 small code snippets. It might take two prompts in order to send.
+> 
+> let EDI_ringBuffer_gutter = [];
+> let EDI_ringBuffer_text = [];
+> 
+> function EDI_init() {
+>     // ...
+> 
+>     EDI_cursorListElement.appendChild(EDI_cursor_caretRow);
+> 
+>     EDI_measureLineHeightAndCharacterWidth();
+>     EDI_measureBaseElement();
+> 
+>     // ...
+> 
+>     EDI_drawGutter_Width();
+> 
+>     INTS[fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar] = 1; // necessary for the first render, otherwise the if statement sees 0 !== 0.
+>     EDI_drawHorizontalScrollbar();
+>     EDI_render_request(RenderKind_Cursor_n);
+>     requestAnimationFrame(EDI_draw_cursor_debug);
+> 
+>     EDI_registerHandlers();
+> }
+> 
+> function EDI_render_do_CreateViewport() {
+> 
+>     EDI_clearHighlights();
+> 
+>     const virtualCount = INTS[fEDI_virtualCount];
+> 
+>     INTS[fEDI_ONSCROLLvirtualCount] = virtualCount;
+> 
+>     INTS[fEDI_ringBuffer_indexZero] = 0;
+>     const left = gutterWidthTotal_withPxUnits;
+>     const gutterWidth = `${INTS[fEDI_gutterWidthStyleValue]}px`;
+>     const local_EDI_horizontal_scrollbar_virtualization_boundary_style_width = EDI_horizontal_scrollbar_virtualization_boundary.style.width;
+> 
+>     const gutterFragment = document.createDocumentFragment();
+>     const textFragment = document.createDocumentFragment();
+> 
+>     const lower = INTS[fEDI_virtualIndexLine];
+>     const upper = lower + virtualCount;
+> 
+>     for (var indexLine = lower; indexLine < upper; indexLine++) {
+> 
+>         const gutterLineElement = document.createElement('div');
+>         gutterLineElement.className = 'eG';
+>         gutterLineElement.style.width = gutterWidth;
+>         gutterLineElement.appendChild(document.createTextNode(''));
+>         gutterFragment.appendChild(gutterLineElement);
+> 
+>         const textLineElement = document.createElement('div');
+>         textLineElement.className = 'eT';
+>         textLineElement.style.left = left;
+>         textLineElement.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
+>         textLineElement.appendChild(document.createTextNode(''));
+>         textFragment.appendChild(textLineElement);
+>     }
+> 
+>     EDI_gutter.replaceChildren(gutterFragment);
+>     EDI_textElement.replaceChildren(textFragment);
+> 
+>     EDI_ringBuffer_gutter = Array.from(EDI_gutter.children);
+>     EDI_ringBuffer_text = Array.from(EDI_textElement.children);
+> 
+>     const local_ArrayFrom_textElement_children_length = EDI_ringBuffer_text.length;
+>     INTS[fEDI_ArrayFrom_textElement_children_length] = local_ArrayFrom_textElement_children_length;
+> 
+>     // ...
+> }
+
+< Understood. I have reviewed how you initialize the editor and create the viewport's DOM nodes via document.createDocumentFragment()
+< and replaceChildren(), storing them in your ring buffers.
+< 
+< Standing by for the third snippet or your performance question!
+
+> (you don't have to respond to this). Here is the third and final snippet:
+> 
+> function EDI_render_do_Scroll(timestamp) {
+>     const local_lineHeight = INTS[fEDI_lineHeight];
+>     
+>     // High-performance CPU truncation (Bypasses Math.floor)... take care if your numbers might be negative, I read that the behavior is different in that case.
+>     INTS[fEDI_virtualIndexLine] = (INTS[fEDI_lastReadNumber_scrollTop] / local_lineHeight) | 0;
+>     
+>     let local_prevVli = INTS[fEDI_ONSCROLLvirtualIndexLine];
+>     const local_currVli = INTS[fEDI_virtualIndexLine];
+>     INTS[fEDI_ONSCROLLvirtualIndexLine] = local_currVli;
+> 
+>     INTS[fEDI_scrollEndDeadline] = timestamp + 1000;
+> 
+>     if (INTS[fEDI_intFalsey_isScrolling] === 0) {
+>         // (Comment group ID: 'do_Scroll/LeadingEdge')...and here the locals are passed to the LeadingEdge because only when performing the LeadingEdge do you need to use the global versions. (part 1 of 3)
+>         if (EDI_onScroll_LeadingEdge(local_prevVli, local_currVli)) return; // This if statement reads poorly. You return for a reason that isn't gleaned by reading the function name alone.
+>         // (Comment group ID: 'do_Scroll/LeadingEdge')...and here the locals assigned the same value as the "globals" in case 'EDI_onScroll_LeadingEdge' modified the globals. (part 3 of 3)
+>         local_prevVli = INTS[fEDI_prevVli];
+>     }
+> 
+>     let diff = local_currVli - local_prevVli; // you cannot move this 'diff === 0' case prior to the leading edge.
+>     if (diff === 0) return;
+> 
+>     let lowerBound = 0;
+>     let upperBound = 0;
+>     let ringBufferIndex = 0; // The 0th loop will increment somewhat awkwardly. see the: "This decrement avoids that." comments for each case.
+> 
+>     const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
+>     const virtualCount = INTS[fEDI_virtualCount];
+> 
+>     // TODO: This if elseif else can probably be optimized
+>     if (diff > 0 && diff < virtualCount) {
+>         INTS[fEDI_sum_diffPositive] += diff;
+>         // Note: (TODO: retrospectively reading this comment I'm thinking "what is this talking about?" To be fair I only glanced at it but because it is far too "verbose" I just don't feel like reading this right now to determine whether the comment is worthwhile or not.) this case has 'vertical = (INTS[fEDI_prevVli] + virtualCount) * local_lineHeight;' I believe 'virtualCount' === 'INTS[fEDI_ONSCROLLvirtualCount]' in this case, thus all vertical calculations can be moved after the if statements to be lowerBound * ... All cases other than this one were exact 1 to 1 matches.
+>         lowerBound = local_prevVli + INTS[fEDI_ONSCROLLvirtualCount];
+>         upperBound = lowerBound + diff;
+>         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1 /*This decrement avoids that.*/;
+>         INTS[fEDI_ringBuffer_indexZero] = (ringBufferIndex + 1/*This decrement avoids that... but here you need to undo it for a moment*/ + diff) % local_ArrayFrom_textElement_children_length;
+>     }
+>     else if (diff < 0 && (diff *= -1) < virtualCount) {
+>         INTS[fEDI_sum_diffNegative] += diff;
+>         lowerBound = local_currVli;
+>         upperBound = lowerBound + diff;
+> 
+>         INTS[fEDI_ringBuffer_indexZero] = (
+>             (/*let lastIndex = */(INTS[fEDI_ringBuffer_indexZero] - 1 + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length) -
+>             (diff - 1) + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
+> 
+>         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1/*This decrement avoids that.*/;
+>     }
+>     else {
+>         INTS[fEDI_sum_diffPositive] += virtualCount;
+>         lowerBound = local_currVli;
+>         upperBound = lowerBound + virtualCount;
+>         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1/*This decrement avoids that.*/;
+>     }
+> 
+>     const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
+>     const local_EDI_lineEndPositionList_count = EDI_lineEndPositionList_count;
+> 
+>     // If you intend to use the variables 'lineStart' or 'lineEnd': Important detail to consider: the lines that are >= EDI_lineEndPositionList_count will continually increment lineStart by 1 So if you expect this to accurately represent the EOF position when it is in view, it probably does NOT.
+>     let lineStart = 0;
+>     let lineEnd = -1;
+>     if (lowerBound < local_EDI_lineEndPositionList_count && lowerBound !== 0) {
+>         lineEnd = local_EDI_lineEndPositionList_data[lowerBound - 1];
+>     }
+> 
+>     const bytes = EDI_textByteList_bytes;
+>     const local_EDI_ringBuffer_gutter = EDI_ringBuffer_gutter;
+>     const local_EDI_ringBuffer_text = EDI_ringBuffer_text;
+>     
+>     let vertical = lowerBound * local_lineHeight;
+> 
+>     // TODO: I've looked a lot at this 'var' usage versus 'let'... TODO: finalize a thought on this.
+>     for (var indexLine = lowerBound; indexLine < upperBound; indexLine++) {
+> 
+>         ringBufferIndex = (ringBufferIndex + 1) % local_ArrayFrom_textElement_children_length;
+> 
+>         const gutter = local_EDI_ringBuffer_gutter[ringBufferIndex];
+>         const div = local_EDI_ringBuffer_text[ringBufferIndex];
+> 
+>         // TODO: If you make a (Uint8Array?) of size ring buffer when doing Array.From you can write to the ringBufferIndex to indicate needs to be syntax highlighted.
+> 
+>         let textNode = gutter.firstChild;
+>         lineStart = lineEnd + 1;
+>         if (indexLine < local_EDI_lineEndPositionList_count) {
+>             textNode.replaceData(0, textNode.length, `${indexLine + 1}`);
+>             lineEnd = local_EDI_lineEndPositionList_data[indexLine];
+>         }
+>         else {
+>             textNode.replaceData(0, textNode.length, '~');
+>             lineEnd = lineStart;
+>         }
+> 
+>         div.className = 'eTN';
+>         textNode = div.firstChild;
+>         // TODO: If you can ensure that none of the code breaks and then you document the following...
+>         // ...then you can use ' ' here but make sure that all empty line logic doesn't break.
+>         //
+>         // TODO: you can avoid losing the textNode actually depending on how you set things. so you CAN keep it an empty string IF you guarantee that you only use those and avoid "..."
+>         //
+>         textNode.replaceData(0, textNode.length, lineStart === lineEnd ? '' : EDI_decoder.decode(bytes.subarray(lineStart, lineEnd)));
+> 
+>         const translateY = `${vertical}px`;
+>         gutter.style.top = translateY;
+>         div.style.top = translateY;
+> 
+>         vertical += local_lineHeight;
+>     }
+> }
+
+< Now that I have the complete picture, I see exactly what you are doing. You are implementing a hyper-optimized virtualized scrolling viewport with
+< a DOM ring-buffer (recycle pool). You are bypassing standard style layouts by using absolute positioning via style.top and
+< using high-performance array lookups (like typed arrays) alongside replaceData to manipulate text nodes directly without destroying them.
 
 
 

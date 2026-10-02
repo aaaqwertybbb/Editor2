@@ -706,9 +706,133 @@ while (pos < subend) {
 < If you are open to sharing, I would love to look at your string matching cases (the double quotes, single quotes, and backticks).
 < Handling the state changes for multi-line backticks vs. single-line quotes is usually the trickiest part of keeping a local lexer synchronized with the LSP
 
+> case CONST_js_BACKTICK_str:
+>  if (substart < pos) {
+>   substart = pos;
+>  }
+>  // This code is somewhat a duplication of 'function lex_string(...)'
+>  //
+>  // likely what started the string is the same as the terminator, so you need to move ahead one position before starting the loop.
+>  pos++;
+>  outer: while (pos < subend) {
+>   switch (divSpanTextContent[pos]) {
+>    case CONST_js_BACKTICK_str:
+>     pos++;
+>     break outer;
+>    case CONST_js_BACKSLASH_str:
+>     pos++;
+>     if (pos < subend) {
+>      pos++; // skip the escaped character provided that the file didn't end after the original backslash
+>     }
+>     continue /*outer*/;
+>    default:
+>     pos++;
+>     break;
+>   }
+>  }
+>  range = new Range();
+>  range.setStart(textNode, substart);
+>  range.setEnd(textNode, substart = pos);
+>  EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
+>  stringHighlight.add(range);
+>  continue;
 
+< This block reveals exactly how you are approaching the state machine logic. Your handling of the escape character sequence (CONST_js_BACKSLASH_str) using the lookahead skip
+< (pos++) is clean and correct. It accurately prevents an escaped backtick (```) from falsely terminating the string scan.
+< 
+< However, your note in the comments hits on a core structural challenge: "likely what started the string is the same as the terminator..."
+< 
+< For single-line quotes (' and "), your loop works beautifully because they are guaranteed to terminate on the same line (or else it is a syntax error).
+< But for backticks (template literals), they can span hundreds of lines. This brings us right back to the original architecture question:
+< how the local editor lexer seamlessly synchronizes with the C# LSP data.
+< 
+< The Conflict in the Loop Boundaries
+< 
+< Look closely at your inner loop condition:
+< 
+< ```js
+outer: while (pos < subend) {
+< ```
+< 
+< If a user types a backtick, and the closing backtick is 10 lines below, the current line does not contain the closing backtick.
+< 1. Your loop will hit the end of the line (pos === subend), exit the while loop, and highlight the remainder of the line as a string. That part is fine!
+< 2. The Bug: Because the local lexer is stateless, when the editor moves on to lex the next line down, it starts fresh. It will not know it is currently sitting inside an
+<    open backtick string. It will see standard code, try to parse it as keywords/identifiers, and break the highlighting until the LSP updates it.
+< 
+< The Refactored Solution: Unifying the LSP Overlay
+< 
+< This is why separating the lexer into two distinct phases (as we outlined earlier) is so powerful. If you let the C# LSP calculate the boundaries of these multi-line spans,
+< your client side can just "paint" them and let the local character lexer handle the rest.
+< 
+< If we apply the Phase 1 (LSP Override) pattern to your backtick logic, here is how clean it becomes.
+< You don't even need a case CONST_js_BACKTICK_str: inside your local character loop if the LSP has already marked it as a multi-line string zone!
+< 
+< ```js
+// Inside your main line loop...
 
+// --- PHASE 1: TELEPORT PAST MULTI-LINE LSP ZONES ---
+// If the LSP told us this line segment is a multi-line string or comment,
+// paint it instantly and skip processing it locally.
+if (pos >= lspOverrideStart && pos < lspOverrideEnd) {
+    const range = new Range();
+    range.setStart(textNode, lspOverrideStart);
+    range.setEnd(textNode, lspOverrideEnd);
+    
+    // Map LSP types directly to your Highlight sets
+    if (lspType === TYPE_MULTILINE_STRING) stringHighlight.add(range);
+    else if (lspType === TYPE_MULTILINE_COMMENT) commentHighlight.add(range);
+    
+    lineHighlights.push(range);
+    pos = lspOverrideEnd; // Teleport!
+    continue;
+}
 
+// --- PHASE 2: LOCAL SINGLE-LINE CHARACTER LEXER ---
+const char = divSpanTextContent[pos];
+
+switch (char) {
+    // Single line strings are safe to process completely locally!
+    case "'":
+    case '"': {
+        let stringStart = pos;
+        pos++; // skip initial quote
+        
+        while (pos < subend) {
+            const nextChar = divSpanTextContent[pos];
+            if (nextChar === char) { // Found matching terminator
+                pos++;
+                break;
+            }
+            if (nextChar === '\\') { // Handle escapes safely
+                pos += 2; 
+                continue;
+            }
+            pos++;
+        }
+        
+        const range = new Range();
+        range.setStart(textNode, stringStart);
+        range.setEnd(textNode, pos);
+        stringHighlight.add(range);
+        lineHighlights.push(range);
+        continue;
+    }
+    
+    // ... your rolling identifier hash code ...
+}
+< ```
+< 
+< Why this fixes the moodiness of the codebase:
+< - DRY (Don't Repeat Yourself): You don't need to duplicate string-parsing logic for backticks. The LSP calculates the massive multi-line backtick coordinates,
+<   while your local editor lexer only has to worry about quick, single-line quotes.
+< - Instant Sync: When a line scrolls into view, if it falls inside a known multi-line string, Phase 1 catches it immediately. It doesn't execute a single character switch check.
+<   It just creates one range for the block, teleports to the end, and remains completely fluid during scrolling.
+< 
+< You are building a custom runtime pipeline between memory arrays (INTS) and DOM components. The complexity you are feeling is just the layout of the bridge.
+< 
+< If you want to keep refining this architecture, tell me:
+< - How does your C# LSP currently transmit the multi-line tokens to the client? Is it a flat array of numbers, or a structured JSON payload?
+< - Do you want to take a look at how the editor client should efficiently scan that array to find the lspOverrideStart and lspOverrideEnd values without lagging the thread?
 
 
 

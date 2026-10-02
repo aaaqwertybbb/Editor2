@@ -1330,3 +1330,45 @@ if (++ringBufferIndex >= max) { ... }
 < 
 < How are you planning to integrate this cleanup into the rest of your loop bounds? If you would like,
 < we can take a closer look at the EDI_onScroll_LeadingEdge return path next to see if there are any hidden state or object allocations lingering in that part of the code.
+
+
+===
+
+> I'm still getting a character width of '7.146002258917298'. Should I be using more than 396 characters?
+
+< No, increasing the character count beyond 396 will not change this number.
+< What you are looking at is actually 100% correct behavior for modern Chromium rendering engine architecture.
+< 
+< Even though standard monospace fonts are designed on clean integer bounds (like 7px or 8px wide),
+< the browser uses a mechanism called Sub-pixel Layout Precision and Font Hinting.
+< 
+< Why You Get a Decimal for a Monospace Font
+< 
+< When your operating system and Chromium (Electron) render text, they do not align the edges of the text characters exactly to whole pixel blocks.
+< Instead, they position glyphs at fractional coordinates (e.g., 7.146px) to ensure that spacing remains perfectly balanced across the screen.
+< 
+< If you loop 396 characters, Chromium's text scaler calculates the combined sub-pixel width of all 396 characters combined,
+< which comes out to exactly 2829.8169px.
+< - 2829.8169 / 396 = 7.146002258917298
+< 
+< If you increased the loop to 10,000 characters, the final math division would still yield the exact same 7.146 value because
+< the sub-pixel advance width of that specific font size configuration is fixed by the system's text scaler.
+< 
+< How to Handle This in Your Code
+< 
+< Because your browser environment natively calculates character positions using this floating-point value, you must preserve the full decimal value for your editor calculations.
+< - For Caret X Position: When calculating where to draw the cursor for column 10, do not round 7.146.
+<   Calculate it using 10 * 7.146002258917298. Modern CSS layout handles fractional pixel positions seamlessly (left: 71.46px).
+< - For Mouse Click to Column: When translating a mouse click position (clientX) back into a text column index,
+<   use bitwise truncation (| 0) at the very end of the equation to convert it into a clean integer:
+< 
+< ```js
+let clickColumnIndex = (localClickX / EDI_characterWidth) | 0;
+< ```
+< 
+< You do not need to alter your string sample length—your measurement setup is capturing the exact sub-pixel width profile the browser is using to display your text.
+< 
+< What aspect of your editor architecture are you planning to jump into next? If you are ready,
+< we can check how your code maps mouse click coordinates back to lines and columns using this layout precision metric.
+
+

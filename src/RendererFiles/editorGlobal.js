@@ -525,6 +525,8 @@ function EDI_render_do_Scroll(timestamp) {
         // the offset is (- diff)
         // add array length then modulo the entire result.
         // they're equal
+        //
+        // TODO: I think it would actually be the magnitudes of the offsets summed to be more accurate (1) + (diff - 1)
 
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1/*This decrement avoids that.*/;
     }

@@ -501,9 +501,30 @@ function EDI_render_do_Scroll(timestamp) {
         lowerBound = local_currVli;
         upperBound = lowerBound + diff;
 
-        INTS[fEDI_ringBuffer_indexZero] = (
-            (/*let lastIndex = */(INTS[fEDI_ringBuffer_indexZero] - 1 + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length) -
-            (diff - 1) + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
+        INTS[fEDI_ringBuffer_indexZero] = (INTS[fEDI_ringBuffer_indexZero] - diff + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length
+        //INTS[fEDI_ringBuffer_indexZero] = (
+        //    (/*let lastIndex = */(INTS[fEDI_ringBuffer_indexZero] - 1 + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length) -
+        //    (diff - 1) + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
+        // 
+        // ^ these two are equivalent TODO: determine the exact wording for why they are the same.
+        // I take it back I see it.
+        // Isolate the left side of the modulo
+        // (INTS[fEDI_ringBuffer_indexZero] - 1 + local_ArrayFrom_textElement_children_length)
+        // (diff - 1 + local_ArrayFrom_textElement_children_length)
+        //
+        // Now remove the + local_ArrayFrom_textElement_children_length
+        //
+        // INTS[fEDI_ringBuffer_indexZero] - 1
+        // diff - 1
+        //
+        // the first distance is -1
+        // the second distance is the result of the first change offset by a further distance of (diff - 1)
+        // 
+        // This is just the original value offset by a distance of (-1) + (diff - 1) which is diff
+        // Thus the original is 'INTS[fEDI_ringBuffer_indexZero]'
+        // the offset is (- diff)
+        // add array length then modulo the entire result.
+        // they're equal
 
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1/*This decrement avoids that.*/;
     }

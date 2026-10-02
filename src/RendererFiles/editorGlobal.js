@@ -533,7 +533,12 @@ function EDI_render_do_Scroll(timestamp) {
     // TODO: I've looked a lot at this 'var' usage versus 'let'... TODO: finalize a thought on this.
     for (var indexLine = lowerBound; indexLine < upperBound; indexLine++) {
 
-        ringBufferIndex = (ringBufferIndex + 1) % local_ArrayFrom_textElement_children_length;
+        //ringBufferIndex = (ringBufferIndex + 1) % local_ArrayFrom_textElement_children_length;
+        // Branchless array pointer wrap-around (faster than modulo)
+        ringBufferIndex++;
+        if (ringBufferIndex >= local_ArrayFrom_textElement_children_length) {
+            ringBufferIndex = 0;
+        }
 
         const gutter = local_EDI_ringBuffer_gutter[ringBufferIndex];
         const div = local_EDI_ringBuffer_text[ringBufferIndex];

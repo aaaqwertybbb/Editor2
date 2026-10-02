@@ -860,7 +860,17 @@ But you'd have to measure it all in reality but it's just an idea.
 
 I don't feel good so I'm gonna move very slowly
 
+======
 
+I went to go flip my laundry
+I think I had an extremely good idea.
+
+I'm gonna synchronously scroll with the multiline spanning syntax only
+to get started.
+
+Get that optimized.
+
+And then keep the word lexing as a debounce.
 
 
 

@@ -7719,12 +7719,16 @@ function EDI_horizontal_scrollbar_onScroll() {
 function EDI_measureLineHeightAndCharacterWidth() {
     let measureElement = document.createElement('div');
     measureElement.style.width = "fit-content";
+    measureElement.style.whiteSpace = 'pre'; // CRITICAL: Guarantees the 396 characters stay on 1 line
     measureElement.style.position = 'absolute';
     measureElement.style.visibility = 'hidden';
     measureElement.style.padding = '0';
     measureElement.style.border = 'none';
     measureElement.style.left = '0';
     measureElement.style.top = '0';
+    
+    let len = 396;
+    measureElement.textContent = 'A'.repeat(len); // Fast text assignment (bypasses HTML parser)
 
     // AI is saying "// The foolproof way to prevent ALL scrollbars during measurement" is this paragraph of code.
     // The foolproof way to prevent ALL scrollbars during measurement
@@ -7740,26 +7744,17 @@ function EDI_measureLineHeightAndCharacterWidth() {
     wrapper.appendChild(measureElement);
     EDI_body.appendChild(wrapper);
 
-    // TODO: save 2 TextNode allocations in the app line/character measurements (not here)
-    // because you could be replacing the data but you are replacing the textContent.
-
-    let len = 396;
-    measureElement.innerHTML = 'A'.repeat(len);
-    let measureElementBoundingClientRect = measureElement.getBoundingClientRect();
-    EDI_characterWidth = measureElementBoundingClientRect.width / len; // 7.146002258917298
-    INTS[fEDI_lineHeight] = Math.ceil(measureElementBoundingClientRect.height); // 15
+    const rect = measureElement.getBoundingClientRect();
+    EDI_characterWidth = rect.width / len; // 7.146002258917298
+    INTS[fEDI_lineHeight] = Math.ceil(rect.height); // 15
 
     wrapper.removeChild(measureElement);
     EDI_body.removeChild(wrapper);
 
     const root = document.documentElement;
-    const computedStyles = window.getComputedStyle(root);
     let teLineHeight = INTS[fEDI_lineHeight] + 'px';
     let propertyName = '--EDITOR-line-height';
-    if (computedStyles.getPropertyValue(propertyName) !== teLineHeight) {
-        // avoid layout with if statement
-        root.style.setProperty(propertyName, teLineHeight);
-    }
+    root.style.setProperty(propertyName, teLineHeight); // Apply the property directly. At startup, forcing getComputedStyle is slower than a direct write.
 }
 
 function EDI_toExtensionKind(extensionWithPeriod) {

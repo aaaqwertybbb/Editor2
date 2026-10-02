@@ -882,10 +882,53 @@ and then I moved the laundry into the dryer synchronously
 
 and... idk...
 
+==========
 
+> I think I have a good idea. I want to synchronously apply the multiline many line spanning syntax highlighting synchronously as I scroll.
+> Then keep the word lexing as a 1 second debounce. Don't respond too much though cause I actually have an idea of something that needs done prior to all of this.
 
+< That sounds like an incredibly smart architectural pivot. Splitting it so the structural multi-line highlights apply instantly on scroll
+< (keeping the background context pristine) while debouncing the granular word lexing will massively reduce scrolling overhead while keeping the editor visually stable.
+< 
+< Go tackle that prerequisite task! When you are ready to come back to this or run into another performance roadblock, just drop a message and we will dive right back in. Good luck!
 
+> The prerequisite is something I wanted to ask you about a bit. My scrolling function is part of a rAF pipeline. And I use a ring buffer with modulo logic for determining indices.
+> 
+> The rAF pipeline itself utilizes a fixed power of 2 buffer and much faster way to get the indices using bit operators.
+> 
+> If I could get that power of 2 logic to replace my modulo logic in the scroll, I'd drastically improve things.
 
+< That is a classic, high-performance systems programming move. Replacing a modulo operator (%) with a bitwise AND operator (&) is incredibly effective because modulo requires an
+< expensive hardware division instruction, whereas bitwise AND executes in a single CPU clock cycle.
+< 
+< For this bitwise trick to work, the length of your buffer must be a power of 2 (e.g., 64, 128, 256, 512).
+< 
+< The bitwise mask you use to wrap the index is always Buffer_Length - 1.
+< 
+< The Math & Code Transformation
+< If your buffer size is 256, your bitwise mask is 256 - 1 = 255 (which is 0xFF or 0b11111111 in binary).
+< ```js
+// Old Modulo Logic (Slow)
+let ringBufferIndex = scrollIndex % 256;
+
+// New Bitwise Power of 2 Logic (Blazing Fast)
+let ringBufferIndex = scrollIndex & 255; 
+```
+< Why This Works (The Visual Explanation)
+< 
+< In binary, the number 255 sets the first 8 bits to 1. When you perform a bitwise & with 255, any binary bits higher than the 8th bit are completely wiped out to 0.
+< This forces the number to automatically wrap back around to 0 the exact moment it hits 256, perfectly mimicking a modulo operation without any math division.
+< 
+< How to Safely Handle Negative Scrolling
+< 
+< When users scroll upwards rapidly, your absolute scrollIndex or line tracking counter might occasionally dip below zero.
+< - The Modulo Problem: In JavaScript, (-1) % 256 results in -1, which breaks array lookups because array indices cannot be negative.
+< - The Bitwise Advantage: Bitwise operators in JavaScript force numbers into 32-bit integers. Because of how negative numbers are stored in binary (Two's Complement), (-1) & 255 automatically wraps correctly to 255.
+< 
+< If your rAF pipeline is already using this, bringing it into the scroll handler will keep your frame budget incredibly clean.
+< 
+< Go ahead and plug that mask logic into your scrolling loop.
+< If you want to double-check your bitmask values or look at how to structure the layout of the scroll indices next, let me know!
 
 
 

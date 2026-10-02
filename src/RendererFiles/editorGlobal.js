@@ -530,6 +530,18 @@ function EDI_render_do_Scroll(timestamp) {
     
     let vertical = lowerBound * local_lineHeight;
 
+    /*
+    < Why count down to zero?
+    < 
+    < CPUs have a specialized hardware optimization for checking if a number is zero.
+    < Instructions like JZ (Jump if Zero) can evaluate a boundary condition without needing an explicit CMP (compare)
+    < instruction against a separate variable limit.
+    <
+    < Instead of tracking where you are between lowerBound and upperBound, calculate the exact number of iterations needed (the total line count)
+    < before the loop starts, and decrement that count down to zero:
+    < ...
+    */
+
     // TODO: I've looked a lot at this 'var' usage versus 'let'... TODO: finalize a thought on this.
     for (var indexLine = lowerBound; indexLine < upperBound; indexLine++) {
 

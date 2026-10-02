@@ -872,7 +872,15 @@ Get that optimized.
 
 And then keep the word lexing as a debounce.
 
+====
 
+I had the idea cause
+the washer represents the line lexing
+and the dryer represents the multiline spanning syntax
+
+and then I moved the laundry onto the dryer synchronously
+
+and... idk...
 
 
 

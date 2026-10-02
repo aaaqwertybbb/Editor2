@@ -834,8 +834,29 @@ switch (char) {
 < - How does your C# LSP currently transmit the multi-line tokens to the client? Is it a flat array of numbers, or a structured JSON payload?
 < - Do you want to take a look at how the editor client should efficiently scan that array to find the lspOverrideStart and lspOverrideEnd values without lagging the thread?
 
+==============
 
+Separating the 'single line lex logic' from the 'multiline spanning syntax' is likely an extremely good idea.
 
+Something like:
+```js
+function countNewlines(sourceString) {
+    let count = 0;
+    let pos = sourceString.indexOf('\n');
+    while (pos !== -1) {
+        count++;
+        pos = sourceString.indexOf('\n', pos + 1);
+    }
+    return count;
+}
+```
+
+for example.
+
+If you inline that you might have a higher likelihood of a deoptimized function.
+Even though you get the function invocation overhead, the fact that
+turbofan might optimize things is massively more important.
+But you'd have to measure it all in reality but it's just an idea.
 
 
 

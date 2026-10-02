@@ -858,6 +858,8 @@ Even though you get the function invocation overhead, the fact that
 turbofan might optimize things is massively more important.
 But you'd have to measure it all in reality but it's just an idea.
 
+I don't feel good so I'm gonna move very slowly
+
 
 
 

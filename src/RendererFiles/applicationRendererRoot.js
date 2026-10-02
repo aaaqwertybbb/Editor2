@@ -27,6 +27,7 @@ function APP_measureLineHeightAndCharacterWidth() {
     const measureElement = document.createElement('div');
     measureElement.textContent = "0";
     measureElement.style.width = "fit-content";
+    measureElement.style.whiteSpace = 'pre';
     measureElement.style.position = 'absolute';
     measureElement.style.visibility = 'hidden';
     measureElement.style.padding = '0';
@@ -47,15 +48,16 @@ function APP_measureLineHeightAndCharacterWidth() {
 
     wrapper.appendChild(measureElement);
     document.body.appendChild(wrapper);
-
-    INTS[fAPP_lineHeight] = Math.ceil(measureElement.getBoundingClientRect().height);
-
-    // This permits me to in 'explorer.js' set the first span of every "tree-view-node" to be the same width, regardless of whether its content is '-', '+', or '' (an empty string).
-    // In theory this width calculation and 'INTS[fAPP_lineHeight]' can be done at the same time. But combining the steps could result in confusion or unexpected side effects when trying to modify lineheight or width but then again they do rely on the same css styling so you're already doing this
-    measureElement.textContent = "-";
-    const minusWidth = Math.ceil(measureElement.getBoundingClientRect().width);
-    measureElement.textContent = "+";
-    const plusWidth = Math.ceil(measureElement.getBoundingClientRect().width);
+    
+    measureElement.textContent = "-"; // This permits me to in 'explorer.js' set the first span of every "tree-view-node" to be the same width, regardless of whether its content is '-', '+', or '' (an empty string). (1 of 2)
+    let rect = measureElement.getBoundingClientRect();
+    // line height is read here
+    INTS[fAPP_lineHeight] = Math.ceil(rect.height); // get line height too while I'm here.
+    const minusWidth = Math.ceil(rect.width);
+    
+    measureElement.textContent = "+"; // This permits me to in 'explorer.js' set the first span of every "tree-view-node" to be the same width, regardless of whether its content is '-', '+', or '' (an empty string). (2 of 2)
+    rect = measureElement.getBoundingClientRect();
+    const plusWidth = Math.ceil(rect.width);
     const largerWidth = minusWidth > plusWidth ? minusWidth : plusWidth; // 11
     INTS[fEXPLORER_firstSpanWidthValue] = largerWidth;
     EXPLORER_firstSpanWidth = INTS[fEXPLORER_firstSpanWidthValue] + 'px';
@@ -64,12 +66,9 @@ function APP_measureLineHeightAndCharacterWidth() {
     document.body.removeChild(wrapper);
 
     const root = document.documentElement;
-    const computedStyles = window.getComputedStyle(root);
     const appLineHeight = INTS[fAPP_lineHeight] + 'px';
     const propertyName = '--APP-line-height';
-    if (computedStyles.getPropertyValue(propertyName) !== appLineHeight) {
-        root.style.setProperty(propertyName, appLineHeight);
-    }
+    root.style.setProperty(propertyName, appLineHeight);
 }
 
 async function window_myAPI_onMessage(data) {

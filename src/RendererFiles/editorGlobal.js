@@ -358,6 +358,11 @@ function EDI_render_do_CreateViewport() {
     const lower = INTS[fEDI_virtualIndexLine];
     const upper = lower + virtualCount;
 
+    const local_EDI_ringBuffer_text = EDI_ringBuffer_text;
+    let line = w_divNONE;
+    while (line = local_EDI_ringBuffer_text.pop()) {
+        line.remove();
+    }
     EDI_ringBuffer_text = new Array(upper - lower);
 
     let loopIndex = 0;
@@ -674,8 +679,10 @@ function EDI_render_do_Clear() {
     EDI_clearSelectionStyle();
     // TODO: Wait what? Setting the text invokes clear.
     // So everytime you change the text you've been re-initializing the editor?
-    for (let i = 0; i < EDI_ringBuffer_text.length; i++) {
-        EDI_ringBuffer_text[i].remove();
+    const local_EDI_ringBuffer_text = EDI_ringBuffer_text;
+    let line = w_divNONE;
+    while (line = local_EDI_ringBuffer_text.pop()) {
+        line.remove();
     }
     EDI_gutter.innerHTML = '';
     // TODO: Clear the ring buffer state?

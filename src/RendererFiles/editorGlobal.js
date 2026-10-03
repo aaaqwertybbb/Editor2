@@ -536,8 +536,8 @@ function EDI_render_do_Scroll(timestamp) {
     
     let vertical = lowerBound * local_lineHeight;
 
-    // Count down to zero? CPUs have a specialized hardware optimization for checking if a number is zero.
-    for (var indexLine = lowerBound; indexLine < upperBound; indexLine++) {
+    const local_loopLimit = upperBound;
+    for (let indexLine = lowerBound; indexLine < local_loopLimit; ++indexLine) {
         // (faster than modulo given this context)
         ringBufferIndex++;
         if (ringBufferIndex >= local_ArrayFrom_textElement_children_length) {

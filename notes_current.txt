@@ -1376,7 +1376,32 @@ let clickColumnIndex = (localClickX / EDI_characterWidth) | 0;
  8:25
 12:25
 
+I got a game on steam yesterday.
+I don't know anything about it other than it is popular.
+It was like 10 dollars on steam and I wanted to see what it was so I bought it.
+Immediately after launching it for the first time the main menu had some options.
+But none of them were "new game" it just said as the first option "menu select", and the second was "resume".
 
+I wanted to press "resume" just to see what would happen.
+I immediately got soft locked.
+It opened some menu that showed all the chapters and was essentially trying to let me pick a chapter or something.
+But they all had 0 playtime so I couldn't pick anything.
+The only option was to restart the game.
+
+Idk if the game is difficult but I lost to the main menu immediately.
+
+I got distracted and didn't end up playing the game.
+
+I watched "Good Will Hunting" and "Shutter Island".
+Cause they were part of the youtube sanctioned "free with ads" program.
+
+I always disliked "Good Will Hunting". I'd never actually seen it though
+I just disliked it for the premise that I understood it to be, "genius slop".
+I still can't stand the parts of the film that hit that vibe.
+But I think after watching it, I can appreciate the vast amount of themes that it touches on.
+And that the "genius slop" is just an effort to "movie-fy" it I guess.
+
+"Shutter Island" was really good too.
 
 
 

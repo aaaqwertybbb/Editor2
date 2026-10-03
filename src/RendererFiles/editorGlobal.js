@@ -458,6 +458,10 @@ function EDI_onScroll_WRAPIT() {
     EDI_render_request(RenderKind_Scroll);
 }
 
+/**
+ * TODO: If you make a (Uint8Array?) of size ring buffer when doing Array.From you can write to the ringBufferIndex to indicate needs to be syntax highlighted.
+ * TODO: synchronous syntax highlighting for multiline syntax that spans multiple lines?
+*/
 function EDI_render_do_Scroll(timestamp) {
     const local_lineHeight = INTS[fEDI_lineHeight];
     
@@ -490,7 +494,6 @@ function EDI_render_do_Scroll(timestamp) {
     // TODO: This if elseif else can probably be optimized
     if (diff > 0 && diff < virtualCount) {
         INTS[fEDI_sum_diffPositive] += diff;
-        // Note: (TODO: retrospectively reading this comment I'm thinking "what is this talking about?" To be fair I only glanced at it but because it is far too "verbose" I just don't feel like reading this right now to determine whether the comment is worthwhile or not.) this case has 'vertical = (INTS[fEDI_prevVli] + virtualCount) * local_lineHeight;' I believe 'virtualCount' === 'INTS[fEDI_ONSCROLLvirtualCount]' in this case, thus all vertical calculations can be moved after the if statements to be lowerBound * ... All cases other than this one were exact 1 to 1 matches.
         lowerBound = local_prevVli + INTS[fEDI_ONSCROLLvirtualCount];
         upperBound = lowerBound + diff;
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1 /*This decrement avoids that.*/;
@@ -500,9 +503,7 @@ function EDI_render_do_Scroll(timestamp) {
         INTS[fEDI_sum_diffNegative] += diff;
         lowerBound = local_currVli;
         upperBound = lowerBound + diff;
-
         INTS[fEDI_ringBuffer_indexZero] = (INTS[fEDI_ringBuffer_indexZero] - diff + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length
-
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1/*This decrement avoids that.*/;
     }
     else {
@@ -528,23 +529,9 @@ function EDI_render_do_Scroll(timestamp) {
     
     let vertical = lowerBound * local_lineHeight;
 
-    /*
-    < Why count down to zero?
-    < 
-    < CPUs have a specialized hardware optimization for checking if a number is zero.
-    < Instructions like JZ (Jump if Zero) can evaluate a boundary condition without needing an explicit CMP (compare)
-    < instruction against a separate variable limit.
-    <
-    < Instead of tracking where you are between lowerBound and upperBound, calculate the exact number of iterations needed (the total line count)
-    < before the loop starts, and decrement that count down to zero:
-    < ...
-    */
-
-    // TODO: I've looked a lot at this 'var' usage versus 'let'... TODO: finalize a thought on this.
+    // Count down to zero? CPUs have a specialized hardware optimization for checking if a number is zero.
     for (var indexLine = lowerBound; indexLine < upperBound; indexLine++) {
-
-        //ringBufferIndex = (ringBufferIndex + 1) % local_ArrayFrom_textElement_children_length;
-        // Branchless array pointer wrap-around (faster than modulo)
+        // (faster than modulo given this context)
         ringBufferIndex++;
         if (ringBufferIndex >= local_ArrayFrom_textElement_children_length) {
             ringBufferIndex = 0;
@@ -552,8 +539,6 @@ function EDI_render_do_Scroll(timestamp) {
 
         const gutter = local_EDI_ringBuffer_gutter[ringBufferIndex];
         const div = local_EDI_ringBuffer_text[ringBufferIndex];
-
-        // TODO: If you make a (Uint8Array?) of size ring buffer when doing Array.From you can write to the ringBufferIndex to indicate needs to be syntax highlighted.
 
         let textNode = gutter.firstChild;
         lineStart = lineEnd + 1;
@@ -568,11 +553,6 @@ function EDI_render_do_Scroll(timestamp) {
 
         div.className = 'eTN';
         textNode = div.firstChild;
-        // TODO: If you can ensure that none of the code breaks and then you document the following...
-        // ...then you can use ' ' here but make sure that all empty line logic doesn't break.
-        //
-        // TODO: you can avoid losing the textNode actually depending on how you set things. so you CAN keep it an empty string IF you guarantee that you only use those and avoid "..."
-        //
         textNode.replaceData(0, textNode.length, lineStart === lineEnd ? '' : EDI_decoder.decode(bytes.subarray(lineStart, lineEnd)));
 
         const translateY = `${vertical}px`;

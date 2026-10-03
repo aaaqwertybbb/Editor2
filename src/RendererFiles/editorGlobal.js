@@ -532,6 +532,7 @@ function EDI_render_do_Scroll(timestamp) {
     const local_EDI_ringBuffer_gutter = EDI_ringBuffer_gutter;
     const local_EDI_ringBuffer_text = EDI_ringBuffer_text;
     const local_EDI_ringBuffer_needsSyntaxHighlightingFlags = EDI_ringBuffer_needsSyntaxHighlightingFlags;
+    const local_EDI_decoder = EDI_decoder;
     
     let vertical = lowerBound * local_lineHeight;
 
@@ -560,7 +561,7 @@ function EDI_render_do_Scroll(timestamp) {
         }
 
         textNode = div.firstChild;
-        textNode.replaceData(0, textNode.length, lineStart === lineEnd ? '' : EDI_decoder.decode(local_bytes.subarray(lineStart, lineEnd)));
+        textNode.replaceData(0, textNode.length, lineStart === lineEnd ? '' : local_EDI_decoder.decode(local_bytes.subarray(lineStart, lineEnd)));
 
         const translateY = `${vertical}px`;
         gutter.style.top = translateY;

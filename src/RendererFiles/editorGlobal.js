@@ -496,7 +496,7 @@ function EDI_render_do_Scroll(timestamp) {
 
     let lowerBound = 0;
     let upperBound = 0;
-    let ringBufferIndex = 0;
+    let ringBufferIndex = 0; // The 0th loop will immediately increment this variable, thus all the assignments to this have a '- 1' on them.
 
     let absDiff = diff < 0 ? -diff : diff;
 
@@ -513,7 +513,7 @@ function EDI_render_do_Scroll(timestamp) {
     else {
         lowerBound = local_currVli;
         INTS[fEDI_ringBuffer_indexZero] = (INTS[fEDI_ringBuffer_indexZero] - absDiff + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
-        ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1; // Moving up: Update indexZero FIRST, then capture index
+        ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1; // Moving up: Capture index AFTER updating indexZero
     }
 
     upperBound = lowerBound + absDiff;

@@ -1371,4 +1371,15 @@ let clickColumnIndex = (localClickX / EDI_characterWidth) | 0;
 < What aspect of your editor architecture are you planning to jump into next? If you are ready,
 < we can check how your code maps mouse click coordinates back to lines and columns using this layout precision metric.
 
+==========
+
+ 8:25
+12:25
+
+
+
+
+
+
+
 

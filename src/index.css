@@ -293,8 +293,6 @@ body {
   z-index: 2; /* Keeps it layered above the text layers sliding beneath it */
   background-color: var(--gutter-background-color);
 
-  will-change: transform; /* Hint to Chromium to isolate this as a GPU layer */
-
   text-align: end;
 
   cursor: default;

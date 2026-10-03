@@ -491,31 +491,32 @@ function EDI_render_do_Scroll(timestamp) {
     let diff = local_currVli - local_prevVli; // you cannot move this 'diff === 0' case prior to the leading edge.
     if (diff === 0) return;
 
-    let lowerBound = 0;
-    let upperBound = 0;
-    let ringBufferIndex = 0; // The 0th loop will increment somewhat awkwardly. see the: "This decrement avoids that." comments for each case.
-
     const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
     const virtualCount = INTS[fEDI_virtualCount];
 
-    // TODO: This if elseif else can probably be optimized
-    if (diff > 0 && diff < virtualCount) {
-        lowerBound = local_prevVli + INTS[fEDI_ONSCROLLvirtualCount];
-        upperBound = lowerBound + diff;
-        ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1 /*This decrement avoids that.*/;
-        INTS[fEDI_ringBuffer_indexZero] = (ringBufferIndex + 1/*This decrement avoids that... but here you need to undo it for a moment*/ + diff) % local_ArrayFrom_textElement_children_length;
-    }
-    else if (diff < 0 && (diff *= -1) < virtualCount) {
+    let lowerBound = 0;
+    let upperBound = 0;
+    let ringBufferIndex = 0;
+
+    let absDiff = diff < 0 ? -diff : diff;
+
+    if (absDiff >= virtualCount) {
         lowerBound = local_currVli;
-        upperBound = lowerBound + diff;
-        INTS[fEDI_ringBuffer_indexZero] = (INTS[fEDI_ringBuffer_indexZero] - diff + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length
-        ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1/*This decrement avoids that.*/;
+        absDiff = virtualCount; // Bound the loop run to the size of your screen viewport
+        ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1;
+    }
+    else if (diff > 0) {
+        lowerBound = local_prevVli + INTS[fEDI_ONSCROLLvirtualCount];
+        ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1; // Moving down: Capture index BEFORE updating indexZero
+        INTS[fEDI_ringBuffer_indexZero] = (INTS[fEDI_ringBuffer_indexZero] + diff) % local_ArrayFrom_textElement_children_length;
     }
     else {
         lowerBound = local_currVli;
-        upperBound = lowerBound + virtualCount;
-        ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1/*This decrement avoids that.*/;
+        INTS[fEDI_ringBuffer_indexZero] = (INTS[fEDI_ringBuffer_indexZero] - absDiff + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
+        ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1; // Moving up: Update indexZero FIRST, then capture index
     }
+
+    upperBound = lowerBound + absDiff;
 
     const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
     const local_EDI_lineEndPositionList_count = EDI_lineEndPositionList_count;

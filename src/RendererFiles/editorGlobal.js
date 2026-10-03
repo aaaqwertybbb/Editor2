@@ -176,6 +176,8 @@ const EDI_renderKindBuffer = new Uint8Array(BUFFER_SIZE);
 let EDI_ringBuffer_gutter = [];
 let EDI_ringBuffer_text = [];
 
+let EDI_ringBuffer_needsSyntaxHighlightingFlags = new Uint8Array(0);
+
 /**
  * TODO: Long term you'd want to permit shifting nodes in the ringBuffer to avoid literally replacing child nodes foreach visible
  * line below you on enter keystroke but that isn't currently a thing, and I'm trying to work out the details of how to do this.
@@ -387,6 +389,8 @@ function EDI_render_do_CreateViewport() {
     const local_ArrayFrom_textElement_children_length = EDI_ringBuffer_text.length;
     INTS[fEDI_ArrayFrom_textElement_children_length] = local_ArrayFrom_textElement_children_length;
 
+    EDI_ringBuffer_needsSyntaxHighlightingFlags = new Uint8Array(local_ArrayFrom_textElement_children_length);
+
     while (EDI_ringBuffer_mapHighlights.length > local_ArrayFrom_textElement_children_length) {
         EDI_ringBuffer_mapHighlights.pop();
     }
@@ -493,21 +497,18 @@ function EDI_render_do_Scroll(timestamp) {
 
     // TODO: This if elseif else can probably be optimized
     if (diff > 0 && diff < virtualCount) {
-        INTS[fEDI_sum_diffPositive] += diff;
         lowerBound = local_prevVli + INTS[fEDI_ONSCROLLvirtualCount];
         upperBound = lowerBound + diff;
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1 /*This decrement avoids that.*/;
         INTS[fEDI_ringBuffer_indexZero] = (ringBufferIndex + 1/*This decrement avoids that... but here you need to undo it for a moment*/ + diff) % local_ArrayFrom_textElement_children_length;
     }
     else if (diff < 0 && (diff *= -1) < virtualCount) {
-        INTS[fEDI_sum_diffNegative] += diff;
         lowerBound = local_currVli;
         upperBound = lowerBound + diff;
         INTS[fEDI_ringBuffer_indexZero] = (INTS[fEDI_ringBuffer_indexZero] - diff + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1/*This decrement avoids that.*/;
     }
     else {
-        INTS[fEDI_sum_diffPositive] += virtualCount;
         lowerBound = local_currVli;
         upperBound = lowerBound + virtualCount;
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1/*This decrement avoids that.*/;
@@ -526,6 +527,7 @@ function EDI_render_do_Scroll(timestamp) {
     const bytes = EDI_textByteList_bytes;
     const local_EDI_ringBuffer_gutter = EDI_ringBuffer_gutter;
     const local_EDI_ringBuffer_text = EDI_ringBuffer_text;
+    const local_EDI_ringBuffer_needsSyntaxHighlightingFlags = EDI_ringBuffer_needsSyntaxHighlightingFlags;
     
     let vertical = lowerBound * local_lineHeight;
 
@@ -536,6 +538,8 @@ function EDI_render_do_Scroll(timestamp) {
         if (ringBufferIndex >= local_ArrayFrom_textElement_children_length) {
             ringBufferIndex = 0;
         }
+
+        local_EDI_ringBuffer_needsSyntaxHighlightingFlags[ringBufferIndex] = 1;
 
         const gutter = local_EDI_ringBuffer_gutter[ringBufferIndex];
         const div = local_EDI_ringBuffer_text[ringBufferIndex];
@@ -6882,50 +6886,9 @@ function EDI_render_do_SyntaxHighlighting() {
         EDI_render_do_RedrawSelection();
     }
 
-    const local_sum_diffNegative = INTS[fEDI_sum_diffNegative];
-    const local_sum_diffPositive = INTS[fEDI_sum_diffPositive];
-    let total_diff = local_sum_diffNegative + local_sum_diffPositive;
-    
-    INTS[fEDI_sum_diffNegative] = 0;
-    INTS[fEDI_sum_diffPositive] = 0;
-
-    if (total_diff === 0) return;
-
-    let i = 0;
-    
-    let ringBufferIndexCurrent = INTS[fEDI_ringBuffer_indexZero];
-    let indexLine = INTS[fEDI_virtualIndexLine];
-
-    let i_bounded = 0;
-
-    let bothButNotFull = false;
-
-    if (total_diff >= INTS[fEDI_virtualCount]) {
-        total_diff = INTS[fEDI_virtualCount];
-        i_bounded = total_diff;
-    }
-    else {
-        bothButNotFull = local_sum_diffPositive > 0 && local_sum_diffNegative > 0;
-
-        if (bothButNotFull || local_sum_diffNegative > 0) {
-            i_bounded = local_sum_diffNegative;
-        }
-        else if (local_sum_diffPositive > 0) {
-            let originalI = i;
-            let local_sum_diffPositive_MINUS_ONE = local_sum_diffPositive - 1; // I want to end on the inclusive lower bound dom element.
-
-            ringBufferIndexCurrent = (ringBufferIndexCurrent - 1 + INTS[fEDI_ArrayFrom_textElement_children_length]) % INTS[fEDI_ArrayFrom_textElement_children_length];
-            indexLine = indexLine + INTS[fEDI_virtualCount] - 1;
-            
-            for (; i < local_sum_diffPositive_MINUS_ONE; i++) {
-                ringBufferIndexCurrent = (ringBufferIndexCurrent - 1 + INTS[fEDI_ArrayFrom_textElement_children_length]) % INTS[fEDI_ArrayFrom_textElement_children_length];
-                indexLine--;
-            }
-
-            i = originalI;
-            i_bounded = local_sum_diffPositive;
-        }
-    }
+    const local_EDI_ringBuffer_needsSyntaxHighlightingFlags = EDI_ringBuffer_needsSyntaxHighlightingFlags;
+    let currentIndexRingBuffer = INTS[fEDI_ringBuffer_indexZero];
+    let currentIndexLine = INTS[fEDI_virtualIndexLine];
 
     const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
     const local_EDI_lineEndPositionList_count = EDI_lineEndPositionList_count;
@@ -6933,44 +6896,48 @@ function EDI_render_do_SyntaxHighlighting() {
     // If you intend to use the variables 'lineStart' or 'lineEnd': Important detail to consider: the lines that are >= EDI_lineEndPositionList_count will continually increment lineStart by 1 So if you expect this to accurately represent the EOF position when it is in view, it probably does NOT.
     let lineStart = 0;
     let lineEnd = -1;
-    // TODO: 'let lineEnd = -1; if (lowerBound < count && lowerBound !== 0) { lineEnd = data[lowerBound - 1]; }
-    if (indexLine < local_EDI_lineEndPositionList_count && indexLine !== 0) {
-        lineEnd = local_EDI_lineEndPositionList_data[indexLine - 1];
+    if (currentIndexLine < local_EDI_lineEndPositionList_count && currentIndexLine !== 0) {
+        lineEnd = local_EDI_lineEndPositionList_data[currentIndexLine - 1];
     }
 
-    let trackedSyntax_I = EDI_drawViewPort_FindTrackedSyntax_StartingIndex(indexLine);
+    let trackedSyntax_I = EDI_drawViewPort_FindTrackedSyntax_StartingIndex(currentIndexLine);
     if (trackedSyntax_I === NaN || trackedSyntax_I === -1)
         trackedSyntax_I = EDI_trackedSyntaxList.count_abstract;
     
-    for (; i < i_bounded; i++) {
-        //
-        // TODO: Would in some way reading 'EDI_ringBuffer_text[ringBufferIndexCurrent].children[0]' into a variable be beneficial to avoid the double read.
-        //
-        // short circuit avoid double dipping of c++ internals, only the 'bothButNotFull' is inaccurate at the moment.
-        if (!bothButNotFull || EDI_ringBuffer_text[ringBufferIndexCurrent].className === 'eTN') {
-            EDI_ringBuffer_text[ringBufferIndexCurrent].className = 'eT';
+    const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
     
-            lineStart = lineEnd + 1;
-            if (indexLine < local_EDI_lineEndPositionList_count) {
-                lineEnd = local_EDI_lineEndPositionList_data[indexLine];
-            }
-            else {
-                lineEnd = lineStart;
-            }
-    
-            EDI_clearHighlights(ringBufferIndexCurrent);
-            trackedSyntax_I = JS_line_lex(EDI_ringBuffer_text[ringBufferIndexCurrent], ringBufferIndexCurrent, trackedSyntax_I, lineStart);
+    for (let i = local_ArrayFrom_textElement_children_length; i >= 0; i--) {
+
+        // TODO: I'm trying to leverage the lines being contiguous and in order;...
+        // ...this allows me to simplify the calculations for lineStart and lineEnd...
+        // ...but perhaps it would be better just to find the cases of 'local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] === 1'...
+        // ...and calculate the lineStart and lineEnd the "long way" due to possible skipping?...
+        // ...trying to find the first case that is '1' means you cannot just calculate the initial lineStart and lineEnd...
+        // ...because a loop is needed now to find the first '1' case...
+        // ...thus you'd either have two loops, or add complexity to this loop...
+        // ...and neither case seems like a good idea.
+        lineStart = lineEnd + 1;
+        if (currentIndexLine < local_EDI_lineEndPositionList_count) {
+            lineEnd = local_EDI_lineEndPositionList_data[currentIndexLine];
+        }
+        else {
+            lineEnd = lineStart;
         }
 
-        ringBufferIndexCurrent = (ringBufferIndexCurrent + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
+        if (local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] === 1) {
+            local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] = 0;
+            EDI_clearHighlights(currentIndexRingBuffer);
+            trackedSyntax_I = JS_line_lex(EDI_ringBuffer_text[currentIndexRingBuffer], currentIndexRingBuffer, trackedSyntax_I, lineStart);
+        }
 
-        indexLine++;
+        currentIndexLine++;
+        currentIndexRingBuffer++;
+        if (currentIndexRingBuffer >= local_ArrayFrom_textElement_children_length) {
+            currentIndexRingBuffer = 0;
+        }
     }
 
-    if (bothButNotFull) {
-        INTS[fEDI_sum_diffPositive] = local_sum_diffPositive;
-        EDI_render_do_SyntaxHighlighting();
-    }
+    // TODO: (just an idea): Does a function having a recursive call to itself explicitly in its own function body trigger anything in terms of deoptimization or other such things?
 }
 
 /**

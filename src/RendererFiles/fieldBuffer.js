@@ -370,12 +370,14 @@ const fEDI_scrollEndDeadline = 4;
 
 const fEDI_virtualCount = 5;
 
+/** TODO: obsolete */
 const fEDI_sum_diffPositive = 6;
+/** TODO: obsolete */
+const fEDI_sum_diffNegative = 8;
 
 const fEDI_ONSCROLLvirtualCount = 7;
 INTS[fEDI_ONSCROLLvirtualCount] = 0;
 
-const fEDI_sum_diffNegative = 8;
 
 const fEDI_findOverlay_isBeingShownDueToMultiCursorMatching_originMatchNumber = 9;
 
@@ -538,6 +540,7 @@ const fEDI_lastReadNumber_offsetHeight = 66;
 
 const fEDI_lastReadNumber_offsetWidth = 67;
 
+/** TODO: Rename to 'fEDI_ringBuffer_length' */
 const fEDI_ArrayFrom_textElement_children_length = 68;
 
 const fEDI_EDI_mouseOver_event_clientY = 69;

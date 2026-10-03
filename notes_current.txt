@@ -1778,7 +1778,7 @@ A new thread entirely just to ask this again and see what happens:
 < - Are you using virtual scrolling / windowing (only rendering the lines visible on the screen)?
 < - Are you seeing any performance lag when typing quickly or scrolling?
 
-
+Crikey, huge bug when changing the file I'm gonna see if I can fix that
 
 
 

@@ -528,7 +528,7 @@ function EDI_render_do_Scroll(timestamp) {
         lineEnd = local_EDI_lineEndPositionList_data[lowerBound - 1];
     }
 
-    const bytes = EDI_textByteList_bytes;
+    const local_bytes = EDI_textByteList_bytes;
     const local_EDI_ringBuffer_gutter = EDI_ringBuffer_gutter;
     const local_EDI_ringBuffer_text = EDI_ringBuffer_text;
     const local_EDI_ringBuffer_needsSyntaxHighlightingFlags = EDI_ringBuffer_needsSyntaxHighlightingFlags;
@@ -559,9 +559,8 @@ function EDI_render_do_Scroll(timestamp) {
             lineEnd = lineStart;
         }
 
-        div.className = 'eTN';
         textNode = div.firstChild;
-        textNode.replaceData(0, textNode.length, lineStart === lineEnd ? '' : EDI_decoder.decode(bytes.subarray(lineStart, lineEnd)));
+        textNode.replaceData(0, textNode.length, lineStart === lineEnd ? '' : EDI_decoder.decode(local_bytes.subarray(lineStart, lineEnd)));
 
         const translateY = `${vertical}px`;
         gutter.style.top = translateY;

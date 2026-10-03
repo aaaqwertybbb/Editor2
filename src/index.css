@@ -312,44 +312,8 @@ body {
   contain: strict;
 }
 
-/*
-.EDI_line is being renamed to .eT (i.e.: Editor Text line)
-
-Ensure that '.eTN' is an exact replica of '.eT';
-'.eTN' is used as a way to mark the div as "needing syntax highlighting".
-*/
+/* .EDI_line is being renamed to .eT (i.e.: Editor Text line) */
 .eT {
-  width: 100%;
-  height: var(--EDITOR-line-height);
-  position: absolute;
-
-  white-space: pre !important;
-
-  top: 0;
-  /*left: 0;*/
-
-  overflow: hidden;
-
-  /* Strictly forbids the browser from adjusting spacing between characters */
-  letter-spacing: 0px !important;
-  word-spacing: 0px !important;
-  font-kerning: none !important;
-  font-variant-ligatures: none !important;
-
-  /* Locks down standard font sizing characteristics */
-  font-weight: normal !important;
-  font-style: normal !important;
-
-  tab-size: 4;
-
-  contain: strict;
-}
-
-/*
-Ensure that '.eTN' is an exact replica of '.eT';
-'.eTN' is used as a way to mark the div as "needing syntax highlighting".
-*/
-.eTN {
   width: 100%;
   height: var(--EDITOR-line-height);
   position: absolute;

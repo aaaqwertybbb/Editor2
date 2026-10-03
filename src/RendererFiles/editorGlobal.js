@@ -465,6 +465,9 @@ function EDI_onScroll_WRAPIT() {
 /**
  * TODO: If you make a (Uint8Array?) of size ring buffer when doing Array.From you can write to the ringBufferIndex to indicate needs to be syntax highlighted.
  * TODO: synchronous syntax highlighting for multiline syntax that spans multiple lines?
+ * TODO: manually unroll the loop to be two chunks:
+ * - the first chunk is up to the wrap around
+ * - the second chunk is the latter
 */
 function EDI_render_do_Scroll(timestamp) {
     const local_lineHeight = INTS[fEDI_lineHeight];

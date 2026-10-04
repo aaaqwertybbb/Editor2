@@ -1779,3 +1779,8 @@ A new thread entirely just to ask this again and see what happens:
 < - Are you seeing any performance lag when typing quickly or scrolling?
 
 Crikey, huge bug when changing the file I'm gonna see if I can fix that
+
+12:48
+ 4:48
+
+

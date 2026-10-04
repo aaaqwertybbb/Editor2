@@ -86,3 +86,23 @@ woah more tools > rendering can put some wild effects on screen
     oh my goodness
     I've commented out my blur hide logic multiple times does this work?
     it does work omg
+
+> How do you vertically reposition a div without creating a GPU layer per div. I want 1 GPU layer on the parent,
+> then each child I need to reposition as I scroll. But I can't use top without getting a massive cumulative layout shift
+
+```css
+.parent {
+  /* Forces a single GPU/Compositor layer for the container */
+  transform: translate3d(0, 0, 0); 
+  will-change: transform;
+  
+  position: relative;
+  width: 100%;
+}
+
+.child {
+  /* Use standard 2D translation. 
+     Do NOT add 'will-change' here, as that would force individual GPU layers. */
+  transform: translateY(0px); 
+}
+```

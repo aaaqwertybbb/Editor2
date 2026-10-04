@@ -594,7 +594,7 @@ function EDI_render_do_Scroll(timestamp) {
 < 5. Click on your function and look at the Summary tab at the bottom:
 <     1. Optimized Functions: Will appear normally, and clicking them usually jumps straight to your clean ES6 source file.
 <     2. Deoptimized/Interpreted Functions: If a function experiences a severe runtime deoptimization during execution,
-<        DevTools will often append a small warning triangle icon ⚠️ next to the function block or explicitly call out a Deoptimization Reason in the summary details pane.
+<        DevTools will often append a small warning triangle icon next to the function block or explicitly call out a Deoptimization Reason in the summary details pane.
 < 
 < 2. Launch Electron with V8 Trace Flags (The Ultimate Source of Truth)
 < If you want to see exactly what Turbofan is doing in real-time, you can pass V8’s internal engine flags directly to your Electron process when launching it from your terminal:

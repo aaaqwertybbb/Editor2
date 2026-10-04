@@ -120,3 +120,6 @@ woah more tools > rendering can put some wild effects on screen
 < 
 < // No concatenation or "px" required. Just pass the raw number.
 < child.style.setProperty('--y-offset', yOffset);
+
+k I'm done for the day.
+I got "nothing done" but I think it was a knowledge dubski

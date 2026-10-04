@@ -11,7 +11,12 @@ const { URI } = require('vscode-uri');
 const os = require('os');
 const lspTypes = require('./lspTypes');
 
+// Force Chromium to unblock the sandboxed stdout pipeline for V8 primitives
 app.commandLine.appendSwitch('js-flags', '--allow-natives-syntax');
+app.commandLine.appendSwitch('enable-logging'); 
+
+//app.commandLine.appendSwitch('js-flags', '--allow-natives-syntax --print-opt-code --print-opt-code-filter=EDI_render_do_Scroll');
+//app.commandLine.appendSwitch('js-flags', '--allow-natives-syntax');
 
 //// Instruct the underlying V8 engine to trace optimizations and deoptimizations
 //app.commandLine.appendSwitch('js-flags', '--trace-opt --trace-deopt');

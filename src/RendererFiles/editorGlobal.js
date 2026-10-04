@@ -7277,6 +7277,36 @@ If you drop the %DisassembleFunction() command into your debounced observer, doe
 AI is a little mischievous today:
 "I'm getting 'undefined'"
 "Ah, that makes complete sense. The reason console.log shows undefined is because %DisassembleFunction() doesn't actually return a string value to JavaScript."
+
+
+Instead, it is a low-level V8 engine command designed to print directly to the native operating system stdout stream (your standard terminal pipeline).
+
+To see the raw compiled assembly instructions or bytecode, you just need to read from your terminal window instead of the browser console.
+
+The Direct Fix: Enable Electron Native Logging
+
+Because Electron defaults to suppressing low-level child process stdout streams to keep your desktop environment clean,
+you have to explicitly tell Electron to let those native V8 prints flow back to the terminal where you typed npm run start.
+1. Leave your code exactly as it is: eval("%DisassembleFunction(EDI_render_do_Scroll)"). (You can even remove the console.log() part entirely, since V8 is doing the printing).
+2. Close your app.
+3. Relaunch your application using the ELECTRON_ENABLE_LOGGING environment switch to unlock the stream wrapper:
+- On Mac / Linux:
+```bash
+ELECTRON_ENABLE_LOGGING=1 npm run start
+```
+- On Windows (PowerShell):
+```powershell
+$env:ELECTRON_ENABLE_LOGGING=1; npm run start
+```
+
+What to Look for in Your Terminal
+
+Trigger your editor actions so that your debounced function fires. This time, switch your eyes over to your system terminal text. You will see a massive wall of low-level data spill out:
+- If it's running via Maglev (Status 25): You will see structured machine code setup blocks detailing registers like rbp, rsp, rax, and instruction lines like movq, subl, and jmp.
+- If it's running via Bytecode: You will see a clean sequential list of bytecode operations mapping parameter registers (a0, a1) and accumulator locations.
+
+Launch the app with that logging environment switch turned on. Does a giant wall of native compiler blocks finally spill across your terminal?
+
 */
     // Get the status code directly from the V8 engine
     const status = eval(`%GetOptimizationStatus(${functionNameString})`);
@@ -7290,13 +7320,16 @@ AI is a little mischievous today:
         6: "Maybe Deoptimizing"
     };
 
+    //eval(`%OptimizeFunctionOnNextCall(${functionNameString})`);
+
     // output was: Optimization Status for myHotLoopFunction: Optimized by Turbofan
     console.log(`Optimization Status for ${functionNameString}: ${statusMap[status] || status}`);
-    if ((EDI_debug_optimization_run_count++ > EDI_debug_optimization_delay_heavy_logging) && EDI_debug_optimization_last_seen_code !== status) {
-        EDI_debug_optimization_last_seen_code = status;
-        // Force-dump the current compilation artifact to your browser console
-        console.log(eval(`%DisassembleFunction(${functionNameString})`));
-    }
+    eval(`%DisassembleFunction(${functionNameString})`);
+    //if ((EDI_debug_optimization_run_count++ > EDI_debug_optimization_delay_heavy_logging) && EDI_debug_optimization_last_seen_code !== status) {
+    //    EDI_debug_optimization_last_seen_code = status;
+    //    // Force-dump the current compilation artifact to your browser console
+    //    eval(`%DisassembleFunction(${functionNameString})`);
+    //}
 }
 
 /**
@@ -7342,7 +7375,68 @@ AI is a little mischievous today:
 function EDI_render_do_SyntaxHighlighting() {
 
     
-    EDI_debug_optimization("EDI_render_do_Scroll");
+    //EDI_debug_optimization("EDI_render_do_Scroll");
+
+
+
+    const status = eval(`%GetOptimizationStatus(EDI_render_do_Scroll)`);
+    const statusMap = {
+        1: "Optimized by Turbofan",
+        2: "Deoptimized / Interpreted",
+        3: "Always Optimized",
+        4: "Never Optimized",
+        6: "Maybe Deoptimizing"
+    };
+    console.log(`Optimization Status for EDI_render_do_Scroll: ${statusMap[status] || status}`);
+    //eval(`%DisassembleFunction(EDI_render_do_Scroll)`);
+
+/*
+When you run eval("%DisassembleFunction(EDI_render_do_Scroll)"), V8 evaluates it, hits a C++ stub that does absolutely nothing because the disassembler engine is
+physically stripped out of Electron's binary to save file size, and returns undefined silently without printing or crashing.
+
+...
+
+
+The Solution: Use the Build-in Chrome DevTools Profiler Natively
+
+...
+
+1. Keep your app running with npm run start (you can leave your existing code alone).
+2. Open your Electron DevTools inside your application.
+3. Switch over to the Performance tab.
+4. Click Record, scroll your text editor aggressively for 2-3 seconds, and hit Stop.
+5. In the Flame Chart (the timeline of functions), locate your function: EDI_render_do_Scroll.
+6. Click on it. At the bottom of the screen in the Summary tab, click the link to your source code file.
+7. Look at the left gutter (where the line numbers are) or right-click the code text. Chromium's internal inspector has a built-in JIT compiler mapper. If the function is running hot (Status 25), you can select "Show deoptimization markers" or view the visual representation of the compilation blocks that the browser tracks.
+
+======
+
+But if it is using Maglev, shouldn't I extract the loop out into its own function and see if it makes the "loop function" turbofan?
+
+====
+
+Yes, absolutely. That is the perfect logical next step based on how V8's tiering system works, and you should 100% try it.
+
+=====
+
+It's actually so tiring that I can't even type it out.
+Nevertheless it is useful.
+But oh my.
+There's probably less information online about this.
+So it's constantly like "do this and then it'll work, what's next (some other thing entirely)"
+and then I'm like "it doesn't work"
+then it goes "ah of course not because..."
+???
+
+I do appreciate it though lol.
+But I just mean from a "blindly follow AI".
+This is one of those times that you'd get nowhere without thinking.
+
+*/
+
+
+
+
 
     if (EDI_cursor_hasSelection()){
         EDI_render_do_RedrawSelection();

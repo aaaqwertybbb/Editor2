@@ -647,6 +647,54 @@ if (status === 1 || status === 3) {
 < ```
 < 
 < Would you like to analyze a snippet of your loop or setup code to see if it contains any known patterns that prevent Turbofan from optimizing it?
+
+> I typically type `npm run start`, I use `electron . --js-flags="--trace-opt --trace-deopt"` to get the V8 Trace Flags?
+
+< To pass those flags while still using npm run start, you just need to modify your command slightly depending on how your package.json is configured, or pass the flags through npm.
+< 
+< Here are the easiest ways to apply those flags:
+< 
+< Option 1: Pass the flags through npm (Easiest)
+< 
+< If your package.json currently looks like this:
+< 
+< ```json
+"scripts": {
+  "start": "electron ."
+}
+< ```
+< 
+< You can pass the flags directly through your terminal by using -- (the argument separator).
+< The separator tells npm to stop parsing arguments and pass everything that follows straight to Electron:
+< 
+< ```bash
+npm run start -- --js-flags="--trace-opt --trace-deopt"
+< ```
+< 
+< Option 2: Update your package.json script
+< 
+< If you want these flags active every time you start the app during development, you can bake them directly into your package.json:
+< ```json
+"scripts": {
+  "start": "electron . --js-flags=\"--trace-opt --trace-deopt\""
+}
+< ```
+< 
+< Note: Make sure to escape the inner quotes (\") exactly like the example above so the JSON remains valid.
+< 
+< Option 3: Hardcode it inside your main process code
+< If you don't want to mess with terminal commands or your package.json scripts at all, you can instruct Chromium to use the flags programmatically.
+< Add this line to the very top of your Electron main process file (e.g., main.js or index.js), before the app.whenReady() event loop triggers:
+< ```js
+const { app } = require('electron');
+app.commandLine.appendSwitch('js-flags', '--trace-opt --trace-deopt');
+< ```
+< 
+< Once you launch the app with one of these methods, keep an eye on your terminal window (the terminal where you typed npm run start).
+< The V8 engine optimization logs will stream directly into that terminal output as you interact with your text editor.
+< 
+< Would you like to also add the --trace-deopt-verbose flag to see the exact variable or line number causing a deoptimization if one occurs?
+
 */
     const local_loopLimit = upperBound;
     for (let indexLine = lowerBound; indexLine < local_loopLimit; ++indexLine) {

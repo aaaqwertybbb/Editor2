@@ -82,3 +82,6 @@ div.eT {
 More tools > layers looks good
 
 woah more tools > rendering can put some wild effects on screen
+    "emulate a focused page"
+    oh my goodness
+    I've commented out my blur hide logic multiple times does this work?

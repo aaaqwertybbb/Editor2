@@ -314,6 +314,7 @@ body {
 .eT {
   width: 100%;
   height: var(--EDITOR-line-height);
+  line-height: var(--EDITOR-line-height);
   position: absolute;
 
   white-space: pre !important;

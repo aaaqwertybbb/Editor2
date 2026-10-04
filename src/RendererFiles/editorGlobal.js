@@ -7074,6 +7074,23 @@ function EDI_onblur() {
     EDI_cursor_cursorElement.classList.remove('EDI_cursor_focus');
 }
 
+function EDI_debug_optimization(functionNameString) {
+    // Get the status code directly from the V8 engine
+    const status = eval(`%GetOptimizationStatus(${functionNameString})`);
+
+    // Map the binary status code flags to readable text
+    const statusMap = {
+        1: "Optimized by Turbofan",
+        2: "Deoptimized / Interpreted",
+        3: "Always Optimized",
+        4: "Never Optimized",
+        6: "Maybe Deoptimizing"
+    };
+
+    // output was: Optimization Status for myHotLoopFunction: Optimized by Turbofan
+    console.log(`Optimization Status for myHotLoopFunction: ${statusMap[status] || status}`);
+}
+
 /**
  * TODO: for this function, you need to determine whether you will lex the
  * - [ ] textContent on the span,
@@ -7116,20 +7133,11 @@ function EDI_onblur() {
 */
 function EDI_render_do_SyntaxHighlighting() {
 
-    // Get the status code directly from the V8 engine
-    const status = eval("%GetOptimizationStatus(EDI_render_do_Scroll)");
-
-    // Map the binary status code flags to readable text
-    const statusMap = {
-        1: "Optimized by Turbofan",
-        2: "Deoptimized / Interpreted",
-        3: "Always Optimized",
-        4: "Never Optimized",
-        6: "Maybe Deoptimizing"
-    };
-
-    // output was: Optimization Status for myHotLoopFunction: Optimized by Turbofan
-    console.log(`Optimization Status for myHotLoopFunction: ${statusMap[status] || status}`);
+    // wait it changed...
+    // Optimization Status for myHotLoopFunction: Optimized by Turbofan
+    // Optimization Status for myHotLoopFunction: 16385
+    // Optimization Status for myHotLoopFunction: 25
+    EDI_debug_optimization("EDI_render_do_Scroll");
 
     if (EDI_cursor_hasSelection()){
         EDI_render_do_RedrawSelection();

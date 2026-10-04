@@ -482,6 +482,27 @@ function EDI_render_do_Scroll(timestamp) {
     //   after enough time passed to where I'm not just memorizing the definition and parroting it back.
     //   TODO: figure out if any of the words are inaccurate that I used.
     //   TODO: Do this with all the other bit operator logic.
+/*
+> In JavaScript there exists an optimization where, instead of using Math.floor you use the bit operator '|' (the or operator) with '0' as the right operand. This optimization works by casting the left operand as an unsigned 32bit int.
+> 
+> Is my understanding of how this optimization works correct?
+
+< Close, but not quite. Your understanding of the basic mechanic is correct, but there is a critical distinction regarding how JavaScript handles the bitwise conversion:
+< it casts the operand to a signed 32-bit integer (Int32), not an unsigned one.
+< 
+< Here is exactly how the | 0 operation works under the hood in JavaScript:
+< - The Signed 32-bit Cast: When you apply any bitwise operator in JavaScript, the engine converts the number from its standard 64-bit floating-point format (IEEE 754)
+<   into a signed 32-bit integer.
+< - The Truncation Effect: Because it discards the fractional part during this integer conversion, bitwise ORing it with 0 effectively truncates the decimal,
+<   mimicking Math.floor() for positive numbers.
+< - The "Floor" Discrepancy: Because it uses signed integers, | 0 always rounds toward zero, whereas Math.floor() always rounds down.
+<   This means they behave differently with negative numbers:
+<     - Math.floor(-1.5) results in -2
+<     - -1.5 | 0 results in -1
+< - Performance Note: In modern JavaScript engines (like V8 in Electron), the performance gap between Math.floor() and | 0 is practically non-existent due to advanced JIT optimization.
+< 
+< Are you looking to use this bitwise trick to optimize line coordinate calculations or scroll positioning in your editor, or are you hitting a specific performance bottleneck?
+*/
     INTS[fEDI_virtualIndexLine] = (INTS[fEDI_lastReadNumber_scrollTop] / local_lineHeight) | 0;
     
     let local_prevVli = INTS[fEDI_ONSCROLLvirtualIndexLine];

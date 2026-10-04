@@ -7274,7 +7274,7 @@ you will need to redirect Electron's base output back to your terminal window. L
 
 If you drop the %DisassembleFunction() command into your debounced observer, does it spill out Ignition Bytecode statements or raw x86/ARM assembly registers?
 
-AI is a little mischevious today:
+AI is a little mischievous today:
 "I'm getting 'undefined'"
 "Ah, that makes complete sense. The reason console.log shows undefined is because %DisassembleFunction() doesn't actually return a string value to JavaScript."
 */

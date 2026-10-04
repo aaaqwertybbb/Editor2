@@ -540,6 +540,40 @@ function EDI_render_do_Scroll(timestamp) {
     
     let vertical = lowerBound * local_lineHeight;
 
+/*
+> If I have an extremely hot function. And this function consists of two main parts:
+> - a setup
+> - the loop
+> 
+> If turbofan hypothetically could not optimize 'the loop' due to the encompassing function being deoptimized.
+> 
+> Could it be the case that I extract 'the loop' to its own function and now turbofan does optimize 'the loop'?
+
+< Yes, absolutely. Extracting the loop into its own function to allow the V8 engine (Turbofan) to optimize it is a classic and highly effective JavaScript performance pattern.
+< 
+< In V8, deoptimization happens at the function level. If a specific line of code or expression in your "setup" phase triggers a deoptimization,
+< the entire encompassing function drops out of the optimized tier (Turbofan) and runs in the slower interpreter tier (Ignition).
+< 
+< Here is exactly how extracting the loop changes the way Turbofan handles your code:
+< 
+< The Mechanism of Function Extraction
+< - Isolation of Deoptimization: If your setup code contains a "deopt trigger" (like mutating an object's shape, using an unsupported syntax feature,
+<   or passing highly polymorphic arguments), that damage is now contained. Only the small setup function gets deoptimized.
+< - Independent Warm-Up: When the setup function calls your new, isolated loop function, V8 tracks the loop function's invocation count and loop iterations independently.
+< - Targeted JIT Optimization: Because the loop function is isolated and "clean," V8's profiler marks it as a hot function.
+<   Turbofan can then safely compile just the loop function into highly optimized machine code, completely bypassing the issues in the setup phase.
+< 
+< Alternative V8 Optimization: On-Stack Replacement (OSR)
+< 
+< Even if you don't extract the loop, modern versions of Turbofan attempt an optimization called On-Stack Replacement (OSR). If a loop runs a massive number of times inside a
+< cold or unoptimized function, V8 will attempt to optimize just that loop mid-execution and swap the execution stack over to the optimized machine code.
+< 
+< However, OSR is complex and can still fail if the surrounding function state is heavily polluted. Explicitly extracting the loop into its own function is much more reliable
+< and deterministic.
+< 
+< To give you the most accurate advice for your Electron editor, what specific operations are happening in your setup phase versus your loop?
+< For example, are you measuring DOM elements, instantiating layout objects, or allocating arrays before entering the loop?
+*/
     const local_loopLimit = upperBound;
     for (let indexLine = lowerBound; indexLine < local_loopLimit; ++indexLine) {
         // (faster than modulo given this context)

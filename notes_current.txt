@@ -78,3 +78,5 @@ div.eT {
 < If you adjust your HTML structure to transform only the container, let me know:
 < - What does your Layers Panel show when you scroll? Is it a single uniform layer?
 < - Are you noticing any text blurriness when the container stops moving?
+
+More tools > layers looks good

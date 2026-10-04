@@ -11,6 +11,11 @@ const { URI } = require('vscode-uri');
 const os = require('os');
 const lspTypes = require('./lspTypes');
 
+app.commandLine.appendSwitch('js-flags', '--allow-natives-syntax');
+
+//// Instruct the underlying V8 engine to trace optimizations and deoptimizations
+//app.commandLine.appendSwitch('js-flags', '--trace-opt --trace-deopt');
+
 if (!app.isPackaged) {
 	app.setPath('userData', path.join(app.getPath('appData'), 'my-app-Debug'));
 }

@@ -648,7 +648,9 @@ if (status === 1 || status === 3) {
 < 
 < Would you like to analyze a snippet of your loop or setup code to see if it contains any known patterns that prevent Turbofan from optimizing it?
 
+
 > I typically type `npm run start`, I use `electron . --js-flags="--trace-opt --trace-deopt"` to get the V8 Trace Flags?
+
 
 < To pass those flags while still using npm run start, you just need to modify your command slightly depending on how your package.json is configured, or pass the flags through npm.
 < 
@@ -695,7 +697,9 @@ app.commandLine.appendSwitch('js-flags', '--trace-opt --trace-deopt');
 < 
 < Would you like to also add the --trace-deopt-verbose flag to see the exact variable or line number causing a deoptimization if one occurs?
 
+
 > My package.json has `"start": "electron-forge start",`
+
 
 < When using Electron Forge, the electron-forge start command abstracts away the direct execution of the electron binary.
 < Because of this, standard npm argument separators (--) don't pass smoothly down to the underlying process.
@@ -729,6 +733,35 @@ $env:ELECTRON_SWITCHES='--js-flags="--trace-opt --trace-deopt"'; npm run start
 < Once you launch your app with either method, the output will stream right into your code editor's terminal.
 < 
 < When you trigger your hot function, what specific terminal logs are you seeing? Are you catching any [deoptimizing method...] lines appearing?
+
+
+> I can safely clear the ELECTRON_SWITCHES afterwards by setting it to '' correct?
+
+
+< Yes, absolutely. You can safely clear or reset the ELECTRON_SWITCHES environment variable at any time by setting it to an empty string.
+< 
+< Because environment variables are read only once when the Electron process initializes, changing or clearing the variable after your app has already booted will
+< have zero effect on the running app. It will just cleanly reset your terminal environment for the next time you run a command.
+< 
+< Here is exactly how to clear it in the same terminal session:
+< - On Mac / Linux:
+< ```bash
+export ELECTRON_SWITCHES=''
+< ```
+< 
+< - On Windows (PowerShell):
+< ```powershell
+$env:ELECTRON_SWITCHES=''
+< ```
+< 
+< Alternatively, if you want to avoid polluting your terminal state entirely without having to remember to clear it,
+< you can use a one-shot execution syntax that applies the variable only to that single command instance:
+< - Mac / Linux: Just drop the export and run it on one line (e.g., ELECTRON_SWITCHES='...' npm run start).
+<   The variable vanishes from your terminal environment the second the app closes.
+< - Windows (PowerShell cross-platform alternative): If you use the npx cross-env utility, you can run a one-shot command like
+<   npx cross-env ELECTRON_SWITCHES='--js-flags="..."' npm run start which automatically manages and isolates the variable for you.
+< 
+< Did the V8 tracing work when you booted the app, and were you able to capture the optimization status of your text editor's hot loop?
 
 */
     const local_loopLimit = upperBound;
@@ -7082,6 +7115,21 @@ function EDI_onblur() {
  * ===
 */
 function EDI_render_do_SyntaxHighlighting() {
+
+    // Get the status code directly from the V8 engine
+    const status = eval("%GetOptimizationStatus(EDI_render_do_Scroll)");
+
+    // Map the binary status code flags to readable text
+    const statusMap = {
+        1: "Optimized by Turbofan",
+        2: "Deoptimized / Interpreted",
+        3: "Always Optimized",
+        4: "Never Optimized",
+        6: "Maybe Deoptimizing"
+    };
+
+    // output was: Optimization Status for myHotLoopFunction: Optimized by Turbofan
+    console.log(`Optimization Status for myHotLoopFunction: ${statusMap[status] || status}`);
 
     if (EDI_cursor_hasSelection()){
         EDI_render_do_RedrawSelection();

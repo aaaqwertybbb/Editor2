@@ -143,3 +143,9 @@ TODO: for myself for tomorrow.
 If that 'more tools > layers' shows each GPU allocation (I'm assuming that's what it is showing on the left side in the list)
 Then just change the lines to use transform and then see if you get like 30 items more in the list or something.
 
+
+I snapped my right elbow completely when I was younger.
+I had to get pins to put it back into place and eventually got the pins removed once it healed.
+
+But I got ulnar nerve problems all my life after that.
+

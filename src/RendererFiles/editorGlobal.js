@@ -186,10 +186,11 @@ let EDI_ringBuffer_mapHighlights = [];
 
 let EDI_language_line_lex = null;
 
-let EDI_debug_optimization_has_logged_disassembleFunction = false;
-let EDI_debug_optimization_last_seen_code = -1;
-let EDI_debug_optimization_delay_heavy_logging = 4;
-let EDI_debug_optimization_run_count = 0;
+//// Find-All for "EDI_debug_optimization" to find all the commented out logic that was related to this.
+// let EDI_debug_optimization_has_logged_disassembleFunction = false;
+// let EDI_debug_optimization_last_seen_code = -1;
+// let EDI_debug_optimization_delay_heavy_logging = 4;
+// let EDI_debug_optimization_run_count = 0;
 
 function EDI_init() {
     EDI_horizontal_scrollbar.style.left = '0px';
@@ -6855,11 +6856,11 @@ function EDI_onblur() {
     EDI_cursor_cursorElement.classList.remove('EDI_cursor_focus');
 }
 
-/** Find-All for "EDI_debug_optimization" to find all the commented out logic that was related to this. */
-function EDI_debug_optimization(functionNameString) {
-    const status = eval(`%GetOptimizationStatus(${functionNameString})`);
-    console.log(`Optimization Status for ${functionNameString}: ${status}`);
-}
+//// Find-All for "EDI_debug_optimization" to find all the commented out logic that was related to this.
+//function EDI_debug_optimization(functionNameString) {
+//    const status = eval(`%GetOptimizationStatus(${functionNameString})`);
+//    console.log(`Optimization Status for ${functionNameString}: ${status}`);
+//}
 
 /**
  * TODO: for this function, you need to determine whether you will lex the

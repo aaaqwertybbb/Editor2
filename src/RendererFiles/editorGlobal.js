@@ -695,6 +695,41 @@ app.commandLine.appendSwitch('js-flags', '--trace-opt --trace-deopt');
 < 
 < Would you like to also add the --trace-deopt-verbose flag to see the exact variable or line number causing a deoptimization if one occurs?
 
+> My package.json has `"start": "electron-forge start",`
+
+< When using Electron Forge, the electron-forge start command abstracts away the direct execution of the electron binary.
+< Because of this, standard npm argument separators (--) don't pass smoothly down to the underlying process.
+< 
+< To make this work with Electron Forge, you have two highly effective options:
+< 
+< Option 1: Add it programmatically to your Main Process (Recommended)
+< This is the cleanest approach because it completely bypasses the Electron Forge CLI wrapper. Open your Electron main process file
+< (usually src/main.js or src/index.js depending on your Forge template) and add this code at the very top of the file, before any other Electron logic:
+< ```js
+import { app } from 'electron'; // or const { app } = require('electron');
+
+// Instruct the underlying V8 engine to trace optimizations and deoptimizations
+app.commandLine.appendSwitch('js-flags', '--trace-opt --trace-deopt');
+< ```
+< 
+< Once added, simply run npm run start normally, and the V8 logs will print directly to your terminal window.
+< 
+< Option 2: Pass it via Environment Variables in your Terminal
+< If you don't want to modify your source code, you can exploit an environment variable that Electron checks natively upon startup.
+< You can pass the flags right in your terminal before the npm run start command.
+< - On Mac / Linux:
+< ```bash
+< ELECTRON_SWITCHES='--js-flags="--trace-opt --trace-deopt"' npm run start
+< ```
+< - On Windows (PowerShell):
+< ```powershell
+$env:ELECTRON_SWITCHES='--js-flags="--trace-opt --trace-deopt"'; npm run start
+< ```
+< 
+< Once you launch your app with either method, the output will stream right into your code editor's terminal.
+< 
+< When you trigger your hot function, what specific terminal logs are you seeing? Are you catching any [deoptimizing method...] lines appearing?
+
 */
     const local_loopLimit = upperBound;
     for (let indexLine = lowerBound; indexLine < local_loopLimit; ++indexLine) {

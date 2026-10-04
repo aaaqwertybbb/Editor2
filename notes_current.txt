@@ -106,3 +106,17 @@ woah more tools > rendering can put some wild effects on screen
   transform: translateY(0px); 
 }
 ```
+
+< ...
+< // Updates visually on the parent's layer without creating a new GPU layer
+< child.style.transform = `translateY(${yOffset}px)`;
+< ...
+
+> This string interpolation requires an extra concatenation due to leading and trailer string data.
+> 
+> Is there an alternative way to set this style with less concatenations?
+
+< Yes, you can eliminate the manual string concatenation by using the CSSStyleDeclaration.setProperty() method.
+< 
+< // No concatenation or "px" required. Just pass the raw number.
+< child.style.setProperty('--y-offset', yOffset);

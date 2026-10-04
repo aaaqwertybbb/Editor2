@@ -527,6 +527,15 @@ function EDI_render_do_Scroll(timestamp) {
 
     upperBound = lowerBound + absDiff;
 
+    
+
+    
+
+    EDI_render_do_Scroll_loop(upperBound, lowerBound, ringBufferIndex, local_lineHeight, local_ArrayFrom_textElement_children_length);
+}
+
+function EDI_render_do_Scroll_loop(upperBound, lowerBound, ringBufferIndex, local_lineHeight, local_ArrayFrom_textElement_children_length) {
+
     const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
     const local_EDI_lineEndPositionList_count = EDI_lineEndPositionList_count;
 
@@ -545,230 +554,6 @@ function EDI_render_do_Scroll(timestamp) {
     
     let vertical = lowerBound * local_lineHeight;
 
-/*
-> If I have an extremely hot function. And this function consists of two main parts:
-> - a setup
-> - the loop
-> 
-> If turbofan hypothetically could not optimize 'the loop' due to the encompassing function being deoptimized.
-> 
-> Could it be the case that I extract 'the loop' to its own function and now turbofan does optimize 'the loop'?
-
-
-< Yes, absolutely. Extracting the loop into its own function to allow the V8 engine (Turbofan) to optimize it is a classic and highly effective JavaScript performance pattern.
-< 
-< In V8, deoptimization happens at the function level. If a specific line of code or expression in your "setup" phase triggers a deoptimization,
-< the entire encompassing function drops out of the optimized tier (Turbofan) and runs in the slower interpreter tier (Ignition).
-< 
-< Here is exactly how extracting the loop changes the way Turbofan handles your code:
-< 
-< The Mechanism of Function Extraction
-< - Isolation of Deoptimization: If your setup code contains a "deopt trigger" (like mutating an object's shape, using an unsupported syntax feature,
-<   or passing highly polymorphic arguments), that damage is now contained. Only the small setup function gets deoptimized.
-< - Independent Warm-Up: When the setup function calls your new, isolated loop function, V8 tracks the loop function's invocation count and loop iterations independently.
-< - Targeted JIT Optimization: Because the loop function is isolated and "clean," V8's profiler marks it as a hot function.
-<   Turbofan can then safely compile just the loop function into highly optimized machine code, completely bypassing the issues in the setup phase.
-< 
-< Alternative V8 Optimization: On-Stack Replacement (OSR)
-< 
-< Even if you don't extract the loop, modern versions of Turbofan attempt an optimization called On-Stack Replacement (OSR). If a loop runs a massive number of times inside a
-< cold or unoptimized function, V8 will attempt to optimize just that loop mid-execution and swap the execution stack over to the optimized machine code.
-< 
-< However, OSR is complex and can still fail if the surrounding function state is heavily polluted. Explicitly extracting the loop into its own function is much more reliable
-< and deterministic.
-< 
-< To give you the most accurate advice for your Electron editor, what specific operations are happening in your setup phase versus your loop?
-< For example, are you measuring DOM elements, instantiating layout objects, or allocating arrays before entering the loop?
-
-
-> How do I check whether my function is optimized.
-
-
-< Because you are using Electron, checking for V8 (Turbofan) optimization requires pulling back the hood of Chrome's developer tools or passing runtime
-< flags to the underlying Chromium/Node.js process.
-< 
-< The most efficient and reliable ways to check if your function is being optimized include the following methods:
-< 
-< 1. The Performance Panel (The Visual Way)
-< 
-< The easiest way is to use the Chromium DevTools already built into your Electron app.
-< 1. Open your Electron DevTools (webContents.openDevTools()).
-< 2. Go to the Performance tab.
-< 3. Click Record, trigger your hot function/loop in your app, and click Stop.
-< 4. In the Flame Chart (under the Main thread timeline), zoom in and find your function's name.
-< 5. Click on your function and look at the Summary tab at the bottom:
-<     1. Optimized Functions: Will appear normally, and clicking them usually jumps straight to your clean ES6 source file.
-<     2. Deoptimized/Interpreted Functions: If a function experiences a severe runtime deoptimization during execution,
-<        DevTools will often append a small warning triangle icon next to the function block or explicitly call out a Deoptimization Reason in the summary details pane.
-< 
-< 2. Launch Electron with V8 Trace Flags (The Ultimate Source of Truth)
-< If you want to see exactly what Turbofan is doing in real-time, you can pass V8’s internal engine flags directly to your Electron process when launching it from your terminal:
-< ```bash
-< electron . --js-flags="--trace-opt --trace-deopt"
-< ```
-< 
-< (Alternatively, if launching via a Node runner script, you can set process.env.ELECTRON_SWITCHES = '--js-flags="--trace-opt --trace-deopt"' before the app completes initialization).
-< 
-< Once your app boots, watch your terminal output. When V8 decides a function is hot enough to optimize, it will print lines like this:
-< 
-< ```text
-[marking 0x01abcde12345 <JSFunction yourLoopFunction> for optimization...]
-[compiling method 0x01abcde12345 <JSFunction yourLoopFunction> using TurboFan]
-< ```
-< 
-< If your setup code or something else breaks it, you will instantly see a corresponding [deoptimizing method...] trace explicitly stating the reason
-< (e.g., wrong map, insufficient type feedback).
-< 
-< 3. Use %OptimizeFunctionOnNextCall (For Isolated Local Testing)
-< If you want to write a quick regression test for your decoupled function without relying on V8's automatic profiling timers, you can use V8 native syntax.
-< Launch Electron with the allow-natives-syntax flag:
-< 
-< ```bash
-electron . --js-flags="--allow-natives-syntax"
-< ```
-< 
-< Inside your ES6 module (during local development only), you can now access special %-prefixed engine intrinsics to check the status directly in your console.log:
-< 
-< ```js
-// 1. Run your loop function a few times with real data to feed V8 type information
-yourLoopFunction(mockData); 
-yourLoopFunction(mockData);
-
-// 2. Force Turbofan to optimize it right now instead of waiting for it to get hot
-%OptimizeFunctionOnNextCall(yourLoopFunction);
-
-// 3. Call it one more time to trigger the optimization compilation
-yourLoopFunction(mockData);
-
-// 4. Get the optimization status
-// Status codes: 1 = Optimized (Turbofan), 2 = Deoptimized/Interpreted, 3 = Always Optimized, etc.
-const status = %GetOptimizationStatus(yourLoopFunction);
-
-if (status === 1 || status === 3) {
-    console.log("Loop function is fully optimized by Turbofan!");
-} else {
-    console.log(`Optimization failed or function was deoptimized. Status code: ${status}`);
-}
-< ```
-< 
-< Would you like to analyze a snippet of your loop or setup code to see if it contains any known patterns that prevent Turbofan from optimizing it?
-
-
-> I typically type `npm run start`, I use `electron . --js-flags="--trace-opt --trace-deopt"` to get the V8 Trace Flags?
-
-
-< To pass those flags while still using npm run start, you just need to modify your command slightly depending on how your package.json is configured, or pass the flags through npm.
-< 
-< Here are the easiest ways to apply those flags:
-< 
-< Option 1: Pass the flags through npm (Easiest)
-< 
-< If your package.json currently looks like this:
-< 
-< ```json
-"scripts": {
-  "start": "electron ."
-}
-< ```
-< 
-< You can pass the flags directly through your terminal by using -- (the argument separator).
-< The separator tells npm to stop parsing arguments and pass everything that follows straight to Electron:
-< 
-< ```bash
-npm run start -- --js-flags="--trace-opt --trace-deopt"
-< ```
-< 
-< Option 2: Update your package.json script
-< 
-< If you want these flags active every time you start the app during development, you can bake them directly into your package.json:
-< ```json
-"scripts": {
-  "start": "electron . --js-flags=\"--trace-opt --trace-deopt\""
-}
-< ```
-< 
-< Note: Make sure to escape the inner quotes (\") exactly like the example above so the JSON remains valid.
-< 
-< Option 3: Hardcode it inside your main process code
-< If you don't want to mess with terminal commands or your package.json scripts at all, you can instruct Chromium to use the flags programmatically.
-< Add this line to the very top of your Electron main process file (e.g., main.js or index.js), before the app.whenReady() event loop triggers:
-< ```js
-const { app } = require('electron');
-app.commandLine.appendSwitch('js-flags', '--trace-opt --trace-deopt');
-< ```
-< 
-< Once you launch the app with one of these methods, keep an eye on your terminal window (the terminal where you typed npm run start).
-< The V8 engine optimization logs will stream directly into that terminal output as you interact with your text editor.
-< 
-< Would you like to also add the --trace-deopt-verbose flag to see the exact variable or line number causing a deoptimization if one occurs?
-
-
-> My package.json has `"start": "electron-forge start",`
-
-
-< When using Electron Forge, the electron-forge start command abstracts away the direct execution of the electron binary.
-< Because of this, standard npm argument separators (--) don't pass smoothly down to the underlying process.
-< 
-< To make this work with Electron Forge, you have two highly effective options:
-< 
-< Option 1: Add it programmatically to your Main Process (Recommended)
-< This is the cleanest approach because it completely bypasses the Electron Forge CLI wrapper. Open your Electron main process file
-< (usually src/main.js or src/index.js depending on your Forge template) and add this code at the very top of the file, before any other Electron logic:
-< ```js
-import { app } from 'electron'; // or const { app } = require('electron');
-
-// Instruct the underlying V8 engine to trace optimizations and deoptimizations
-app.commandLine.appendSwitch('js-flags', '--trace-opt --trace-deopt');
-< ```
-< 
-< Once added, simply run npm run start normally, and the V8 logs will print directly to your terminal window.
-< 
-< Option 2: Pass it via Environment Variables in your Terminal
-< If you don't want to modify your source code, you can exploit an environment variable that Electron checks natively upon startup.
-< You can pass the flags right in your terminal before the npm run start command.
-< - On Mac / Linux:
-< ```bash
-< ELECTRON_SWITCHES='--js-flags="--trace-opt --trace-deopt"' npm run start
-< ```
-< - On Windows (PowerShell):
-< ```powershell
-$env:ELECTRON_SWITCHES='--js-flags="--trace-opt --trace-deopt"'; npm run start
-< ```
-< 
-< Once you launch your app with either method, the output will stream right into your code editor's terminal.
-< 
-< When you trigger your hot function, what specific terminal logs are you seeing? Are you catching any [deoptimizing method...] lines appearing?
-
-
-> I can safely clear the ELECTRON_SWITCHES afterwards by setting it to '' correct?
-
-
-< Yes, absolutely. You can safely clear or reset the ELECTRON_SWITCHES environment variable at any time by setting it to an empty string.
-< 
-< Because environment variables are read only once when the Electron process initializes, changing or clearing the variable after your app has already booted will
-< have zero effect on the running app. It will just cleanly reset your terminal environment for the next time you run a command.
-< 
-< Here is exactly how to clear it in the same terminal session:
-< - On Mac / Linux:
-< ```bash
-export ELECTRON_SWITCHES=''
-< ```
-< 
-< - On Windows (PowerShell):
-< ```powershell
-$env:ELECTRON_SWITCHES=''
-< ```
-< 
-< Alternatively, if you want to avoid polluting your terminal state entirely without having to remember to clear it,
-< you can use a one-shot execution syntax that applies the variable only to that single command instance:
-< - Mac / Linux: Just drop the export and run it on one line (e.g., ELECTRON_SWITCHES='...' npm run start).
-<   The variable vanishes from your terminal environment the second the app closes.
-< - Windows (PowerShell cross-platform alternative): If you use the npx cross-env utility, you can run a one-shot command like
-<   npx cross-env ELECTRON_SWITCHES='--js-flags="..."' npm run start which automatically manages and isolates the variable for you.
-< 
-< Did the V8 tracing work when you booted the app, and were you able to capture the optimization status of your text editor's hot loop?
-
-*/
     const local_loopLimit = upperBound;
     for (let indexLine = lowerBound; indexLine < local_loopLimit; ++indexLine) {
         // (faster than modulo given this context)
@@ -7378,17 +7163,32 @@ function EDI_render_do_SyntaxHighlighting() {
     //EDI_debug_optimization("EDI_render_do_Scroll");
 
 
+    {
+        const status = eval(`%GetOptimizationStatus(EDI_render_do_Scroll)`);
+        const statusMap = {
+            1: "Optimized by Turbofan",
+            2: "Deoptimized / Interpreted",
+            3: "Always Optimized",
+            4: "Never Optimized",
+            6: "Maybe Deoptimizing"
+        };
+        console.log(`Optimization Status for EDI_render_do_Scroll: ${statusMap[status] || status}`);
+    }
 
-    const status = eval(`%GetOptimizationStatus(EDI_render_do_Scroll)`);
-    const statusMap = {
-        1: "Optimized by Turbofan",
-        2: "Deoptimized / Interpreted",
-        3: "Always Optimized",
-        4: "Never Optimized",
-        6: "Maybe Deoptimizing"
-    };
-    console.log(`Optimization Status for EDI_render_do_Scroll: ${statusMap[status] || status}`);
-    //eval(`%DisassembleFunction(EDI_render_do_Scroll)`);
+    {
+        const status = eval(`%GetOptimizationStatus(EDI_render_do_Scroll_loop)`);
+        const statusMap = {
+            1: "Optimized by Turbofan",
+            2: "Deoptimized / Interpreted",
+            3: "Always Optimized",
+            4: "Never Optimized",
+            6: "Maybe Deoptimizing"
+        };
+        console.log(`Optimization Status for EDI_render_do_Scroll_loop: ${statusMap[status] || status}`);
+    }
+
+    // It stays at "Optimization Status for EDI_render_do_Scroll_loop: 25"
+    // when extracted so the final answer for now I suppose is to keep it as one function since as one function it was 25
 
 /*
 When you run eval("%DisassembleFunction(EDI_render_do_Scroll)"), V8 evaluates it, hits a C++ stub that does absolutely nothing because the disassembler engine is
@@ -7431,6 +7231,231 @@ then it goes "ah of course not because..."
 I do appreciate it though lol.
 But I just mean from a "blindly follow AI".
 This is one of those times that you'd get nowhere without thinking.
+
+*/
+
+/*
+> If I have an extremely hot function. And this function consists of two main parts:
+> - a setup
+> - the loop
+> 
+> If turbofan hypothetically could not optimize 'the loop' due to the encompassing function being deoptimized.
+> 
+> Could it be the case that I extract 'the loop' to its own function and now turbofan does optimize 'the loop'?
+
+
+< Yes, absolutely. Extracting the loop into its own function to allow the V8 engine (Turbofan) to optimize it is a classic and highly effective JavaScript performance pattern.
+< 
+< In V8, deoptimization happens at the function level. If a specific line of code or expression in your "setup" phase triggers a deoptimization,
+< the entire encompassing function drops out of the optimized tier (Turbofan) and runs in the slower interpreter tier (Ignition).
+< 
+< Here is exactly how extracting the loop changes the way Turbofan handles your code:
+< 
+< The Mechanism of Function Extraction
+< - Isolation of Deoptimization: If your setup code contains a "deopt trigger" (like mutating an object's shape, using an unsupported syntax feature,
+<   or passing highly polymorphic arguments), that damage is now contained. Only the small setup function gets deoptimized.
+< - Independent Warm-Up: When the setup function calls your new, isolated loop function, V8 tracks the loop function's invocation count and loop iterations independently.
+< - Targeted JIT Optimization: Because the loop function is isolated and "clean," V8's profiler marks it as a hot function.
+<   Turbofan can then safely compile just the loop function into highly optimized machine code, completely bypassing the issues in the setup phase.
+< 
+< Alternative V8 Optimization: On-Stack Replacement (OSR)
+< 
+< Even if you don't extract the loop, modern versions of Turbofan attempt an optimization called On-Stack Replacement (OSR). If a loop runs a massive number of times inside a
+< cold or unoptimized function, V8 will attempt to optimize just that loop mid-execution and swap the execution stack over to the optimized machine code.
+< 
+< However, OSR is complex and can still fail if the surrounding function state is heavily polluted. Explicitly extracting the loop into its own function is much more reliable
+< and deterministic.
+< 
+< To give you the most accurate advice for your Electron editor, what specific operations are happening in your setup phase versus your loop?
+< For example, are you measuring DOM elements, instantiating layout objects, or allocating arrays before entering the loop?
+
+
+> How do I check whether my function is optimized.
+
+
+< Because you are using Electron, checking for V8 (Turbofan) optimization requires pulling back the hood of Chrome's developer tools or passing runtime
+< flags to the underlying Chromium/Node.js process.
+< 
+< The most efficient and reliable ways to check if your function is being optimized include the following methods:
+< 
+< 1. The Performance Panel (The Visual Way)
+< 
+< The easiest way is to use the Chromium DevTools already built into your Electron app.
+< 1. Open your Electron DevTools (webContents.openDevTools()).
+< 2. Go to the Performance tab.
+< 3. Click Record, trigger your hot function/loop in your app, and click Stop.
+< 4. In the Flame Chart (under the Main thread timeline), zoom in and find your function's name.
+< 5. Click on your function and look at the Summary tab at the bottom:
+<     1. Optimized Functions: Will appear normally, and clicking them usually jumps straight to your clean ES6 source file.
+<     2. Deoptimized/Interpreted Functions: If a function experiences a severe runtime deoptimization during execution,
+<        DevTools will often append a small warning triangle icon next to the function block or explicitly call out a Deoptimization Reason in the summary details pane.
+< 
+< 2. Launch Electron with V8 Trace Flags (The Ultimate Source of Truth)
+< If you want to see exactly what Turbofan is doing in real-time, you can pass V8’s internal engine flags directly to your Electron process when launching it from your terminal:
+< ```bash
+< electron . --js-flags="--trace-opt --trace-deopt"
+< ```
+< 
+< (Alternatively, if launching via a Node runner script, you can set process.env.ELECTRON_SWITCHES = '--js-flags="--trace-opt --trace-deopt"' before the app completes initialization).
+< 
+< Once your app boots, watch your terminal output. When V8 decides a function is hot enough to optimize, it will print lines like this:
+< 
+< ```text
+[marking 0x01abcde12345 <JSFunction yourLoopFunction> for optimization...]
+[compiling method 0x01abcde12345 <JSFunction yourLoopFunction> using TurboFan]
+< ```
+< 
+< If your setup code or something else breaks it, you will instantly see a corresponding [deoptimizing method...] trace explicitly stating the reason
+< (e.g., wrong map, insufficient type feedback).
+< 
+< 3. Use %OptimizeFunctionOnNextCall (For Isolated Local Testing)
+< If you want to write a quick regression test for your decoupled function without relying on V8's automatic profiling timers, you can use V8 native syntax.
+< Launch Electron with the allow-natives-syntax flag:
+< 
+< ```bash
+electron . --js-flags="--allow-natives-syntax"
+< ```
+< 
+< Inside your ES6 module (during local development only), you can now access special %-prefixed engine intrinsics to check the status directly in your console.log:
+< 
+< ```js
+// 1. Run your loop function a few times with real data to feed V8 type information
+yourLoopFunction(mockData); 
+yourLoopFunction(mockData);
+
+// 2. Force Turbofan to optimize it right now instead of waiting for it to get hot
+%OptimizeFunctionOnNextCall(yourLoopFunction);
+
+// 3. Call it one more time to trigger the optimization compilation
+yourLoopFunction(mockData);
+
+// 4. Get the optimization status
+// Status codes: 1 = Optimized (Turbofan), 2 = Deoptimized/Interpreted, 3 = Always Optimized, etc.
+const status = %GetOptimizationStatus(yourLoopFunction);
+
+if (status === 1 || status === 3) {
+    console.log("Loop function is fully optimized by Turbofan!");
+} else {
+    console.log(`Optimization failed or function was deoptimized. Status code: ${status}`);
+}
+< ```
+< 
+< Would you like to analyze a snippet of your loop or setup code to see if it contains any known patterns that prevent Turbofan from optimizing it?
+
+
+> I typically type `npm run start`, I use `electron . --js-flags="--trace-opt --trace-deopt"` to get the V8 Trace Flags?
+
+
+< To pass those flags while still using npm run start, you just need to modify your command slightly depending on how your package.json is configured, or pass the flags through npm.
+< 
+< Here are the easiest ways to apply those flags:
+< 
+< Option 1: Pass the flags through npm (Easiest)
+< 
+< If your package.json currently looks like this:
+< 
+< ```json
+"scripts": {
+  "start": "electron ."
+}
+< ```
+< 
+< You can pass the flags directly through your terminal by using -- (the argument separator).
+< The separator tells npm to stop parsing arguments and pass everything that follows straight to Electron:
+< 
+< ```bash
+npm run start -- --js-flags="--trace-opt --trace-deopt"
+< ```
+< 
+< Option 2: Update your package.json script
+< 
+< If you want these flags active every time you start the app during development, you can bake them directly into your package.json:
+< ```json
+"scripts": {
+  "start": "electron . --js-flags=\"--trace-opt --trace-deopt\""
+}
+< ```
+< 
+< Note: Make sure to escape the inner quotes (\") exactly like the example above so the JSON remains valid.
+< 
+< Option 3: Hardcode it inside your main process code
+< If you don't want to mess with terminal commands or your package.json scripts at all, you can instruct Chromium to use the flags programmatically.
+< Add this line to the very top of your Electron main process file (e.g., main.js or index.js), before the app.whenReady() event loop triggers:
+< ```js
+const { app } = require('electron');
+app.commandLine.appendSwitch('js-flags', '--trace-opt --trace-deopt');
+< ```
+< 
+< Once you launch the app with one of these methods, keep an eye on your terminal window (the terminal where you typed npm run start).
+< The V8 engine optimization logs will stream directly into that terminal output as you interact with your text editor.
+< 
+< Would you like to also add the --trace-deopt-verbose flag to see the exact variable or line number causing a deoptimization if one occurs?
+
+
+> My package.json has `"start": "electron-forge start",`
+
+
+< When using Electron Forge, the electron-forge start command abstracts away the direct execution of the electron binary.
+< Because of this, standard npm argument separators (--) don't pass smoothly down to the underlying process.
+< 
+< To make this work with Electron Forge, you have two highly effective options:
+< 
+< Option 1: Add it programmatically to your Main Process (Recommended)
+< This is the cleanest approach because it completely bypasses the Electron Forge CLI wrapper. Open your Electron main process file
+< (usually src/main.js or src/index.js depending on your Forge template) and add this code at the very top of the file, before any other Electron logic:
+< ```js
+import { app } from 'electron'; // or const { app } = require('electron');
+
+// Instruct the underlying V8 engine to trace optimizations and deoptimizations
+app.commandLine.appendSwitch('js-flags', '--trace-opt --trace-deopt');
+< ```
+< 
+< Once added, simply run npm run start normally, and the V8 logs will print directly to your terminal window.
+< 
+< Option 2: Pass it via Environment Variables in your Terminal
+< If you don't want to modify your source code, you can exploit an environment variable that Electron checks natively upon startup.
+< You can pass the flags right in your terminal before the npm run start command.
+< - On Mac / Linux:
+< ```bash
+< ELECTRON_SWITCHES='--js-flags="--trace-opt --trace-deopt"' npm run start
+< ```
+< - On Windows (PowerShell):
+< ```powershell
+$env:ELECTRON_SWITCHES='--js-flags="--trace-opt --trace-deopt"'; npm run start
+< ```
+< 
+< Once you launch your app with either method, the output will stream right into your code editor's terminal.
+< 
+< When you trigger your hot function, what specific terminal logs are you seeing? Are you catching any [deoptimizing method...] lines appearing?
+
+
+> I can safely clear the ELECTRON_SWITCHES afterwards by setting it to '' correct?
+
+
+< Yes, absolutely. You can safely clear or reset the ELECTRON_SWITCHES environment variable at any time by setting it to an empty string.
+< 
+< Because environment variables are read only once when the Electron process initializes, changing or clearing the variable after your app has already booted will
+< have zero effect on the running app. It will just cleanly reset your terminal environment for the next time you run a command.
+< 
+< Here is exactly how to clear it in the same terminal session:
+< - On Mac / Linux:
+< ```bash
+export ELECTRON_SWITCHES=''
+< ```
+< 
+< - On Windows (PowerShell):
+< ```powershell
+$env:ELECTRON_SWITCHES=''
+< ```
+< 
+< Alternatively, if you want to avoid polluting your terminal state entirely without having to remember to clear it,
+< you can use a one-shot execution syntax that applies the variable only to that single command instance:
+< - Mac / Linux: Just drop the export and run it on one line (e.g., ELECTRON_SWITCHES='...' npm run start).
+<   The variable vanishes from your terminal environment the second the app closes.
+< - Windows (PowerShell cross-platform alternative): If you use the npx cross-env utility, you can run a one-shot command like
+<   npx cross-env ELECTRON_SWITCHES='--js-flags="..."' npm run start which automatically manages and isolates the variable for you.
+< 
+< Did the V8 tracing work when you booted the app, and were you able to capture the optimization status of your text editor's hot loop?
 
 */
 

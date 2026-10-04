@@ -1673,5 +1673,3 @@ TODO: DefinitionClientCapabilities
 *//*
 //========
 sec0*/
-
-// Cumulative Layout Shift (CLS) sky rocketed to 4.5? Presumably when changing to a div?

@@ -12,8 +12,10 @@ const os = require('os');
 const lspTypes = require('./lspTypes');
 
 //// Find-All for "EDI_debug_optimization" to find all the commented out logic that was related to this.
+//// I used `$env:ELECTRON_ENABLE_LOGGING=1; npm run start` to start the app, I have not confirmed whether this was necessary or not yet.
+// 
 // app.commandLine.appendSwitch('js-flags', '--allow-natives-syntax');
-// app.commandLine.appendSwitch('enable-logging'); 
+// app.commandLine.appendSwitch('enable-logging');
 
 if (!app.isPackaged) {
 	app.setPath('userData', path.join(app.getPath('appData'), 'my-app-Debug'));
@@ -1671,3 +1673,5 @@ TODO: DefinitionClientCapabilities
 *//*
 //========
 sec0*/
+
+// Cumulative Layout Shift (CLS) sky rocketed to 4.5? Presumably when changing to a div?

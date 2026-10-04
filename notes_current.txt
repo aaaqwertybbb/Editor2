@@ -4,3 +4,77 @@
  4:48
 
 
+
+> If I change it to use transform how do I avoid GPU allocations?
+
+< To avoid unbounded GPU layer allocations when shifting your text container, you must ensure that all text lines (div.eT) remain on a single,
+< shared GPU layer rather than each getting their own individual layer.
+< 
+< When you animate a container using transform: translate3d(), Chromium naturally isolates that element and its immediate layout environment. If your CSS is configured incorrectly,
+< Chromium might panic and allocate a unique GPU layer (a distinct texture memory buffer) for every single line of text, causing memory usage to skyrocket.
+< 
+< Here is exactly how to structure your CSS and JavaScript to keep GPU allocation completely flat.
+< 
+< 1. Group Lines Under a Single Layer Container
+< 
+< Ensure your DOM has a strict nesting structure. You should only transform the parent wrapper container, never the individual line elements.
+< 
+< ```html
+<!-- The main scroll viewport (No GPU layer needed, just normal overflow) -->
+<div class="editor-viewport">
+  
+  <!-- THE TRANSFORMC CONTAINER (Gets exactly ONE GPU layer allocation) -->
+  <div class="editor-transform-layer" id="scrollContainer">
+    
+    <!-- THE LINES (Flat text inside the layer. No individual GPU layers) -->
+    <div class="eT">Line 1 Text</div>
+    <div class="eT">Line 2 Text</div>
+    <div class="eT">Line 3 Text</div>
+    
+  </div>
+</div>
+< ```
+< 
+< 2. Remove will-change From Individual Lines (div.eT)
+< 
+< Earlier, we discussed using will-change: transform; on individual lines. Remove it completely from div.eT.
+< 
+< If thousands of div.eT elements have will-change: transform, Chromium will proactively allocate a separate GPU compositor layer for every single line, exhausting your system memory.
+< 
+< Instead, apply layer promotion only to the parent container:
+< 
+< ```css
+/* Apply GPU allocation ONLY here */
+.editor-transform-layer {
+  will-change: transform;
+  transform: translate3d(0, 0, 0); /* Forces exactly ONE layer allocation for the entire group */
+}
+
+/* Keep lines completely flat. No will-change, no transforms */
+div.eT {
+  height: 24px;
+  line-height: 24px;
+  contain: layout size; /* Keeps layout isolated without making a new GPU layer */
+}
+< ```
+< 
+< 3. Prevent "Overlapping Layer" Invalidation (Crucial for Electron)
+< 
+< If an element with a GPU layer moves over or under an element without a GPU layer, Chromium is forced to split the background element into a new GPU layer to
+< maintain correct visual stacking. This is called overlap-induced layer explosion.
+< 
+< To prevent your gutter (line numbers), selection highlights, or scrollbars from forcing your lines to break into multiple GPU layers:
+< - Give your editor-transform-layer an explicit, high z-index.
+< - Ensure it doesn't visually overlap with other UI elements unexpectedly.
+< 
+< How to Verify It worked
+< 
+< Since you are in Electron, you can perfectly monitor your exact GPU layers:
+< 1. Open DevTools (Ctrl+Shift+I or Cmd+Option+I).
+< 2. Click the three vertical dots in the top right of DevTools -> More Tools -> Layers.
+< 3. Scroll through your app. You should see exactly one rectangular layer layer box representing your text container.
+<    If you see thousands of stacked layer boxes or "individual line" layers, a property on div.eT is triggering an independent layer promotion.
+< 
+< If you adjust your HTML structure to transform only the container, let me know:
+< - What does your Layers Panel show when you scroll? Is it a single uniform layer?
+< - Are you noticing any text blurriness when the container stops moving?

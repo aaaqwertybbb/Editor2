@@ -7160,12 +7160,12 @@ function EDI_render_do_Scroll(actualUserData) {
     
     // Simple, noise-free logging
     if (status === 25) {
-        console.log("⚡ V8 Status: Maglev Optimized (Fast)");
+        console.log("V8 Status: Maglev Optimized (Fast)");
     } else if (status === 57 || status === 33) { 
         // 33 or 57 indicate Turbofan bits are active
-        console.log("🚀 V8 Status: Turbofan Optimized (Peak Performance)");
+        console.log("V8 Status: Turbofan Optimized (Peak Performance)");
     } else {
-        console.log("📊 V8 Status Bitmask:", status);
+        console.log("V8 Status Bitmask:", status);
     }
 }
 ```
@@ -7212,6 +7212,13 @@ V8 has plenty of time to process the type feedback gathered during your frantic 
 Now that you've set up this clean observation window, open the editor, hammer the scroll wheel for a few seconds, stop, and wait for that debounced log to fire.
 
 What optimization number or bitmask value does it print out once it settles?
+
+======
+
+I'm gonna do it now but...
+I'm gonna NOT open dev tools.
+I'll mess around for a minute occassionally stopping to let a console message go out
+but I won't view them until the end just to avoid dev tools being opened entirely.
 */
     // Get the status code directly from the V8 engine
     const status = eval(`%GetOptimizationStatus(${functionNameString})`);

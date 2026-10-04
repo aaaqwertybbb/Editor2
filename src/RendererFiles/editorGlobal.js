@@ -7219,6 +7219,9 @@ I'm gonna do it now but...
 I'm gonna NOT open dev tools.
 I'll mess around for a minute occassionally stopping to let a console message go out
 but I won't view them until the end just to avoid dev tools being opened entirely.
+
+Optimization Status for myHotLoopFunction: Optimized by Turbofan
+(8 messages in a row of) Optimization Status for myHotLoopFunction: 25
 */
     // Get the status code directly from the V8 engine
     const status = eval(`%GetOptimizationStatus(${functionNameString})`);

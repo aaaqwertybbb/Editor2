@@ -477,7 +477,11 @@ function EDI_onScroll_WRAPIT() {
 function EDI_render_do_Scroll(timestamp) {
     const local_lineHeight = INTS[fEDI_lineHeight];
     
-    // High-performance CPU truncation (Bypasses Math.floor)... take care if your numbers might be negative, I read that the behavior is different in that case.
+    // (non negative numbers only) By bit operator or'ing with 0 you "cast" the number to an unsigned 32bit int.
+    // ^ It is important that if this code is here that I understand what it's doing so that's my understanding of it
+    //   after enough time passed to where I'm not just memorizing the definition and parroting it back.
+    //   TODO: figure out if any of the words are inaccurate that I used.
+    //   TODO: Do this with all the other bit operator logic.
     INTS[fEDI_virtualIndexLine] = (INTS[fEDI_lastReadNumber_scrollTop] / local_lineHeight) | 0;
     
     let local_prevVli = INTS[fEDI_ONSCROLLvirtualIndexLine];

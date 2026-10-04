@@ -80,3 +80,5 @@ div.eT {
 < - Are you noticing any text blurriness when the container stops moving?
 
 More tools > layers looks good
+
+woah more tools > rendering can put some wild effects on screen

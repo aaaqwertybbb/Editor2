@@ -410,6 +410,16 @@ TODO: maybe don't nearly-duplicate these classes.
 
   opacity: 1;
   will-change: opacity; /* TODO: Are you sure you want this? */
+  /*
+  TODO: Consider making this z-index: 5;
+  
+  I was worried, google AI said to use z-index: 5.
+  Google AI: Keep it layered cleanly above the text nodes so it doesn't trigger an 'Overlap with a composited layer' penalty on the .eT elements
+
+  I tried z-index: 5 and watched the layers and nothing changed between me using or not using z-index:5 so I'm gonna leave it out for now.
+
+  z-index: 5;
+  */
 }
 
 .EDI_cursor_focus {

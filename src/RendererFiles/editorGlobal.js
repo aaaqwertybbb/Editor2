@@ -44,9 +44,9 @@ const EDI_cursor_caretRow = document.createElement('div');
 EDI_cursor_caretRow.id = "EDI_caretRow-1";
 EDI_cursor_caretRow.className = "EDI_caretRow";
 //EDI_cursor_caretRow.style.left = gutterWidthTotal_withPxUnits;
-//if (EDI_horizontal_scrollbar_virtualization_boundary) {
-//    EDI_cursor_caretRow.style.width = EDI_horizontal_scrollbar_virtualization_boundary.style.width;
-//}
+if (EDI_virtualization_horizontal) {
+    EDI_cursor_caretRow.style.width = EDI_virtualization_horizontal.style.width;
+}
 
 const EDI_cursor_cursorElement = document.createElement('div');
 EDI_cursor_cursorElement.id = "EDI_cursor-1";
@@ -356,7 +356,7 @@ function EDI_render_do_CreateViewport() {
     INTS[fEDI_ringBuffer_indexZero] = 0;
     const left = gutterWidthTotal_withPxUnits;
     const gutterWidth = `${INTS[fEDI_gutterWidthStyleValue]}px`;
-    //const local_EDI_horizontal_scrollbar_virtualization_boundary_style_width = EDI_horizontal_scrollbar_virtualization_boundary.style.width;
+    const local_EDI_horizontal_scrollbar_virtualization_boundary_style_width = EDI_virtualization_horizontal.style.width;
 
     const gutterFragment = document.createDocumentFragment();
     const textFragment = document.createDocumentFragment();
@@ -384,7 +384,7 @@ function EDI_render_do_CreateViewport() {
         const textLineElement = document.createElement('div');
         textLineElement.className = 'eT';
         //textLineElement.style.left = left;
-        //textLineElement.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
+        textLineElement.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
         textLineElement.appendChild(document.createTextNode(''));
         textFragment.appendChild(textLineElement);
         EDI_ringBuffer_text[loopIndex] = textLineElement;
@@ -467,8 +467,8 @@ function EDI_onScroll_WRAPIT() {
     // and vice versa.
     // thus it is thought you might as well touch scrollLeft too here, if you're going down this path.
     //
-    INTS[fEDI_lastReadNumber_scrollLeft] = EDI_baseElement.scrollLeft;
-    INTS[fEDI_lastReadNumber_scrollTop] = EDI_baseElement.scrollTop;
+    INTS[fEDI_lastReadNumber_scrollLeft] = EDI_scroll_viewport.scrollLeft;
+    INTS[fEDI_lastReadNumber_scrollTop] = EDI_scroll_viewport.scrollTop;
 
     EDI_render_request(RenderKind_Scroll);
 }
@@ -783,9 +783,9 @@ function EDI_render_do_SetText(timestamp) {
  * @param {*} lineEndString this is the desired line ending when saving the file (or copying text, etc...)
  */
 function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString, lineEndCount) {
-    EDI_baseElement.scrollTop = 0;
+    EDI_scroll_viewport.scrollTop = 0;
     INTS[fEDI_lastReadNumber_scrollTop] = 0;
-    EDI_baseElement.scrollLeft = 0;
+    EDI_scroll_viewport.scrollLeft = 0;
     INTS[fEDI_lastReadNumber_scrollLeft] = 0;
 
     EDI_state_clear(lineEndCount);
@@ -4961,8 +4961,8 @@ function update_VirtualIndexLine() {
     // and vice versa.
     // thus it is thought you might as well touch scrollLeft too here, if you're going down this path.
     //
-    INTS[fEDI_lastReadNumber_scrollLeft] = EDI_baseElement.scrollLeft;
-    INTS[fEDI_lastReadNumber_scrollTop] = EDI_baseElement.scrollTop;
+    INTS[fEDI_lastReadNumber_scrollLeft] = EDI_scroll_viewport.scrollLeft;
+    INTS[fEDI_lastReadNumber_scrollTop] = EDI_scroll_viewport.scrollTop;
     // TODO: This floor logic seems very odd. Because given the previous and the current you can determine it without dividing maybe I think?
     INTS[fEDI_virtualIndexLine] = Math.floor(INTS[fEDI_lastReadNumber_scrollTop] / INTS[fEDI_lineHeight]);
 }
@@ -5531,10 +5531,10 @@ function EDI_drawHorizontalScrollbar() {
         INTS[fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left] = INTS[fEDI_gutterWidthTotal];
     }
 
-    if (INTS[fEDI_EDI_horizontal_scrollbar_widthValue] !== (EDI_baseElement.clientWidth - INTS[fEDI_gutterWidthTotal])) {
-        INTS[fEDI_EDI_horizontal_scrollbar_widthValue] = EDI_baseElement.clientWidth - INTS[fEDI_gutterWidthTotal];
-        //EDI_horizontal_scrollbar.style.width = INTS[fEDI_EDI_horizontal_scrollbar_widthValue] + 'px';
-    }
+    //if (INTS[fEDI_EDI_horizontal_scrollbar_widthValue] !== (EDI_baseElement.clientWidth - INTS[fEDI_gutterWidthTotal])) {
+    //    INTS[fEDI_EDI_horizontal_scrollbar_widthValue] = EDI_baseElement.clientWidth - INTS[fEDI_gutterWidthTotal];
+    //    EDI_horizontal_scrollbar.style.width = INTS[fEDI_EDI_horizontal_scrollbar_widthValue] + 'px';
+    //}
 
     if (INTS[fEDI_longestLine_length] !== INTS[fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar]) {
         
@@ -5548,7 +5548,7 @@ function EDI_drawHorizontalScrollbar() {
 
         let local_EDI_horizontal_scrollbar_virtualization_boundary_style_width = INTS[fEDI_contentWidth] + 'px';
 
-        //EDI_horizontal_scrollbar_virtualization_boundary.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
+        EDI_virtualization_horizontal.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
         // TODO: Why ' + INTS[fEDI_gutterWidthTotal]'?
         EDI_virtualization_horizontal.style.width = INTS[fEDI_contentWidth] + INTS[fEDI_gutterWidthTotal] + 'px';
 
@@ -5855,7 +5855,7 @@ function EDI_onKeyDown_ArrowDown(event) {
     event.stopPropagation();
     if (event.ctrlKey) {
         // TODO: raf or something this scrollBy?
-        EDI_baseElement.scrollBy(0, INTS[fEDI_lineHeight]);
+        EDI_scroll_viewport.scrollBy(0, INTS[fEDI_lineHeight]);
     }
     else {
         // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
@@ -5885,7 +5885,7 @@ function EDI_onKeyDown_ArrowUp(event) {
     event.stopPropagation();
     if (event.ctrlKey) {
         // TODO: raf or something this scrollBy?
-        EDI_baseElement.scrollBy(0, -1 * INTS[fEDI_lineHeight]);
+        EDI_scroll_viewport.scrollBy(0, -1 * INTS[fEDI_lineHeight]);
     }
     else {
         // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
@@ -6700,7 +6700,7 @@ function EDI_scrollCursorIntoView() {
     // This is asynchronous, this is the bug cause
     // (SPECIFICALLY: the scroll event is async)
     if (scrollX !== 0 || scrollY !== 0) {
-        EDI_baseElement.scrollBy(scrollX, scrollY);
+        EDI_scroll_viewport.scrollBy(scrollX, scrollY);
     }
 }
 
@@ -7725,7 +7725,7 @@ function EDI_onContextMenu() {
 
 function EDI_onWheel(event) {
     //if (event.shiftKey) {
-    //    EDI_baseElement.scrollBy(event.deltaY, 0);
+    //    EDI_scroll_viewport.scrollBy(event.deltaY, 0);
     //    // TODO: 'INTS[fEDI_lastReadNumber_scrollLeft]' here?
     //    EDI_horizontal_scrollbar.scrollLeft = EDI_baseElement.scrollLeft;
     //}

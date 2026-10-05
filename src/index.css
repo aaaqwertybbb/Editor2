@@ -326,7 +326,7 @@ TODO: maybe don't nearly-duplicate these classes.
   cursor: default;
 
   will-change: transform; /* Layer 1: The Gutter GPU Layer */
-  background-color: #1e1e1e; /* Gives the GPU a solid texture target */
+  /*background-color: #1e1e1e; *//* Gives the GPU a solid texture target */
 }
 
 /* .EDI_gutterLine is being renamed to .eG (i.e.: Editor Gutter line) */

@@ -392,10 +392,10 @@ function EDI_render_do_CreateViewport() {
         loopIndex++;
     }
 
-    EDI_gutter.replaceChildren(gutterFragment);
+    EDI_gutter_scroll_mover.replaceChildren(gutterFragment);
     EDI_text.appendChild(textFragment);
 
-    EDI_ringBuffer_gutter = Array.from(EDI_gutter.children);
+    EDI_ringBuffer_gutter = Array.from(EDI_gutter_scroll_mover.children);
 
     const local_ArrayFrom_textElement_children_length = EDI_ringBuffer_text.length;
     INTS[fEDI_ArrayFrom_textElement_children_length] = local_ArrayFrom_textElement_children_length;
@@ -506,7 +506,7 @@ function EDI_render_do_Scroll(timestamp) {
     EDI_text.style.transform = `translate3d(-${INTS[fEDI_lastReadNumber_scrollLeft]}px, -${lineRemainderY}px, 0)`;
     
     // If your gutter numbers move vertically too, shift them the same way!
-    EDI_gutter.style.transform = `translate3d(0px, -${lineRemainderY}px, 0)`;
+    EDI_gutter_scroll_mover.style.transform = `translate3d(0px, -${lineRemainderY}px, 0)`;
 
 
 
@@ -725,7 +725,7 @@ function EDI_render_do_Clear() {
     while (line = local_EDI_ringBuffer_text.pop()) {
         line.remove();
     }
-    EDI_gutter.innerHTML = '';
+    EDI_gutter_scroll_mover.innerHTML = '';
     // TODO: Clear the ring buffer state?
 
     // Force case 3
@@ -1901,7 +1901,7 @@ function EDI_render_do_EnterKey() {
         else ringBufferIndex_firstTilde = (ringBufferIndex_firstTilde + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
 
         if (ringBufferIndex_firstTilde >= 0) {
-            const gutterTextNode = EDI_gutter.children[ringBufferIndex_firstTilde].firstChild;
+            const gutterTextNode = EDI_gutter_scroll_mover.children[ringBufferIndex_firstTilde].firstChild;
             gutterTextNode.replaceData(0, gutterTextNode.length, `${local_EDI_lineEndPositionList_count + 1}`);
         }
         
@@ -5210,8 +5210,8 @@ function EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_la
         destinationDivTextNode.replaceData(0, destinationDivTextNode.length, EDI_ringBuffer_text[sourceIndex].textContent);
         // You don't need to clear 'EDI_ringBuffer_text[sourceIndex].textContent', that's done in the final step of this function
         // when invoking 'EDI_drawLine'.
-        if (EDI_gutter.children[sourceIndex].textContent === '~') {
-            const destination_textNode_gutter = EDI_gutter.children[destinationIndex];
+        if (EDI_gutter_scroll_mover.children[sourceIndex].textContent === '~') {
+            const destination_textNode_gutter = EDI_gutter_scroll_mover.children[destinationIndex];
             destination_textNode_gutter.replaceData(0, destination_textNode_gutter.length, '~');
         }
         destinationIndex = (destinationIndex + 1) % local_ArrayFrom_textElement_children_length;
@@ -5221,7 +5221,7 @@ function EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_la
     for (let i = 0; ; i++) {
         EDI_drawLine(
             (local_virtualIndexLine + local_virtualCount - 1 - i) + distance,
-            EDI_gutter.children[ringBufferIndex],
+            EDI_gutter_scroll_mover.children[ringBufferIndex],
             EDI_ringBuffer_text[ringBufferIndex],
             (local_virtualIndexLine + local_virtualCount - 1 - i));
         if (ringBufferIndex === breakingPoint) break; // awkward positioning of this break, it seems somewhat necessary but need to take time to read the code further and try to have it moved somewhere more sensible.

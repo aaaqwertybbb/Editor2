@@ -183,3 +183,23 @@ woah more tools > rendering can put some wild effects on screen
 < 
 < However, browsers do not automatically split adjacent side-by-side elements into layers on their own.
 < By default, Chromium tries to keep everything on one single root layer to save memory, unless your CSS explicitly instructs it otherwise or a layout rule forces its hand.
+<
+< ...
+
+
+> The memory sky rocketed once I opened a text file. It went from I think like 15 MB to 5,032 MB.
+
+
+< Your app is experiencing a catastrophic VRAM Layer Explosion. The layers panel is showing a terrifying 5,032 MB (5.03 GB) of GPU memory,
+< which will immediately lock up your Electron app or crash the user's graphics driver.
+< 
+< Looking at your updated layer tree, the smoking gun is hiding right in plain sight: div#EDI_caretRow-1 (5107 × 29) and div#EDITOR (5177 × 239231).
+< 
+< The precise layout mechanics causing this 5GB explosion reveal how your CSS properties interact with Chromium's rasterization engine.
+
+< ...
+
+> I changed the gutter so now the height applies to 'EDI_scrollbar_space_generator'. I'm sorry I'm a little overwhelmed but I got one of the steps done
+
+< ...
+

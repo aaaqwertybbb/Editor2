@@ -4914,7 +4914,7 @@ function getIndexFromX_sameLine_newRxIsSmaller(goalRx, lineStart, startColumn, s
  */
 function update_verticalVirtualizationBoundary(lineCount) {
     if (!lineCount) lineCount = EDI_lineEndPositionList_count;
-    EDI_gutter.style.height = ((lineCount + INTS[fEDI_virtualCount] - 1) * INTS[fEDI_lineHeight]) + 'px';
+    EDI_virtualization_horizontal.style.height = ((lineCount + INTS[fEDI_virtualCount] - 1) * INTS[fEDI_lineHeight]) + 'px';
 }
 
 /**
@@ -5326,13 +5326,13 @@ function EDI_measureBaseElement() {
     INTS[fEDI_lastReadNumber_offsetWidth] = Math.floor(EDI_baseElement.offsetWidth);
     INTS[fEDI_lastReadNumber_offsetHeight] = Math.floor(EDI_baseElement.offsetHeight);
     
-    EDI_baseElement.style.width = INTS[fEDI_lastReadNumber_offsetWidth] + 'px';
-    EDI_baseElement.style.height = INTS[fEDI_lastReadNumber_offsetHeight] + 'px';
+    //EDI_baseElement.style.width = INTS[fEDI_lastReadNumber_offsetWidth] + 'px';
+    //EDI_baseElement.style.height = INTS[fEDI_lastReadNumber_offsetHeight] + 'px';
 
-    EDI_baseElement.style.contain = 'layout';
+    //EDI_baseElement.style.contain = 'layout';
 
-    INTS[fEDI_lastReadNumber_offsetWidth] = EDI_baseElement.offsetWidth;
-    INTS[fEDI_lastReadNumber_offsetHeight] = EDI_baseElement.offsetHeight;
+    //INTS[fEDI_lastReadNumber_offsetWidth] = EDI_baseElement.offsetWidth;
+    //INTS[fEDI_lastReadNumber_offsetHeight] = EDI_baseElement.offsetHeight;
 
 /*
 > what does css "contain = 'layout'" do
@@ -6677,9 +6677,9 @@ function EDI_render_do_RedrawSelection() {
 //#endregion
 
 function EDI_render_do_Resize(timestamp) {
-    EDI_baseElement.style.width = '';
-    EDI_baseElement.style.height = '';
-    EDI_baseElement.style.contain = '';
+    //EDI_baseElement.style.width = '';
+    //EDI_baseElement.style.height = '';
+    //EDI_baseElement.style.contain = '';
 
     EDI_measureBaseElement();
 

@@ -40,7 +40,7 @@ thus the same thing happens but now I can't just re-use that I'm virtual index f
 ///// start treeViewComponent.js
 /////
 const EXPLORER_rootElement = document.createElement('div');
-EXPLORER_rootElement.classList.add('TREEVIEW', 'unselectable');
+EXPLORER_rootElement.classList.add('TREEVIEWexplorer', 'unselectable');
 EXPLORER_rootElement.tabIndex = 0;
 EXPLORER_rootElement.style.height = '100%';
 
@@ -713,9 +713,9 @@ function EXPLORER_render_do_Create(timestamp) {
     EXPLORER_draw_addEvents();
 
 
-    EXPLORER_rootElement.style.width = '';
-    EXPLORER_rootElement.style.height = '';
-    EXPLORER_rootElement.style.contain = '';
+    //EXPLORER_rootElement.style.width = '';
+    //EXPLORER_rootElement.style.height = '';
+    //EXPLORER_rootElement.style.contain = '';
 
     EXPLORER_measureBaseElement();
 
@@ -1062,9 +1062,9 @@ function EXPLORER_event_keydown(event) {
 }
 
 function EXPLORER_render_do_Resize(timestamp) {
-    EXPLORER_rootElement.style.width = '';
-    EXPLORER_rootElement.style.height = '';
-    EXPLORER_rootElement.style.contain = '';
+    //EXPLORER_rootElement.style.width = '';
+    //EXPLORER_rootElement.style.height = '';
+    //EXPLORER_rootElement.style.contain = '';
 
     EXPLORER_measureBaseElement();
 
@@ -1184,13 +1184,13 @@ function EXPLORER_measureBaseElement() {
     INTS[fEXPLORER_lastReadNumber_offsetWidth] = Math.floor(EXPLORER_rootElement.offsetWidth);
     INTS[fEXPLORER_lastReadNumber_offsetHeight] = Math.floor(EXPLORER_rootElement.offsetHeight);
     
-    EXPLORER_rootElement.style.width = INTS[fEXPLORER_lastReadNumber_offsetWidth] + 'px';
-    EXPLORER_rootElement.style.height = INTS[fEXPLORER_lastReadNumber_offsetHeight] + 'px';
-
-    EXPLORER_rootElement.style.contain = 'layout';
-
-    INTS[fEXPLORER_lastReadNumber_offsetWidth] = EXPLORER_rootElement.offsetWidth;
-    INTS[fEXPLORER_lastReadNumber_offsetHeight] = EXPLORER_rootElement.offsetHeight;
+    //EXPLORER_rootElement.style.width = INTS[fEXPLORER_lastReadNumber_offsetWidth] + 'px';
+    //EXPLORER_rootElement.style.height = INTS[fEXPLORER_lastReadNumber_offsetHeight] + 'px';
+//
+    //EXPLORER_rootElement.style.contain = 'layout';
+//
+    //INTS[fEXPLORER_lastReadNumber_offsetWidth] = EXPLORER_rootElement.offsetWidth;
+    //INTS[fEXPLORER_lastReadNumber_offsetHeight] = EXPLORER_rootElement.offsetHeight;
 }
 
 /*

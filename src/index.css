@@ -159,6 +159,32 @@ body {
   display: contents;
 }
 
+/*
+TODO: 'TREEVIEWexplorer' is nearly identical to 'TREEVIEW'...
+...but the folder explorer is always on screen and I'm trying to get the
+composite layers correct.
+
+TODO: maybe don't nearly-duplicate these classes.
+*/
+.TREEVIEWexplorer {
+  position: relative;
+  overflow: scroll;
+  outline: none;
+  font-family: monospace;
+  width: 200px;
+  height: 100%;
+  will-change: transform;
+  background-color: var(--primary-background-color);
+  contain: strict;
+}
+
+/*
+TODO: 'TREEVIEWexplorer' is nearly identical to 'TREEVIEW'...
+...but the folder explorer is always on screen and I'm trying to get the
+composite layers correct.
+
+TODO: maybe don't nearly-duplicate these classes.
+*/
 .TREEVIEW {
   position: relative;
   overflow: scroll;
@@ -166,8 +192,7 @@ body {
   font-family: monospace;
   width: 100%;
   height: 100%;
-  transform: translate3d(0px, 0px, 0px);
-  /* border box the nodes???? */
+  will-change: transform;
 }
 
   .TREEVIEW:focus .TREEVIEW_cursor {
@@ -244,7 +269,11 @@ body {
   font-family: monospace;
   cursor: text;
   display: flex;
-  transform: translate3d(0px, 0px, 0px);
+  /* 1. Ensure it occupies its own discrete space next to the treeview */
+  flex: 1;
+  will-change: transform;
+  background-color: var(--primary-background-color);
+  contain: strict;
 }
 
 /* .eN (i.e.: Editor Not_yet_syntax_highlighted) */

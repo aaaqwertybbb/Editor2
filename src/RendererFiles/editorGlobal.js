@@ -473,6 +473,19 @@ function EDI_onScroll_WRAPIT() {
     EDI_render_request(RenderKind_Scroll);
 }
 
+function EDI_scrollViewport_scroll() {
+    INTS[fEDI_lastReadNumber_scrollLeft] = EDI_scroll_viewport.scrollLeft;
+    INTS[fEDI_lastReadNumber_scrollTop] = EDI_scroll_viewport.scrollTop;
+
+    // --- 1. YOUR VIRTUALIZATION LOGIC ---
+    // Call your existing code here that figures out which lines 
+    // should be on screen based on 'scrollTop' and updates their text!
+    // renderVisibleLines(scrollTop);
+
+    EDI_render_request(RenderKind_Scroll);
+    
+}
+
 /**
  * TODO: If you make a (Uint8Array?) of size ring buffer when doing Array.From you can write to the ringBufferIndex to indicate needs to be syntax highlighted.
  * TODO: synchronous syntax highlighting for multiline syntax that spans multiple lines?
@@ -481,6 +494,29 @@ function EDI_onScroll_WRAPIT() {
  * - the second chunk is the latter
 */
 function EDI_render_do_Scroll(timestamp) {
+
+    // --- 2. THE FINE-GRAINED MOVE (The GPU trick) ---
+    // Since your lines are virtualized, you only want to shift the text container 
+    // by the tiny "sub-pixel remainder" of the scroll so it feels perfectly smooth.
+    // Assuming a line height of 15px:
+    //const lineRemainderY = scrollTop % 15;
+    const lineRemainderY = INTS[fEDI_lastReadNumber_scrollTop];
+
+    // Push the text canvas lightly to match the scrollbar position smoothly
+    EDI_text.style.transform = `translate3d(-${INTS[fEDI_lastReadNumber_scrollLeft]}px, -${lineRemainderY}px, 0)`;
+    
+    // If your gutter numbers move vertically too, shift them the same way!
+    EDI_gutter.style.transform = `translate3d(0px, -${lineRemainderY}px, 0)`;
+
+
+
+
+
+
+
+
+
+
     const local_lineHeight = INTS[fEDI_lineHeight];
     
     INTS[fEDI_virtualIndexLine] = (INTS[fEDI_lastReadNumber_scrollTop] / local_lineHeight) | 0; // By bit operator or'ing with 0 you "cast" the number to a signed 32-bit integer (Int32).
@@ -7816,30 +7852,6 @@ function EDI_registerHandlers() {
     EDI_baseElement.addEventListener('blur', EDI_onblur);
 
     EDI_scroll_viewport.addEventListener('scroll', EDI_scrollViewport_scroll, { passive: true });
-}
-
-function EDI_scrollViewport_scroll() {
-    const scrollTop = EDI_scroll_viewport.scrollTop;
-    const scrollLeft = EDI_scroll_viewport.scrollLeft;
-
-    // --- 1. YOUR VIRTUALIZATION LOGIC ---
-    // Call your existing code here that figures out which lines 
-    // should be on screen based on 'scrollTop' and updates their text!
-    // renderVisibleLines(scrollTop);
-
-
-    // --- 2. THE FINE-GRAINED MOVE (The GPU trick) ---
-    // Since your lines are virtualized, you only want to shift the text container 
-    // by the tiny "sub-pixel remainder" of the scroll so it feels perfectly smooth.
-    // Assuming a line height of 15px:
-    //const lineRemainderY = scrollTop % 15;
-    const lineRemainderY = scrollTop;
-
-    // Push the text canvas lightly to match the scrollbar position smoothly
-    EDI_text.style.transform = `translate3d(-${scrollLeft}px, -${lineRemainderY}px, 0)`;
-    
-    // If your gutter numbers move vertically too, shift them the same way!
-    EDI_gutter.style.transform = `translate3d(0px, -${lineRemainderY}px, 0)`;
 }
 
 //#region findOverlay

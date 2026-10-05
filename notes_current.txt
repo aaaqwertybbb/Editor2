@@ -283,3 +283,12 @@ The gutter being the entire height they did by having it surround one of those s
 The scroll zone always has the negative wait...
 negative translation not scroll right...
 But all in all this means you don't need a massive dom element to display the gutter.
+
+yeah it's a translate:
+```js
+// Push the text canvas lightly to match the scrollbar position smoothly
+EDI_text.style.transform = `translate3d(-${INTS[fEDI_lastReadNumber_scrollLeft]}px, -${lineRemainderY}px, 0)`;
+
+// If your gutter numbers move vertically too, shift them the same way!
+EDI_gutter_scroll_mover.style.transform = `translate3d(0px, -${lineRemainderY}px, 0)`;
+```

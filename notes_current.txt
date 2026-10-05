@@ -272,3 +272,6 @@ I need the background color to appear as I scroll
 
 
 
+The key is that the scrollable area is 5177x241059 just the same as it was. But now this massive "layer" is actually just a memory estimate of 0 B (nothing)
+
+

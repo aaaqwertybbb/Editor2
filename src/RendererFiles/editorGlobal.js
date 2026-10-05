@@ -5506,6 +5506,7 @@ function EDI_drawGutter_Width() {
     EDI_gutter.style.width = gutterWidth;
 
     EDI_text.style.left = gutterWidthTotal_withPxUnits;
+    EDI_scroll_viewport.style.left = gutterWidthTotal_withPxUnits;
 
     for (let i = 0; i < INTS[fEDI_ArrayFrom_textElement_children_length]/*a 'ArrayFrom_gutter_children_length' would always be equal to the textElement equivalent*/; i++) {
         EDI_ringBuffer_gutter[i].style.width = gutterWidth;

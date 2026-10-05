@@ -799,6 +799,7 @@ const fEXPLORER_boundingClientRect_top = 180;
 
 const EDI_baseElement = document.getElementById('EDITOR');
 
+const EDI_scroll_viewport = EDI_baseElement.children[0];
 const EDI_virtualization_horizontal = EDI_baseElement.children[0].children[0];
 const EDI_gutter = EDI_baseElement.children[1].children[0];
 const EDI_text = EDI_baseElement.children[1].children[1];

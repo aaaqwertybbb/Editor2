@@ -7800,9 +7800,9 @@ function PLAINTEXT_line_lex(div, substart, lineEnd, childIndex) {
 function EDI_registerHandlers() {
     EDI_baseElement.addEventListener('keydown', EDI_onKeyDown);
     EDI_baseElement.addEventListener('mousedown', EDI_onMouseDown);
-    EDI_baseElement.addEventListener('scroll', EDI_onScroll_WRAPIT, { passive: true });
+    //EDI_baseElement.addEventListener('scroll', EDI_onScroll_WRAPIT, { passive: true });
 
-    EDI_baseElement.addEventListener('wheel', EDI_onWheel, { passive: true });
+    //EDI_baseElement.addEventListener('wheel', EDI_onWheel, { passive: true });
 
     EDI_baseElement.addEventListener('contextmenu', EDI_onContextMenu);
     window.addEventListener('resize', EDI_onResize_WRAPIT);
@@ -7814,6 +7814,32 @@ function EDI_registerHandlers() {
     
     EDI_baseElement.addEventListener('focus', EDI_onfocus);
     EDI_baseElement.addEventListener('blur', EDI_onblur);
+
+    EDI_scroll_viewport.addEventListener('scroll', EDI_scrollViewport_scroll, { passive: true });
+}
+
+function EDI_scrollViewport_scroll() {
+    const scrollTop = EDI_scroll_viewport.scrollTop;
+    const scrollLeft = EDI_scroll_viewport.scrollLeft;
+
+    // --- 1. YOUR VIRTUALIZATION LOGIC ---
+    // Call your existing code here that figures out which lines 
+    // should be on screen based on 'scrollTop' and updates their text!
+    // renderVisibleLines(scrollTop);
+
+
+    // --- 2. THE FINE-GRAINED MOVE (The GPU trick) ---
+    // Since your lines are virtualized, you only want to shift the text container 
+    // by the tiny "sub-pixel remainder" of the scroll so it feels perfectly smooth.
+    // Assuming a line height of 15px:
+    //const lineRemainderY = scrollTop % 15;
+    const lineRemainderY = scrollTop;
+
+    // Push the text canvas lightly to match the scrollbar position smoothly
+    EDI_text.style.transform = `translate3d(-${scrollLeft}px, -${lineRemainderY}px, 0)`;
+    
+    // If your gutter numbers move vertically too, shift them the same way!
+    EDI_gutter.style.transform = `translate3d(0px, -${lineRemainderY}px, 0)`;
 }
 
 //#region findOverlay

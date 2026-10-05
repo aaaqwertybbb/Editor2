@@ -43,7 +43,7 @@ let EDI_cursor_gapBufferWriteToSpanElement = null;
 const EDI_cursor_caretRow = document.createElement('div');
 EDI_cursor_caretRow.id = "EDI_caretRow-1";
 EDI_cursor_caretRow.className = "EDI_caretRow";
-EDI_cursor_caretRow.style.left = gutterWidthTotal_withPxUnits;
+//EDI_cursor_caretRow.style.left = gutterWidthTotal_withPxUnits;
 //if (EDI_horizontal_scrollbar_virtualization_boundary) {
 //    EDI_cursor_caretRow.style.width = EDI_horizontal_scrollbar_virtualization_boundary.style.width;
 //}
@@ -196,7 +196,7 @@ function EDI_init() {
     //EDI_horizontal_scrollbar.style.left = '0px';
     INTS[fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left] = 0;
 
-    //EDI_cursorListElement.appendChild(EDI_cursor_caretRow);
+    EDI_cursorListElement.appendChild(EDI_cursor_caretRow);
 
     EDI_measureLineHeightAndCharacterWidth();
     EDI_measureBaseElement();
@@ -5515,7 +5515,7 @@ function EDI_drawGutter_Width() {
     //    EDI_ringBuffer_text[i].style.left = gutterWidthTotal_withPxUnits;
     //}
 
-    EDI_cursor_caretRow.style.left = gutterWidthTotal_withPxUnits;
+    //EDI_cursor_caretRow.style.left = gutterWidthTotal_withPxUnits;
 
     return true;
 }

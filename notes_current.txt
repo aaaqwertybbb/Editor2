@@ -278,3 +278,8 @@ And then you map that scroll event to the two "scroll zones" one for the gutter 
 
 And furthermore there's a "inverse scroll"? idea going on.
 You scroll the "scroll zones" by a negative value I presume to reduce the total area
+
+The gutter being the entire height they did by having it surround one of those scroll zones.
+The scroll zone always has the negative wait...
+negative translation not scroll right...
+But all in all this means you don't need a massive dom element to display the gutter.

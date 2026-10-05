@@ -383,7 +383,7 @@ function EDI_render_do_CreateViewport() {
 
         const textLineElement = document.createElement('div');
         textLineElement.className = 'eT';
-        textLineElement.style.left = left;
+        //textLineElement.style.left = left;
         //textLineElement.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
         textLineElement.appendChild(document.createTextNode(''));
         textFragment.appendChild(textLineElement);
@@ -5505,13 +5505,15 @@ function EDI_drawGutter_Width() {
     let gutterWidth = INTS[fEDI_gutterWidthStyleValue] + 'px';
     EDI_gutter.style.width = gutterWidth;
 
+    EDI_text.style.left = gutterWidthTotal_withPxUnits;
+
     for (let i = 0; i < INTS[fEDI_ArrayFrom_textElement_children_length]/*a 'ArrayFrom_gutter_children_length' would always be equal to the textElement equivalent*/; i++) {
         EDI_ringBuffer_gutter[i].style.width = gutterWidth;
     }
     
-    for (let i = 0; i < INTS[fEDI_ArrayFrom_textElement_children_length]; i++) {
-        EDI_ringBuffer_text[i].style.left = gutterWidthTotal_withPxUnits;
-    }
+    //for (let i = 0; i < INTS[fEDI_ArrayFrom_textElement_children_length]; i++) {
+    //    EDI_ringBuffer_text[i].style.left = gutterWidthTotal_withPxUnits;
+    //}
 
     EDI_cursor_caretRow.style.left = gutterWidthTotal_withPxUnits;
 

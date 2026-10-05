@@ -134,3 +134,20 @@ woah more tools > rendering can put some wild effects on screen
 
 < ...
 
+=========
+
+
+> I read/watched everything you mentioned. Then I went through my app with the knowledge gained.
+> And I have a question for you that relates to what I'm seeing in the 'Layers' tool of the developer tools.
+
+
+< ...
+
+
+> My text selection logic causes many layers to be created.Each line of text gets its own div created to render the selection background.
+> This div is position absolute and then the top is set so that it overlaps the line of text.
+
+
+< The screenshot perfectly illustrates why your text editor is hitting a rendering bottleneck. What you are experiencing is a textbook case of Implicit Layer Promotion
+< (also known as the "Overlap" or "Squashing" penalty), and it explains why your app is generating 16 layers costing a massive 87.8 MB of GPU memory just for a small block of text.
+

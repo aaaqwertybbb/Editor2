@@ -1069,9 +1069,9 @@ function EDI_render_do_IndentLess() {
         /////////////////////// P_1
         let textSelectionDiv;
         if (BYTES[byteEDI_cursor_selectionDivExists] === 1) {
-            for (var i = 0; i < EDI_presentation.children.length; i++) {
-                if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
-                    textSelectionDiv = EDI_presentation.children[i];
+            for (var i = 0; i < EDI_selection.children.length; i++) {
+                if (EDI_selection.children[i].id === CONST_EDI_cursor_htmlId) {
+                    textSelectionDiv = EDI_selection.children[i];
                     break;
                 }
             }
@@ -6426,11 +6426,11 @@ function EDI_draw_cursor_debug() {
 function EDI_clearSelectionStyle() {
     let shouldExistSelectionDiv = false;
     if (BYTES[byteEDI_cursor_selectionDivExists] === 1) {
-        for (var i = 0; i < EDI_presentation.children.length; i++) {
-            if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
-                let textSelectionDiv = EDI_presentation.children[i];
+        for (var i = 0; i < EDI_selection.children.length; i++) {
+            if (EDI_selection.children[i].id === CONST_EDI_cursor_htmlId) {
+                let textSelectionDiv = EDI_selection.children[i];
                 if (!shouldExistSelectionDiv) {
-                    EDI_presentation.removeChild(textSelectionDiv);
+                    EDI_selection.removeChild(textSelectionDiv);
                     BYTES[byteEDI_cursor_selectionDivExists] = 0;
                 }
                 break;
@@ -6477,11 +6477,11 @@ function EDI_createStyleForSelection() {
         let textSelectionDiv;
 
         if (BYTES[byteEDI_cursor_selectionDivExists] === 1) {
-            for (var i = 0; i < EDI_presentation.children.length; i++) {
-                if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
-                    textSelectionDiv = EDI_presentation.children[i];
+            for (var i = 0; i < EDI_selection.children.length; i++) {
+                if (EDI_selection.children[i].id === CONST_EDI_cursor_htmlId) {
+                    textSelectionDiv = EDI_selection.children[i];
                     if (!shouldExistSelectionDiv) {
-                        EDI_presentation.removeChild(textSelectionDiv);
+                        EDI_selection.removeChild(textSelectionDiv);
                         BYTES[byteEDI_cursor_selectionDivExists] = 0;
                     }
                     break;
@@ -6492,7 +6492,7 @@ function EDI_createStyleForSelection() {
             textSelectionDiv = document.createElement('div');
             textSelectionDiv.id = CONST_EDI_cursor_htmlId;
             textSelectionDiv.style.display = 'contents';
-            EDI_presentation.appendChild(textSelectionDiv);
+            EDI_selection.appendChild(textSelectionDiv);
             BYTES[byteEDI_cursor_selectionDivExists] = 1;
         }
 
@@ -6611,9 +6611,9 @@ function EDI_createStyleForSelection() {
 function EDI_createStyleForSelection_indentMore() {
     let textSelectionDiv;
     if (BYTES[byteEDI_cursor_selectionDivExists] === 1) {
-        for (var i = 0; i < EDI_presentation.children.length; i++) {
-            if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
-                textSelectionDiv = EDI_presentation.children[i];
+        for (var i = 0; i < EDI_selection.children.length; i++) {
+            if (EDI_selection.children[i].id === CONST_EDI_cursor_htmlId) {
+                textSelectionDiv = EDI_selection.children[i];
                 break;
             }
         }

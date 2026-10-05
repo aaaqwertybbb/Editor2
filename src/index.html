@@ -37,22 +37,39 @@
         and I have 0 energy to do anything and I can't bear to think about this
         right now but I'm aware.
         -->
-        
+
+        <!-- THE ROOT WRAPPER: Matches your exact view size (e.g., 589px × 526px) -->
         <div id="EDITOR" tabindex="0">
           
           <!-- IMPORTANT: All child nodes are referenced by hardcoded numbers and cached from within 'EDI_init'. If you modify the children you need to update these hardcoded numbers respectively. -->
 
-          <!-- TODO: Remove the virtualization_horizontal, this feels like a complete waste of a DOM element-->
-          <div id="EDI_virtualization_horizontal"></div>
-          <div id="EDI_horizontal_scrollbar_sticky">
-            <div id="EDI_horizontal_scrollbar">
-              <div id="EDI_horizontal_scrollbar_virtualization_boundary"></div>
-            </div>
+          <!-- LAYER 1: The Native Scroll Container.
+               This element is purely an invisible frame that hosts your native scrollbars. -->
+          <div id="EDI_scroll_viewport" style="position: absolute; inset: 0; overflow: scroll; z-index: 3;">
+            <!-- This element stretches to your full content size (240,019px) to force the native scrollbar thumb to scale correctly. -->
+            <div id="EDI_scrollbar_space_generator" style="width: 4233px; height: 240019px;"></div>
           </div>
-          <div id="EDI_gutter_container"></div>
+
+          <!-- LAYER 2: The Visible UI Canvas.
+              This stays perfectly locked to the screen and never grows or moves natively. -->
+          <div id="EDI_visual_canvas" style="position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 1;">
+            
+            <!-- Isolated Gutter -->
+            <div id="EDI_gutter_container" style="position: absolute; left: 0; top: 0; width: 29px; height: 100%;">
+              <!-- Virtualized line numbers go here -->
+            </div>
+            
+            <!-- Isolated Text Body Container (#EDI_body) -->
+            <div id="EDI_text" style="position: absolute; left: 29px; top: 0; right: 0; height: 100%;">
+              <!-- Virtualized text lines go here (.eT elements) -->
+            </div>
+
+          </div>
+
+          <!-- <div id="EDI_gutter_container"></div>
           <div id="EDI_presentation"></div>
           <div id="EDI_cursorList"></div>
-          <div id="EDI_text"></div>
+          <div id="EDI_text"></div> -->
         </div>
         <div id="EDI_findOverlay" style="visibility: hidden;"></div>
         <div id="EDI_debug">

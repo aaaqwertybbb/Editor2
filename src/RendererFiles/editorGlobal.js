@@ -44,9 +44,9 @@ const EDI_cursor_caretRow = document.createElement('div');
 EDI_cursor_caretRow.id = "EDI_caretRow-1";
 EDI_cursor_caretRow.className = "EDI_caretRow";
 EDI_cursor_caretRow.style.left = gutterWidthTotal_withPxUnits;
-if (EDI_horizontal_scrollbar_virtualization_boundary) {
-    EDI_cursor_caretRow.style.width = EDI_horizontal_scrollbar_virtualization_boundary.style.width;
-}
+//if (EDI_horizontal_scrollbar_virtualization_boundary) {
+//    EDI_cursor_caretRow.style.width = EDI_horizontal_scrollbar_virtualization_boundary.style.width;
+//}
 
 const EDI_cursor_cursorElement = document.createElement('div');
 EDI_cursor_cursorElement.id = "EDI_cursor-1";
@@ -193,10 +193,10 @@ let EDI_language_line_lex = null;
 // let EDI_debug_optimization_run_count = 0;
 
 function EDI_init() {
-    EDI_horizontal_scrollbar.style.left = '0px';
+    //EDI_horizontal_scrollbar.style.left = '0px';
     INTS[fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left] = 0;
 
-    EDI_cursorListElement.appendChild(EDI_cursor_caretRow);
+    //EDI_cursorListElement.appendChild(EDI_cursor_caretRow);
 
     EDI_measureLineHeightAndCharacterWidth();
     EDI_measureBaseElement();
@@ -356,7 +356,7 @@ function EDI_render_do_CreateViewport() {
     INTS[fEDI_ringBuffer_indexZero] = 0;
     const left = gutterWidthTotal_withPxUnits;
     const gutterWidth = `${INTS[fEDI_gutterWidthStyleValue]}px`;
-    const local_EDI_horizontal_scrollbar_virtualization_boundary_style_width = EDI_horizontal_scrollbar_virtualization_boundary.style.width;
+    //const local_EDI_horizontal_scrollbar_virtualization_boundary_style_width = EDI_horizontal_scrollbar_virtualization_boundary.style.width;
 
     const gutterFragment = document.createDocumentFragment();
     const textFragment = document.createDocumentFragment();
@@ -384,7 +384,7 @@ function EDI_render_do_CreateViewport() {
         const textLineElement = document.createElement('div');
         textLineElement.className = 'eT';
         textLineElement.style.left = left;
-        textLineElement.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
+        //textLineElement.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
         textLineElement.appendChild(document.createTextNode(''));
         textFragment.appendChild(textLineElement);
         EDI_ringBuffer_text[loopIndex] = textLineElement;
@@ -609,9 +609,9 @@ function EDI_onScroll_LeadingEdge(local_prevVli, local_currVli) {
         INTS[fEDI_ONSCROLLvirtualCount] === INTS[fEDI_virtualCount]) {
             // TODO: this is directly tied to a scroll event on EDI_baseElement so handle it from there perhaps?
             // TODO: this code is duplicated inside EDI_drawHorizontalScrollbar, reduce duplication?
-            if (EDI_horizontal_scrollbar.scrollLeft !== INTS[fEDI_lastReadNumber_scrollLeft]) {
-                EDI_horizontal_scrollbar.scrollLeft = INTS[fEDI_lastReadNumber_scrollLeft];
-            }
+            //if (EDI_horizontal_scrollbar.scrollLeft !== INTS[fEDI_lastReadNumber_scrollLeft]) {
+            //    EDI_horizontal_scrollbar.scrollLeft = INTS[fEDI_lastReadNumber_scrollLeft];
+            //}
             return true;
     }
 
@@ -1033,12 +1033,12 @@ function EDI_render_do_IndentLess() {
         /////////////////////// P_1
         let textSelectionDiv;
         if (BYTES[byteEDI_cursor_selectionDivExists] === 1) {
-            for (var i = 0; i < EDI_presentation.children.length; i++) {
-                if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
-                    textSelectionDiv = EDI_presentation.children[i];
-                    break;
-                }
-            }
+            //for (var i = 0; i < EDI_presentation.children.length; i++) {
+            //    if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
+            //        textSelectionDiv = EDI_presentation.children[i];
+            //        break;
+            //    }
+            //}
         }
         else {
             // TODO: Silent error confusing bad idea
@@ -5489,13 +5489,13 @@ function EDI_drawGutter_Width() {
  */
 function EDI_drawHorizontalScrollbar() {
     if (INTS[fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left] !== INTS[fEDI_gutterWidthTotal]) {
-        EDI_horizontal_scrollbar.style.left = gutterWidthTotal_withPxUnits;
+        //EDI_horizontal_scrollbar.style.left = gutterWidthTotal_withPxUnits;
         INTS[fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left] = INTS[fEDI_gutterWidthTotal];
     }
 
     if (INTS[fEDI_EDI_horizontal_scrollbar_widthValue] !== (EDI_baseElement.clientWidth - INTS[fEDI_gutterWidthTotal])) {
         INTS[fEDI_EDI_horizontal_scrollbar_widthValue] = EDI_baseElement.clientWidth - INTS[fEDI_gutterWidthTotal];
-        EDI_horizontal_scrollbar.style.width = INTS[fEDI_EDI_horizontal_scrollbar_widthValue] + 'px';
+        //EDI_horizontal_scrollbar.style.width = INTS[fEDI_EDI_horizontal_scrollbar_widthValue] + 'px';
     }
 
     if (INTS[fEDI_longestLine_length] !== INTS[fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar]) {
@@ -5510,7 +5510,7 @@ function EDI_drawHorizontalScrollbar() {
 
         let local_EDI_horizontal_scrollbar_virtualization_boundary_style_width = INTS[fEDI_contentWidth] + 'px';
 
-        EDI_horizontal_scrollbar_virtualization_boundary.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
+        //EDI_horizontal_scrollbar_virtualization_boundary.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
         // TODO: Why ' + INTS[fEDI_gutterWidthTotal]'?
         EDI_virtualization_horizontal.style.width = INTS[fEDI_contentWidth] + INTS[fEDI_gutterWidthTotal] + 'px';
 
@@ -5524,9 +5524,9 @@ function EDI_drawHorizontalScrollbar() {
     // TODO: this is directly tied to a scroll event on EDI_baseElement so handle it from there perhaps?
     // TODO: this code is duplicated inside EDI_onScroll_WRAPIT when it returns early due to nothing vertically having changed, reduce duplication?
     // TODO: 'INTS[fEDI_lastReadNumber_scrollLeft]' here?
-    if (EDI_horizontal_scrollbar.scrollLeft !== EDI_baseElement.scrollLeft) {
-        EDI_horizontal_scrollbar.scrollLeft = EDI_baseElement.scrollLeft;
-    }
+    //if (EDI_horizontal_scrollbar.scrollLeft !== EDI_baseElement.scrollLeft) {
+    //    EDI_horizontal_scrollbar.scrollLeft = EDI_baseElement.scrollLeft;
+    //}
 }
 
 /**
@@ -6388,16 +6388,16 @@ function EDI_draw_cursor_debug() {
 function EDI_clearSelectionStyle() {
     let shouldExistSelectionDiv = false;
     if (BYTES[byteEDI_cursor_selectionDivExists] === 1) {
-        for (var i = 0; i < EDI_presentation.children.length; i++) {
-            if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
-                let textSelectionDiv = EDI_presentation.children[i];
-                if (!shouldExistSelectionDiv) {
-                    EDI_presentation.removeChild(textSelectionDiv);
-                    BYTES[byteEDI_cursor_selectionDivExists] = 0;
-                }
-                break;
-            }
-        }
+        //for (var i = 0; i < EDI_presentation.children.length; i++) {
+        //    if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
+        //        let textSelectionDiv = EDI_presentation.children[i];
+        //        if (!shouldExistSelectionDiv) {
+        //            EDI_presentation.removeChild(textSelectionDiv);
+        //            BYTES[byteEDI_cursor_selectionDivExists] = 0;
+        //        }
+        //        break;
+        //    }
+        //}
     }
 }
 
@@ -6439,22 +6439,22 @@ function EDI_createStyleForSelection() {
         let textSelectionDiv;
 
         if (BYTES[byteEDI_cursor_selectionDivExists] === 1) {
-            for (var i = 0; i < EDI_presentation.children.length; i++) {
-                if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
-                    textSelectionDiv = EDI_presentation.children[i];
-                    if (!shouldExistSelectionDiv) {
-                        EDI_presentation.removeChild(textSelectionDiv);
-                        BYTES[byteEDI_cursor_selectionDivExists] = 0;
-                    }
-                    break;
-                }
-            }
+            //for (var i = 0; i < EDI_presentation.children.length; i++) {
+            //    if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
+            //        textSelectionDiv = EDI_presentation.children[i];
+            //        if (!shouldExistSelectionDiv) {
+            //            EDI_presentation.removeChild(textSelectionDiv);
+            //            BYTES[byteEDI_cursor_selectionDivExists] = 0;
+            //        }
+            //        break;
+            //    }
+            //}
         }
         else if (shouldExistSelectionDiv) {
             textSelectionDiv = document.createElement('div');
             textSelectionDiv.id = CONST_EDI_cursor_htmlId;
             textSelectionDiv.style.display = 'contents';
-            EDI_presentation.appendChild(textSelectionDiv);
+            //EDI_presentation.appendChild(textSelectionDiv);
             BYTES[byteEDI_cursor_selectionDivExists] = 1;
         }
 
@@ -6573,12 +6573,12 @@ function EDI_createStyleForSelection() {
 function EDI_createStyleForSelection_indentMore() {
     let textSelectionDiv;
     if (BYTES[byteEDI_cursor_selectionDivExists] === 1) {
-        for (var i = 0; i < EDI_presentation.children.length; i++) {
-            if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
-                textSelectionDiv = EDI_presentation.children[i];
-                break;
-            }
-        }
+        //for (var i = 0; i < EDI_presentation.children.length; i++) {
+        //    if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
+        //        textSelectionDiv = EDI_presentation.children[i];
+        //        break;
+        //    }
+        //}
     }
     else {
         // TODO: Silent error confusing bad idea
@@ -7686,15 +7686,15 @@ function EDI_onContextMenu() {
 }
 
 function EDI_onWheel(event) {
-    if (event.shiftKey) {
-        EDI_baseElement.scrollBy(event.deltaY, 0);
-        // TODO: 'INTS[fEDI_lastReadNumber_scrollLeft]' here?
-        EDI_horizontal_scrollbar.scrollLeft = EDI_baseElement.scrollLeft;
-    }
+    //if (event.shiftKey) {
+    //    EDI_baseElement.scrollBy(event.deltaY, 0);
+    //    // TODO: 'INTS[fEDI_lastReadNumber_scrollLeft]' here?
+    //    EDI_horizontal_scrollbar.scrollLeft = EDI_baseElement.scrollLeft;
+    //}
 }
 
 function EDI_horizontal_scrollbar_onScroll() {
-    EDI_baseElement.scrollLeft = EDI_horizontal_scrollbar.scrollLeft;
+    //EDI_baseElement.scrollLeft = EDI_horizontal_scrollbar.scrollLeft;
 }
 
 function EDI_measureLineHeightAndCharacterWidth() {
@@ -7806,7 +7806,7 @@ function EDI_registerHandlers() {
 
     EDI_baseElement.addEventListener('contextmenu', EDI_onContextMenu);
     window.addEventListener('resize', EDI_onResize_WRAPIT);
-    EDI_horizontal_scrollbar.addEventListener('scroll', EDI_horizontal_scrollbar_onScroll, { passive: true });
+    //EDI_horizontal_scrollbar.addEventListener('scroll', EDI_horizontal_scrollbar_onScroll, { passive: true });
 
     // Attach a single listener to your text container (Event Delegation)
     EDI_baseElement.addEventListener('mouseover', EDI_mouseOver);

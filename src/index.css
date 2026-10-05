@@ -375,8 +375,8 @@ TODO: maybe don't nearly-duplicate these classes.
   height: 100%;
   /* display: contents; */
 
-  will-change: transform; /* Layer 1: The Gutter GPU Layer */
-  background-color: #1e1e1e; /* Gives the GPU a solid texture target */
+  /*will-change: transform; *//* Layer 1: The Gutter GPU Layer */
+  /*background-color: #1e1e1e; *//* Gives the GPU a solid texture target */
   flex: 1;
 }
 

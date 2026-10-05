@@ -263,8 +263,7 @@ TODO: maybe don't nearly-duplicate these classes.
 #EDITOR {
 	outline: none;
   height: calc(100% - 1.5em);
-  overflow-y: scroll;
-  overflow-x: hidden;
+  overflow: hidden;
   position: relative;
   font-family: monospace;
   cursor: text;

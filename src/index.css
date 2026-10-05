@@ -368,6 +368,8 @@ TODO: maybe don't nearly-duplicate these classes.
   tab-size: 4;
 
   contain: strict;
+
+  z-index: 3;
 }
 
 #EDI_text {

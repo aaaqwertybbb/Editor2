@@ -1069,12 +1069,12 @@ function EDI_render_do_IndentLess() {
         /////////////////////// P_1
         let textSelectionDiv;
         if (BYTES[byteEDI_cursor_selectionDivExists] === 1) {
-            //for (var i = 0; i < EDI_presentation.children.length; i++) {
-            //    if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
-            //        textSelectionDiv = EDI_presentation.children[i];
-            //        break;
-            //    }
-            //}
+            for (var i = 0; i < EDI_presentation.children.length; i++) {
+                if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
+                    textSelectionDiv = EDI_presentation.children[i];
+                    break;
+                }
+            }
         }
         else {
             // TODO: Silent error confusing bad idea
@@ -6426,16 +6426,16 @@ function EDI_draw_cursor_debug() {
 function EDI_clearSelectionStyle() {
     let shouldExistSelectionDiv = false;
     if (BYTES[byteEDI_cursor_selectionDivExists] === 1) {
-        //for (var i = 0; i < EDI_presentation.children.length; i++) {
-        //    if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
-        //        let textSelectionDiv = EDI_presentation.children[i];
-        //        if (!shouldExistSelectionDiv) {
-        //            EDI_presentation.removeChild(textSelectionDiv);
-        //            BYTES[byteEDI_cursor_selectionDivExists] = 0;
-        //        }
-        //        break;
-        //    }
-        //}
+        for (var i = 0; i < EDI_presentation.children.length; i++) {
+            if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
+                let textSelectionDiv = EDI_presentation.children[i];
+                if (!shouldExistSelectionDiv) {
+                    EDI_presentation.removeChild(textSelectionDiv);
+                    BYTES[byteEDI_cursor_selectionDivExists] = 0;
+                }
+                break;
+            }
+        }
     }
 }
 
@@ -6477,22 +6477,22 @@ function EDI_createStyleForSelection() {
         let textSelectionDiv;
 
         if (BYTES[byteEDI_cursor_selectionDivExists] === 1) {
-            //for (var i = 0; i < EDI_presentation.children.length; i++) {
-            //    if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
-            //        textSelectionDiv = EDI_presentation.children[i];
-            //        if (!shouldExistSelectionDiv) {
-            //            EDI_presentation.removeChild(textSelectionDiv);
-            //            BYTES[byteEDI_cursor_selectionDivExists] = 0;
-            //        }
-            //        break;
-            //    }
-            //}
+            for (var i = 0; i < EDI_presentation.children.length; i++) {
+                if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
+                    textSelectionDiv = EDI_presentation.children[i];
+                    if (!shouldExistSelectionDiv) {
+                        EDI_presentation.removeChild(textSelectionDiv);
+                        BYTES[byteEDI_cursor_selectionDivExists] = 0;
+                    }
+                    break;
+                }
+            }
         }
         else if (shouldExistSelectionDiv) {
             textSelectionDiv = document.createElement('div');
             textSelectionDiv.id = CONST_EDI_cursor_htmlId;
             textSelectionDiv.style.display = 'contents';
-            //EDI_presentation.appendChild(textSelectionDiv);
+            EDI_presentation.appendChild(textSelectionDiv);
             BYTES[byteEDI_cursor_selectionDivExists] = 1;
         }
 
@@ -6573,7 +6573,7 @@ function EDI_createStyleForSelection() {
         if (startLine === INCLUSIVEendLine) {
             lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
             lineSelectionDiv.className = 'EDI_selection';
-            lineSelectionDiv.style.left = `${INTS[fEDI_gutterWidthTotal] + (start_visualColumnStart * EDI_characterWidth)}px`;
+            lineSelectionDiv.style.left = `${start_visualColumnStart * EDI_characterWidth}px`;
             lineSelectionDiv.style.top = `${INTS[fEDI_lineHeight] * startLine}px`;
             lineSelectionDiv.style.width = (end_visualColumnStart - start_visualColumnStart) * EDI_characterWidth + 'px';
         }
@@ -6581,7 +6581,7 @@ function EDI_createStyleForSelection() {
             // start line
             lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
             lineSelectionDiv.className = 'EDI_selection';
-            lineSelectionDiv.style.left = `${INTS[fEDI_gutterWidthTotal] + (start_visualColumnStart * EDI_characterWidth)}px`;
+            lineSelectionDiv.style.left = `${start_visualColumnStart * EDI_characterWidth}px`;
             lineSelectionDiv.style.top = `${INTS[fEDI_lineHeight] * startLine}px`;
             EDI_getLineBoundaryPositions_raw(startLine);
             let lineVisualWidth = EDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
@@ -6591,7 +6591,7 @@ function EDI_createStyleForSelection() {
             for (var lineI = startLine + 1; lineI < INCLUSIVEendLine; lineI++) {
                 lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
                 lineSelectionDiv.className = 'EDI_selection';
-                lineSelectionDiv.style.left = gutterWidthTotal_withPxUnits;
+                //lineSelectionDiv.style.left = gutterWidthTotal_withPxUnits;
                 lineSelectionDiv.style.top = `${INTS[fEDI_lineHeight] * lineI}px`;
                 EDI_getLineBoundaryPositions_raw(lineI);
                 let lineVisualWidth = EDI_getEntireLineVisualWidth(INTS[fEDI_getLineBoundaryPositions_start], INTS[fEDI_getLineBoundaryPositions_end]);
@@ -6601,7 +6601,7 @@ function EDI_createStyleForSelection() {
             // end line
             lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
             lineSelectionDiv.className = 'EDI_selection';
-            lineSelectionDiv.style.left = gutterWidthTotal_withPxUnits;
+            //lineSelectionDiv.style.left = gutterWidthTotal_withPxUnits;
             lineSelectionDiv.style.top = `${INTS[fEDI_lineHeight] * INCLUSIVEendLine}px`;
             lineSelectionDiv.style.width = end_visualColumnStart * EDI_characterWidth + 'px';
         }
@@ -6611,12 +6611,12 @@ function EDI_createStyleForSelection() {
 function EDI_createStyleForSelection_indentMore() {
     let textSelectionDiv;
     if (BYTES[byteEDI_cursor_selectionDivExists] === 1) {
-        //for (var i = 0; i < EDI_presentation.children.length; i++) {
-        //    if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
-        //        textSelectionDiv = EDI_presentation.children[i];
-        //        break;
-        //    }
-        //}
+        for (var i = 0; i < EDI_presentation.children.length; i++) {
+            if (EDI_presentation.children[i].id === CONST_EDI_cursor_htmlId) {
+                textSelectionDiv = EDI_presentation.children[i];
+                break;
+            }
+        }
     }
     else {
         // TODO: Silent error confusing bad idea

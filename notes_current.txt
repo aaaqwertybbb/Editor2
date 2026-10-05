@@ -151,3 +151,21 @@ woah more tools > rendering can put some wild effects on screen
 < The screenshot perfectly illustrates why your text editor is hitting a rendering bottleneck. What you are experiencing is a textbook case of Implicit Layer Promotion
 < (also known as the "Overlap" or "Squashing" penalty), and it explains why your app is generating 16 layers costing a massive 87.8 MB of GPU memory just for a small block of text.
 
+
+=========
+
+
+> I'd like to understand how my CSS maps to the layers that I see in the Layers tool.
+> 
+> Because, I explicitly have on div#EDITOR a 3d transformation that does nothing.
+> 
+> My intent was to create a layer on that element.
+> 
+> But when I don't have 'show internal layers' checked, this doesn't show?
+
+< ...
+< 2. Why your 3D transform "disappeared" without Internal Layers checked
+< Your intent was correct: traditionally, a 3D transform forces step 3. But modern Chromium engines use an optimization system called Smart/Lazy Compositing.
+< ...
+
+

@@ -273,5 +273,5 @@ I need the background color to appear as I scroll
 
 
 The key is that the scrollable area is 5177x241059 just the same as it was. But now this massive "layer" is actually just a memory estimate of 0 B (nothing)
-
-
+There's no background color and etc... so that massive "layer" just is doing nothing now.
+And then you map that scroll event to the two "scroll zones" one for the gutter and one for the text.

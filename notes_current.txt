@@ -121,4 +121,15 @@ woah more tools > rendering can put some wild effects on screen
 < // No concatenation or "px" required. Just pass the raw number.
 < child.style.setProperty('--y-offset', yOffset);
 
+> I am making a text editor app. A lot of the code is written already,
+> and so my question is more specifically going to relate to a generalized performance question.
+> The app uses electron, and vanilla javascript as a single monolithic ES6 module.
+> Do not respond with much if anything I'll ask the question in the next question, this is just context.
 
+< ...
+
+> I'm struggling to understand complex scenarios of browser rendering that involve composite layers,
+> and specifically how to debug my own app in respect to this for performance.
+> Do you know of any good resources for learning advanced details on this topic? Youtube, a book, someone's blog, etc...
+
+< ...

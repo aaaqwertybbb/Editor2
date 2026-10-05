@@ -203,3 +203,6 @@ woah more tools > rendering can put some wild effects on screen
 
 < ...
 
+I just neeed the gutter to work
+I need the background color to appear as I scroll
+

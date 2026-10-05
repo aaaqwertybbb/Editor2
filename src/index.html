@@ -50,14 +50,26 @@
             <div id="EDI_scrollbar_space_generator"></div>
           </div>
 
+          <!-- 1. THE STATIC GUTTER: Locked to the screen. It never moves! -->
+          <div id="EDI_gutter_container" style="position: absolute; left: 0px; top: 0px; width: 29px; height: 100%; background-color: #1e1e1e; z-index: 4;">
+              
+              <!-- ADD THIS NEW WRAPPER: This inner container is what your JS will translate up and down -->
+              <div id="EDI_gutter_scroll_mover" style="position: absolute; inset: 0; transform: translate3d(0px, -300px, 0px);">
+                  <!-- Virtualized line numbers go here -->
+                  <!-- <div class="eG" style="width: 29px; top: 300px;">1</div>
+                  <div class="eG" style="width: 29px; top: 315px;">2</div> -->
+              </div>
+
+          </div>
+
           <!-- LAYER 2: The Visible UI Canvas.
               This stays perfectly locked to the screen and never grows or moves natively. -->
           <div id="EDI_visual_canvas" style="position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 1;">
             
             <!-- Isolated Gutter -->
-            <div id="EDI_gutter_container" style="position: absolute; left: 0; top: 0; height: 100%;">
+            <!-- <div id="EDI_gutter_container" style="position: absolute; left: 0; top: 0; height: 100%;"> -->
               <!-- Virtualized line numbers go here -->
-            </div>
+            <!-- </div> -->
             
             <!-- Isolated Text Body Container (#EDI_body) -->
             <div id="EDI_text" style="position: absolute; top: 0; right: 0; height: 100%;">

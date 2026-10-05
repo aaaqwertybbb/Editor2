@@ -202,3 +202,4 @@ woah more tools > rendering can put some wild effects on screen
 > I changed the gutter so now the height applies to 'EDI_scrollbar_space_generator'. I'm sorry I'm a little overwhelmed but I got one of the steps done
 
 < ...
+

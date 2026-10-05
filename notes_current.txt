@@ -169,3 +169,17 @@ woah more tools > rendering can put some wild effects on screen
 < ...
 
 
+> I likely don't understand where a GPU layer ought to exist.
+> 
+> In this screenshot I show that I have a folder explorer on the left, and a text editor on the right.
+> 
+> In essence I expect two GPU layers to be made. One for the folder explorer, and one for the text editor.
+
+
+< Your instinct is 100% correct. Architecturally, a file explorer on the left and a text editor on the right should be exactly two main GPU layers.
+< 
+< By separating them into two layers, scrolling the file explorer wouldn't force the text editor to repaint, and typing in the text editor wouldn't force the file tree to repaint.
+< They could operate completely independently on the GPU thread.
+< 
+< However, browsers do not automatically split adjacent side-by-side elements into layers on their own.
+< By default, Chromium tries to keep everything on one single root layer to save memory, unless your CSS explicitly instructs it otherwise or a layout rule forces its hand.

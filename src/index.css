@@ -371,13 +371,14 @@ TODO: maybe don't nearly-duplicate these classes.
   contain: strict;
 }
 
-#EDI_body {
+#EDI_text {
   cursor: text;
   height: 100%;
-  display: contents;
+  /* display: contents; */
 
   will-change: transform; /* Layer 1: The Gutter GPU Layer */
   background-color: #1e1e1e; /* Gives the GPU a solid texture target */
+  flex: 1;
 }
 
 #EDI_presentation {

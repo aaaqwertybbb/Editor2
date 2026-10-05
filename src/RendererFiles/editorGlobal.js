@@ -393,7 +393,7 @@ function EDI_render_do_CreateViewport() {
     }
 
     EDI_gutter.replaceChildren(gutterFragment);
-    EDI_body.appendChild(textFragment);
+    EDI_text.appendChild(textFragment);
 
     EDI_ringBuffer_gutter = Array.from(EDI_gutter.children);
 
@@ -7723,14 +7723,14 @@ function EDI_measureLineHeightAndCharacterWidth() {
     wrapper.style.visibility = 'hidden'; // Keeps it completely invisible to the user
 
     wrapper.appendChild(measureElement);
-    EDI_body.appendChild(wrapper);
+    EDI_text.appendChild(wrapper);
 
     const rect = measureElement.getBoundingClientRect();
     EDI_characterWidth = rect.width / len; // 7.146002258917298
     INTS[fEDI_lineHeight] = Math.ceil(rect.height); // 15
 
     wrapper.removeChild(measureElement);
-    EDI_body.removeChild(wrapper);
+    EDI_text.removeChild(wrapper);
 
     const root = document.documentElement;
     let teLineHeight = INTS[fEDI_lineHeight] + 'px';

@@ -318,3 +318,9 @@ that it causes a non-zero amount of allocation for that massive empty space.
 Whereas separating it you'd get 0.
 It doesn't seen to be a massive allocation, but it is there nevertheless it seems.
 TODO: verify this?
+
+You do the negative translate on the GPU accelerated div
+so that you only ever allocate EXACTLY the dimensions of your virtualized content.
+So you get -300px on the div and then each line has 300, 315, 330 but they actually are 0, 15, 30
+then at 600 scroll on the separate scrollable area you set the div to -600 translate y and then
+the lines are 600, 615, 630 but you still only have 0, 15, 30 so the GPU allocation is small.

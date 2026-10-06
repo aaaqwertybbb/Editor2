@@ -24,13 +24,6 @@ class ListComponent {
         this.visual_canvas.appendChild(this.text);
         this.rootElement.appendChild(this.visual_canvas);
 
-
-
-        ///** @type {HTMLDivElement} */
-        //this.virtualizationElement = document.createElement('div');
-        //this.virtualizationElement.className = 'LIST_virtualization';
-        //this.rootElement.appendChild(this.virtualizationElement);
-
         /**
          * @type {HTMLDivElement}
          * Consider the existence of such methods as 'state_cursor_setIndex' before mutating state directly
@@ -450,10 +443,10 @@ class ListComponent {
             let currentBottom = this.lastSeenScrollTop + this.boundingClientRect_height;
             let changeToMakeBottomTouch = this.cursorTopNumber - currentBottom;
             let entireValueToScrollBy = changeToMakeBottomTouch + (2 * this.itemHeightNumber);
-            this.rootElement.scrollBy(0, entireValueToScrollBy);
+            this.scroll_viewport.scrollBy(0, entireValueToScrollBy);
         }
         else if (this.cursorTopNumber < this.lastSeenScrollTop) {
-            this.rootElement.scrollBy(0, this.cursorTopNumber - this.lastSeenScrollTop);
+            this.scroll_viewport.scrollBy(0, this.cursorTopNumber - this.lastSeenScrollTop);
         }
 
         this.cursorElement.style.transform = `translateY(${this.cursorTopNumber}px)`;

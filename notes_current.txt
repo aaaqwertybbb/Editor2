@@ -301,7 +301,7 @@ EDI_gutter_scroll_mover.style.transform = `translate3d(0px, -${lineRemainderY}px
 TODO: Use a separate scroll container from the content in the other virtualized components.
 - [x] explorer
 - [ ] TreeView
-- [ ] listComponent
+- [x] listComponent
 - [ ] Autocomplete
 
 Explanation:^ using the explorer as an example.
@@ -357,3 +357,5 @@ when I show settings 31.3 (22 layers)
 the other was 27 layers 58.6 MB
 
 28 layers 33.4 MB
+
+56.5 when ctrlshiftf EDI_ expand my-custom-babel-plugin.cjs(157)

@@ -302,6 +302,7 @@ TODO: Use a separate scroll container from the content in the other virtualized 
 - [x] explorer
 - [ ] TreeView
 - [ ] listComponent
+- [ ] Autocomplete
 
 Explanation:^ using the explorer as an example.
 When I expand an extremely large amount of nodes the only content being shown is what is in view due to virtualization.

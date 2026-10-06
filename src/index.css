@@ -8,10 +8,14 @@ body {
   background-color: var(--primary-background-color);
   color: var(--primary-foreground-color);
   color-scheme: var(--color-scheme);
-  -webkit-user-select: none; /* Safari */
-  -moz-user-select: none; /* Firefox */
-  -ms-user-select: none; /* IE 10+ and Edge */
-  user-select: none; /* Standard syntax */
+  -webkit-user-select: none;
+  /* Safari */
+  -moz-user-select: none;
+  /* Firefox */
+  -ms-user-select: none;
+  /* IE 10+ and Edge */
+  user-select: none;
+  /* Standard syntax */
 }
 
 #HEADER {
@@ -28,8 +32,8 @@ body {
 }
 
 #EXPLORER {
-    width: 200px;
-    height: 100%;
+  width: 200px;
+  height: 100%;
 }
 
 .treeView_node {
@@ -51,9 +55,9 @@ body {
   padding-bottom: 1px;
 }
 
-  #MENU:focus #MENU_cursor {
-    background-color: var(--primary-active-with-focus-background-color);
-  }
+#MENU:focus #MENU_cursor {
+  background-color: var(--primary-active-with-focus-background-color);
+}
 
 #MENU_cursor {
   background-color: var(--primary-active-no-focus-background-color);
@@ -94,9 +98,9 @@ body {
   transform: translate3d(0px, 0px, 0px);
 }
 
-  .LIST:focus .LIST_cursor {
-    background-color: var(--primary-active-with-focus-background-color);
-  }
+.LIST:focus .LIST_cursor {
+  background-color: var(--primary-active-with-focus-background-color);
+}
 
 .LIST_virtualization {
   position: absolute;
@@ -134,9 +138,9 @@ body {
   transform: translate3d(0px, 0px, 0px);
 }
 
-  #AUTOCOMPLETE:focus #AUTOCOMPLETE_cursor {
-    background-color: var(--primary-active-with-focus-background-color);
-  }
+#AUTOCOMPLETE:focus #AUTOCOMPLETE_cursor {
+  background-color: var(--primary-active-with-focus-background-color);
+}
 
 #AUTOCOMPLETE_virtualization {
   position: absolute;
@@ -159,6 +163,29 @@ body {
   display: contents;
 }
 
+#EXPLORER_scroll_viewport {
+  position: absolute;
+  inset: 0;
+  overflow: scroll;
+  z-index: 3;
+}
+
+#EXPLORER_visual_canvas {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+#EXPLORER_text {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  height: 100%;
+  left: 0px;
+}
+
 /*
 TODO: 'TREEVIEWexplorer' is nearly identical to 'TREEVIEW'...
 ...but the folder explorer is always on screen and I'm trying to get the
@@ -173,21 +200,23 @@ TODO: maybe don't nearly-duplicate these classes.
   font-family: monospace;
   width: 200px;
   height: 100%;
-  will-change: transform;
-  background-color: var(--primary-background-color);
+  /* will-change: transform;
+  background-color: var(--primary-background-color); */
+
+  overflow: hidden;
   contain: strict;
 }
 
-  /*
+/*
   TODO: (this specific block of CSS is an ancillary reference to the original comment) 'TREEVIEWexplorer' is nearly identical to 'TREEVIEW'...
   ...but the folder explorer is always on screen and I'm trying to get the
   composite layers correct.
 
   TODO: (this specific block of CSS is an ancillary reference to the original comment) maybe don't nearly-duplicate these classes.
   */
-  .TREEVIEWexplorer:focus > .TREEVIEW_cursor {
-    background-color: var(--primary-active-with-focus-background-color);
-  }
+.TREEVIEWexplorer:focus>.TREEVIEW_cursor {
+  background-color: var(--primary-active-with-focus-background-color);
+}
 
 /*
 TODO: 'TREEVIEWexplorer' is nearly identical to 'TREEVIEW'...
@@ -206,9 +235,9 @@ TODO: maybe don't nearly-duplicate these classes.
   will-change: transform;
 }
 
-  .TREEVIEW:focus > .TREEVIEW_cursor {
-    background-color: var(--primary-active-with-focus-background-color);
-  }
+.TREEVIEW:focus>.TREEVIEW_cursor {
+  background-color: var(--primary-active-with-focus-background-color);
+}
 
 .TREEVIEW_virtualization {
   position: absolute;
@@ -238,6 +267,7 @@ TODO: maybe don't nearly-duplicate these classes.
   top: 0;
   contain: strict;
 }
+
 /* .tvnN => TreeViewNode (but NOT "syntax highlighted") (this is super hacky I need to mark a node for change...)*/
 .tvnN {
   white-space: nowrap;
@@ -247,19 +277,23 @@ TODO: maybe don't nearly-duplicate these classes.
 }
 
 .unselectable {
-  -webkit-user-select: none; /* Safari */
-  -moz-user-select: none; /* Firefox */
-  -ms-user-select: none; /* IE 10+ and Edge */
-  user-select: none; /* Standard syntax */
+  -webkit-user-select: none;
+  /* Safari */
+  -moz-user-select: none;
+  /* Firefox */
+  -ms-user-select: none;
+  /* IE 10+ and Edge */
+  user-select: none;
+  /* Standard syntax */
 }
 
 #WIDGET {
-    position: fixed;
-    left: 0;
-    top: 0;
-    background-color: var(--primary-active-no-focus-background-color);
-    padding: 10px;
-    border: 1px solid var(--primary-border-color);
+  position: fixed;
+  left: 0;
+  top: 0;
+  background-color: var(--primary-active-no-focus-background-color);
+  padding: 10px;
+  border: 1px solid var(--primary-border-color);
 }
 
 #EDI_hack {
@@ -272,7 +306,7 @@ TODO: maybe don't nearly-duplicate these classes.
 }
 
 #EDITOR {
-	outline: none;
+  outline: none;
   height: calc(100% - 1.5em);
   overflow: hidden;
   position: relative;
@@ -328,16 +362,20 @@ TODO: maybe don't nearly-duplicate these classes.
 #EDI_gutter_container {
   position: sticky;
   left: 0;
-  height: 100%; /* Or let it naturally occupy the full height */
-  z-index: 2; /* Keeps it layered above the text layers sliding beneath it */
+  height: 100%;
+  /* Or let it naturally occupy the full height */
+  z-index: 2;
+  /* Keeps it layered above the text layers sliding beneath it */
   background-color: var(--gutter-background-color);
 
   text-align: end;
 
   cursor: default;
 
-  will-change: transform; /* Layer 1: The Gutter GPU Layer */
-  /*background-color: #1e1e1e; *//* Gives the GPU a solid texture target */
+  will-change: transform;
+  /* Layer 1: The Gutter GPU Layer */
+  /*background-color: #1e1e1e; */
+  /* Gives the GPU a solid texture target */
 }
 
 /* .EDI_gutterLine is being renamed to .eG (i.e.: Editor Gutter line) */
@@ -388,8 +426,10 @@ TODO: maybe don't nearly-duplicate these classes.
   height: 100%;
   /* display: contents; */
 
-  /*will-change: transform; *//* Layer 1: The Gutter GPU Layer */
-  /*background-color: #1e1e1e; *//* Gives the GPU a solid texture target */
+  /*will-change: transform; */
+  /* Layer 1: The Gutter GPU Layer */
+  /*background-color: #1e1e1e; */
+  /* Gives the GPU a solid texture target */
   flex: 1;
 }
 
@@ -420,7 +460,8 @@ TODO: maybe don't nearly-duplicate these classes.
   top: 0;
 
   opacity: 1;
-  will-change: opacity; /* TODO: Are you sure you want this? */
+  will-change: opacity;
+  /* TODO: Are you sure you want this? */
   /*
   TODO: Consider making this z-index: 5;
   
@@ -438,19 +479,23 @@ TODO: maybe don't nearly-duplicate these classes.
 }
 
 @keyframes blink-animation {
-  0%, 49.9% {
+
+  0%,
+  49.9% {
     opacity: 1;
   }
-  50%, 100% {
+
+  50%,
+  100% {
     opacity: 0;
   }
 }
 
 .EDI_selection {
-    width: 100%;
-    height: var(--EDITOR-line-height);
-    position: absolute;
-    background-color: var(--primary-active-with-focus-background-color);
+  width: 100%;
+  height: var(--EDITOR-line-height);
+  position: absolute;
+  background-color: var(--primary-active-with-focus-background-color);
 }
 
 ::highlight(js-keywords) {
@@ -527,7 +572,7 @@ TODO: maybe don't nearly-duplicate these classes.
 }
 
 button:focus {
-	/*
+  /*
 	When programmatically focusing a button with javascript,
 	the outline does not necessarily appear due to user-agent heuristics that determine whether the outline should appear.
 	
@@ -538,11 +583,11 @@ button:focus {
 	
 	But without this, the user doesn't have any feedback for where their focus went (given my user-agent's heuristics, this was my experience).
 	*/
-	outline: 3px solid var(--primary-focus-outline);
+  outline: 3px solid var(--primary-focus-outline);
 }
 
 input:focus {
-	outline: 3px solid var(--primary-focus-outline);
+  outline: 3px solid var(--primary-focus-outline);
 }
 
 select:focus {

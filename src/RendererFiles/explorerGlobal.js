@@ -44,18 +44,33 @@ EXPLORER_rootElement.classList.add('TREEVIEWexplorer', 'unselectable');
 EXPLORER_rootElement.tabIndex = 0;
 EXPLORER_rootElement.style.height = '100%';
 
-const EXPLORER_virtualizationElement = document.createElement('div');
-EXPLORER_virtualizationElement.className = 'TREEVIEW_virtualization';
-EXPLORER_rootElement.appendChild(EXPLORER_virtualizationElement);
+const EXPLORER_scroll_viewport = document.createElement('div');
+EXPLORER_scroll_viewport.id = 'EXPLORER_scroll_viewport';
+const EXPLORER_scrollbar_space_generator = document.createElement('div');
+EXPLORER_scrollbar_space_generator.id = 'EXPLORER_scrollbar_space_generator';
+EXPLORER_scroll_viewport.appendChild(EXPLORER_scrollbar_space_generator);
+EXPLORER_rootElement.appendChild(EXPLORER_scroll_viewport);
+
+const EXPLORER_visual_canvas = document.createElement('div');
+EXPLORER_visual_canvas.id = 'EXPLORER_visual_canvas';
+const EXPLORER_text = document.createElement('div');
+EXPLORER_text.id = 'EXPLORER_text';
+EXPLORER_visual_canvas.appendChild(EXPLORER_text);
+EXPLORER_rootElement.appendChild(EXPLORER_visual_canvas);
 
 /** Consider the existence of such methods as 'state_cursor_setIndex' before mutating state directly */
 const EXPLORER_cursorElement = document.createElement('div');
 EXPLORER_cursorElement.className = 'TREEVIEW_cursor';
-EXPLORER_rootElement.appendChild(EXPLORER_cursorElement);
+EXPLORER_text.appendChild(EXPLORER_cursorElement);
+
+//<div id="EDI_scroll_viewport" class="EXPLORER_scroll_viewport">
+//    <!-- This element stretches to your full content size (240,019px) to force the native scrollbar thumb to scale correctly. -->
+//    <div id="EDI_scrollbar_space_generator"></div>
+//</div>
 
 const EXPLORER_itemListElement = document.createElement('div');
 EXPLORER_itemListElement.className = 'TREEVIEW_itemList';
-EXPLORER_rootElement.appendChild(EXPLORER_itemListElement);
+EXPLORER_text.appendChild(EXPLORER_itemListElement);
 
 let EXPLORER_ringBuffer = [];
 
@@ -104,7 +119,7 @@ function EXPLORER_setChosenDirectory(chosenDirectory, chosenDirectoryAbsolutePat
     let nodeKind = TreeViewNodeKind_isExpandable_NOTisExpanded;
     EXPLORER_treeViewNodes.insert(EXPLORER_treeViewNodes.count_abstract, nodeKind, EXPLORER_chosenDirectoryAbsolutePathId, 0);
     INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-    EXPLORER_virtualizationElement.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
+    EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
 }
 
 /** // Invoke this?: 'this.draw_render_fullReset_request();' */
@@ -122,7 +137,7 @@ function EXPLORER_setChosenWorkspace(chooseWorkspaceResult) {
     }
 
     INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-    EXPLORER_virtualizationElement.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
+    EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
 }
 
 function EXPLORER_render_do_ScrollTrailingEdgeCheck(timestamp) {
@@ -459,7 +474,7 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem) {
             // TODO: Insert range, or at the least 'pre-emptively' resize the list so that it fits each insertion without resizing per insertion.
             EXPLORER_treeViewNodes.insert(indexItem + 1 + i, nodeKind, entry.id, depth + 1);
             INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-            EXPLORER_virtualizationElement.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
+            EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
         }
 
         EXPLORER_draw_render_fullReset_request();
@@ -482,7 +497,7 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem) {
         if (countChildren > 0) { // TODO: is this check necessary?
             EXPLORER_treeViewNodes.removeAt(indexItem + 1, countChildren);
             INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-            EXPLORER_virtualizationElement.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
+            EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
             EXPLORER_draw_render_fullReset_request();
         }
     }
@@ -574,7 +589,7 @@ function EXPLORER_removeFromNodeList(indexItem) {
 
     EXPLORER_treeViewNodes.removeAt(indexItem, 1 + countChildren);
     INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-    EXPLORER_virtualizationElement.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
+    EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
     return 1 + countChildren;
 }
 
@@ -667,7 +682,7 @@ function EXPLORER_render_do(timestamp) {
  */
 function EXPLORER_render_do_SetItems() {
     EXPLORER_itemListElement.innerHTML = '';
-    EXPLORER_virtualizationElement.style.height = 1 + 'px';
+    EXPLORER_scrollbar_space_generator.style.height = 1 + 'px';
     EXPLORER_state_cursor_setIndex(0);
     
     INTS[fEXPLORER_itemHeightNumber] = INTS[fEXPLORER_SET_ITEMS_itemHeightNumber];
@@ -675,7 +690,7 @@ function EXPLORER_render_do_SetItems() {
 
     EXPLORER_cursorElement.style.height = EXPLORER_itemHeightStyleAttributeValueString;
     INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-    EXPLORER_virtualizationElement.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
+    EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
     BYTES[byteEXPLORER_boundingClientRect_isValid] = 0;
 }
 
@@ -750,7 +765,7 @@ function EXPLORER_draw_delete() {
 function EXPLORER_draw_addEvents() {
     EXPLORER_rootElement.addEventListener('click', EXPLORER_event_click); // this.event_click(event.clientY, event.target);
     EXPLORER_rootElement.addEventListener('keydown', EXPLORER_event_keydown); // this.event_keydown(event);
-    EXPLORER_rootElement.addEventListener('scroll', EXPLORER_event_scroll, { passive: true }); // this.event_scroll();
+    EXPLORER_text.addEventListener('scroll', EXPLORER_event_scroll, { passive: true }); // this.event_scroll();
     EXPLORER_rootElement.addEventListener('dblclick', EXPLORER_event_dblclick); // this.event_dblclick(event.clientY, event.target);
     EXPLORER_rootElement.addEventListener('contextmenu', EXPLORER_event_contextmenu); // this.event_contextmenu(event.button, event.clientX, event.clientY);
     window.addEventListener('resize', EXPLORER_event_windowResize); // this.event_windowResize();
@@ -759,7 +774,7 @@ function EXPLORER_draw_addEvents() {
 function EXPLORER_draw_removeEvents() {
     EXPLORER_rootElement.removeEventListener('click', EXPLORER_event_click);
     EXPLORER_rootElement.removeEventListener('keydown', EXPLORER_event_keydown);
-    EXPLORER_rootElement.removeEventListener('scroll', EXPLORER_event_scroll, { passive: true });
+    EXPLORER_text.removeEventListener('scroll', EXPLORER_event_scroll, { passive: true });
     EXPLORER_rootElement.addEventListener('dblclick', EXPLORER_event_dblclick);
     EXPLORER_rootElement.addEventListener('contextmenu', EXPLORER_event_contextmenu);
     window.removeEventListener('resize', EXPLORER_event_windowResize);
@@ -770,6 +785,17 @@ function EXPLORER_render_do_Scroll(timestamp) {
         EXPLORER_render_do_FullReset(timestamp);
     }
     else {
+
+        // --- 2. THE FINE-GRAINED MOVE (The GPU trick) ---
+        // Since your lines are virtualized, you only want to shift the text container 
+        // by the tiny "sub-pixel remainder" of the scroll so it feels perfectly smooth.
+        // Assuming a line height of 15px:
+        //const lineRemainderY = scrollTop % 15;
+        const lineRemainderY = INTS[fEXPLORER_lastReadNumber_scrollTop];
+
+        // Push the text canvas lightly to match the scrollbar position smoothly
+        EXPLORER_text.style.transform = `translate3d(-${INTS[fEXPLORER_lastReadNumber_scrollLeft]}px, -${lineRemainderY}px, 0)`;
+
         INTS[fEXPLORER_virtualIndex_ofScrollTop] = Math.floor(INTS[fEXPLORER_lastReadNumber_scrollTop] / INTS[fEXPLORER_itemHeightNumber]);
 
         if (INTS[fEXPLORER_ONSCROLLvirtualIndex] === INTS[fEXPLORER_virtualIndex_ofScrollTop] &&
@@ -1056,10 +1082,6 @@ function EXPLORER_event_keydown(event) {
 }
 
 function EXPLORER_render_do_Resize(timestamp) {
-    //EXPLORER_rootElement.style.width = '';
-    //EXPLORER_rootElement.style.height = '';
-    //EXPLORER_rootElement.style.contain = '';
-
     EXPLORER_measureBaseElement();
 
     BYTES[byteEXPLORER_boundingClientRect_isValid] = 0;
@@ -1075,8 +1097,8 @@ function EXPLORER_event_windowResize() {
 }
 
 function EXPLORER_event_scroll() {
-    INTS[fEXPLORER_lastReadNumber_scrollLeft] = EXPLORER_rootElement.scrollLeft;
-    INTS[fEXPLORER_lastReadNumber_scrollTop] = EXPLORER_rootElement.scrollTop;
+    INTS[fEXPLORER_lastReadNumber_scrollLeft] = EXPLORER_scroll_viewport.scrollLeft;
+    INTS[fEXPLORER_lastReadNumber_scrollTop] = EXPLORER_scroll_viewport.scrollTop;
     EXPLORER_render_request(TREEVIEWrenderKind_Scroll);
 }
 
@@ -1411,7 +1433,7 @@ async function EXPLORER_MenuOnClick(indexClicked, elementClicked) {
                                     let finalDiv = EXPLORER_itemListElement.children[EXPLORER_itemListElement.children.length - 1];
 
                                     INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-                                    EXPLORER_virtualizationElement.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
+                                    EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
 
                                     // TODO: Check that the node you're pasting into is expanded.
 
@@ -1450,7 +1472,7 @@ async function EXPLORER_MenuOnClick(indexClicked, elementClicked) {
                                         }
 
                                         INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-                                        EXPLORER_virtualizationElement.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
+                                        EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
 
                                         let remainingChangesToRender = countChanges < INTS[fEXPLORER_virtualCount] ? countChanges : INTS[fEXPLORER_virtualCount] - divRelativeIndex;
 
@@ -1598,7 +1620,7 @@ async function NewFile_Directory_WIDGET_InputText_callback(result) {
                     //let finalDiv = EXPLORER_itemListElement.children[EXPLORER_itemListElement.children.length - 1];
 
                     INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-                    EXPLORER_virtualizationElement.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
+                    EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
 
                     //await EXPLORER_drawItem_async(finalDiv, someIndex, /*isNull*/ false);
                     if (someIndex !== largestIndexItemBeingShown) {
@@ -1680,7 +1702,7 @@ async function NewFile_File_WIDGET_InputText_callback(result) {
                     //let finalDiv = EXPLORER_itemListElement.children[EXPLORER_itemListElement.children.length - 1];
     
                     INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-                    EXPLORER_virtualizationElement.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
+                    EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
     
                     //await EXPLORER_drawItem_async(finalDiv, someIndex, /*isNull*/ false);
                     if (someIndex !== largestIndexItemBeingShown) {
@@ -1707,7 +1729,7 @@ async function DeleteFile_Directory_YesCancel_callback(result) {
         let countChanges = EXPLORER_removeFromNodeList(WIDGET_target.indexItem);
 
         INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-        EXPLORER_virtualizationElement.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
+        EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
 
         let remainingChangesToRender = countChanges < INTS[fEXPLORER_virtualCount] ? countChanges : INTS[fEXPLORER_virtualCount] - WIDGET_target.divRelativeIndex;
 
@@ -1752,7 +1774,7 @@ async function DeleteFile_File_YesCancel_callback(result) {
             //let divItem = EXPLORER_itemListElement.children[WIDGET_target.divRelativeIndex];
 
             INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-            EXPLORER_virtualizationElement.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
+            EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
 
             //EXPLORER_itemListElement.insertBefore(divItem, undefined);
             if (noMoreEntriesToShow) {

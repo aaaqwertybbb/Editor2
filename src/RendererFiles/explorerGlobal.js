@@ -356,6 +356,8 @@ function EXPLORER_drawItem_BATCH_PullDataDrawResult() {
             for (let i = 0; i < itemListElement_childrenLength; i++) {
                 itemListElement_children[i].style.width = widthAttributeValueString;
             }
+
+            EXPLORER_scrollbar_space_generator.style.width = widthAttributeValueString;
         }
 
         EXPLORER_pullData_result = null;

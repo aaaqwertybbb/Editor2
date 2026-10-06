@@ -712,11 +712,6 @@ function EXPLORER_render_do_Create(timestamp) {
     EXPLORER_draw_create_request_parentElement.insertBefore(EXPLORER_rootElement, EXPLORER_draw_create_request_insertBeforeThisChild);
     EXPLORER_draw_addEvents();
 
-
-    //EXPLORER_rootElement.style.width = '';
-    //EXPLORER_rootElement.style.height = '';
-    //EXPLORER_rootElement.style.contain = '';
-
     EXPLORER_measureBaseElement();
 
     EXPLORER_render_do_Scroll(timestamp);
@@ -1147,50 +1142,9 @@ function EXPLORER_state_cursor_validateIndex(indexItem) {
     return indexItem;
 }
 
-/**
- * This logic according to what I understand Google AI to be saying, is very bad (I gave it the version that the Editor has).
- * 
- * I don't fully agree with the AI on this for a few reasons.
- * And I'm not entirely adverse to removing this logic.
- * But a main reason for why I don't agree with the AI is that I don't fully understand things.
- * And the only way for me to fully understand things is to mess around with this a bit more and see what happens.
- * So I can hopefully glean some insight and better understand what the AI is saying.
- * 
- * I want to list out my points for doing this, I have a limited amount of energy each day
- * and I have a lot to do involving measuring the longest line of text and setting all divs to that width
- * so I might find it in me to list my point of view today.
- * Maybe if I don't find it in me today I will tomorrow etc...
- * 
- * My point of view:
- * - I think I agree that making the width and height a whole number is pointless.
- * - And that getBoundingClientRect is more accurate so I should be using that, since I'd incur layout cost regardless if it was needed when accessing any offset... properties.
- * - But, I have absolute positioned elements and A LOT of them.
- * - By marking the base element as "contain = 'layout'" I believe I am explicitly telling the browser to ignore all of my "z axis layers" or layers made by using position absolute.
- *   i.e.: that they will NEVER impact the UI that exists outside of the base element.
- *   and that this is beneficial.
- * - As well by making the size explicitly defined I am permitting the use of "contain = 'layout'" without that you wouldn't have a width or height of the base element I believe.
- *   because otherwise the children could cause a change in width and impact the surrounding UI which you just said explicitly won't happen.
- * - The final statements that read the offsetWidth and height after having set them is a guaranteed synchronous layout,
- *   but this only happens oninit or when resizing, vs the constant changes happening while I scroll explicitly stating that nothing else will be impacted each event.
- * 
- * And I am very open to the idea that I'm wrong.
- * But I don't understand the AI's point of view and I'm not going to blindly copy what it says.
- * I am instead just aware that this might be wrong and I'm looking for some indications to learn from and observe.
- * 
- * I read the property back just incase some weird interaction (perhaps DPI?) causes the number I set to not actually be the end result number that is used
- * for the attribute value.
- */
 function EXPLORER_measureBaseElement() {
     INTS[fEXPLORER_lastReadNumber_offsetWidth] = Math.floor(EXPLORER_rootElement.offsetWidth);
     INTS[fEXPLORER_lastReadNumber_offsetHeight] = Math.floor(EXPLORER_rootElement.offsetHeight);
-    
-    //EXPLORER_rootElement.style.width = INTS[fEXPLORER_lastReadNumber_offsetWidth] + 'px';
-    //EXPLORER_rootElement.style.height = INTS[fEXPLORER_lastReadNumber_offsetHeight] + 'px';
-//
-    //EXPLORER_rootElement.style.contain = 'layout';
-//
-    //INTS[fEXPLORER_lastReadNumber_offsetWidth] = EXPLORER_rootElement.offsetWidth;
-    //INTS[fEXPLORER_lastReadNumber_offsetHeight] = EXPLORER_rootElement.offsetHeight;
 }
 
 /*

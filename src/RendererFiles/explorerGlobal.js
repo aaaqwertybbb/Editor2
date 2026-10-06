@@ -440,7 +440,7 @@ function EXPLORER_oncontextmenu(divItem, indexItem, event_button, event_clientX,
     }
     else {
         EXPLORER_addSpecificMenuOptionsForTarget(optionList, divItem, target);
-        return menuSet('EXPLORER', target, optionList, INTS[fEXPLORER_menuOptionX]=INTS[fEXPLORER_boundingClientRect_left], INTS[fEXPLORER_menuOptionY]=(INTS[fEXPLORER_boundingClientRect_top] + ((INTS[fEXPLORER_cursorIndex] + 1) * INTS[fEXPLORER_itemHeightNumber]) - EXPLORER_rootElement.scrollTop));
+        return menuSet('EXPLORER', target, optionList, INTS[fEXPLORER_menuOptionX]=INTS[fEXPLORER_boundingClientRect_left], INTS[fEXPLORER_menuOptionY]=(INTS[fEXPLORER_boundingClientRect_top] + ((INTS[fEXPLORER_cursorIndex] + 1) * INTS[fEXPLORER_itemHeightNumber]) - INTS[fEXPLORER_lastReadNumber_scrollTop]));
     }
 }
 
@@ -1018,7 +1018,7 @@ function EXPLORER_event_keydown(event) {
         case 'ArrowDown':
             event.preventDefault();
             if (event.ctrlKey) {
-                EXPLORER_rootElement.scrollBy(0, INTS[fEXPLORER_itemHeightNumber]);
+                EXPLORER_scroll_viewport.scrollBy(0, INTS[fEXPLORER_itemHeightNumber]);
             }
             else {
                 EXPLORER_state_cursor_setIndex(EXPLORER_state_cursor_validateIndex(
@@ -1028,7 +1028,7 @@ function EXPLORER_event_keydown(event) {
         case 'ArrowUp':
             event.preventDefault();
             if (event.ctrlKey) {
-                EXPLORER_rootElement.scrollBy(0, -1 * INTS[fEXPLORER_itemHeightNumber]);
+                EXPLORER_scroll_viewport.scrollBy(0, -1 * INTS[fEXPLORER_itemHeightNumber]);
             }
             else {
                 EXPLORER_state_cursor_setIndex(EXPLORER_state_cursor_validateIndex(
@@ -1129,10 +1129,10 @@ function EXPLORER_render_do_Cursor() {
         let currentBottom = INTS[fEXPLORER_lastReadNumber_scrollTop] + INTS[fEXPLORER_boundingClientRect_height];
         let changeToMakeBottomTouch = INTS[fEXPLORER_cursorTranslateYNumber] - currentBottom;
         let entireValueToScrollBy = changeToMakeBottomTouch + (2 * INTS[fEXPLORER_itemHeightNumber]);
-        EXPLORER_rootElement.scrollBy(0, entireValueToScrollBy);
+        EXPLORER_scroll_viewport.scrollBy(0, entireValueToScrollBy);
     }
     else if (INTS[fEXPLORER_cursorTranslateYNumber] < INTS[fEXPLORER_lastReadNumber_scrollTop]) {
-        EXPLORER_rootElement.scrollBy(0, INTS[fEXPLORER_cursorTranslateYNumber] - INTS[fEXPLORER_lastReadNumber_scrollTop]);
+        EXPLORER_scroll_viewport.scrollBy(0, INTS[fEXPLORER_cursorTranslateYNumber] - INTS[fEXPLORER_lastReadNumber_scrollTop]);
     }
 
     // transform last for optimal state flagging of the modified DOM element

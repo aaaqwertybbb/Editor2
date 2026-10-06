@@ -10,10 +10,26 @@ class ListComponent {
         this.rootElement.tabIndex = 0;
         this.rootElement.style.height = '100%';
 
-        /** @type {HTMLDivElement} */
-        this.virtualizationElement = document.createElement('div');
-        this.virtualizationElement.className = 'LIST_virtualization';
-        this.rootElement.appendChild(this.virtualizationElement);
+        this.scroll_viewport = document.createElement('div');
+        this.scroll_viewport.className = 'LIST_scroll_viewport';
+        this.scrollbar_space_generator = document.createElement('div');
+        this.scrollbar_space_generator.className = 'LIST_scrollbar_space_generator';
+        this.scroll_viewport.appendChild(this.scrollbar_space_generator);
+        this.rootElement.appendChild(this.scroll_viewport);
+
+        this.visual_canvas = document.createElement('div');
+        this.visual_canvas.className = 'LIST_visual_canvas';
+        this.text = document.createElement('div');
+        this.text.className = 'LIST_text';
+        this.visual_canvas.appendChild(this.text);
+        this.rootElement.appendChild(this.visual_canvas);
+
+
+
+        ///** @type {HTMLDivElement} */
+        //this.virtualizationElement = document.createElement('div');
+        //this.virtualizationElement.className = 'LIST_virtualization';
+        //this.rootElement.appendChild(this.virtualizationElement);
 
         /**
          * @type {HTMLDivElement}
@@ -21,12 +37,12 @@ class ListComponent {
          */
         this.cursorElement = document.createElement('div');
         this.cursorElement.className = 'LIST_cursor';
-        this.rootElement.appendChild(this.cursorElement);
+        this.text.appendChild(this.cursorElement);
 
         /** @type {HTMLDivElement} */
         this.itemListElement = document.createElement('div');
         this.itemListElement.className = 'LIST_itemList';
-        this.rootElement.appendChild(this.itemListElement);
+        this.text.appendChild(this.itemListElement);
 
         /** @type {number} */ this.itemHeightTotal = 0;
 
@@ -54,6 +70,7 @@ class ListComponent {
         this.LIST_ringBufferLength = 0;
 
         this.lastSeenScrollTop = 0;
+        this.lastSeenScrollLeft = 0;
 
         this.boundingClientRect_height = 0;
         this.boundingClientRect_top = 0;
@@ -102,7 +119,7 @@ class ListComponent {
         this.LIST_ringBuffer = [];
         this.LIST_ringBufferLength = 0;
 
-        this.virtualizationElement.style.height = 1 + 'px';
+        this.scrollbar_space_generator.style.height = 1 + 'px';
         this.state_cursor_setIndex(0);
 
         this.itemHeightNumber = itemHeightNumber;
@@ -115,7 +132,7 @@ class ListComponent {
         this.cursorElement.style.height = this.itemHeightStyleAttributeValueString;
         this.getItemsCountFunc = getItemsCountFunc;
         this.itemHeightTotal = this.getItemsCountFunc() * this.itemHeightNumber;
-        this.virtualizationElement.style.height = this.itemHeightTotal + 'px';
+        this.scrollbar_space_generator.style.height = this.itemHeightTotal + 'px';
         this.boundingClientRect_isValid = false;
     }
 
@@ -150,14 +167,14 @@ class ListComponent {
     draw_addEvents() {
         this.rootElement.addEventListener('click', this);
         this.rootElement.addEventListener('keydown', this);
-        this.rootElement.addEventListener('scroll', this);
+        this.scroll_viewport.addEventListener('scroll', this);
         window.addEventListener('resize', this);
     }
     
     draw_removeEvents() {
         this.rootElement.removeEventListener('click', this);
         this.rootElement.removeEventListener('keydown', this);
-        this.rootElement.removeEventListener('scroll', this);
+        this.scroll_viewport.removeEventListener('scroll', this);
         window.removeEventListener('resize', this);
     }
 
@@ -188,6 +205,9 @@ class ListComponent {
             this.draw_render_fullReset();
         }
         else {
+
+            this.text.style.transform = `translate3d(-${this.lastSeenScrollLeft}px, -${this.lastSeenScrollTop}px, 0)`;
+
             this.virtualIndex_ofScrollTop = Math.floor(this.lastSeenScrollTop / this.itemHeightNumber);
 
             if (this._ONSCROLLscrollTop === this.lastSeenScrollTop &&
@@ -397,7 +417,8 @@ class ListComponent {
     }
 
     event_scroll_WRAPIT() {
-        this.lastSeenScrollTop = this.rootElement.scrollTop;
+        this.lastSeenScrollTop = this.scroll_viewport.scrollTop;
+        this.lastSeenScrollLeft = this.scroll_viewport.scrollLeft;
         this.LIST_render_request(LISTrenderKind_Scroll);
     }
     

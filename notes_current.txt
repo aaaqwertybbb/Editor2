@@ -355,3 +355,5 @@ Yeah it 100% just keeps growing more and more for the folder explorer due to the
 when I show settings 31.3 (22 layers)
 
 the other was 27 layers 58.6 MB
+
+28 layers 33.4 MB

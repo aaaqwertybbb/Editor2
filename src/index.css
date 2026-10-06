@@ -92,10 +92,34 @@ body {
   padding-bottom: 1px;
 }
 
+.LIST_scroll_viewport {
+  position: absolute;
+  inset: 0;
+  overflow: scroll;
+  z-index: 3;
+}
+
+.LIST_visual_canvas {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.LIST_text {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  height: 100%;
+  left: 0px;
+  transform: translate3d(0px, 0px, 0px); /* TODO: If you're missing a default for this on anything probably add it? (scroll event yes but initially?) */
+  /* ... not that you add will: transform; I think it is --- I'm tired and just trying to type things a bit so I don't stagnate */
+}
+
 .LIST {
   position: relative;
-  overflow: scroll;
-  transform: translate3d(0px, 0px, 0px);
+  contain: strict;
 }
 
 .LIST:focus .LIST_cursor {

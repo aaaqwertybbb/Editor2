@@ -235,7 +235,7 @@ class ListComponent {
 
                         let divItem = this.LIST_ringBuffer[ringBufferIndexItem];
                         
-                        divItem.style.top = `${vertical}px`;
+                        divItem.style.transform = `translateY(${vertical}px)`;
                         vertical += this.itemHeightNumber;
 
                         if (indexItem >= itemsCount)
@@ -274,7 +274,7 @@ class ListComponent {
                             lastIndex = this.LIST_ringBufferLength - 1;
                         }
 
-                        divItem.style.top = `${vertical}px`;
+                        divItem.style.transform = `translateY(${vertical}px)`;
                         vertical -= this.itemHeightNumber;
 
                         if (indexItem >= itemsCount)
@@ -300,7 +300,7 @@ class ListComponent {
 
                         let divItem = this.LIST_ringBuffer[ringBufferIndexItem];
 
-                        divItem.style.top = `${vertical}px`;
+                        divItem.style.transform = `translateY(${vertical}px)`;
                         vertical += this.itemHeightNumber;
 
                         if (indexItem >= itemsCount)
@@ -330,7 +330,7 @@ class ListComponent {
             let divItem = document.createElement('div');
             divItem.style.height = this.itemHeightStyleAttributeValueString;
             divItem.style.position = 'absolute';
-            divItem.style.top = `${vertical}px`;
+            divItem.style.transform = `translateY(${vertical}px)`;
             vertical += this.itemHeightNumber;
             divItem.textContent = i;
             this.itemListElement.appendChild(divItem);
@@ -435,7 +435,7 @@ class ListComponent {
             this.rootElement.scrollBy(0, this.cursorTopNumber - this.lastSeenScrollTop);
         }
 
-        this.cursorElement.style.top = this.cursorTopNumber + 'px';
+        this.cursorElement.style.transform = `translateY(${this.cursorTopNumber}px)`;
     }
 
     /**

@@ -160,14 +160,14 @@ class ListComponent {
     draw_addEvents() {
         this.rootElement.addEventListener('click', this);
         this.rootElement.addEventListener('keydown', this);
-        this.scroll_viewport.addEventListener('scroll', this);
+        this.scroll_viewport.addEventListener('scroll', this, { passive: true });
         window.addEventListener('resize', this);
     }
     
     draw_removeEvents() {
         this.rootElement.removeEventListener('click', this);
         this.rootElement.removeEventListener('keydown', this);
-        this.scroll_viewport.removeEventListener('scroll', this);
+        this.scroll_viewport.removeEventListener('scroll', this, { passive: true });
         window.removeEventListener('resize', this);
     }
 

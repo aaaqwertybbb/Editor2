@@ -214,7 +214,7 @@ TODO: maybe don't nearly-duplicate these classes.
 
   TODO: (this specific block of CSS is an ancillary reference to the original comment) maybe don't nearly-duplicate these classes.
   */
-.TREEVIEWexplorer:focus>.TREEVIEW_cursor {
+.TREEVIEWexplorer:focus > #EXPLORER_visual_canvas > #EXPLORER_text > .TREEVIEW_cursor {
   background-color: var(--primary-active-with-focus-background-color);
 }
 

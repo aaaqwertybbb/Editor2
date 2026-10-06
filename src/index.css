@@ -219,7 +219,6 @@ TODO: maybe don't nearly-duplicate these classes.
 */
 .TREEVIEWexplorer {
   position: relative;
-  overflow: scroll;
   outline: none;
   font-family: monospace;
   width: 200px;
@@ -251,16 +250,41 @@ TODO: maybe don't nearly-duplicate these classes.
 */
 .TREEVIEW {
   position: relative;
-  overflow: scroll;
+  overflow: hidden;
   outline: none;
   font-family: monospace;
   width: 100%;
   height: 100%;
-  will-change: transform;
+  contain: strict;
 }
 
 .TREEVIEW:focus>.TREEVIEW_cursor {
   background-color: var(--primary-active-with-focus-background-color);
+}
+
+.TREEVIEW_scroll_viewport {
+  position: absolute;
+  inset: 0;
+  overflow: scroll;
+  z-index: 3;
+}
+
+.TREEVIEW_visual_canvas {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.TREEVIEW_text {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  height: 100%;
+  left: 0px;
+  transform: translate3d(0px, 0px, 0px); /* TODO: If you're missing a default for this on anything probably add it? (scroll event yes but initially?) */
+  /* ... not that you add will: transform; I think it is --- I'm tired and just trying to type things a bit so I don't stagnate */
 }
 
 .TREEVIEW_virtualization {

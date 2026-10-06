@@ -46,18 +46,28 @@ class TreeViewComponent {
         this.rootElement.tabIndex = 0;
         this.rootElement.style.height = '100%';
 
-        this.virtualizationElement = document.createElement('div');
-        this.virtualizationElement.className = 'TREEVIEW_virtualization';
-        this.rootElement.appendChild(this.virtualizationElement);
+        this.scroll_viewport = document.createElement('div');
+        this.scroll_viewport.className = 'TREEVIEW_scroll_viewport';
+        this.scrollbar_space_generator = document.createElement('div');
+        this.scrollbar_space_generator.className = 'TREEVIEW_scrollbar_space_generator';
+        this.scroll_viewport.appendChild(this.scrollbar_space_generator);
+        this.rootElement.appendChild(this.scroll_viewport);
+
+        this.visual_canvas = document.createElement('div');
+        this.visual_canvas.className = 'TREEVIEW_visual_canvas';
+        this.text = document.createElement('div');
+        this.text.className = 'TREEVIEW_text';
+        this.visual_canvas.appendChild(this.text);
+        this.rootElement.appendChild(this.visual_canvas);
 
         /** Consider the existence of such methods as 'state_cursor_setIndex' before mutating state directly */
         this.cursorElement = document.createElement('div');
         this.cursorElement.className = 'TREEVIEW_cursor';
-        this.rootElement.appendChild(this.cursorElement);
+        this.text.appendChild(this.cursorElement);
 
         this.itemListElement = document.createElement('div');
         this.itemListElement.className = 'TREEVIEW_itemList';
-        this.rootElement.appendChild(this.itemListElement);
+        this.text.appendChild(this.itemListElement);
 
         this.itemHeightTotal = 0;
 
@@ -151,7 +161,7 @@ class TreeViewComponent {
      */
     TREEVIEW_render_do_SetItems() {
         this.itemListElement.innerHTML = '';
-        this.virtualizationElement.style.height = 1 + 'px';
+        this.scrollbar_space_generator.style.height = 1 + 'px';
         this.state_cursor_setIndex(0);
         
         this.director = this.SET_ITEMS_director;
@@ -160,7 +170,7 @@ class TreeViewComponent {
 
         this.cursorElement.style.height = this.itemHeightStyleAttributeValueString;
         this.itemHeightTotal = this.director.tvd_getTotalCount() * this.itemHeightNumber;
-        this.virtualizationElement.style.height = this.itemHeightTotal + 'px';
+        this.scrollbar_space_generator.style.height = this.itemHeightTotal + 'px';
         this.boundingClientRect = null;
     }
 
@@ -237,7 +247,7 @@ class TreeViewComponent {
     draw_addEvents() {
         this.rootElement.addEventListener('click', this);
         this.rootElement.addEventListener('keydown', this);
-        this.rootElement.addEventListener('scroll', this, { passive: true });
+        this.scroll_viewport.addEventListener('scroll', this, { passive: true });
         this.rootElement.addEventListener('dblclick', this);
         this.rootElement.addEventListener('contextmenu', this);
         window.addEventListener('resize', this);
@@ -246,7 +256,7 @@ class TreeViewComponent {
     draw_removeEvents() {
         this.rootElement.removeEventListener('click', this);
         this.rootElement.removeEventListener('keydown', this);
-        this.rootElement.removeEventListener('scroll', this, { passive: true });
+        this.scroll_viewport.removeEventListener('scroll', this, { passive: true });
         this.rootElement.addEventListener('dblclick', this);
         this.rootElement.addEventListener('contextmenu', this);
         window.removeEventListener('resize', this);
@@ -256,7 +266,7 @@ class TreeViewComponent {
     handleEvent(event) {
         switch (event.type) {
             case 'click':
-                this.event_click(event.clientY, event.target);
+                this.event_click(event.clientY, event.clientX);
                 break;
             case 'keydown':
                 this.event_keydown(event);
@@ -281,6 +291,9 @@ class TreeViewComponent {
             this.TREEVIEW_render_do_FullReset(timestamp);
         }
         else {
+
+            this.text.style.transform = `translate3d(-${this.lastReadNumber_scrollLeft}px, -${this.lastReadNumber_scrollTop}px, 0)`;
+
             this.virtualIndex_ofScrollTop = Math.floor(this.lastReadNumber_scrollTop / this.itemHeightNumber);
 
             if (this._ONSCROLLvirtualIndex === this.virtualIndex_ofScrollTop &&
@@ -404,7 +417,8 @@ class TreeViewComponent {
      * ...thus, you should consider checking the x position of the event against the x position of the nodeElement.children[0].
      * @param {*} event 
      */
-    event_click(event_clientY, event_target) {
+    event_click(event_clientY, event_clientX) {
+        // TODO: Change order of the function parameters?
         this.ensure_boundingClientRect();
 
         let rY = event_clientY - this.boundingClientRect.top + this.lastReadNumber_scrollTop;
@@ -415,11 +429,15 @@ class TreeViewComponent {
         let ringBufferIndexItem = ((indexItem)) - this.virtualIndex_ofScrollTop;
         if (ringBufferIndexItem >= this.TREEVIEW_ArrayFrom_itemListElement_children_length || ringBufferIndexItem < 0) ringBufferIndexItem = -1;
         else ringBufferIndexItem = (ringBufferIndexItem + this.ringBufferIndexZero) % this.virtualCount;
-
         if (ringBufferIndexItem < 0) return;
+
         let divItem = this.TREEVIEW_ArrayFrom_itemListElement_children[ringBufferIndexItem];
 
-        if (event_target === divItem.children[0]) {
+        // TODO: 'event_dblclick' with this depth logic?
+        // TODO: this component throws an exception when scrolling it just straight up doesn't work (well it does until it crashes the app)
+        const depth = this.director.nodeList.getDepth(indexItem);
+        const rX = (event_clientX - this.boundingClientRect.left + this.lastReadNumber_scrollLeft) - (depth * CONST_EXPLORER_offsetPerDepth);
+        if (rX >= 0 && rX <= EDI_characterWidth) {
             return this.director.tvd_expandCollapseIconWasClicked_async(divItem, indexItem);
         }
         else {
@@ -498,7 +516,7 @@ class TreeViewComponent {
             case 'ArrowDown':
                 event.preventDefault();
                 if (event.ctrlKey) {
-                    this.rootElement.scrollBy(0, this.itemHeightNumber);
+                    this.scroll_viewport.scrollBy(0, this.itemHeightNumber);
                 }
                 else {
                     this.state_cursor_setIndex(this.state_cursor_validateIndex(
@@ -508,7 +526,7 @@ class TreeViewComponent {
             case 'ArrowUp':
                 event.preventDefault();
                 if (event.ctrlKey) {
-                    this.rootElement.scrollBy(0, -1 * this.itemHeightNumber);
+                    this.scroll_viewport.scrollBy(0, -1 * this.itemHeightNumber);
                 }
                 else {
                     this.state_cursor_setIndex(this.state_cursor_validateIndex(
@@ -579,8 +597,8 @@ class TreeViewComponent {
     }
 
     event_scroll() {
-        this.lastReadNumber_scrollLeft = this.rootElement.scrollLeft;
-        this.lastReadNumber_scrollTop = this.rootElement.scrollTop;
+        this.lastReadNumber_scrollLeft = this.scroll_viewport.scrollLeft;
+        this.lastReadNumber_scrollTop = this.scroll_viewport.scrollTop;
         this.TREEVIEW_render_request(TREEVIEWrenderKind_Scroll);
     }
 
@@ -605,10 +623,10 @@ class TreeViewComponent {
             let currentBottom = this.lastReadNumber_scrollTop + this.boundingClientRect.height;
             let changeToMakeBottomTouch = this.cursorTranslateYNumber - currentBottom;
             let entireValueToScrollBy = changeToMakeBottomTouch + (2 * this.itemHeightNumber);
-            this.rootElement.scrollBy(0, entireValueToScrollBy);
+            this.scroll_viewport.scrollBy(0, entireValueToScrollBy);
         }
         else if (this.cursorTranslateYNumber < this.lastReadNumber_scrollTop) {
-            this.rootElement.scrollBy(0, this.cursorTranslateYNumber - this.lastReadNumber_scrollTop);
+            this.scroll_viewport.scrollBy(0, this.cursorTranslateYNumber - this.lastReadNumber_scrollTop);
         }
 
         // transform last for optimal state flagging of the modified DOM element

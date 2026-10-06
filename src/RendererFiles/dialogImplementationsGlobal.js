@@ -29,7 +29,7 @@ class DIALOG_FindAll_TreeViewDirector {
             this.nodeList.insert(this.nodeList.count_abstract, nodeKind, i, 0);
         }
         this.component.itemHeightTotal = this.tvd_getTotalCount() * this.component.itemHeightNumber;
-        this.component.virtualizationElement.style.height = this.component.itemHeightTotal + 'px';
+        this.component.scrollbar_space_generator.style.height = this.component.itemHeightTotal + 'px';
     }
 
     /** 
@@ -226,7 +226,7 @@ class DIALOG_FindAll_TreeViewDirector {
                     // TODO: Insert range, or at the least 'pre-emptively' resize the list so that it fits each insertion without resizing per insertion.
                     this.nodeList.insert(indexItem + 1 + i, nodeKind, indexItem + 1 + i, depth + 1);
                     this.component.itemHeightTotal = this.tvd_getTotalCount() * this.component.itemHeightNumber;
-                    this.component.virtualizationElement.style.height = this.component.itemHeightTotal + 'px';
+                    this.component.scrollbar_space_generator.style.height = this.component.itemHeightTotal + 'px';
                 }
             }
 
@@ -255,7 +255,7 @@ class DIALOG_FindAll_TreeViewDirector {
                     this.nodeList.setKey(i, this.nodeList.getKey(i) - countChildren);
                 }
                 this.component.itemHeightTotal = this.tvd_getTotalCount() * this.component.itemHeightNumber;
-                this.component.virtualizationElement.style.height = this.component.itemHeightTotal + 'px';
+                this.component.scrollbar_space_generator.style.height = this.component.itemHeightTotal + 'px';
                 this.component.draw_render_fullReset_request();
             }
         }

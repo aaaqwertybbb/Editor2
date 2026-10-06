@@ -459,20 +459,6 @@ function EDI_createViewport() {
  * you want the last thing that you drew to the screen whether the text being edited appears on screen if so edit the UI accordingly
  * to reflect the edit.
  */
-function EDI_onScroll_WRAPIT() {
-    // TODO: This code paragraph will run when scrolling horizontally at the moment, this is unfortunate because it relates to scrolling vertically.
-    // ==== start explicit inline (duplication) of 'update_VirtualIndexLine()';
-    // ====
-    // If scrollTop were to cause synchronous layout calculation, then scrollLeft wouldn't have one because it'd already be calculated.
-    // and vice versa.
-    // thus it is thought you might as well touch scrollLeft too here, if you're going down this path.
-    //
-    INTS[fEDI_lastReadNumber_scrollLeft] = EDI_scroll_viewport.scrollLeft;
-    INTS[fEDI_lastReadNumber_scrollTop] = EDI_scroll_viewport.scrollTop;
-
-    EDI_render_request(RenderKind_Scroll);
-}
-
 function EDI_scrollViewport_scroll() {
     INTS[fEDI_lastReadNumber_scrollLeft] = EDI_scroll_viewport.scrollLeft;
     INTS[fEDI_lastReadNumber_scrollTop] = EDI_scroll_viewport.scrollTop;
@@ -507,15 +493,6 @@ function EDI_render_do_Scroll(timestamp) {
     
     // If your gutter numbers move vertically too, shift them the same way!
     EDI_gutter_scroll_mover.style.transform = `translate3d(0px, -${lineRemainderY}px, 0)`;
-
-
-
-
-
-
-
-
-
 
     const local_lineHeight = INTS[fEDI_lineHeight];
     
@@ -859,7 +836,7 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
     EDI_drawGutter_Width();
     EDI_render_request(RenderKind_Cursor_n);
     EDI_drawHorizontalScrollbar();
-    // Force 'case 3' within 'EDI_onScroll_WRAPIT();' downstream
+    // Force 'case 3' within 'EDI_render_do_Scroll' downstream
     // TODO: (this comment is being made sometime after this solution was written but from memory...)...
     // ...I believe this works because when you change the text you guarantee a virtual index line of '0' because the scrollTop gets moved to 0...
     // ...the partial solution is to set it to anything other than '0' so the editor detects that a line of text needs to be drawn...
@@ -5561,7 +5538,7 @@ function EDI_drawHorizontalScrollbar() {
     }
     
     // TODO: this is directly tied to a scroll event on EDI_baseElement so handle it from there perhaps?
-    // TODO: this code is duplicated inside EDI_onScroll_WRAPIT when it returns early due to nothing vertically having changed, reduce duplication?
+    // TODO: this code is duplicated inside EDI_render_do_Scroll when it returns early due to nothing vertically having changed, reduce duplication?
     // TODO: 'INTS[fEDI_lastReadNumber_scrollLeft]' here?
     //if (EDI_horizontal_scrollbar.scrollLeft !== EDI_baseElement.scrollLeft) {
     //    EDI_horizontal_scrollbar.scrollLeft = EDI_baseElement.scrollLeft;
@@ -6728,7 +6705,7 @@ function EDI_render_do_Resize(timestamp) {
 
         INTS[fEDI_scrollEndDeadline] = timestamp + 1000;
 
-        EDI_render_do_Scroll(timestamp); //EDI_onScroll_WRAPIT();
+        EDI_render_do_Scroll(timestamp);
         // # Redraw cursor selection virtualization
         // Code Duplication: # Redraw cursor selection virtualization... TODO: This is using 'EDI_primaryCursor' rather than 'EDI_cursorList[i]' so it is surely incorrect?
         EDI_createStyleForSelection();
@@ -7835,13 +7812,9 @@ function PLAINTEXT_line_lex(div, substart, lineEnd, childIndex) {
 function EDI_registerHandlers() {
     EDI_baseElement.addEventListener('keydown', EDI_onKeyDown);
     EDI_baseElement.addEventListener('mousedown', EDI_onMouseDown);
-    //EDI_baseElement.addEventListener('scroll', EDI_onScroll_WRAPIT, { passive: true });
-
-    //EDI_baseElement.addEventListener('wheel', EDI_onWheel, { passive: true });
 
     EDI_baseElement.addEventListener('contextmenu', EDI_onContextMenu);
     window.addEventListener('resize', EDI_onResize_WRAPIT);
-    //EDI_horizontal_scrollbar.addEventListener('scroll', EDI_horizontal_scrollbar_onScroll, { passive: true });
 
     // Attach a single listener to your text container (Event Delegation)
     EDI_baseElement.addEventListener('mouseover', EDI_mouseOver);

@@ -295,3 +295,26 @@ EDI_gutter_scroll_mover.style.transform = `translate3d(0px, -${lineRemainderY}px
 
  8:31
 12:31
+
+=======
+
+TODO: Use a separate scroll container from the content in the other virtualized components.
+- [ ] explorer
+- [ ] TreeView
+- [ ] listComponent
+
+Explanation:^ using the explorer as an example.
+When I expand an extremely large amount of nodes the only content being shown is what is in view due to virtualization.
+But the GPU acceleration is being applied to the very same element.
+This causes the GPU to allocate a MASSIVE height element. And then only a fraction of that has content.
+
+When you separate the scroll container you still get a MASSIVE height element on the GPU
+but it actually allocated 0 bytes if you check.
+
+Whereas to go back to the previous case of "GPU acceleration is being applied to the very same element",
+the size of your virtualized content isn't changing. But nevertheless I'm finding
+that even with no content existing in that massive vertical space (except the virtualized content)
+that it causes a non-zero amount of allocation for that massive empty space.
+Whereas separating it you'd get 0.
+It doesn't seen to be a massive allocation, but it is there nevertheless it seems.
+TODO: verify this?

@@ -131,7 +131,7 @@ function AUTOCOMPLETE_render_RESET_lines(AUTOCOMPLETE_itemList) {
     INTS[fAUTOCOMPLETE_scrollTop] = 0;
 
     AUTOCOMPLETEElement.removeEventListener('scroll', AUTOCOMPLETE_events_scroll_receive, { passive: true });
-    AUTOCOMPLETEElement.scrollTop = 0;
+    AUTOCOMPLETE_scroll_viewport.scrollTop = 0;
     AUTOCOMPLETEElement.addEventListener('scroll', AUTOCOMPLETE_events_scroll_receive, { passive: true });
     INTS[fAUTOCOMPLETE_cursorIndex] = 0;
 
@@ -352,10 +352,10 @@ function AUTOCOMPLETE_cursor_render_set() {
         let currentBottom = INTS[fAUTOCOMPLETE_scrollTop] + INTS[fAUTOCOMPLETE_rectHeight];
         let changeToMakeBottomTouch = cursorTranslateYNumber - currentBottom;
         let entireValueToScrollBy = changeToMakeBottomTouch + (2 * INTS[fAPP_lineHeight]);
-        AUTOCOMPLETEElement.scrollBy(0, entireValueToScrollBy);
+        AUTOCOMPLETE_scroll_viewport.scrollBy(0, entireValueToScrollBy);
     }
     else if (cursorTranslateYNumber < INTS[fAUTOCOMPLETE_scrollTop]) {
-        AUTOCOMPLETEElement.scrollBy(0, cursorTranslateYNumber - INTS[fAUTOCOMPLETE_scrollTop]);
+        AUTOCOMPLETE_scroll_viewport.scrollBy(0, cursorTranslateYNumber - INTS[fAUTOCOMPLETE_scrollTop]);
     }
 
     // transform last for optimal state flagging of the modified DOM element

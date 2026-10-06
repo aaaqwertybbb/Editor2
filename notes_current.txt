@@ -299,7 +299,7 @@ EDI_gutter_scroll_mover.style.transform = `translate3d(0px, -${lineRemainderY}px
 =======
 
 TODO: Use a separate scroll container from the content in the other virtualized components.
-- [ ] explorer
+- [x] explorer
 - [ ] TreeView
 - [ ] listComponent
 
@@ -349,3 +349,8 @@ collapse node_modules it goes back down to 18 layers and 9.4 MB
 
 Yeah it 100% just keeps growing more and more for the folder explorer due to the scrollable area being the "accelerated dom element"
 18 layers 119 MB as I just keep expanding more and more
+
+28.9 sky rocketed to 58.6 when showing the list in a dialog
+when I show settings 31.3 (22 layers)
+
+the other was 27 layers 58.6 MB

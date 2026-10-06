@@ -178,6 +178,17 @@ TODO: maybe don't nearly-duplicate these classes.
   contain: strict;
 }
 
+  /*
+  TODO: (this specific block of CSS is an ancillary reference to the original comment) 'TREEVIEWexplorer' is nearly identical to 'TREEVIEW'...
+  ...but the folder explorer is always on screen and I'm trying to get the
+  composite layers correct.
+
+  TODO: (this specific block of CSS is an ancillary reference to the original comment) maybe don't nearly-duplicate these classes.
+  */
+  .TREEVIEWexplorer:focus > .TREEVIEW_cursor {
+    background-color: var(--primary-active-with-focus-background-color);
+  }
+
 /*
 TODO: 'TREEVIEWexplorer' is nearly identical to 'TREEVIEW'...
 ...but the folder explorer is always on screen and I'm trying to get the
@@ -195,7 +206,7 @@ TODO: maybe don't nearly-duplicate these classes.
   will-change: transform;
 }
 
-  .TREEVIEW:focus .TREEVIEW_cursor {
+  .TREEVIEW:focus > .TREEVIEW_cursor {
     background-color: var(--primary-active-with-focus-background-color);
   }
 

@@ -1092,6 +1092,12 @@ async function findAll(event, search, matchWord) {
 					else if (childList[i].name === 'out') {
 						console.log('do not recurse into out');
 					}
+					else if (childList[i].name === 'build') {
+						console.log('do not recurse into build');
+					}
+					else if (childList[i].name === 'preprocessor') {
+						console.log('do not recurse into preprocessor');
+					}
 					else {
 						// TODO: Presumably there is an API that would provide this more optimally
 						let absolutePathOfChild = path.join(childList[i].parentPath, childList[i].name);

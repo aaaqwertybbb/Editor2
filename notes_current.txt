@@ -347,3 +347,5 @@ omg 18 layers and 9.4 MB
 expanded node_modules 18 layers and 35.8 MB
 collapse node_modules it goes back down to 18 layers and 9.4 MB
 
+Yeah it 100% just keeps growing more and more for the folder explorer due to the scrollable area being the "accelerated dom element"
+18 layers 119 MB as I just keep expanding more and more

@@ -324,3 +324,26 @@ so that you only ever allocate EXACTLY the dimensions of your virtualized conten
 So you get -300px on the div and then each line has 300, 315, 330 but they actually are 0, 15, 30
 then at 600 scroll on the separate scrollable area you set the div to -600 translate y and then
 the lines are 600, 615, 630 but you still only have 0, 15, 30 so the GPU allocation is small.
+
+====
+
+Before changes:
+
+npm run start
+- 6.7 MB
+- 12 layers
+
+Immediately after I pick workspace:
+- 8.3 MB
+- 18 layers
+
+Use mouse click to expand folder explorer the minimum amount of nodes necessary to open editorGlobal.js in the editor (let the syntax highlighting debounce trigger):
+- 32.8 MB
+- 22 layers
+
+====
+
+omg 18 layers and 9.4 MB
+expanded node_modules 18 layers and 35.8 MB
+collapse node_modules it goes back down to 18 layers and 9.4 MB
+

@@ -118,6 +118,7 @@ body {
 }
 
 .LIST {
+  overflow: hidden;
   position: relative;
   contain: strict;
 }
@@ -146,6 +147,31 @@ body {
   display: contents;
 }
 
+#AUTOCOMPLETE_scroll_viewport {
+  position: absolute;
+  inset: 0;
+  overflow: scroll;
+  z-index: 3;
+}
+
+#AUTOCOMPLETE_visual_canvas {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+#AUTOCOMPLETE_text {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  height: 100%;
+  left: 0px;
+  transform: translate3d(0px, 0px, 0px); /* TODO: If you're missing a default for this on anything probably add it? (scroll event yes but initially?) */
+  /* ... not that you add will: transform; I think it is --- I'm tired and just trying to type things a bit so I don't stagnate */
+}
+
 #AUTOCOMPLETE {
   position: fixed;
   width: 200px;
@@ -158,8 +184,8 @@ body {
   /* the padding-top needs to be accounted for in the js code anywhere calculation of which option was clicked is done, as well any other scenarios that might follow the pattern */
   padding-top: 4px;
   padding-bottom: 1px;
-  overflow: scroll;
-  transform: translate3d(0px, 0px, 0px);
+  overflow: hidden;
+  contain: strict;
 }
 
 #AUTOCOMPLETE:focus #AUTOCOMPLETE_cursor {

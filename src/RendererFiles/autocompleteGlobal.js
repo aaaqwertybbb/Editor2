@@ -15,7 +15,11 @@ const AUTOCOMPLETErenderKind_CreateLines = 4;
 const AUTOCOMPLETErenderKind_Scroll = 5;
 
 let AUTOCOMPLETEElement = null;
+let AUTOCOMPLETE_scroll_viewport = null;
+let AUTOCOMPLETE_text = null;
 let AUTOCOMPLETE_ringBuffer = null;
+
+let AUTOCOMPLETE_scrollLeft = 0;
 
 function AUTOCOMPLETE_render_request(renderKind) {
     if (BYTES[byteAUTOCOMPLETE_queueHead] !== BYTES[byteAUTOCOMPLETE_queueTail]) {
@@ -158,7 +162,7 @@ function AUTOCOMPLETE_render_do_show(timestamp) {
 
     let local_AUTOCOMPLETEElement;
     let AUTOCOMPLETE_itemList;
-    let AUTOCOMPLETE_virtualization;
+    let AUTOCOMPLETE_scrollbar_space_generator;
 
     if (BYTES[byteAUTOCOMPLETE_exists]) {
         local_AUTOCOMPLETEElement = document.getElementById('AUTOCOMPLETE');
@@ -168,8 +172,8 @@ function AUTOCOMPLETE_render_do_show(timestamp) {
             throw new Error();
         }
 
-        AUTOCOMPLETE_virtualization = document.getElementById('AUTOCOMPLETE_itemList');
-        if (!AUTOCOMPLETE_virtualization) {
+        AUTOCOMPLETE_scrollbar_space_generator = document.getElementById('AUTOCOMPLETE_scrollbar_space_generator');
+        if (!AUTOCOMPLETE_scrollbar_space_generator) {
             throw new Error();
         }
 
@@ -194,18 +198,31 @@ function AUTOCOMPLETE_render_do_show(timestamp) {
         local_AUTOCOMPLETEElement.style.top = '0px';
         local_AUTOCOMPLETEElement.tabIndex = 0;
 
-        AUTOCOMPLETE_virtualization = document.createElement('div');
-        AUTOCOMPLETE_virtualization.id = 'AUTOCOMPLETE_virtualization';
-        local_AUTOCOMPLETEElement.appendChild(AUTOCOMPLETE_virtualization);
+        AUTOCOMPLETE_scroll_viewport = document.createElement('div');
+        AUTOCOMPLETE_scroll_viewport.id = 'AUTOCOMPLETE_scroll_viewport';
+        AUTOCOMPLETE_scrollbar_space_generator = document.createElement('div');
+        AUTOCOMPLETE_scrollbar_space_generator.id = 'AUTOCOMPLETE_scrollbar_space_generator';
+        AUTOCOMPLETE_scroll_viewport.appendChild(AUTOCOMPLETE_scrollbar_space_generator);
+        local_AUTOCOMPLETEElement.appendChild(AUTOCOMPLETE_scroll_viewport);
+
+        //AUTOCOMPLETE_virtualization = document.createElement('div');
+        //AUTOCOMPLETE_virtualization.id = 'AUTOCOMPLETE_virtualization';
+        //local_AUTOCOMPLETEElement.appendChild(AUTOCOMPLETE_virtualization);
+
+        const AUTOCOMPLETE_visual_canvas = document.createElement('div');
+        AUTOCOMPLETE_visual_canvas.id = 'AUTOCOMPLETE_visual_canvas';
+        AUTOCOMPLETE_text = document.createElement('div');
+        AUTOCOMPLETE_text.id = 'AUTOCOMPLETE_text';
+        AUTOCOMPLETE_visual_canvas.appendChild(AUTOCOMPLETE_text);
+        local_AUTOCOMPLETEElement.appendChild(AUTOCOMPLETE_visual_canvas);
 
         let AUTOCOMPLETE_cursor = document.createElement('div');
         AUTOCOMPLETE_cursor.id = 'AUTOCOMPLETE_cursor';
-        local_AUTOCOMPLETEElement.appendChild(AUTOCOMPLETE_cursor);
+        AUTOCOMPLETE_text.appendChild(AUTOCOMPLETE_cursor);
 
         AUTOCOMPLETE_itemList = document.createElement('div');
         AUTOCOMPLETE_itemList.id = 'AUTOCOMPLETE_itemList';
-
-        local_AUTOCOMPLETEElement.appendChild(AUTOCOMPLETE_itemList);
+        AUTOCOMPLETE_text.appendChild(AUTOCOMPLETE_itemList);
 
         document.body.appendChild(local_AUTOCOMPLETEElement);
         let rect = local_AUTOCOMPLETEElement.getBoundingClientRect();
@@ -230,7 +247,7 @@ function AUTOCOMPLETE_render_do_show(timestamp) {
 
     // TODO: This doesn't need mail.ceil but perhaps add it to ensure things?
     let itemHeightTotalNumber = INTS[fAUTOCOMPLETE_items_totalLength] * INTS[fAPP_lineHeight] + CONST_AUTOCOMPLETE_topPadding;
-    AUTOCOMPLETE_virtualization.style.height = itemHeightTotalNumber + 'px';
+    AUTOCOMPLETE_scrollbar_space_generator.style.height = itemHeightTotalNumber + 'px';
 
     BYTES[byteAUTOCOMPLETE_exists] = 1;
 
@@ -372,14 +389,14 @@ function AUTOCOMPLETE_ensure_boundingClientRect() {
 
 function AUTOCOMPLETE_events_add(AUTOCOMPLETEElement) {
     AUTOCOMPLETEElement.addEventListener('keydown', AUTOCOMPLETE_events_onkeydown);
-    AUTOCOMPLETEElement.addEventListener('scroll', AUTOCOMPLETE_events_scroll_receive, { passive: true });
+    AUTOCOMPLETE_scroll_viewport.addEventListener('scroll', AUTOCOMPLETE_events_scroll_receive, { passive: true });
     AUTOCOMPLETEElement.addEventListener('blur', AUTOCOMPLETE_events_blur_receive);
     window.addEventListener('resize', AUTOCOMPLETE_events_resize);
 }
 
 function AUTOCOMPLETE_events_remove(AUTOCOMPLETEElement) {
     AUTOCOMPLETEElement.removeEventListener('keydown', AUTOCOMPLETE_events_onkeydown);
-    AUTOCOMPLETEElement.removeEventListener('scroll', AUTOCOMPLETE_events_scroll_receive, { passive: true });
+    AUTOCOMPLETE_scroll_viewport.removeEventListener('scroll', AUTOCOMPLETE_events_scroll_receive, { passive: true });
     AUTOCOMPLETEElement.removeEventListener('blur', AUTOCOMPLETE_events_blur_receive);
     window.removeEventListener('resize', AUTOCOMPLETE_events_resize);
 }
@@ -397,7 +414,8 @@ function AUTOCOMPLETE_events_scroll_receive(event) {
     //
     // Something is still breaking
     // 
-    INTS[fAUTOCOMPLETE_scrollTop] = AUTOCOMPLETEElement.scrollTop;
+    INTS[fAUTOCOMPLETE_scrollTop] = AUTOCOMPLETE_scroll_viewport.scrollTop;
+    AUTOCOMPLETE_scrollLeft = AUTOCOMPLETE_scroll_viewport.scrollLeft;
     AUTOCOMPLETE_render_request(AUTOCOMPLETErenderKind_Scroll);
 }
 
@@ -411,6 +429,9 @@ function AUTOCOMPLETE_events_scroll_render(timestamp) {
     }
 
     let prevVli = INTS[fAUTOCOMPLETE_virtualIndex];
+
+    AUTOCOMPLETE_text.style.transform = `translate3d(-${AUTOCOMPLETE_scrollLeft}px, -${INTS[fAUTOCOMPLETE_scrollTop]}px, 0)`;
+
     // TODO: minus CONST_AUTOCOMPLETE_topPadding
     let currVli = Math.floor(INTS[fAUTOCOMPLETE_scrollTop] / INTS[fAPP_lineHeight]);
 

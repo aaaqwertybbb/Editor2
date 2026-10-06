@@ -300,9 +300,9 @@ EDI_gutter_scroll_mover.style.transform = `translate3d(0px, -${lineRemainderY}px
 
 TODO: Use a separate scroll container from the content in the other virtualized components.
 - [x] explorer
-- [ ] TreeView
+- [x] TreeView
 - [x] listComponent
-- [ ] Autocomplete
+- [x] Autocomplete
 
 Explanation:^ using the explorer as an example.
 When I expand an extremely large amount of nodes the only content being shown is what is in view due to virtualization.
@@ -360,3 +360,5 @@ the other was 27 layers 58.6 MB
 
 56.5 when ctrlshiftf EDI_ expand my-custom-babel-plugin.cjs(157)
 33.3
+
+34 to 30 I can't tell it's troo small and I'm tiredd?

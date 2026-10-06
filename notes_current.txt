@@ -292,3 +292,6 @@ EDI_text.style.transform = `translate3d(-${INTS[fEDI_lastReadNumber_scrollLeft]}
 // If your gutter numbers move vertically too, shift them the same way!
 EDI_gutter_scroll_mover.style.transform = `translate3d(0px, -${lineRemainderY}px, 0)`;
 ```
+
+ 8:31
+12:31

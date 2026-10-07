@@ -253,6 +253,6 @@ function documentBody_onKeyDown(event) {
     }
 }
 
-async function HEADER_buttonSettings_onClick() {
-    return DIALOG_show_async(DialogKind_Settings);
+function HEADER_buttonSettings_onClick() {
+    DIALOG_show_async(DialogKind_Settings);
 }

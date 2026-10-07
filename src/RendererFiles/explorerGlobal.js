@@ -1543,7 +1543,7 @@ async function NewFile_Directory_WIDGET_InputText_callback(result) {
     let depthOfTheParent = INTS[fTreeView_pooledNode_depth];
     let isCollapsed = nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded || nodeKind === TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
 
-    let newFileResult = await window.myAPI.newFile(entry.absolutePath, result.value, /*isDirectory*/ true);
+    let newFileResult = await window.myAPI.newFile(entry.absolutePath, result.resultData, /*isDirectory*/ true);
     if (!newFileResult.success) { return; }
 
     /*
@@ -1629,7 +1629,7 @@ async function NewFile_File_WIDGET_InputText_callback(result) {
     let depthOfTheParent = INTS[fTreeView_pooledNode_depth];
     let isCollapsed = nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded || nodeKind === TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
 
-    let newFileResult = await window.myAPI.newFile(entry.absolutePath, result.value, /*isDirectory*/ false);
+    let newFileResult = await window.myAPI.newFile(entry.absolutePath, result.resultData, /*isDirectory*/ false);
     if (!newFileResult.success) { return; }
     
     /*
@@ -1780,11 +1780,11 @@ async function RenameFile_Directory_InputText_callback(result) {
     // TODO: Confusing, hacky, upsetting: 'WIDGET_target.entry / WIDGET_target.MENU_target'
     const entry = result.request.target.entry;
     const target = result.request.target.MENU_target;
-    let renameFileResult = await window.myAPI.renameFile(entry.absolutePath, result.value, /*isDirectory*/ true);
+    let renameFileResult = await window.myAPI.renameFile(entry.absolutePath, result.resultData, /*isDirectory*/ true);
     if (!renameFileResult.success) { return; }
     EXPLORER_setNodeListEntryId(target.indexItem, renameFileResult.pathId);
     let divItem = EXPLORER_itemListElement.children[target.divRelativeIndex];
-    divItem.firstChild.replaceData(1, textNode.length - 1, result.value);
+    divItem.firstChild.replaceData(1, textNode.length - 1, result.resultData);
 }
 
 async function RenameFile_File_InputText_callback(result) {
@@ -1792,11 +1792,11 @@ async function RenameFile_File_InputText_callback(result) {
     // TODO: Confusing, hacky, upsetting: 'WIDGET_target.entry / WIDGET_target.MENU_target'
     const entry = result.request.target.entry;
     const target = result.request.target.MENU_target;
-    let renameFileResult = await window.myAPI.renameFile(entry.absolutePath, result.value, /*isDirectory*/ false);
+    let renameFileResult = await window.myAPI.renameFile(entry.absolutePath, result.resultData, /*isDirectory*/ false);
     if (!renameFileResult.success) { return; }
     EXPLORER_setNodeListEntryId(target.indexItem, renameFileResult.pathId);
     let divItem = EXPLORER_itemListElement.children[target.divRelativeIndex];
-    divItem.firstChild.replaceData(1, textNode.length - 1, result.value);
+    divItem.firstChild.replaceData(1, textNode.length - 1, result.resultData);
 }
 
 // TODO: look at the "async" events because its nonsensical

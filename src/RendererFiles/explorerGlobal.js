@@ -1458,7 +1458,7 @@ async function CommandKind_Paste_MenuOnClick_Paste(entry) {
         }
 
         if (pasteResult.isDirectory) {
-            countChanges = EXPLORER_removeFromNodeList(indexItem);
+            let countChanges = EXPLORER_removeFromNodeList(indexItem);
         }
         else {
             EXPLORER_treeViewNodes.removeAt(indexItem, 1);

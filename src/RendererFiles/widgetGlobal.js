@@ -139,8 +139,6 @@ function WIDGET_render_do_Show() {
     WIDGET_element.style.top = `${finalTop}px`;
 }
 
-
-
 /**
  * Two consecutive invocations of this function will result in the first invocation's 'callback' being invoked with the cancelled state.
  * Whether the first invocation's rAF request triggered or not has no impact on things.
@@ -170,7 +168,6 @@ async function WIDGET_show(widgetKind, left, top, placeholder, value, target, el
         callback: callback,
         ticket: INTS[fWIDGET_ticketId_counter]++
     };
-
 
     WIDGET_render_request(WIDGETrenderKind_Show);
 }
@@ -213,7 +210,7 @@ function WIDGET_hide() {
  * 
  * @param {*} changingFocusIsReasonable A blur event should not change focus.
  */
-async function WIDGET_completeForm(forceIsCancelled, changingFocusIsReasonable, resultData) {
+function WIDGET_completeForm(forceIsCancelled, changingFocusIsReasonable, resultData) {
     const local_request = WIDGET_request;
     WIDGET_hide();
     if (changingFocusIsReasonable && !local_request.disableFocusOnCompleted && local_request.elementToFocusOnCompleted) {

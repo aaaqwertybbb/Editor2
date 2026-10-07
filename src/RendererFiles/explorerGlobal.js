@@ -1746,13 +1746,14 @@ async function DeleteFile_File_YesCancel_callback(result) {
     if (result.isCancelled) return;
     // TODO: Biggest concern is that 'result.request.value' is never set to a GC collectable state after widget finishes.
     // ...better wording of the TODO: the object that 'result.request.value' references can never be garbage collected even after the widget finishes (unless a later show of a widget overrites the variable to reference a different object). This is because the variable is never set to null. Due to the variable being global, it exists for the entire app duration and a null set is required in this case for garbage collection of what it points to to take place.
-    let entry = result.request.value;
+    const entry = result.request.value;
+    const target = result.request.target;
     let deleteFileResult = await window.myAPI.deleteFile(entry.absolutePath, /*isDirectory*/ false);
     if (!deleteFileResult) { return; }
     
     let noMoreEntriesToShow = INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] >= EXPLORER_treeViewNodes.count_abstract;
 
-    EXPLORER_treeViewNodes.removeAt(WIDGET_target.indexItem, 1);
+    EXPLORER_treeViewNodes.removeAt(target.indexItem, 1);
 
     if (INTS[fEXPLORER_virtualCount] > 0) {
         //let divItem = EXPLORER_itemListElement.children[WIDGET_target.divRelativeIndex];

@@ -191,7 +191,7 @@ function dialog_documentSymbol_onResizeAction() {
     }
 }
 
-async function documentBody_onKeyDown(event) {
+function documentBody_onKeyDown(event) {
     switch (event.key) {
         case 's':
         case 'S':
@@ -201,12 +201,12 @@ async function documentBody_onKeyDown(event) {
             if (rawData.uint8arrayTextBytes) {
                 event.preventDefault();
                 event.stopPropagation();
-                return window.myAPI.editorSaveFile(unvalidatedAbsolutePath, rawData.uint8arrayTextBytes, rawData.countOfBytesInUse, rawData.lineEndString, rawData.fileStartsWithBom);
+                window.myAPI.editorSaveFile(unvalidatedAbsolutePath, rawData.uint8arrayTextBytes, rawData.countOfBytesInUse, rawData.lineEndString, rawData.fileStartsWithBom);
             }
             return;
         case 'F':
             if (!event.ctrlKey) return;
-            return DIALOG_show_async(DialogKind_FindAll);
+            DIALOG_show_async(DialogKind_FindAll);
         case 'Escape':
             // TODO: Provide a way to disable the next (body, and useCapture) 'Escape' keypress...
             // ...so a widget can restore focus to the relevant UI rather than

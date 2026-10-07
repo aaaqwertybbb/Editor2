@@ -509,6 +509,12 @@ Step 2:
 - Make a directory `this-modifier-extension`
 - package.json
 - syntaxes/this-modifier.tmLanguage.json
+- npm install -g @vscode/vsce
+- vsce package
+- In vscode open the extensions panel
+    - click the three dots in the top right
+    - Install from VSIX...
+    - The VSIX is in the directory `this-modifier-extension`
 
 package.json:
 ```json

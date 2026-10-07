@@ -1596,22 +1596,9 @@ async function NewFile_Directory_WIDGET_InputText_callback(result) {
 
         EXPLORER_treeViewNodes.insert(someIndex, nodeKind, newFileResult.pathId, target.depth + 1);
 
-        if (INTS[fEXPLORER_virtualCount] > 0) {
-            let largestIndexItemBeingShown = INTS[fEXPLORER_virtualIndex_ofScrollTop] + (INTS[fEXPLORER_virtualCount] - 1);
-            if (someIndex >= INTS[fEXPLORER_virtualIndex_ofScrollTop] && someIndex <= largestIndexItemBeingShown) {
-                //let finalDiv = EXPLORER_itemListElement.children[EXPLORER_itemListElement.children.length - 1];
-
-                INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-                EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
-
-                //await EXPLORER_drawItem_async(finalDiv, someIndex, /*isNull*/ false);
-                if (someIndex !== largestIndexItemBeingShown) {
-                    //EXPLORER_itemListElement.insertBefore(finalDiv, EXPLORER_itemListElement.children[WIDGET_target.divRelativeIndex + 1 + newFileResult.indexOf]);
-                }
-            }
-
-            EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
-        }
+        INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
+        EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
+        EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
     }
 }
 

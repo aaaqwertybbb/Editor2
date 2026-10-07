@@ -7,30 +7,54 @@ const WIDGETrenderKind_Show = 1;
 const WIDGETrenderKind_Hide = 2;
 
 /**
- * @callback MENU_Callback
- * @param {Object} options - The response object.
- * @param {boolean} [options.isCancelled=false] - Indicates if the action was cancelled.
- * @param {string} [options.value=''] - The data string returned.
+ * @callback WIDGET_Callback
+ * @param {WidgetResult} result
  * @returns {Promise}
  */
 
-let WIDGET_restoreFocusToElement_drawn = null;
+class WidgetRequest {
+    /**
+     * @param {any} widgetKind WidgetKind_...
+     * @param {number} left 
+     * @param {number} top 
+     * @param {*} placeholder 
+     * @param {*} value 
+     * @param {*} target 
+     * @param {*} elementToFocusOnCompleted 
+     * @param {*} disableFocusOnCompleted 
+     * @param {WIDGET_Callback} callback 
+     * @param {number} ticket 
+     */
+    constructor(widgetKind, left, top, placeholder, value, target, elementToFocusOnCompleted, disableFocusOnCompleted, callback, ticket) {
+        this.widgetKind = widgetKind;
+        this.left = left;
+        this.top = top;
+        this.placeholder = placeholder;
+        this.value = value;
+        this.target = target;
+        this.elementToFocusOnCompleted = elementToFocusOnCompleted;
+        this.disableFocusOnCompleted = disableFocusOnCompleted;
+        /** @type {WIDGET_Callback} */
+        this.callback = callback;
+        this.ticket = ticket;
+    }
+}
 
-/**
- * @type {MENU_Callback}
- */
-let WIDGET_currentCallback = null;
-let WIDGET_placeholder = null;
-let WIDGET_value = null;
-let WIDGET_target = null;
+class WidgetResult {
+    /**
+     * @param {boolean} isCancelled 
+     * @param {any} resultData 
+     * @param {WidgetRequest} request 
+     */
+    constructor(isCancelled, resultData, request) {
+        this.isCancelled = isCancelled;
+        this.resultData = resultData;
+        this.request = request;
+    }
+}
 
-// Instead of passing the data around in a way that even still is prone to timing errors
-// you should tag the UI with an id and each set increments this id you then verify that the id is matching upon
-// submitting the "form"/"widget" and if the id doesn't match then the "widget" is stale and you ignore the submition.
-//
-// Although you'd want to ensure that every callback has the 'cancel' passed to it when it gets overwritten
-
-let WIDGET_restoreFocusToElementOverride = null;
+/** @type {WidgetRequest} */
+let WIDGET_request = null;
 
 // You aren't focusing the widget element itself so blur likely won't work.
 //WIDGET_element.addEventListener('focusout', () => WIDGET_hide());
@@ -90,24 +114,20 @@ function WIDGET_render_do_Show() {
         document.body.appendChild(WIDGET_element);
     }
 
-    BYTES[byteWIDGET_WidgetKind_drawn] = BYTES[byteWIDGET_WidgetKind_pending];
+    BYTES[byteWIDGET_WidgetKind_drawn] = WIDGET_request.widgetKind;
 
-    if (WIDGET_restoreFocusToElementOverride) {
-        WIDGET_restoreFocusToElement_drawn = WIDGET_restoreFocusToElementOverride;
-        WIDGET_restoreFocusToElementOverride = null;
-    }
-    else {
-        WIDGET_restoreFocusToElement_drawn = document.activeElement;
+    if (!WIDGET_request.elementToFocusOnCompleted) {
+        WIDGET_request.elementToFocusOnCompleted = document.activeElement;
     }
     
-    INTS[fWIDGET_ticketId_drawn] = INTS[fWIDGET_ticketId_pending];
+    INTS[fWIDGET_ticketId_drawn] = WIDGET_request.ticket;
 
     switch (BYTES[byteWIDGET_WidgetKind_drawn]) {
         case WidgetKind_InputText:
-            WIDGET_CreateInputText();
+            WidgetKind_InputText_Create();
             break;
         case WidgetKind_YesCancel:
-            WIDGET_CreateYesCancel();
+            WidgetKind_YesCancel_Create();
             break;
     }
 
@@ -139,6 +159,8 @@ function WIDGET_render_do_Show() {
     WIDGET_element.style.top = `${finalTop}px`;
 }
 
+
+
 /**
  * Two consecutive invocations of this function will result in the first invocation's 'callback' being invoked with the cancelled state.
  * Whether the first invocation's rAF request triggered or not has no impact on things.
@@ -151,25 +173,13 @@ function WIDGET_render_do_Show() {
  * @param {string} placeholder if the corresponding widget has a corresponding placeholder attribute this string will be provided as the attribute's value. This is stored in the variable 'WIDGET_placeholder'.
  * @param {string | object} value if the corresponding widget has a value attribute and this is expectedly a 'string' then this will be provided as the attribute's value. This is stored in the variable 'WIDGET_value'.
  * @param {object} target this is stored in the variable 'WIDGET_target'.
- * @param {MENU_Callback} callback this is invoked when the widget is either submitted or cancelled.
+ * @param {WIDGET_Callback} callback this is invoked when the widget is either submitted or cancelled.
  */
-async function WIDGET_show(widgetKind, left, top, placeholder, value, target, callback) {
+async function WIDGET_show(widgetKind, left, top, placeholder, value, target, elementToFocusOnCompleted, disableFocusOnCompleted, callback) {
+    if (WIDGET_request) { await WIDGET_completeForm(true); }
 
-    INTS[fWIDGET_ticketId_pending] = INTS[fWIDGET_ticketId_counter]++;
-    BYTES[byteWIDGET_WidgetKind_pending] = widgetKind;
-
-    // TODO: Does this go before the above ticketId logic? I'm not sure but I feel confident that it makes more sense at the least above the '_left and _top' logic.
-    if (WIDGET_currentCallback) {
-        await WIDGET_currentCallback({isCancelled:true, value:undefined});
-    }
-    WIDGET_currentCallback = callback;
-
-    INTS[fWIDGET_left] = left;
-    INTS[fWIDGET_top] = top;
-    WIDGET_placeholder = placeholder;
-    WIDGET_value = value;
-    WIDGET_target = target;
-
+    WIDGET_request = new WidgetRequest(
+        widgetKind, left, top, placeholder, value, target, elementToFocusOnCompleted, disableFocusOnCompleted, callback, INTS[fWIDGET_ticketId_counter]++);
     WIDGET_render_request(WIDGETrenderKind_Show);
 }
 
@@ -178,38 +188,24 @@ function WIDGET_render_do_Hide() {
 
     switch (BYTES[byteWIDGET_WidgetKind_drawn]) {
         case WidgetKind_InputText:
-            let input = document.getElementById('WIDGET_inputText');
-            input.removeEventListener('keydown', WIDGET_inputTextOnKeyDown);
+            WidgetKind_InputText_Delete(WIDGET_element);
             break;
         case WidgetKind_YesCancel:
-            let yesButtonElement = document.getElementById('WIDGET_YesCancel_yes');
-            yesButtonElement.removeEventListener('click', WIDGET_YesCancelButtonOnClick_yes);
-            let cancelButtonElement = document.getElementById('WIDGET_YesCancel_cancel');
-            cancelButtonElement.removeEventListener('click', WIDGET_YesCancelButtonOnClick_cancel);
+            WidgetKind_YesCancel_Delete(WIDGET_element);
             break;
     }
     BYTES[byteWIDGET_WidgetKind_drawn] = WidgetKind_None;
+    INTS[fWIDGET_ticketId_drawn] = 0;
     WIDGET_element.remove();
-    if (BYTES[byteWIDGET_shouldRestoreFocus] && WIDGET_restoreFocusToElement_drawn)
-        WIDGET_restoreFocusToElement_drawn.focus();
 }
 
-async function WIDGET_state_do_Hide(shouldRestoreFocus) {
-
-    // TODO: This is believed to prevent any funny business where a UI is being shown, asked to be hidden, submitted before the hide rAF. Once this is confirmed to be true (or other...) remove or update this comment accordingly.
-    INTS[fWIDGET_ticketId_pending] = INTS[fWIDGET_ticketId_counter]++;
-
-    BYTES[byteWIDGET_shouldRestoreFocus] = shouldRestoreFocus;
-    if (WIDGET_currentCallback) {
-        await WIDGET_currentCallback({isCancelled:true, value:undefined});
-    }
-    WIDGET_currentCallback = null;
-    BYTES[byteWIDGET_WidgetKind_pending] = WidgetKind_None;
-    WIDGET_target = null;
-}
-
-async function WIDGET_hide(shouldRestoreFocus) {
-    await WIDGET_state_do_Hide(shouldRestoreFocus);
+/**
+ * Nobody should invoke this, the goal is that if someone shows a widget they ought to always get a 'WIDGET_completeForm' invocation for their 'WIDGET_request'.
+ * If you invoke this you'll silently skip someone's 'WIDGET_request', if there is one.
+ */
+function WIDGET_hide() {
+    // In case someone skips a 'WIDGET_completeForm'.
+    WIDGET_request = null;
     WIDGET_render_request(WIDGETrenderKind_Hide);
 }
 
@@ -223,42 +219,37 @@ async function WIDGET_hide(shouldRestoreFocus) {
  * Any internal "completion" due to for example invoking 'hide' when a UI" is being shown skips this function.
  * If anyone desires to in the future change this such that the internal "completion" uses this function, take care because 'INTS[fWIDGET_ticketId_pending] === INTS[fWIDGET_ticketId_drawn]'
  * isn't quite as sensible when dealing with internal "completion" that needs to cancel the previous UI.
+ * 
+ * @param {*} changingFocusIsReasonable A blur event should not change focus.
  */
-async function WIDGET_completeForm(resultObject) {
-    if (WIDGET_currentCallback) {
-        if (INTS[fWIDGET_ticketId_pending] !== INTS[fWIDGET_ticketId_drawn]) {
-            resultObject.isCancelled = true;
+async function WIDGET_completeForm(forceIsCancelled, changingFocusIsReasonable, resultData) {
+    const local_request = WIDGET_request;
+    WIDGET_request = null;
+    if (changingFocusIsReasonable && !local_request.disableFocusOnCompleted && local_request.elementToFocusOnCompleted) {
+        local_request.elementToFocusOnCompleted.focus();
+    }
+    if (local_request.callback) {
+        if (!forceIsCancelled && local_request.ticket !== INTS[fWIDGET_ticketId_drawn]) {
+            forceIsCancelled = true;
         }
-        // Avoid duplicate submissions
-        // TODO: You should permit a means of cancelling the asynchronous request
-        // TODO: You should consider handling the case where the asynchronous request fails due to a reason that would reasonably be followed up by allowing the user to try submitting the form again.
-        //
-        let local_WIDGET_currentCallback = WIDGET_currentCallback;
-        WIDGET_currentCallback = null;
-        return local_WIDGET_currentCallback(resultObject);
+        if (resultData === null) {
+            switch (local_request.widgetKind) {
+                case WidgetKind_InputText:
+                    resultData = WidgetKind_InputText_GetResultData();
+                    break;
+                case WidgetKind_YesCancel:
+                    resultData = WidgetKind_YesCancel_GetResultData();
+                    break;
+            }
+        }
+        return local_request.callback(new WidgetResult(forceIsCancelled, resultData, local_request));
     }
+    WIDGET_hide();
 }
 
-async function WIDGET_inputTextOnKeyDown(event) {
-    if (event.key === 'Enter' || event.key === 'Escape') {
-        let isCancelled = event.key === 'Enter' ? false : true;
-        let input = document.getElementById('WIDGET_inputText');
-        await WIDGET_completeForm({isCancelled:isCancelled, value:input.value});
-        await WIDGET_hide(true);
-    }
-}
+////
 
-async function WIDGET_YesCancelButtonOnClick_yes() {
-    await WIDGET_completeForm({isCancelled: false, value:'Yes'});
-    await WIDGET_hide(true);
-}
-
-async function WIDGET_YesCancelButtonOnClick_cancel() {
-    await WIDGET_completeForm({isCancelled:true, value:'Cancel'});
-    await WIDGET_hide(true);
-}
-
-function WIDGET_CreateInputText() {
+function WidgetKind_InputText_Create() {
 
     const WIDGET_element = document.getElementById('WIDGET');
 
@@ -281,7 +272,27 @@ function WIDGET_CreateInputText() {
     input.focus();
 }
 
-function WIDGET_CreateYesCancel() {
+function WidgetKind_InputText_Delete(WIDGET_element) {
+    let input = document.getElementById('WIDGET_inputText');
+    input.removeEventListener('keydown', WIDGET_inputTextOnKeyDown);
+}
+
+function WidgetKind_InputText_GetResultData() {
+    let input = document.getElementById('WIDGET_inputText');
+    return input.value;
+}
+
+async function WidgetKind_InputText_onkeydown_input(event) {
+    if (event.key === 'Enter' || event.key === 'Escape') {
+        let isCancelled = event.key === 'Enter' ? false : true;
+        await WIDGET_completeForm(isCancelled, true, null);
+        await WIDGET_hide_internalUse(true);
+    }
+}
+
+////
+
+function WidgetKind_YesCancel_Create() {
 
     const WIDGET_element = document.getElementById('WIDGET');
 
@@ -305,4 +316,23 @@ function WIDGET_CreateYesCancel() {
     WIDGET_element.appendChild(topDivElement);
     WIDGET_element.appendChild(bottomDivElement);
     yesButtonElement.focus();
+}
+
+function WidgetKind_YesCancel_Delete(WIDGET_element) {
+    let yesButtonElement = document.getElementById('WIDGET_YesCancel_yes');
+    yesButtonElement.removeEventListener('click', WIDGET_YesCancelButtonOnClick_yes);
+    let cancelButtonElement = document.getElementById('WIDGET_YesCancel_cancel');
+    cancelButtonElement.removeEventListener('click', WIDGET_YesCancelButtonOnClick_cancel);
+}
+
+function WidgetKind_YesCancel_GetResultData() {
+    return null;
+}
+
+async function WidgetKind_YesCancel_onclick_yes() {
+    await WIDGET_completeForm(false, true, 'Yes');
+}
+
+async function WidgetKind_YesCancel_onclick_cancel() {
+    await WIDGET_completeForm(true, 'Cancel');
 }

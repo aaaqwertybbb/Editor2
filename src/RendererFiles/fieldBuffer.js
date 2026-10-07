@@ -131,6 +131,7 @@ const byteAUTOCOMPLETE_scrollIsFetchingData = 18;
 
 const byteWIDGET_isRenderPending = 19;
 
+/** TODO: obsolete */
 const byteWIDGET_shouldRestoreFocus = 20;
 BYTES[byteWIDGET_shouldRestoreFocus] = 1;
 
@@ -160,6 +161,7 @@ const byteMENU_NOTshouldFocus = 29;
 
 const byteMENU_isRenderPending = 30;
 
+/** TODO: obsolete */
 const byteWIDGET_WidgetKind_pending = 31;
 const byteWIDGET_WidgetKind_drawn = 32;
 
@@ -683,10 +685,13 @@ INTS[fAUTOCOMPLETE_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING] = 20;
 const fWIDGET_ticketId_counter = 131;
 INTS[fWIDGET_ticketId_counter] = 1;
 
+/** TODO: obsolete */
 const fWIDGET_ticketId_pending = 132;
 const fWIDGET_ticketId_drawn = 133;
 
+/** TODO: obsolete */
 const fWIDGET_left = 134;
+/** TODO: obsolete */
 const fWIDGET_top = 135;
 
 const fWIDGETrenderKind_Show_countOfPendingRequests = 136;

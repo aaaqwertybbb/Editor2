@@ -1509,34 +1509,26 @@ async function EXPLORER_MenuOnClick(indexClicked, elementClicked) {
                 break;
             }
         case CommandKind_NewFile_Directory:
-            // TODO: optimize this?
             BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
-            WIDGET_restoreFocusToElementOverride = MENU_restoreFocusToElement;
-            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'filename', entry, MENU_target, NewFile_Directory_WIDGET_InputText_callback);
+            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'filename', entry, MENU_target, MENU_restoreFocusToElement, false, NewFile_Directory_WIDGET_InputText_callback);
             break;
         case CommandKind_NewFile_File:
-            // TODO: optimize this?
             BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
-            WIDGET_restoreFocusToElementOverride = MENU_restoreFocusToElement;
-            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'filename', entry, MENU_target, NewFile_File_WIDGET_InputText_callback);
+            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'filename', entry, MENU_target, MENU_restoreFocusToElement, false, NewFile_File_WIDGET_InputText_callback);
             break;
         case CommandKind_DeleteFile_Directory:
-            // TODO: optimize this?
             BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
-            WIDGET_restoreFocusToElementOverride = MENU_restoreFocusToElement;
-            await WIDGET_show(WidgetKind_YesCancel, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'delete ' + entry.basename, entry, MENU_target, DeleteFile_Directory_YesCancel_callback);
+            await WIDGET_show(WidgetKind_YesCancel, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'delete ' + entry.basename, entry, MENU_target, MENU_restoreFocusToElement, false, DeleteFile_Directory_YesCancel_callback);
             break;
         case CommandKind_DeleteFile_File:
-            // TODO: optimize this?
             BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
             WIDGET_restoreFocusToElementOverride = MENU_restoreFocusToElement;
-            await WIDGET_show(WidgetKind_YesCancel, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'delete ' + entry.basename, entry, MENU_target, DeleteFile_File_YesCancel_callback);
+            await WIDGET_show(WidgetKind_YesCancel, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'delete ' + entry.basename, entry, MENU_target, MENU_restoreFocusToElement, false, DeleteFile_File_YesCancel_callback);
             break;
         case CommandKind_RenameFile_Directory:
-            // TODO: optimize this?
             BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
             WIDGET_restoreFocusToElementOverride = MENU_restoreFocusToElement;
-            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'rename', entry.basename, {MENU_target:MENU_target, entry:entry}, RenameFile_Directory_InputText_callback);
+            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'rename', entry.basename, {MENU_target:MENU_target, entry:entry}, MENU_restoreFocusToElement, false, RenameFile_Directory_InputText_callback);
             break;
         case CommandKind_RenameFile_File:
             /*
@@ -1545,8 +1537,6 @@ async function EXPLORER_MenuOnClick(indexClicked, elementClicked) {
 
             But I'm exhausted and I cannot reduce the code duplication here because my head doesn't function.
             */
-
-            // TODO: optimize this?
             BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
             WIDGET_restoreFocusToElementOverride = MENU_restoreFocusToElement;
             await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'rename', entry.basename, {MENU_target: MENU_target, entry: entry}, RenameFile_File_InputText_callback);
@@ -1557,7 +1547,7 @@ async function EXPLORER_MenuOnClick(indexClicked, elementClicked) {
 async function NewFile_Directory_WIDGET_InputText_callback(result) {
     if (result.isCancelled) return;
 
-    let entry = WIDGET_value;
+    let entry = result.request.value;
 
     EXPLORER_treeViewNodes.getElementAt(WIDGET_target.indexItem);
     let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
@@ -1642,7 +1632,7 @@ async function NewFile_Directory_WIDGET_InputText_callback(result) {
 async function NewFile_File_WIDGET_InputText_callback(result) {
     if (result.isCancelled) return;
 
-    let entry = WIDGET_value;
+    let entry = result.request.value;
     
     EXPLORER_treeViewNodes.getElementAt(WIDGET_target.indexItem);
     let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
@@ -1723,7 +1713,7 @@ async function NewFile_File_WIDGET_InputText_callback(result) {
 
 async function DeleteFile_Directory_YesCancel_callback(result) {
     if (result.isCancelled) return;
-    let entry = WIDGET_value;
+    let entry = result.request.value;
     let deleteFileResult = await window.myAPI.deleteFile(entry.absolutePath, /*isDirectory*/ true);
     if (deleteFileResult) {
         let countOfMoreEntriesToShow = EXPLORER_treeViewNodes.count_abstract - (INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount]);
@@ -1763,9 +1753,9 @@ async function DeleteFile_Directory_YesCancel_callback(result) {
 
 async function DeleteFile_File_YesCancel_callback(result) {
     if (result.isCancelled) return;
-    // TODO: Biggest concern is that 'WIDGET_value' is never set to a GC collectable state after widget finishes.
-    // ...better wording of the TODO: the object that 'WIDGET_value' references can never be garbage collected even after the widget finishes (unless a later show of a widget overrites the variable to reference a different object). This is because the variable is never set to null. Due to the variable being global, it exists for the entire app duration and a null set is required in this case for garbage collection of what it points to to take place.
-    let entry = WIDGET_value;
+    // TODO: Biggest concern is that 'result.request.value' is never set to a GC collectable state after widget finishes.
+    // ...better wording of the TODO: the object that 'result.request.value' references can never be garbage collected even after the widget finishes (unless a later show of a widget overrites the variable to reference a different object). This is because the variable is never set to null. Due to the variable being global, it exists for the entire app duration and a null set is required in this case for garbage collection of what it points to to take place.
+    let entry = result.request.value;
     let deleteFileResult = await window.myAPI.deleteFile(entry.absolutePath, /*isDirectory*/ false);
     if (deleteFileResult) {
         let noMoreEntriesToShow = INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] >= EXPLORER_treeViewNodes.count_abstract;

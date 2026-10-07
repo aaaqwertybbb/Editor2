@@ -1610,9 +1610,6 @@ async function NewFile_Directory_WIDGET_InputText_callback(result) {
                 }
             }
 
-            // TODO: fine grained redrawing of only the nodes that are:
-            // - part of the virtualization result
-            // - and have changed in some way that necessitates their UI be redrawn
             EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
         }
     }
@@ -1680,25 +1677,9 @@ async function NewFile_File_WIDGET_InputText_callback(result) {
 
     EXPLORER_treeViewNodes.insert(someIndex, nodeKind, newFileResult.pathId, target.depth + 1);
 
-    if (INTS[fEXPLORER_virtualCount] > 0) {
-        let largestIndexItemBeingShown = INTS[fEXPLORER_virtualIndex_ofScrollTop] + (INTS[fEXPLORER_virtualCount] - 1);
-        if (someIndex >= INTS[fEXPLORER_virtualIndex_ofScrollTop] && someIndex <= largestIndexItemBeingShown) {
-            //let finalDiv = EXPLORER_itemListElement.children[EXPLORER_itemListElement.children.length - 1];
-
-            INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-            EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
-
-            //await EXPLORER_drawItem_async(finalDiv, someIndex, /*isNull*/ false);
-            if (someIndex !== largestIndexItemBeingShown) {
-                //EXPLORER_itemListElement.insertBefore(finalDiv, EXPLORER_itemListElement.children[WIDGET_target.divRelativeIndex + 1 + newFileResult.indexOf]);
-            }
-        }
-
-        // TODO: fine grained redrawing of only the nodes that are:
-        // - part of the virtualization result
-        // - and have changed in some way that necessitates their UI be redrawn
-        EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
-    }
+    INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
+    EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
+    EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
 }
 
 async function DeleteFile_Directory_YesCancel_callback(result) {
@@ -1778,3 +1759,7 @@ async function RenameFile_File_InputText_callback(result) {
 }
 
 // TODO: look at the "async" events because its nonsensical
+
+// TODO: fine grained redrawing of only the nodes that are:
+// - part of the virtualization result
+// - and have changed in some way that necessitates their UI be redrawn

@@ -1452,7 +1452,7 @@ async function newFile(event, parentDirectoryAbsolutePath, filename, isDirectory
 			};
 		}
 		else {
-			fs.writeFileSync(pathToNewFile, 'overwritten?', { flag: 'wx' }, () => {});
+			fs.writeFileSync(pathToNewFile, 'overwritten?', { flag: 'wx' });
 			let pathId = database.addAbsolutePath(pathToNewFile, filename);
 			let indexOf = wrap_readdirSync_indexOf(parentDirectoryAbsolutePath, filename, /*childIsDirectory*/ false);
 			return {

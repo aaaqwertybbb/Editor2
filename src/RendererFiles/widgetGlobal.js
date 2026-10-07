@@ -204,8 +204,7 @@ function WIDGET_render_do_Hide() {
  * If you invoke this you'll silently skip someone's 'WIDGET_request', if there is one.
  */
 function WIDGET_hide() {
-    // In case someone skips a 'WIDGET_completeForm'.
-    WIDGET_request = null;
+    WIDGET_request = null; // In case someone skips a 'WIDGET_completeForm', this null setting is done here.
     WIDGET_render_request(WIDGETrenderKind_Hide);
 }
 
@@ -224,7 +223,7 @@ function WIDGET_hide() {
  */
 async function WIDGET_completeForm(forceIsCancelled, changingFocusIsReasonable, resultData) {
     const local_request = WIDGET_request;
-    WIDGET_request = null;
+    WIDGET_hide();
     if (changingFocusIsReasonable && !local_request.disableFocusOnCompleted && local_request.elementToFocusOnCompleted) {
         local_request.elementToFocusOnCompleted.focus();
     }
@@ -244,7 +243,6 @@ async function WIDGET_completeForm(forceIsCancelled, changingFocusIsReasonable, 
         }
         return local_request.callback(new WidgetResult(forceIsCancelled, resultData, local_request));
     }
-    WIDGET_hide();
 }
 
 ////
@@ -283,6 +281,7 @@ function WidgetKind_InputText_GetResultData() {
 }
 
 async function WidgetKind_InputText_onkeydown_input(event) {
+    event.stopPropagation();
     if (event.key === 'Enter' || event.key === 'Escape') {
         let isCancelled = event.key === 'Enter' ? false : true;
         await WIDGET_completeForm(isCancelled, true, null);

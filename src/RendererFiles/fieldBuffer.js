@@ -307,6 +307,7 @@ const CONST_js_QUESTIONMARK_num = 63;
 const CONST_js_CARET_str = '^';
 const CONST_js_CARET_num = 94;
 
+// Well I know exactly why it is here I just... I'm afraid of commitment. And I've made a lot of decisions today so the idea of making one more just causes anxiety so I'm settling for commenting it out for now you know hwat I mean?
 //const CONST_js_COLON_num = 58;
 
 const CONST_EDI_gutterPaddingLeft = 3;

@@ -3,11 +3,11 @@
 import "./fieldBuffer"
 //__#__
 
-const DialogKind_None = 0;//"None";
-const DialogKind_FindAll = 1;//"FindAll";
-const DialogKind_Settings = 2;//"Settings";
-const DialogKind_DocumentSymbol = 3;//"DocumentSymbol";
-const DialogKind_Debug = 4;//"Debug";
+const DialogKind_None = 0;
+const DialogKind_FindAll = 1;
+const DialogKind_Settings = 2;
+const DialogKind_DocumentSymbol = 3;
+const DialogKind_Debug = 4;
 
 /** A delegate of the form: () => {} */
 let DIALOG_onResizeAction = null;
@@ -402,11 +402,6 @@ function DIALOG_resize_body_onmousemove(event) {
 
     DIALOG_render_request(DIALOGrenderKind_DimensionsChanged);
 }
-
-// TODO: async event handlers are probably more likely to leak the event...
-// ...because if you access the variable after using an 'await'...
-// ...the engine likely cannot collect the event object and...
-// ...I'm not sure when the object is removed the from the cache but the timing might be off.
 
 function DIALOG_resize_setCursor(clientX, clientY, dialogBoundingClientRect, resize) {
     let rX = clientX - dialogBoundingClientRect.left;

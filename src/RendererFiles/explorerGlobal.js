@@ -1453,7 +1453,7 @@ async function CommandKind_Paste_MenuOnClick_Paste(entry) {
 
         // TODO: clear 'EXPLORER_menuOptionCut_object' if paste clear flag cut if not same id
 
-        if (someIndex >= indexItem) {
+        if (someIndex <= indexItem) {
             indexItem += 1;
         }
 

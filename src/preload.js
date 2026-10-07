@@ -60,5 +60,5 @@ contextBridge.exposeInMainWorld('myAPI', {
   renameFile: (absolutePath, filename, isDirectory) => ipcRenderer.invoke('rename-file', absolutePath, filename, isDirectory),
   saveFile: (unvalidatedAbsolutePath, text) => ipcRenderer.invoke('save-file', unvalidatedAbsolutePath, text),
   editorSaveFile: (unvalidatedAbsolutePath, uint8Array, count, EDI_lineEndString, EDI_fileStartsWithBom) => ipcRenderer.invoke('editor-save-file', unvalidatedAbsolutePath, uint8Array, count, EDI_lineEndString, EDI_fileStartsWithBom),
-  copyClipboardAbsolutePathToDirectory: (directory, menuOptionCut_id) => ipcRenderer.invoke('copy-clipboard-absolute-path-to-directory', directory, menuOptionCut_id),
+  pasteClipboardAbsolutePathToDirectory: (directory, menuOptionCut_id) => ipcRenderer.invoke('paste-clipboard-absolute-path-to-directory', directory, menuOptionCut_id),
 })

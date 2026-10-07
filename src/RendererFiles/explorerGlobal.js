@@ -1397,7 +1397,7 @@ async function CommandKind_Paste_MenuOnClick_Paste(entry) {
 
     let local_EXPLORER_menuOptionCut_object = EXPLORER_menuOptionCut_object;
     EXPLORER_menuOptionCut_object = null;
-    const pasteResult = await window.myAPI.copyClipboardAbsolutePathToDirectory(entry.absolutePath, local_EXPLORER_menuOptionCut_object?.id);
+    const pasteResult = await window.myAPI.pasteClipboardAbsolutePathToDirectory(entry.absolutePath, local_EXPLORER_menuOptionCut_object?.id);
     if (!pasteResult.success) { return; }
 
     // TODO: I belive this final paste logic that comes after this comment and within this scope is extremely similar to the new file logic...
@@ -1448,42 +1448,26 @@ async function CommandKind_Paste_MenuOnClick_Paste(entry) {
 
     EXPLORER_treeViewNodes.insert(someIndex, nodeKind, pasteResult.pathId, MENU_target.depth + 1);
 
-    if (INTS[fEXPLORER_virtualCount] > 0) {
-        let largestIndexItemBeingShown = INTS[fEXPLORER_virtualIndex_ofScrollTop] + (INTS[fEXPLORER_virtualCount] - 1);
-        if (someIndex >= INTS[fEXPLORER_virtualIndex_ofScrollTop] && someIndex <= largestIndexItemBeingShown) {
-            INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-            EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
-            // TODO: Check that the node you're pasting into is expanded.
+    if (pasteResult.sourceFileWasDeleted) {
+        let indexItem = local_EXPLORER_menuOptionCut_object.indexItem;
+
+        // TODO: clear 'EXPLORER_menuOptionCut_object' if paste clear flag cut if not same id
+
+        if (someIndex >= indexItem) {
+            indexItem += 1;
         }
 
-        if (pasteResult.sourceFileWasDeleted) {
-            let id = local_EXPLORER_menuOptionCut_object.id;
-            let indexItem = local_EXPLORER_menuOptionCut_object.indexItem;
-            let divRelativeIndex = local_EXPLORER_menuOptionCut_object.divRelativeIndex;
-
-            // TODO: it isn't just about whether the cut-directory is in the virtualization result...
-            // ...if you paste below you could have some children of the cut-directory in view, but not the cut-directory itself.
-
-            // TODO: Just check indexItem (is easier to tell whether the insertion happened "above" the cut items position in the treeview)?
-            if (MENU_target.divRelativeIndex + 1 + pasteResult.indexOf >= local_EXPLORER_menuOptionCut_object.divRelativeIndex) {
-                divRelativeIndex += 1;
-                indexItem += 1;
-            }
-
-            if (pasteResult.isDirectory) {
-                countChanges = EXPLORER_removeFromNodeList(indexItem);
-            }
-            else {
-                EXPLORER_treeViewNodes.removeAt(indexItem, 1);
-                countChanges = 1;
-            }
+        if (pasteResult.isDirectory) {
+            countChanges = EXPLORER_removeFromNodeList(indexItem);
         }
-
-        INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-        EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
-
-        EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
+        else {
+            EXPLORER_treeViewNodes.removeAt(indexItem, 1);
+        }
     }
+
+    INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
+    EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
+    EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
 }
 
 async function NewFile_Directory_WIDGET_InputText_callback(result) {

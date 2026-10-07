@@ -130,7 +130,7 @@ const createWindow = () => {
 	ipcMain.handle('rename-file', renameFile);
 	ipcMain.handle('save-file', saveFile);
 	ipcMain.handle('editor-save-file', editorSaveFile);
-	ipcMain.handle('copy-clipboard-absolute-path-to-directory', copyClipboardAbsolutePathToDirectory);
+	ipcMain.handle('paste-clipboard-absolute-path-to-directory', pasteClipboardAbsolutePathToDirectory);
 
 	mainWindowCapture = mainWindow;
 };
@@ -1585,7 +1585,7 @@ async function editorSaveFile(event, absolutePath, uint8Array, count, EDI_lineEn
  * Returns an object with property 'success' equal to 'true' if success, otherwise the property is equal to 'false'...
  * ...and other properties as well.
  */
-async function copyClipboardAbsolutePathToDirectory(event, directory, menuOptionCut_id) {
+async function pasteClipboardAbsolutePathToDirectory(event, directory, menuOptionCut_id) {
 	if (!isValidAbsolutePath(directory)) return;
 
 	try {

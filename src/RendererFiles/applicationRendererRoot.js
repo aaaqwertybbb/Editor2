@@ -25,7 +25,6 @@ function APP_render_init() {
 
 function APP_measureLineHeightAndCharacterWidth() {
     const measureElement = document.createElement('div');
-    measureElement.textContent = "0";
     measureElement.style.width = "fit-content";
     measureElement.style.whiteSpace = 'pre';
     measureElement.style.position = 'absolute';
@@ -34,6 +33,8 @@ function APP_measureLineHeightAndCharacterWidth() {
     measureElement.style.border = 'none';
     measureElement.style.left = '0';
     measureElement.style.top = '0';
+    const textNode = document.createTextNode('');
+    measureElement.appendChild(textNode);
 
     // AI is saying "// The foolproof way to prevent ALL scrollbars during measurement" is this paragraph of code.
     // The foolproof way to prevent ALL scrollbars during measurement
@@ -49,13 +50,13 @@ function APP_measureLineHeightAndCharacterWidth() {
     wrapper.appendChild(measureElement);
     document.body.appendChild(wrapper);
     
-    measureElement.textContent = "-"; // This permits me to in 'explorer.js' set the first span of every "tree-view-node" to be the same width, regardless of whether its content is '-', '+', or '' (an empty string). (1 of 2)
+    textNode.replaceData(0, textNode.length, "-"); // This permits me to in 'explorer.js' set the first span of every "tree-view-node" to be the same width, regardless of whether its content is '-', '+', or '' (an empty string). (1 of 2)
     let rect = measureElement.getBoundingClientRect();
     // line height is read here
     INTS[fAPP_lineHeight] = Math.ceil(rect.height); // get line height too while I'm here.
     const minusWidth = Math.ceil(rect.width);
     
-    measureElement.textContent = "+"; // This permits me to in 'explorer.js' set the first span of every "tree-view-node" to be the same width, regardless of whether its content is '-', '+', or '' (an empty string). (2 of 2)
+    textNode.replaceData(0, textNode.length, "+"); // This permits me to in 'explorer.js' set the first span of every "tree-view-node" to be the same width, regardless of whether its content is '-', '+', or '' (an empty string). (2 of 2)
     rect = measureElement.getBoundingClientRect();
     const plusWidth = Math.ceil(rect.width);
     const largerWidth = minusWidth > plusWidth ? minusWidth : plusWidth; // 11

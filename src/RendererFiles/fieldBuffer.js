@@ -891,9 +891,6 @@ const RenderKind_Cursor_flag_doNotScrollIntoView = 17;
 /** Add the index of the cursor */
 const RenderKind_Cursor_n = 18;
 
-
-// Master allocation (e.g., 64 bytes total for two subsystems)
-const MASTER_BUFFER_SIZE = 160;
 //const UI_SLOT_SIZE = 32;
 /**
  * // TODO: you get `32 - 1` no matter whether you include the parenthesis or not / I don't feel like dealing with this right now.
@@ -902,9 +899,11 @@ const MASTER_BUFFER_SIZE = 160;
 const UI_SLOT_MASK = 31; // UI_SLOT_SIZE - 1 // 31 (binary: 00011111)
 
 /**
+ * Master allocation (e.g., 64 bytes total for two subsystems)
+ * 
  * TODO: If you queue more than 32 renderKinds in a single frame you're gonna lose information. (remedy this?) see 'UI_SLOT_MASK = 31'
  */
-const MASTER_RENDER_BUFFER = new Uint8Array(MASTER_BUFFER_SIZE);
+const MASTER_RENDER_BUFFER = new Uint8Array(160 /* const MASTER_BUFFER_SIZE = 160; */);
 
 // Define the unique byte offset where each UI's memory space begins
 const OFFSET_DIALOG      = 0;  // Slots 0 to 31

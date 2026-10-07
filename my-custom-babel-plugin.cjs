@@ -492,6 +492,12 @@ module.exports = function (babel) {
     "byteWIDGET_queueTail",
 
     "UI_SLOT_MASK",
+
+    "OFFSET_DIALOG",
+    "OFFSET_EXPLORER",
+    "OFFSET_AUTOCOMPLETE",
+    "OFFSET_WIDGET",
+    "OFFSET_MENU",
   ];
 
   return {

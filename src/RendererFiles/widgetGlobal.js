@@ -12,33 +12,19 @@ const WIDGETrenderKind_Hide = 2;
  * @returns {Promise}
  */
 
-class WidgetRequest {
-    /**
-     * @param {any} widgetKind WidgetKind_...
-     * @param {number} left 
-     * @param {number} top 
-     * @param {*} placeholder 
-     * @param {*} value 
-     * @param {*} target 
-     * @param {*} elementToFocusOnCompleted 
-     * @param {*} disableFocusOnCompleted 
-     * @param {WIDGET_Callback} callback 
-     * @param {number} ticket 
-     */
-    constructor(widgetKind, left, top, placeholder, value, target, elementToFocusOnCompleted, disableFocusOnCompleted, callback, ticket) {
-        this.widgetKind = widgetKind;
-        this.left = left;
-        this.top = top;
-        this.placeholder = placeholder;
-        this.value = value;
-        this.target = target;
-        this.elementToFocusOnCompleted = elementToFocusOnCompleted;
-        this.disableFocusOnCompleted = disableFocusOnCompleted;
-        /** @type {WIDGET_Callback} */
-        this.callback = callback;
-        this.ticket = ticket;
-    }
-}
+/**
+ * @typedef {Object} WidgetRequest
+ * @property {any} widgetKind - WidgetKind_...
+ * @property {number} left
+ * @property {number} top
+ * @property {*} placeholder
+ * @property {*} value
+ * @property {*} target
+ * @property {*} elementToFocusOnCompleted
+ * @property {*} disableFocusOnCompleted
+ * @property {WIDGET_Callback} callback
+ * @property {number} ticket
+ */
 
 class WidgetResult {
     /**
@@ -178,8 +164,20 @@ function WIDGET_render_do_Show() {
 async function WIDGET_show(widgetKind, left, top, placeholder, value, target, elementToFocusOnCompleted, disableFocusOnCompleted, callback) {
     if (WIDGET_request) { await WIDGET_completeForm(true); }
 
-    WIDGET_request = new WidgetRequest(
-        widgetKind, left, top, placeholder, value, target, elementToFocusOnCompleted, disableFocusOnCompleted, callback, INTS[fWIDGET_ticketId_counter]++);
+    WIDGET_request = {
+        widgetKind: widgetKind,
+        left: left,
+        top: top,
+        placeholder: placeholder,
+        value: value,
+        target: target,
+        elementToFocusOnCompleted: elementToFocusOnCompleted,
+        disableFocusOnCompleted: disableFocusOnCompleted,
+        callback: callback,
+        ticket: INTS[fWIDGET_ticketId_counter]++
+    };
+
+
     WIDGET_render_request(WIDGETrenderKind_Show);
 }
 

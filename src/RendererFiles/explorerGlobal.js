@@ -1654,7 +1654,9 @@ async function RenameFile_File_InputText_callback(result) {
 // - and have changed in some way that necessitates their UI be redrawn
 
 /*
-// TODO: I saw the result was success but the indexOf was -1 when adding a file with the same name twice that seems erroneous.
+// TODO: I saw the result was success but the indexOf was -1 when adding a file with the same name twice that seems erroneous...
+// ...one such case of getting the -1 was due to not-awaited async file creation followed by reading the directory as a "sorting algorithm"-ish...
+// ...cause you wanted to know where the OS put the new file among the existing children.
 
 // TODO: I added 3 files total while testing various words that would alphabetically be placed at the start, end, or somewhere in the middle...
 // ...I think the middle case for some reason ended up in the parent? I'm not quite sure what happened.

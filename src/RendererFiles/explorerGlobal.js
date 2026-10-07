@@ -1458,17 +1458,9 @@ async function CommandKind_Paste_MenuOnClick_Paste(entry) {
     if (INTS[fEXPLORER_virtualCount] > 0) {
         let largestIndexItemBeingShown = INTS[fEXPLORER_virtualIndex_ofScrollTop] + (INTS[fEXPLORER_virtualCount] - 1);
         if (someIndex >= INTS[fEXPLORER_virtualIndex_ofScrollTop] && someIndex <= largestIndexItemBeingShown) {
-            let finalDiv = EXPLORER_itemListElement.children[EXPLORER_itemListElement.children.length - 1];
-
             INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
             EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
-
             // TODO: Check that the node you're pasting into is expanded.
-
-            //await EXPLORER_drawItem_async(finalDiv, someIndex, /*isNull*/ false);
-            if (someIndex !== largestIndexItemBeingShown) {
-                //EXPLORER_itemListElement.insertBefore(finalDiv, EXPLORER_itemListElement.children[MENU_target.divRelativeIndex + 1 + pasteResult.indexOf]);
-            }
         }
 
         if (pasteResult.sourceFileWasDeleted) {
@@ -1485,49 +1477,18 @@ async function CommandKind_Paste_MenuOnClick_Paste(entry) {
                 indexItem += 1;
             }
 
-            if (divRelativeIndex <= largestIndexItemBeingShown) {
-
-                let countOfMoreEntriesToShow = EXPLORER_treeViewNodes.count_abstract - (INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount]);
-
-                let countChanges;
-                
-                if (pasteResult.isDirectory) {
-                    countChanges = EXPLORER_removeFromNodeList(indexItem);
-                }
-                else {
-                    EXPLORER_treeViewNodes.removeAt(indexItem, 1);
-                    countChanges = 1;
-                }
-
-                INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-                EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
-
-                let remainingChangesToRender = countChanges < INTS[fEXPLORER_virtualCount] ? countChanges : INTS[fEXPLORER_virtualCount] - divRelativeIndex;
-
-                if (countOfMoreEntriesToShow > remainingChangesToRender) {
-                    countOfMoreEntriesToShow = remainingChangesToRender;
-                }
-
-                for (let i = 0; i < remainingChangesToRender; i++) {
-                    //let divItem = EXPLORER_itemListElement.children[divRelativeIndex];
-
-                    // TODO: if you remove including the eventual final div in the itemListElement then this moving of the div isn't accomplishing anything and could be skipped.
-                    //EXPLORER_itemListElement.insertBefore(divItem, undefined);
-
-                    if (countOfMoreEntriesToShow <= 0) {
-                        //await EXPLORER_drawItem_async(divItem, INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] - 1, /*isNull*/ true);
-                    }
-                    else {
-                        //await EXPLORER_drawItem_async(divItem, INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] - (remainingChangesToRender - i), /*isNull*/ false);
-                        countOfMoreEntriesToShow--;
-                    }
-                }
+            if (pasteResult.isDirectory) {
+                countChanges = EXPLORER_removeFromNodeList(indexItem);
+            }
+            else {
+                EXPLORER_treeViewNodes.removeAt(indexItem, 1);
+                countChanges = 1;
             }
         }
 
-        // TODO: fine grained redrawing of only the nodes that are:
-        // - part of the virtualization result
-        // - and have changed in some way that necessitates their UI be redrawn
+        INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
+        EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
+
         EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
     }
 }

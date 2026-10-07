@@ -1707,34 +1707,11 @@ async function DeleteFile_Directory_YesCancel_callback(result) {
     const target = result.request.target;
     let deleteFileResult = await window.myAPI.deleteFile(entry.absolutePath, /*isDirectory*/ true);
     if (!deleteFileResult) { return; }
-    
-    let countOfMoreEntriesToShow = EXPLORER_treeViewNodes.count_abstract - (INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount]);
 
     let countChanges = EXPLORER_removeFromNodeList(target.indexItem);
 
     INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
     EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
-
-    let remainingChangesToRender = countChanges < INTS[fEXPLORER_virtualCount] ? countChanges : INTS[fEXPLORER_virtualCount] - target.divRelativeIndex;
-
-    if (countOfMoreEntriesToShow > remainingChangesToRender) {
-        countOfMoreEntriesToShow = remainingChangesToRender;
-    }
-
-    for (let i = 0; i < remainingChangesToRender; i++) {
-        //let divItem = EXPLORER_itemListElement.children[WIDGET_target.divRelativeIndex];
-
-        // TODO: if you remove including the eventual final div in the itemListElement then this moving of the div isn't accomplishing anything and could be skipped.
-        //EXPLORER_itemListElement.insertBefore(divItem, undefined);
-
-        if (countOfMoreEntriesToShow <= 0) {
-            //await EXPLORER_drawItem_async(divItem, INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] - 1, /*isNull*/ true);
-        }
-        else {
-            //await EXPLORER_drawItem_async(divItem, INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] - (remainingChangesToRender - i), /*isNull*/ false);
-            countOfMoreEntriesToShow--;
-        }
-    }
 
     // TODO: fine grained redrawing of only the nodes that are:
     // - part of the virtualization result

@@ -1347,7 +1347,7 @@ async function EXPLORER_MenuOnClick(indexClicked, elementClicked) {
             await window.myAPI.setClipboard('file:///' + entry.absolutePath);
             break;
         case CommandKind_Cut:
-            let text = 'file:///' + entry.absolutePath;
+            const text = 'file:///' + entry.absolutePath;
             EXPLORER_menuOptionCut_object = {
                 id: text,
                 indexItem: MENU_target.indexItem,
@@ -1397,7 +1397,7 @@ async function CommandKind_Paste_MenuOnClick_Paste(entry) {
 
     let local_EXPLORER_menuOptionCut_object = EXPLORER_menuOptionCut_object;
     EXPLORER_menuOptionCut_object = null;
-    let pasteResult = await window.myAPI.copyClipboardAbsolutePathToDirectory(entry.absolutePath, local_EXPLORER_menuOptionCut_object?.id);
+    const pasteResult = await window.myAPI.copyClipboardAbsolutePathToDirectory(entry.absolutePath, local_EXPLORER_menuOptionCut_object?.id);
     if (!pasteResult.success) { return; }
 
     // TODO: I belive this final paste logic that comes after this comment and within this scope is extremely similar to the new file logic...
@@ -1497,7 +1497,7 @@ async function NewFile_Directory_WIDGET_InputText_callback(result) {
     let depthOfTheParent = INTS[fTreeView_pooledNode_depth];
     let isCollapsed = nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded || nodeKind === TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
 
-    let newFileResult = await window.myAPI.newFile(entry.absolutePath, result.resultData, /*isDirectory*/ true);
+    const newFileResult = await window.myAPI.newFile(entry.absolutePath, result.resultData, /*isDirectory*/ true);
     if (!newFileResult.success) { return; }
 
     // TODO: I belive this final new directory logic that comes after this comment and within this scope is 1 to 1 an exact duplication of the new file logic...
@@ -1560,7 +1560,7 @@ async function NewFile_File_WIDGET_InputText_callback(result) {
     let depthOfTheParent = INTS[fTreeView_pooledNode_depth];
     let isCollapsed = nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded || nodeKind === TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
 
-    let newFileResult = await window.myAPI.newFile(entry.absolutePath, result.resultData, /*isDirectory*/ false);
+    const newFileResult = await window.myAPI.newFile(entry.absolutePath, result.resultData, /*isDirectory*/ false);
     if (!newFileResult.success) { return; }
 
     nodeKind = TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
@@ -1613,7 +1613,7 @@ async function DeleteFile_Directory_YesCancel_callback(result) {
     if (result.isCancelled) return;
     const entry = result.request.value;
     const target = result.request.target;
-    let deleteFileResult = await window.myAPI.deleteFile(entry.absolutePath, /*isDirectory*/ true);
+    const deleteFileResult = await window.myAPI.deleteFile(entry.absolutePath, /*isDirectory*/ true);
     if (!deleteFileResult) { return; }
 
     let countChanges = EXPLORER_removeFromNodeList(target.indexItem);
@@ -1627,7 +1627,7 @@ async function DeleteFile_File_YesCancel_callback(result) {
     if (result.isCancelled) return;
     const entry = result.request.value;
     const target = result.request.target;
-    let deleteFileResult = await window.myAPI.deleteFile(entry.absolutePath, /*isDirectory*/ false);
+    const deleteFileResult = await window.myAPI.deleteFile(entry.absolutePath, /*isDirectory*/ false);
     if (!deleteFileResult) { return; }
 
     EXPLORER_treeViewNodes.removeAt(target.indexItem, 1);
@@ -1642,7 +1642,7 @@ async function RenameFile_Directory_InputText_callback(result) {
     // TODO: Confusing, hacky, upsetting: 'WIDGET_target.entry / WIDGET_target.MENU_target'
     const entry = result.request.target.entry;
     const target = result.request.target.MENU_target;
-    let renameFileResult = await window.myAPI.renameFile(entry.absolutePath, result.resultData, /*isDirectory*/ true);
+    const renameFileResult = await window.myAPI.renameFile(entry.absolutePath, result.resultData, /*isDirectory*/ true);
     if (!renameFileResult.success) { return; }
 
     EXPLORER_setNodeListEntryId(target.indexItem, renameFileResult.pathId);
@@ -1655,7 +1655,7 @@ async function RenameFile_File_InputText_callback(result) {
     // TODO: Confusing, hacky, upsetting: 'WIDGET_target.entry / WIDGET_target.MENU_target'
     const entry = result.request.target.entry;
     const target = result.request.target.MENU_target;
-    let renameFileResult = await window.myAPI.renameFile(entry.absolutePath, result.resultData, /*isDirectory*/ false);
+    const renameFileResult = await window.myAPI.renameFile(entry.absolutePath, result.resultData, /*isDirectory*/ false);
     if (!renameFileResult.success) { return; }
 
     EXPLORER_setNodeListEntryId(target.indexItem, renameFileResult.pathId);

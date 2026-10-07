@@ -864,7 +864,6 @@ function EDI_state_setText(text, fileStartsWithBom, textSourceIdentifier, FORMAT
 
     const normalizedText = text.replaceAll('\r\n', '\n');
     const uint8Array = EDI_encoder.encode(normalizedText); /** how do I 'encodeInto' when a character might actually be multi-byte thus I don't ever truly know the size ahead of time? */
-                      'countNewlines'
     let lineEndCount = countNewlines(text);
 
     EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString, lineEndCount);

@@ -933,7 +933,7 @@ function EXPLORER_event_click(event) {
     const depth = EXPLORER_treeViewNodes.getDepth(indexItem);
     const rX = (event_clientX - INTS[fEXPLORER_boundingClientRect_left] + INTS[fEXPLORER_lastReadNumber_scrollLeft]) - (depth * CONST_EXPLORER_offsetPerDepth);
     if (rX >= 0 && rX <= EDI_characterWidth) {
-        return EXPLORER_expandCollapseIconWasClicked(divItem, indexItem);
+        EXPLORER_expandCollapseIconWasClicked(divItem, indexItem);
     }
     else {
         EXPLORER_state_cursor_setIndex(indexItem);
@@ -941,12 +941,12 @@ function EXPLORER_event_click(event) {
 }
 
 function EXPLORER_event_dblclick(event) {
-    let event_clientX = event.clientX;
-    let event_clientY = event.clientY;
+    const event_clientX = event.clientX;
+    const event_clientY = event.clientY;
 
     EXPLORER_ensure_boundingClientRect();
 
-    let rY = event_clientY - INTS[fEXPLORER_boundingClientRect_top] + INTS[fEXPLORER_lastReadNumber_scrollTop];
+    const rY = event_clientY - INTS[fEXPLORER_boundingClientRect_top] + INTS[fEXPLORER_lastReadNumber_scrollTop];
     let indexItem = Math.floor(rY / INTS[fEXPLORER_itemHeightNumber]);
     indexItem = EXPLORER_state_cursor_validateIndex(indexItem);
 
@@ -964,21 +964,21 @@ function EXPLORER_event_dblclick(event) {
         let ringBufferIndexItem = ((INTS[fEXPLORER_cursorIndex])) - INTS[fEXPLORER_virtualIndex_ofScrollTop];
         if (ringBufferIndexItem >= INTS[fEXPLORER_ringBuffer_length] || ringBufferIndexItem < 0) ringBufferIndexItem = -1;
         else ringBufferIndexItem = (ringBufferIndexItem + INTS[fEXPLORER_ringBufferIndexZero]) % INTS[fEXPLORER_virtualCount];
-
         if (ringBufferIndexItem < 0) return;
-        return EXPLORER_ondblclick(EXPLORER_ringBuffer[ringBufferIndexItem], INTS[fEXPLORER_cursorIndex]);
+
+        EXPLORER_ondblclick(EXPLORER_ringBuffer[ringBufferIndexItem], INTS[fEXPLORER_cursorIndex]);
     }
 }
 
 function EXPLORER_event_contextmenu(event) {
-    let event_button = event.button;
-    let event_clientX = event.clientX;
-    let event_clientY = event.clientY;
+    const event_button = event.button;
+    const event_clientX = event.clientX;
+    const event_clientY = event.clientY;
 
     EXPLORER_ensure_boundingClientRect();
 
     if (event_button === 2) {
-        let rY = event_clientY - INTS[fEXPLORER_boundingClientRect_top] + INTS[fEXPLORER_lastReadNumber_scrollTop];
+        const rY = event_clientY - INTS[fEXPLORER_boundingClientRect_top] + INTS[fEXPLORER_lastReadNumber_scrollTop];
 
         EXPLORER_state_cursor_setIndex(EXPLORER_state_cursor_validateIndex(
             Math.floor(rY / INTS[fEXPLORER_itemHeightNumber])));
@@ -989,9 +989,9 @@ function EXPLORER_event_contextmenu(event) {
         let ringBufferIndexItem = ((INTS[fEXPLORER_cursorIndex])) - INTS[fEXPLORER_virtualIndex_ofScrollTop];
         if (ringBufferIndexItem >= INTS[fEXPLORER_ringBuffer_length] || ringBufferIndexItem < 0) ringBufferIndexItem = -1;
         else ringBufferIndexItem = (ringBufferIndexItem + INTS[fEXPLORER_ringBufferIndexZero]) % INTS[fEXPLORER_virtualCount];
-
         if (ringBufferIndexItem < 0) return;
-        return EXPLORER_oncontextmenu(EXPLORER_ringBuffer[ringBufferIndexItem], INTS[fEXPLORER_cursorIndex], event_button, event_clientX, event_clientY, ringBufferIndexItem);
+
+        EXPLORER_oncontextmenu(EXPLORER_ringBuffer[ringBufferIndexItem], INTS[fEXPLORER_cursorIndex], event_button, event_clientX, event_clientY, ringBufferIndexItem);
     }
     else {
         if (INTS[fEXPLORER_cursorIndex] >= EXPLORER_treeViewNodes.count_abstract) {
@@ -1005,11 +1005,10 @@ function EXPLORER_event_contextmenu(event) {
         let ringBufferIndexItem = ((INTS[fEXPLORER_cursorIndex])) - INTS[fEXPLORER_virtualIndex_ofScrollTop];
         if (ringBufferIndexItem >= INTS[fEXPLORER_ringBuffer_length] || ringBufferIndexItem < 0) ringBufferIndexItem = -1;
         else ringBufferIndexItem = (ringBufferIndexItem + INTS[fEXPLORER_ringBufferIndexZero]) % INTS[fEXPLORER_virtualCount];
-
         if (ringBufferIndexItem < 0) return;
 
         // TODO: Handle context menu with keyboard when active node is out of view
-        return EXPLORER_oncontextmenu(EXPLORER_ringBuffer[ringBufferIndexItem], INTS[fEXPLORER_cursorIndex], event_button, event_clientX, event_clientY, ringBufferIndexItem);
+        EXPLORER_oncontextmenu(EXPLORER_ringBuffer[ringBufferIndexItem], INTS[fEXPLORER_cursorIndex], event_button, event_clientX, event_clientY, ringBufferIndexItem);
     }
 }
 
@@ -1047,9 +1046,9 @@ function EXPLORER_event_keydown(event) {
                 let ringBufferIndexItem = ((INTS[fEXPLORER_cursorIndex])) - INTS[fEXPLORER_virtualIndex_ofScrollTop];
                 if (ringBufferIndexItem >= INTS[fEXPLORER_ringBuffer_length] || ringBufferIndexItem < 0) ringBufferIndexItem = -1;
                 else ringBufferIndexItem = (ringBufferIndexItem + INTS[fEXPLORER_ringBufferIndexZero]) % INTS[fEXPLORER_virtualCount];
-
                 if (ringBufferIndexItem < 0) return;
-                return EXPLORER_arrowRight(EXPLORER_ringBuffer[ringBufferIndexItem], INTS[fEXPLORER_cursorIndex]);
+
+                EXPLORER_arrowRight(EXPLORER_ringBuffer[ringBufferIndexItem], INTS[fEXPLORER_cursorIndex]);
             }
             return;
         case 'ArrowLeft':
@@ -1062,9 +1061,9 @@ function EXPLORER_event_keydown(event) {
                 let ringBufferIndexItem = ((INTS[fEXPLORER_cursorIndex])) - INTS[fEXPLORER_virtualIndex_ofScrollTop];
                 if (ringBufferIndexItem >= INTS[fEXPLORER_ringBuffer_length] || ringBufferIndexItem < 0) ringBufferIndexItem = -1;
                 else ringBufferIndexItem = (ringBufferIndexItem + INTS[fEXPLORER_ringBufferIndexZero]) % INTS[fEXPLORER_virtualCount];
-
                 if (ringBufferIndexItem < 0) return;
-                return EXPLORER_arrowLeft(EXPLORER_ringBuffer[ringBufferIndexItem], INTS[fEXPLORER_cursorIndex]);
+
+                EXPLORER_arrowLeft(EXPLORER_ringBuffer[ringBufferIndexItem], INTS[fEXPLORER_cursorIndex]);
             }
             return;
         case ' ':
@@ -1077,9 +1076,9 @@ function EXPLORER_event_keydown(event) {
             let ringBufferIndexItem = ((INTS[fEXPLORER_cursorIndex])) - INTS[fEXPLORER_virtualIndex_ofScrollTop];
             if (ringBufferIndexItem >= INTS[fEXPLORER_ringBuffer_length] || ringBufferIndexItem < 0) ringBufferIndexItem = -1;
             else ringBufferIndexItem = (ringBufferIndexItem + INTS[fEXPLORER_ringBufferIndexZero]) % INTS[fEXPLORER_virtualCount];
-
             if (ringBufferIndexItem < 0) return;
-            return EXPLORER_onkeydown(EXPLORER_ringBuffer[ringBufferIndexItem], INTS[fEXPLORER_cursorIndex], event.key);
+
+            EXPLORER_onkeydown(EXPLORER_ringBuffer[ringBufferIndexItem], INTS[fEXPLORER_cursorIndex], event.key);
     }
 }
 

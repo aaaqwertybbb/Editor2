@@ -13,7 +13,9 @@ const DialogKind_Debug = 4;//"Debug";
 let DIALOG_onResizeAction = null;
 let DIALOG_restoreFocusToElement = null;
 
+/** TODO: Achieve same behavior without this variable; probably is a matter of giving the SHOW id and pending_show_id kind of pattern */
 let DIALOG_SHOW_restoreFocusToElement = null;
+/** TODO: Achieve same behavior without this variable; probably is a matter of giving the SHOW id and pending_show_id kind of pattern */
 let DIALOG_SHOW_onResizeAction = null;
 
 const DIALOGrenderKind_None = 0;
@@ -98,8 +100,10 @@ async function DIALOG_render_do_Show() {
     }
 
     DIALOG_restoreFocusToElement = DIALOG_SHOW_restoreFocusToElement;
+    DIALOG_SHOW_restoreFocusToElement = null;
     BYTES[byteDIALOG_currentDialogKind] = BYTES[byteDIALOG_SHOW_currentDialogKind];
     DIALOG_onResizeAction = DIALOG_SHOW_onResizeAction;
+    DIALOG_SHOW_onResizeAction = null;
 
     DIALOG_createWindow();
 
@@ -444,7 +448,11 @@ function DIALOG_resize_setCursor(clientX, clientY, dialogBoundingClientRect, res
     }
 }
 
-/** This is the wellknown JS window object: 'window.addEventListener...' not to be confused with what I call the "window" of the dialog. */
+/**
+ * TODO: This code doesn't work properly
+ * 
+ * This is the wellknown JS window object: 'window.addEventListener...' not to be confused with what I call the "window" of the dialog.
+ */
 function DIALOG_window_onresize() {
 
     const DIALOG_element = document.getElementById('DIALOG');

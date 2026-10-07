@@ -1783,8 +1783,8 @@ async function RenameFile_Directory_InputText_callback(result) {
     let renameFileResult = await window.myAPI.renameFile(entry.absolutePath, result.resultData, /*isDirectory*/ true);
     if (!renameFileResult.success) { return; }
     EXPLORER_setNodeListEntryId(target.indexItem, renameFileResult.pathId);
-    let divItem = EXPLORER_itemListElement.children[target.divRelativeIndex];
-    divItem.firstChild.replaceData(1, textNode.length - 1, result.resultData);
+    const textNode = EXPLORER_itemListElement.children[target.divRelativeIndex].firstChild;
+    textNode.replaceData(1, textNode.length - 1, result.resultData);
 }
 
 async function RenameFile_File_InputText_callback(result) {
@@ -1795,12 +1795,8 @@ async function RenameFile_File_InputText_callback(result) {
     let renameFileResult = await window.myAPI.renameFile(entry.absolutePath, result.resultData, /*isDirectory*/ false);
     if (!renameFileResult.success) { return; }
     EXPLORER_setNodeListEntryId(target.indexItem, renameFileResult.pathId);
-    let divItem = EXPLORER_itemListElement.children[target.divRelativeIndex];
-    divItem.firstChild.replaceData(1, textNode.length - 1, result.resultData);
+    const textNode = EXPLORER_itemListElement.children[target.divRelativeIndex].firstChild;
+    textNode.replaceData(1, textNode.length - 1, result.resultData);
 }
 
 // TODO: look at the "async" events because its nonsensical
-
-/*
-
-*/

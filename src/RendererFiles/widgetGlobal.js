@@ -134,13 +134,13 @@ function WIDGET_render_do_Show() {
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
 
-    let finalLeft = INTS[fWIDGET_left];
-    let finalTop = INTS[fWIDGET_top];
+    let finalLeft = WIDGET_request.left;
+    let finalTop = WIDGET_request.top;
     //let rect = WIDGET_element.getBoundingClientRect();
 
     // Check right edge
     //if (rect.right > viewportWidth) {
-    if (INTS[fWIDGET_left] + WIDGET_element.offsetWidth > viewportWidth) {
+    if (WIDGET_request.left + WIDGET_element.offsetWidth > viewportWidth) {
       finalLeft = viewportWidth - WIDGET_element.offsetWidth - 10; // 10px padding boundary
     }
     // Check left edge (fallback if menu is wider than screen)
@@ -148,7 +148,7 @@ function WIDGET_render_do_Show() {
 
     // Check bottom edge
     //if (rect.bottom > viewportHeight) {
-    if (INTS[fWIDGET_top] + WIDGET_element.offsetHeight > viewportHeight) {
+    if (WIDGET_request.top + WIDGET_element.offsetHeight > viewportHeight) {
       finalTop = viewportHeight - WIDGET_element.offsetHeight - 10; 
     }
     // Check top edge
@@ -170,8 +170,8 @@ function WIDGET_render_do_Show() {
  * @param {number} widgetKind 'get_WidgetKind_%()'
  * @param {number} left 
  * @param {number} top 
- * @param {string} placeholder if the corresponding widget has a corresponding placeholder attribute this string will be provided as the attribute's value. This is stored in the variable 'WIDGET_placeholder'.
- * @param {string | object} value if the corresponding widget has a value attribute and this is expectedly a 'string' then this will be provided as the attribute's value. This is stored in the variable 'WIDGET_value'.
+ * @param {string} placeholder if the corresponding widget has a corresponding placeholder attribute this string will be provided as the attribute's value. This is stored in the variable 'WIDGET_request.placeholder'.
+ * @param {string | object} value if the corresponding widget has a value attribute and this is expectedly a 'string' then this will be provided as the attribute's value. This is stored in the variable 'WIDGET_request.value'.
  * @param {object} target this is stored in the variable 'WIDGET_target'.
  * @param {WIDGET_Callback} callback this is invoked when the widget is either submitted or cancelled.
  */
@@ -256,25 +256,25 @@ function WidgetKind_InputText_Create() {
     let input = document.createElement('input');
     input.type = "text";
     input.id = 'WIDGET_inputText';
-    if (WIDGET_placeholder || WIDGET_placeholder === '') {
-        input.placeholder = WIDGET_placeholder;
+    if (WIDGET_request.placeholder || WIDGET_request.placeholder === '') {
+        input.placeholder = WIDGET_request.placeholder;
     }
 
     // TODO: "typeof value === 'string'" is not a bulletproof solution for checking whether the value is a string.
-    // TODO: Extremely undocumented behavior in relation to the ways of using 'WIDGET_value'.
+    // TODO: Extremely undocumented behavior in relation to the ways of using 'WIDGET_request.value'.
     //
-    if ((WIDGET_value || WIDGET_value === '') && (typeof WIDGET_value === 'string')) {
-        input.value = WIDGET_value;
+    if ((WIDGET_request.value || WIDGET_request.value === '') && (typeof WIDGET_request.value === 'string')) {
+        input.value = WIDGET_request.value;
     }
 
-    input.addEventListener('keydown', WIDGET_inputTextOnKeyDown);
+    input.addEventListener('keydown', WidgetKind_InputText_onkeydown_input);
     WIDGET_element.appendChild(input);
     input.focus();
 }
 
 function WidgetKind_InputText_Delete(WIDGET_element) {
     let input = document.getElementById('WIDGET_inputText');
-    input.removeEventListener('keydown', WIDGET_inputTextOnKeyDown);
+    input.removeEventListener('keydown', WidgetKind_InputText_onkeydown_input);
 }
 
 function WidgetKind_InputText_GetResultData() {
@@ -286,7 +286,6 @@ async function WidgetKind_InputText_onkeydown_input(event) {
     if (event.key === 'Enter' || event.key === 'Escape') {
         let isCancelled = event.key === 'Enter' ? false : true;
         await WIDGET_completeForm(isCancelled, true, null);
-        await WIDGET_hide_internalUse(true);
     }
 }
 
@@ -297,20 +296,20 @@ function WidgetKind_YesCancel_Create() {
     const WIDGET_element = document.getElementById('WIDGET');
 
     let topDivElement = document.createElement('div');
-    if (WIDGET_placeholder || WIDGET_placeholder === '') {
-        topDivElement.textContent = WIDGET_placeholder;
+    if (WIDGET_request.placeholder || WIDGET_request.placeholder === '') {
+        topDivElement.textContent = WIDGET_request.placeholder;
     }
 
     let bottomDivElement = document.createElement('div');
     let yesButtonElement = document.createElement('button');
     yesButtonElement.textContent = 'Yes';
     yesButtonElement.id = 'WIDGET_YesCancel_yes';
-    yesButtonElement.addEventListener('click', WIDGET_YesCancelButtonOnClick_yes);
+    yesButtonElement.addEventListener('click', WidgetKind_YesCancel_onclick_yes);
     bottomDivElement.appendChild(yesButtonElement);
     let cancelButtonElement = document.createElement('button');
     cancelButtonElement.textContent = 'Cancel';
     cancelButtonElement.id = 'WIDGET_YesCancel_cancel';
-    cancelButtonElement.addEventListener('click', WIDGET_YesCancelButtonOnClick_cancel);
+    cancelButtonElement.addEventListener('click', WidgetKind_YesCancel_onclick_cancel);
     bottomDivElement.appendChild(cancelButtonElement);
 
     WIDGET_element.appendChild(topDivElement);
@@ -320,9 +319,9 @@ function WidgetKind_YesCancel_Create() {
 
 function WidgetKind_YesCancel_Delete(WIDGET_element) {
     let yesButtonElement = document.getElementById('WIDGET_YesCancel_yes');
-    yesButtonElement.removeEventListener('click', WIDGET_YesCancelButtonOnClick_yes);
+    yesButtonElement.removeEventListener('click', WidgetKind_YesCancel_onclick_yes);
     let cancelButtonElement = document.getElementById('WIDGET_YesCancel_cancel');
-    cancelButtonElement.removeEventListener('click', WIDGET_YesCancelButtonOnClick_cancel);
+    cancelButtonElement.removeEventListener('click', WidgetKind_YesCancel_onclick_cancel);
 }
 
 function WidgetKind_YesCancel_GetResultData() {

@@ -1344,12 +1344,9 @@ async function EXPLORER_MenuOnClick(indexClicked, elementClicked) {
 
     switch (commandKind) {
         case CommandKind_Copy:
-            // TODO: optimize this?
             await window.myAPI.setClipboard('file:///' + entry.absolutePath);
             break;
         case CommandKind_Cut:
-            // they don't fully work but I'm not feeling overly interested in anything at the moment I wanna just lay down and do nothing so I'm pleased that I did something at all
-            // TODO: optimize this?
             let text = 'file:///' + entry.absolutePath;
             EXPLORER_menuOptionCut_object = {
                 id: text,
@@ -1359,155 +1356,11 @@ async function EXPLORER_MenuOnClick(indexClicked, elementClicked) {
             await window.myAPI.setClipboard(text);
             break;
         case CommandKind_CopyAbsolutePath:
-            // TODO: optimize this?
             await window.myAPI.setClipboard(entry.absolutePath);
             break;
         case CommandKind_Paste:
-            {
-                EXPLORER_treeViewNodes.getElementAt(MENU_target.indexItem);
-                let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
-                let depthOfTheParent = INTS[fTreeView_pooledNode_depth];
-                let isCollapsed = nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded || nodeKind === TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
-
-                let local_EXPLORER_menuOptionCut_object = EXPLORER_menuOptionCut_object;
-                EXPLORER_menuOptionCut_object = null;
-                // TODO: optimize this?
-                let pasteResult = await window.myAPI.copyClipboardAbsolutePathToDirectory(entry.absolutePath, local_EXPLORER_menuOptionCut_object?.id);
-                if (pasteResult.success) {
-                        /*
-                        // TODO: I saw the result was success but the indexOf was -1 when adding a file with the same name twice that seems erroneous.
-
-                        // TODO: I added 3 files total while testing various words that would alphabetically be placed at the start, end, or somewhere in the middle...
-                        // ...I think the middle case for some reason ended up in the parent? I'm not quite sure what happened.
-                        */
-
-                        // TODO: I belive this final paste logic that comes after this comment and within this scope is extremely similar to the new file logic...
-
-                        let nodeKind;
-                        if (pasteResult.isDirectory) {
-                            nodeKind = TreeViewNodeKind_isExpandable_NOTisExpanded;
-                        }
-                        else {
-                            nodeKind = TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
-                        }
-
-                        if (!isCollapsed) {
-                            let targetDepth = depthOfTheParent + 1;
-                            let someIndex = MENU_target.indexItem + 1;
-
-                            // TODO: 'i_targetDepth' is a bad variable name, you're looping a minimum of until 'pasteResult.indexOf' and each loop you check
-                            // whether that sibling is expanded, if so you skip all the children of the sibling.
-                            //
-                            for (let i_targetDepth = 0; i_targetDepth < pasteResult.indexOf; i_targetDepth++) {
-                                EXPLORER_treeViewNodes.getElementAt(someIndex);
-                                let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
-                                let isCollapsed = nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded || nodeKind === TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
-
-                                let d_of_presumed_correct_depth = INTS[fTreeView_pooledNode_depth];
-                                if (d_of_presumed_correct_depth !== targetDepth) {
-                                    // Validate the target you paste into's child count
-                                    break;
-                                }
-
-                                someIndex++;
-
-                                if (!isCollapsed) {
-                                    while (someIndex < EXPLORER_treeViewNodes.count_abstract) {
-                                        let d_of_perhaps_too_large_depth = EXPLORER_treeViewNodes.getDepth(someIndex);
-                                        if (d_of_perhaps_too_large_depth > targetDepth) {
-                                            someIndex++;
-                                        }
-                                        else {
-                                            break;
-                                        }
-                                        // TODO: Check if depth is less than targetDepth? This would only happen if the tree view were somehow in an incorrect state.
-                                    }
-                                }
-
-                                // TODO: You're missing a 'someIndex < EXPLORER_treeViewNodes.count_abstract' check for after the while loop.
-                            }
-
-                            EXPLORER_treeViewNodes.insert(someIndex, nodeKind, pasteResult.pathId, MENU_target.depth + 1);
-
-                            if (INTS[fEXPLORER_virtualCount] > 0) {
-                                let largestIndexItemBeingShown = INTS[fEXPLORER_virtualIndex_ofScrollTop] + (INTS[fEXPLORER_virtualCount] - 1);
-                                if (someIndex >= INTS[fEXPLORER_virtualIndex_ofScrollTop] && someIndex <= largestIndexItemBeingShown) {
-                                    let finalDiv = EXPLORER_itemListElement.children[EXPLORER_itemListElement.children.length - 1];
-
-                                    INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-                                    EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
-
-                                    // TODO: Check that the node you're pasting into is expanded.
-
-                                    //await EXPLORER_drawItem_async(finalDiv, someIndex, /*isNull*/ false);
-                                    if (someIndex !== largestIndexItemBeingShown) {
-                                        //EXPLORER_itemListElement.insertBefore(finalDiv, EXPLORER_itemListElement.children[MENU_target.divRelativeIndex + 1 + pasteResult.indexOf]);
-                                    }
-                                }
-
-                                if (pasteResult.sourceFileWasDeleted) {
-                                    let id = local_EXPLORER_menuOptionCut_object.id;
-                                    let indexItem = local_EXPLORER_menuOptionCut_object.indexItem;
-                                    let divRelativeIndex = local_EXPLORER_menuOptionCut_object.divRelativeIndex;
-
-                                    // TODO: it isn't just about whether the cut-directory is in the virtualization result...
-                                    // ...if you paste below you could have some children of the cut-directory in view, but not the cut-directory itself.
-        
-                                    // TODO: Just check indexItem (is easier to tell whether the insertion happened "above" the cut items position in the treeview)?
-                                    if (MENU_target.divRelativeIndex + 1 + pasteResult.indexOf >= local_EXPLORER_menuOptionCut_object.divRelativeIndex) {
-                                        divRelativeIndex += 1;
-                                        indexItem += 1;
-                                    }
-        
-                                    if (divRelativeIndex <= largestIndexItemBeingShown) {
-
-                                        let countOfMoreEntriesToShow = EXPLORER_treeViewNodes.count_abstract - (INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount]);
-
-                                        let countChanges;
-                                        
-                                        if (pasteResult.isDirectory) {
-                                            countChanges = EXPLORER_removeFromNodeList(indexItem);
-                                        }
-                                        else {
-                                            EXPLORER_treeViewNodes.removeAt(indexItem, 1);
-                                            countChanges = 1;
-                                        }
-
-                                        INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-                                        EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
-
-                                        let remainingChangesToRender = countChanges < INTS[fEXPLORER_virtualCount] ? countChanges : INTS[fEXPLORER_virtualCount] - divRelativeIndex;
-
-                                        if (countOfMoreEntriesToShow > remainingChangesToRender) {
-                                            countOfMoreEntriesToShow = remainingChangesToRender;
-                                        }
-
-                                        for (let i = 0; i < remainingChangesToRender; i++) {
-                                            //let divItem = EXPLORER_itemListElement.children[divRelativeIndex];
-                    
-                                            // TODO: if you remove including the eventual final div in the itemListElement then this moving of the div isn't accomplishing anything and could be skipped.
-                                            //EXPLORER_itemListElement.insertBefore(divItem, undefined);
-
-                                            if (countOfMoreEntriesToShow <= 0) {
-                                                //await EXPLORER_drawItem_async(divItem, INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] - 1, /*isNull*/ true);
-                                            }
-                                            else {
-                                                //await EXPLORER_drawItem_async(divItem, INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] - (remainingChangesToRender - i), /*isNull*/ false);
-                                                countOfMoreEntriesToShow--;
-                                            }
-                                        }
-                                    }
-                                }
-
-                                // TODO: fine grained redrawing of only the nodes that are:
-                                // - part of the virtualization result
-                                // - and have changed in some way that necessitates their UI be redrawn
-                                EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
-                            }
-                        }
-                    }
-                break;
-            }
+            await CommandKind_Paste_MenuOnClick_Paste(entry);
+            break;
         case CommandKind_NewFile_Directory:
             BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
             await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'filename', entry, MENU_target, MENU_restoreFocusToElement, false, NewFile_Directory_WIDGET_InputText_callback);
@@ -1522,225 +1375,153 @@ async function EXPLORER_MenuOnClick(indexClicked, elementClicked) {
             break;
         case CommandKind_DeleteFile_File:
             BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
-            WIDGET_restoreFocusToElementOverride = MENU_restoreFocusToElement;
             await WIDGET_show(WidgetKind_YesCancel, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'delete ' + entry.basename, entry, MENU_target, MENU_restoreFocusToElement, false, DeleteFile_File_YesCancel_callback);
             break;
         case CommandKind_RenameFile_Directory:
             BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
-            WIDGET_restoreFocusToElementOverride = MENU_restoreFocusToElement;
             await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'rename', entry.basename, {MENU_target:MENU_target, entry:entry}, MENU_restoreFocusToElement, false, RenameFile_Directory_InputText_callback);
             break;
         case CommandKind_RenameFile_File:
-            /*
-            Maybe the only difference between the _Directory and _File cases for each ..._...
-            is the bool for isDirectory.
-
-            But I'm exhausted and I cannot reduce the code duplication here because my head doesn't function.
-            */
+            // TODO: Maybe the only difference between the _Directory and _File cases for each ..._... is the bool for isDirectory...
+            // ...but I'm exhausted and I cannot reduce the code duplication here because my head doesn't function.
             BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
-            WIDGET_restoreFocusToElementOverride = MENU_restoreFocusToElement;
-            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'rename', entry.basename, {MENU_target: MENU_target, entry: entry}, RenameFile_File_InputText_callback);
+            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'rename', entry.basename, {MENU_target: MENU_target, entry: entry}, MENU_restoreFocusToElement, false, RenameFile_File_InputText_callback);
             break;
     }
 }
 
-async function NewFile_Directory_WIDGET_InputText_callback(result) {
-    if (result.isCancelled) return;
-
-    let entry = result.request.value;
-
-    EXPLORER_treeViewNodes.getElementAt(WIDGET_target.indexItem);
+async function CommandKind_Paste_MenuOnClick_Paste(entry) {
+    EXPLORER_treeViewNodes.getElementAt(MENU_target.indexItem);
     let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
     let depthOfTheParent = INTS[fTreeView_pooledNode_depth];
     let isCollapsed = nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded || nodeKind === TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
 
-    let newFileResult = await window.myAPI.newFile(entry.absolutePath, result.value, /*isDirectory*/ true);
-    if (newFileResult.success) {
-        /*
-        // TODO: I saw the result was success but the indexOf was -1 when adding a file with the same name twice that seems erroneous.
+    let local_EXPLORER_menuOptionCut_object = EXPLORER_menuOptionCut_object;
+    EXPLORER_menuOptionCut_object = null;
+    let pasteResult = await window.myAPI.copyClipboardAbsolutePathToDirectory(entry.absolutePath, local_EXPLORER_menuOptionCut_object?.id);
+    if (!pasteResult.success) { return; }
+    /*
+    // TODO: I saw the result was success but the indexOf was -1 when adding a file with the same name twice that seems erroneous.
 
-        // TODO: I added 3 files total while testing various words that would alphabetically be placed at the start, end, or somewhere in the middle...
-        // ...I think the middle case for some reason ended up in the parent? I'm not quite sure what happened.
-        */
+    // TODO: I added 3 files total while testing various words that would alphabetically be placed at the start, end, or somewhere in the middle...
+    // ...I think the middle case for some reason ended up in the parent? I'm not quite sure what happened.
+    */
 
-        // TODO: I belive this final new directory logic that comes after this comment and within this scope is 1 to 1 an exact duplication of the new file logic...
-        
-        let nodeKind = TreeViewNodeKind_isExpandable_NOTisExpanded;
+    // TODO: I belive this final paste logic that comes after this comment and within this scope is extremely similar to the new file logic...
+
+    if (pasteResult.isDirectory) {
+        nodeKind = TreeViewNodeKind_isExpandable_NOTisExpanded;
+    }
+    else {
+        nodeKind = TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
+    }
+
+    if (isCollapsed) { return; }
+    
+    let targetDepth = depthOfTheParent + 1;
+    let someIndex = MENU_target.indexItem + 1;
+
+    // TODO: 'i_targetDepth' is a bad variable name, you're looping a minimum of until 'pasteResult.indexOf' and each loop you check
+    // whether that sibling is expanded, if so you skip all the children of the sibling.
+    //
+    for (let i_targetDepth = 0; i_targetDepth < pasteResult.indexOf; i_targetDepth++) {
+        EXPLORER_treeViewNodes.getElementAt(someIndex);
+        let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
+        let isCollapsed = nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded || nodeKind === TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
+
+        let d_of_presumed_correct_depth = INTS[fTreeView_pooledNode_depth];
+        if (d_of_presumed_correct_depth !== targetDepth) {
+            // Validate the target you paste into's child count
+            break;
+        }
+
+        someIndex++;
 
         if (!isCollapsed) {
-
-            let targetDepth = depthOfTheParent + 1;
-            let someIndex = WIDGET_target.indexItem + 1;
-
-            // TODO: 'i_targetDepth' is a bad variable name, you're looping a minimum of until 'newFileResult.indexOf' and each loop you check
-            // whether that sibling is expanded, if so you skip all the children of the sibling.
-            //
-            for (let i_targetDepth = 0; i_targetDepth < newFileResult.indexOf; i_targetDepth++) {
-                EXPLORER_treeViewNodes.getElementAt(someIndex);
-                let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
-                let isCollapsed = nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded || nodeKind === TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
-
-                let d_of_presumed_correct_depth = INTS[fTreeView_pooledNode_depth];
-                if (d_of_presumed_correct_depth !== targetDepth) {
-                    // Validate the target you paste into's child count
+            while (someIndex < EXPLORER_treeViewNodes.count_abstract) {
+                let d_of_perhaps_too_large_depth = EXPLORER_treeViewNodes.getDepth(someIndex);
+                if (d_of_perhaps_too_large_depth > targetDepth) {
+                    someIndex++;
+                }
+                else {
                     break;
                 }
-
-                someIndex++;
-
-                if (!isCollapsed) {
-                    while (someIndex < EXPLORER_treeViewNodes.count_abstract) {
-                        let d_of_perhaps_too_large_depth = EXPLORER_treeViewNodes.getDepth(someIndex);
-                        if (d_of_perhaps_too_large_depth > targetDepth) {
-                            someIndex++;
-                        }
-                        else {
-                            break;
-                        }
-                        // TODO: Check if depth is less than targetDepth? This would only happen if the tree view were somehow in an incorrect state.
-                    }
-                }
-
-                // TODO: You're missing a 'someIndex < EXPLORER_treeViewNodes.count_abstract' check for after the while loop.
-            }
-
-            EXPLORER_treeViewNodes.insert(someIndex, nodeKind, newFileResult.pathId, WIDGET_target.depth + 1);
-
-            if (INTS[fEXPLORER_virtualCount] > 0) {
-                let largestIndexItemBeingShown = INTS[fEXPLORER_virtualIndex_ofScrollTop] + (INTS[fEXPLORER_virtualCount] - 1);
-                if (someIndex >= INTS[fEXPLORER_virtualIndex_ofScrollTop] && someIndex <= largestIndexItemBeingShown) {
-                    //let finalDiv = EXPLORER_itemListElement.children[EXPLORER_itemListElement.children.length - 1];
-
-                    INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-                    EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
-
-                    //await EXPLORER_drawItem_async(finalDiv, someIndex, /*isNull*/ false);
-                    if (someIndex !== largestIndexItemBeingShown) {
-                        //EXPLORER_itemListElement.insertBefore(finalDiv, EXPLORER_itemListElement.children[WIDGET_target.divRelativeIndex + 1 + newFileResult.indexOf]);
-                    }
-                }
-
-                // TODO: fine grained redrawing of only the nodes that are:
-                // - part of the virtualization result
-                // - and have changed in some way that necessitates their UI be redrawn
-                EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
+                // TODO: Check if depth is less than targetDepth? This would only happen if the tree view were somehow in an incorrect state.
             }
         }
+
+        // TODO: You're missing a 'someIndex < EXPLORER_treeViewNodes.count_abstract' check for after the while loop.
     }
-}
 
-async function NewFile_File_WIDGET_InputText_callback(result) {
-    if (result.isCancelled) return;
+    EXPLORER_treeViewNodes.insert(someIndex, nodeKind, pasteResult.pathId, MENU_target.depth + 1);
 
-    let entry = result.request.value;
-    
-    EXPLORER_treeViewNodes.getElementAt(WIDGET_target.indexItem);
-    let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
-    let depthOfTheParent = INTS[fTreeView_pooledNode_depth];
-    let isCollapsed = nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded || nodeKind === TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
+    if (INTS[fEXPLORER_virtualCount] > 0) {
+        let largestIndexItemBeingShown = INTS[fEXPLORER_virtualIndex_ofScrollTop] + (INTS[fEXPLORER_virtualCount] - 1);
+        if (someIndex >= INTS[fEXPLORER_virtualIndex_ofScrollTop] && someIndex <= largestIndexItemBeingShown) {
+            let finalDiv = EXPLORER_itemListElement.children[EXPLORER_itemListElement.children.length - 1];
 
-    let newFileResult = await window.myAPI.newFile(entry.absolutePath, result.value, /*isDirectory*/ false);
-    if (newFileResult.success) {
-        /*
-        // TODO: I saw the result was success but the indexOf was -1 when adding a file with the same name twice that seems erroneous.
+            INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
+            EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
 
-        // TODO: I added 3 files total while testing various words that would alphabetically be placed at the start, end, or somewhere in the middle...
-        // ...I think the middle case for some reason ended up in the parent? I'm not quite sure what happened.
-        */
+            // TODO: Check that the node you're pasting into is expanded.
 
-        let nodeKind = TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
-
-        if (!isCollapsed) {
-            let targetDepth = depthOfTheParent + 1;
-            let someIndex = WIDGET_target.indexItem + 1;
-
-            // TODO: 'i_targetDepth' is a bad variable name, you're looping a minimum of until 'newFileResult.indexOf' and each loop you check
-            // whether that sibling is expanded, if so you skip all the children of the sibling.
-            //
-            for (let i_targetDepth = 0; i_targetDepth < newFileResult.indexOf; i_targetDepth++) {
-                EXPLORER_treeViewNodes.getElementAt(someIndex);
-                let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
-                let isCollapsed = nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded || nodeKind === TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
-
-                let d_of_presumed_correct_depth = INTS[fTreeView_pooledNode_depth];
-                if (d_of_presumed_correct_depth !== targetDepth) {
-                    // Validate the target you paste into's child count
-                    break;
-                }
-
-                someIndex++;
-
-                if (!isCollapsed) {
-                    while (someIndex < EXPLORER_treeViewNodes.count_abstract) {
-                        let d_of_perhaps_too_large_depth = EXPLORER_treeViewNodes.getDepth(someIndex);
-                        if (d_of_perhaps_too_large_depth > targetDepth) {
-                            someIndex++;
-                        }
-                        else {
-                            break;
-                        }
-                        // TODO: Check if depth is less than targetDepth? This would only happen if the tree view were somehow in an incorrect state.
-                    }
-                }
-
-                // TODO: You're missing a 'someIndex < EXPLORER_treeViewNodes.count_abstract' check for after the while loop.
-            }
-
-            EXPLORER_treeViewNodes.insert(someIndex, nodeKind, newFileResult.pathId, WIDGET_target.depth + 1);
-    
-            if (INTS[fEXPLORER_virtualCount] > 0) {
-                let largestIndexItemBeingShown = INTS[fEXPLORER_virtualIndex_ofScrollTop] + (INTS[fEXPLORER_virtualCount] - 1);
-                if (someIndex >= INTS[fEXPLORER_virtualIndex_ofScrollTop] && someIndex <= largestIndexItemBeingShown) {
-                    //let finalDiv = EXPLORER_itemListElement.children[EXPLORER_itemListElement.children.length - 1];
-    
-                    INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-                    EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
-    
-                    //await EXPLORER_drawItem_async(finalDiv, someIndex, /*isNull*/ false);
-                    if (someIndex !== largestIndexItemBeingShown) {
-                        //EXPLORER_itemListElement.insertBefore(finalDiv, EXPLORER_itemListElement.children[WIDGET_target.divRelativeIndex + 1 + newFileResult.indexOf]);
-                    }
-                }
-    
-                // TODO: fine grained redrawing of only the nodes that are:
-                // - part of the virtualization result
-                // - and have changed in some way that necessitates their UI be redrawn
-                EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
+            //await EXPLORER_drawItem_async(finalDiv, someIndex, /*isNull*/ false);
+            if (someIndex !== largestIndexItemBeingShown) {
+                //EXPLORER_itemListElement.insertBefore(finalDiv, EXPLORER_itemListElement.children[MENU_target.divRelativeIndex + 1 + pasteResult.indexOf]);
             }
         }
-    }
-}
 
-async function DeleteFile_Directory_YesCancel_callback(result) {
-    if (result.isCancelled) return;
-    let entry = result.request.value;
-    let deleteFileResult = await window.myAPI.deleteFile(entry.absolutePath, /*isDirectory*/ true);
-    if (deleteFileResult) {
-        let countOfMoreEntriesToShow = EXPLORER_treeViewNodes.count_abstract - (INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount]);
+        if (pasteResult.sourceFileWasDeleted) {
+            let id = local_EXPLORER_menuOptionCut_object.id;
+            let indexItem = local_EXPLORER_menuOptionCut_object.indexItem;
+            let divRelativeIndex = local_EXPLORER_menuOptionCut_object.divRelativeIndex;
 
-        let countChanges = EXPLORER_removeFromNodeList(WIDGET_target.indexItem);
+            // TODO: it isn't just about whether the cut-directory is in the virtualization result...
+            // ...if you paste below you could have some children of the cut-directory in view, but not the cut-directory itself.
 
-        INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-        EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
-
-        let remainingChangesToRender = countChanges < INTS[fEXPLORER_virtualCount] ? countChanges : INTS[fEXPLORER_virtualCount] - WIDGET_target.divRelativeIndex;
-
-        if (countOfMoreEntriesToShow > remainingChangesToRender) {
-            countOfMoreEntriesToShow = remainingChangesToRender;
-        }
-
-        for (let i = 0; i < remainingChangesToRender; i++) {
-            //let divItem = EXPLORER_itemListElement.children[WIDGET_target.divRelativeIndex];
-
-            // TODO: if you remove including the eventual final div in the itemListElement then this moving of the div isn't accomplishing anything and could be skipped.
-            //EXPLORER_itemListElement.insertBefore(divItem, undefined);
-
-            if (countOfMoreEntriesToShow <= 0) {
-                //await EXPLORER_drawItem_async(divItem, INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] - 1, /*isNull*/ true);
+            // TODO: Just check indexItem (is easier to tell whether the insertion happened "above" the cut items position in the treeview)?
+            if (MENU_target.divRelativeIndex + 1 + pasteResult.indexOf >= local_EXPLORER_menuOptionCut_object.divRelativeIndex) {
+                divRelativeIndex += 1;
+                indexItem += 1;
             }
-            else {
-                //await EXPLORER_drawItem_async(divItem, INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] - (remainingChangesToRender - i), /*isNull*/ false);
-                countOfMoreEntriesToShow--;
+
+            if (divRelativeIndex <= largestIndexItemBeingShown) {
+
+                let countOfMoreEntriesToShow = EXPLORER_treeViewNodes.count_abstract - (INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount]);
+
+                let countChanges;
+                
+                if (pasteResult.isDirectory) {
+                    countChanges = EXPLORER_removeFromNodeList(indexItem);
+                }
+                else {
+                    EXPLORER_treeViewNodes.removeAt(indexItem, 1);
+                    countChanges = 1;
+                }
+
+                INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
+                EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
+
+                let remainingChangesToRender = countChanges < INTS[fEXPLORER_virtualCount] ? countChanges : INTS[fEXPLORER_virtualCount] - divRelativeIndex;
+
+                if (countOfMoreEntriesToShow > remainingChangesToRender) {
+                    countOfMoreEntriesToShow = remainingChangesToRender;
+                }
+
+                for (let i = 0; i < remainingChangesToRender; i++) {
+                    //let divItem = EXPLORER_itemListElement.children[divRelativeIndex];
+
+                    // TODO: if you remove including the eventual final div in the itemListElement then this moving of the div isn't accomplishing anything and could be skipped.
+                    //EXPLORER_itemListElement.insertBefore(divItem, undefined);
+
+                    if (countOfMoreEntriesToShow <= 0) {
+                        //await EXPLORER_drawItem_async(divItem, INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] - 1, /*isNull*/ true);
+                    }
+                    else {
+                        //await EXPLORER_drawItem_async(divItem, INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] - (remainingChangesToRender - i), /*isNull*/ false);
+                        countOfMoreEntriesToShow--;
+                    }
+                }
             }
         }
 
@@ -1749,6 +1530,216 @@ async function DeleteFile_Directory_YesCancel_callback(result) {
         // - and have changed in some way that necessitates their UI be redrawn
         EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
     }
+}
+
+async function NewFile_Directory_WIDGET_InputText_callback(result) {
+    if (result.isCancelled) return;
+
+    const entry = result.request.value;
+    const target = result.request.target;
+
+    EXPLORER_treeViewNodes.getElementAt(target.indexItem);
+    let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
+    let depthOfTheParent = INTS[fTreeView_pooledNode_depth];
+    let isCollapsed = nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded || nodeKind === TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
+
+    let newFileResult = await window.myAPI.newFile(entry.absolutePath, result.value, /*isDirectory*/ true);
+    if (!newFileResult.success) { return; }
+
+    /*
+    // TODO: I saw the result was success but the indexOf was -1 when adding a file with the same name twice that seems erroneous.
+
+    // TODO: I added 3 files total while testing various words that would alphabetically be placed at the start, end, or somewhere in the middle...
+    // ...I think the middle case for some reason ended up in the parent? I'm not quite sure what happened.
+    */
+
+    // TODO: I belive this final new directory logic that comes after this comment and within this scope is 1 to 1 an exact duplication of the new file logic...
+    
+    nodeKind = TreeViewNodeKind_isExpandable_NOTisExpanded;
+
+    if (!isCollapsed) {
+
+        let targetDepth = depthOfTheParent + 1;
+        let someIndex = target.indexItem + 1;
+
+        // TODO: 'i_targetDepth' is a bad variable name, you're looping a minimum of until 'newFileResult.indexOf' and each loop you check
+        // whether that sibling is expanded, if so you skip all the children of the sibling.
+        //
+        for (let i_targetDepth = 0; i_targetDepth < newFileResult.indexOf; i_targetDepth++) {
+            EXPLORER_treeViewNodes.getElementAt(someIndex);
+            let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
+            let isCollapsed = nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded || nodeKind === TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
+
+            let d_of_presumed_correct_depth = INTS[fTreeView_pooledNode_depth];
+            if (d_of_presumed_correct_depth !== targetDepth) {
+                // Validate the target you paste into's child count
+                break;
+            }
+
+            someIndex++;
+
+            if (!isCollapsed) {
+                while (someIndex < EXPLORER_treeViewNodes.count_abstract) {
+                    let d_of_perhaps_too_large_depth = EXPLORER_treeViewNodes.getDepth(someIndex);
+                    if (d_of_perhaps_too_large_depth > targetDepth) {
+                        someIndex++;
+                    }
+                    else {
+                        break;
+                    }
+                    // TODO: Check if depth is less than targetDepth? This would only happen if the tree view were somehow in an incorrect state.
+                }
+            }
+
+            // TODO: You're missing a 'someIndex < EXPLORER_treeViewNodes.count_abstract' check for after the while loop.
+        }
+
+        EXPLORER_treeViewNodes.insert(someIndex, nodeKind, newFileResult.pathId, target.depth + 1);
+
+        if (INTS[fEXPLORER_virtualCount] > 0) {
+            let largestIndexItemBeingShown = INTS[fEXPLORER_virtualIndex_ofScrollTop] + (INTS[fEXPLORER_virtualCount] - 1);
+            if (someIndex >= INTS[fEXPLORER_virtualIndex_ofScrollTop] && someIndex <= largestIndexItemBeingShown) {
+                //let finalDiv = EXPLORER_itemListElement.children[EXPLORER_itemListElement.children.length - 1];
+
+                INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
+                EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
+
+                //await EXPLORER_drawItem_async(finalDiv, someIndex, /*isNull*/ false);
+                if (someIndex !== largestIndexItemBeingShown) {
+                    //EXPLORER_itemListElement.insertBefore(finalDiv, EXPLORER_itemListElement.children[WIDGET_target.divRelativeIndex + 1 + newFileResult.indexOf]);
+                }
+            }
+
+            // TODO: fine grained redrawing of only the nodes that are:
+            // - part of the virtualization result
+            // - and have changed in some way that necessitates their UI be redrawn
+            EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
+        }
+    }
+}
+
+async function NewFile_File_WIDGET_InputText_callback(result) {
+    if (result.isCancelled) return;
+
+    const entry = result.request.value;
+    const target = result.request.target;
+    
+    EXPLORER_treeViewNodes.getElementAt(target.indexItem);
+    let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
+    let depthOfTheParent = INTS[fTreeView_pooledNode_depth];
+    let isCollapsed = nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded || nodeKind === TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
+
+    let newFileResult = await window.myAPI.newFile(entry.absolutePath, result.value, /*isDirectory*/ false);
+    if (!newFileResult.success) { return; }
+    
+    /*
+    // TODO: I saw the result was success but the indexOf was -1 when adding a file with the same name twice that seems erroneous.
+
+    // TODO: I added 3 files total while testing various words that would alphabetically be placed at the start, end, or somewhere in the middle...
+    // ...I think the middle case for some reason ended up in the parent? I'm not quite sure what happened.
+    */
+
+    nodeKind = TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
+
+    if (isCollapsed) { return; }
+
+    let targetDepth = depthOfTheParent + 1;
+    let someIndex = target.indexItem + 1;
+
+    // TODO: 'i_targetDepth' is a bad variable name, you're looping a minimum of until 'newFileResult.indexOf' and each loop you check
+    // whether that sibling is expanded, if so you skip all the children of the sibling.
+    //
+    for (let i_targetDepth = 0; i_targetDepth < newFileResult.indexOf; i_targetDepth++) {
+        EXPLORER_treeViewNodes.getElementAt(someIndex);
+        let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
+        let isCollapsed = nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded || nodeKind === TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
+
+        let d_of_presumed_correct_depth = INTS[fTreeView_pooledNode_depth];
+        if (d_of_presumed_correct_depth !== targetDepth) {
+            // Validate the target you paste into's child count
+            break;
+        }
+
+        someIndex++;
+
+        if (!isCollapsed) {
+            while (someIndex < EXPLORER_treeViewNodes.count_abstract) {
+                let d_of_perhaps_too_large_depth = EXPLORER_treeViewNodes.getDepth(someIndex);
+                if (d_of_perhaps_too_large_depth > targetDepth) {
+                    someIndex++;
+                }
+                else {
+                    break;
+                }
+                // TODO: Check if depth is less than targetDepth? This would only happen if the tree view were somehow in an incorrect state.
+            }
+        }
+
+        // TODO: You're missing a 'someIndex < EXPLORER_treeViewNodes.count_abstract' check for after the while loop.
+    }
+
+    EXPLORER_treeViewNodes.insert(someIndex, nodeKind, newFileResult.pathId, target.depth + 1);
+
+    if (INTS[fEXPLORER_virtualCount] > 0) {
+        let largestIndexItemBeingShown = INTS[fEXPLORER_virtualIndex_ofScrollTop] + (INTS[fEXPLORER_virtualCount] - 1);
+        if (someIndex >= INTS[fEXPLORER_virtualIndex_ofScrollTop] && someIndex <= largestIndexItemBeingShown) {
+            //let finalDiv = EXPLORER_itemListElement.children[EXPLORER_itemListElement.children.length - 1];
+
+            INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
+            EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
+
+            //await EXPLORER_drawItem_async(finalDiv, someIndex, /*isNull*/ false);
+            if (someIndex !== largestIndexItemBeingShown) {
+                //EXPLORER_itemListElement.insertBefore(finalDiv, EXPLORER_itemListElement.children[WIDGET_target.divRelativeIndex + 1 + newFileResult.indexOf]);
+            }
+        }
+
+        // TODO: fine grained redrawing of only the nodes that are:
+        // - part of the virtualization result
+        // - and have changed in some way that necessitates their UI be redrawn
+        EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
+    }
+}
+
+async function DeleteFile_Directory_YesCancel_callback(result) {
+    if (result.isCancelled) return;
+    const entry = result.request.value;
+    const target = result.request.target;
+    let deleteFileResult = await window.myAPI.deleteFile(entry.absolutePath, /*isDirectory*/ true);
+    if (!deleteFileResult) { return; }
+    
+    let countOfMoreEntriesToShow = EXPLORER_treeViewNodes.count_abstract - (INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount]);
+
+    let countChanges = EXPLORER_removeFromNodeList(target.indexItem);
+
+    INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
+    EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
+
+    let remainingChangesToRender = countChanges < INTS[fEXPLORER_virtualCount] ? countChanges : INTS[fEXPLORER_virtualCount] - target.divRelativeIndex;
+
+    if (countOfMoreEntriesToShow > remainingChangesToRender) {
+        countOfMoreEntriesToShow = remainingChangesToRender;
+    }
+
+    for (let i = 0; i < remainingChangesToRender; i++) {
+        //let divItem = EXPLORER_itemListElement.children[WIDGET_target.divRelativeIndex];
+
+        // TODO: if you remove including the eventual final div in the itemListElement then this moving of the div isn't accomplishing anything and could be skipped.
+        //EXPLORER_itemListElement.insertBefore(divItem, undefined);
+
+        if (countOfMoreEntriesToShow <= 0) {
+            //await EXPLORER_drawItem_async(divItem, INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] - 1, /*isNull*/ true);
+        }
+        else {
+            //await EXPLORER_drawItem_async(divItem, INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] - (remainingChangesToRender - i), /*isNull*/ false);
+            countOfMoreEntriesToShow--;
+        }
+    }
+
+    // TODO: fine grained redrawing of only the nodes that are:
+    // - part of the virtualization result
+    // - and have changed in some way that necessitates their UI be redrawn
+    EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
 }
 
 async function DeleteFile_File_YesCancel_callback(result) {
@@ -1757,57 +1748,55 @@ async function DeleteFile_File_YesCancel_callback(result) {
     // ...better wording of the TODO: the object that 'result.request.value' references can never be garbage collected even after the widget finishes (unless a later show of a widget overrites the variable to reference a different object). This is because the variable is never set to null. Due to the variable being global, it exists for the entire app duration and a null set is required in this case for garbage collection of what it points to to take place.
     let entry = result.request.value;
     let deleteFileResult = await window.myAPI.deleteFile(entry.absolutePath, /*isDirectory*/ false);
-    if (deleteFileResult) {
-        let noMoreEntriesToShow = INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] >= EXPLORER_treeViewNodes.count_abstract;
+    if (!deleteFileResult) { return; }
+    
+    let noMoreEntriesToShow = INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] >= EXPLORER_treeViewNodes.count_abstract;
 
-        EXPLORER_treeViewNodes.removeAt(WIDGET_target.indexItem, 1);
+    EXPLORER_treeViewNodes.removeAt(WIDGET_target.indexItem, 1);
 
-        if (INTS[fEXPLORER_virtualCount] > 0) {
-            //let divItem = EXPLORER_itemListElement.children[WIDGET_target.divRelativeIndex];
+    if (INTS[fEXPLORER_virtualCount] > 0) {
+        //let divItem = EXPLORER_itemListElement.children[WIDGET_target.divRelativeIndex];
 
-            INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-            EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
+        INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
+        EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
 
-            //EXPLORER_itemListElement.insertBefore(divItem, undefined);
-            if (noMoreEntriesToShow) {
-                //await EXPLORER_drawItem_async(divItem, INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] - 1, /*isNull*/ true);
-            }
-            else {
-                //await EXPLORER_drawItem_async(divItem, INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] - 1, /*isNull*/ false);
-            }
+        //EXPLORER_itemListElement.insertBefore(divItem, undefined);
+        if (noMoreEntriesToShow) {
+            //await EXPLORER_drawItem_async(divItem, INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] - 1, /*isNull*/ true);
         }
-
-        // TODO: fine grained redrawing of only the nodes that are:
-        // - part of the virtualization result
-        // - and have changed in some way that necessitates their UI be redrawn
-        EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
+        else {
+            //await EXPLORER_drawItem_async(divItem, INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] - 1, /*isNull*/ false);
+        }
     }
+
+    // TODO: fine grained redrawing of only the nodes that are:
+    // - part of the virtualization result
+    // - and have changed in some way that necessitates their UI be redrawn
+    EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
 }
 
 async function RenameFile_Directory_InputText_callback(result) {
     if (result.isCancelled) return;
     // TODO: Confusing, hacky, upsetting: 'WIDGET_target.entry / WIDGET_target.MENU_target'
-    let entry = WIDGET_target.entry;
-    WIDGET_target = WIDGET_target.MENU_target;
+    const entry = result.request.target.entry;
+    const target = result.request.target.MENU_target;
     let renameFileResult = await window.myAPI.renameFile(entry.absolutePath, result.value, /*isDirectory*/ true);
-    if (renameFileResult.success) {
-        EXPLORER_setNodeListEntryId(WIDGET_target.indexItem, renameFileResult.pathId);
-        let divItem = EXPLORER_itemListElement.children[WIDGET_target.divRelativeIndex];
-        divItem.firstChild.replaceData(1, textNode.length - 1, result.value);
-    }
+    if (!renameFileResult.success) { return; }
+    EXPLORER_setNodeListEntryId(target.indexItem, renameFileResult.pathId);
+    let divItem = EXPLORER_itemListElement.children[target.divRelativeIndex];
+    divItem.firstChild.replaceData(1, textNode.length - 1, result.value);
 }
 
 async function RenameFile_File_InputText_callback(result) {
     if (result.isCancelled) return;
     // TODO: Confusing, hacky, upsetting: 'WIDGET_target.entry / WIDGET_target.MENU_target'
-    let entry = WIDGET_target.entry;
-    WIDGET_target = WIDGET_target.MENU_target;
+    const entry = result.request.target.entry;
+    const target = result.request.target.MENU_target;
     let renameFileResult = await window.myAPI.renameFile(entry.absolutePath, result.value, /*isDirectory*/ false);
-    if (renameFileResult.success) {
-        EXPLORER_setNodeListEntryId(WIDGET_target.indexItem, renameFileResult.pathId);
-        let divItem = EXPLORER_itemListElement.children[WIDGET_target.divRelativeIndex];
-        divItem.firstChild.replaceData(1, textNode.length - 1, result.value);
-    }
+    if (!renameFileResult.success) { return; }
+    EXPLORER_setNodeListEntryId(target.indexItem, renameFileResult.pathId);
+    let divItem = EXPLORER_itemListElement.children[target.divRelativeIndex];
+    divItem.firstChild.replaceData(1, textNode.length - 1, result.value);
 }
 
 // TODO: look at the "async" events because its nonsensical

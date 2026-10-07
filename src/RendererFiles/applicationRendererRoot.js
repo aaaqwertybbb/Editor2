@@ -25,27 +25,14 @@ function APP_render_init() {
 
 function APP_measureLineHeightAndCharacterWidth() {
     const measureElement = document.createElement('div');
-    measureElement.style.width = "fit-content";
-    measureElement.style.whiteSpace = 'pre';
-    measureElement.style.position = 'absolute';
-    measureElement.style.visibility = 'hidden';
-    measureElement.style.padding = '0';
-    measureElement.style.border = 'none';
-    measureElement.style.left = '0';
-    measureElement.style.top = '0';
+    measureElement.className = 'APP_MEASURE_ELEMENT';
     const textNode = document.createTextNode('');
     measureElement.appendChild(textNode);
 
     // AI is saying "// The foolproof way to prevent ALL scrollbars during measurement" is this paragraph of code.
     // The foolproof way to prevent ALL scrollbars during measurement
     const wrapper = document.createElement('div');
-    wrapper.style.position = 'fixed'; // Removes it from the normal page layout flow
-    wrapper.style.top = '0';
-    wrapper.style.left = '0';
-    wrapper.style.width = '0';        // Forces a tiny container footprint
-    wrapper.style.height = '0';       // Forces a tiny container footprint
-    wrapper.style.overflow = 'hidden'; // Prevents any layout leaking out or causing scrollbars
-    wrapper.style.visibility = 'hidden'; // Keeps it completely invisible to the user
+    wrapper.className = 'APP_MEASURE_ELEMENT_WRAPPER';
 
     wrapper.appendChild(measureElement);
     document.body.appendChild(wrapper);

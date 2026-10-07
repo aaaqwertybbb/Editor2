@@ -639,6 +639,27 @@ TODO: maybe don't nearly-duplicate these classes.
   height: calc(100% - (2 * var(--APP-line-height)) - 2px);
 }
 
+.APP_MEASURE_ELEMENT {
+  width: fit-content;
+  white-space: pre; /* CRITICAL: Guarantees the 396 characters stay on 1 line */
+  position: absolute;
+  visibility: hidden;
+  padding: 0;
+  border: none;
+  left: 0;
+  top: 0;
+}
+
+.APP_MEASURE_ELEMENT_WRAPPER {
+  position: fixed; /* Removes it from the normal page layout flow */
+  top: '0';
+  left: '0';
+  width: '0';        /* Forces a tiny container footprint */
+  height: '0';       /* Forces a tiny container footprint */
+  overflow: 'hidden'; /* Prevents any layout leaking out or causing scrollbars */
+  visibility: 'hidden'; /* Keeps it completely invisible to the user */
+}
+
 :root {
   --header-height: 25px;
   --EDITOR-line-height: 20px;

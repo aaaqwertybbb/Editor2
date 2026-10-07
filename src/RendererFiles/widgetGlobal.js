@@ -26,18 +26,12 @@ const WIDGETrenderKind_Hide = 2;
  * @property {number} ticket
  */
 
-class WidgetResult {
-    /**
-     * @param {boolean} isCancelled 
-     * @param {any} resultData 
-     * @param {WidgetRequest} request 
-     */
-    constructor(isCancelled, resultData, request) {
-        this.isCancelled = isCancelled;
-        this.resultData = resultData;
-        this.request = request;
-    }
-}
+/**
+ * @typedef {Object} WidgetResult
+ * @property {boolean} isCancelled
+ * @property {any} resultData
+ * @property {WidgetRequest} request
+ */
 
 /** @type {WidgetRequest} */
 let WIDGET_request = null;
@@ -239,7 +233,11 @@ async function WIDGET_completeForm(forceIsCancelled, changingFocusIsReasonable, 
                     break;
             }
         }
-        return local_request.callback(new WidgetResult(forceIsCancelled, resultData, local_request));
+        return local_request.callback({
+            isCancelled: forceIsCancelled,
+            resultData: resultData,
+            request: local_request
+        });
     }
 }
 

@@ -371,3 +371,182 @@ Or I'll feel anxiety and dread for the rest of my life while I continually procr
 
  8:19
 12:19
+
+=======
+
+I spent the last hour an thirty minutes fixing my vscode color theme.
+
+It is 2 steps:
+
+Step 1:
+```json
+{
+    "editor.fontSize": 12,
+    "references.preferredLocation": "view",
+    "editor.gotoLocation.multipleReferences": "gotoAndPeek",
+    "workbench.colorTheme": "Dark+",
+    "editor.bracketPairColorization.enabled": false,
+    "workbench.colorCustomizations": {
+        "[Light+]": {
+            "activityBar.background": "#f3f3f3",
+            "activityBar.foreground": "#333333",
+            "activityBar.inactiveForeground": "#33333399",
+            "modernActivityBarItem.hoverForeground": "#2b88f9",
+            "modernActivityBarItem.activeForeground": "#2b88f9",
+            "activityBar.border": "#e4e4e4"
+        }
+    },
+    "editor.tokenColorCustomizations": {
+        "[Dark+]": {
+            "functions": "#cece84",
+            "textMateRules": [
+                {
+                    "name": "Target dot property/member access (excluding methods)",
+                    "scope": [
+                        "variable.other.property",
+                        "variable.other.object.property",
+                        "support.type.property-name",
+                        "support.variable.property.js",
+                        "entity.name.variable.field",
+                        "entity.name.variable.property",
+                        "variable.other.constant.property.js",
+                        "support.variable.property"
+                    ],
+                    "settings": {
+                        "foreground": "#4FC1FF"
+                    }
+                },
+                {
+                    "scope": "support.property.attached-to-this",
+                    "settings": {
+                        "foreground": "#9CDCFE"
+                    }
+                },
+                {
+                    "name": "override Dark+ theme color for (non TargetDotProperty/MemberAccess) constants to just be a normal variable.",
+                    "scope": [
+                        "variable.other.constant"
+                    ],
+                    "settings": {
+                        "foreground": "#9CDCFE"
+                    }
+                },
+                {
+                    "name": "give functions a slightly more distinct shade of the default",
+                    "scope": [
+                        "entity.name.function.js",
+                        "meta.function-call.js",
+                        "entity.name.function.js",
+                        "meta.function-call.js",
+                        "support.function",
+                        "entity.name.function.member"
+                    ],
+                    "settings": {
+                        "foreground": "#cece84"
+                    }
+                }
+            ]
+        },
+        "[Light+]": {
+            "functions": "#cd8900",
+            "textMateRules": [
+                {
+                    "name": "Target dot property/member access (excluding methods)",
+                    "scope": [
+                        "variable.other.property",
+                        "variable.other.object.property",
+                        "support.type.property-name",
+                        "support.variable.property.js",
+                        "entity.name.variable.field",
+                        "entity.name.variable.property",
+                        "variable.other.constant.property.js",
+                        "support.variable.property"
+                    ],
+                    "settings": {
+                        "foreground": "#0070C1"
+                    }
+                },
+                {
+                    "scope": "support.property.attached-to-this",
+                    "settings": {
+                        "foreground": "#001080"
+                    }
+                },
+                {
+                    "name": "override Dark+ theme color for (non TargetDotProperty/MemberAccess) constants to just be a normal variable.",
+                    "scope": [
+                        "variable.other.constant"
+                    ],
+                    "settings": {
+                        "foreground": "#001080"
+                    }
+                },
+                {
+                    "name": "give functions a slightly more distinct shade of the default",
+                    "scope": [
+                        "entity.name.function.js",
+                        "meta.function-call.js",
+                        "entity.name.function.js",
+                        "meta.function-call.js",
+                        "support.function",
+                        "entity.name.function.member"
+                    ],
+                    "settings": {
+                        "foreground": "#cd8900"
+                    }
+                }
+            ]
+        }
+    },
+    "editor.semanticHighlighting.enabled": false,
+    "editor.semanticTokenColorCustomizations": {
+        "enabled": false
+    }
+}
+```
+
+Step 2:
+- Make a directory `this-modifier-extension`
+- package.json
+- syntaxes/this-modifier.tmLanguage.json
+
+package.json:
+```json
+{
+  "name": "this-property-modifier",
+  "displayName": "This Property Modifier",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.0.0"
+  },
+  "contributes": {
+    "grammars": [
+      {
+        "scopeName": "this.property.injection",
+        "path": "./syntaxes/this-modifier.tmLanguage.json",
+        "injectTo": ["source.js", "source.ts", "source.tsx"] 
+      }
+    ]
+  }
+}
+```
+
+syntaxes/this-modifier.tmLanguage.json:
+```json
+{
+  "scopeName": "this.property.injection",
+  "injectionSelector": "L:source.js, L:source.ts, L:source.tsx, L:source.python, L:source.cs",
+  "patterns": [
+    {
+      "match": "\\b(this)(?:\\s{1,3})?(\\.)(?:\\s{1,3})?([a-zA-Z_$][a-zA-Z0-9_$]*)",
+      "captures": {
+        "1": { "name": "variable.language.this" },
+        "2": { "name": "punctuation.accessor" },
+        "3": { "name": "support.property.attached-to-this" }
+      }
+    }
+  ]
+}
+```
+
+Google AI and I had to work together to figure this out.

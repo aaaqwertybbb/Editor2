@@ -323,6 +323,11 @@ function AUTOCOMPLETE_render_do_hide() {
         AUTOCOMPLETE_events_remove(AUTOCOMPLETE);
         AUTOCOMPLETE.remove();
         AUTOCOMPLETEElement = null;
+        AUTOCOMPLETE_scroll_viewport.remove();
+        AUTOCOMPLETE_scroll_viewport = null;
+        AUTOCOMPLETE_text.remove();
+        AUTOCOMPLETE_text = null;
+        AUTOCOMPLETE_ringBuffer = null;
     }
 
     BYTES[byteAUTOCOMPLETE_exists] = 0;

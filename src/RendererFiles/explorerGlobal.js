@@ -1620,14 +1620,11 @@ async function DeleteFile_Directory_YesCancel_callback(result) {
 
     INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
     EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
-
     EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
 }
 
 async function DeleteFile_File_YesCancel_callback(result) {
     if (result.isCancelled) return;
-    // TODO: Biggest concern is that 'result.request.value' is never set to a GC collectable state after widget finishes.
-    // ...better wording of the TODO: the object that 'result.request.value' references can never be garbage collected even after the widget finishes (unless a later show of a widget overrites the variable to reference a different object). This is because the variable is never set to null. Due to the variable being global, it exists for the entire app duration and a null set is required in this case for garbage collection of what it points to to take place.
     const entry = result.request.value;
     const target = result.request.target;
     let deleteFileResult = await window.myAPI.deleteFile(entry.absolutePath, /*isDirectory*/ false);
@@ -1637,7 +1634,6 @@ async function DeleteFile_File_YesCancel_callback(result) {
 
     INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
     EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
-
     EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
 }
 
@@ -1648,6 +1644,7 @@ async function RenameFile_Directory_InputText_callback(result) {
     const target = result.request.target.MENU_target;
     let renameFileResult = await window.myAPI.renameFile(entry.absolutePath, result.resultData, /*isDirectory*/ true);
     if (!renameFileResult.success) { return; }
+
     EXPLORER_setNodeListEntryId(target.indexItem, renameFileResult.pathId);
     const textNode = EXPLORER_itemListElement.children[target.divRelativeIndex].firstChild;
     textNode.replaceData(1, textNode.length - 1, result.resultData);
@@ -1660,6 +1657,7 @@ async function RenameFile_File_InputText_callback(result) {
     const target = result.request.target.MENU_target;
     let renameFileResult = await window.myAPI.renameFile(entry.absolutePath, result.resultData, /*isDirectory*/ false);
     if (!renameFileResult.success) { return; }
+    
     EXPLORER_setNodeListEntryId(target.indexItem, renameFileResult.pathId);
     const textNode = EXPLORER_itemListElement.children[target.divRelativeIndex].firstChild;
     textNode.replaceData(1, textNode.length - 1, result.resultData);

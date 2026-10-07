@@ -1382,8 +1382,7 @@ async function EXPLORER_MenuOnClick(indexClicked, elementClicked) {
             await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'rename', entry.basename, {MENU_target:MENU_target, entry:entry}, MENU_restoreFocusToElement, false, RenameFile_Directory_InputText_callback);
             break;
         case CommandKind_RenameFile_File:
-            // TODO: Maybe the only difference between the _Directory and _File cases for each ..._... is the bool for isDirectory...
-            // ...but I'm exhausted and I cannot reduce the code duplication here because my head doesn't function.
+            // TODO: Maybe the only difference between the _Directory and _File cases for each ..._... is the bool for isDirectory but I'm exhausted and I cannot reduce the code duplication here because my head doesn't function.
             BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
             await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'rename', entry.basename, {MENU_target: MENU_target, entry: entry}, MENU_restoreFocusToElement, false, RenameFile_File_InputText_callback);
             break;
@@ -1400,12 +1399,6 @@ async function CommandKind_Paste_MenuOnClick_Paste(entry) {
     EXPLORER_menuOptionCut_object = null;
     let pasteResult = await window.myAPI.copyClipboardAbsolutePathToDirectory(entry.absolutePath, local_EXPLORER_menuOptionCut_object?.id);
     if (!pasteResult.success) { return; }
-    /*
-    // TODO: I saw the result was success but the indexOf was -1 when adding a file with the same name twice that seems erroneous.
-
-    // TODO: I added 3 files total while testing various words that would alphabetically be placed at the start, end, or somewhere in the middle...
-    // ...I think the middle case for some reason ended up in the parent? I'm not quite sure what happened.
-    */
 
     // TODO: I belive this final paste logic that comes after this comment and within this scope is extremely similar to the new file logic...
 
@@ -1507,13 +1500,6 @@ async function NewFile_Directory_WIDGET_InputText_callback(result) {
     let newFileResult = await window.myAPI.newFile(entry.absolutePath, result.resultData, /*isDirectory*/ true);
     if (!newFileResult.success) { return; }
 
-    /*
-    // TODO: I saw the result was success but the indexOf was -1 when adding a file with the same name twice that seems erroneous.
-
-    // TODO: I added 3 files total while testing various words that would alphabetically be placed at the start, end, or somewhere in the middle...
-    // ...I think the middle case for some reason ended up in the parent? I'm not quite sure what happened.
-    */
-
     // TODO: I belive this final new directory logic that comes after this comment and within this scope is 1 to 1 an exact duplication of the new file logic...
     
     nodeKind = TreeViewNodeKind_isExpandable_NOTisExpanded;
@@ -1576,13 +1562,6 @@ async function NewFile_File_WIDGET_InputText_callback(result) {
 
     let newFileResult = await window.myAPI.newFile(entry.absolutePath, result.resultData, /*isDirectory*/ false);
     if (!newFileResult.success) { return; }
-    
-    /*
-    // TODO: I saw the result was success but the indexOf was -1 when adding a file with the same name twice that seems erroneous.
-
-    // TODO: I added 3 files total while testing various words that would alphabetically be placed at the start, end, or somewhere in the middle...
-    // ...I think the middle case for some reason ended up in the parent? I'm not quite sure what happened.
-    */
 
     nodeKind = TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
 
@@ -1642,9 +1621,6 @@ async function DeleteFile_Directory_YesCancel_callback(result) {
     INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
     EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
 
-    // TODO: fine grained redrawing of only the nodes that are:
-    // - part of the virtualization result
-    // - and have changed in some way that necessitates their UI be redrawn
     EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
 }
 
@@ -1656,29 +1632,12 @@ async function DeleteFile_File_YesCancel_callback(result) {
     const target = result.request.target;
     let deleteFileResult = await window.myAPI.deleteFile(entry.absolutePath, /*isDirectory*/ false);
     if (!deleteFileResult) { return; }
-    
-    let noMoreEntriesToShow = INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] >= EXPLORER_treeViewNodes.count_abstract;
 
     EXPLORER_treeViewNodes.removeAt(target.indexItem, 1);
 
-    if (INTS[fEXPLORER_virtualCount] > 0) {
-        //let divItem = EXPLORER_itemListElement.children[WIDGET_target.divRelativeIndex];
+    INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
+    EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
 
-        INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-        EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
-
-        //EXPLORER_itemListElement.insertBefore(divItem, undefined);
-        if (noMoreEntriesToShow) {
-            //await EXPLORER_drawItem_async(divItem, INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] - 1, /*isNull*/ true);
-        }
-        else {
-            //await EXPLORER_drawItem_async(divItem, INTS[fEXPLORER_virtualIndex_ofScrollTop] + INTS[fEXPLORER_virtualCount] - 1, /*isNull*/ false);
-        }
-    }
-
-    // TODO: fine grained redrawing of only the nodes that are:
-    // - part of the virtualization result
-    // - and have changed in some way that necessitates their UI be redrawn
     EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
 }
 
@@ -1711,3 +1670,10 @@ async function RenameFile_File_InputText_callback(result) {
 // TODO: fine grained redrawing of only the nodes that are:
 // - part of the virtualization result
 // - and have changed in some way that necessitates their UI be redrawn
+
+/*
+// TODO: I saw the result was success but the indexOf was -1 when adding a file with the same name twice that seems erroneous.
+
+// TODO: I added 3 files total while testing various words that would alphabetically be placed at the start, end, or somewhere in the middle...
+// ...I think the middle case for some reason ended up in the parent? I'm not quite sure what happened.
+*/

@@ -608,14 +608,9 @@ function EDI_onScroll_LeadingEdge(local_prevVli, local_currVli) {
 
     EDI_finalizeEdit();
 
-    if (INTS[fEDI_prevVli] === INTS[fEDI_virtualIndexLine] &&
-        INTS[fEDI_ONSCROLLvirtualCount] === INTS[fEDI_virtualCount]) {
-            // TODO: this is directly tied to a scroll event on EDI_baseElement so handle it from there perhaps?
-            // TODO: this code is duplicated inside EDI_drawHorizontalScrollbar, reduce duplication?
-            //if (EDI_horizontal_scrollbar.scrollLeft !== INTS[fEDI_lastReadNumber_scrollLeft]) {
-            //    EDI_horizontal_scrollbar.scrollLeft = INTS[fEDI_lastReadNumber_scrollLeft];
-            //}
-            return true;
+    // TODO: I'm fairly certain that this needs to go above 'INTS[fEDI_intFalsey_isScrolling] = 1;' at a minimum
+    if (INTS[fEDI_prevVli] === INTS[fEDI_virtualIndexLine] && INTS[fEDI_ONSCROLLvirtualCount] === INTS[fEDI_virtualCount]) {
+        return true;
     }
 
     if (INTS[fEDI_ONSCROLLvirtualCount] !== INTS[fEDI_virtualCount]) {

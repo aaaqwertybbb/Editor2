@@ -244,13 +244,13 @@ function MENU_completeForm(forceIsCancelled, changingFocusIsReasonable) {
 function MENU_onMouseMove(event) {
     // then cancel the throttle? That's what you were actually doing with the thing?
 
-    if (!MENU_recentBoundingClientRectTop) {
-        MENU_ensure_boundingClientRect();
-    }
+    //if (!MENU_request.recentBoundingClientRectTop) {
+    //    MENU_ensure_boundingClientRect();
+    //}
 
-    let relativeY = event.clientY - (MENU_recentBoundingClientRectTop + 4 /*paddingTop*/);
+    let relativeY = event.clientY - (MENU_request.recentBoundingClientRectTop + 4 /*paddingTop*/);
     let index = Math.floor(relativeY / INTS[fAPP_lineHeight]);
-    if (INTS[fMENU_cursorIndex] === index) {
+    if (MENU_request.index === index) {
         return;
     }
     
@@ -260,7 +260,7 @@ function MENU_onMouseMove(event) {
 /** mouse move handler has this explicit inlined (duplicated) due to the sheer frequency of its invocation */
 function menuGetRelativeMouseEventData(event_clientY) {
     let paddingTop = 4;
-    let relativeY = event_clientY - (MENU_recentBoundingClientRectTop + paddingTop);
+    let relativeY = event_clientY - (MENU_request.recentBoundingClientRectTop + paddingTop);
     return Math.floor(relativeY / INTS[fAPP_lineHeight]);
 }
 
@@ -293,7 +293,7 @@ function MENU_render_do_Cursor() {
     const cursorElement = document.getElementById('MENU_cursor');
     if (!cursorElement) return;
     // The menu 'padding-top: 4px'
-    cursorElement.style.top = 4 + (INTS[fAPP_lineHeight] * INTS[fMENU_cursorIndex]) + 'px';
+    cursorElement.style.top = 4 + (INTS[fAPP_lineHeight] * MENU_request.index) + 'px';
 }
 
 function MENU_state_do_Cursor(index) {
@@ -303,7 +303,7 @@ function MENU_state_do_Cursor(index) {
     if (index < 0)
         index = 0;
 
-    INTS[fMENU_cursorIndex] = index;
+    MENU_request.index = index;
 }
 
 function MENU_setCursorIndex(index) {
@@ -313,7 +313,7 @@ function MENU_setCursorIndex(index) {
 
 /** TODO: This doesn't work the same way the other validate cursors do? */
 function MENU_validateCursor() {
-    if (INTS[fMENU_cursorIndex] >= MENU_ArrayFrom_menuOptionList_children.length) {
+    if (MENU_request.index >= MENU_ArrayFrom_menuOptionList_children.length) {
         if (MENU_ArrayFrom_menuOptionList_children.length > 0) {
             MENU_setCursorIndex(MENU_ArrayFrom_menuOptionList_children.length - 1);
         }
@@ -322,8 +322,8 @@ function MENU_validateCursor() {
         }
         return;
     }
-    else if (INTS[fMENU_cursorIndex] < 0) {
-        INTS[fMENU_cursorIndex] = 0;
+    else if (MENU_request.index < 0) {
+        MENU_request.index = 0;
     }
 }
 
@@ -333,28 +333,29 @@ function MENU_onKeyDown(event) {
 
     switch (event.key) {
         case 'ArrowDown':
-            if (INTS[fMENU_cursorIndex] < MENU_ArrayFrom_menuOptionList_children.length - 1) {
-                MENU_setCursorIndex(INTS[fMENU_cursorIndex] + 1);
+            if (MENU_request.index < MENU_ArrayFrom_menuOptionList_children.length - 1) {
+                MENU_setCursorIndex(MENU_request.index + 1);
             }
             break;
         case 'ArrowUp':
-            if (INTS[fMENU_cursorIndex] > 0) {
-                MENU_setCursorIndex(INTS[fMENU_cursorIndex] - 1);
+            if (MENU_request.index > 0) {
+                MENU_setCursorIndex(MENU_request.index - 1);
             }
             break;
         case 'Escape':
             return menuHide(/*shouldRestoreFocus*/ true);
         case 'Enter':
         case ' ':
-            return optionOnClick(INTS[fMENU_cursorIndex], MENU_ArrayFrom_menuOptionList_children[INTS[fMENU_cursorIndex]]);
+            return optionOnClick(MENU_request.index, MENU_ArrayFrom_menuOptionList_children[MENU_request.index]);
     }
 }
 
+/** TODO: fix this and uncomment the invocations, 'if (!MENU_request.recentBoundingClientRectTop)' is non sensical (0 is a valid top etc...) */
 function MENU_ensure_boundingClientRect() {
-    if (!MENU_recentBoundingClientRectTop) {
+    if (!MENU_request.recentBoundingClientRectTop) {
         const menuElement = document.getElementById('MENU');
         if (!menuElement) return;
-        MENU_recentBoundingClientRectTop = menuElement.getBoundingClientRect().top;
+        MENU_request.recentBoundingClientRectTop = menuElement.getBoundingClientRect().top;
     }
 }
 

@@ -238,3 +238,5 @@ I have to private the repo.
 Is it okay if i private the repo and make another repo in terms of the thoughts of github?
 
 I don't wanna be like wasting storage
+
+> is it possible to clear the git history of a github.com hosted repo that I own

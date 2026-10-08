@@ -248,8 +248,6 @@ function MENU_completeForm(forceIsCancelled, changingFocusIsReasonable) {
 }
 
 function MENU_onMouseMove(event) {
-    // then cancel the throttle? That's what you were actually doing with the thing?
-
     //if (!MENU_request.recentBoundingClientRectTop) {
     //    MENU_ensure_boundingClientRect();
     //}
@@ -357,7 +355,7 @@ function MENU_onKeyDown(event) {
             break;
         case 'Escape':
             event.stopPropagation(); // TODO: probably don't type this in every case
-            MENU_completeForm(/*forceIsCancelled*/ true, /*changingFocusIsReasonable*/ false);
+            MENU_completeForm(/*forceIsCancelled*/ true, /*changingFocusIsReasonable*/ true);
         case 'Enter':
         case ' ':
             event.stopPropagation(); // TODO: probably don't type this in every case

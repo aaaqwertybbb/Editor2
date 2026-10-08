@@ -344,19 +344,23 @@ function MENU_onKeyDown(event) {
 
     switch (event.key) {
         case 'ArrowDown':
+            event.stopPropagation(); // TODO: probably don't type this in every case
             if (MENU_request.index < MENU_request.ArrayFrom_menuOptionList_children.length - 1) {
                 MENU_setCursorIndex(MENU_request.index + 1);
             }
             break;
         case 'ArrowUp':
+            event.stopPropagation(); // TODO: probably don't type this in every case
             if (MENU_request.index > 0) {
                 MENU_setCursorIndex(MENU_request.index - 1);
             }
             break;
         case 'Escape':
+            event.stopPropagation(); // TODO: probably don't type this in every case
             MENU_completeForm(/*forceIsCancelled*/ true, /*changingFocusIsReasonable*/ false);
         case 'Enter':
         case ' ':
+            event.stopPropagation(); // TODO: probably don't type this in every case
             MENU_completeForm(false, true);
     }
 }

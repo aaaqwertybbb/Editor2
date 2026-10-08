@@ -22,8 +22,7 @@ const MENUrenderKind_Hide = 3;
 /**
  * @callback MENU_OnCompleteAction
  * @param {boolean} isCancelled
- * @param {MenuOption} menuOption the 'MenuOption' that was clicked
- * @param {number} indexClicked the index of targeted 'MenuOption' within 'optionList'
+ * @param {MenuOption | undefined} menuOption the 'MenuOption' that exists at the 'request.index' or undefined if 'request.index' out of range;
  * @param {MenuRequest} request
  * @returns {Promise}
  */
@@ -42,7 +41,7 @@ const MENUrenderKind_Hide = 3;
  * @property {MENU_OnCompleteAction} onCompleteAction
  * @property {any} target
  * @property {MenuOption[]} optionList
- * @property {number} initiallySelectedIndex
+ * @property {number} index (use this to set the 'initiallySelectedIndex' / see the index of targeted 'MenuOption' within 'optionList')
  * @property {number} ticket
  * @property {HTMLDivElement[]} ArrayFrom_menuOptionList_children
  * @property {HTMLElement} elementToFocusOnCompleted
@@ -235,19 +234,8 @@ function MENU_render_do_Hide() {
     if (!menu) return;
 
     MENU_removeEvents();
-
+    INTS[fMENU_ticketId_drawn] = 0;
     menu.remove();
-    MENU_ArrayFrom_menuOptionList_children = null;
-
-    // This changes after drawing at a different left/top thus needs be null'd out in the render function.
-    MENU_recentBoundingClientRectTop = null;
-
-    if (MENU_restoreFocusToElement) {
-        if (BYTES[byteMENU_HIDE_shouldRestoreFocus]) {
-            MENU_restoreFocusToElement.focus();
-        }
-        MENU_restoreFocusToElement = null;
-    }
 }
 
 /**
@@ -262,7 +250,7 @@ function MENU_hide() {
 /**
  * @param {*} changingFocusIsReasonable A blur event should not change focus.
  */
-function MENU_completeForm(forceIsCancelled, changingFocusIsReasonable, menuOption) {
+function MENU_completeForm(forceIsCancelled, changingFocusIsReasonable) {
     const local_request = MENU_request;
     MENU_hide();
     if (changingFocusIsReasonable && !local_request.disableFocusOnCompleted && local_request.elementToFocusOnCompleted) {
@@ -271,40 +259,13 @@ function MENU_completeForm(forceIsCancelled, changingFocusIsReasonable, menuOpti
     if (!forceIsCancelled && local_request.ticket !== INTS[fMENU_ticketId_drawn]) {
         forceIsCancelled = true;
     }
+    let menuOption = undefined;
+    if (local_request.index > 0 && local_request.index < local_request.optionList.length) {
+        menuOption = local_request.optionList[local_request.index];
+    }
+    local_request.onCompleteAction(forceIsCancelled, menuOption, local_request);
     if (forceIsCancelled) {
         local_request.onCancelAction();
-    }
-    else {
-        switch (local_request.context) {
-            case 'EXPLORER':
-                EXPLORER_MenuOnClick(indexClicked, elementClicked);
-                break;
-            case 'EDITOR':
-                EDI_MenuOnClick(indexClicked, elementClicked);
-                break;
-            case 'EXPLORER_pickFolderOrWorkspaceButton':
-                EXPLORER_pickFolderOrWorkspaceButton_MenuOnClick(indexClicked, elementClicked);
-                break;
-        }
-        menuOption;
-    }
-    if (local_request.callback) {
-        
-        if (resultData === null) {
-            switch (local_request.widgetKind) {
-                case WidgetKind_InputText:
-                    resultData = WidgetKind_InputText_GetResultData();
-                    break;
-                case WidgetKind_YesCancel:
-                    resultData = WidgetKind_YesCancel_GetResultData();
-                    break;
-            }
-        }
-        return local_request.callback({
-            isCancelled: forceIsCancelled,
-            resultData: resultData,
-            request: local_request
-        });
     }
 }
 
@@ -322,25 +283,6 @@ function MENU_onMouseMove(event) {
     }
     
     MENU_setCursorIndex(index);
-}
-
-async function optionOnClick(indexClicked, elementClicked) {
-    if (INTS[fMENU_ticketId_drawn] === INTS[fMENU_ticketId_pending] && INTS[fMENU_ticketId_drawn] !== INTS[fMENU_last_handled_ticketId]) {
-        INTS[fMENU_last_handled_ticketId] = INTS[fMENU_ticketId_drawn];
-        BYTES[byteMENU_HIDE_shouldRestoreFocus] = 1;
-        switch (MENU_context) {
-            case 'EXPLORER':
-                await EXPLORER_MenuOnClick(indexClicked, OptionList);
-                break;
-            case 'EDITOR':
-                await EDI_MenuOnClick(indexClicked, elementClicked);
-                break;
-            case 'EXPLORER_pickFolderOrWorkspaceButton':
-                await EXPLORER_pickFolderOrWorkspaceButton_MenuOnClick(indexClicked, elementClicked);
-                break;
-        }
-    }
-    await menuHide(/*shouldRestoreFocus*/ undefined);
 }
 
 /** mouse move handler has this explicit inlined (duplicated) due to the sheer frequency of its invocation */
@@ -371,7 +313,8 @@ function MENU_removeEvents() {
 function MENU_onclick(event) {
     MENU_ensure_boundingClientRect();
     let indexClicked = menuGetRelativeMouseEventData(event.clientY);
-    return optionOnClick(indexClicked, MENU_ArrayFrom_menuOptionList_children[indexClicked]);
+    MENU_setCursorIndex(MENU_validateCursor(indexClicked));
+    MENU_completeForm(false, true);
 }
 
 function MENU_render_do_Cursor() {
@@ -396,6 +339,7 @@ function MENU_setCursorIndex(index) {
     MENU_render_request(MENUrenderKind_Cursor);
 }
 
+/** TODO: This doesn't work the same way the other validate cursors do? */
 function MENU_validateCursor() {
     if (INTS[fMENU_cursorIndex] >= MENU_ArrayFrom_menuOptionList_children.length) {
         if (MENU_ArrayFrom_menuOptionList_children.length > 0) {
@@ -482,3 +426,20 @@ TODO:
 - [ ] TODO: menuGlobal.js blur events
 - [ ] TODO: widgetGlobal.js blur events
 */
+
+
+
+/*switch (local_request.context) {
+    case 'EXPLORER':
+        EXPLORER_MenuOnClick(indexClicked, elementClicked);
+        break;
+    case 'EDITOR':
+        EDI_MenuOnClick(indexClicked, elementClicked);
+        break;
+    case 'EXPLORER_pickFolderOrWorkspaceButton':
+        EXPLORER_pickFolderOrWorkspaceButton_MenuOnClick(indexClicked, elementClicked);
+        break;
+}*/
+
+
+

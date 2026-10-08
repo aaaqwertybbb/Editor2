@@ -705,6 +705,7 @@ const fMENU_ticketId_pending = 138;
 
 const fMENU_ticketId_drawn = 139;
 
+/** TODO: obsolete */
 const fMENU_cursorIndex = 140;
 
 /** By duplicating this you guarantee the initial cursor index is what was expected. */

@@ -1340,7 +1340,7 @@ async function EXPLORER_pickFolderOrWorkspaceButton_MenuOnClick(isCancelled, men
     }
 }
 
-async function EXPLORER_MenuOnClick(isCancelled, menuOption, request) {
+async function EXPLORER_MenuOnClick(isCancelled, menuOption, menuRequest) {
     if (isCancelled || !menuOption) { return; }
     
     const commandKind = menuOption.commandKind;
@@ -1350,9 +1350,9 @@ async function EXPLORER_MenuOnClick(isCancelled, menuOption, request) {
         EXPLORER_menuOptionCut_object = null;
     }
 
-    if (!request.target.id) return;
+    if (!menuRequest.target.id) return;
 
-    const entry = await window.myAPI.getFilesystemEntryById(request.target.id);
+    const entry = await window.myAPI.getFilesystemEntryById(menuRequest.target.id);
     if (!entry) return;
 
     switch (commandKind) {
@@ -1363,8 +1363,8 @@ async function EXPLORER_MenuOnClick(isCancelled, menuOption, request) {
             const text = 'file:///' + entry.absolutePath;
             EXPLORER_menuOptionCut_object = {
                 id: text,
-                indexItem: request.target.indexItem,
-                divRelativeIndex: request.target.divRelativeIndex
+                indexItem: menuRequest.target.indexItem,
+                divRelativeIndex: menuRequest.target.divRelativeIndex
             };
             await window.myAPI.setClipboard(text);
             break;
@@ -1375,23 +1375,23 @@ async function EXPLORER_MenuOnClick(isCancelled, menuOption, request) {
             await CommandKind_Paste_MenuOnClick_Paste(entry);
             break;
         case CommandKind_NewFile_Directory:
-            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'filename', entry, request.target, request.elementToFocusOnCompleted, false, NewFile_Directory_WIDGET_InputText_callback);
+            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'filename', entry, menuRequest.target, menuRequest.elementToFocusOnCompleted, false, NewFile_Directory_WIDGET_InputText_callback);
             break;
         case CommandKind_NewFile_File:
-            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'filename', entry, request.target, request.elementToFocusOnCompleted, false, NewFile_File_WIDGET_InputText_callback);
+            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'filename', entry, menuRequest.target, menuRequest.elementToFocusOnCompleted, false, NewFile_File_WIDGET_InputText_callback);
             break;
         case CommandKind_DeleteFile_Directory:
-            await WIDGET_show(WidgetKind_YesCancel, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'delete ' + entry.basename, entry, request.target, request.elementToFocusOnCompleted, false, DeleteFile_Directory_YesCancel_callback);
+            await WIDGET_show(WidgetKind_YesCancel, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'delete ' + entry.basename, entry, menuRequest.target, menuRequest.elementToFocusOnCompleted, false, DeleteFile_Directory_YesCancel_callback);
             break;
         case CommandKind_DeleteFile_File:
-            await WIDGET_show(WidgetKind_YesCancel, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'delete ' + entry.basename, entry, request.target, request.elementToFocusOnCompleted, false, DeleteFile_File_YesCancel_callback);
+            await WIDGET_show(WidgetKind_YesCancel, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'delete ' + entry.basename, entry, menuRequest.target, menuRequest.elementToFocusOnCompleted, false, DeleteFile_File_YesCancel_callback);
             break;
         case CommandKind_RenameFile_Directory:
-            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'rename', entry.basename, {MENU_target:request.target, entry:entry}, request.elementToFocusOnCompleted, false, RenameFile_Directory_InputText_callback);
+            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'rename', entry.basename, {MENU_target:menuRequest.target, entry:entry}, menuRequest.elementToFocusOnCompleted, false, RenameFile_Directory_InputText_callback);
             break;
         case CommandKind_RenameFile_File:
             // TODO: Maybe the only difference between the _Directory and _File cases for each ..._... is the bool for isDirectory but I'm exhausted and I cannot reduce the code duplication here because my head doesn't function.
-            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'rename', entry.basename, {MENU_target: request.target, entry: entry}, request.elementToFocusOnCompleted, false, RenameFile_File_InputText_callback);
+            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'rename', entry.basename, {MENU_target: menuRequest.target, entry: entry}, menuRequest.elementToFocusOnCompleted, false, RenameFile_File_InputText_callback);
             break;
     }
 }

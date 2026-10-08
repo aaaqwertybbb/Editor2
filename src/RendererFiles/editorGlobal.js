@@ -6653,11 +6653,11 @@ function EDI_onResize_startThrottleTimeout() {
     }, 500);
 }
 
-async function EDI_MenuOnClick(indexClicked, elementClicked) {
-    const commandKind = parseInt(elementClicked.dataset.commandKind, 10);
-    if (!commandKind) {
-        return;
-    }
+async function EDI_MenuOnClick(isCancelled, menuOption, request) {
+    if (isCancelled || !menuOption) { return; }
+    
+    const commandKind = menuOption.commandKind;
+    if (!commandKind) { return; }
 
     switch (commandKind) {
         case CommandKind_Cut:

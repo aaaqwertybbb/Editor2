@@ -1284,10 +1284,10 @@ async function EXPLORER_openInEditor(absolutePath, shouldFocus) {
  * @returns 
  */
 async function EXPLORER_pickFolderOrWorkspaceButton_MenuOnClick(isCancelled, menuOption, request) {
+    if (isCancelled || !menuOption) { return; }
+    
     const commandKind = menuOption.commandKind;
-    if (!commandKind || isCancelled) {
-        return;
-    }
+    if (!commandKind) { return; }
 
     switch (commandKind) {
         case CommandKind_SelectFolder:
@@ -1333,11 +1333,11 @@ async function EXPLORER_pickFolderOrWorkspaceButton_MenuOnClick(isCancelled, men
     }
 }
 
-async function EXPLORER_MenuOnClick(indexClicked, elementClicked) {
-    const commandKind = parseInt(elementClicked.dataset.commandKind, 10);
-    if (!commandKind) {
-        return;
-    }
+async function EXPLORER_MenuOnClick(isCancelled, menuOption, request) {
+    if (isCancelled || !menuOption) { return; }
+    
+    const commandKind = menuOption.commandKind;
+    if (!commandKind) { return; }
 
     if (commandKind !== CommandKind_Cut && commandKind !== CommandKind_Paste) {
         EXPLORER_menuOptionCut_object = null;

@@ -140,13 +140,13 @@ function MENU_render_do_Set() {
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
 
-    let finalLeft = INTS[fMENU_left];
-    let finalTop = INTS[fMENU_top];
+    let finalLeft = MENU_request.left;
+    let finalTop = MENU_request.top;
     //let rect = menuElement.getBoundingClientRect();
 
     // Check right edge
     //if (rect.right > viewportWidth) {
-    if (INTS[fMENU_left] + menuElement.offsetWidth > viewportWidth) {
+    if (MENU_request.left + menuElement.offsetWidth > viewportWidth) {
       finalLeft = viewportWidth - menuElement.offsetWidth - 10; // 10px padding boundary
     }
     // Check left edge (fallback if menu is wider than screen)
@@ -154,7 +154,7 @@ function MENU_render_do_Set() {
 
     // Check bottom edge
     //if (rect.bottom > viewportHeight) {
-    if (INTS[fMENU_top] + menuElement.offsetHeight > viewportHeight) {
+    if (MENU_request.top + menuElement.offsetHeight > viewportHeight) {
       finalTop = viewportHeight - menuElement.offsetHeight - 10; 
     }
     // Check top edge
@@ -164,9 +164,7 @@ function MENU_render_do_Set() {
     menuElement.style.left = `${finalLeft}px`;
     menuElement.style.top = `${finalTop}px`;
 
-    if (INTS[fMENU_cursorIndex] !== INTS[fMENU_SET_index]) {
-        MENU_state_do_Cursor(MENU_request.index);
-    }
+    MENU_state_do_Cursor(MENU_request.index);
     MENU_render_do_Cursor();
 
     menuElement.focus();

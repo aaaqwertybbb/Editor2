@@ -100,43 +100,42 @@ function MENU_render_do_Set() {
         MENU_render_do_Hide();
     }
 
-    INTS[fMENU_ticketId_drawn] = INTS[fMENU_ticketId_pending];
-
     menuElement = document.createElement('div');
     menuElement.id = 'MENU';
     menuElement.tabIndex = 0;
     document.body.appendChild(menuElement);
 
-    if (MENU_optionList && MENU_optionList.length > 0) {
-        let virtualizationBoundary = document.createElement('div');
-        virtualizationBoundary.id = "MENU_virtualizationBoundary";
-        let cursor = document.createElement('div');
-        cursor.id = "MENU_cursor";
-        let optionListElement = document.createElement('div');
-        optionListElement.id = "MENU_optionList";
-        menuElement.appendChild(virtualizationBoundary);
-        menuElement.appendChild(cursor);
-        menuElement.appendChild(optionListElement);
-        MENU_addEvents();
-        for (var i = 0; i < MENU_optionList.length; i++) {
-            const entry = MENU_optionList[i];
-            const optionElement = document.createElement('div');
-            optionElement.className = 'menuOption';
-            optionElement.textContent = entry.text;
+    let cursor = document.createElement('div');
+    cursor.id = "MENU_cursor";
+    let optionListElement = document.createElement('div');
+    optionListElement.id = "MENU_optionList";
+    menuElement.appendChild(cursor);
+    menuElement.appendChild(optionListElement);
+    MENU_addEvents();
+    for (var i = 0; i < MENU_request.optionList.length; i++) {
+        const entry = MENU_request.optionList[i];
+        const optionElement = document.createElement('div');
+        optionElement.className = 'menuOption';
+        optionElement.textContent = entry.text;
 
-            if (entry.submenu) {
-                optionElement.setAttribute("data-command-kind", CommandKind_Submenu);
-                optionElement.textContent += '>';
-            }
-            else {
-                optionElement.setAttribute("data-command-kind", entry.commandKind);
-            }
-
-            optionListElement.appendChild(optionElement);
+        if (entry.submenu) {
+            optionElement.setAttribute("data-command-kind", CommandKind_Submenu);
+            optionElement.textContent += '>';
+        }
+        else {
+            optionElement.setAttribute("data-command-kind", entry.commandKind);
         }
 
-        MENU_ArrayFrom_menuOptionList_children = Array.from(optionListElement.children);
+        optionListElement.appendChild(optionElement);
     }
+
+    MENU_request.ArrayFrom_menuOptionList_children = Array.from(optionListElement.children);
+
+    if (!MENU_request.elementToFocusOnCompleted) {
+        MENU_request.elementToFocusOnCompleted = document.activeElement;
+    }
+    
+    INTS[fMENU_ticketId_drawn] = MENU_request.ticket;
 
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
@@ -165,19 +164,12 @@ function MENU_render_do_Set() {
     menuElement.style.left = `${finalLeft}px`;
     menuElement.style.top = `${finalTop}px`;
 
-    if (!INTS[fMENU_SET_index]) {
-        INTS[fMENU_SET_index] = 0;
-    }
     if (INTS[fMENU_cursorIndex] !== INTS[fMENU_SET_index]) {
-        MENU_state_do_Cursor(INTS[fMENU_SET_index]);
+        MENU_state_do_Cursor(MENU_request.index);
     }
     MENU_render_do_Cursor();
 
-    MENU_restoreFocusToElement = document.activeElement;
-
-    if (!BYTES[byteMENU_SET_NOTshouldFocus]) {
-        menuElement.focus();
-    }
+    menuElement.focus();
 }
 
 /**
@@ -192,6 +184,10 @@ function MENU_render_do_Set() {
  */
 function menuSet(optionList, left, top, onCompleteAction, target, elementToFocusOnCompleted, disableFocusOnCompleted, index) {
     if (MENU_request) { MENU_completeForm(true); }
+
+    if (!optionList || optionList.length <= 0) {
+        throw new Exception('!optionList || optionList.length <= 0');
+    }
 
     MENU_request = {
         left: left,

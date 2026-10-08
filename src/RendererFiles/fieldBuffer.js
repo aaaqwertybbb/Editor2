@@ -155,6 +155,7 @@ const byteDIALOG_SHOW_currentDialogKind = 26;
 const byteMENU_HIDE_shouldRestoreFocus = 27;
 BYTES[byteMENU_HIDE_shouldRestoreFocus] = 1;
 
+/** TODO: obsolete */
 const byteMENU_SET_NOTshouldFocus = 28;
 
 /** TODO: obsolete */
@@ -713,7 +714,10 @@ const fMENU_ticketId_drawn = 139;
 /** TODO: obsolete */
 const fMENU_cursorIndex = 140;
 
-/** By duplicating this you guarantee the initial cursor index is what was expected. */
+/**
+ * TODO: obsolete
+ * By duplicating this you guarantee the initial cursor index is what was expected.
+ */
 const fMENU_SET_index = 141;
 
 /** TODO: obsolete */

@@ -100,6 +100,7 @@ function WIDGET_render_do_Show() {
         WIDGET_request.elementToFocusOnCompleted = document.activeElement;
     }
     
+    // TODO: Move this to after the '..._Create()' invocations
     INTS[fWIDGET_ticketId_drawn] = WIDGET_request.ticket;
 
     switch (BYTES[byteWIDGET_WidgetKind_drawn]) {

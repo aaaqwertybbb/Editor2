@@ -267,7 +267,7 @@ function menuGetRelativeMouseEventData(event_clientY) {
 function MENU_addEvents() {
     let menu = document.getElementById('MENU');
     if (!menu) return;
-    menu.addEventListener('blur', menuHide); // TODO: should 'once' be used here?
+    menu.addEventListener('blur', MENU_hide); // TODO: should 'once' be used here?
     menu.addEventListener('click', MENU_onclick);
     menu.addEventListener('keydown', MENU_onKeyDown);
     menu.addEventListener('mousemove', MENU_onMouseMove);
@@ -276,7 +276,7 @@ function MENU_addEvents() {
 function MENU_removeEvents() {
     let menu = document.getElementById('MENU');
     if (!menu) return;
-    menu.removeEventListener('blur', menuHide); // TODO: should 'once' be used when adding?
+    menu.removeEventListener('blur', MENU_hide); // TODO: should 'once' be used when adding?
     menu.removeEventListener('click', MENU_onclick);
     menu.removeEventListener('keydown', MENU_onKeyDown);
     menu.removeEventListener('mousemove', MENU_onMouseMove);
@@ -297,8 +297,8 @@ function MENU_render_do_Cursor() {
 }
 
 function MENU_state_do_Cursor(index) {
-    if (index >= MENU_ArrayFrom_menuOptionList_children.length)
-        index = MENU_ArrayFrom_menuOptionList_children.length - 1;
+    if (index >= MENU_request.ArrayFrom_menuOptionList_children.length)
+        index = MENU_request.ArrayFrom_menuOptionList_children.length - 1;
     
     if (index < 0)
         index = 0;
@@ -313,9 +313,9 @@ function MENU_setCursorIndex(index) {
 
 /** TODO: This doesn't work the same way the other validate cursors do? */
 function MENU_validateCursor() {
-    if (MENU_request.index >= MENU_ArrayFrom_menuOptionList_children.length) {
-        if (MENU_ArrayFrom_menuOptionList_children.length > 0) {
-            MENU_setCursorIndex(MENU_ArrayFrom_menuOptionList_children.length - 1);
+    if (MENU_request.index >= MENU_request.ArrayFrom_menuOptionList_children.length) {
+        if (MENU_request.ArrayFrom_menuOptionList_children.length > 0) {
+            MENU_setCursorIndex(MENU_request.ArrayFrom_menuOptionList_children.length - 1);
         }
         else {
             MENU_setCursorIndex(0);
@@ -326,14 +326,14 @@ function MENU_validateCursor() {
         MENU_request.index = 0;
     }
 }
-// just don't done yet is all lol I had like 7 commits locally waiting
+
 function MENU_onKeyDown(event) {
     MENU_validateCursor();
-    if (MENU_ArrayFrom_menuOptionList_children.length === 0) return;
+    if (MENU_request.ArrayFrom_menuOptionList_children.length === 0) return;
 
     switch (event.key) {
         case 'ArrowDown':
-            if (MENU_request.index < MENU_ArrayFrom_menuOptionList_children.length - 1) {
+            if (MENU_request.index < MENU_request.ArrayFrom_menuOptionList_children.length - 1) {
                 MENU_setCursorIndex(MENU_request.index + 1);
             }
             break;
@@ -343,10 +343,10 @@ function MENU_onKeyDown(event) {
             }
             break;
         case 'Escape':
-            return menuHide(/*shouldRestoreFocus*/ true);
+            MENU_hide(/*shouldRestoreFocus*/ true);
         case 'Enter':
         case ' ':
-            return optionOnClick(MENU_request.index, MENU_ArrayFrom_menuOptionList_children[MENU_request.index]);
+            MENU_completeForm(false, true);
     }
 }
 
@@ -357,6 +357,18 @@ function MENU_ensure_boundingClientRect() {
         if (!menuElement) return;
         MENU_request.recentBoundingClientRectTop = menuElement.getBoundingClientRect().top;
     }
+}
+
+/**
+ * @param {number} commandKind
+ * @param {any} text
+ * @returns {MenuOption} menuOption
+ */
+function MENU_MenuOption_factory(commandKind, text) {
+    return {
+        commandKind: commandKind,
+        text: text
+    };
 }
 
 /*

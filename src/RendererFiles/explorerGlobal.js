@@ -414,8 +414,8 @@ async function EXPLORER_ondblclick(divItem, indexItem) {
 
 function EXPLORER_oncontextmenu(divItem, indexItem, event_button, event_clientX, event_clientY, relativeIndex) {
     let optionList = [
-        new MenuOption(CommandKind_Copy, 'Copy', null),
-        new MenuOption(CommandKind_CopyAbsolutePath, 'Copy Absolute Path', null),
+        MENU_MenuOption_factory(CommandKind_Copy, 'Copy'),
+        MENU_MenuOption_factory(CommandKind_CopyAbsolutePath, 'Copy Absolute Path'),
     ];
 
     EXPLORER_ensure_boundingClientRect();
@@ -608,18 +608,18 @@ function EXPLORER_addSpecificMenuOptionsForTarget(optionList, divItem, target) {
         target.nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded) {
         
         // Directory
-        optionList.push(new MenuOption(CommandKind_NewFile_File, 'NewFile', null));
-        optionList.push(new MenuOption(CommandKind_NewFile_Directory, 'NewDirectory', null));
-        optionList.push(new MenuOption(CommandKind_DeleteFile_Directory, 'Delete', null));
-        optionList.push(new MenuOption(CommandKind_RenameFile_Directory, 'Rename', null));
-        optionList.push(new MenuOption(CommandKind_Paste, 'Paste', null));
-        optionList.push(new MenuOption(CommandKind_Cut, 'Cut', null));
+        optionList.push(MENU_MenuOption_factory(CommandKind_NewFile_File, 'NewFile'));
+        optionList.push(MENU_MenuOption_factory(CommandKind_NewFile_Directory, 'NewDirectory'));
+        optionList.push(MENU_MenuOption_factory(CommandKind_DeleteFile_Directory, 'Delete'));
+        optionList.push(MENU_MenuOption_factory(CommandKind_RenameFile_Directory, 'Rename'));
+        optionList.push(MENU_MenuOption_factory(CommandKind_Paste, 'Paste'));
+        optionList.push(MENU_MenuOption_factory(CommandKind_Cut, 'Cut'));
     }
     else {
         // File
-        optionList.push(new MenuOption(CommandKind_DeleteFile_File, 'Delete', null));
-        optionList.push(new MenuOption(CommandKind_RenameFile_File, 'Rename', null));
-        optionList.push(new MenuOption(CommandKind_Cut, 'Cut', null));
+        optionList.push(MENU_MenuOption_factory(CommandKind_DeleteFile_File, 'Delete'));
+        optionList.push(MENU_MenuOption_factory(CommandKind_RenameFile_File, 'Rename'));
+        optionList.push(MENU_MenuOption_factory(CommandKind_Cut, 'Cut'));
     }
 }
 
@@ -1210,11 +1210,11 @@ function toggleShowExplorerButton_onClick() {
 async function EXPLORER_pickFolderOrWorkspaceButton_onClick() {
     const EXPLORER_pickFolderOrWorkspaceButton = document.getElementById('EXPLORER_folderOrWorkspaceButtons');
     let optionList = [
-        new MenuOption(CommandKind_SelectFolder, 'Folder', null),
-        new MenuOption(CommandKind_SelectWorkspace, 'Workspace', null),
+        MENU_MenuOption_factory(CommandKind_SelectFolder, 'Folder'),
+        MENU_MenuOption_factory(CommandKind_SelectWorkspace, 'Workspace'),
     ];
     let boundingClientRect = EXPLORER_pickFolderOrWorkspaceButton.getBoundingClientRect();
-    await menuSet(/*context*/ 'EXPLORER_pickFolderOrWorkspaceButton', /*target*/ null, optionList, /*left*/ boundingClientRect.left, /*top*/ boundingClientRect.top + boundingClientRect.height, /*NOTshouldFocus*/ false, /*index*/ 0, /*onHideAction*/ null);
+    menuSet(optionList, boundingClientRect.left, boundingClientRect.top + boundingClientRect.height, EXPLORER_pickFolderOrWorkspaceButton_MenuOnClick, /*target*/ null, /*elementToFocusOnCompleted*/ null, /*disableFocusOnCompleted*/ false, /*index*/ 0);
 }
 
 /**

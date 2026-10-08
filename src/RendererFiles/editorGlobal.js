@@ -7588,10 +7588,10 @@ function EDI_onMouseMoveDetailRankThree(indexLineClicked, indexColumnClicked) {
 
 function EDI_onContextMenu() {
     let optionList = [
-        new MenuOption(CommandKind_Cut, 'Cut', null),
-        new MenuOption(CommandKind_Copy, 'Copy', null),
-        new MenuOption(CommandKind_Paste, 'Paste', null),
-        new MenuOption(CommandKind_Find, 'Find', null),
+        MENU_MenuOption_factory(CommandKind_Cut, 'Cut'),
+        MENU_MenuOption_factory(CommandKind_Copy, 'Copy'),
+        MENU_MenuOption_factory(CommandKind_Paste, 'Paste'),
+        MENU_MenuOption_factory(CommandKind_Find, 'Find'),
     ];
 
     let menuLeft = INTS[fEDI_recentBoundingClientRect_left] + INTS[fEDI_gutterWidthTotal] + INTS[fEDI_cursor_cursorTranslateXValue] - INTS[fEDI_lastReadNumber_scrollLeft];

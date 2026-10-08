@@ -434,14 +434,21 @@ function EXPLORER_oncontextmenu(divItem, indexItem, event_button, event_clientX,
         divRelativeIndex: relativeIndex,
     };
 
+    let left = 0;
+    let top = 0;
+
     if (event_button === 2) {
         EXPLORER_addSpecificMenuOptionsForTarget(optionList, divItem, target);
-        return menuSet('EXPLORER', target, optionList, INTS[fEXPLORER_menuOptionX]=event_clientX, INTS[fEXPLORER_menuOptionY]=event_clientY);
+        left = INTS[fEXPLORER_menuOptionX] = event_clientX;
+        top = INTS[fEXPLORER_menuOptionY] = event_clientY;
     }
     else {
         EXPLORER_addSpecificMenuOptionsForTarget(optionList, divItem, target);
-        return menuSet('EXPLORER', target, optionList, INTS[fEXPLORER_menuOptionX]=INTS[fEXPLORER_boundingClientRect_left], INTS[fEXPLORER_menuOptionY]=(INTS[fEXPLORER_boundingClientRect_top] + ((INTS[fEXPLORER_cursorIndex] + 1) * INTS[fEXPLORER_itemHeightNumber]) - INTS[fEXPLORER_lastReadNumber_scrollTop]));
+        left = INTS[fEXPLORER_menuOptionX]=INTS[fEXPLORER_boundingClientRect_left];
+        top = INTS[fEXPLORER_menuOptionY] = (INTS[fEXPLORER_boundingClientRect_top] + ((INTS[fEXPLORER_cursorIndex] + 1) * INTS[fEXPLORER_itemHeightNumber]) - INTS[fEXPLORER_lastReadNumber_scrollTop]);
     }
+
+    menuSet(optionList, left, top, EXPLORER_MenuOnClick, target, /*elementToFocusOnCompleted*/ null, /*disableFocusOnCompleted*/ false, /*index*/ 0);
 }
 
 /**

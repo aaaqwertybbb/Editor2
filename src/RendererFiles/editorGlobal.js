@@ -7597,7 +7597,7 @@ function EDI_onContextMenu() {
     let menuLeft = INTS[fEDI_recentBoundingClientRect_left] + INTS[fEDI_gutterWidthTotal] + INTS[fEDI_cursor_cursorTranslateXValue] - INTS[fEDI_lastReadNumber_scrollLeft];
     let menuTop = INTS[fEDI_recentBoundingClientRect_top] + INTS[fEDI_cursor_cursorTranslateYValue] + INTS[fEDI_lineHeight] - INTS[fEDI_lastReadNumber_scrollTop];
 
-    return menuSet('EDITOR', null, optionList, menuLeft, menuTop);
+    menuSet(optionList, menuLeft, menuTop, EDI_MenuOnClick, /*target*/ null, /*elementToFocusOnCompleted*/ null, /*disableFocusOnCompleted*/ false, /*index*/ 0);
 }
 
 function EDI_onWheel(event) {

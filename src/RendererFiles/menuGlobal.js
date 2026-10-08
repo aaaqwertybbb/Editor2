@@ -14,68 +14,39 @@ const CommandKind_Find = 12;
 const CommandKind_SelectFolder = 13;
 const CommandKind_SelectWorkspace = 14;
 
-/**
- * This needs to wrap the list.js?
- */
-class MenuOption {
-    commandKind = CommandKind_None;
-    text = '';
-    /**
-     * If submenu is not null, the commandKind will be overriden to be CommandKind_Submenu
-     * @type {MenuOption[]}
-     */
-    submenu = null;
-
-    /**
-     * @param {CommandKind} commandKind 
-     * @param {string} text 
-     * @param {MenuOption[]} submenu If submenu is not null, the commandKind will be overriden to be CommandKind_Submenu
-     */
-    constructor(commandKind, text, submenu) {
-        this.commandKind = commandKind;
-        this.text = text;
-        if (submenu) {
-            this.submenu = submenu;
-        }
-    }
-}
-
-// - [ ] ticketId
-// - [ ] Show ...other Show => cancel first show because
-// - [ ] Show Show doesn't focus inbetween
-// - [ ] Essentially the show/hide is async, the render "doesn't need to be".
-// - [ ] Hide Hide => ???
-// - [ ] Hide rAF Hide => ???
-// - [ ] Hide ...other Hide => ???
-// - [ ] Should focus
-// - [ ] Time between show and rAF_show if I hold down the arrow down event where does this event go? Because the focus is in the rAF.
-// - [ ] To what degree of separation should the 'MENU_renderKindArray' be? None of the UI should share the same array?
-// - [ ] Is the Menu a "cancelable" concept?
-
-let MENU_context = null;
-let MENU_target = null;
-
-let MENU_restoreFocusToElement = null;
-
-////////
-////////
-////////
-
-let MENU_recentBoundingClientRectTop = null;
-
-let MENU_optionList = null;
-/** TODO: Perhaps use 'MENU_optionList' instead? */
-let MENU_ArrayFrom_menuOptionList_children = null;
-
-// TODO: maybe the menu should always be empty, and just be some div that moves left top positions and you can put anything you want in it.
-
-/** a delegate of kind: () => Promise */
-let MENU_onHideAction = null;
-
 const MENUrenderKind_None = 0;
 const MENUrenderKind_Cursor = 1;
 const MENUrenderKind_Set = 2;
 const MENUrenderKind_Hide = 3;
+
+/**
+ * @callback MENU_OnCancelAction
+ * @returns {Promise}
+ */
+
+/**
+ * @typedef {Object} MenuOption
+ * @property {number} commandKind
+ * @property {any} text
+ */
+
+/**
+ * @typedef {Object} MenuRequest
+ * @property {number} left
+ * @property {number} top
+ * @property {number} recentBoundingClientRectTop
+ * @property {string} context
+ * @property {any} target
+ * @property {MenuOption[]} optionList
+ * @property {number} ticket
+ * @property {HTMLDivElement[]} ArrayFrom_menuOptionList_children
+ * @property {HTMLElement} elementToFocusOnCompleted
+ * @property {boolean} disableFocusOnCompleted
+ * @property {MENU_OnCancelAction} onCancelAction
+ */
+
+/** @type {MenuOption} */
+let MENU_request = null;
 
 function MENU_render_request(renderKind) {
     if (BYTES[byteMENU_queueHead] !== BYTES[byteMENU_queueTail]) {
@@ -119,6 +90,122 @@ function MENU_render_do() {
     BYTES[byteMENU_isRenderPending] = 0;
 }
 
+function MENU_render_do_Set() {
+    let menuElement = document.getElementById('MENU');
+    if (menuElement) {
+        menuElement = null; // Superstitiously setting this to null in the name of GC, this is a bad thing to do because here it doesn't have any reason than anxiety and I'm giving into said anxiety and only making it stronger in the long run.
+        MENU_render_do_Hide();
+    }
+
+    INTS[fMENU_ticketId_drawn] = INTS[fMENU_ticketId_pending];
+
+    menuElement = document.createElement('div');
+    menuElement.id = 'MENU';
+    menuElement.tabIndex = 0;
+    document.body.appendChild(menuElement);
+
+    if (MENU_optionList && MENU_optionList.length > 0) {
+        let virtualizationBoundary = document.createElement('div');
+        virtualizationBoundary.id = "MENU_virtualizationBoundary";
+        let cursor = document.createElement('div');
+        cursor.id = "MENU_cursor";
+        let optionListElement = document.createElement('div');
+        optionListElement.id = "MENU_optionList";
+        menuElement.appendChild(virtualizationBoundary);
+        menuElement.appendChild(cursor);
+        menuElement.appendChild(optionListElement);
+        MENU_addEvents();
+        for (var i = 0; i < MENU_optionList.length; i++) {
+            const entry = MENU_optionList[i];
+            const optionElement = document.createElement('div');
+            optionElement.className = 'menuOption';
+            optionElement.textContent = entry.text;
+
+            if (entry.submenu) {
+                optionElement.setAttribute("data-command-kind", CommandKind_Submenu);
+                optionElement.textContent += '>';
+            }
+            else {
+                optionElement.setAttribute("data-command-kind", entry.commandKind);
+            }
+
+            optionListElement.appendChild(optionElement);
+        }
+
+        MENU_ArrayFrom_menuOptionList_children = Array.from(optionListElement.children);
+    }
+
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    let finalLeft = INTS[fMENU_left];
+    let finalTop = INTS[fMENU_top];
+    //let rect = menuElement.getBoundingClientRect();
+
+    // Check right edge
+    //if (rect.right > viewportWidth) {
+    if (INTS[fMENU_left] + menuElement.offsetWidth > viewportWidth) {
+      finalLeft = viewportWidth - menuElement.offsetWidth - 10; // 10px padding boundary
+    }
+    // Check left edge (fallback if menu is wider than screen)
+    if (finalLeft < 0) finalLeft = 10;
+
+    // Check bottom edge
+    //if (rect.bottom > viewportHeight) {
+    if (INTS[fMENU_top] + menuElement.offsetHeight > viewportHeight) {
+      finalTop = viewportHeight - menuElement.offsetHeight - 10; 
+    }
+    // Check top edge
+    if (finalTop < 0) finalTop = 10;
+
+    // 3. Apply the corrected coordinates
+    menuElement.style.left = `${finalLeft}px`;
+    menuElement.style.top = `${finalTop}px`;
+
+    if (!INTS[fMENU_SET_index]) {
+        INTS[fMENU_SET_index] = 0;
+    }
+    if (INTS[fMENU_cursorIndex] !== INTS[fMENU_SET_index]) {
+        MENU_state_do_Cursor(INTS[fMENU_SET_index]);
+    }
+    MENU_render_do_Cursor();
+
+    MENU_restoreFocusToElement = document.activeElement;
+
+    if (!BYTES[byteMENU_SET_NOTshouldFocus]) {
+        menuElement.focus();
+    }
+}
+
+async function menuSet(context, target, optionList, left, top, NOTshouldFocus, index, onHideAction) {
+    INTS[fMENU_ticketId_pending] = INTS[fMENU_ticketId_counter]++;
+
+    if (MENU_optionList) {
+        await MENU_state_do_hide();
+    }
+
+    INTS[fMENU_left] = left;
+    INTS[fMENU_top] = top;
+
+    if (index) {
+        INTS[fMENU_SET_index] = index;
+    }
+    else {
+        INTS[fMENU_SET_index] = 0; // an '|| 0' check in the preceeding 'if' would fall here anyways.
+        // TODO: Is this just 'INTS[fMENU_SET_index] = index ?? 0;'
+    }
+
+    MENU_context = context;
+    MENU_target = target;
+
+    MENU_optionList = optionList;
+
+    BYTES[byteMENU_NOTshouldFocus] = NOTshouldFocus;
+
+    MENU_recentBoundingClientRectTop = null;
+
+    MENU_render_request(MENUrenderKind_Set);
+}
 
 function MENU_render_do_Hide() {
     const menu = document.getElementById('MENU');
@@ -167,139 +254,6 @@ async function menuHide(shouldRestoreFocus) {
     INTS[fMENU_last_handled_ticketId] = INTS[fMENU_ticketId_drawn];
     await MENU_state_do_hide(shouldRestoreFocus);
     MENU_render_request(MENUrenderKind_Hide);
-}
-
-function MENU_render_do_Set() {
-    let menuElement = document.getElementById('MENU');
-    if (menuElement) {
-        menuElement = null; // Superstitiously setting this to null in the name of GC, this is a bad thing to do because here it doesn't have any reason than anxiety and I'm giving into said anxiety and only making it stronger in the long run.
-        MENU_render_do_Hide();
-    }
-
-    INTS[fMENU_ticketId_drawn] = INTS[fMENU_ticketId_pending];
-
-    menuElement = document.createElement('div');
-    menuElement.id = 'MENU';
-    menuElement.tabIndex = 0;
-    document.body.appendChild(menuElement);
-
-    if (MENU_optionList && MENU_optionList.length > 0) {
-        let virtualizationBoundary = document.createElement('div');
-        virtualizationBoundary.id = "MENU_virtualizationBoundary";
-        let cursor = document.createElement('div');
-        cursor.id = "MENU_cursor";
-        let optionListElement = document.createElement('div');
-        optionListElement.id = "MENU_optionList";
-        menuElement.appendChild(virtualizationBoundary);
-        menuElement.appendChild(cursor);
-        menuElement.appendChild(optionListElement);
-        MENU_addEvents();
-        for (var i = 0; i < MENU_optionList.length; i++) {
-            const entry = MENU_optionList[i];
-            const optionElement = document.createElement('div');
-            optionElement.className = 'menuOption';
-            optionElement.textContent = entry.text;
-
-            if (entry.submenu) {
-                optionElement.setAttribute("data-command-kind", CommandKind_Submenu);
-                optionElement.textContent += '>';
-            }
-            else {
-                optionElement.setAttribute("data-command-kind", entry.commandKind);
-            }
-
-            optionListElement.appendChild(optionElement);
-        }
-
-        MENU_ArrayFrom_menuOptionList_children = Array.from(optionListElement.children);
-    }
-
-    //////////
-    //////////
-    //////////
-    //////////
-
-    // > When making a menu UI with vanilla javascript and rAF, how do people reposition the menu if it would go offscreen?
-    //  
-    // < Developers handle offscreen menus by calculating the menu's boundaries relative to the viewport and shifting its position if it overflows.
-    // < Using requestAnimationFrame (rAF) ensures these calculations and visual updates sync perfectly with the browser's refresh rate, preventing layout stutter.
-
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-
-    let finalLeft = INTS[fMENU_left];
-    let finalTop = INTS[fMENU_top];
-    //let rect = menuElement.getBoundingClientRect();
-
-    // Check right edge
-    //if (rect.right > viewportWidth) {
-    if (INTS[fMENU_left] + menuElement.offsetWidth > viewportWidth) {
-      finalLeft = viewportWidth - menuElement.offsetWidth - 10; // 10px padding boundary
-    }
-    // Check left edge (fallback if menu is wider than screen)
-    if (finalLeft < 0) finalLeft = 10;
-
-    // Check bottom edge
-    //if (rect.bottom > viewportHeight) {
-    if (INTS[fMENU_top] + menuElement.offsetHeight > viewportHeight) {
-      finalTop = viewportHeight - menuElement.offsetHeight - 10; 
-    }
-    // Check top edge
-    if (finalTop < 0) finalTop = 10;
-
-    // 3. Apply the corrected coordinates
-    menuElement.style.left = `${finalLeft}px`;
-    menuElement.style.top = `${finalTop}px`;
-
-    /////////////
-    /////////////
-    /////////////
-    /////////////
-
-    if (!INTS[fMENU_SET_index]) {
-        INTS[fMENU_SET_index] = 0;
-    }
-    if (INTS[fMENU_cursorIndex] !== INTS[fMENU_SET_index]) {
-        MENU_state_do_Cursor(INTS[fMENU_SET_index]);
-    }
-    MENU_render_do_Cursor();
-
-    MENU_restoreFocusToElement = document.activeElement;
-
-    if (!BYTES[byteMENU_SET_NOTshouldFocus]) {
-        menuElement.focus();
-    }
-}
-
-async function menuSet(context, target, optionList, left, top, NOTshouldFocus, index, onHideAction) {
-    INTS[fMENU_ticketId_pending] = INTS[fMENU_ticketId_counter]++;
-    
-    // TODO: These 'if (MENU_optionList)' and 'if (MENU_ArrayFrom_menuOptionList_children)' won't work because for some reason you decided that a menu could be "empty", thus these could be null and no longer would indicate that whether only the state function ran or both the state function and the render function ran or etc...
-    if (MENU_optionList) {
-        await MENU_state_do_hide();
-    }
-
-    INTS[fMENU_left] = left;
-    INTS[fMENU_top] = top;
-
-    if (index) {
-        INTS[fMENU_SET_index] = index;
-    }
-    else {
-        INTS[fMENU_SET_index] = 0; // an '|| 0' check in the preceeding 'if' would fall here anyways.
-        // TODO: Is this just 'INTS[fMENU_SET_index] = index ?? 0;'
-    }
-
-    MENU_context = context;
-    MENU_target = target;
-
-    MENU_optionList = optionList;
-
-    BYTES[byteMENU_NOTshouldFocus] = NOTshouldFocus;
-
-    MENU_recentBoundingClientRectTop = null;
-
-    MENU_render_request(MENUrenderKind_Set);
 }
 
 function MENU_onMouseMove(event) {
@@ -436,52 +390,40 @@ function MENU_ensure_boundingClientRect() {
     }
 }
 
-// submenus:
-// =========
-// Add salt to the "MENU" id specifically.
-// Then all the inner elements can be specified by the hardcoded index that they reside at within the "MENU" element's child list.
-
-// Is blur event guaranteed if you click something other than the menu?
-//
-// ... in my app it seems to be guaranteed.
-// but you no longer eat the mousedown event...
-//
-/*function listenHandlerToCloseMenu(event) {
-    if (event.target.id === 'MENU_virtualizationBoundary' ||
-        event.target.id === 'MENU_cursor' ||
-        event.target.id === 'MENU_optionList' ||
-        event.target.className === 'menuOption') {
-
-        return;
-    }
-    event.preventDefault();
-    event.stopPropagation();
-    menuHide();
-}*/
 /*
-//let bodyElement = document.getElementById('ROOT');
-//bodyElement.removeEventListener('mousedown', listenHandlerToCloseMenu, /*useCapturing*//* true);
-*/
-/*
-// Is blur event guaranteed if you click something other than the menu?
-//
-// ... in my app it seems to be guaranteed.
-// but you no longer eat the mousedown event...
-//
-//let bodyElement = document.getElementById('ROOT');
-//bodyElement.addEventListener('mousedown', listenHandlerToCloseMenu, /*useCapturing*//* true);
-*/
-
-/*
-> How do you implement logic so that the menu "repositions itself" if it would go offscreen
-
-< To keep your menu perfectly on-screen without causing layout thrashing, you must follow your engine's golden rule: perform all bounding-box reads first,
-< execute your boundary math second, and write the final style adjustments last.
-<
-< Because a dynamic menu's physical width and height depend entirely on its contents (e.g., the number of list items or font sizes), you cannot hardcode its dimensions.
-< You must measure the element, but you must do it safely within your rAF pipeline.
-<
-< ...
-
-==========
+TODO:
+- [ ] "Rewrite" menuGlobal.js
+    - [ ] Too many root references when the menu isn't even being shown.
+    - [ ] If you make 1 allocation to create a menu you can avoid the null references at the root level
+          when not showing the Menu.
+- [ ] "If you lack classes you'll have a nightmare of a time creating instances and refactoring in the future"
+    - [ ] The solution is to have all functions that are intended for external interaction to never construct an instance.
+    - [ ] They just give data separately and internally the object is made for them
+    - [ ] can also make a factory function is needed but sometimes you only end up having the one allocation and no others.
+- [ ] Make sure you never absent mindedly modify the objects or you'll create hidden classes.
+    - [ ] If it is the correct thing to do that's one thing but don't mindlessly create hidden classes.
+- [ ] Remove the obsolete INTS entries that widgetGlobal.js no longer is using.
+- [ ] Remove the obsolete INTS entries that menuGlobal.js no longer is using.
+- [ ] Move the count and capacity from editorGlobal.js to INTS
+    - [ ] EDI_textByteList_count
+    - [ ] EDI_textByteList_capacity
+    - [ ] EDI_lineEndPositionList_count
+    - [ ] EDI_lineEndPositionList_capacity
+- [ ] If the initial state is '[]' in attempt to ...
+    - [ ] if the array kind is reference entries
+    - [ ] have them all share the initial version
+    - [ ] provided you can ensure they'll all overwrite themselves by the time they're actually used.
+    - [ ] i.e.: the ring buffers, I don't want the variables to ever be seen as something other than an array.
+    - [ ] TODO: confirm that this even does anything
+    - [ ] TODO: would you have to trigger the array to be marked as containing reference entries by adding at least one reference?
+- [ ] Move all the transpiled const to fieldBuffer.js
+    - [ ] so you know by just glancing at the `__COMPILEDbundle__.js` whether they've all been transpiled or not.
+    - [ ] i.e.: 'const CommandKind_None = 0;', 'const CommandKind_Submenu = 1;'
+- [ ] Reduce dialogGlobal.js root level variables to just 1 null or non-null "pattern".
+- [ ] TODO: maybe the menu should always be empty, and just be some div that moves left top positions and you can put anything you want in it.
+    - [ ] ^This is probably a bad idea, at the least for now it is
+- [ ] TODO: submenus
+    - [ ] ^This is probably a bad idea, at the least for now it is
+    - [ ] when you add this if a submenu is clicked you don't 'onCancelAction'
+- [ ] TODO: single click events (not multiple possibility spam)
 */

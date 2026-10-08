@@ -1375,28 +1375,22 @@ async function EXPLORER_MenuOnClick(isCancelled, menuOption, request) {
             await CommandKind_Paste_MenuOnClick_Paste(entry);
             break;
         case CommandKind_NewFile_Directory:
-            BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
             await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'filename', entry, request.target, request.elementToFocusOnCompleted, false, NewFile_Directory_WIDGET_InputText_callback);
             break;
         case CommandKind_NewFile_File:
-            BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
             await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'filename', entry, request.target, request.elementToFocusOnCompleted, false, NewFile_File_WIDGET_InputText_callback);
             break;
         case CommandKind_DeleteFile_Directory:
-            BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
             await WIDGET_show(WidgetKind_YesCancel, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'delete ' + entry.basename, entry, request.target, request.elementToFocusOnCompleted, false, DeleteFile_Directory_YesCancel_callback);
             break;
         case CommandKind_DeleteFile_File:
-            BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
             await WIDGET_show(WidgetKind_YesCancel, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'delete ' + entry.basename, entry, request.target, request.elementToFocusOnCompleted, false, DeleteFile_File_YesCancel_callback);
             break;
         case CommandKind_RenameFile_Directory:
-            BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
             await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'rename', entry.basename, {MENU_target:request.target, entry:entry}, request.elementToFocusOnCompleted, false, RenameFile_Directory_InputText_callback);
             break;
         case CommandKind_RenameFile_File:
             // TODO: Maybe the only difference between the _Directory and _File cases for each ..._... is the bool for isDirectory but I'm exhausted and I cannot reduce the code duplication here because my head doesn't function.
-            BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
             await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'rename', entry.basename, {MENU_target: request.target, entry: entry}, request.elementToFocusOnCompleted, false, RenameFile_File_InputText_callback);
             break;
     }

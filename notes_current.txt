@@ -557,3 +557,57 @@ syntaxes/this-modifier.tmLanguage.json:
 
 Google AI and I had to work together to figure this out.
 
+========
+
+Trump is changing how medicaid works so I gotta do some math to figure out how I'm gonna buy it myself.
+I'm straight up gonna pay for it myself I don't want any money from this.
+
+> how much does health insurance cost per month for a single person
+
+< For a single person, health insurance costs an average of $625 per month for an unsubsidized 40-year-old on a benchmark Silver plan through the Affordable Care Act (ACA) Marketplace,
+< or about $120 per month for an employer-sponsored individual plan.
+< 
+< Cost by Coverage Type (2026 Averages)
+< - ACA Marketplace Plans (Unsubsidized):
+<     - Bronze plans: Around $380 to $381 per month (lower premiums, higher out-of-pocket costs).
+<     - Silver plans: Around $486 to $625 per month depending on the benchmark and exact tier.
+<     - Gold/Platinum plans: Around $507+ to $540+ per month (higher premiums, lower out-of-pocket costs).
+<     - Subsidized plans: Many buyers pay significantly less after federal or state tax credits (averaging closer to $158 per month nationally).
+< - Employer-Sponsored Plans:
+<     - The average employee contribution is about $120 per month for single coverage, because employers heavily subsidize the rest of the true cost
+<       (which averages about $746 per month total).
+< 
+< Key Factors That Change the Cost
+< - Age: Older adults pay substantially more; base rates start at age 21 and can double by age 53.
+< - Location: Premiums vary heavily by state and county (e.g., averaging $401/month in New Hampshire up to $1,299/month in Vermont, or around $485–$680 in New Jersey before state savings).
+< - Tobacco Use: Smokers can be charged up to 50% more for marketplace policies.
+< - Income & Subsidies: Your household income relative to the Federal Poverty Level determines if you qualify for discounts or state-level programs like New Jersey Health Plan Savings.
+< 
+< ...
+
+> Every 4th day I go in to work on that 4th day.
+> I make $15.65 an hour and I work 2 hours each time I go into work.
+> How much do I make per month?
+
+< On average, you make $238.17 per month.
+< 
+< Because you work exactly once every 4 days, your total earnings will fluctuate slightly depending on how many days are in a specific month:
+< ...
+< 
+< The Breakdown
+< - Earnings per shift: You make $31.30 each time you go to work ($15.65 × 2 hours).
+< - Shifts per year: Working every 4th day means you work 91.31 shifts a year (365.25 days ÷ 4).
+< - Shifts per month: This averages out to 7.61 shifts per month (91.31 shifts ÷ 12 months).
+< 
+< If you are trying to budget for a specific upcoming period, let me know which month you are looking at or if you have any other sources of income you'd like to factor in!
+
+> what about if I worked 3 hours each time I went in?
+
+< On average, you make $357.25 per month if you increase your shift to 3 hours.
+
+
+
+
+
+
+

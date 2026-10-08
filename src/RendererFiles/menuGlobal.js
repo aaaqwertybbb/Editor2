@@ -221,14 +221,17 @@ function MENU_hide() {
     MENU_removeEvents();
     MENU_render_request(MENUrenderKind_Hide);
 }
-// gotta unload groceries and etc... so it just not gonna work for a second (didn't mean to push)
+
 /**
+ * TODO: 'changingFocusIsReasonable' might do "nothing". Because tab isn't preventDefault'd and the tab default behavior triggers after...
+ * ...i.e.: it removes the focus invocation but the end result is the same I think.
+ * 
  * @param {*} changingFocusIsReasonable A blur event should not change focus.
  */
 function MENU_completeForm(forceIsCancelled, changingFocusIsReasonable) {
     const local_request = MENU_request;
     if (local_request === null) {
-        return; // TODO: If you remove the events in MENU_hide you shouldn't need this.
+        return; // TODO: Since you remove the events in MENU_hide you shouldn't need this.
     }
     MENU_hide();
     if (changingFocusIsReasonable && !local_request.disableFocusOnCompleted && local_request.elementToFocusOnCompleted) {
@@ -270,7 +273,7 @@ function menuGetRelativeMouseEventData(event_clientY) {
 function MENU_addEvents() {
     let menu = document.getElementById('MENU');
     if (!menu) return;
-    menu.addEventListener('blur', MENU_hide); // TODO: should 'once' be used here?
+    menu.addEventListener('blur', MENU_onblur); // TODO: should 'once' be used here?
     menu.addEventListener('click', MENU_onclick);
     menu.addEventListener('keydown', MENU_onKeyDown);
     menu.addEventListener('mousemove', MENU_onMouseMove);
@@ -279,10 +282,14 @@ function MENU_addEvents() {
 function MENU_removeEvents() {
     let menu = document.getElementById('MENU');
     if (!menu) return;
-    menu.removeEventListener('blur', MENU_hide); // TODO: should 'once' be used when adding?
+    menu.removeEventListener('blur', MENU_onblur); // TODO: should 'once' be used when adding?
     menu.removeEventListener('click', MENU_onclick);
     menu.removeEventListener('keydown', MENU_onKeyDown);
     menu.removeEventListener('mousemove', MENU_onMouseMove);
+}
+
+function MENU_onblur() {
+    MENU_completeForm(/*forceIsCancelled*/ true, /*changingFocusIsReasonable*/ false);
 }
 
 function MENU_onclick(event) {
@@ -347,7 +354,7 @@ function MENU_onKeyDown(event) {
             }
             break;
         case 'Escape':
-            MENU_hide(/*shouldRestoreFocus*/ true);
+            MENU_completeForm(/*forceIsCancelled*/ true, /*changingFocusIsReasonable*/ false);
         case 'Enter':
         case ' ':
             MENU_completeForm(false, true);

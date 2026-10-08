@@ -202,4 +202,6 @@ Google AI and I had to work together to figure this out.
 What? I never knew there was a $580 per month alternative requirement.
 I gotta see if this true.
 
+> if I make $15.65 how many hours do I have to work to meet the $580 requirement?
 
+< To meet the $580 monthly requirement at a wage of $15.65 per hour, you need to work at least 38 hours per month.

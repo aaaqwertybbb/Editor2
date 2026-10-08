@@ -608,7 +608,7 @@ function EDI_onScroll_LeadingEdge(local_prevVli, local_currVli) {
 
     EDI_finalizeEdit();
 
-    // TODO: I'm fairly certain that this needs to go above 'INTS[fEDI_intFalsey_isScrolling] = 1;' at a minimum
+    // TODO: I'm fairly certain that this needs to go above 'INTS[fEDI_intFalsey_isScrolling] = 1;' at a minimum. (this is the horizontal scroll short circuit to avoid vertical scroll logic from running)
     if (INTS[fEDI_prevVli] === INTS[fEDI_virtualIndexLine] && INTS[fEDI_ONSCROLLvirtualCount] === INTS[fEDI_virtualCount]) {
         return true;
     }
@@ -800,18 +800,8 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
     EDI_lineEndPositionList_insert(local_EDI_lineEndPositionList_count++, local_EDI_textByteList_count, lineLengthVisual);
 
     EDI_trackingUint32MaxHeap.tryPooledPeek();
-    // 
-    // "The id is not the lineIndex... except for the times where it is"
-    //
-    // But, I currently am always constructing a new 'EDI_trackingUint32MaxHeap' when I setText due to the internal invocation of 'clear'.
-    // And the first time you mess with the heap the indices will actually align, it is after you initialize that they start of stray away from being a 1 to 1.
-    // I need to write code to get the actual lineIndex from an id, but I don't think I'm doing that today so this is somewhat convenient.
-    // 
     INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
     INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
-    // 9045 and 0?
-    // 0 and 582?
-    // 435 and 582 for editorGlobal.js
 
     update_VirtualIndexLine();
     update_virtualCount();

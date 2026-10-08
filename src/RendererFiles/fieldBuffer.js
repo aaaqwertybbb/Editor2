@@ -157,6 +157,7 @@ BYTES[byteMENU_HIDE_shouldRestoreFocus] = 1;
 
 const byteMENU_SET_NOTshouldFocus = 28;
 
+/** TODO: obsolete */
 const byteMENU_NOTshouldFocus = 29;
 
 const byteMENU_isRenderPending = 30;
@@ -700,7 +701,11 @@ const fWIDGETrenderKind_Show_countOfPendingRequests = 136;
 const fMENU_ticketId_counter = 137;
 INTS[fMENU_ticketId_counter] = 1;
 
-/** TODO: It might read better to make this 'null' or something after you've drawn the pending. */
+/**
+ * TODO: obsolete
+ * 
+ * TODO: It might read better to make this 'null' or something after you've drawn the pending.
+ */
 const fMENU_ticketId_pending = 138;
 
 const fMENU_ticketId_drawn = 139;
@@ -711,7 +716,9 @@ const fMENU_cursorIndex = 140;
 /** By duplicating this you guarantee the initial cursor index is what was expected. */
 const fMENU_SET_index = 141;
 
+/** TODO: obsolete */
 const fMENU_left = 142;
+/** TODO: obsolete */
 const fMENU_top = 143;
 
 const fMENU_renderKind_Set_countOfPendingRequests = 144;

@@ -354,7 +354,6 @@ function EDI_render_do_CreateViewport() {
     INTS[fEDI_ONSCROLLvirtualCount] = virtualCount;
 
     INTS[fEDI_ringBuffer_indexZero] = 0;
-    const left = gutterWidthTotal_withPxUnits;
     const gutterWidth = `${INTS[fEDI_gutterWidthStyleValue]}px`;
     const local_EDI_horizontal_scrollbar_virtualization_boundary_style_width = EDI_virtualization_horizontal.style.width;
 
@@ -383,7 +382,6 @@ function EDI_render_do_CreateViewport() {
 
         const textLineElement = document.createElement('div');
         textLineElement.className = 'eT';
-        //textLineElement.style.left = left;
         textLineElement.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
         textLineElement.appendChild(document.createTextNode(''));
         textFragment.appendChild(textLineElement);

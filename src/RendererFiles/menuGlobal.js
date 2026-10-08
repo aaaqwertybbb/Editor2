@@ -20,7 +20,11 @@ const MENUrenderKind_Set = 2;
 const MENUrenderKind_Hide = 3;
 
 /**
- * @callback MENU_OnCancelAction
+ * @callback MENU_OnCompleteAction
+ * @param {boolean} isCancelled
+ * @param {MenuOption} menuOption the 'MenuOption' that was clicked
+ * @param {number} indexClicked the index of targeted 'MenuOption' within 'optionList'
+ * @param {MenuRequest} request
  * @returns {Promise}
  */
 
@@ -35,17 +39,17 @@ const MENUrenderKind_Hide = 3;
  * @property {number} left
  * @property {number} top
  * @property {number} recentBoundingClientRectTop
- * @property {string} context
+ * @property {MENU_OnCompleteAction} onCompleteAction
  * @property {any} target
  * @property {MenuOption[]} optionList
+ * @property {number} initiallySelectedIndex
  * @property {number} ticket
  * @property {HTMLDivElement[]} ArrayFrom_menuOptionList_children
  * @property {HTMLElement} elementToFocusOnCompleted
  * @property {boolean} disableFocusOnCompleted
- * @property {MENU_OnCancelAction} onCancelAction
  */
 
-/** @type {MenuOption} */
+/** @type {MenuRequest} */
 let MENU_request = null;
 
 function MENU_render_request(renderKind) {
@@ -177,7 +181,26 @@ function MENU_render_do_Set() {
     }
 }
 
-async function menuSet(context, target, optionList, left, top, NOTshouldFocus, index, onHideAction) {
+/**
+ * Two consecutive invocations of this function will result in the first invocation's 'callback' being invoked with the cancelled state.
+ * Whether the first invocation's rAF request triggered or not has no impact on things.
+ * - If it was triggered the cancelled state is still passed to the first invocation's 'callback'.
+ * - If it was NOT triggered, then the rAF request that relates to the first invocation in particular is skipped.
+ * 
+ * @param {number} widgetKind 'get_WidgetKind_%()'
+ * @param {number} left 
+ * @param {number} top 
+ * @param {string} placeholder if the corresponding widget has a corresponding placeholder attribute this string will be provided as the attribute's value. This is stored in the variable 'WIDGET_request.placeholder'.
+ * @param {string | object} value if the corresponding widget has a value attribute and this is expectedly a 'string' then this will be provided as the attribute's value. This is stored in the variable 'WIDGET_request.value'.
+ * @param {object} target this is stored in the variable 'WIDGET_target'.
+ * @param {WIDGET_Callback} callback this is invoked when the widget is either submitted or cancelled.
+ */
+//async function WIDGET_show(widgetKind, left, top, placeholder, value, target, elementToFocusOnCompleted, disableFocusOnCompleted, callback) {
+
+async function menuSet(optionList, left, top, onCompleteAction, target, optionList, elementToFocusOnCompleted, disableFocusOnCompleted, initiallySelectedIndex) {
+
+    if (MENU_request) { await MENU_completeForm(true); }
+
     INTS[fMENU_ticketId_pending] = INTS[fMENU_ticketId_counter]++;
 
     if (MENU_optionList) {
@@ -227,33 +250,62 @@ function MENU_render_do_Hide() {
     }
 }
 
-async function MENU_state_do_hide(shouldRestoreFocus) {
-
-    if (MENU_onHideAction) {
-        await MENU_onHideAction();
-    }
-    MENU_onHideAction = null;
-
-    INTS[fMENU_last_handled_ticketId] = INTS[fMENU_ticketId_drawn];
-
-    MENU_optionList = null;
-
-    //MENU_recentBoundingClientRectTop = null;
-
-    MENU_context = null;
-    MENU_target = null;
-
-    if (shouldRestoreFocus === true || shouldRestoreFocus === false) {
-        BYTES[byteMENU_HIDE_shouldRestoreFocus] = shouldRestoreFocus;
-    }
+/**
+ * Nobody should invoke this, the goal is that if someone shows a widget they ought to always get a 'WIDGET_completeForm' invocation for their 'WIDGET_request'.
+ * If you invoke this you'll silently skip someone's 'WIDGET_request', if there is one.
+ */
+function MENU_hide() {
+    WIDGET_request = null;
+    MENU_render_request(MENUrenderKind_Hide);
 }
 
-async function menuHide(shouldRestoreFocus) {
-    // TODO: Don't put this line here when you could instead just think about async code and figure out the truth of what will happen...
-    // ...I'm anxious and can't think straight I swear...
-    INTS[fMENU_last_handled_ticketId] = INTS[fMENU_ticketId_drawn];
-    await MENU_state_do_hide(shouldRestoreFocus);
-    MENU_render_request(MENUrenderKind_Hide);
+/**
+ * @param {*} changingFocusIsReasonable A blur event should not change focus.
+ */
+function MENU_completeForm(forceIsCancelled, changingFocusIsReasonable, menuOption) {
+    const local_request = MENU_request;
+    MENU_hide();
+    if (changingFocusIsReasonable && !local_request.disableFocusOnCompleted && local_request.elementToFocusOnCompleted) {
+        local_request.elementToFocusOnCompleted.focus();
+    }
+    if (!forceIsCancelled && local_request.ticket !== INTS[fMENU_ticketId_drawn]) {
+        forceIsCancelled = true;
+    }
+    if (forceIsCancelled) {
+        local_request.onCancelAction();
+    }
+    else {
+        switch (local_request.context) {
+            case 'EXPLORER':
+                EXPLORER_MenuOnClick(indexClicked, elementClicked);
+                break;
+            case 'EDITOR':
+                EDI_MenuOnClick(indexClicked, elementClicked);
+                break;
+            case 'EXPLORER_pickFolderOrWorkspaceButton':
+                EXPLORER_pickFolderOrWorkspaceButton_MenuOnClick(indexClicked, elementClicked);
+                break;
+        }
+        menuOption;
+    }
+    if (local_request.callback) {
+        
+        if (resultData === null) {
+            switch (local_request.widgetKind) {
+                case WidgetKind_InputText:
+                    resultData = WidgetKind_InputText_GetResultData();
+                    break;
+                case WidgetKind_YesCancel:
+                    resultData = WidgetKind_YesCancel_GetResultData();
+                    break;
+            }
+        }
+        return local_request.callback({
+            isCancelled: forceIsCancelled,
+            resultData: resultData,
+            request: local_request
+        });
+    }
 }
 
 function MENU_onMouseMove(event) {
@@ -278,7 +330,7 @@ async function optionOnClick(indexClicked, elementClicked) {
         BYTES[byteMENU_HIDE_shouldRestoreFocus] = 1;
         switch (MENU_context) {
             case 'EXPLORER':
-                await EXPLORER_MenuOnClick(indexClicked, elementClicked);
+                await EXPLORER_MenuOnClick(indexClicked, OptionList);
                 break;
             case 'EDITOR':
                 await EDI_MenuOnClick(indexClicked, elementClicked);
@@ -426,4 +478,7 @@ TODO:
     - [ ] ^This is probably a bad idea, at the least for now it is
     - [ ] when you add this if a submenu is clicked you don't 'onCancelAction'
 - [ ] TODO: single click events (not multiple possibility spam)
+- [ ] Check all the rAF code, nothing should be async unless there's a really good reason for it and even then could a good enough reason even exist?
+- [ ] TODO: menuGlobal.js blur events
+- [ ] TODO: widgetGlobal.js blur events
 */

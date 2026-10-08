@@ -198,6 +198,8 @@ function WIDGET_hide() {
 }
 
 /**
+ * TODO: I think you meant to remove 90% of this comment at some point (as of writing this you'd keep '...A blur event should not change focus.' (the final line) only.)
+ * 
  * resultObject is of the pattern {isCancelled:isCancelled, value:input.value}.
  * 
  * This function will perform any generalized widget validation.

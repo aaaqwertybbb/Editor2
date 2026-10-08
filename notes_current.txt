@@ -206,3 +206,15 @@ I gotta see if this true.
 
 < To meet the $580 monthly requirement at a wage of $15.65 per hour, you need to work at least 38 hours per month.
 < ...
+
+> I go in to work every 4th day on that day. And each time I go into work I do so for 2 hours.
+
+< Based on that schedule, your current job only gives you about 15 hours of work per month, bringing in roughly $238 each month.
+< 
+< ...
+< 
+< The good news is that you only need to bridge a relatively small gap. You need to earn an additional $342 per month,
+< which means finding a second gig where you can work at least 23 more hours a month (just under 6 hours a week) at your current $15.65 rate.
+< 
+< ...
+

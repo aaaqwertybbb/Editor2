@@ -423,4 +423,5 @@ TODO:
 - [ ] Check all the rAF code, nothing should be async unless there's a really good reason for it and even then could a good enough reason even exist?
 - [ ] TODO: menuGlobal.js blur events
 - [ ] TODO: widgetGlobal.js blur events
+- [ ] TODO: rewrite the dialogGlobal.js
 */

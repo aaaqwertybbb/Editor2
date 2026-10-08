@@ -608,7 +608,7 @@ function EDI_onScroll_LeadingEdge(local_prevVli, local_currVli) {
 
     EDI_finalizeEdit();
 
-    // TODO: I'm fairly certain that this needs to go above 'INTS[fEDI_intFalsey_isScrolling] = 1;' at a minimum. (this is the horizontal scroll short circuit to avoid vertical scroll logic from running)
+    // TODO: I'm fairly certain that this needs to go above 'INTS[fEDI_intFalsey_isScrolling] = 1;' at a minimum. (this is the only horizontal scroll short circuit to avoid vertical scroll logic from running)
     if (INTS[fEDI_prevVli] === INTS[fEDI_virtualIndexLine] && INTS[fEDI_ONSCROLLvirtualCount] === INTS[fEDI_virtualCount]) {
         return true;
     }
@@ -6850,8 +6850,6 @@ function EDI_render_do_SyntaxHighlighting() {
             currentIndexRingBuffer = 0;
         }
     }
-
-    // TODO: (just an idea): Does a function having a recursive call to itself explicitly in its own function body trigger anything in terms of deoptimization or other such things?
 }
 
 /**
@@ -7573,18 +7571,6 @@ function EDI_onContextMenu() {
     let menuTop = INTS[fEDI_recentBoundingClientRect_top] + INTS[fEDI_cursor_cursorTranslateYValue] + INTS[fEDI_lineHeight] - INTS[fEDI_lastReadNumber_scrollTop];
 
     menuSet(optionList, menuLeft, menuTop, EDI_MenuOnClick, /*target*/ null, /*elementToFocusOnCompleted*/ null, /*disableFocusOnCompleted*/ false, /*index*/ 0);
-}
-
-function EDI_onWheel(event) {
-    //if (event.shiftKey) {
-    //    EDI_scroll_viewport.scrollBy(event.deltaY, 0);
-    //    // TODO: 'INTS[fEDI_lastReadNumber_scrollLeft]' here?
-    //    EDI_horizontal_scrollbar.scrollLeft = EDI_baseElement.scrollLeft;
-    //}
-}
-
-function EDI_horizontal_scrollbar_onScroll() {
-    //EDI_baseElement.scrollLeft = EDI_horizontal_scrollbar.scrollLeft;
 }
 
 function EDI_measureLineHeightAndCharacterWidth() {

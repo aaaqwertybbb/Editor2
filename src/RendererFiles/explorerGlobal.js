@@ -1350,9 +1350,9 @@ async function EXPLORER_MenuOnClick(isCancelled, menuOption, request) {
         EXPLORER_menuOptionCut_object = null;
     }
 
-    if (!MENU_target.id) return;
+    if (!request.target.id) return;
 
-    const entry = await window.myAPI.getFilesystemEntryById(MENU_target.id);
+    const entry = await window.myAPI.getFilesystemEntryById(request.target.id);
     if (!entry) return;
 
     switch (commandKind) {
@@ -1363,8 +1363,8 @@ async function EXPLORER_MenuOnClick(isCancelled, menuOption, request) {
             const text = 'file:///' + entry.absolutePath;
             EXPLORER_menuOptionCut_object = {
                 id: text,
-                indexItem: MENU_target.indexItem,
-                divRelativeIndex: MENU_target.divRelativeIndex
+                indexItem: request.target.indexItem,
+                divRelativeIndex: request.target.divRelativeIndex
             };
             await window.myAPI.setClipboard(text);
             break;
@@ -1376,34 +1376,34 @@ async function EXPLORER_MenuOnClick(isCancelled, menuOption, request) {
             break;
         case CommandKind_NewFile_Directory:
             BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
-            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'filename', entry, MENU_target, MENU_restoreFocusToElement, false, NewFile_Directory_WIDGET_InputText_callback);
+            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'filename', entry, request.target, request.elementToFocusOnCompleted, false, NewFile_Directory_WIDGET_InputText_callback);
             break;
         case CommandKind_NewFile_File:
             BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
-            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'filename', entry, MENU_target, MENU_restoreFocusToElement, false, NewFile_File_WIDGET_InputText_callback);
+            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'filename', entry, request.target, request.elementToFocusOnCompleted, false, NewFile_File_WIDGET_InputText_callback);
             break;
         case CommandKind_DeleteFile_Directory:
             BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
-            await WIDGET_show(WidgetKind_YesCancel, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'delete ' + entry.basename, entry, MENU_target, MENU_restoreFocusToElement, false, DeleteFile_Directory_YesCancel_callback);
+            await WIDGET_show(WidgetKind_YesCancel, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'delete ' + entry.basename, entry, request.target, request.elementToFocusOnCompleted, false, DeleteFile_Directory_YesCancel_callback);
             break;
         case CommandKind_DeleteFile_File:
             BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
-            await WIDGET_show(WidgetKind_YesCancel, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'delete ' + entry.basename, entry, MENU_target, MENU_restoreFocusToElement, false, DeleteFile_File_YesCancel_callback);
+            await WIDGET_show(WidgetKind_YesCancel, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'delete ' + entry.basename, entry, request.target, request.elementToFocusOnCompleted, false, DeleteFile_File_YesCancel_callback);
             break;
         case CommandKind_RenameFile_Directory:
             BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
-            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'rename', entry.basename, {MENU_target:MENU_target, entry:entry}, MENU_restoreFocusToElement, false, RenameFile_Directory_InputText_callback);
+            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'rename', entry.basename, {MENU_target:request.target, entry:entry}, request.elementToFocusOnCompleted, false, RenameFile_Directory_InputText_callback);
             break;
         case CommandKind_RenameFile_File:
             // TODO: Maybe the only difference between the _Directory and _File cases for each ..._... is the bool for isDirectory but I'm exhausted and I cannot reduce the code duplication here because my head doesn't function.
             BYTES[byteMENU_HIDE_shouldRestoreFocus] = 0;
-            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'rename', entry.basename, {MENU_target: MENU_target, entry: entry}, MENU_restoreFocusToElement, false, RenameFile_File_InputText_callback);
+            await WIDGET_show(WidgetKind_InputText, INTS[fEXPLORER_menuOptionX], INTS[fEXPLORER_menuOptionY], 'rename', entry.basename, {MENU_target: request.target, entry: entry}, request.elementToFocusOnCompleted, false, RenameFile_File_InputText_callback);
             break;
     }
 }
 
 async function CommandKind_Paste_MenuOnClick_Paste(entry) {
-    EXPLORER_treeViewNodes.getElementAt(MENU_target.indexItem);
+    EXPLORER_treeViewNodes.getElementAt(request.target.indexItem);
     let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
     let depthOfTheParent = INTS[fTreeView_pooledNode_depth];
     let isCollapsed = nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded || nodeKind === TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
@@ -1425,7 +1425,7 @@ async function CommandKind_Paste_MenuOnClick_Paste(entry) {
     if (isCollapsed) { return; }
     
     let targetDepth = depthOfTheParent + 1;
-    let someIndex = MENU_target.indexItem + 1;
+    let someIndex = request.target.indexItem + 1;
 
     // TODO: 'i_targetDepth' is a bad variable name, you're looping a minimum of until 'pasteResult.indexOf' and each loop you check
     // whether that sibling is expanded, if so you skip all the children of the sibling.
@@ -1459,7 +1459,7 @@ async function CommandKind_Paste_MenuOnClick_Paste(entry) {
         // TODO: You're missing a 'someIndex < EXPLORER_treeViewNodes.count_abstract' check for after the while loop.
     }
 
-    EXPLORER_treeViewNodes.insert(someIndex, nodeKind, pasteResult.pathId, MENU_target.depth + 1);
+    EXPLORER_treeViewNodes.insert(someIndex, nodeKind, pasteResult.pathId, request.target.depth + 1);
 
     if (pasteResult.sourceFileWasDeleted) {
         let indexItem = local_EXPLORER_menuOptionCut_object.indexItem;

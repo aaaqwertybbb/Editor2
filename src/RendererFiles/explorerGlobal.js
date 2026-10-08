@@ -1477,18 +1477,18 @@ async function CommandKind_Paste_MenuOnClick_Paste(entry) {
     EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
 }
 
-async function NewFile_Directory_WIDGET_InputText_callback(result) {
-    if (result.isCancelled) return;
+async function NewFile_Directory_WIDGET_InputText_callback(widgetResult) {
+    if (widgetResult.isCancelled) return;
 
-    const entry = result.request.value;
-    const target = result.request.target;
+    const entry = widgetResult.request.value;
+    const target = widgetResult.request.target;
 
     EXPLORER_treeViewNodes.getElementAt(target.indexItem);
     let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
     let depthOfTheParent = INTS[fTreeView_pooledNode_depth];
     let isCollapsed = nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded || nodeKind === TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
 
-    const newFileResult = await window.myAPI.newFile(entry.absolutePath, result.resultData, /*isDirectory*/ true);
+    const newFileResult = await window.myAPI.newFile(entry.absolutePath, widgetResult.resultData, /*isDirectory*/ true);
     if (!newFileResult.success) { return; }
 
     // TODO: I belive this final new directory logic that comes after this comment and within this scope is 1 to 1 an exact duplication of the new file logic...
@@ -1540,18 +1540,18 @@ async function NewFile_Directory_WIDGET_InputText_callback(result) {
     }
 }
 
-async function NewFile_File_WIDGET_InputText_callback(result) {
-    if (result.isCancelled) return;
+async function NewFile_File_WIDGET_InputText_callback(widgetResult) {
+    if (widgetResult.isCancelled) return;
 
-    const entry = result.request.value;
-    const target = result.request.target;
+    const entry = widgetResult.request.value;
+    const target = widgetResult.request.target;
     
     EXPLORER_treeViewNodes.getElementAt(target.indexItem);
     let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
     let depthOfTheParent = INTS[fTreeView_pooledNode_depth];
     let isCollapsed = nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded || nodeKind === TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
 
-    const newFileResult = await window.myAPI.newFile(entry.absolutePath, result.resultData, /*isDirectory*/ false);
+    const newFileResult = await window.myAPI.newFile(entry.absolutePath, widgetResult.resultData, /*isDirectory*/ false);
     if (!newFileResult.success) { return; }
 
     nodeKind = TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
@@ -1600,10 +1600,10 @@ async function NewFile_File_WIDGET_InputText_callback(result) {
     EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
 }
 
-async function DeleteFile_Directory_YesCancel_callback(result) {
-    if (result.isCancelled) return;
-    const entry = result.request.value;
-    const target = result.request.target;
+async function DeleteFile_Directory_YesCancel_callback(widgetResult) {
+    if (widgetResult.isCancelled) return;
+    const entry = widgetResult.request.value;
+    const target = widgetResult.request.target;
     const deleteFileResult = await window.myAPI.deleteFile(entry.absolutePath, /*isDirectory*/ true);
     if (!deleteFileResult) { return; }
 
@@ -1614,10 +1614,10 @@ async function DeleteFile_Directory_YesCancel_callback(result) {
     EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
 }
 
-async function DeleteFile_File_YesCancel_callback(result) {
-    if (result.isCancelled) return;
-    const entry = result.request.value;
-    const target = result.request.target;
+async function DeleteFile_File_YesCancel_callback(widgetResult) {
+    if (widgetResult.isCancelled) return;
+    const entry = widgetResult.request.value;
+    const target = widgetResult.request.target;
     const deleteFileResult = await window.myAPI.deleteFile(entry.absolutePath, /*isDirectory*/ false);
     if (!deleteFileResult) { return; }
 
@@ -1628,30 +1628,30 @@ async function DeleteFile_File_YesCancel_callback(result) {
     EXPLORER_draw_BATCH_request(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3);
 }
 
-async function RenameFile_Directory_InputText_callback(result) {
-    if (result.isCancelled) return;
+async function RenameFile_Directory_InputText_callback(widgetResult) {
+    if (widgetResult.isCancelled) return;
     // TODO: Confusing, hacky, upsetting: 'WIDGET_target.entry / WIDGET_target.MENU_target'
-    const entry = result.request.target.entry;
-    const target = result.request.target.MENU_target;
-    const renameFileResult = await window.myAPI.renameFile(entry.absolutePath, result.resultData, /*isDirectory*/ true);
+    const entry = widgetResult.request.target.entry;
+    const target = widgetResult.request.target.MENU_target;
+    const renameFileResult = await window.myAPI.renameFile(entry.absolutePath, widgetResult.resultData, /*isDirectory*/ true);
     if (!renameFileResult.success) { return; }
 
     EXPLORER_setNodeListEntryId(target.indexItem, renameFileResult.pathId);
     const textNode = EXPLORER_itemListElement.children[target.divRelativeIndex].firstChild;
-    textNode.replaceData(1, textNode.length - 1, result.resultData);
+    textNode.replaceData(1, textNode.length - 1, widgetResult.resultData);
 }
 
-async function RenameFile_File_InputText_callback(result) {
-    if (result.isCancelled) return;
+async function RenameFile_File_InputText_callback(widgetResult) {
+    if (widgetResult.isCancelled) return;
     // TODO: Confusing, hacky, upsetting: 'WIDGET_target.entry / WIDGET_target.MENU_target'
-    const entry = result.request.target.entry;
-    const target = result.request.target.MENU_target;
-    const renameFileResult = await window.myAPI.renameFile(entry.absolutePath, result.resultData, /*isDirectory*/ false);
+    const entry = widgetResult.request.target.entry;
+    const target = widgetResult.request.target.MENU_target;
+    const renameFileResult = await window.myAPI.renameFile(entry.absolutePath, widgetResult.resultData, /*isDirectory*/ false);
     if (!renameFileResult.success) { return; }
 
     EXPLORER_setNodeListEntryId(target.indexItem, renameFileResult.pathId);
     const textNode = EXPLORER_itemListElement.children[target.divRelativeIndex].firstChild;
-    textNode.replaceData(1, textNode.length - 1, result.resultData);
+    textNode.replaceData(1, textNode.length - 1, widgetResult.resultData);
 }
 
 // TODO: look at the "async" events because its nonsensical

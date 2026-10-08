@@ -208,17 +208,17 @@ function MENU_render_do_Hide() {
     const menu = document.getElementById('MENU');
     if (!menu) return;
 
-    MENU_removeEvents();
     INTS[fMENU_ticketId_drawn] = 0;
     menu.remove();
 }
 
 /**
- * Nobody should invoke this, the goal is that if someone shows a widget they ought to always get a 'WIDGET_completeForm' invocation for their 'WIDGET_request'.
- * If you invoke this you'll silently skip someone's 'WIDGET_request', if there is one.
+ * Nobody should invoke this, the goal is that if someone shows a menu they ought to always get a 'MENU_completeForm' invocation for their 'MENU_request'.
+ * If you invoke this you'll silently skip someone's 'MENU_request', if there is one.
  */
 function MENU_hide() {
-    WIDGET_request = null;
+    MENU_request = null;
+    MENU_removeEvents();
     MENU_render_request(MENUrenderKind_Hide);
 }
 // gotta unload groceries and etc... so it just not gonna work for a second (didn't mean to push)
@@ -227,6 +227,9 @@ function MENU_hide() {
  */
 function MENU_completeForm(forceIsCancelled, changingFocusIsReasonable) {
     const local_request = MENU_request;
+    if (local_request === null) {
+        return; // TODO: If you remove the events in MENU_hide you shouldn't need this.
+    }
     MENU_hide();
     if (changingFocusIsReasonable && !local_request.disableFocusOnCompleted && local_request.elementToFocusOnCompleted) {
         local_request.elementToFocusOnCompleted.focus();
@@ -235,7 +238,7 @@ function MENU_completeForm(forceIsCancelled, changingFocusIsReasonable) {
         forceIsCancelled = true;
     }
     let menuOption = undefined;
-    if (local_request.index > 0 && local_request.index < local_request.optionList.length) {
+    if (local_request.index >= 0 && local_request.index < local_request.optionList.length) {
         menuOption = local_request.optionList[local_request.index];
     }
     local_request.onCompleteAction(forceIsCancelled, menuOption, local_request);
@@ -285,13 +288,14 @@ function MENU_removeEvents() {
 function MENU_onclick(event) {
     MENU_ensure_boundingClientRect();
     let indexClicked = menuGetRelativeMouseEventData(event.clientY);
-    MENU_setCursorIndex(MENU_validateCursor(indexClicked));
+    MENU_setCursorIndex(indexClicked);
+    //MENU_validateCursor();
     MENU_completeForm(false, true);
 }
 
 function MENU_render_do_Cursor() {
     const cursorElement = document.getElementById('MENU_cursor');
-    if (!cursorElement) return;
+    if (!cursorElement || MENU_request === null) return;
     // The menu 'padding-top: 4px'
     cursorElement.style.top = 4 + (INTS[fAPP_lineHeight] * MENU_request.index) + 'px';
 }

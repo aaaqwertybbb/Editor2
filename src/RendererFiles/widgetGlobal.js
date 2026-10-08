@@ -195,6 +195,7 @@ function WIDGET_render_do_Hide() {
  */
 function WIDGET_hide() {
     WIDGET_request = null; // In case someone skips a 'WIDGET_completeForm', this null setting is done here.
+    // TODO: remove the events here?
     WIDGET_render_request(WIDGETrenderKind_Hide);
 }
 
@@ -215,6 +216,9 @@ function WIDGET_hide() {
  */
 function WIDGET_completeForm(forceIsCancelled, changingFocusIsReasonable, resultData) {
     const local_request = WIDGET_request;
+    if (local_request === null) {
+        return;
+    }
     WIDGET_hide();
     if (changingFocusIsReasonable && !local_request.disableFocusOnCompleted && local_request.elementToFocusOnCompleted) {
         local_request.elementToFocusOnCompleted.focus();

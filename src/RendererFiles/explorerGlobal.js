@@ -1276,9 +1276,16 @@ async function EXPLORER_openInEditor(absolutePath, shouldFocus) {
     }
 }
 
-async function EXPLORER_pickFolderOrWorkspaceButton_MenuOnClick(indexClicked, elementClicked) {
-    const commandKind = parseInt(elementClicked.dataset.commandKind, 10);
-    if (!commandKind) {
+/**
+ * 
+ * @param {*} isCancelled 
+ * @param {MenuOption} menuOption 
+ * @param {*} request 
+ * @returns 
+ */
+async function EXPLORER_pickFolderOrWorkspaceButton_MenuOnClick(isCancelled, menuOption, request) {
+    const commandKind = menuOption.commandKind;
+    if (!commandKind || isCancelled) {
         return;
     }
 

@@ -460,18 +460,10 @@ function EDI_createViewport() {
 function EDI_scrollViewport_scroll() {
     INTS[fEDI_lastReadNumber_scrollLeft] = EDI_scroll_viewport.scrollLeft;
     INTS[fEDI_lastReadNumber_scrollTop] = EDI_scroll_viewport.scrollTop;
-
-    // --- 1. YOUR VIRTUALIZATION LOGIC ---
-    // Call your existing code here that figures out which lines 
-    // should be on screen based on 'scrollTop' and updates their text!
-    // renderVisibleLines(scrollTop);
-
     EDI_render_request(RenderKind_Scroll);
-    
 }
 
 /**
- * TODO: If you make a (Uint8Array?) of size ring buffer when doing Array.From you can write to the ringBufferIndex to indicate needs to be syntax highlighted.
  * TODO: synchronous syntax highlighting for multiline syntax that spans multiple lines?
  * TODO: manually unroll the loop to be two chunks:
  * - the first chunk is up to the wrap around

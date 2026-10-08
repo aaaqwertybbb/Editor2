@@ -164,6 +164,8 @@ function MENU_render_do_Set() {
     menuElement.style.left = `${finalLeft}px`;
     menuElement.style.top = `${finalTop}px`;
 
+    MENU_request.recentBoundingClientRectTop = finalTop;
+
     MENU_state_do_Cursor(MENU_request.index);
     MENU_render_do_Cursor();
 
@@ -291,7 +293,7 @@ function MENU_onblur() {
 }
 
 function MENU_onclick(event) {
-    MENU_ensure_boundingClientRect();
+    //MENU_ensure_boundingClientRect();
     let indexClicked = menuGetRelativeMouseEventData(event.clientY);
     MENU_setCursorIndex(indexClicked);
     //MENU_validateCursor();

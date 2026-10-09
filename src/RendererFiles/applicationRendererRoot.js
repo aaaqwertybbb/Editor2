@@ -70,7 +70,7 @@ async function window_myAPI_onMessage(data) {
                 EDI_listComponent_drawItemAction,
                 EDI_listComponent_onkeydownAction,
                 EDI_listComponent_getItemsCountFunc);
-            return DIALOG_show_async(DialogKind_DocumentSymbol, dialog_documentSymbol_onResizeAction);
+            DIALOG_show(DialogKind_DocumentSymbol, dialog_documentSymbol_onResizeAction);
         case 'textDocument/CustomFullFileLexRequest':
             /*
             The C# code:
@@ -194,7 +194,7 @@ function documentBody_onKeyDown(event) {
             return;
         case 'F':
             if (!event.ctrlKey) return;
-            DIALOG_show_async(DialogKind_FindAll);
+            DIALOG_show(DialogKind_FindAll);
         case 'Escape':
             // TODO: Provide a way to disable the next (body, and useCapture) 'Escape' keypress...
             // ...so a widget can restore focus to the relevant UI rather than
@@ -242,5 +242,5 @@ function documentBody_onKeyDown(event) {
 }
 
 function HEADER_buttonSettings_onClick() {
-    DIALOG_show_async(DialogKind_Settings);
+    DIALOG_show(DialogKind_Settings);
 }

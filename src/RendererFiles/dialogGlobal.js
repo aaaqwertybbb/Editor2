@@ -9,25 +9,46 @@ const DialogKind_Settings = 2;
 const DialogKind_DocumentSymbol = 3;
 const DialogKind_Debug = 4;
 
-/** A delegate of the form: () => {} */
-let DIALOG_onResizeAction = null;
-let DIALOG_restoreFocusToElement = null;
-
-/** TODO: Achieve same behavior without this variable; probably is a matter of giving the SHOW id and pending_show_id kind of pattern */
-let DIALOG_SHOW_restoreFocusToElement = null;
-/** TODO: Achieve same behavior without this variable; probably is a matter of giving the SHOW id and pending_show_id kind of pattern */
-let DIALOG_SHOW_onResizeAction = null;
-
 const DIALOGrenderKind_None = 0;
 const DIALOGrenderKind_Show = 1;
 const DIALOGrenderKind_Hide = 2;
 const DIALOGrenderKind_DimensionsChanged = 3;
 
+// No onComplete because all of that logic goes in the respective case of 'switch (BYTES[byteDIALOG_currentDialogKind])'.
+
+/**
+ * @callback DIALOG_onResizeAction when the dialog is repositioned, the bounding client rect data of the component being displayed within it needs to be invalidated. This is the API to do that.
+ */
+
+/**
+ * @typedef {Object} DialogRequest
+ * @property {number} dialogKind
+ * @property {DIALOG_onResizeAction} onResizeAction
+ * @property {HTMLElement} elementToFocusOnDialogWindowDeleted the HTML element to set focus to after deleting the "dialog window". The "dialog window" is the overlay in and of itself.
+ * @property {boolean} disableFocusOnDialogWindowDeleted (see: elementToFocusOnDialogWindowDeleted) If the "dialog window" already exists, and you make a followup request that swaps the component being displayed within, this does NOT delete the "dialog window". An action such as clicking the 'x' button is what constitutes deleting the "dialog window".
+ * @property {number} width
+ * @property {number} height
+ * @property {number} left
+ * @property {number} top
+ * @property {number} width_DRAWN
+ * @property {number} height_DRAWN
+ * @property {number} left_DRAWN
+ * @property {number} top_DRAWN
+ * 
+ * @property {number} recentBoundingClientRectTop
+ * @property {number} ticket 
+ */
+
+/**
+ * @type {DialogRequest}
+ */
+let DIALOG_request = null;
+
 function DIALOG_render_request(renderKind) {
     if (BYTES[byteDIALOG_queueHead] !== BYTES[byteDIALOG_queueTail]) {
         const lastAbsoluteIndex = OFFSET_DIALOG + ((BYTES[byteDIALOG_queueTail] - 1) & UI_SLOT_MASK);
         if (MASTER_RENDER_BUFFER[lastAbsoluteIndex] === renderKind) {
-            return; // Deduplicated
+            return;
         }
     }
 
@@ -64,32 +85,36 @@ function DIALOG_render_do() {
 }
 
 function DIALOG_render_do_DimensionsChanged() {
+    // TODO: getting the dialog element with 'getElementById' each invocation is not ideal.
     let DIALOG_element = document.getElementById('DIALOG');
     if (!DIALOG_element) return;
 
-    if (INTS[fDIALOG_left_DRAWN] !== INTS[fDIALOG_left]) {
-        INTS[fDIALOG_left_DRAWN] = INTS[fDIALOG_left];
-        DIALOG_element.style.left = `${INTS[fDIALOG_left_DRAWN]}px`;
+    if (DIALOG_request.left_DRAWN !== DIALOG_request.left) {
+        DIALOG_request.left_DRAWN = DIALOG_request.left;
+        DIALOG_element.style.left = `${DIALOG_request.left_DRAWN}px`;
     }
-    if (INTS[fDIALOG_top_DRAWN] !== INTS[fDIALOG_top]) {
-        INTS[fDIALOG_top_DRAWN] = INTS[fDIALOG_top];
-        DIALOG_element.style.top = `${INTS[fDIALOG_top_DRAWN]}px`;
+    if (DIALOG_request.top_DRAWN !== DIALOG_request.top) {
+        DIALOG_request.top_DRAWN = DIALOG_request.top;
+        DIALOG_element.style.top = `${DIALOG_request.top_DRAWN}px`;
     }
-    if (INTS[fDIALOG_width_DRAWN] !== INTS[fDIALOG_width]) {
-        INTS[fDIALOG_width_DRAWN] = INTS[fDIALOG_width];
-        DIALOG_element.style.width = `${INTS[fDIALOG_width_DRAWN]}px`;
+    if (DIALOG_request.width_DRAWN !== DIALOG_request.width) {
+        DIALOG_request.width_DRAWN = DIALOG_request.width;
+        DIALOG_element.style.width = `${DIALOG_request.width_DRAWN}px`;
     }
-    if (INTS[fDIALOG_height_DRAWN] !== INTS[fDIALOG_height]) {
-        INTS[fDIALOG_height_DRAWN] = INTS[fDIALOG_height];
-        DIALOG_element.style.height = `${INTS[fDIALOG_height_DRAWN]}px`;
+    if (DIALOG_request.height_DRAWN !== DIALOG_request.height) {
+        DIALOG_request.height_DRAWN = DIALOG_request.height;
+        DIALOG_element.style.height = `${DIALOG_request.height_DRAWN}px`;
     }
-    
 }
 
-async function DIALOG_render_do_Show() {
+function DIALOG_render_do_Show() {
     if (BYTES[byteDIALOG_currentDialogKind] !== DialogKind_None) {
         BYTES[byteDIALOG_HIDE_shouldRestoreFocus] = 1;
         await DIALOG_render_do_Hide();
+    }
+
+    if (!DIALOG_request.elementToFocusOnDialogWindowDeleted) {
+        DIALOG_request.elementToFocusOnDialogWindowDeleted = document.activeElement;
     }
 
     let DIALOG_element = document.getElementById('DIALOG');
@@ -98,10 +123,8 @@ async function DIALOG_render_do_Show() {
         DIALOG_element.id = "DIALOG";
         document.body.appendChild(DIALOG_element);
     }
-
-    DIALOG_restoreFocusToElement = DIALOG_SHOW_restoreFocusToElement;
-    DIALOG_SHOW_restoreFocusToElement = null;
-    BYTES[byteDIALOG_currentDialogKind] = BYTES[byteDIALOG_SHOW_currentDialogKind];
+    
+    
     DIALOG_onResizeAction = DIALOG_SHOW_onResizeAction;
     DIALOG_SHOW_onResizeAction = null;
 
@@ -109,17 +132,20 @@ async function DIALOG_render_do_Show() {
 
     switch (BYTES[byteDIALOG_currentDialogKind]) {
         case DialogKind_FindAll:
-            return DIALOG_FindAll_Create_async();
+            DIALOG_FindAll_Create();
         case DialogKind_Settings:
-            return DIALOG_Settings_Create_async();
+            DIALOG_Settings_Create();
         case DialogKind_DocumentSymbol:
-            return DIALOG_DocumentSymbol_Create_async();
+            DIALOG_DocumentSymbol_Create();
         case DialogKind_Debug:
-            return DIALOG_Debug_Create_async();
+            DIALOG_Debug_Create();
     }
+
+    BYTES[byteDIALOG_currentDialogKind] = BYTES[byteDIALOG_SHOW_currentDialogKind];
 }
 
-async function DIALOG_show_async(dialogKind, onResizeAction) {
+async function DIALOG_show(request) {
+    DIALOG_request = request;
     DIALOG_SHOW_restoreFocusToElement = document.activeElement;
     BYTES[byteDIALOG_SHOW_currentDialogKind] = dialogKind;
     DIALOG_SHOW_onResizeAction = onResizeAction;

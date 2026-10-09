@@ -116,6 +116,7 @@ const byteDIALOG_hasBeenMeasured = 11;
 
 const byteDIALOG_windowExists = 12;
 
+/** TODO: obsolete */
 const byteDIALOG_HIDE_shouldRestoreFocus = 13;
 
 const byteAUTOCOMPLETE_exists = 14;
@@ -613,27 +614,40 @@ const fEDI_cursor_cached_indentation_string_visualWidth = 100;
 const fEDI_cursor_editLengthVisual = 101;
 
 /**
+ * TODO: obsolete
+ * 
  * defaults to viewport size then getBoundingClientRect says the exact pixels upon trying to resize
  * need to track resizes and store the useragent width/height by the onmousedown and then on resize get proportion and update left top width height.
  */
 const fDIALOG_left = 102;
+/** TODO: obsolete */
 const fDIALOG_top = 103;
+/** TODO: obsolete */
 const fDIALOG_width = 104;
+/** TODO: obsolete */
 const fDIALOG_height = 105;
 
+/** TODO: obsolete */
 const fDIALOG_left_DRAWN = 106;
+/** TODO: obsolete */
 const fDIALOG_top_DRAWN = 107;
+/** TODO: obsolete */
 const fDIALOG_width_DRAWN = 108;
+/** TODO: obsolete */
 const fDIALOG_height_DRAWN = 109;
 
 // TODO: Are 'fDIALOG_before_X' and 'fDIALOG_before_Y' actually doing anything?...
 // ...When it comes to their after counterparts 'fDIALOG_after_X' and 'fDIALOG_after_Y'...
 // ...it is believed that the counterparts are doing nothing, so also check the before.
+/** TODO: obsolete */
 const fDIALOG_before_X = 110;
+/** TODO: obsolete */
 const fDIALOG_before_Y = 111;
 
 // TODO: What does 'fDIALOG_after_X' and 'fDIALOG_after_Y' even get used for? It seems they always only get set to 0 over and over and do nothing?
+/** TODO: obsolete */
 const fDIALOG_after_X = 112;
+/** TODO: obsolete */
 const fDIALOG_after_Y = 113;
 
 // I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".

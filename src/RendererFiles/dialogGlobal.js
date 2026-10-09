@@ -39,6 +39,8 @@ const DIALOGrenderKind_DimensionsChanged = 3;
  */
 
 /**
+ * TODO: I don't feel well this is "good enough" for now. The main goal was to reduce the root level variable so that when not being used the dialog had less null roots that the garbage collector had to check. (GC would see null but it still nevertheless I presume is checking for null and that's non-zero cost.)
+ * 
  * @type {DialogRequest}
  */
 let DIALOG_request = null;

@@ -6979,6 +6979,10 @@ function EDI_onMouseDown(event) {
 
     EDI_movementBasedCacheInvalidation();
 
+    if (BYTES[byteTOOLTIP_exists] === 1) {
+        TOOLTIP_hide();
+    }
+
     if (get_EDI_recentBoundingClientRect_isNull_intFalsey() === 1) {
         let boundingClientRect = EDI_baseElement.getBoundingClientRect();
         INTS[fEDI_recentBoundingClientRect_left] = boundingClientRect.left;

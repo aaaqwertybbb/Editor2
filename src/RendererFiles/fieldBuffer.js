@@ -151,6 +151,7 @@ const byteTOOLTIP_exists = 24;
 
 const byteDIALOG_currentDialogKind = 25;
 
+/** TODO: obsolete */
 const byteDIALOG_SHOW_currentDialogKind = 26;
 
 const byteMENU_HIDE_shouldRestoreFocus = 27;

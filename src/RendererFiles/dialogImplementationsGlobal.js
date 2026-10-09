@@ -281,7 +281,7 @@ class DIALOG_FindAll_TreeViewDirector {
 /** @type {DIALOG_FindAll_TreeViewDirector} */
 let DIALOG_FindAll_TreeViewDirector_instance = null;
 
-async function DIALOG_FindAll_Create_async() {
+function DIALOG_FindAll_Create() {
     let dialogBody = document.getElementById('DIALOG_body');
 
     let searchTextInput = document.createElement('input');
@@ -323,7 +323,7 @@ async function DIALOG_FindAll_Create_async() {
     dialogBody.appendChild(searchResultsDiv);
 }
 
-async function DIALOG_FindAll_Delete_async() {
+function DIALOG_FindAll_Delete() {
     let searchTextInput = document.getElementById('DIALOG_FindAll_searchTextInput');
     if (searchTextInput) {
         searchTextInput.removeEventListener('keydown', DIALOG_FindAll_searchTextInput_onkeydown);
@@ -376,7 +376,7 @@ function DIALOG_FindAll_checkboxMatchWord_onchange() {
     }
 }
 
-async function DIALOG_Settings_Create_async() {
+function DIALOG_Settings_Create() {
     let dialogBody = document.getElementById('DIALOG_body');
     if (!dialogBody) return;
 
@@ -417,7 +417,7 @@ async function DIALOG_Settings_Create_async() {
     dialogBody.appendChild(label_for_checkboxEditorDebugShowAdjacentCharacters);
 }
 
-async function DIALOG_Settings_Delete_async() {
+function DIALOG_Settings_Delete() {
     let dialogBody = document.getElementById('DIALOG_body');
     if (!dialogBody) return;
     
@@ -482,7 +482,7 @@ function DIALOG_checkboxEditorDebugShowAdjacentCharacters_onchange() {
     EDI_drawCursor(/*timestamp*/ 0, /*NOTscrollCursorIntoView*/ false);
 }
 
-async function DIALOG_DocumentSymbol_Create_async() {
+function DIALOG_DocumentSymbol_Create() {
     let dialogBody = document.getElementById('DIALOG_body');
     if (!dialogBody) return;
 
@@ -500,7 +500,7 @@ async function DIALOG_DocumentSymbol_Create_async() {
     }
 }
 
-async function DIALOG_DocumentSymbol_Delete_async() {
+function DIALOG_DocumentSymbol_Delete() {
     let dialogBody = document.getElementById('DIALOG_body');
     if (!dialogBody) return;
     if (EDI_listComponent) {
@@ -513,7 +513,7 @@ async function DIALOG_DocumentSymbol_Delete_async() {
 //let DEBUG_listData = null;
 //let DEBUG_listComponent = null;
 
-async function DIALOG_Debug_Create_async() {
+function DIALOG_Debug_Create() {
 //    let dialogBody = document.getElementById('DIALOG_body');
 //    if (!dialogBody) return;
 //    
@@ -571,7 +571,7 @@ async function DIALOG_Debug_Create_async() {
 //    }
 }
 
-async function DIALOG_Debug_Delete_async() {
+function DIALOG_Debug_Delete() {
 //    let dialogBody = document.getElementById('DIALOG_body');
 //    if (!dialogBody) return;
 //

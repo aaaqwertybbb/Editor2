@@ -24,8 +24,8 @@ const DIALOGrenderKind_DimensionsChanged = 3;
  * @typedef {Object} DialogRequest
  * @property {number} dialogKind
  * @property {DIALOG_onResizeAction} onResizeAction
- * @property {HTMLElement} elementToFocusOnDialogWindowDeleted the HTML element to set focus to after deleting the "dialog window". The "dialog window" is the overlay in and of itself.
- * @property {boolean} disableFocusOnDialogWindowDeleted (see: elementToFocusOnDialogWindowDeleted) If the "dialog window" already exists, and you make a followup request that swaps the component being displayed within, this does NOT delete the "dialog window". An action such as clicking the 'x' button is what constitutes deleting the "dialog window".
+ * @property {HTMLElement} elementToFocusOnDialogHideInitiated the HTML element to set focus to after initiating a hide of the "dialog window". The "dialog window" is the overlay in and of itself.
+ * @property {boolean} disableFocusOnDialogHideInitiated (see: elementToFocusHideInitiated "dialog window" already exists, and you make a followup request that swaps the component being displayed within, this does NOT initiate a hide of the "dialog window". An action such as clicking the 'x' button is what constitutes initiates a hide of the "dialog window".
  * @property {number} width
  * @property {number} height
  * @property {number} left
@@ -34,9 +34,6 @@ const DIALOGrenderKind_DimensionsChanged = 3;
  * @property {number} height_DRAWN
  * @property {number} left_DRAWN
  * @property {number} top_DRAWN
- * 
- * @property {number} recentBoundingClientRectTop
- * @property {number} ticket 
  */
 
 /**
@@ -110,11 +107,11 @@ function DIALOG_render_do_DimensionsChanged() {
 function DIALOG_render_do_Show() {
     if (BYTES[byteDIALOG_currentDialogKind] !== DialogKind_None) {
         BYTES[byteDIALOG_HIDE_shouldRestoreFocus] = 1;
-        await DIALOG_render_do_Hide();
+        DIALOG_render_do_Hide();
     }
 
-    if (!DIALOG_request.elementToFocusOnDialogWindowDeleted) {
-        DIALOG_request.elementToFocusOnDialogWindowDeleted = document.activeElement;
+    if (!DIALOG_request.elementToFocusOnDialogHideInitiated) {
+        DIALOG_request.elementToFocusOnDialogHideInitiated = document.activeElement;
     }
 
     let DIALOG_element = document.getElementById('DIALOG');
@@ -123,10 +120,6 @@ function DIALOG_render_do_Show() {
         DIALOG_element.id = "DIALOG";
         document.body.appendChild(DIALOG_element);
     }
-    
-    
-    DIALOG_onResizeAction = DIALOG_SHOW_onResizeAction;
-    DIALOG_SHOW_onResizeAction = null;
 
     DIALOG_createWindow();
 
@@ -141,56 +134,83 @@ function DIALOG_render_do_Show() {
             DIALOG_Debug_Create();
     }
 
-    BYTES[byteDIALOG_currentDialogKind] = BYTES[byteDIALOG_SHOW_currentDialogKind];
+    BYTES[byteDIALOG_currentDialogKind] = DIALOG_request.dialogKind;
 }
 
-async function DIALOG_show(request) {
-    DIALOG_request = request;
-    DIALOG_SHOW_restoreFocusToElement = document.activeElement;
-    BYTES[byteDIALOG_SHOW_currentDialogKind] = dialogKind;
-    DIALOG_SHOW_onResizeAction = onResizeAction;
+function DIALOG_show(dialogKind, onResizeAction, elementToFocusOnDialogHideInitiated) {
+    const local_request = {
+        dialogKind: dialogKind,
+        onResizeAction: onResizeAction,
+        elementToFocusOnDialogHideInitiated: elementToFocusOnDialogHideInitiated,
+        width: 0,
+        height: 0,
+        left: 0,
+        top: 0,
+        width_DRAWN: 0,
+        height_DRAWN: 0,
+        left_DRAWN: 0,
+        top_DRAWN: 0
+    };
+    if (DIALOG_request) {
+        local_request.width = DIALOG_request.width;
+        local_request.height = DIALOG_request.height;
+        local_request.left = DIALOG_request.left;
+        local_request.top = DIALOG_request.top;
+        local_request.width_DRAWN = DIALOG_request.width_DRAWN;
+        local_request.height_DRAWN = DIALOG_request.height_DRAWN;
+        local_request.left_DRAWN = DIALOG_request.left_DRAWN;
+        local_request.top_DRAWN = DIALOG_request.top_DRAWN;
+    }
+    DIALOG_request = local_request;
     DIALOG_render_request(DIALOGrenderKind_Show);
 }
 
-async function DIALOG_render_do_Hide() {
+function DIALOG_render_do_Hide() {
     const DIALOG_element = document.getElementById('DIALOG');
     if (!DIALOG_element) return;
 
     switch (BYTES[byteDIALOG_currentDialogKind]) {
         case DialogKind_FindAll:
-            await DIALOG_FindAll_Delete_async();
+            DIALOG_FindAll_Delete();
             break;
         case DialogKind_Settings:
-            await DIALOG_Settings_Delete_async();
+            DIALOG_Settings_Delete();
             break;
         case DialogKind_DocumentSymbol:
-            await DIALOG_DocumentSymbol_Delete_async();
+            DIALOG_DocumentSymbol_Delete();
             break;
         case DialogKind_Debug:
-            await DIALOG_Debug_Delete_async();
+            DIALOG_Debug_Delete();
             break;
     }
 
     DIALOG_deleteWindow();
 
-    DIALOG_onResizeAction = null;
     DIALOG_element.remove();
     BYTES[byteDIALOG_currentDialogKind] = DialogKind_None;
-    if (BYTES[byteDIALOG_HIDE_shouldRestoreFocus]) {
-        if (DIALOG_restoreFocusToElement) {
-            DIALOG_restoreFocusToElement.focus();
-        }
-        DIALOG_restoreFocusToElement = null;
-    }
 }
 
-function DIALOG_hide_request(shouldRestoreFocus) {
-    BYTES[byteDIALOG_HIDE_shouldRestoreFocus] = shouldRestoreFocus;
+/**
+ * The dialog has completeForm baked into the hide because "completeForm" isn't quite relevant in this dialog scenario
+ * TODO: maybe separate it just for pattern's sake.
+ * TODO: fix the naming of everything in the app, "hide" is not accurate you are removing that UI element for 99% of the cases that use the word "hide".
+ * TODO: That's the word you wanted when thinking about "delete" and "destroy", the word is "remove".
+ */
+function DIALOG_hide() {
+    const local_request = DIALOG_request;
+    if (local_request === null) {
+        // TODO: Consider adding 'DIALOG_render_request(DIALOGrenderKind_Hide);' here for each respective UI to be safe (but don't end up with render_do_Hide throwing a null exception when the UI isn't there...)?
+        DIALOG_render_request(DIALOGrenderKind_Hide);
+        return; // TODO: Since you remove the events in DIALOG_hide you shouldn't need this.
+    }
+    if (!local_request.disableFocusOnDialogHideInitiated && local_request.elementToFocusOnDialogHideInitiated) {
+        local_request.elementToFocusOnDialogHideInitiated.focus();
+    }
     DIALOG_render_request(DIALOGrenderKind_Hide);
 }
 
 function DIALOG_closeButton_onclick() {
-    DIALOG_hide_request(true);
+    DIALOG_hide();
 }
 
 function DIALOG_resize_onmouseenter(event) {

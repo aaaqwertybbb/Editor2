@@ -34,6 +34,8 @@ const DIALOGrenderKind_DimensionsChanged = 3;
  * @property {number} height_DRAWN
  * @property {number} left_DRAWN
  * @property {number} top_DRAWN
+ * @property {number} before_X
+ * @property {number} before_Y
  */
 
 /**
@@ -149,7 +151,9 @@ function DIALOG_show(dialogKind, onResizeAction, elementToFocusOnDialogHideIniti
         width_DRAWN: 0,
         height_DRAWN: 0,
         left_DRAWN: 0,
-        top_DRAWN: 0
+        top_DRAWN: 0,
+        before_X: 0,
+        before_Y: 0
     };
     if (DIALOG_request) {
         local_request.width = DIALOG_request.width;
@@ -244,15 +248,13 @@ function DIALOG_resize_onmousedown(event) {
 
     DIALOG_resize_setCursor(event.clientX, event.clientY, dialogBoundingClientRect, resize);
 
-    INTS[fDIALOG_before_X] = event.clientX;
-    INTS[fDIALOG_before_Y] = event.clientY;
-    INTS[fDIALOG_after_X] = 0;
-    INTS[fDIALOG_after_Y] = 0;
+    DIALOG_request.before_X = event.clientX;
+    DIALOG_request.before_Y = event.clientY;
 
-    INTS[fDIALOG_left] = dialogBoundingClientRect.left;
-    INTS[fDIALOG_top] = dialogBoundingClientRect.top;
-    INTS[fDIALOG_width] = dialogBoundingClientRect.width;
-    INTS[fDIALOG_height] = dialogBoundingClientRect.height;
+    DIALOG_request.left = dialogBoundingClientRect.left;
+    DIALOG_request.top = dialogBoundingClientRect.top;
+    DIALOG_request.width = dialogBoundingClientRect.width;
+    DIALOG_request.height = dialogBoundingClientRect.height;
     BYTES[byteDIALOG_hasBeenMeasured] = 1;
 
     document.body.classList.add('unselectable');
@@ -265,29 +267,29 @@ function DIALOG_resize_onmousedown(event) {
 function DIALOG_n_resize_calcOnly(diff_Y, clientY) {
     if (diff_Y < 0) {
         let absdiff_Y = Math.abs(diff_Y);
-        if (INTS[fDIALOG_top] <= CONST_DIALOG_minTop) {
+        if (DIALOG_request.top <= CONST_DIALOG_minTop) {
             return; // TODO: ...
         }
-        else if (INTS[fDIALOG_top] - absdiff_Y < CONST_DIALOG_minTop) {
-            clientY += (absdiff_Y - (INTS[fDIALOG_top] - CONST_DIALOG_minTop));
-            absdiff_Y = INTS[fDIALOG_top] - CONST_DIALOG_minTop;
+        else if (DIALOG_request.top - absdiff_Y < CONST_DIALOG_minTop) {
+            clientY += (absdiff_Y - (DIALOG_request.top - CONST_DIALOG_minTop));
+            absdiff_Y = DIALOG_request.top - CONST_DIALOG_minTop;
         }
-        INTS[fDIALOG_top] -= absdiff_Y;
-        INTS[fDIALOG_height] += absdiff_Y;
-        INTS[fDIALOG_before_Y] = clientY;
+        DIALOG_request.top -= absdiff_Y;
+        DIALOG_request.height += absdiff_Y;
+        DIALOG_request.before_Y = clientY;
     }
     else {
         let absdiff_Y = Math.abs(diff_Y);
-        if (INTS[fDIALOG_height] <= CONST_DIALOG_minHeight) {
+        if (DIALOG_request.height <= CONST_DIALOG_minHeight) {
             return; // TODO: ...
         }
-        else if (INTS[fDIALOG_height] - absdiff_Y < CONST_DIALOG_minHeight) {
-            clientY -= (absdiff_Y - (INTS[fDIALOG_height] - CONST_DIALOG_minHeight));
-            absdiff_Y = INTS[fDIALOG_height] - CONST_DIALOG_minHeight;
+        else if (DIALOG_request.height - absdiff_Y < CONST_DIALOG_minHeight) {
+            clientY -= (absdiff_Y - (DIALOG_request.height - CONST_DIALOG_minHeight));
+            absdiff_Y = DIALOG_request.height - CONST_DIALOG_minHeight;
         }
-        INTS[fDIALOG_height] -= absdiff_Y;
-        INTS[fDIALOG_top] += absdiff_Y;
-        INTS[fDIALOG_before_Y] = clientY;
+        DIALOG_request.height -= absdiff_Y;
+        DIALOG_request.top += absdiff_Y;
+        DIALOG_request.before_Y = clientY;
     }
 }
 
@@ -295,28 +297,28 @@ function DIALOG_n_resize_calcOnly(diff_Y, clientY) {
 function DIALOG_e_resize_calcOnly(diff_X, clientX) {
     if (diff_X < 0) {
         let absdiff_X = Math.abs(diff_X);
-        if (INTS[fDIALOG_width] <= CONST_DIALOG_minWidth) {
+        if (DIALOG_request.width <= CONST_DIALOG_minWidth) {
             return; // TODO: ...
         }
-        else if (INTS[fDIALOG_width] - absdiff_X < CONST_DIALOG_minWidth) {
-            clientX += (absdiff_X - (INTS[fDIALOG_width] - CONST_DIALOG_minWidth));
-            absdiff_X = INTS[fDIALOG_width] - CONST_DIALOG_minWidth;
+        else if (DIALOG_request.width - absdiff_X < CONST_DIALOG_minWidth) {
+            clientX += (absdiff_X - (DIALOG_request.width - CONST_DIALOG_minWidth));
+            absdiff_X = DIALOG_request.width - CONST_DIALOG_minWidth;
         }
-        INTS[fDIALOG_width] -= absdiff_X;
-        INTS[fDIALOG_before_X] = clientX;
+        DIALOG_request.width -= absdiff_X;
+        DIALOG_request.before_X = clientX;
     }
     else {
         let absdiff_X = Math.abs(diff_X);
-        if (INTS[fDIALOG_left] + INTS[fDIALOG_width] + 8 >= window.innerWidth) {
+        if (DIALOG_request.left + DIALOG_request.width + 8 >= window.innerWidth) {
             return; // TODO: ...
         }
-        else if (INTS[fDIALOG_left] + INTS[fDIALOG_width] + 8 + absdiff_X > window.innerWidth) {
-            let DIALOG_maxWidth = window.innerWidth - 8 - INTS[fDIALOG_left];
-            clientX -= (absdiff_X - (DIALOG_maxWidth - INTS[fDIALOG_width]));
-            absdiff_X = DIALOG_maxWidth - INTS[fDIALOG_width];
+        else if (DIALOG_request.left + DIALOG_request.width + 8 + absdiff_X > window.innerWidth) {
+            let DIALOG_maxWidth = window.innerWidth - 8 - DIALOG_request.left;
+            clientX -= (absdiff_X - (DIALOG_maxWidth - DIALOG_request.width));
+            absdiff_X = DIALOG_maxWidth - DIALOG_request.width;
         }
-        INTS[fDIALOG_width] += absdiff_X;
-        INTS[fDIALOG_before_X] = clientX;
+        DIALOG_request.width += absdiff_X;
+        DIALOG_request.before_X = clientX;
     }
 }
 
@@ -324,31 +326,31 @@ function DIALOG_e_resize_calcOnly(diff_X, clientX) {
 function DIALOG_s_resize_calcOnly(diff_Y, clientY) {
     if (diff_Y < 0) {
         let absdiff_Y = Math.abs(diff_Y);
-        if (INTS[fDIALOG_height] <= CONST_DIALOG_minHeight) {
+        if (DIALOG_request.height <= CONST_DIALOG_minHeight) {
             return; // TODO: ...
         }
-        else if (INTS[fDIALOG_height] - absdiff_Y < CONST_DIALOG_minHeight) {
+        else if (DIALOG_request.height - absdiff_Y < CONST_DIALOG_minHeight) {
             // tighten in the other direction because overshoot
-            clientY += (absdiff_Y - (INTS[fDIALOG_height] - CONST_DIALOG_minHeight));
-            absdiff_Y = INTS[fDIALOG_height] - CONST_DIALOG_minHeight;
+            clientY += (absdiff_Y - (DIALOG_request.height - CONST_DIALOG_minHeight));
+            absdiff_Y = DIALOG_request.height - CONST_DIALOG_minHeight;
         }
-        INTS[fDIALOG_height] -= absdiff_Y;
-        INTS[fDIALOG_before_Y] = clientY;
+        DIALOG_request.height -= absdiff_Y;
+        DIALOG_request.before_Y = clientY;
     }
     else {
         let absdiff_Y = Math.abs(diff_Y);
-        if (INTS[fDIALOG_top] + 8 + INTS[fDIALOG_height] >= window.innerHeight) {
+        if (DIALOG_request.top + 8 + DIALOG_request.height >= window.innerHeight) {
             return; // TODO: ...
         }
-        else if (INTS[fDIALOG_top] + 8 + INTS[fDIALOG_height] + absdiff_Y > window.innerHeight) {
+        else if (DIALOG_request.top + 8 + DIALOG_request.height + absdiff_Y > window.innerHeight) {
             // tighten in the other direction because overshoot
             // -8 is the hardcoded pixel size that the resize element overhangs the dialog.
-            let DIALOG_maxHeight = window.innerHeight - 8 - INTS[fDIALOG_top];
-            clientY -= (absdiff_Y - (DIALOG_maxHeight - INTS[fDIALOG_height]));
-            absdiff_Y = DIALOG_maxHeight - INTS[fDIALOG_height];
+            let DIALOG_maxHeight = window.innerHeight - 8 - DIALOG_request.top;
+            clientY -= (absdiff_Y - (DIALOG_maxHeight - DIALOG_request.height));
+            absdiff_Y = DIALOG_maxHeight - DIALOG_request.height;
         }
-        INTS[fDIALOG_height] += absdiff_Y;
-        INTS[fDIALOG_before_Y] = clientY;
+        DIALOG_request.height += absdiff_Y;
+        DIALOG_request.before_Y = clientY;
     }
 }
 
@@ -356,29 +358,29 @@ function DIALOG_s_resize_calcOnly(diff_Y, clientY) {
 function DIALOG_w_resize_calcOnly(diff_X, clientX) {
     if (diff_X < 0) {
         let absdiff_X = Math.abs(diff_X);
-        if (INTS[fDIALOG_left] <= CONST_DIALOG_minLeft) {
+        if (DIALOG_request.left <= CONST_DIALOG_minLeft) {
             return; // TODO: ...
         }
-        else if (INTS[fDIALOG_left] - absdiff_X < CONST_DIALOG_minLeft) {
-            clientX += (absdiff_X - (INTS[fDIALOG_left] - CONST_DIALOG_minLeft));
-            absdiff_X = INTS[fDIALOG_left] - CONST_DIALOG_minLeft;
+        else if (DIALOG_request.left - absdiff_X < CONST_DIALOG_minLeft) {
+            clientX += (absdiff_X - (DIALOG_request.left - CONST_DIALOG_minLeft));
+            absdiff_X = DIALOG_request.left - CONST_DIALOG_minLeft;
         }
-        INTS[fDIALOG_width] += absdiff_X;
-        INTS[fDIALOG_left] -= absdiff_X;
-        INTS[fDIALOG_before_X] = clientX;
+        DIALOG_request.width += absdiff_X;
+        DIALOG_request.left -= absdiff_X;
+        DIALOG_request.before_X = clientX;
     }
     else {
         let absdiff_X = Math.abs(diff_X);
-        if (INTS[fDIALOG_width] <= CONST_DIALOG_minWidth) {
+        if (DIALOG_request.width <= CONST_DIALOG_minWidth) {
             return; // TODO: ...
         }
-        else if (INTS[fDIALOG_width] - absdiff_X < CONST_DIALOG_minWidth) {
-            clientX += (absdiff_X - (INTS[fDIALOG_width] - CONST_DIALOG_minWidth));
-            absdiff_X = INTS[fDIALOG_width] - CONST_DIALOG_minWidth;
+        else if (DIALOG_request.width - absdiff_X < CONST_DIALOG_minWidth) {
+            clientX += (absdiff_X - (DIALOG_request.width - CONST_DIALOG_minWidth));
+            absdiff_X = DIALOG_request.width - CONST_DIALOG_minWidth;
         }
-        INTS[fDIALOG_width] -= absdiff_X;
-        INTS[fDIALOG_left] += absdiff_X;
-        INTS[fDIALOG_before_X] = clientX;
+        DIALOG_request.width -= absdiff_X;
+        DIALOG_request.left += absdiff_X;
+        DIALOG_request.before_X = clientX;
     }
 }
 
@@ -655,8 +657,6 @@ function DIALOG_toolbar_onmousedown(event) {
 
     INTS[fDIALOG_before_X] = event.clientX;
     INTS[fDIALOG_before_Y] = event.clientY;
-    INTS[fDIALOG_after_X] = 0;
-    INTS[fDIALOG_after_Y] = 0;
 
     INTS[fDIALOG_left] = dialogBoundingClientRect.left;
     INTS[fDIALOG_top] = dialogBoundingClientRect.top;
@@ -729,11 +729,6 @@ function DIALOG_deleteWindow() {
     INTS[fDIALOG_top] = 0;
     INTS[fDIALOG_width] = 0;
     INTS[fDIALOG_height] = 0;
-
-    INTS[fDIALOG_before_X] = 0;
-    INTS[fDIALOG_before_Y] = 0;
-    INTS[fDIALOG_after_X] = 0;
-    INTS[fDIALOG_after_Y] = 0;
 
     let toolbar = document.getElementById('DIALOG_toolbar');
     toolbar.removeEventListener('mousedown', DIALOG_toolbar_onmousedown);

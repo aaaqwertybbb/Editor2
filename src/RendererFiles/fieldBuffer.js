@@ -112,6 +112,7 @@ BYTES[byteDIALOG_Settings_trueTabs_falseSpaces] = 1;
 
 const byteDIALOG_Settings_editorDebugShowAdjacentCharacters = 10;
 
+/** TODO: what is this? */
 const byteDIALOG_hasBeenMeasured = 11;
 
 const byteDIALOG_windowExists = 12;

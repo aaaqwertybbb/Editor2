@@ -398,7 +398,7 @@ function DIALOG_resize_body_onmousemove(event) {
     else {
         document.body.classList.remove('unselectable');
         window.removeEventListener('mousemove', DIALOG_resize_body_onmousemove, /*useCapture*/ true);
-        if (DIALOG_onResizeAction) DIALOG_onResizeAction();
+        if (DIALOG_request.onResizeAction) DIALOG_request.onResizeAction();
         return;
     }
 
@@ -546,7 +546,7 @@ function DIALOG_toolbar_body_onmousemove(event) {
     else {
         document.body.classList.remove('unselectable');
         window.removeEventListener('mousemove', DIALOG_toolbar_body_onmousemove, /*useCapture*/ true);
-        if (DIALOG_onResizeAction) DIALOG_onResizeAction();
+        if (DIALOG_request.onResizeAction) DIALOG_request.onResizeAction();
         return;
     }
 
@@ -738,7 +738,8 @@ function DIALOG_deleteWindow() {
     document.body.classList.remove('unselectable');
     window.removeEventListener('mousemove', DIALOG_resize_body_onmousemove, /*useCapture*/ true);
     window.removeEventListener('mousemove', DIALOG_toolbar_body_onmousemove, /*useCapture*/ true);
-    if (DIALOG_onResizeAction) DIALOG_onResizeAction();
+    // TODO: Why would you invoke this here????
+    if (DIALOG_request.onResizeAction) DIALOG_request.onResizeAction();
 
     window.removeEventListener('resize', DIALOG_window_onresize);
 

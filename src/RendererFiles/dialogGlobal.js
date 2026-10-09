@@ -125,7 +125,7 @@ function DIALOG_render_do_Show() {
 
     DIALOG_createWindow();
 
-    switch (BYTES[byteDIALOG_currentDialogKind]) {
+    switch (DIALOG_request.dialogKind) {
         case DialogKind_FindAll:
             DIALOG_FindAll_Create();
         case DialogKind_Settings:

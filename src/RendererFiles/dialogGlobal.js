@@ -14,7 +14,7 @@ const DIALOGrenderKind_Show = 1;
 const DIALOGrenderKind_Hide = 2;
 const DIALOGrenderKind_DimensionsChanged = 3;
 
-// No onComplete because all of that logic goes in the respective case of 'switch (BYTES[byteDIALOG_currentDialogKind])'.
+// No onComplete because all of that logic goes in the respective case of 'switch (BYTES[byteDIALOG_currentDialogKind])'/'switch (DIALOG_request.dialogKind)'.
 
 /**
  * @callback DIALOG_onResizeAction when the dialog is repositioned, the bounding client rect data of the component being displayed within it needs to be invalidated. This is the API to do that.
@@ -128,12 +128,16 @@ function DIALOG_render_do_Show() {
     switch (DIALOG_request.dialogKind) {
         case DialogKind_FindAll:
             DIALOG_FindAll_Create();
+            break;
         case DialogKind_Settings:
             DIALOG_Settings_Create();
+            break;
         case DialogKind_DocumentSymbol:
             DIALOG_DocumentSymbol_Create();
+            break;
         case DialogKind_Debug:
             DIALOG_Debug_Create();
+            break;
     }
 
     BYTES[byteDIALOG_currentDialogKind] = DIALOG_request.dialogKind;

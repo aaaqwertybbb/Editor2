@@ -548,7 +548,7 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
 
             EXPLORER_draw_BATCH_request(indexItem + 1, 1, 3, ringBufferIndexItem + 1);
 
-            
+            // I just can't focus right now
             
 
             //let nextBy2_ringBufferIndexItem = (ringBufferIndexItem + 2) % INTS[fEXPLORER_virtualCount];

@@ -935,7 +935,7 @@ const fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex = 77;
 
 /**  */
 const fEDI_ret_getLineAndColumnIndices_indexLine = 78;
-const fEDI_getLineAndColumnIndices_indexColumn = 79;
+const fEDI_ret_getLineAndColumnIndices_indexColumn = 79;
 
 
 

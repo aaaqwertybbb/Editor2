@@ -497,7 +497,7 @@ function EDI_render_do_Scroll(timestamp) {
     const local_currVli = INTS[fEDI_virtualIndexLine];
     INTS[fEDI_ONSCROLLvirtualIndexLine] = local_currVli;
 
-    INTS[fEDI_scrollEndDeadline] = timestamp + 1000;
+    INTS[fEDI_scrollEndDeadline] = timestamp + 200;
 
     if (INTS[fEDI_intFalsey_isScrolling] === 0) {
         // (Comment group ID: 'do_Scroll/LeadingEdge')...and here the locals are passed to the LeadingEdge because only when performing the LeadingEdge do you need to use the global versions. (part 1 of 3)

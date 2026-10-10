@@ -162,7 +162,7 @@ function EXPLORER_drawItem_BATCH_trailingEdge() {
 function EXPLORER_drawItem_BATCH(start, length, onePositiveDiff_twoNegativeDiff_orThreeFullScreen, caseThreeOrigin, timestamp) {
 
     // TODO: I'm putting this in treeViewComponent.js as well for now when diff === 0:
-    INTS[fEXPLORER_scrollEndDeadline] = timestamp + 300;
+    INTS[fEXPLORER_scrollEndDeadline] = timestamp + 200;
 
     if (BYTES[byteEXPLORER_isCheckingTrailingEdge] === 0) {
         BYTES[byteEXPLORER_isCheckingTrailingEdge] = 1;

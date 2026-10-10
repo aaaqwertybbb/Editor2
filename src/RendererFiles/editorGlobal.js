@@ -5651,6 +5651,7 @@ function EDI_onKeyDown_ArrowLeft(event) {
             const lineStart = INTS[fEDI_ret_getLineBoundaryPositions_start]
             const lineEnd = INTS[fEDI_ret_getLineBoundaryPositions_end];
 
+            // TODO: use lineStart variable since it exists?
             let indexPosition = INTS[fEDI_ret_getLineBoundaryPositions_start] + INTS[fEDI_cursor_indexColumn];
             let originalCharacterKind = EDI_getCharacterPrevious_KIND(INTS[fEDI_cursor_indexColumn], indexPosition);
             indexPosition--;

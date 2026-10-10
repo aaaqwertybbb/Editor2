@@ -135,7 +135,7 @@ module.exports = function (babel) {
     "fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexLine",
     "fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexColumn",
     "fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex",
-    "fEDI_getLineAndColumnIndices_indexLine",
+    "fEDI_ret_getLineAndColumnIndices_indexLine",
     "fEDI_getLineAndColumnIndices_indexColumn",
     "fEDI_cursor_cached_indentation_string_visualWidth",
     "fEDI_textByteList_capacity",

@@ -3873,7 +3873,7 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
     trackedSyntaxReposition_i--;
 
     let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
-    EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
+    EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]); // TODO: dead code?
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
     let version = INTS[fEDI_didChangeTextDocument_version];
 

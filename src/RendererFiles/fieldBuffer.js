@@ -344,7 +344,7 @@ const CONST_EDI_cursor_htmlId = "EDI_cursor-1";
  * because ES6 modules are expected (and thus module scopes remove the usefulness of making a local variable):
  *     index.html the script tag: 'type="module" src="..."'
  */
-const INTS = new Uint32Array(145);
+const INTS = new Uint32Array(146);
 
 const fEDI_lineHeight = 0;
 INTS[fEDI_lineHeight] = 20;
@@ -608,37 +608,38 @@ const fEDI_editret_RemoveSelection_largePosition = 87;
 
 /** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
 const fEDI_editret_RemoveSelection_smallLineAndColumnIndices_small_indexLine = 88;
+
 /** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_editret_RemoveSelection_smallLineAndColumnIndices_small_indexColumn = 88;
+const fEDI_editret_RemoveSelection_smallLineAndColumnIndices_small_indexColumn = 89;
 // ====
 
 // I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
 /** TODO: This isn't used only set */
-const fAUTOCOMPLETE_items_slice_start = 89;
+const fAUTOCOMPLETE_items_slice_start = 90;
 /** TODO: This isn't used only set */
-const fAUTOCOMPLETE_items_slice_end = 90;
-const fAUTOCOMPLETE_items_totalLength = 91;
+const fAUTOCOMPLETE_items_slice_end = 91;
+const fAUTOCOMPLETE_items_totalLength = 92;
 
-const fAUTOCOMPLETE_cursorIndex = 92;
+const fAUTOCOMPLETE_cursorIndex = 93;
 
-const fAUTOCOMPLETE_rectHeight = 93;
-const fAUTOCOMPLETE_rectLeft = 94;
+const fAUTOCOMPLETE_rectHeight = 94;
+const fAUTOCOMPLETE_rectLeft = 95;
 /** TODO: This isn't used only set, but it probably will be used for mouse events just that they're not written yet? */
-const fAUTOCOMPLETE_rectTop = 95;
+const fAUTOCOMPLETE_rectTop = 96;
 
-const fAUTOCOMPLETE_sliceVirtualIndex_SLICE = 96;
-const fAUTOCOMPLETE_sliceVirtualCount_SLICE = 97;
-const fAUTOCOMPLETE_sliceRingBufferIndexZero_SLICE = 98;
+const fAUTOCOMPLETE_sliceVirtualIndex_SLICE = 97;
+const fAUTOCOMPLETE_sliceVirtualCount_SLICE = 98;
+const fAUTOCOMPLETE_sliceRingBufferIndexZero_SLICE = 99;
 
-const fAUTOCOMPLETE_virtualCount = 99;
-const fAUTOCOMPLETE_virtualIndex = 100;
-const fAUTOCOMPLETE_ringBufferIndexZero = 101;
+const fAUTOCOMPLETE_virtualCount = 100;
+const fAUTOCOMPLETE_virtualIndex = 101;
+const fAUTOCOMPLETE_ringBufferIndexZero = 102;
 
-const fAUTOCOMPLETE_scrollTop = 102;
+const fAUTOCOMPLETE_scrollTop = 103;
 
-const fAUTOCOMPLETE_scrollEndDeadline = 103;
+const fAUTOCOMPLETE_scrollEndDeadline = 104;
 
-const fAUTOCOMPLETE_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING = 104;
+const fAUTOCOMPLETE_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING = 105;
 INTS[fAUTOCOMPLETE_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING] = 2;
 
 /**
@@ -647,7 +648,7 @@ INTS[fAUTOCOMPLETE_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING] = 2;
  * 
  * TODO: (speculation) I've never liked saying "line height" I believe that deals with the vertical alignment of text within some container is "line height" a good wording.
  * */
-const fAPP_lineHeight = 105;
+const fAPP_lineHeight = 106;
 INTS[fAUTOCOMPLETE_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING] = 20;
 
 /**
@@ -664,19 +665,19 @@ INTS[fAUTOCOMPLETE_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING] = 20;
  * 
  * okay yeah it is a ticket dispenser we're good
  */
-const fWIDGET_ticketId_counter = 106;
+const fWIDGET_ticketId_counter = 107;
 INTS[fWIDGET_ticketId_counter] = 1;
 
-const fWIDGET_ticketId_drawn = 107;
+const fWIDGET_ticketId_drawn = 108;
 
-const fWIDGETrenderKind_Show_countOfPendingRequests = 108;
+const fWIDGETrenderKind_Show_countOfPendingRequests = 109;
 
-const fMENU_ticketId_counter = 109;
+const fMENU_ticketId_counter = 110;
 INTS[fMENU_ticketId_counter] = 1;
 
-const fMENU_ticketId_drawn = 110;
+const fMENU_ticketId_drawn = 111;
 
-const fMENU_renderKind_Set_countOfPendingRequests = 111;
+const fMENU_renderKind_Set_countOfPendingRequests = 112;
 
 
 
@@ -685,73 +686,73 @@ const fMENU_renderKind_Set_countOfPendingRequests = 111;
  * 
  * 8 or the measured value
  */
-const fEXPLORER_firstSpanWidthValue = 112;
+const fEXPLORER_firstSpanWidthValue = 113;
 INTS[fEXPLORER_firstSpanWidthValue] = 8;
 
-const fEXPLORER_menuOptionX = 113;
-const fEXPLORER_menuOptionY = 114;
+const fEXPLORER_menuOptionX = 114;
+const fEXPLORER_menuOptionY = 115;
 
-const fEXPLORER_lastReadNumber_offsetWidth = 115;
+const fEXPLORER_lastReadNumber_offsetWidth = 116;
 
 /** TODO: this is not being used, only set, but it is surprising shouldn't this be used to get the virtual count? */
-const fEXPLORER_lastReadNumber_offsetHeight = 116;
+const fEXPLORER_lastReadNumber_offsetHeight = 117;
 
-const fEXPLORER_cursorTranslateYNumber = 117;
+const fEXPLORER_cursorTranslateYNumber = 118;
 
-const fEXPLORER_itemHeightTotal = 118;
+const fEXPLORER_itemHeightTotal = 119;
 
 /** Consider the existence of such methods as 'state_cursor_setIndex' before mutating state directly */
-const fEXPLORER_cursorIndex = 119;
+const fEXPLORER_cursorIndex = 120;
 
-const fEXPLORER_virtualIndex_ofScrollTop = 120;
+const fEXPLORER_virtualIndex_ofScrollTop = 121;
 
 /** Hacky: Must initialize to a number other than 0 or else nothing renders. */
-const fEXPLORER_virtualCount = 121;
+const fEXPLORER_virtualCount = 122;
 INTS[fEXPLORER_virtualCount] = 1;
 
-const fEXPLORER_ONSCROLLvirtualIndex = 122;
-const fEXPLORER_ONSCROLLvirtualCount = 123;
+const fEXPLORER_ONSCROLLvirtualIndex = 123;
+const fEXPLORER_ONSCROLLvirtualCount = 124;
 
-const fEXPLORER_lastReadNumber_scrollLeft = 124;
-const fEXPLORER_lastReadNumber_scrollTop = 125;
+const fEXPLORER_lastReadNumber_scrollLeft = 125;
+const fEXPLORER_lastReadNumber_scrollTop = 126;
 
-const fEXPLORER_ringBufferIndexZero = 126;
+const fEXPLORER_ringBufferIndexZero = 127;
 
-const fEXPLORER_ringBuffer_length = 127;
+const fEXPLORER_ringBuffer_length = 128;
 
-const fEXPLORER_start = 128;
+const fEXPLORER_start = 129;
 
-const fEXPLORER_length = 129;
+const fEXPLORER_length = 130;
 
-const fEXPLORER_onePositiveDiff_twoNegativeDiff_orThreeFullScreen = 130;
+const fEXPLORER_onePositiveDiff_twoNegativeDiff_orThreeFullScreen = 131;
 
-const fEXPLORER_caseThreeOrigin = 131;
+const fEXPLORER_caseThreeOrigin = 132;
 
 /** TODO: what height should this start at? applicationRendererRoot.ts will eventually run initialization logic that actually does the measuring. */
-const fEXPLORER_itemHeightNumber = 132;
+const fEXPLORER_itemHeightNumber = 133;
 INTS[fEXPLORER_itemHeightNumber] = 20;
 
-const fEXPLORER_SET_ITEMS_itemHeightNumber = 133;
+const fEXPLORER_SET_ITEMS_itemHeightNumber = 134;
 
-const fEXPLORER_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING = 134;
+const fEXPLORER_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING = 135;
 
-const fEXPLORER_LARGEST_DEPTH_SEEN_NOT_THE_CSS_JUST_THE_DEPTH = 135;
+const fEXPLORER_LARGEST_DEPTH_SEEN_NOT_THE_CSS_JUST_THE_DEPTH = 136;
 
-const fEXPLORER_scrollEndDeadline = 136;
+const fEXPLORER_scrollEndDeadline = 137;
 
-const fEXPLORER_scrollFetchData_virtualIndex = 137;
+const fEXPLORER_scrollFetchData_virtualIndex = 138;
 
-const fEXPLORER_scrollFetchData_virtualCount = 138;
+const fEXPLORER_scrollFetchData_virtualCount = 139;
 
-const fEXPLORER_scrollFetchData_ringBufferIndexZero = 139;
+const fEXPLORER_scrollFetchData_ringBufferIndexZero = 140;
 
-const fEXPLORER_pullData_array_count = 140;
+const fEXPLORER_pullData_array_count = 141;
 
-const fEXPLORER_pullData_result_count = 141;
+const fEXPLORER_pullData_result_count = 142;
 
-const fEXPLORER_boundingClientRect_height = 142;
-const fEXPLORER_boundingClientRect_left = 143;
-const fEXPLORER_boundingClientRect_top = 144;
+const fEXPLORER_boundingClientRect_height = 143;
+const fEXPLORER_boundingClientRect_left = 144;
+const fEXPLORER_boundingClientRect_top = 145;
 
 
 

@@ -403,7 +403,7 @@ TODO:
 - [ ] Move the count and capacity from editorGlobal.js to INTS
     - [ ] EDI_textByteList_count TODO: Consider local variable of value for high usage loops or some such?
     - [ ] EDI_textByteList_capacity
-    - [ ] EDI_lineEndPositionList_count
+    - [ ] EDI_lineEndPositionList_count TODO: Consider local variable of value for high usage loops or some such?
     - [ ] EDI_lineEndPositionList_capacity
 - [ ] If the initial state is '[]' in attempt to ...
     - [ ] if the array kind is reference entries

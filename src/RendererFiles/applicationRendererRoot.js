@@ -90,7 +90,7 @@ async function window_myAPI_onMessage(data) {
             const data_result = data.result;
             const data_countAbstract = data_result.length / fieldCount;
             const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
-            const local_EDI_lineEndPositionList_count = EDI_lineEndPositionList_count;
+            const local_EDI_lineEndPositionList_count = INTS[fEDI_lineEndPositionList_count];
 
             const trackedSyntaxList = EDI_trackedSyntaxList;
             trackedSyntaxList.clear();

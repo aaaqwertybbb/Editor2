@@ -460,14 +460,14 @@ removeLineId(lineId) {
 < 1. Before the array copy shift: We completely remove the targeted lines from the heap.
 < 2. After the array copy shift: We loop over the internal storage of the heap to decrement the IDs of elements that migrated to a lower index.
 < 
-< (Note: There was a minor logic branch bug in your original snippet: if (index + count === EDI_lineEndPositionList_count) calculated shiftableCount,
-<        but then executed if (shiftableCount > 0) which would always be false since EDI_lineEndPositionList_count - (index + count) is 0 under that condition.
+< (Note: There was a minor logic branch bug in your original snippet: if (index + count === INTS[fEDI_lineEndPositionList_count]) calculated shiftableCount,
+<        but then executed if (shiftableCount > 0) which would always be false since INTS[fEDI_lineEndPositionList_count] - (index + count) is 0 under that condition.
 <        The refactored version consolidates this safely.)
 < 
 < ```js
 function EDI_lineEndPositionList_removeAt(index, count) {
-    if (index > EDI_lineEndPositionList_count) { throw new Error('removeAt(...): index > EDI_lineEndPositionList_count'); }
-    if (index + count > EDI_lineEndPositionList_count) { throw new Error('removeAt(...): index + count > EDI_lineEndPositionList_count'); }
+    if (index > INTS[fEDI_lineEndPositionList_count]) { throw new Error('removeAt(...): index > INTS[fEDI_lineEndPositionList_count]'); }
+    if (index + count > INTS[fEDI_lineEndPositionList_count]) { throw new Error('removeAt(...): index + count > INTS[fEDI_lineEndPositionList_count]'); }
     if (count === 0) { return; }
 
     // --- Step 1: Remove the deleted lines from the heap tracking system ---
@@ -481,7 +481,7 @@ function EDI_lineEndPositionList_removeAt(index, count) {
     }
 
     // --- Step 2: Concurrently shift down your document linear structures ---
-    let shiftableCount = EDI_lineEndPositionList_count - endDeletedRange;
+    let shiftableCount = INTS[fEDI_lineEndPositionList_count] - endDeletedRange;
     if (shiftableCount > 0) {
         EDI_lineEndPositionList_copyTo(
             EDI_lineEndPositionList_data,
@@ -521,7 +521,7 @@ function EDI_lineEndPositionList_removeAt(index, count) {
         myTrackingHeap.positionMap.fill(-1, originalMapLen - count, originalMapLen);
     }
 
-    EDI_lineEndPositionList_count -= count;
+    INTS[fEDI_lineEndPositionList_count] -= count;
 }
 < ```
 < 

@@ -141,6 +141,7 @@ module.exports = function (babel) {
     "fEDI_textByteList_capacity",
     "fEDI_textByteList_count",
     "fEDI_lineEndPositionList_capacity",
+    "fEDI_lineEndPositionList_count",
 
     "byteEDI_queueHead",
     "byteEDI_queueTail",

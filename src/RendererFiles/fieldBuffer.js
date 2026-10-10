@@ -591,6 +591,7 @@ const fEDI_textByteList_capacity = 181;
 const fEDI_textByteList_count = 182;
 
 const fEDI_lineEndPositionList_capacity = 183;
+const fEDI_lineEndPositionList_count = 184;
 
 // I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
 /** TODO: This isn't used only set */

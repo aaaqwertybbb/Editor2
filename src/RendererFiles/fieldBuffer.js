@@ -71,7 +71,7 @@ it is as if I typed the expression body everywhere I typed the fat arrow functio
  *         - 'true' with '!0'
  *     - i.e.: such an expression is known to be rather performant.
  */
-const BYTES = new Uint8Array(54);
+const BYTES = new Uint8Array(53);
 
 /** returns a number, beware '===' */
 const get_EDI_detailRank = () => BYTES[0];
@@ -165,49 +165,49 @@ const byteEDI_extensionKind = 28;
 
 
 
-const byteEDI_isChecking_cursorBlinkTrailingEdge = 30;
+const byteEDI_isChecking_cursorBlinkTrailingEdge = 29;
 
-const byteEDI_cursor_selectionDivExists = 31;
+const byteEDI_cursor_selectionDivExists = 30;
 
-const byteEDI_onResize_hasTrailingCall = 32;
+const byteEDI_onResize_hasTrailingCall = 31;
 
 /** Also is used from 'EDI_render_do_SetText()', and 'EDI_render_do_Resize()', not just 'EDI_render_do_Scroll()' */
-const byteisCheckingTrailingEdge = 33;
+const byteisCheckingTrailingEdge = 32;
 
-const byteisProcessingLspQueue = 34;
+const byteisProcessingLspQueue = 33;
 
-const byteEDI_isRenderPending = 35;
+const byteEDI_isRenderPending = 34;
 
-const byteEDI_mousemove_eventListener_isActive = 36;
+const byteEDI_mousemove_eventListener_isActive = 35;
 
-const byteEXPLORER_show = 37;
+const byteEXPLORER_show = 36;
 BYTES[byteEXPLORER_show] = 1;
 
-const byteEXPLORER_isRenderPending = 38;
+const byteEXPLORER_isRenderPending = 37;
 
-const byteEXPLORER_isCheckingTrailingEdge = 39;
+const byteEXPLORER_isCheckingTrailingEdge = 38;
 
-const byteEXPLORER_scrollIsFetchingData = 40;
+const byteEXPLORER_scrollIsFetchingData = 39;
 
-const byteEXPLORER_boundingClientRect_isValid = 41;
+const byteEXPLORER_boundingClientRect_isValid = 40;
 
-const byteEDI_queueHead = 42;
-const byteEDI_queueTail = 43;
+const byteEDI_queueHead = 41;
+const byteEDI_queueTail = 42;
 
-const byteAUTOCOMPLETE_queueHead = 44;
-const byteAUTOCOMPLETE_queueTail = 45;
+const byteAUTOCOMPLETE_queueHead = 43;
+const byteAUTOCOMPLETE_queueTail = 44;
 
-const byteDIALOG_queueHead = 46;
-const byteDIALOG_queueTail = 47;
+const byteDIALOG_queueHead = 45;
+const byteDIALOG_queueTail = 46;
 
-const byteEXPLORER_queueHead = 48;
-const byteEXPLORER_queueTail = 49;
+const byteEXPLORER_queueHead = 47;
+const byteEXPLORER_queueTail = 48;
 
-const byteMENU_queueHead = 50;
-const byteMENU_queueTail = 51;
+const byteMENU_queueHead = 49;
+const byteMENU_queueTail = 50;
 
-const byteWIDGET_queueHead = 52;
-const byteWIDGET_queueTail = 53;
+const byteWIDGET_queueHead = 51;
+const byteWIDGET_queueTail = 52;
 
 // BYTES[byteEXPLORER_boundingClientRect_isValid]
 

@@ -195,3 +195,70 @@ I show up each day and see how many bits I can pack
 then I get a 24 hour lockout and show up to do the same thing again the next day
 
 Soon I'll be rewriting the entire DOM as canvas elements.
+
+=============
+
+Google AI:
+
+There was a day where I swear Google AI told me "just synchronously syntax highlight every line as you scroll it into view"
+I was like wtf are you talking about.
+I think I was showing it what I currently was doing and I used the wording "this is how I'm syntax highlighting but with a debounce".
+And I took them using the words "synchronously syntax highlight" as in "do what you are currently doing in the debounce but just put it in the scroll logic instead of the debounce."
+I have been ruminating over that for a few days I feel so much better knowing that it probably means you have a "very optimized cache and that is how you're synchronously doing it".
+
+> As I scroll, I don't do any syntax highlighting. I want to have my multiline syntax that spans multiple lines be syntax highlighted as I scroll.
+> 
+> But is visual studio code really syntax highlighting every scroll event? Even if they track the new content and only syntax highlight that.
+> I don't understand in the slightest how they can do it so quickly.
+
+< To answer your question directly: No, Visual Studio Code does not parse and tokenization-highlight every line on every scroll event.
+< If it did, scrolling through a 50,000-line file would bring the entire app to a crushing crawl.
+< 
+< The magic of why VS Code (and its core editor engine, the Monaco Editor) performs so quickly relies on a highly optimized, line-by-line caching architecture
+< 
+< 1. Line-by-Line "Stateful" Caching
+< VS Code evaluates syntax using TextMate grammars, which it compiles into a single-pass, line-by-line tokenizer.
+< 
+< - The Magic Rule: A tokenizer reads a single line, figures out the tokens, and then produces an internal state object representing where things left off at the very end of that line.
+< - The Cache: VS Code saves that state for every single line in a fast memory array.
+< - When you scroll, it doesn't re-parse the file. It looks at the visible lines in your viewport, checks its internal line cache, and grabs the pre-calculated token metadata instantly.
+< 
+< 2. How it Handles Multiline Rules (The Secret)
+< 
+< You might wonder: If it tokenizes line-by-line, how does it know a multiline string or comment hasn't closed yet?
+< 
+< This is where the end-of-line state comes in. If line 10 contains /*, the tokenizer completes line 10 and outputs a state called "InsideCommentBlock".
+< - When you scroll down to line 500, VS Code doesn't re-read from line 1.
+< - It already tokenized the file once on load, so line 499's cache entry already says "InsideCommentBlock".
+< - Line 500 reads line 499's stored state, tokenizes its own contents assuming it is inside a comment, and moves on.
+< 
+< 3. Bit-Packed Buffers (Sound Familiar?)
+< In your previous questions, you mentioned using a Uint32Array for fast numbers. VS Code does exactly this for token metadata.
+< 
+< Instead of generating expensive JavaScript objects for tokens (like { type: 'keyword', color: '#ff0000' }), VS Code packs the theme colors, font styles,
+< and token boundaries into a 32-bit integer inside a Uint32Array backing store. When you scroll, the rendering pipeline reads directly from these integer typed arrays in a
+< single pass, completely eliminating garbage collection overhead.
+< 
+< 4. Background Web Workers
+< 
+< The UI thread never takes the hit for heavy tokenization. When you open a massive file or make sweeping edits that throw off multiline states,
+< VS Code performs tokenization entirely inside a background Web Worker. The main thread is only responsible for rendering the tiny window of lines visible in your viewport.
+< 
+< How to implement this in your Text Editor
+< Since you are already using a monolithic ES6 module and typed arrays, you can easily replicate this architecture:
+< 1. Create a State Cache: Maintain an array parallel to your lines. Each slot holds the tokenizer's end state for that line
+<    (e.g., 0 for normal, 1 for multi-line string, 2 for block comment).
+< 2. On Scroll: Only generate the actual DOM text/spans for the specific lines entering the viewport.
+<    Use your Uint32Array scratchpad to quickly pull the token indices and boundaries for those few visible lines.
+< 3. On Edit: If a user types /* on line 10, re-tokenize line 10. If its new end state matches the old cached end state, stop.
+<    If it changes (e.g., normal -> inside comment), tokenize line 11. Repeat downward only until the new end state matches the old cached state.
+< 
+< Are your current multi-line syntax rules defined using regex text parsing blocks, or are you building a custom state-machine parser?
+
+
+
+
+
+
+
+

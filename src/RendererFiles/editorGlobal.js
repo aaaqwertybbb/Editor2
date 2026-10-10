@@ -4400,6 +4400,7 @@ function EDI_drawViewPort_FindTrackedSyntax_StartingIndex(indexLineAaa) {
     let left = 0;
     let right = local_EDI_trackedSyntaxList.count_abstract - 1;
 
+    // umm isn't indexLineBbb supposed to be 'trackedSyntax_I'
     let indexLineBbb = -1;
 
     while (left <= right) {

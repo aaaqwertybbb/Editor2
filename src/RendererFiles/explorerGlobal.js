@@ -1196,9 +1196,7 @@ let EXPLORER_menuOptionCut_object = null;
 // function EXPLORER_init
 // V8 can optimize away these initialization statements that exist at the module scope but not an "initialization function"
 const EXPLORER_pickFolderOrWorkspaceButton = document.getElementById('EXPLORER_folderOrWorkspaceButtons');
-if (!EXPLORER_pickFolderOrWorkspaceButton) return;
-//
-EXPLORER_pickFolderOrWorkspaceButton.addEventListener('click', EXPLORER_pickFolderOrWorkspaceButton_onClick);
+if (EXPLORER_pickFolderOrWorkspaceButton) { EXPLORER_pickFolderOrWorkspaceButton.addEventListener('click', EXPLORER_pickFolderOrWorkspaceButton_onClick); }
 //
 let toggleShowExplorerButton = document.getElementById('HEADER_toggleShowExplorer');
 toggleShowExplorerButton.checked = BYTES[byteEXPLORER_show];

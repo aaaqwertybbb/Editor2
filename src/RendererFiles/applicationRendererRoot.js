@@ -19,7 +19,6 @@ function init() {
  */
 function APP_render_init() {
     APP_measureLineHeightAndCharacterWidth();
-    EXPLORER_init();
     EDI_init();
 }
 

@@ -853,7 +853,7 @@ const OFFSET_MENU = 128; // Slots 128 to 159
 // and then you can share the int32 entries.
 //
 // tbh the same is kinda true for things like:
-// const fEDI_getLineBoundaryPositions_start = 88;
+// const fEDI_ret_getLineBoundaryPositions_start = 88;
 // const fEDI_getLineBoundaryPositions_end = 89;
 //
 // you only need as many int32 as necessary for the largest amount of "return values" from a function.
@@ -939,7 +939,7 @@ const fEDI_ret_getLineAndColumnIndices_indexColumn = 79;
 
 
 
-const fEDI_getLineBoundaryPositions_start = 78;
+const fEDI_ret_getLineBoundaryPositions_start = 78;
 const fEDI_getLineBoundaryPositions_end = 79;
 
 

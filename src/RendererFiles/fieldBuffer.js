@@ -587,6 +587,9 @@ const fEDI_cursor_cached_indentation_string_visualWidth = 100;
 
 const fEDI_cursor_editLengthVisual = 101;
 
+const fEDI_textByteList_capacity = 181;
+const fEDI_textByteList_count = 182;
+
 // I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
 /** TODO: This isn't used only set */
 const fAUTOCOMPLETE_items_slice_start = 114;
@@ -731,7 +734,9 @@ const fEXPLORER_boundingClientRect_top = 180;
 
 
 
-// INTS[fEDI_cursorVisualColumnIndex]
+
+
+// INTS[fEDI_textByteList_capacity]
 
 
 

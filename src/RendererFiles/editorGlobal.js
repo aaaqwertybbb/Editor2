@@ -13,9 +13,8 @@ const EDI_trackedSyntaxList = new TrackedSyntaxList(32);
  */
 let EDI_findOverlay_searchResultPositionList = null;
 
-let EDI_textByteList_capacity = 1024;
-let EDI_textByteList_bytes = new Uint8Array(EDI_textByteList_capacity);
-let EDI_textByteList_count = 0;
+let EDI_textByteList_bytes = new Uint8Array(INTS[fEDI_textByteList_capacity]);
+
 
 const EDI_encoder = new TextEncoder();
 const EDI_decoder = new TextDecoder();
@@ -775,10 +774,10 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
     // 
     EDI_textByteList_ensureCapacityForInsertion(0, uint8Array.length);
     EDI_textByteList_bytes.set(uint8Array, 0);
-    EDI_textByteList_count = uint8Array.length;
+    INTS[fEDI_textByteList_count] = uint8Array.length;
 
     const local_EDI_textByteList_bytes = EDI_textByteList_bytes;
-    const local_EDI_textByteList_count = EDI_textByteList_count;
+    const local_EDI_textByteList_count = INTS[fEDI_textByteList_count];
 
     let lineLengthVisual = 0; /** TODO: Track the linePosition last seen when making a line or something you don't have to increment this per character, you just need the difference of the last line drawn to the current or something. */
     let local_EDI_lineEndPositionList_count = EDI_lineEndPositionList_count;
@@ -2008,7 +2007,7 @@ function EDI_EnterKey(ctrlKey, originalIndexLine, originalIndexColumn) {
         }
         else {
             if (lastValidIndexColumn === INTS[fEDI_cursor_indexColumn]) {
-                if (INTS[fEDI_cursor_editPosition] === EDI_textByteList_count) {
+                if (INTS[fEDI_cursor_editPosition] === INTS[fEDI_textByteList_count]) {
                     BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_EndOfFile;
                 }
                 else {
@@ -6037,7 +6036,7 @@ async function EDI_onKeyDown_keyLengthEqualsOne_ctrlKey(event) {
             EDI_finalizeEdit();
             INTS[fEDI_cursor_selectionAnchor] = 0;
             INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = 0;
-            INTS[fEDI_cursor_selectionEnd] = EDI_textByteList_count;
+            INTS[fEDI_cursor_selectionEnd] = INTS[fEDI_textByteList_count];
             INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
             EDI_getLineAndColumnIndices_raw(INTS[fEDI_cursor_selectionEnd]);
             let selectionEndLineAndColumnIndices_indexLine = INTS[fEDI_getLineAndColumnIndices_indexLine];
@@ -6852,7 +6851,7 @@ function EDI_getFinalizedEditsAndRawSaveFileData(NOTfinalizePendingEdits) {
     }
     return {
         uint8arrayTextBytes: EDI_textByteList_bytes,
-        countOfBytesInUse: EDI_textByteList_count,
+        countOfBytesInUse: INTS[fEDI_textByteList_count],
         lineEndString: EDI_lineEndString,
         fileStartsWithBom: Boolean(get_EDI_fileStartsWithBom())
     };
@@ -7701,17 +7700,17 @@ function EDI_findOverlay_doSearch() {
     }
     
     if (get_EDI_findOverlay_options_matchWord() && ((searchEncoded[0] >= 97 && searchEncoded[0] <= 122) || (searchEncoded[0] >= 65 && searchEncoded[0] <= 90) || (searchEncoded[0] >= 48 && searchEncoded[0] <= 57) || (searchEncoded[0] === 95))) {
-		for (let i = 0; i < EDI_textByteList_count; i++) {
+		for (let i = 0; i < INTS[fEDI_textByteList_count]; i++) {
 			if ((EDI_textByteList_bytes[i] >= 97 && EDI_textByteList_bytes[i] <= 122) || (EDI_textByteList_bytes[i] >= 65 && EDI_textByteList_bytes[i] <= 90) || (EDI_textByteList_bytes[i] >= 48 && EDI_textByteList_bytes[i] <= 57) || (EDI_textByteList_bytes[i] === 95)) {
 				if (EDI_textByteList_bytes[i] === searchEncoded[0]) {
-    				while (i < EDI_textByteList_count) { // context switch to checking match
+    				while (i < INTS[fEDI_textByteList_count]) { // context switch to checking match
     					if (EDI_textByteList_bytes[i] === searchEncoded[offset]) {
 				            if (offset === 0) {
 				                posStartOfMatch = i;
 				            }
 				            offset++;
 				            if (offset === searchEncoded.length) { // found "possible match"
-				            	if (i + 1 >= EDI_textByteList_count ||
+				            	if (i + 1 >= INTS[fEDI_textByteList_count] ||
 				            		!((EDI_textByteList_bytes[i + 1] >= 97 && EDI_textByteList_bytes[i + 1] <= 122) || (EDI_textByteList_bytes[i + 1] >= 65 && EDI_textByteList_bytes[i + 1] <= 90) || (EDI_textByteList_bytes[i + 1] >= 48 && EDI_textByteList_bytes[i + 1] <= 57) || (EDI_textByteList_bytes[i + 1] === 95))) { // ends on a word, therefore take match
 					            		EDI_findOverlay_searchResultPositionList.insert(EDI_findOverlay_searchResultPositionList.count, posStartOfMatch);
                                         if (nextMatchNumber === -1 && posStartOfMatch >= nextMatchPos) {
@@ -7723,7 +7722,7 @@ function EDI_findOverlay_doSearch() {
 				            	}
 				            	else { // does NOT end on a word, therefore ignore match
 				            		offset = 0;
-				            		while (i < EDI_textByteList_count) { // move pos to next NON(letterOrDigit) or EOF
+				            		while (i < INTS[fEDI_textByteList_count]) { // move pos to next NON(letterOrDigit) or EOF
 				            			if (!((EDI_textByteList_bytes[i] >= 97 && EDI_textByteList_bytes[i] <= 122) || (EDI_textByteList_bytes[i] >= 65 && EDI_textByteList_bytes[i] <= 90) || (EDI_textByteList_bytes[i] >= 48 && EDI_textByteList_bytes[i] <= 57) || (EDI_textByteList_bytes[i] === 95))) {
 				            				i--; // backtrack by one due to outer for loop's incrementation step
 				            				break;
@@ -7737,7 +7736,7 @@ function EDI_findOverlay_doSearch() {
 				        }
 				        else {
 				            offset = 0;
-				            while (i < EDI_textByteList_count) { // move pos to next NON(letterOrDigit) or EOF
+				            while (i < INTS[fEDI_textByteList_count]) { // move pos to next NON(letterOrDigit) or EOF
 		            			if (!((EDI_textByteList_bytes[i] >= 97 && EDI_textByteList_bytes[i] <= 122) || (EDI_textByteList_bytes[i] >= 65 && EDI_textByteList_bytes[i] <= 90) || (EDI_textByteList_bytes[i] >= 48 && EDI_textByteList_bytes[i] <= 57) || (EDI_textByteList_bytes[i] === 95))) {
 		            				i--; // backtrack by one due to outer for loop's incrementation step
 		            				break;
@@ -7749,7 +7748,7 @@ function EDI_findOverlay_doSearch() {
 					}
 				}
 				else {
-					while (i < EDI_textByteList_count) { // move pos to next NON(letterOrDigit) or EOF
+					while (i < INTS[fEDI_textByteList_count]) { // move pos to next NON(letterOrDigit) or EOF
             			if (!((EDI_textByteList_bytes[i] >= 97 && EDI_textByteList_bytes[i] <= 122) || (EDI_textByteList_bytes[i] >= 65 && EDI_textByteList_bytes[i] <= 90) || (EDI_textByteList_bytes[i] >= 48 && EDI_textByteList_bytes[i] <= 57) || (EDI_textByteList_bytes[i] === 95))) {
             				i--; // backtrack by one due to outer for loop's incrementation step
             				break;
@@ -7759,7 +7758,7 @@ function EDI_findOverlay_doSearch() {
 				}
 			}
 			else {
-				while (i < EDI_textByteList_count) { // move pos to next letterOrDigit or EOF
+				while (i < INTS[fEDI_textByteList_count]) { // move pos to next letterOrDigit or EOF
         			if ((EDI_textByteList_bytes[i] >= 97 && EDI_textByteList_bytes[i] <= 122) || (EDI_textByteList_bytes[i] >= 65 && EDI_textByteList_bytes[i] <= 90) || (EDI_textByteList_bytes[i] >= 48 && EDI_textByteList_bytes[i] <= 57) || (EDI_textByteList_bytes[i] === 95)) {
         				i--; // backtrack by one due to outer for loop's incrementation step
         				break;
@@ -7770,7 +7769,7 @@ function EDI_findOverlay_doSearch() {
 	    }
     }
     else {
-    	for (let i = 0; i < EDI_textByteList_count; i++) {
+    	for (let i = 0; i < INTS[fEDI_textByteList_count]; i++) {
 	        if (EDI_textByteList_bytes[i] === searchEncoded[offset]) {
 	            if (offset === 0) {
 	                posStartOfMatch = i;
@@ -7971,7 +7970,7 @@ function EDI_btnPrev_onclick(/*event*/) {
     let index = current - 1;
     if (index >= 0 && index < total && index < EDI_findOverlay_searchResultPositionList.count) {
         let pos = EDI_findOverlay_searchResultPositionList.data[index];
-        if (pos <= EDI_textByteList_count) {
+        if (pos <= INTS[fEDI_textByteList_count]) {
             EDI_moveCursor_position(pos);
         }
     }
@@ -8001,7 +8000,7 @@ function EDI_btnNext_onclick() {
     let index = current - 1;
     if (index >= 0 && index < total && index < EDI_findOverlay_searchResultPositionList.count) {
         let pos = EDI_findOverlay_searchResultPositionList.data[index];
-        if (pos <= EDI_textByteList_count) {
+        if (pos <= INTS[fEDI_textByteList_count]) {
             EDI_moveCursor_position(pos);
         }
     }
@@ -8010,10 +8009,10 @@ function EDI_btnNext_onclick() {
 
 //#region textByteList
 /**
- * Does not clear the information, only sets 'EDI_textByteList_count' to '0'.
+ * Does not clear the information, only sets 'INTS[fEDI_textByteList_count]' to '0'.
  */
 function EDI_textByteList_clear() {
-    EDI_textByteList_count = 0;
+    INTS[fEDI_textByteList_count] = 0;
 }
 /**
  * TODO: ensure all the parameters are encoded, especially because I'm noticing myself forgetting.
@@ -8021,13 +8020,13 @@ function EDI_textByteList_clear() {
 function EDI_textByteList_insert(index, byte) {
     EDI_textByteList_ensureCapacityForInsertion(index, 1);
 
-    if (index !== EDI_textByteList_count) {
-        EDI_textByteList_copyTo(EDI_textByteList_bytes, index, EDI_textByteList_bytes, index + 1, EDI_textByteList_count - index);
+    if (index !== INTS[fEDI_textByteList_count]) {
+        EDI_textByteList_copyTo(EDI_textByteList_bytes, index, EDI_textByteList_bytes, index + 1, INTS[fEDI_textByteList_count] - index);
     }
 
     EDI_textByteList_bytes[index] = byte;
 
-    EDI_textByteList_count++;
+    INTS[fEDI_textByteList_count]++;
 }
 /**
  * @param {number} index 
@@ -8044,16 +8043,16 @@ function EDI_textByteList_insertBytes(index, incomingBs, offset, length) {
     }
 
     // 2. Validate that the target insertion index makes sense
-    if (index < 0 || index > EDI_textByteList_count) {
+    if (index < 0 || index > INTS[fEDI_textByteList_count]) {
         throw new RangeError(
-            //`Invalid insertion index: index ${index} must be between 0 and current count ${EDI_textByteList_count}.`
+            //`Invalid insertion index: index ${index} must be between 0 and current count ${INTS[fEDI_textByteList_count]}.`
         );
     }
 
     EDI_textByteList_ensureCapacityForInsertion(index, length);
 
-    if (index !== EDI_textByteList_count) {
-        EDI_textByteList_copyTo(EDI_textByteList_bytes, index, EDI_textByteList_bytes, index + length, EDI_textByteList_count - index);
+    if (index !== INTS[fEDI_textByteList_count]) {
+        EDI_textByteList_copyTo(EDI_textByteList_bytes, index, EDI_textByteList_bytes, index + length, INTS[fEDI_textByteList_count] - index);
     }
 
     // TODO: Google AI is telling me:
@@ -8068,7 +8067,7 @@ function EDI_textByteList_insertBytes(index, incomingBs, offset, length) {
         : incomingBs.subarray(offset, offset + length);
     EDI_textByteList_bytes.set(segmentToInsert, index);
 
-    EDI_textByteList_count += length;
+    INTS[fEDI_textByteList_count] += length;
 }
 /**
  * Does not clear trailing information.
@@ -8076,12 +8075,12 @@ function EDI_textByteList_insertBytes(index, incomingBs, offset, length) {
  * count === 0 immediately returns
  */
 function EDI_textByteList_removeAt(index, count) {
-    if (index > EDI_textByteList_count) { throw new Error('removeAt(...): index > EDI_textByteList_count'); }
-    if (index + count > EDI_textByteList_count) { throw new Error('removeAt(...): index + count > EDI_textByteList_count'); }
+    if (index > INTS[fEDI_textByteList_count]) { throw new Error('removeAt(...): index > INTS[fEDI_textByteList_count]'); }
+    if (index + count > INTS[fEDI_textByteList_count]) { throw new Error('removeAt(...): index + count > INTS[fEDI_textByteList_count]'); }
     if (count === 0) { return; }
 
-    if (index + count === EDI_textByteList_count) {
-        let shiftableCount = EDI_textByteList_count - (index + count);
+    if (index + count === INTS[fEDI_textByteList_count]) {
+        let shiftableCount = INTS[fEDI_textByteList_count] - (index + count);
         if (shiftableCount > 0) {
             EDI_textByteList_copyTo(
                 EDI_textByteList_bytes,
@@ -8097,10 +8096,10 @@ function EDI_textByteList_removeAt(index, count) {
             index + count,
             EDI_textByteList_bytes,
             index,
-            EDI_textByteList_count - (index + count));
+            INTS[fEDI_textByteList_count] - (index + count));
     }
 
-    EDI_textByteList_count -= count;
+    INTS[fEDI_textByteList_count] -= count;
 }
 /**
  * 
@@ -8123,41 +8122,41 @@ function EDI_textByteList_duplicateWithin(sourceStart, destinationStart, length)
 
     EDI_textByteList_ensureCapacityForInsertion(destinationStart, length);
 
-    if (destinationStart !== EDI_textByteList_count) {
-        EDI_textByteList_copyTo(EDI_textByteList_bytes, destinationStart, EDI_textByteList_bytes, destinationStart + length, EDI_textByteList_count - destinationStart);
+    if (destinationStart !== INTS[fEDI_textByteList_count]) {
+        EDI_textByteList_copyTo(EDI_textByteList_bytes, destinationStart, EDI_textByteList_bytes, destinationStart + length, INTS[fEDI_textByteList_count] - destinationStart);
     }
 
     EDI_textByteList_copyTo(EDI_textByteList_bytes, sourceStart, EDI_textByteList_bytes, destinationStart, length);
 
-    EDI_textByteList_count += length;
+    INTS[fEDI_textByteList_count] += length;
 }
 function EDI_textByteList_ensureCapacityForInsertion(index, count) {
     // TODO: sparse insertions?
-    const requiredCapacity = Math.max(EDI_textByteList_count + count, index);
+    const requiredCapacity = Math.max(INTS[fEDI_textByteList_count] + count, index);
     
     // If we already have enough capacity, do absolutely nothing
-    if (requiredCapacity <= EDI_textByteList_capacity) {
+    if (requiredCapacity <= INTS[fEDI_textByteList_capacity]) {
         return;
     }
 
     // Calculate the new capacity by doubling until it fits
-    let capacityNew = EDI_textByteList_capacity || 1; // Prevent infinite loops if capacity is 0
+    let capacityNew = INTS[fEDI_textByteList_capacity] || 1; // Prevent infinite loops if capacity is 0
     while (capacityNew < requiredCapacity) {
         capacityNew *= 2;
     }
 
     // Safety check against integer overflow / negative bounds
-    if (capacityNew < EDI_textByteList_capacity) {
+    if (capacityNew < INTS[fEDI_textByteList_capacity]) {
         throw new Error('ensureCapacityForInsertion(...): Capacity overflowed or went negative');
     }
 
     // Allocate and copy EXACTLY ONCE
     let bytesNew = new Uint8Array(capacityNew);
-    EDI_textByteList_copyTo(EDI_textByteList_bytes, 0, bytesNew, 0, EDI_textByteList_count);
+    EDI_textByteList_copyTo(EDI_textByteList_bytes, 0, bytesNew, 0, INTS[fEDI_textByteList_count]);
     
     // Commit the changes to your global/module state
     EDI_textByteList_bytes = bytesNew;
-    EDI_textByteList_capacity = capacityNew;
+    INTS[fEDI_textByteList_capacity] = capacityNew;
 }
 /**
  * inclusive/exclusive

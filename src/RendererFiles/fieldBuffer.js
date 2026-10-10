@@ -945,7 +945,7 @@ const fEDI_ret_getLineBoundaryPositions_end = 79;
 
 
 const fEDI_ret_getIndexFromX_indexColumn = 78;
-const fEDI_getIndexFromX_visualColumns = 79;
+const fEDI_ret_getIndexFromX_visualColumns = 79;
 
 
 

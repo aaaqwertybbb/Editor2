@@ -222,7 +222,7 @@ List of classes in the app
                     - [ ] This is for the sake of correctness in the moment
                     - [ ] Then you can aim for reducing the amount of cases where you finalize the current edit
                           where sensible over time once you get the original correctness in place.
-    - [ ] EDI_getLineAndColumnIndices_raw
+    - [ ] EDI_ret_getLineAndColumnIndices_raw
         - [ ] indent logic sounds most problematic to swap to raw cuz u gotta be careful not to "actually" modify the selection or you'll go past the raw line position for the end selection.
     - [ ] last valid column index function
     - [ ] EDI_getPositionIndex_raw_cursor and other 2

@@ -933,18 +933,21 @@ const fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex = 77;
 // ============
 
 
-/**  */
+/** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
 const fEDI_ret_getLineAndColumnIndices_indexLine = 78;
+/** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
 const fEDI_ret_getLineAndColumnIndices_indexColumn = 79;
 
 
-
+/** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
 const fEDI_ret_getLineBoundaryPositions_start = 78;
+/** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
 const fEDI_ret_getLineBoundaryPositions_end = 79;
 
 
-
+/** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
 const fEDI_ret_getIndexFromX_indexColumn = 78;
+/** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
 const fEDI_ret_getIndexFromX_visualColumns = 79;
 
 

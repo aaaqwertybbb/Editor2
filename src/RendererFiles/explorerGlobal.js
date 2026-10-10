@@ -456,7 +456,7 @@ function EXPLORER_oncontextmenu(divItem, indexItem, event_button, event_clientX,
  * ...thus, you should consider checking the x position of the event against the x position of the nodeElement.children[0].
  * @param {*} event 
  */
-async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem) {
+async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBufferIndexItem) {
     // TODO: !!!! You might need to be careful with async and the TreeView_pooledNode; I'm not certain whether you do or don't have to be careful, and I don't feel like looking into it at the moment.
     EXPLORER_treeViewNodes.getElementAt(indexItem);
     let key = INTS[fTreeView_poolret_pooledNode_key];
@@ -485,8 +485,83 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem) {
 
         INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
         EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
+        if (filesystemEntries.length === 1) {
+            //let lastIndexRendered = ;
+            // See comment "Awkward explicit inlining of 'EXPLORER_indexItemTo_ringBufferIndexItem'" for more information.
+            let final_ringBufferIndexItem = INTS[fEXPLORER_virtualCount] - 1;
+            if (final_ringBufferIndexItem >= INTS[fEXPLORER_ringBuffer_length] || final_ringBufferIndexItem < 0) final_ringBufferIndexItem = -1;
+            else final_ringBufferIndexItem = (final_ringBufferIndexItem + INTS[fEXPLORER_ringBufferIndexZero]) % INTS[fEXPLORER_virtualCount];
+            if (final_ringBufferIndexItem < 0) { EXPLORER_draw_render_fullReset_request(); return; }
 
-        EXPLORER_draw_render_fullReset_request();
+            let nextBy1_ringBufferIndexItem = (ringBufferIndexItem + 1) % INTS[fEXPLORER_virtualCount];
+            if (nextBy1_ringBufferIndexItem === final_ringBufferIndexItem) {
+                EXPLORER_draw_render_fullReset_request();
+                return;
+            }
+
+            //let lastVertical = EXPLORER_ringBuffer[final_ringBufferIndexItem].style.transform;
+
+            //EXPLORER_ringBuffer[nextBy1_ringBufferIndexItem] = EXPLORER_ringBuffer[final_ringBufferIndexItem];
+
+            let verticalStyleNumber = (indexItem + 2) * INTS[fEXPLORER_itemHeightNumber];
+            
+            let current_indexItem = indexItem;
+            current_indexItem++;
+            for (let current_ringBufferIndexItem = ringBufferIndexItem;;) {
+                current_indexItem++;
+                current_ringBufferIndexItem = (current_ringBufferIndexItem + 1) % INTS[fEXPLORER_virtualCount];
+                if (final_ringBufferIndexItem === current_ringBufferIndexItem) {
+                    let depth = 0;
+                    if ((indexItem + 1) < EXPLORER_treeViewNodes.count_abstract) {
+                        depth = EXPLORER_treeViewNodes.getDepth((indexItem + 1));
+                    }
+                    EXPLORER_ringBuffer[current_ringBufferIndexItem].style.transform = `translate(${(CONST_EXPLORER_offsetPerDepth * depth)}px, ${(indexItem + 1) * INTS[fEXPLORER_itemHeightNumber]}px)`;
+                    break;
+                }
+                let depth = 0;
+                if (current_indexItem < EXPLORER_treeViewNodes.count_abstract) {
+                    depth = EXPLORER_treeViewNodes.getDepth(current_indexItem);
+                }
+                // ${CONST_EXPLORER_offsetPerDepth * depth}
+                EXPLORER_ringBuffer[current_ringBufferIndexItem].style.transform = `translate(${CONST_EXPLORER_offsetPerDepth * depth}px, ${verticalStyleNumber}px)`;
+                verticalStyleNumber += INTS[fEXPLORER_itemHeightNumber];
+            }
+
+            //current_ringBufferIndexItem = (current_ringBufferIndexItem + 1) % INTS[fEXPLORER_virtualCount];
+            let loopIndex = 0;
+
+            let temp = EXPLORER_ringBuffer[final_ringBufferIndexItem];
+            let temp2 = null;
+            for (let current_ringBufferIndexItem = ringBufferIndexItem;;) {
+                current_ringBufferIndexItem = (current_ringBufferIndexItem + 1) % INTS[fEXPLORER_virtualCount];
+                temp2 = EXPLORER_ringBuffer[current_ringBufferIndexItem];
+                EXPLORER_ringBuffer[current_ringBufferIndexItem] = temp;
+                temp = temp2;
+                //if (loopIndex++ === 0) {
+                //    temp = EXPLORER_ringBuffer[current_ringBufferIndexItem];
+                //}
+                if (final_ringBufferIndexItem === current_ringBufferIndexItem) {
+                    //EXPLORER_ringBuffer[current_ringBufferIndexItem] = temp;
+                    break;
+                }
+            }
+
+            EXPLORER_draw_BATCH_request(indexItem + 1, 1, 3, ringBufferIndexItem + 1);
+
+            
+            
+
+            //let nextBy2_ringBufferIndexItem = (ringBufferIndexItem + 2) % INTS[fEXPLORER_virtualCount];
+//
+            //for (let current_ringBufferIndexItem = nextBy2_ringBufferIndexItem;;) {
+            //    if () {
+            //        
+            //    }
+            //}
+        }
+        else {
+            EXPLORER_draw_render_fullReset_request();
+        }
     }
     else if (nodeKind === TreeViewNodeKind_isExpandable_isExpanded) {
 
@@ -512,7 +587,7 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem) {
     }
 }
 
-function EXPLORER_arrowRight(divItem, indexItem) {
+function EXPLORER_arrowRight(divItem, indexItem, ringBufferIndexItem) {
     // TODO: !!!! You might need to be careful with async and the TreeView_pooledNode; I'm not certain whether you do or don't have to be careful, and I don't feel like looking into it at the moment.
     EXPLORER_treeViewNodes.getElementAt(indexItem);
     let depth = INTS[fTreeView_poolret_pooledNode_depth];
@@ -527,20 +602,20 @@ function EXPLORER_arrowRight(divItem, indexItem) {
         }
     }
     else if (nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded) {
-        return EXPLORER_expandCollapseIconWasClicked(divItem, indexItem);
+        return EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBufferIndexItem);
     }
 
     return Promise.resolve();
 }
 
-function EXPLORER_arrowLeft(divItem, indexItem) {
+function EXPLORER_arrowLeft(divItem, indexItem, ringBufferIndexItem) {
     // TODO: !!!! You might need to be careful with async and the TreeView_pooledNode; I'm not certain whether you do or don't have to be careful, and I don't feel like looking into it at the moment.
     EXPLORER_treeViewNodes.getElementAt(indexItem);
     let depth = INTS[fTreeView_poolret_pooledNode_depth];
     let nodeKind = BYTES[byteTreeView_byteret_pooledNode_nodeKind];
     
     if (nodeKind === TreeViewNodeKind_isExpandable_isExpanded) {
-        return EXPLORER_expandCollapseIconWasClicked(divItem, indexItem);
+        return EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBufferIndexItem);
     }
     else {
         let distanceToParent = 0;
@@ -940,7 +1015,7 @@ function EXPLORER_event_click(event) {
     const depth = EXPLORER_treeViewNodes.getDepth(indexItem);
     const rX = (event_clientX - INTS[fEXPLORER_boundingClientRect_left] + INTS[fEXPLORER_lastReadNumber_scrollLeft]) - (depth * CONST_EXPLORER_offsetPerDepth);
     if (rX >= 0 && rX <= EDI_characterWidth) {
-        EXPLORER_expandCollapseIconWasClicked(divItem, indexItem);
+        EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBufferIndexItem);
     }
     else {
         EXPLORER_state_cursor_setIndex(indexItem);
@@ -1055,7 +1130,7 @@ function EXPLORER_event_keydown(event) {
                 else ringBufferIndexItem = (ringBufferIndexItem + INTS[fEXPLORER_ringBufferIndexZero]) % INTS[fEXPLORER_virtualCount];
                 if (ringBufferIndexItem < 0) return;
 
-                EXPLORER_arrowRight(EXPLORER_ringBuffer[ringBufferIndexItem], INTS[fEXPLORER_cursorIndex]);
+                EXPLORER_arrowRight(EXPLORER_ringBuffer[ringBufferIndexItem], INTS[fEXPLORER_cursorIndex], ringBufferIndexItem);
             }
             return;
         case 'ArrowLeft':
@@ -1070,7 +1145,7 @@ function EXPLORER_event_keydown(event) {
                 else ringBufferIndexItem = (ringBufferIndexItem + INTS[fEXPLORER_ringBufferIndexZero]) % INTS[fEXPLORER_virtualCount];
                 if (ringBufferIndexItem < 0) return;
 
-                EXPLORER_arrowLeft(EXPLORER_ringBuffer[ringBufferIndexItem], INTS[fEXPLORER_cursorIndex]);
+                EXPLORER_arrowLeft(EXPLORER_ringBuffer[ringBufferIndexItem], INTS[fEXPLORER_cursorIndex], ringBufferIndexItem);
             }
             return;
         case ' ':

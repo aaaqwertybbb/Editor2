@@ -8250,18 +8250,18 @@ function EDI_lineEndPositionList_ensureCapacityForInsertion(index, count) {
     const requiredCapacity = Math.max(EDI_lineEndPositionList_count + count, index);
     
     // If we already have enough capacity, do absolutely nothing
-    if (requiredCapacity <= EDI_lineEndPositionList_capacity) {
+    if (requiredCapacity <= INTS[fEDI_lineEndPositionList_capacity]) {
         return;
     }
 
     // Calculate the new capacity by doubling until it fits
-    let capacityNew = EDI_lineEndPositionList_capacity || 1; // Prevent infinite loops if capacity is 0
+    let capacityNew = INTS[fEDI_lineEndPositionList_capacity] || 1; // Prevent infinite loops if capacity is 0
     while (capacityNew < requiredCapacity) {
         capacityNew *= 2;
     }
 
     // Safety check against integer overflow / negative bounds
-    if (capacityNew < EDI_lineEndPositionList_capacity) {
+    if (capacityNew < INTS[fEDI_lineEndPositionList_capacity]) {
         throw new Error('ensureCapacityForInsertion(...): Capacity overflowed or went negative');
     }
 
@@ -8270,7 +8270,7 @@ function EDI_lineEndPositionList_ensureCapacityForInsertion(index, count) {
     EDI_lineEndPositionList_copyTo(EDI_lineEndPositionList_data, 0, dataNew, 0, EDI_lineEndPositionList_count);
     // Commit the changes to your global/module state
     EDI_lineEndPositionList_data = dataNew;
-    EDI_lineEndPositionList_capacity = capacityNew;
+    INTS[fEDI_lineEndPositionList_capacity] = capacityNew;
 }
 /**
  * inclusive/exclusive

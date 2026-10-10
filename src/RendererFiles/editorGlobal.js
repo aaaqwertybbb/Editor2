@@ -2199,17 +2199,17 @@ function EDI_render_do_RemoveSelection() {
             let lineStart = INTS[fEDI_ret_getLineBoundaryPositions_start];
             let lineEnd = INTS[fEDI_ret_getLineBoundaryPositions_end];
 
-            getIndexFromColumn_RESET(smallLineAndColumnIndices_indexColumn, lineStart, lineEnd);
+            EDI_ret_getIndexFromColumn_RESET(smallLineAndColumnIndices_indexColumn, lineStart, lineEnd);
             let small_columnVisual = INTS[fEDI_ret_getIndexFromX_visualColumns];
 
             // TODO: You don't have to RESET here but... this answer is ultimately going to be scrapped for something more correct so it isn't worth the time.
-            getIndexFromColumn_RESET(largeLineAndColumnIndices_indexColumn, lineStart, lineEnd);
+            EDI_ret_getIndexFromColumn_RESET(largeLineAndColumnIndices_indexColumn, lineStart, lineEnd);
             let large_columnVisual = INTS[fEDI_ret_getIndexFromX_visualColumns];
 
             INTS[fEDI_cursor_editLengthVisual] += large_columnVisual - small_columnVisual;
             //INTS[fEDI_cursorVisualColumnIndex] = small_columnVisual;
 
-            //getIndexFromColumn_RESET();
+            //EDI_ret_getIndexFromColumn_RESET();
         }
 
         if (linesRemovedCount > 0 && possibleTrackedSyntaxToSpanSingleLine) {
@@ -2534,7 +2534,7 @@ function EDI_state_do_Delete(event) {
 
             EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
             EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_ret_getLineAndColumnIndices_indexLine]);
-            getIndexFromColumn_sameLine_newRxIsLarger(
+            EDI_ret_getIndexFromColumn_sameLine_newRxIsLarger(
                 tempIndexColumn, INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
             let columnVisual = INTS[fEDI_ret_getIndexFromX_visualColumns];
             INTS[fEDI_cursor_editLengthVisual] += columnVisual - INTS[fEDI_cursorVisualColumnIndex];
@@ -2702,7 +2702,7 @@ function EDI_state_do_Backspace(event) {
 
             EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
             EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_ret_getLineAndColumnIndices_indexLine]);
-            getIndexFromColumn_RESET(INTS[fEDI_cursor_indexColumn], INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end]);
+            EDI_ret_getIndexFromColumn_RESET(INTS[fEDI_cursor_indexColumn], INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end]);
             let columnVisual = INTS[fEDI_ret_getIndexFromX_visualColumns];
 
             INTS[fEDI_cursor_editLengthVisual] += (INTS[fEDI_cursorVisualColumnIndex] - columnVisual);
@@ -2731,7 +2731,7 @@ function EDI_state_do_Backspace(event) {
                 // Now actually get the correct answer for tabs
                 EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
                 EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_ret_getLineAndColumnIndices_indexLine]);
-                getIndexFromColumn_RESET(INTS[fEDI_cursor_indexColumn], INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end]);
+                EDI_ret_getIndexFromColumn_RESET(INTS[fEDI_cursor_indexColumn], INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end]);
                 let columnVisual = INTS[fEDI_ret_getIndexFromX_visualColumns];
 
                 INTS[fEDI_cursor_editLengthVisual] += (INTS[fEDI_cursorVisualColumnIndex] - columnVisual);
@@ -3428,10 +3428,10 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     }
     else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_AmongALine) {
         EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_cursor_editIndexLine]);
-        getIndexFromColumn_RESET(INTS[fEDI_cursor_editIndexColumn], INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end]);
+        EDI_ret_getIndexFromColumn_RESET(INTS[fEDI_cursor_editIndexColumn], INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end]);
         let firstSplitVisualWidth = INTS[fEDI_ret_getIndexFromX_visualColumns];
         let lastValidIndexColumn = INTS[fEDI_ret_getLineBoundaryPositions_end] - INTS[fEDI_ret_getLineBoundaryPositions_start];
-        getIndexFromColumn_sameLine_newRxIsLarger(
+        EDI_ret_getIndexFromColumn_sameLine_newRxIsLarger(
             lastValidIndexColumn,
             INTS[fEDI_ret_getLineBoundaryPositions_start],
             INTS[fEDI_ret_getLineBoundaryPositions_end],
@@ -3903,11 +3903,11 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
         //let largeLineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
         //let largeLineAndColumnIndices_indexColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
 //
-        //getIndexFromColumn_RESET(smallLineAndColumnIndices_indexColumn, lineStart, lineEnd);
+        //EDI_ret_getIndexFromColumn_RESET(smallLineAndColumnIndices_indexColumn, lineStart, lineEnd);
         //let small_columnVisual = INTS[fEDI_ret_getIndexFromX_visualColumns];
 //
         //// TODO: You don't have to RESET here but... this answer is ultimately going to be scrapped for something more correct so it isn't worth the time.
-        //getIndexFromColumn_RESET(largeLineAndColumnIndices_indexColumn, lineStart, lineEnd);
+        //EDI_ret_getIndexFromColumn_RESET(largeLineAndColumnIndices_indexColumn, lineStart, lineEnd);
         //let large_columnVisual = INTS[fEDI_ret_getIndexFromX_visualColumns];
 //
         //INTS[fEDI_cursor_editLengthVisual] += large_columnVisual - small_columnVisual;
@@ -4018,7 +4018,7 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
 
     EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
     EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_ret_getLineAndColumnIndices_indexLine]);
-    getIndexFromColumn_RESET(INTS[fEDI_cursor_editIndexColumn], INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end]);
+    EDI_ret_getIndexFromColumn_RESET(INTS[fEDI_cursor_editIndexColumn], INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end]);
     let columnVisual = INTS[fEDI_ret_getIndexFromX_visualColumns];
 
     // TODO: You probably should get their pasted string to be normalized with 'replaceAll'
@@ -4119,7 +4119,7 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
     // TODO: The state that is retrieved via this paragraph of code I think already exists in this function somewhere. i.e.: needs optimization (remove redundancy)
     EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
     EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_ret_getLineAndColumnIndices_indexLine]);
-    getIndexFromColumn_RESET(INTS[fEDI_cursor_editIndexColumn], INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end]);
+    EDI_ret_getIndexFromColumn_RESET(INTS[fEDI_cursor_editIndexColumn], INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end]);
     let columnVisual = INTS[fEDI_ret_getIndexFromX_visualColumns];
 
     EDI_textByteList_duplicateWithin(small, INTS[fEDI_cursor_editPosition], length);
@@ -4683,13 +4683,15 @@ function EDI_set_indexColumn_and_visualColumn_relativeTo_storedVisualWidth(lineS
 }
 
 /**
+ * 'ret_' will overwrite one another do not mix the function invocations without having read the values first
+ * 
  * 'INTS[fEDI_ret_getIndexFromX_indexColumn]'
  * 
  * 'INTS[fEDI_ret_getIndexFromX_visualColumns]'
  * 
  * @returns nothing: the results are stored in 'INTS[fEDI_ret_getIndexFromX_indexColumn]' and 'INTS[fEDI_ret_getIndexFromX_visualColumns]'.
  */
-function getIndexFromColumn_sameLine_newRxIsLarger(targetColumn, lineStart, lineEnd, startColumn, startVisualColumns) {
+function EDI_ret_getIndexFromColumn_sameLine_newRxIsLarger(targetColumn, lineStart, lineEnd, startColumn, startVisualColumns) {
     let indexColumn = startColumn;
     let visualColumns = startVisualColumns;
     let positionIndex = lineStart + startColumn;
@@ -4725,13 +4727,15 @@ function getIndexFromColumn_sameLine_newRxIsLarger(targetColumn, lineStart, line
 }
 
 /**
+ * 'ret_' will overwrite one another do not mix the function invocations without having read the values first
+ * 
  * 'INTS[fEDI_ret_getIndexFromX_indexColumn]'
  * 
  * 'INTS[fEDI_ret_getIndexFromX_visualColumns]'
  * 
  * @returns nothing: the results are stored in 'INTS[fEDI_ret_getIndexFromX_indexColumn]' and 'INTS[fEDI_ret_getIndexFromX_visualColumns]'.
  */
-function getIndexFromColumn_RESET(targetColumn, lineStart, lineEnd) {
+function EDI_ret_getIndexFromColumn_RESET(targetColumn, lineStart, lineEnd) {
     let indexColumn = 0;
     let visualColumns = 0;
     let positionIndex = lineStart;
@@ -5666,7 +5670,7 @@ function EDI_onKeyDown_ArrowLeft(event) {
             }
 
             if (visualCorruption) {
-                getIndexFromColumn_RESET(INTS[fEDI_cursor_indexColumn], lineStart, lineEnd);
+                EDI_ret_getIndexFromColumn_RESET(INTS[fEDI_cursor_indexColumn], lineStart, lineEnd);
                 INTS[fEDI_cursorVisualColumnIndex] = INTS[fEDI_ret_getIndexFromX_visualColumns];
             }
         }
@@ -5676,7 +5680,7 @@ function EDI_onKeyDown_ArrowLeft(event) {
                 if (String.fromCharCode(EDI_textByteList_bytes[EDI_getPositionIndex_cursor_raw()]) === '\t') {
                     //INTS[fEDI_cursorVisualColumnIndex] -= (4 - (INTS[fEDI_cursorVisualColumnIndex] % 4)); // (tabLength)
                     EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
-                    getIndexFromColumn_RESET(INTS[fEDI_cursor_indexColumn], INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end]);
+                    EDI_ret_getIndexFromColumn_RESET(INTS[fEDI_cursor_indexColumn], INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end]);
                     INTS[fEDI_cursorVisualColumnIndex] = INTS[fEDI_ret_getIndexFromX_visualColumns];
                 }
                 else {

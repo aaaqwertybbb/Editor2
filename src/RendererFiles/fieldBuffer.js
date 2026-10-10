@@ -344,7 +344,7 @@ const CONST_EDI_cursor_htmlId = "EDI_cursor-1";
  * because ES6 modules are expected (and thus module scopes remove the usefulness of making a local variable):
  *     index.html the script tag: 'type="module" src="..."'
  */
-const INTS = new Uint32Array(157);
+const INTS = new Uint32Array(145);
 
 const fEDI_lineHeight = 0;
 INTS[fEDI_lineHeight] = 20;
@@ -500,145 +500,145 @@ const fEDI_cursor_editLineFeedCount = 51;
 
 // TODO: Avoid re-using these locally after getting the w result (i.e.: avoid re-using over and over in a loop or something, probably make a local variable if accessed enough).
 // TODO: Verify and update all the previously -1 cases
-const fEDI_w_indexColumn_Goal = 54;
-const fEDI_w_indexColumn_Sum = 55;
+const fEDI_w_indexColumn_Goal = 52;
+const fEDI_w_indexColumn_Sum = 53;
 
 /**
  * TODO: isn't this just the column index now that there's just a single div?
  * 
  * TODO: MAYBEo-b-s-o-l-e-t-eMAYBE
  */
-const fEDI_w_indexColumn_SpanTextContentRelative = 56;
+const fEDI_w_indexColumn_SpanTextContentRelative = 54;
 
 // TODO: This -1
-const fEDI_w_ringBufferIndex = 58;
+const fEDI_w_ringBufferIndex = 55;
 
 // And this -1
-const fEDI_ringBuffer_indexZero = 59;
+const fEDI_ringBuffer_indexZero = 56;
 
 /** The value of 'EDI_baseElement.scrollLeft' at the most recent scroll event that occurred */
-const fEDI_lastReadNumber_scrollLeft = 60;
+const fEDI_lastReadNumber_scrollLeft = 57;
 
 // just floor these on init / resize and set the style so if they want resize they have to explicit and it is non decimal?
-const fEDI_lastReadNumber_offsetHeight = 61;
+const fEDI_lastReadNumber_offsetHeight = 58;
 
-const fEDI_lastReadNumber_offsetWidth = 62;
+const fEDI_lastReadNumber_offsetWidth = 59;
 
 /** TODO: Rename to 'fEDI_ringBuffer_length' */
-const fEDI_ArrayFrom_textElement_children_length = 63;
+const fEDI_ArrayFrom_textElement_children_length = 60;
 
-const fEDI_EDI_mouseOver_event_clientY = 64;
+const fEDI_EDI_mouseOver_event_clientY = 61;
 
-const fEDI_EDI_mouseOver_event_clientX = 65;
+const fEDI_EDI_mouseOver_event_clientX = 62;
 
-const fEDI_EDI_cursorBlinkLastTimestamp = 69;
+const fEDI_EDI_cursorBlinkLastTimestamp = 63;
 
 /**
  * TODO: This seems to be obsolete
  * 
  * 'EDI_init' and 'EDI_drawHorizontalScrollbar' related
  */
-const fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left = 70;
+const fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left = 64;
 
 /** TODO: What happens when you overflow 'INTS[fEDI_prevVli]' does it overflow such that you're the correct diff? */
-const fEDI_prevVli = 71;
+const fEDI_prevVli = 65;
 /** TODO: What happens when you overflow 'INTS[fEDI_prevVli]' does it overflow such that you're the correct diff? */
-const fEDI_currVli = 72;
+const fEDI_currVli = 66;
 
-const fEDI_onResize_timer = 73;
+const fEDI_onResize_timer = 67;
 
-const fEDI_hoverTimeout = 74;
+const fEDI_hoverTimeout = 68;
 
 // ====
 /** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_ret_getLineAndColumnIndices_indexLine = 78;
+const fEDI_ret_getLineAndColumnIndices_indexLine = 69;
 /** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_ret_getLineBoundaryPositions_start = 78;
+const fEDI_ret_getLineBoundaryPositions_start = 69;
 /** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_ret_getIndexFromX_indexColumn = 78;
+const fEDI_ret_getIndexFromX_indexColumn = 69;
 
 /** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_ret_getLineAndColumnIndices_indexColumn = 79;
+const fEDI_ret_getLineAndColumnIndices_indexColumn = 70;
 /** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_ret_getLineBoundaryPositions_end = 79;
+const fEDI_ret_getLineBoundaryPositions_end = 70;
 /** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_ret_getIndexFromX_visualColumns = 79;
+const fEDI_ret_getIndexFromX_visualColumns = 70;
 // ====
 
-const fEDI_cursorVisualColumnIndex = 80;
+const fEDI_cursorVisualColumnIndex = 71;
 
 /** TODO: I don't think you've ever actually used this, you only are setting it, obsolete? */
-const fEDI_cursorVisualColumnIndex_relativeToThisLineIndex = 81;
+const fEDI_cursorVisualColumnIndex_relativeToThisLineIndex = 72;
 
-const fEDI_ontab_visualWidth_perCharacter = 82;
+const fEDI_ontab_visualWidth_perCharacter = 73;
 
-const fEDI_cursor_selectionIndexAnchorColumnVISUAL = 87;
-const fEDI_cursor_selectionIndexEndColumnVISUAL = 88;
+const fEDI_cursor_selectionIndexAnchorColumnVISUAL = 74;
+const fEDI_cursor_selectionIndexEndColumnVISUAL = 75;
 
-const fEDI_cursor_selectionIndexAnchorColumnVISUAL_DRAWN = 89;
-const fEDI_cursor_selectionIndexEndColumnVISUAL_DRAWN = 90;
+const fEDI_cursor_selectionIndexAnchorColumnVISUAL_DRAWN = 76;
+const fEDI_cursor_selectionIndexEndColumnVISUAL_DRAWN = 77;
 
-const fEDI_detail_smallColumnVisual = 91;
-const fEDI_detail_largeColumnVisual = 92;
+const fEDI_detail_smallColumnVisual = 78;
+const fEDI_detail_largeColumnVisual = 79;
 
-const fEDI_cursor_cached_indentation_string_visualWidth = 93;
+const fEDI_cursor_cached_indentation_string_visualWidth = 80;
 
-const fEDI_cursor_editLengthVisual = 94;
+const fEDI_cursor_editLengthVisual = 81;
 
-const fEDI_textByteList_capacity = 95;
-const fEDI_textByteList_count = 96;
+const fEDI_textByteList_capacity = 82;
+const fEDI_textByteList_count = 83;
 
-const fEDI_lineEndPositionList_capacity = 97;
-const fEDI_lineEndPositionList_count = 98;
+const fEDI_lineEndPositionList_capacity = 84;
+const fEDI_lineEndPositionList_count = 85;
 
 // ====
 /** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_editret_cursor_EDI_duplicate_small = 99;
+const fEDI_editret_cursor_EDI_duplicate_small = 86;
 /** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_editret_RemoveSelection_smallPosition = 99;
+const fEDI_editret_RemoveSelection_smallPosition = 86;
 /** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_editret_indentLess_startingLinePos_end = 99;
+const fEDI_editret_indentLess_startingLinePos_end = 86;
 /** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex = 99;
+const fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex = 86;
 
 /** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_editret_cursor_EDI_duplicate_length = 100;
+const fEDI_editret_cursor_EDI_duplicate_length = 87;
 /** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_editret_RemoveSelection_largePosition = 100;
+const fEDI_editret_RemoveSelection_largePosition = 87;
 
 /** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_editret_RemoveSelection_smallLineAndColumnIndices_small_indexLine = 101;
+const fEDI_editret_RemoveSelection_smallLineAndColumnIndices_small_indexLine = 88;
 /** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_editret_RemoveSelection_smallLineAndColumnIndices_small_indexColumn = 102;
+const fEDI_editret_RemoveSelection_smallLineAndColumnIndices_small_indexColumn = 88;
 // ====
 
 // I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
 /** TODO: This isn't used only set */
-const fAUTOCOMPLETE_items_slice_start = 99;
+const fAUTOCOMPLETE_items_slice_start = 89;
 /** TODO: This isn't used only set */
-const fAUTOCOMPLETE_items_slice_end = 100;
-const fAUTOCOMPLETE_items_totalLength = 101;
+const fAUTOCOMPLETE_items_slice_end = 90;
+const fAUTOCOMPLETE_items_totalLength = 91;
 
-const fAUTOCOMPLETE_cursorIndex = 102;
+const fAUTOCOMPLETE_cursorIndex = 92;
 
-const fAUTOCOMPLETE_rectHeight = 103;
-const fAUTOCOMPLETE_rectLeft = 104;
+const fAUTOCOMPLETE_rectHeight = 93;
+const fAUTOCOMPLETE_rectLeft = 94;
 /** TODO: This isn't used only set, but it probably will be used for mouse events just that they're not written yet? */
-const fAUTOCOMPLETE_rectTop = 105;
+const fAUTOCOMPLETE_rectTop = 95;
 
-const fAUTOCOMPLETE_sliceVirtualIndex_SLICE = 106;
-const fAUTOCOMPLETE_sliceVirtualCount_SLICE = 107;
-const fAUTOCOMPLETE_sliceRingBufferIndexZero_SLICE = 108;
+const fAUTOCOMPLETE_sliceVirtualIndex_SLICE = 96;
+const fAUTOCOMPLETE_sliceVirtualCount_SLICE = 97;
+const fAUTOCOMPLETE_sliceRingBufferIndexZero_SLICE = 98;
 
-const fAUTOCOMPLETE_virtualCount = 109;
-const fAUTOCOMPLETE_virtualIndex = 110;
-const fAUTOCOMPLETE_ringBufferIndexZero = 111;
+const fAUTOCOMPLETE_virtualCount = 99;
+const fAUTOCOMPLETE_virtualIndex = 100;
+const fAUTOCOMPLETE_ringBufferIndexZero = 101;
 
-const fAUTOCOMPLETE_scrollTop = 112;
+const fAUTOCOMPLETE_scrollTop = 102;
 
-const fAUTOCOMPLETE_scrollEndDeadline = 113;
+const fAUTOCOMPLETE_scrollEndDeadline = 103;
 
-const fAUTOCOMPLETE_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING = 114;
+const fAUTOCOMPLETE_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING = 104;
 INTS[fAUTOCOMPLETE_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING] = 2;
 
 /**
@@ -647,7 +647,7 @@ INTS[fAUTOCOMPLETE_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING] = 2;
  * 
  * TODO: (speculation) I've never liked saying "line height" I believe that deals with the vertical alignment of text within some container is "line height" a good wording.
  * */
-const fAPP_lineHeight = 115;
+const fAPP_lineHeight = 105;
 INTS[fAUTOCOMPLETE_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING] = 20;
 
 /**
@@ -664,19 +664,19 @@ INTS[fAUTOCOMPLETE_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING] = 20;
  * 
  * okay yeah it is a ticket dispenser we're good
  */
-const fWIDGET_ticketId_counter = 116;
+const fWIDGET_ticketId_counter = 106;
 INTS[fWIDGET_ticketId_counter] = 1;
 
-const fWIDGET_ticketId_drawn = 117;
+const fWIDGET_ticketId_drawn = 107;
 
-const fWIDGETrenderKind_Show_countOfPendingRequests = 118;
+const fWIDGETrenderKind_Show_countOfPendingRequests = 108;
 
-const fMENU_ticketId_counter = 119;
+const fMENU_ticketId_counter = 109;
 INTS[fMENU_ticketId_counter] = 1;
 
-const fMENU_ticketId_drawn = 120;
+const fMENU_ticketId_drawn = 110;
 
-const fMENU_renderKind_Set_countOfPendingRequests = 121;
+const fMENU_renderKind_Set_countOfPendingRequests = 111;
 
 
 
@@ -685,73 +685,73 @@ const fMENU_renderKind_Set_countOfPendingRequests = 121;
  * 
  * 8 or the measured value
  */
-const fEXPLORER_firstSpanWidthValue = 124;
+const fEXPLORER_firstSpanWidthValue = 112;
 INTS[fEXPLORER_firstSpanWidthValue] = 8;
 
-const fEXPLORER_menuOptionX = 125;
-const fEXPLORER_menuOptionY = 126;
+const fEXPLORER_menuOptionX = 113;
+const fEXPLORER_menuOptionY = 114;
 
-const fEXPLORER_lastReadNumber_offsetWidth = 127;
+const fEXPLORER_lastReadNumber_offsetWidth = 115;
 
 /** TODO: this is not being used, only set, but it is surprising shouldn't this be used to get the virtual count? */
-const fEXPLORER_lastReadNumber_offsetHeight = 128;
+const fEXPLORER_lastReadNumber_offsetHeight = 116;
 
-const fEXPLORER_cursorTranslateYNumber = 129;
+const fEXPLORER_cursorTranslateYNumber = 117;
 
-const fEXPLORER_itemHeightTotal = 130;
+const fEXPLORER_itemHeightTotal = 118;
 
 /** Consider the existence of such methods as 'state_cursor_setIndex' before mutating state directly */
-const fEXPLORER_cursorIndex = 131;
+const fEXPLORER_cursorIndex = 119;
 
-const fEXPLORER_virtualIndex_ofScrollTop = 132;
+const fEXPLORER_virtualIndex_ofScrollTop = 120;
 
 /** Hacky: Must initialize to a number other than 0 or else nothing renders. */
-const fEXPLORER_virtualCount = 133;
+const fEXPLORER_virtualCount = 121;
 INTS[fEXPLORER_virtualCount] = 1;
 
-const fEXPLORER_ONSCROLLvirtualIndex = 134;
-const fEXPLORER_ONSCROLLvirtualCount = 135;
+const fEXPLORER_ONSCROLLvirtualIndex = 122;
+const fEXPLORER_ONSCROLLvirtualCount = 123;
 
-const fEXPLORER_lastReadNumber_scrollLeft = 136;
-const fEXPLORER_lastReadNumber_scrollTop = 137;
+const fEXPLORER_lastReadNumber_scrollLeft = 124;
+const fEXPLORER_lastReadNumber_scrollTop = 125;
 
-const fEXPLORER_ringBufferIndexZero = 138;
+const fEXPLORER_ringBufferIndexZero = 126;
 
-const fEXPLORER_ringBuffer_length = 139;
+const fEXPLORER_ringBuffer_length = 127;
 
-const fEXPLORER_start = 140;
+const fEXPLORER_start = 128;
 
-const fEXPLORER_length = 141;
+const fEXPLORER_length = 129;
 
-const fEXPLORER_onePositiveDiff_twoNegativeDiff_orThreeFullScreen = 142;
+const fEXPLORER_onePositiveDiff_twoNegativeDiff_orThreeFullScreen = 130;
 
-const fEXPLORER_caseThreeOrigin = 143;
+const fEXPLORER_caseThreeOrigin = 131;
 
 /** TODO: what height should this start at? applicationRendererRoot.ts will eventually run initialization logic that actually does the measuring. */
-const fEXPLORER_itemHeightNumber = 144;
+const fEXPLORER_itemHeightNumber = 132;
 INTS[fEXPLORER_itemHeightNumber] = 20;
 
-const fEXPLORER_SET_ITEMS_itemHeightNumber = 145;
+const fEXPLORER_SET_ITEMS_itemHeightNumber = 133;
 
-const fEXPLORER_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING = 146;
+const fEXPLORER_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING = 134;
 
-const fEXPLORER_LARGEST_DEPTH_SEEN_NOT_THE_CSS_JUST_THE_DEPTH = 147;
+const fEXPLORER_LARGEST_DEPTH_SEEN_NOT_THE_CSS_JUST_THE_DEPTH = 135;
 
-const fEXPLORER_scrollEndDeadline = 148;
+const fEXPLORER_scrollEndDeadline = 136;
 
-const fEXPLORER_scrollFetchData_virtualIndex = 149;
+const fEXPLORER_scrollFetchData_virtualIndex = 137;
 
-const fEXPLORER_scrollFetchData_virtualCount = 150;
+const fEXPLORER_scrollFetchData_virtualCount = 138;
 
-const fEXPLORER_scrollFetchData_ringBufferIndexZero = 151;
+const fEXPLORER_scrollFetchData_ringBufferIndexZero = 139;
 
-const fEXPLORER_pullData_array_count = 152;
+const fEXPLORER_pullData_array_count = 140;
 
-const fEXPLORER_pullData_result_count = 153;
+const fEXPLORER_pullData_result_count = 141;
 
-const fEXPLORER_boundingClientRect_height = 154;
-const fEXPLORER_boundingClientRect_left = 155;
-const fEXPLORER_boundingClientRect_top = 156;
+const fEXPLORER_boundingClientRect_height = 142;
+const fEXPLORER_boundingClientRect_left = 143;
+const fEXPLORER_boundingClientRect_top = 144;
 
 
 

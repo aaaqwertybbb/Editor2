@@ -178,8 +178,12 @@ let EDI_ringBuffer_needsSyntaxHighlightingFlags = new Uint8Array(0);
 /**
  * TODO: Long term you'd want to permit shifting nodes in the ringBuffer to avoid literally replacing child nodes foreach visible
  * line below you on enter keystroke but that isn't currently a thing, and I'm trying to work out the details of how to do this.
+ * 
+ * EDI_init()
+ * EDI_ringBuffer_mapHighlights.length = 0;
+ * needs to run before accessing
  */
-let EDI_ringBuffer_mapHighlights = [];
+let EDI_ringBuffer_mapHighlights = new Array(64);
 
 let EDI_language_line_lex = null;
 
@@ -190,6 +194,8 @@ let EDI_language_line_lex = null;
 // let EDI_debug_optimization_run_count = 0;
 
 function EDI_init() {
+    EDI_ringBuffer_mapHighlights.length = 0;
+
     //EDI_horizontal_scrollbar.style.left = '0px';
     INTS[fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left] = 0;
 

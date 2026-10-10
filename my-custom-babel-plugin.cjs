@@ -373,7 +373,6 @@ module.exports = function (babel) {
 
     "byteMENU_isRenderPending",
 
-    "byteWIDGET_WidgetKind_pending",
     "byteWIDGET_WidgetKind_drawn",
 
     "byteTreeView_pooledNode_nodeKind",

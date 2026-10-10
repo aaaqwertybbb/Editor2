@@ -94,9 +94,9 @@ class DIALOG_FindAll_TreeViewDirector {
             }
             else {
                 this.nodeList.getElementAt(indexItem);
-                let key = INTS[fTreeView_pooledNode_key];
-                depth = INTS[fTreeView_pooledNode_depth];
-                nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
+                let key = INTS[fTreeView_poolret_pooledNode_key];
+                depth = INTS[fTreeView_poolret_pooledNode_depth];
+                nodeKind = BYTES[byteTreeView_byteret_pooledNode_nodeKind];
 
                 let textNode = divItem.lastChild;
                 if (textNode.nodeType !== Node.TEXT_NODE) throw new Error('if (textNode.nodeType !== Node.TEXT_NODE)');
@@ -152,9 +152,9 @@ class DIALOG_FindAll_TreeViewDirector {
     
     async tvd_ondblclick_async(divItem, indexItem) {
         this.nodeList.getElementAt(indexItem);
-        let key = INTS[fTreeView_pooledNode_key];
-        let depth = INTS[fTreeView_pooledNode_depth];
-        let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
+        let key = INTS[fTreeView_poolret_pooledNode_key];
+        let depth = INTS[fTreeView_poolret_pooledNode_depth];
+        let nodeKind = BYTES[byteTreeView_byteret_pooledNode_nodeKind];
 
         if (nodeKind === TreeViewNodeKind_NOTisExpandable_NOTisExpanded) {
 
@@ -198,9 +198,9 @@ class DIALOG_FindAll_TreeViewDirector {
      */
     async tvd_expandCollapseIconWasClicked_async(divItem, indexItem) {
         this.nodeList.getElementAt(indexItem);
-        let key = INTS[fTreeView_pooledNode_key];
-        let depth = INTS[fTreeView_pooledNode_depth];
-        let nodeKind = BYTES[byteTreeView_pooledNode_nodeKind];
+        let key = INTS[fTreeView_poolret_pooledNode_key];
+        let depth = INTS[fTreeView_poolret_pooledNode_depth];
+        let nodeKind = BYTES[byteTreeView_byteret_pooledNode_nodeKind];
 
         if (nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded) {
 

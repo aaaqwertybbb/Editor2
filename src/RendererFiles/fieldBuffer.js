@@ -154,13 +154,13 @@ const byteMENU_isRenderPending = 24;
 
 const byteWIDGET_WidgetKind_drawn = 25;
 
-const byteTreeView_pooledNode_nodeKind = 26;
+
 
 const byteEDI_cursor_enterKeyEventKind = 27;
 
 const byteEDI_extensionKind = 28;
 
-const byteEDI_pooledTrackedSyntax_trackedSyntaxKind = 29;
+
 
 const byteEDI_isChecking_cursorBlinkTrailingEdge = 30;
 
@@ -623,8 +623,7 @@ const fMENU_ticketId_drawn = 120;
 
 const fMENU_renderKind_Set_countOfPendingRequests = 121;
 
-const fTreeView_pooledNode_key = 122;
-const fTreeView_pooledNode_depth = 123;
+
 
 /**
  * TODO: This is approaching the point of being obsolete
@@ -892,11 +891,14 @@ const OFFSET_MENU = 128; // Slots 128 to 159
 // ============
 
 
+const byteTreeView_byteret_pooledNode_nodeKind = 26;
+const byteEDI_byteret_pooledTrackedSyntax_trackedSyntaxKind = 26;
 
+const fTreeView_poolret_pooledNode_key = 23;
+const fTreeView_poolret_pooledNode_depth = 24;
 
-const fEDI_pooledTrackedSyntax_start = 23;
-
-const fEDI_pooledTrackedSyntax_length = 24;
+const fEDI_poolret_pooledTrackedSyntax_start = 23;
+const fEDI_poolret_pooledTrackedSyntax_length = 24;
 
 
 
@@ -960,8 +962,6 @@ const fEDI_ret_getIndexFromX_visualColumns = 79;
 
 /** TODO: MAYBEo-b-s-o-l-e-t-eMAYBE */
 const fEDI_w_indexColumn_SpanTextContentRelative = 56;
-/** TODO: Obsolete */
-const fEDI_w_indexSpan = 57;
 
 
 /**

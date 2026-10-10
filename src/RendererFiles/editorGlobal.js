@@ -2127,14 +2127,14 @@ function EDI_render_do_RemoveSelection() {
         let possibleTrackedSyntaxToSpanSingleLine = false;
         if (indexTrackedSyntax < EDI_trackedSyntaxList.count_abstract) {
             EDI_trackedSyntaxList.getElementAt(indexTrackedSyntax);
-            if (INTS[fEDI_pooledTrackedSyntax_start] < EDI_lineEndPositionList_data[INTS[fEDI_cursor_indexLine]]) {
+            if (INTS[fEDI_poolret_pooledTrackedSyntax_start] < EDI_lineEndPositionList_data[INTS[fEDI_cursor_indexLine]]) {
                 possibleTrackedSyntaxToSpanSingleLine = true;
             }
             // TODO: This has no reason to be a for loop
             for (let i = INTS[fEDI_cursor_indexLine] - 1; i >= 0; i--) {
                 let lineEndPosition = EDI_lineEndPositionList_data[i];
-                if (INTS[fEDI_pooledTrackedSyntax_start] < lineEndPosition &&
-                    INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] > lineEndPosition) {
+                if (INTS[fEDI_poolret_pooledTrackedSyntax_start] < lineEndPosition &&
+                    INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length] > lineEndPosition) {
                         possibleTrackedSyntaxToSpanSingleLine = false;
                         break;
                 }
@@ -2158,7 +2158,7 @@ function EDI_render_do_RemoveSelection() {
                     let NOTlineEndBelongsToSyntax;
                     if (iVarDependent >= INTS[fEDI_lineEndPositionList_count])
                         NOTlineEndBelongsToSyntax = true;
-                    else if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] <= EDI_lineEndPositionList_data[iVarDependent])
+                    else if (INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length] <= EDI_lineEndPositionList_data[iVarDependent])
                         NOTlineEndBelongsToSyntax = true;
                     
                     if (NOTlineEndBelongsToSyntax) {
@@ -2168,8 +2168,8 @@ function EDI_render_do_RemoveSelection() {
                         possibleTrackedSyntaxToSpanSingleLine = false;
                         if (indexTrackedSyntax < EDI_trackedSyntaxList.count_abstract) {
                             EDI_trackedSyntaxList.getElementAt(indexTrackedSyntax);
-                            if (INTS[fEDI_pooledTrackedSyntax_start] < lineEnding &&
-                                INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] > lineEnding) {
+                            if (INTS[fEDI_poolret_pooledTrackedSyntax_start] < lineEnding &&
+                                INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length] > lineEnding) {
                                     possibleTrackedSyntaxToSpanSingleLine = true;
                             }
                         }
@@ -2220,7 +2220,7 @@ function EDI_render_do_RemoveSelection() {
             let NOTlineEndBelongsToSyntax;
             if (iVarDependent >= INTS[fEDI_lineEndPositionList_count])
                 NOTlineEndBelongsToSyntax = true;
-            else if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] <= EDI_lineEndPositionList_data[iVarDependent])
+            else if (INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length] <= EDI_lineEndPositionList_data[iVarDependent])
                 NOTlineEndBelongsToSyntax = true;
             
             if (NOTlineEndBelongsToSyntax)
@@ -3340,17 +3340,17 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
     }
     for (var i = 0; i < EDI_trackedSyntaxList.count_abstract; i++) {
         EDI_trackedSyntaxList.getElementAt(i);
-        if (INTS[fEDI_cursor_editPosition] <= INTS[fEDI_pooledTrackedSyntax_start]) {
-            EDI_trackedSyntaxList.setStart(i, INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_cursor_editLength]);
+        if (INTS[fEDI_cursor_editPosition] <= INTS[fEDI_poolret_pooledTrackedSyntax_start]) {
+            EDI_trackedSyntaxList.setStart(i, INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_cursor_editLength]);
         }
-        else if (BYTES[byteEDI_pooledTrackedSyntax_trackedSyntaxKind] === TrackedSyntaxKind_Comment &&
-                INTS[fEDI_cursor_editPosition] === INTS[fEDI_pooledTrackedSyntax_start] + 1) {
+        else if (BYTES[byteEDI_byteret_pooledTrackedSyntax_trackedSyntaxKind] === TrackedSyntaxKind_Comment &&
+                INTS[fEDI_cursor_editPosition] === INTS[fEDI_poolret_pooledTrackedSyntax_start] + 1) {
 
             // TODO: Insertion of '*' probably shouldn't remove.
             EDI_trackedSyntaxList.removeAt(i, 1);
         }
-        else if (INTS[fEDI_cursor_editPosition] > INTS[fEDI_pooledTrackedSyntax_start] && INTS[fEDI_cursor_editPosition] < INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length]) {
-            EDI_trackedSyntaxList.setLength(i, INTS[fEDI_pooledTrackedSyntax_length] + INTS[fEDI_cursor_editLength]);
+        else if (INTS[fEDI_cursor_editPosition] > INTS[fEDI_poolret_pooledTrackedSyntax_start] && INTS[fEDI_cursor_editPosition] < INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length]) {
+            EDI_trackedSyntaxList.setLength(i, INTS[fEDI_poolret_pooledTrackedSyntax_length] + INTS[fEDI_cursor_editLength]);
         }
     }
     EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition], EDI_cursor_gapBuffer, /*offset*/ 0, /*length*/ INTS[fEDI_cursor_gapBufferCount]);
@@ -3642,9 +3642,9 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
             }
         }
         EDI_trackedSyntaxList.getElementAt(trackedSyntaxReposition_i);
-        if (line_start > INTS[fEDI_pooledTrackedSyntax_start] && line_start < INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length]) {
+        if (line_start > INTS[fEDI_poolret_pooledTrackedSyntax_start] && line_start < INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length]) {
             // # Then, you immediately know the trackedSyntax that encompasses the insertion (if it exists), so you increment its length by the text inserted on that respective line.
-            EDI_trackedSyntaxList.setLength(trackedSyntaxReposition_i, INTS[fEDI_pooledTrackedSyntax_length] + bytesLength);
+            EDI_trackedSyntaxList.setLength(trackedSyntaxReposition_i, INTS[fEDI_poolret_pooledTrackedSyntax_length] + bytesLength);
         }
 
         // # Insert the text on the respective line.
@@ -3961,8 +3961,8 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
             }
         }
         EDI_trackedSyntaxList.getElementAt(trackedSyntaxReposition_i);
-        if (line_start > INTS[fEDI_pooledTrackedSyntax_start] && line_start < INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length]) {
-            EDI_trackedSyntaxList.setLength(trackedSyntaxReposition_i, INTS[fEDI_pooledTrackedSyntax_length] - innerRemoveCount);
+        if (line_start > INTS[fEDI_poolret_pooledTrackedSyntax_start] && line_start < INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length]) {
+            EDI_trackedSyntaxList.setLength(trackedSyntaxReposition_i, INTS[fEDI_poolret_pooledTrackedSyntax_length] - innerRemoveCount);
         }
 
         EDI_textByteList_removeAt(line_start, innerRemoveCount);
@@ -4245,23 +4245,23 @@ function EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_
     }
     for (var i = EDI_trackedSyntaxList.count_abstract - 1; i >= 0; i--) {
         EDI_trackedSyntaxList.getElementAt(i);
-        if (INTS[fEDI_cursor_editPosition] < INTS[fEDI_pooledTrackedSyntax_start]) {
-            EDI_trackedSyntaxList.setStart(i, INTS[fEDI_pooledTrackedSyntax_start] - INTS[fEDI_cursor_editLength]);
+        if (INTS[fEDI_cursor_editPosition] < INTS[fEDI_poolret_pooledTrackedSyntax_start]) {
+            EDI_trackedSyntaxList.setStart(i, INTS[fEDI_poolret_pooledTrackedSyntax_start] - INTS[fEDI_cursor_editLength]);
         }
-        else if (INTS[fEDI_pooledTrackedSyntax_start] >= INTS[fEDI_cursor_editPosition] && INTS[fEDI_pooledTrackedSyntax_start] < INTS[fEDI_cursor_editPosition] + INTS[fEDI_cursor_editLength]) {
+        else if (INTS[fEDI_poolret_pooledTrackedSyntax_start] >= INTS[fEDI_cursor_editPosition] && INTS[fEDI_poolret_pooledTrackedSyntax_start] < INTS[fEDI_cursor_editPosition] + INTS[fEDI_cursor_editLength]) {
             // TODO: This needs to remove more than 1 at a time
             EDI_trackedSyntaxList.removeAt(i, 1);
         }
-        else if (BYTES[byteEDI_pooledTrackedSyntax_trackedSyntaxKind] === TrackedSyntaxKind_Comment &&
-                (INTS[fEDI_pooledTrackedSyntax_start] + 1) >= INTS[fEDI_cursor_editPosition] && (INTS[fEDI_pooledTrackedSyntax_start] + 1) < INTS[fEDI_cursor_editPosition] + INTS[fEDI_cursor_editLength]) {
+        else if (BYTES[byteEDI_byteret_pooledTrackedSyntax_trackedSyntaxKind] === TrackedSyntaxKind_Comment &&
+                (INTS[fEDI_poolret_pooledTrackedSyntax_start] + 1) >= INTS[fEDI_cursor_editPosition] && (INTS[fEDI_poolret_pooledTrackedSyntax_start] + 1) < INTS[fEDI_cursor_editPosition] + INTS[fEDI_cursor_editLength]) {
             // TODO: You can invalidate a >1 char long by removing beyond just the first unless a character afterwards falls into place that is valid by chance
             //
             // only multi-line-comments that span multiple lines are stored in EDI_trackedSyntaxList with the 'TrackedSyntaxKind_Comment'
             //
             EDI_trackedSyntaxList.removeAt(i, 1);
         }
-        else if (INTS[fEDI_cursor_editPosition] > INTS[fEDI_pooledTrackedSyntax_start] && INTS[fEDI_cursor_editPosition] < INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length]) {
-            EDI_trackedSyntaxList.setLength(i, INTS[fEDI_pooledTrackedSyntax_length] - INTS[fEDI_cursor_editLength]);
+        else if (INTS[fEDI_cursor_editPosition] > INTS[fEDI_poolret_pooledTrackedSyntax_start] && INTS[fEDI_cursor_editPosition] < INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length]) {
+            EDI_trackedSyntaxList.setLength(i, INTS[fEDI_poolret_pooledTrackedSyntax_length] - INTS[fEDI_cursor_editLength]);
         }
     }
 
@@ -4397,16 +4397,16 @@ function EDI_drawViewPort_FindTrackedSyntax_StartingIndex(indexLineAaa) {
 
         local_EDI_trackedSyntaxList.getElementAt(mid);
         
-        if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] > positionIndex) {
+        if (INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length] > positionIndex) {
             indexLineBbb = mid;
 
-            if (INTS[fEDI_pooledTrackedSyntax_start] === positionIndex) {
+            if (INTS[fEDI_poolret_pooledTrackedSyntax_start] === positionIndex) {
                 break;
             }
             
             right = mid - 1;
         }
-        else if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] <= positionIndex) {
+        else if (INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length] <= positionIndex) {
             left = mid + 1;
         }
         else {
@@ -5090,11 +5090,11 @@ function EDI_lineWasInsertedValidateGutter() {
 function EDI_trackedSyntaxList_inefficientUpdateStartAndLength(indexPosition, insertionCount) {
     for (var i = 0; i < EDI_trackedSyntaxList.count_abstract; i++) {
         EDI_trackedSyntaxList.getElementAt(i);
-        if (indexPosition <= INTS[fEDI_pooledTrackedSyntax_start]) {
-            EDI_trackedSyntaxList.setStart(i, INTS[fEDI_pooledTrackedSyntax_start] + insertionCount);
+        if (indexPosition <= INTS[fEDI_poolret_pooledTrackedSyntax_start]) {
+            EDI_trackedSyntaxList.setStart(i, INTS[fEDI_poolret_pooledTrackedSyntax_start] + insertionCount);
         }
-        else if (indexPosition > INTS[fEDI_pooledTrackedSyntax_start] && indexPosition < INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length]) {
-            EDI_trackedSyntaxList.setLength(i, INTS[fEDI_pooledTrackedSyntax_length] + insertionCount);
+        else if (indexPosition > INTS[fEDI_poolret_pooledTrackedSyntax_start] && indexPosition < INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length]) {
+            EDI_trackedSyntaxList.setLength(i, INTS[fEDI_poolret_pooledTrackedSyntax_length] + insertionCount);
         }
     }
 }
@@ -5181,21 +5181,21 @@ function EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_la
 }
 
 function EDI_stopTrackingIfTrackedSyntaxMadeToSpanSingleLine() {
-    // binary search for 'if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] > positionIndex)'
+    // binary search for 'if (INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length] > positionIndex)'
     let indexTrackedSyntax = EDI_drawViewPort_FindTrackedSyntax_StartingIndex(INTS[fEDI_cursor_indexLine]);
     if (indexTrackedSyntax === NaN || indexTrackedSyntax === -1) {
         indexTrackedSyntax = EDI_trackedSyntaxList.count_abstract;
     }
     if (indexTrackedSyntax < EDI_trackedSyntaxList.count_abstract) {
         EDI_trackedSyntaxList.getElementAt(indexTrackedSyntax);
-        if (INTS[fEDI_pooledTrackedSyntax_start] < INTS[fEDI_cursor_editPosition]) {
+        if (INTS[fEDI_poolret_pooledTrackedSyntax_start] < INTS[fEDI_cursor_editPosition]) {
             let moreThanOneLineEndPositionIsEncompassed = false;
 
             // TODO: This has no reason to be a for loop
             for (let i = INTS[fEDI_cursor_indexLine] - 1; i >= 0; i--) {
                 let lineEndPosition = EDI_lineEndPositionList_data[i];
-                if (INTS[fEDI_pooledTrackedSyntax_start] < lineEndPosition &&
-                    INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] > lineEndPosition) {
+                if (INTS[fEDI_poolret_pooledTrackedSyntax_start] < lineEndPosition &&
+                    INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length] > lineEndPosition) {
                         moreThanOneLineEndPositionIsEncompassed = true;
                         break;
                 }
@@ -5208,8 +5208,8 @@ function EDI_stopTrackingIfTrackedSyntaxMadeToSpanSingleLine() {
                 // TODO: This has no reason to be a for loop
                 for (let i = INTS[fEDI_cursor_indexLine] + 1; i < INTS[fEDI_lineEndPositionList_count]; i++) {
                     let lineEndPosition = EDI_lineEndPositionList_data[i];
-                    if (INTS[fEDI_pooledTrackedSyntax_start] < lineEndPosition &&
-                        INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] > lineEndPosition) {
+                    if (INTS[fEDI_poolret_pooledTrackedSyntax_start] < lineEndPosition &&
+                        INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length] > lineEndPosition) {
                             moreThanOneLineEndPositionIsEncompassed = true;
                             break;
                     }

@@ -723,9 +723,9 @@ class TreeViewNodeList {
      */
     getElementAt(index_abstract) {
         let index_literal = index_abstract * this.field_count;
-        BYTES[byteTreeView_pooledNode_nodeKind] = this.data_literal[index_literal + this.nodeKind_offset];
-        INTS[fTreeView_pooledNode_key] = this.data_literal[index_literal + this.key_offset];
-        INTS[fTreeView_pooledNode_depth] = this.data_literal[index_literal + this.depth_offset];
+        BYTES[byteTreeView_byteret_pooledNode_nodeKind] = this.data_literal[index_literal + this.nodeKind_offset];
+        INTS[fTreeView_poolret_pooledNode_key] = this.data_literal[index_literal + this.key_offset];
+        INTS[fTreeView_poolret_pooledNode_depth] = this.data_literal[index_literal + this.depth_offset];
     }
 
     getKey(index_abstract) {

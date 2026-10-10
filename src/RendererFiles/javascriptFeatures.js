@@ -583,7 +583,7 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
             
             createTrackedSyntaxFlag = false;
 
-            let trackedSyntaxEnd = INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length];
+            let trackedSyntaxEnd = INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length];
             const r_trackedSyntaxEnd = trackedSyntaxEnd - lineStart;
             subend = r_trackedSyntaxEnd > divSpanTextContentLength ? divSpanTextContentLength : r_trackedSyntaxEnd;
             
@@ -598,7 +598,7 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
             substart += length;
             subend = divSpanTextContentLength;
             pos += length;
-            switch (BYTES[byteEDI_pooledTrackedSyntax_trackedSyntaxKind]) {
+            switch (BYTES[byteEDI_byteret_pooledTrackedSyntax_trackedSyntaxKind]) {
                 case TrackedSyntaxKind_Comment:
                     EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
                     commentHighlight.add(range);
@@ -629,22 +629,22 @@ function JS_line_lex(div, ringBufferIndexOfDiv, trackedSyntax_I, lineStart) {
                 continue;
             }
 
-            if (INTS[fEDI_pooledTrackedSyntax_start] >= lineStart + divSpanTextContentLength) {
+            if (INTS[fEDI_poolret_pooledTrackedSyntax_start] >= lineStart + divSpanTextContentLength) {
                 createDoLexFlag = true;
                 trackedSyntaxExhausted = true;
                 subend = divSpanTextContentLength;
                 continue;
             }
 
-            if (INTS[fEDI_pooledTrackedSyntax_start] + INTS[fEDI_pooledTrackedSyntax_length] < lineStart) {
+            if (INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length] < lineStart) {
                 trackedSyntax_I++;
                 continue;
             }
 
-            if (INTS[fEDI_pooledTrackedSyntax_start] > lineStart + substart) {
+            if (INTS[fEDI_poolret_pooledTrackedSyntax_start] > lineStart + substart) {
                 createDoLexFlag = true;
                 trackedSyntaxExhausted = false;
-                const r_trackedSyntaxStart = INTS[fEDI_pooledTrackedSyntax_start] - lineStart;
+                const r_trackedSyntaxStart = INTS[fEDI_poolret_pooledTrackedSyntax_start] - lineStart;
                 if (r_trackedSyntaxStart < divSpanTextContentLength) {
                     subend = r_trackedSyntaxStart;
                 }

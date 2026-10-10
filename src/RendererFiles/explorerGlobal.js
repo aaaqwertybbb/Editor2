@@ -97,8 +97,7 @@ const EXPLORER_treeViewNodes = new TreeViewNodeList(32);
 
 /** Starting with an empty array so I can have undefined/null signify that the "TreeViewDirector" is "opting out" of this feature, thus the component should not allocate this on the "TreeViewDirector"'s behalf. */
 let EXPLORER_pullData_array = new Uint32Array(0);
-
-let EXPLORER_pullData_result = new Uint32Array(0);
+let EXPLORER_pullData_result = EXPLORER_pullData_array; // immediately allocated avoiding a null
 
 let EXPLORER_arrayEntries = null;
 

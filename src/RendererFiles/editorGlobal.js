@@ -4810,7 +4810,8 @@ function EDI_ret_getIndexFromX_RESET(rx, lineStart, lineEnd) {
     INTS[fEDI_ret_getIndexFromX_visualColumns] = visualColumns;
 }
 
-function getIndexFromX_sameLine_newRxIsLarger(goalRx, lineStart, lineEnd, startColumn, startVisualColumns) {
+/** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
+function EDI_ret_getIndexFromX_sameLine_newRxIsLarger(goalRx, lineStart, lineEnd, startColumn, startVisualColumns) {
     let indexColumn = startColumn;
     let visualColumns = startVisualColumns;
     let positionIndex = lineStart + startColumn;
@@ -4846,13 +4847,15 @@ function getIndexFromX_sameLine_newRxIsLarger(goalRx, lineStart, lineEnd, startC
 }
 
 /**
+ * 'ret_' will overwrite one another do not mix the function invocations without having read the values first
+ * 
  * 'INTS[fEDI_ret_getIndexFromX_indexColumn]'
  * 
  * 'INTS[fEDI_ret_getIndexFromX_visualColumns]'
  * 
  * @returns nothing: the results are stored in 'INTS[fEDI_ret_getIndexFromX_indexColumn]' and 'INTS[fEDI_ret_getIndexFromX_visualColumns]'.
  */
-function getIndexFromX_sameLine_newRxIsSmaller(goalRx, lineStart, startColumn, startVisualColumns) {
+function EDI_ret_getIndexFromX_sameLine_newRxIsSmaller(goalRx, lineStart, startColumn, startVisualColumns) {
     let indexColumn = startColumn;
     let visualColumns = startVisualColumns;
     let positionIndex = lineStart + startColumn;
@@ -7002,10 +7005,10 @@ function EDI_onMouseDown(event) {
 
     if (INTS[fEDI_cursor_indexLine] === indexLine) {
         if (rX >= INTS[fEDI_cursor_cursorTranslateXValue]) {
-            getIndexFromX_sameLine_newRxIsLarger(rX, INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
+            EDI_ret_getIndexFromX_sameLine_newRxIsLarger(rX, INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
         }
         else {
-            getIndexFromX_sameLine_newRxIsSmaller(rX, INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
+            EDI_ret_getIndexFromX_sameLine_newRxIsSmaller(rX, INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
         }
     }
     else {
@@ -7284,10 +7287,10 @@ function EDI_onMouseMove_WRAPIT(event) {
 
         if (INTS[fEDI_cursor_indexLine] === indexLine) {
             if (rX >= INTS[fEDI_cursor_cursorTranslateXValue]) {
-                getIndexFromX_sameLine_newRxIsLarger(rX, INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
+                EDI_ret_getIndexFromX_sameLine_newRxIsLarger(rX, INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
             }
             else {
-                getIndexFromX_sameLine_newRxIsSmaller(rX, INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
+                EDI_ret_getIndexFromX_sameLine_newRxIsSmaller(rX, INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
             }
         }
         else {

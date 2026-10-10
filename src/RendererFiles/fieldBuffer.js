@@ -86,6 +86,14 @@ set_EDI_recentBoundingClientRect_isNull_intFalsey(1);
 const get_EDI_findOverlay_show = () => BYTES[2];
 const set_EDI_findOverlay_show = (byte) => BYTES[2] = byte;
 
+/**
+ * TODO: obsolete
+ * 
+ * returns a number, beware '==='
+ */
+const get_EDI_findOverlay_isBeingShownDueToMultiCursorMatching = () => BYTES[3];
+const set_EDI_findOverlay_isBeingShownDueToMultiCursorMatching = (byte) => BYTES[3] = byte;
+
 /** returns a number, beware '===' */
 const get_EDI_fileStartsWithBom = () => BYTES[4];
 const set_EDI_fileStartsWithBom = (byte) => BYTES[4] = byte;
@@ -357,6 +365,9 @@ const fEDI_virtualCount = 5;
 const fEDI_ONSCROLLvirtualCount = 7;
 INTS[fEDI_ONSCROLLvirtualCount] = 0;
 
+/** TODO: obsolete */
+const fEDI_findOverlay_isBeingShownDueToMultiCursorMatching_originMatchNumber = 9;
+
 const fEDI_drawn_count_of_digits_longest_line_number = 10;
 
 const fEDI_detail_smallPosition = 11;
@@ -523,6 +534,13 @@ const fEDI_EDI_indentLess_startingLinePos_end = 73;
 
 const fEDI_EDI_cursorBlinkLastTimestamp = 74;
 
+/**
+ * TODO: This seems to be obsolete
+ * 
+ * 'EDI_init' and 'EDI_drawHorizontalScrollbar' related
+ */
+const fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left = 75;
+
 /** TODO: What happens when you overflow 'INTS[fEDI_prevVli]' does it overflow such that you're the correct diff? */
 const fEDI_prevVli = 76;
 /** TODO: What happens when you overflow 'INTS[fEDI_prevVli]' does it overflow such that you're the correct diff? */
@@ -544,6 +562,9 @@ const fEDI_getLineAndColumnIndices_indexLine = 83;
 const fEDI_getLineAndColumnIndices_indexColumn = 84;
 
 const fEDI_cursorVisualColumnIndex = 85;
+
+/** TODO: I don't think you've ever actually used this, you only are setting it, obsolete? */
+const fEDI_cursorVisualColumnIndex_relativeToThisLineIndex = 86;
 
 const fEDI_ontab_visualWidth_perCharacter = 87;
 
@@ -841,27 +862,14 @@ const OFFSET_MENU = 128; // Slots 128 to 159
 
 
 
-/**
- * TODO: obsolete
- * 
- * returns a number, beware '==='
- */
-const get_EDI_findOverlay_isBeingShownDueToMultiCursorMatching = () => BYTES[3];
-const set_EDI_findOverlay_isBeingShownDueToMultiCursorMatching = (byte) => BYTES[3] = byte;
-
-/** TODO: obsolete */
-const fEDI_findOverlay_isBeingShownDueToMultiCursorMatching_originMatchNumber = 9;
 
 
-/**
- * TODO: This seems to be obsolete
- * 
- * 'EDI_init' and 'EDI_drawHorizontalScrollbar' related
- */
-const fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left = 75;
 
-/** TODO: I don't think you've ever actually used this, you only are setting it, obsolete? */
-const fEDI_cursorVisualColumnIndex_relativeToThisLineIndex = 86;
+
+
+
+
+
 
 // TODO: probably can be made obsolete these various
 // ```

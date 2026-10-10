@@ -171,7 +171,9 @@ const lspQueue = [];
 const EDI_renderKindBuffer = new Uint8Array(BUFFER_SIZE);
 
 let EDI_ringBuffer_gutter = [];
-let EDI_ringBuffer_text = EDI_ringBuffer_gutter; // These empty arrays in javascript are an allocation per, and the editor immediately overwrites them with new arrays anyways. Not using null to avoid JS ever thinking these are null.
+let EDI_ringBuffer_text = EDI_ringBuffer_gutter;
+// These empty arrays in javascript are an allocation per, and the editor immediately overwrites them with new arrays anyways. Not using null to avoid JS ever thinking these are null.
+// V8 creates an internal JavaScript object header, but it does not allocate any heap memory for data elements yet. 
 
 let EDI_ringBuffer_needsSyntaxHighlightingFlags = new Uint8Array(0);
 
@@ -183,7 +185,7 @@ let EDI_ringBuffer_needsSyntaxHighlightingFlags = new Uint8Array(0);
  * EDI_ringBuffer_mapHighlights.length = 0;
  * needs to run before accessing
  */
-let EDI_ringBuffer_mapHighlights = new Array(64);
+let EDI_ringBuffer_mapHighlights = [];
 
 let EDI_language_line_lex = null;
 
@@ -194,7 +196,7 @@ let EDI_language_line_lex = null;
 // let EDI_debug_optimization_run_count = 0;
 
 function EDI_init() {
-    EDI_ringBuffer_mapHighlights.length = 0;
+    //EDI_ringBuffer_mapHighlights.length = 0;
 
     //EDI_horizontal_scrollbar.style.left = '0px';
     INTS[fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left] = 0;

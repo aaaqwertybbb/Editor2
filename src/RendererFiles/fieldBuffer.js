@@ -566,14 +566,10 @@ const fEDI_cursor_cached_indentation_string_visualWidth = 100;
 
 const fEDI_cursor_editLengthVisual = 101;
 
-// TODO: What does 'fDIALOG_after_X' and 'fDIALOG_after_Y' even get used for? It seems they always only get set to 0 over and over and do nothing?
-/** TODO: obsolete */
-const fDIALOG_after_X = 112;
-/** TODO: obsolete */
-const fDIALOG_after_Y = 113;
-
 // I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
+/** TODO: This isn't used only set */
 const fAUTOCOMPLETE_items_slice_start = 114;
+/** TODO: This isn't used only set */
 const fAUTOCOMPLETE_items_slice_end = 115;
 const fAUTOCOMPLETE_items_totalLength = 116;
 
@@ -581,6 +577,7 @@ const fAUTOCOMPLETE_cursorIndex = 117;
 
 const fAUTOCOMPLETE_rectHeight = 118;
 const fAUTOCOMPLETE_rectLeft = 119;
+/** TODO: This isn't used only set, but it probably will be used for mouse events just that they're not written yet? */
 const fAUTOCOMPLETE_rectTop = 120;
 
 const fAUTOCOMPLETE_sliceVirtualIndex_SLICE = 121;
@@ -624,51 +621,25 @@ INTS[fAUTOCOMPLETE_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING] = 20;
 const fWIDGET_ticketId_counter = 131;
 INTS[fWIDGET_ticketId_counter] = 1;
 
-/** TODO: obsolete */
-const fWIDGET_ticketId_pending = 132;
 const fWIDGET_ticketId_drawn = 133;
-
-/** TODO: obsolete */
-const fWIDGET_left = 134;
-/** TODO: obsolete */
-const fWIDGET_top = 135;
 
 const fWIDGETrenderKind_Show_countOfPendingRequests = 136;
 
 const fMENU_ticketId_counter = 137;
 INTS[fMENU_ticketId_counter] = 1;
 
-/**
- * TODO: obsolete
- * 
- * TODO: It might read better to make this 'null' or something after you've drawn the pending.
- */
-const fMENU_ticketId_pending = 138;
-
 const fMENU_ticketId_drawn = 139;
-
-/** TODO: obsolete */
-const fMENU_cursorIndex = 140;
-
-/**
- * TODO: obsolete
- * By duplicating this you guarantee the initial cursor index is what was expected.
- */
-const fMENU_SET_index = 141;
-
-/** TODO: obsolete */
-const fMENU_left = 142;
-/** TODO: obsolete */
-const fMENU_top = 143;
 
 const fMENU_renderKind_Set_countOfPendingRequests = 144;
 
 const fTreeView_pooledNode_key = 145;
 const fTreeView_pooledNode_depth = 146;
 
-const fMENU_last_handled_ticketId = 147;
-
-/** 8 or the measured value */
+/**
+ * TODO: This is approaching the point of being obsolete
+ * 
+ * 8 or the measured value
+ */
 const fEXPLORER_firstSpanWidthValue = 148;
 INTS[fEXPLORER_firstSpanWidthValue] = 8;
 
@@ -676,6 +647,8 @@ const fEXPLORER_menuOptionX = 149;
 const fEXPLORER_menuOptionY = 150;
 
 const fEXPLORER_lastReadNumber_offsetWidth = 151;
+
+/** TODO: this is not being used, only set, but it is surprising shouldn't this be used to get the virtual count? */
 const fEXPLORER_lastReadNumber_offsetHeight = 152;
 
 const fEXPLORER_cursorTranslateYNumber = 153;
@@ -922,6 +895,15 @@ const fEDI_cursorVisualColumnIndex_relativeToThisLineIndex = 86;
  * // TODO: Are 'fDIALOG_before_X' and 'fDIALOG_before_Y' actually doing anything?...
  * // ...When it comes to their after counterparts 'fDIALOG_after_X' and 'fDIALOG_after_Y'...
  * // ...it is believed that the counterparts are doing nothing, so also check the before.
+ * 
+ * 
+ * 
+ * 
+ * TODO: This comment... determine if is meaningful / move it to the dialogGlobal.js if it is meaningful etc...
+ * 
+ * // TODO: What does 'fDIALOG_after_X' and 'fDIALOG_after_Y' even get used for? It seems they always only get set to 0 over and over and do nothing?
+ * 
+ * 
  */
 
 

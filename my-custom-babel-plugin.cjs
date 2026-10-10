@@ -330,8 +330,6 @@ module.exports = function (babel) {
     "byteDIALOG_hasBeenMeasured",
     "byteDIALOG_windowExists",
 
-    "fDIALOG_after_Y",
-
     "fAUTOCOMPLETE_items_slice_start",
     "fAUTOCOMPLETE_items_slice_end",
     "fAUTOCOMPLETE_items_totalLength",
@@ -357,10 +355,7 @@ module.exports = function (babel) {
     "byteAUTOCOMPLETE_scrollIsFetchingData",
 
     "fWIDGET_ticketId_counter",
-    "fWIDGET_ticketId_pending",
     "fWIDGET_ticketId_drawn",
-    "fWIDGET_left",
-    "fWIDGET_top",
     "fWIDGETrenderKind_Show_countOfPendingRequests",
 
     "byteWIDGET_isRenderPending",
@@ -373,12 +368,7 @@ module.exports = function (babel) {
     "byteDIALOG_currentDialogKind",
 
     "fMENU_ticketId_counter",
-    "fMENU_ticketId_pending",
     "fMENU_ticketId_drawn",
-    "fMENU_cursorIndex",
-    "fMENU_SET_index",
-    "fMENU_left",
-    "fMENU_top",
     "fMENU_renderKind_Set_countOfPendingRequests",
 
     "byteMENU_isRenderPending",
@@ -389,8 +379,6 @@ module.exports = function (babel) {
     "byteTreeView_pooledNode_nodeKind",
     "fTreeView_pooledNode_key",
     "fTreeView_pooledNode_depth",
-
-    "fMENU_last_handled_ticketId",
 
     "byteEDI_cursor_enterKeyEventKind",
     "byteEDI_extensionKind",

@@ -171,7 +171,7 @@ const lspQueue = [];
 const EDI_renderKindBuffer = new Uint8Array(BUFFER_SIZE);
 
 let EDI_ringBuffer_gutter = [];
-let EDI_ringBuffer_text = [];
+let EDI_ringBuffer_text = EDI_ringBuffer_gutter; // These empty arrays in javascript are an allocation per, and the editor immediately overwrites them with new arrays anyways. Not using null to avoid JS ever thinking these are null.
 
 let EDI_ringBuffer_needsSyntaxHighlightingFlags = new Uint8Array(0);
 

@@ -961,7 +961,7 @@ function EDI_indentMore() {
         if (startingIndex >= 0) {
             EDI_ret_getLineBoundaryPositions_raw(startingIndex);
             startingLinePos_start = INTS[fEDI_ret_getLineBoundaryPositions_start]; // TODO: This updated start value isn't actually used. Keep it for symmetry with 'startingLinePos_end'?
-            startingLinePos_end = INTS[fEDI_ret_getLineBoundaryPositions_end]; // TODO: Well actually this end value is used but you could move the if statement for 'INTS[fEDI_cursor_editLength] === 0' and just immediately set 'INTS[fEDI_EDI_indentLess_startingLinePos_end]' here...
+            startingLinePos_end = INTS[fEDI_ret_getLineBoundaryPositions_end]; // TODO: Well actually this end value is used but you could move the if statement for 'INTS[fEDI_cursor_editLength] === 0' and just immediately set 'INTS[fEDI_editret_indentLess_startingLinePos_end]' here...
                                                                            // ...This would avoid the symmetry issue because you updated a different value than the "end" so both values are still outdated rather than just 1.
         }
     }
@@ -973,7 +973,7 @@ function EDI_indentMore() {
     INTS[fEDI_indent_startingIndex] = startingIndex;
 
     if (INTS[fEDI_cursor_editLength] === 0) {
-        INTS[fEDI_EDI_indentLess_startingLinePos_end] = startingLinePos_end;
+        INTS[fEDI_editret_indentLess_startingLinePos_end] = startingLinePos_end;
     } 
 
     //// # Update the cursor's selection to reflect the inserted text
@@ -1148,7 +1148,7 @@ function EDI_indentLess() {
         if (startingIndex >= 0) {
             EDI_ret_getLineBoundaryPositions_raw(startingIndex);
             startingLinePos_start = INTS[fEDI_ret_getLineBoundaryPositions_start]; // TODO: This updated start value isn't actually used. Keep it for symmetry with 'startingLinePos_end'?
-            startingLinePos_end = INTS[fEDI_ret_getLineBoundaryPositions_end]; // TODO: Well actually this end value is used but you could move the if statement for 'INTS[fEDI_cursor_editLength] === 0' and just immediately set 'INTS[fEDI_EDI_indentLess_startingLinePos_end]' here...
+            startingLinePos_end = INTS[fEDI_ret_getLineBoundaryPositions_end]; // TODO: Well actually this end value is used but you could move the if statement for 'INTS[fEDI_cursor_editLength] === 0' and just immediately set 'INTS[fEDI_editret_indentLess_startingLinePos_end]' here...
                                                                            // ...This would avoid the symmetry issue because you updated a different value than the "end" so both values are still outdated rather than just 1.
         }
     }
@@ -1160,7 +1160,7 @@ function EDI_indentLess() {
     INTS[fEDI_indent_startingIndex] = startingIndex;
 
     if (INTS[fEDI_cursor_editLength] === 0) {
-        INTS[fEDI_EDI_indentLess_startingLinePos_end] = startingLinePos_end;
+        INTS[fEDI_editret_indentLess_startingLinePos_end] = startingLinePos_end;
     }
 
     // TODO: Some kind of "fake" selection somehow because you really only need to modify the top-left most selection and the bottom-right most selection.
@@ -1238,8 +1238,8 @@ async function EDI_duplicateSelection() {
     INTS[fEDI_cursorVisualColumnIndex] = large_lineAndColumnIndices_indexColumn;
     INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = large_lineAndColumnIndices_indexLine;
 
-    INTS[fEDI_cursor_EDI_duplicate_small] = small;
-    INTS[fEDI_cursor_EDI_duplicate_length] = length;
+    INTS[fEDI_editret_cursor_EDI_duplicate_small] = small;
+    INTS[fEDI_editret_cursor_EDI_duplicate_length] = length;
 
     INTS[fEDI_cursor_selectionAnchor] = large;
     INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
@@ -1258,8 +1258,8 @@ function EDI_render_do_DuplicateOrPaste() {
     }
     if (INTS[fEDI_cursor_editRenderedDisplacement] < INTS[fEDI_cursor_editLength] || INTS[fEDI_cursor_editKind] === EditKind_Paste /* Paste has an editLength of 0 currently */) {
 
-        let small = INTS[fEDI_cursor_EDI_duplicate_small];
-        let length = INTS[fEDI_cursor_EDI_duplicate_length];
+        let small = INTS[fEDI_editret_cursor_EDI_duplicate_small];
+        let length = INTS[fEDI_editret_cursor_EDI_duplicate_length];
         let large = small + length;
         
         // TODO: This code looks wrong in terms of 'INTS[fEDI_cursor_editRenderedDisplacement]'
@@ -2057,8 +2057,8 @@ function EDI_removeSelection() {
         largePosition = INTS[fEDI_cursor_selectionAnchor];
     }
 
-    INTS[fEDI_EDI_RemoveSelection_smallPosition] = smallPosition;
-    INTS[fEDI_EDI_RemoveSelection_largePosition] = largePosition;
+    INTS[fEDI_editret_RemoveSelection_smallPosition] = smallPosition;
+    INTS[fEDI_editret_RemoveSelection_largePosition] = largePosition;
 
     INTS[fEDI_cursor_selectionAnchor] = 0;
     INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = 0;
@@ -2072,8 +2072,8 @@ function EDI_removeSelection() {
     EDI_ret_getLineAndColumnIndices_raw(smallPosition);
     let smallLineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
     let smallLineAndColumnIndices_indexColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
-    INTS[fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexLine] = smallLineAndColumnIndices_indexLine;
-    INTS[fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexColumn] = smallLineAndColumnIndices_indexColumn;
+    INTS[fEDI_editret_RemoveSelection_smallLineAndColumnIndices_small_indexLine] = smallLineAndColumnIndices_indexLine;
+    INTS[fEDI_editret_RemoveSelection_smallLineAndColumnIndices_small_indexColumn] = smallLineAndColumnIndices_indexColumn;
     // TODO: Why is this set twice (seemingly redundantly) #EDI_removeSelection() (1 of 2)
     INTS[fEDI_cursor_indexLine] = smallLineAndColumnIndices_indexLine;
     INTS[fEDI_cursor_indexColumn] = smallLineAndColumnIndices_indexColumn;
@@ -2102,13 +2102,13 @@ function EDI_removeSelection() {
 }
 
 function EDI_render_do_RemoveSelection() {
-    let smallPosition = INTS[fEDI_EDI_RemoveSelection_smallPosition];
-    let largePosition = INTS[fEDI_EDI_RemoveSelection_largePosition];
+    let smallPosition = INTS[fEDI_editret_RemoveSelection_smallPosition];
+    let largePosition = INTS[fEDI_editret_RemoveSelection_largePosition];
 
     let editLength = largePosition - smallPosition;
 
-    let smallLineAndColumnIndices_indexLine = INTS[fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexLine];
-    let smallLineAndColumnIndices_indexColumn = INTS[fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexColumn];
+    let smallLineAndColumnIndices_indexLine = INTS[fEDI_editret_RemoveSelection_smallLineAndColumnIndices_small_indexLine];
+    let smallLineAndColumnIndices_indexColumn = INTS[fEDI_editret_RemoveSelection_smallLineAndColumnIndices_small_indexColumn];
 
     ///////////
     ///////////
@@ -2767,7 +2767,7 @@ function EDI_render_do_InsertLtr() {
         if (EDI_cursor_gapBufferWriteToSpanElement) {
 
             EDI_cursor_gapBufferWriteToSpanElement.firstChild.insertData(
-                (INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex]) + INTS[fEDI_cursor_editRenderedDisplacement],
+                (INTS[fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex]) + INTS[fEDI_cursor_editRenderedDisplacement],
                 EDI_decoder.decode(EDI_cursor_gapBuffer.subarray(INTS[fEDI_cursor_editRenderedDisplacement], INTS[fEDI_cursor_editLength])));
 
             INTS[fEDI_cursor_editRenderedDisplacement] = INTS[fEDI_cursor_editLength];
@@ -3588,8 +3588,8 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
         }
     }
 
-    let startingLinePos_end = INTS[fEDI_EDI_indentLess_startingLinePos_end];
-    INTS[fEDI_EDI_indentLess_startingLinePos_end] = 0;
+    let startingLinePos_end = INTS[fEDI_editret_indentLess_startingLinePos_end];
+    INTS[fEDI_editret_indentLess_startingLinePos_end] = 0;
 
     // # Determine the total count of text that will be inserted, prior to actually beginning the edit.
     // ...
@@ -3859,7 +3859,7 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
     //    //}
     //}
 
-    let trackedSyntaxReposition_i = EDI_trackedSyntaxReposition_find(INTS[fEDI_EDI_indentLess_startingLinePos_end] + 1);
+    let trackedSyntaxReposition_i = EDI_trackedSyntaxReposition_find(INTS[fEDI_editret_indentLess_startingLinePos_end] + 1);
     if (trackedSyntaxReposition_i === NaN || trackedSyntaxReposition_i === -1) {
         trackedSyntaxReposition_i = EDI_trackedSyntaxList.count_abstract;
     }
@@ -4105,11 +4105,11 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
 function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
     EDI_trackedSyntaxList_inefficientUpdateStartAndLength(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength]);
 
-    let small = INTS[fEDI_cursor_EDI_duplicate_small];
-    let length = INTS[fEDI_cursor_EDI_duplicate_length];
+    let small = INTS[fEDI_editret_cursor_EDI_duplicate_small];
+    let length = INTS[fEDI_editret_cursor_EDI_duplicate_length];
 
-    INTS[fEDI_cursor_EDI_duplicate_small] = 0;
-    INTS[fEDI_cursor_EDI_duplicate_length] = 0;
+    INTS[fEDI_editret_cursor_EDI_duplicate_small] = 0;
+    INTS[fEDI_editret_cursor_EDI_duplicate_length] = 0;
 
     let linesInsertedCount = 0;
     let insertionLength = 0;
@@ -4324,7 +4324,7 @@ function EDI_finalizeEdit_ClearEditState() {
     INTS[fEDI_cursor_END_editIndexColumn] = 0;
     INTS[fEDI_cursor_gapBufferCount] = 0;
     EDI_cursor_gapBufferWriteToSpanElement = null;
-    INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = 0;
+    INTS[fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = 0;
     INTS[fEDI_cursor_editLineFeedCount] = 0;
     EDI_lineEndPositionList_PENDING.clear();
 
@@ -5429,22 +5429,22 @@ function EDI_insertGapBufferSpan() {
     walkLineUntilIndexColumn();
     if (w_div === w_divNONE) {
         EDI_cursor_gapBufferWriteToSpanElement = null;
-        INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = 0;
+        INTS[fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = 0;
         return;
     }
 
     if (INTS[fEDI_w_indexColumn_Goal] == 0) {
         EDI_cursor_gapBufferWriteToSpanElement = w_div;
-        INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = 0;
+        INTS[fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = 0;
     }
     else {
         EDI_cursor_gapBufferWriteToSpanElement = w_div;
 
         if (INTS[fEDI_w_indexColumn_Goal] === INTS[fEDI_w_indexColumn_Sum] + EDI_cursor_gapBufferWriteToSpanElement.textContent.length) {
-            INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = EDI_cursor_gapBufferWriteToSpanElement.textContent.length;
+            INTS[fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = EDI_cursor_gapBufferWriteToSpanElement.textContent.length;
         }
         else {
-            INTS[fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = INTS[fEDI_w_indexColumn_SpanTextContentRelative];
+            INTS[fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = INTS[fEDI_w_indexColumn_SpanTextContentRelative];
         }
     }
 }
@@ -6150,8 +6150,8 @@ function EDI_cursor_clear() {
 
     EDI_cursor_EDI_paste_clipboardContent = null;
 
-    INTS[fEDI_cursor_EDI_duplicate_small] = 0;
-    INTS[fEDI_cursor_EDI_duplicate_length] = 0;
+    INTS[fEDI_editret_cursor_EDI_duplicate_small] = 0;
+    INTS[fEDI_editret_cursor_EDI_duplicate_length] = 0;
 }
 
 /**

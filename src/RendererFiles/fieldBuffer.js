@@ -845,8 +845,8 @@ const OFFSET_MENU = 128; // Slots 128 to 159
 
 // TODO: probably can be made obsolete these various
 // ```
-// const fEDI_EDI_RemoveSelection_smallPosition = 71;
-// const fEDI_EDI_RemoveSelection_largePosition = 72;
+// const fEDI_editret_RemoveSelection_smallPosition = 71;
+// const fEDI_editret_RemoveSelection_largePosition = 72;
 // ```
 //
 // if only one edit can exist at a time you only the count of int32 required for the edit which requires the most of them.
@@ -905,28 +905,27 @@ const fEDI_pooledTrackedSyntax_length = 24;
 // ============
 
 
+/** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
+const fEDI_editret_cursor_EDI_duplicate_small = 99;
 
-/** same comment that pertains to EDI_cursor_EDI_paste_clipboardContent is somewhat relevant here */
-const fEDI_cursor_EDI_duplicate_small = 52;
-/** same comment that pertains to EDI_cursor_EDI_paste_clipboardContent is somewhat relevant here */
-const fEDI_cursor_EDI_duplicate_length = 53;
+/** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
+const fEDI_editret_cursor_EDI_duplicate_length = 100;
 
-// Move some 'EDI_removeSelection()' state here so I can access it in the render function.
-// TODO: Don't do this long term, I need a simple bridge for this state so I can just get started otherwise I'll spend the rest of my life procrastinating.
-//
-const fEDI_EDI_RemoveSelection_smallPosition = 66;
-const fEDI_EDI_RemoveSelection_largePosition = 67;
+/** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
+const fEDI_editret_RemoveSelection_smallPosition = 99;
+/** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
+const fEDI_editret_RemoveSelection_largePosition = 100;
+/** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
+const fEDI_editret_RemoveSelection_smallLineAndColumnIndices_small_indexLine = 101;
+/** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
+const fEDI_editret_RemoveSelection_smallLineAndColumnIndices_small_indexColumn = 102;
 
-// Temporary hack for state access TODO: this
-const fEDI_EDI_indentLess_startingLinePos_end = 68;
+/** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
+const fEDI_editret_indentLess_startingLinePos_end = 99;
 
-// Move some 'EDI_removeSelection()' state here so I can access it in the render function.
-// TODO: Don't do this long term, I need a simple bridge for this state so I can just get started otherwise I'll spend the rest of my life procrastinating.
-//
-const fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexLine = 75;
-const fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexColumn = 76;
+/** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
+const fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex = 99;
 
-const fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex = 77;
 
 // ============
 // ============
@@ -964,4 +963,13 @@ const fEDI_w_indexColumn_SpanTextContentRelative = 56;
 /** TODO: Obsolete */
 const fEDI_w_indexSpan = 57;
 
+
+/**
+ * TODO: This comment was on both variables what was it referring to?
+ * 
+ * // same comment that pertains to EDI_cursor_EDI_paste_clipboardContent is somewhat relevant here
+ * 
+ * const fEDI_editret_cursor_EDI_duplicate_small = 99;
+ * const fEDI_editret_cursor_EDI_duplicate_length = 100;
+ */
 

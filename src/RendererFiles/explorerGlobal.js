@@ -1193,16 +1193,16 @@ let EXPLORER_firstSpanWidth = '8px';
  */
 let EXPLORER_menuOptionCut_object = null;
 
-function EXPLORER_init() {
-    const EXPLORER_pickFolderOrWorkspaceButton = document.getElementById('EXPLORER_folderOrWorkspaceButtons');
-    if (!EXPLORER_pickFolderOrWorkspaceButton) return;
-
-    EXPLORER_pickFolderOrWorkspaceButton.addEventListener('click', EXPLORER_pickFolderOrWorkspaceButton_onClick);
-    
-    let toggleShowExplorerButton = document.getElementById('HEADER_toggleShowExplorer');
-    toggleShowExplorerButton.checked = BYTES[byteEXPLORER_show];
-    toggleShowExplorerButton.addEventListener('click', toggleShowExplorerButton_onClick);
-}
+// function EXPLORER_init
+// V8 can optimize away these initialization statements that exist at the module scope but not an "initialization function"
+const EXPLORER_pickFolderOrWorkspaceButton = document.getElementById('EXPLORER_folderOrWorkspaceButtons');
+if (!EXPLORER_pickFolderOrWorkspaceButton) return;
+//
+EXPLORER_pickFolderOrWorkspaceButton.addEventListener('click', EXPLORER_pickFolderOrWorkspaceButton_onClick);
+//
+let toggleShowExplorerButton = document.getElementById('HEADER_toggleShowExplorer');
+toggleShowExplorerButton.checked = BYTES[byteEXPLORER_show];
+toggleShowExplorerButton.addEventListener('click', toggleShowExplorerButton_onClick);
 
 function toggleShowExplorerButton_onClick() {
     // TODO: Will shadowing 'toggleShowExplorerButton' with a declaration of the same name in here cause any oddities in relation to app long garbage collection overhead....

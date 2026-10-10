@@ -416,10 +416,6 @@ const fEDI_recentBoundingClientRect_left = 21;
 
 const fEDI_recentBoundingClientRect_top = 22;
 
-const fEDI_pooledTrackedSyntax_start = 23;
-
-const fEDI_pooledTrackedSyntax_length = 24;
-
 /**
  * Also is used from 'EDI_render_do_SetText()', and 'EDI_render_do_Resize()', not just 'EDI_render_do_Scroll()'
  * 
@@ -489,19 +485,13 @@ const fEDI_cursor_gapBufferCount = 50;
  * and then you have another number too separately that says the length of line endings that this cursor contributed to modifying.
  */
 const fEDI_cursor_editLineFeedCount = 51;
-/** same comment that pertains to EDI_cursor_EDI_paste_clipboardContent is somewhat relevant here */
-const fEDI_cursor_EDI_duplicate_small = 52;
-/** same comment that pertains to EDI_cursor_EDI_paste_clipboardContent is somewhat relevant here */
-const fEDI_cursor_EDI_duplicate_length = 53;
+
 
 // TODO: Avoid re-using these locally after getting the w result (i.e.: avoid re-using over and over in a loop or something, probably make a local variable if accessed enough).
 // TODO: Verify and update all the previously -1 cases
 const fEDI_w_indexColumn_Goal = 54;
 const fEDI_w_indexColumn_Sum = 55;
-/** TODO: MAYBEo-b-s-o-l-e-t-eMAYBE */
-const fEDI_w_indexColumn_SpanTextContentRelative = 56;
-/** TODO: Obsolete */
-const fEDI_w_indexSpan = 57;
+
 // TODO: This -1
 const fEDI_w_ringBufferIndex = 58;
 
@@ -523,15 +513,6 @@ const fEDI_EDI_mouseOver_event_clientY = 64;
 
 const fEDI_EDI_mouseOver_event_clientX = 65;
 
-// Move some 'EDI_removeSelection()' state here so I can access it in the render function.
-// TODO: Don't do this long term, I need a simple bridge for this state so I can just get started otherwise I'll spend the rest of my life procrastinating.
-//
-const fEDI_EDI_RemoveSelection_smallPosition = 66;
-const fEDI_EDI_RemoveSelection_largePosition = 67;
-
-// Temporary hack for state access TODO: this
-const fEDI_EDI_indentLess_startingLinePos_end = 68;
-
 const fEDI_EDI_cursorBlinkLastTimestamp = 69;
 
 /**
@@ -550,29 +531,12 @@ const fEDI_onResize_timer = 73;
 
 const fEDI_hoverTimeout = 74;
 
-// Move some 'EDI_removeSelection()' state here so I can access it in the render function.
-// TODO: Don't do this long term, I need a simple bridge for this state so I can just get started otherwise I'll spend the rest of my life procrastinating.
-//
-const fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexLine = 75;
-const fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexColumn = 76;
-
-const fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex = 77;
-
-const fEDI_getLineAndColumnIndices_indexLine = 78;
-const fEDI_getLineAndColumnIndices_indexColumn = 79;
-
 const fEDI_cursorVisualColumnIndex = 80;
 
 /** TODO: I don't think you've ever actually used this, you only are setting it, obsolete? */
 const fEDI_cursorVisualColumnIndex_relativeToThisLineIndex = 81;
 
 const fEDI_ontab_visualWidth_perCharacter = 82;
-
-const fEDI_getLineBoundaryPositions_start = 83;
-const fEDI_getLineBoundaryPositions_end = 84;
-
-const fEDI_getIndexFromX_indexColumn = 85;
-const fEDI_getIndexFromX_visualColumns = 86;
 
 const fEDI_cursor_selectionIndexAnchorColumnVISUAL = 87;
 const fEDI_cursor_selectionIndexEndColumnVISUAL = 88;
@@ -923,8 +887,78 @@ const OFFSET_MENU = 128; // Slots 128 to 159
  */
 
 
+// ============
+// ============
+// ============
 
 
 
+
+const fEDI_pooledTrackedSyntax_start = 23;
+
+const fEDI_pooledTrackedSyntax_length = 24;
+
+
+
+// ============
+// ============
+// ============
+
+
+
+/** same comment that pertains to EDI_cursor_EDI_paste_clipboardContent is somewhat relevant here */
+const fEDI_cursor_EDI_duplicate_small = 52;
+/** same comment that pertains to EDI_cursor_EDI_paste_clipboardContent is somewhat relevant here */
+const fEDI_cursor_EDI_duplicate_length = 53;
+
+// Move some 'EDI_removeSelection()' state here so I can access it in the render function.
+// TODO: Don't do this long term, I need a simple bridge for this state so I can just get started otherwise I'll spend the rest of my life procrastinating.
+//
+const fEDI_EDI_RemoveSelection_smallPosition = 66;
+const fEDI_EDI_RemoveSelection_largePosition = 67;
+
+// Temporary hack for state access TODO: this
+const fEDI_EDI_indentLess_startingLinePos_end = 68;
+
+// Move some 'EDI_removeSelection()' state here so I can access it in the render function.
+// TODO: Don't do this long term, I need a simple bridge for this state so I can just get started otherwise I'll spend the rest of my life procrastinating.
+//
+const fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexLine = 75;
+const fEDI_RemoveSelection_smallLineAndColumnIndices_small_indexColumn = 76;
+
+const fEDI_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex = 77;
+
+// ============
+// ============
+// ============
+
+
+
+const fEDI_getLineAndColumnIndices_indexLine = 78;
+const fEDI_getLineAndColumnIndices_indexColumn = 79;
+
+
+
+const fEDI_getLineBoundaryPositions_start = 83;
+const fEDI_getLineBoundaryPositions_end = 84;
+
+
+
+const fEDI_getIndexFromX_indexColumn = 85;
+const fEDI_getIndexFromX_visualColumns = 86;
+
+
+
+
+// ============
+// ============
+// ============
+
+
+
+/** TODO: MAYBEo-b-s-o-l-e-t-eMAYBE */
+const fEDI_w_indexColumn_SpanTextContentRelative = 56;
+/** TODO: Obsolete */
+const fEDI_w_indexSpan = 57;
 
 

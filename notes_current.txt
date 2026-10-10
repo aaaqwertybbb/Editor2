@@ -255,9 +255,14 @@ I have been ruminating over that for a few days I feel so much better knowing th
 < 
 < Are your current multi-line syntax rules defined using regex text parsing blocks, or are you building a custom state-machine parser?
 
+=======
 
+I really really wanna do this:
 
+Explorer treeview expand middle node not shifted bottom section fullscreen off
+Editor enter key
 
+I think you do this by moving the HTML elements within the ring buffer itself.
 
 
 

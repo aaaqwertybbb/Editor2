@@ -154,7 +154,10 @@ const byteMENU_isRenderPending = 24;
 
 const byteWIDGET_WidgetKind_drawn = 25;
 
-
+// ====
+const byteTreeView_byteret_pooledNode_nodeKind = 26;
+const byteEDI_byteret_pooledTrackedSyntax_trackedSyntaxKind = 26;
+// ====
 
 const byteEDI_cursor_enterKeyEventKind = 27;
 
@@ -416,6 +419,14 @@ const fEDI_recentBoundingClientRect_left = 21;
 
 const fEDI_recentBoundingClientRect_top = 22;
 
+// ====
+const fTreeView_poolret_pooledNode_key = 23;
+const fEDI_poolret_pooledTrackedSyntax_start = 23;
+
+const fTreeView_poolret_pooledNode_depth = 24;
+const fEDI_poolret_pooledTrackedSyntax_length = 24;
+// ====
+
 /**
  * Also is used from 'EDI_render_do_SetText()', and 'EDI_render_do_Resize()', not just 'EDI_render_do_Scroll()'
  * 
@@ -492,6 +503,13 @@ const fEDI_cursor_editLineFeedCount = 51;
 const fEDI_w_indexColumn_Goal = 54;
 const fEDI_w_indexColumn_Sum = 55;
 
+/**
+ * TODO: isn't this just the column index now that there's just a single div?
+ * 
+ * TODO: MAYBEo-b-s-o-l-e-t-eMAYBE
+ */
+const fEDI_w_indexColumn_SpanTextContentRelative = 56;
+
 // TODO: This -1
 const fEDI_w_ringBufferIndex = 58;
 
@@ -531,6 +549,22 @@ const fEDI_onResize_timer = 73;
 
 const fEDI_hoverTimeout = 74;
 
+// ====
+/** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
+const fEDI_ret_getLineAndColumnIndices_indexLine = 78;
+/** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
+const fEDI_ret_getLineBoundaryPositions_start = 78;
+/** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
+const fEDI_ret_getIndexFromX_indexColumn = 78;
+
+/** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
+const fEDI_ret_getLineAndColumnIndices_indexColumn = 79;
+/** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
+const fEDI_ret_getLineBoundaryPositions_end = 79;
+/** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
+const fEDI_ret_getIndexFromX_visualColumns = 79;
+// ====
+
 const fEDI_cursorVisualColumnIndex = 80;
 
 /** TODO: I don't think you've ever actually used this, you only are setting it, obsolete? */
@@ -556,6 +590,27 @@ const fEDI_textByteList_count = 96;
 
 const fEDI_lineEndPositionList_capacity = 97;
 const fEDI_lineEndPositionList_count = 98;
+
+// ====
+/** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
+const fEDI_editret_cursor_EDI_duplicate_small = 99;
+/** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
+const fEDI_editret_RemoveSelection_smallPosition = 99;
+/** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
+const fEDI_editret_indentLess_startingLinePos_end = 99;
+/** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
+const fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex = 99;
+
+/** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
+const fEDI_editret_cursor_EDI_duplicate_length = 100;
+/** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
+const fEDI_editret_RemoveSelection_largePosition = 100;
+
+/** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
+const fEDI_editret_RemoveSelection_smallLineAndColumnIndices_small_indexLine = 101;
+/** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
+const fEDI_editret_RemoveSelection_smallLineAndColumnIndices_small_indexColumn = 102;
+// ====
 
 // I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
 /** TODO: This isn't used only set */
@@ -891,65 +946,8 @@ const OFFSET_MENU = 128; // Slots 128 to 159
 // ============
 
 
-const byteTreeView_byteret_pooledNode_nodeKind = 26;
-const byteEDI_byteret_pooledTrackedSyntax_trackedSyntaxKind = 26;
-
-const fTreeView_poolret_pooledNode_key = 23;
-const fTreeView_poolret_pooledNode_depth = 24;
-
-const fEDI_poolret_pooledTrackedSyntax_start = 23;
-const fEDI_poolret_pooledTrackedSyntax_length = 24;
 
 
-
-// ============
-// ============
-// ============
-
-
-/** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_editret_cursor_EDI_duplicate_small = 99;
-
-/** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_editret_cursor_EDI_duplicate_length = 100;
-
-/** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_editret_RemoveSelection_smallPosition = 99;
-/** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_editret_RemoveSelection_largePosition = 100;
-/** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_editret_RemoveSelection_smallLineAndColumnIndices_small_indexLine = 101;
-/** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_editret_RemoveSelection_smallLineAndColumnIndices_small_indexColumn = 102;
-
-/** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_editret_indentLess_startingLinePos_end = 99;
-
-/** 'editret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex = 99;
-
-
-// ============
-// ============
-// ============
-
-
-/** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_ret_getLineAndColumnIndices_indexLine = 78;
-/** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_ret_getLineAndColumnIndices_indexColumn = 79;
-
-
-/** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_ret_getLineBoundaryPositions_start = 78;
-/** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_ret_getLineBoundaryPositions_end = 79;
-
-
-/** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_ret_getIndexFromX_indexColumn = 78;
-/** 'ret_' will overwrite one another do not mix the function invocations without having read the values first */
-const fEDI_ret_getIndexFromX_visualColumns = 79;
 
 
 
@@ -960,8 +958,25 @@ const fEDI_ret_getIndexFromX_visualColumns = 79;
 
 
 
-/** TODO: MAYBEo-b-s-o-l-e-t-eMAYBE */
-const fEDI_w_indexColumn_SpanTextContentRelative = 56;
+
+
+// ============
+// ============
+// ============
+
+
+
+
+
+
+
+// ============
+// ============
+// ============
+
+
+
+
 
 
 /**

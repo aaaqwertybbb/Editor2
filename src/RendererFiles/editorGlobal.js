@@ -3428,13 +3428,15 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     }
     else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_AmongALine) {
         EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_cursor_editIndexLine]);
-        EDI_ret_getIndexFromColumn_RESET(INTS[fEDI_cursor_editIndexColumn], INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end]);
+        const lineStart = INTS[fEDI_ret_getLineBoundaryPositions_start];
+        const lineEnd = INTS[fEDI_ret_getLineBoundaryPositions_end];
+        EDI_ret_getIndexFromColumn_RESET(INTS[fEDI_cursor_editIndexColumn], lineStart, lineEnd);
         let firstSplitVisualWidth = INTS[fEDI_ret_getIndexFromX_visualColumns];
-        let lastValidIndexColumn = INTS[fEDI_ret_getLineBoundaryPositions_end] - INTS[fEDI_ret_getLineBoundaryPositions_start];
+        let lastValidIndexColumn = lineEnd - lineStart;
         EDI_ret_getIndexFromColumn_sameLine_newRxIsLarger(
             lastValidIndexColumn,
-            INTS[fEDI_ret_getLineBoundaryPositions_start],
-            INTS[fEDI_ret_getLineBoundaryPositions_end],
+            lineStart,
+            lineEnd,
             INTS[fEDI_cursor_editIndexColumn],
             firstSplitVisualWidth);
         let lastSplitVisualWidth = INTS[fEDI_ret_getIndexFromX_visualColumns] - firstSplitVisualWidth;

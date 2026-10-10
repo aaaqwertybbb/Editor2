@@ -103,7 +103,7 @@ module.exports = function (babel) {
     "fEDI_cursor_EDI_duplicate_length",
     "fEDI_ret_getLineBoundaryPositions_start",
     "fEDI_ret_getLineBoundaryPositions_end",
-    "fEDI_getIndexFromX_indexColumn",
+    "fEDI_ret_getIndexFromX_indexColumn",
     "fEDI_getIndexFromX_visualColumns",
     "fEDI_cursor_selectionIndexAnchorColumnVISUAL",
     "fEDI_cursor_selectionIndexEndColumnVISUAL",

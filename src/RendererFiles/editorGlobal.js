@@ -4679,11 +4679,11 @@ function EDI_set_indexColumn_and_visualColumn_relativeTo_storedVisualWidth(lineS
 }
 
 /**
- * 'INTS[fEDI_getIndexFromX_indexColumn]'
+ * 'INTS[fEDI_ret_getIndexFromX_indexColumn]'
  * 
  * 'INTS[fEDI_getIndexFromX_visualColumns]'
  * 
- * @returns nothing: the results are stored in 'INTS[fEDI_getIndexFromX_indexColumn]' and 'INTS[fEDI_getIndexFromX_visualColumns]'.
+ * @returns nothing: the results are stored in 'INTS[fEDI_ret_getIndexFromX_indexColumn]' and 'INTS[fEDI_getIndexFromX_visualColumns]'.
  */
 function getIndexFromColumn_sameLine_newRxIsLarger(targetColumn, lineStart, lineEnd, startColumn, startVisualColumns) {
     let indexColumn = startColumn;
@@ -4705,7 +4705,7 @@ function getIndexFromColumn_sameLine_newRxIsLarger(targetColumn, lineStart, line
 
         // If the click is before the midpoint of this character/tab, target this index
         if (targetColumn === indexColumn) {
-            INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
+            INTS[fEDI_ret_getIndexFromX_indexColumn] = indexColumn;
             INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
             return;
         }
@@ -4716,16 +4716,16 @@ function getIndexFromColumn_sameLine_newRxIsLarger(targetColumn, lineStart, line
     }
 
     // If clicked past the end of the line text
-    INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
+    INTS[fEDI_ret_getIndexFromX_indexColumn] = indexColumn;
     INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
 }
 
 /**
- * 'INTS[fEDI_getIndexFromX_indexColumn]'
+ * 'INTS[fEDI_ret_getIndexFromX_indexColumn]'
  * 
  * 'INTS[fEDI_getIndexFromX_visualColumns]'
  * 
- * @returns nothing: the results are stored in 'INTS[fEDI_getIndexFromX_indexColumn]' and 'INTS[fEDI_getIndexFromX_visualColumns]'.
+ * @returns nothing: the results are stored in 'INTS[fEDI_ret_getIndexFromX_indexColumn]' and 'INTS[fEDI_getIndexFromX_visualColumns]'.
  */
 function getIndexFromColumn_RESET(targetColumn, lineStart, lineEnd) {
     let indexColumn = 0;
@@ -4747,7 +4747,7 @@ function getIndexFromColumn_RESET(targetColumn, lineStart, lineEnd) {
 
         // If the click is before the midpoint of this character/tab, target this index
         if (targetColumn === indexColumn) {
-            INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
+            INTS[fEDI_ret_getIndexFromX_indexColumn] = indexColumn;
             INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
             return;
         }
@@ -4758,16 +4758,16 @@ function getIndexFromColumn_RESET(targetColumn, lineStart, lineEnd) {
     }
 
     // If clicked past the end of the line text
-    INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
+    INTS[fEDI_ret_getIndexFromX_indexColumn] = indexColumn;
     INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
 }
 
 /**
- * 'INTS[fEDI_getIndexFromX_indexColumn]'
+ * 'INTS[fEDI_ret_getIndexFromX_indexColumn]'
  * 
  * 'INTS[fEDI_getIndexFromX_visualColumns]'
  * 
- * @returns nothing: the results are stored in 'INTS[fEDI_getIndexFromX_indexColumn]' and 'INTS[fEDI_getIndexFromX_visualColumns]'.
+ * @returns nothing: the results are stored in 'INTS[fEDI_ret_getIndexFromX_indexColumn]' and 'INTS[fEDI_getIndexFromX_visualColumns]'.
  */
 function getIndexFromX_RESET(rx, lineStart, lineEnd) {
     let indexColumn = 0;
@@ -4789,7 +4789,7 @@ function getIndexFromX_RESET(rx, lineStart, lineEnd) {
 
         // If the click is before the midpoint of this character/tab, target this index
         if (rx < charMidpointX) {
-            INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
+            INTS[fEDI_ret_getIndexFromX_indexColumn] = indexColumn;
             INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
             return;
         }
@@ -4800,7 +4800,7 @@ function getIndexFromX_RESET(rx, lineStart, lineEnd) {
     }
 
     // If clicked past the end of the line text
-    INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
+    INTS[fEDI_ret_getIndexFromX_indexColumn] = indexColumn;
     INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
 }
 
@@ -4824,7 +4824,7 @@ function getIndexFromX_sameLine_newRxIsLarger(goalRx, lineStart, lineEnd, startC
 
         // If the click is before the midpoint of this character/tab, target this index
         if (goalRx < charMidpointX) {
-            INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
+            INTS[fEDI_ret_getIndexFromX_indexColumn] = indexColumn;
             INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
             return;
         }
@@ -4835,16 +4835,16 @@ function getIndexFromX_sameLine_newRxIsLarger(goalRx, lineStart, lineEnd, startC
     }
 
     // If clicked past the end of the line text
-    INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
+    INTS[fEDI_ret_getIndexFromX_indexColumn] = indexColumn;
     INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
 }
 
 /**
- * 'INTS[fEDI_getIndexFromX_indexColumn]'
+ * 'INTS[fEDI_ret_getIndexFromX_indexColumn]'
  * 
  * 'INTS[fEDI_getIndexFromX_visualColumns]'
  * 
- * @returns nothing: the results are stored in 'INTS[fEDI_getIndexFromX_indexColumn]' and 'INTS[fEDI_getIndexFromX_visualColumns]'.
+ * @returns nothing: the results are stored in 'INTS[fEDI_ret_getIndexFromX_indexColumn]' and 'INTS[fEDI_getIndexFromX_visualColumns]'.
  */
 function getIndexFromX_sameLine_newRxIsSmaller(goalRx, lineStart, startColumn, startVisualColumns) {
     let indexColumn = startColumn;
@@ -4866,7 +4866,7 @@ function getIndexFromX_sameLine_newRxIsSmaller(goalRx, lineStart, startColumn, s
 
         // If the click is before the midpoint of this character/tab, target this index
         if (goalRx >= charMidpointX) {
-            INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
+            INTS[fEDI_ret_getIndexFromX_indexColumn] = indexColumn;
             INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
             return;
         }
@@ -4877,7 +4877,7 @@ function getIndexFromX_sameLine_newRxIsSmaller(goalRx, lineStart, startColumn, s
     }
 
     // If clicked past the end of the line text
-    INTS[fEDI_getIndexFromX_indexColumn] = indexColumn;
+    INTS[fEDI_ret_getIndexFromX_indexColumn] = indexColumn;
     INTS[fEDI_getIndexFromX_visualColumns] = visualColumns;
 }
 
@@ -7005,7 +7005,7 @@ function EDI_onMouseDown(event) {
     else {
         getIndexFromX_RESET(rX, INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end]);
     }
-    indexColumn = INTS[fEDI_getIndexFromX_indexColumn];
+    indexColumn = INTS[fEDI_ret_getIndexFromX_indexColumn];
     indexColumnVisual = INTS[fEDI_getIndexFromX_visualColumns];
 
     let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(indexLine);
@@ -7287,7 +7287,7 @@ function EDI_onMouseMove_WRAPIT(event) {
         else {
             getIndexFromX_RESET(rX, INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end]);
         }
-        indexColumn = INTS[fEDI_getIndexFromX_indexColumn];
+        indexColumn = INTS[fEDI_ret_getIndexFromX_indexColumn];
         indexColumnVisual = INTS[fEDI_getIndexFromX_visualColumns];
 
         let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(indexLine);

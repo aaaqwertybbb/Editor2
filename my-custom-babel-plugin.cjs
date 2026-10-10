@@ -140,6 +140,7 @@ module.exports = function (babel) {
     "fEDI_cursor_cached_indentation_string_visualWidth",
     "fEDI_textByteList_capacity",
     "fEDI_textByteList_count",
+    "fEDI_lineEndPositionList_capacity",
 
     "byteEDI_queueHead",
     "byteEDI_queueTail",

@@ -15,7 +15,6 @@ let EDI_findOverlay_searchResultPositionList = null;
 
 let EDI_textByteList_bytes = new Uint8Array(INTS[fEDI_textByteList_capacity]);
 
-
 const EDI_encoder = new TextEncoder();
 const EDI_decoder = new TextDecoder();
 
@@ -106,9 +105,9 @@ INTS[fEDI_ontab_visualWidth_perCharacter] = 4;
  */
 const EDI_lineEndPositionList_PENDING = new UInt32List(128);
 
-let EDI_lineEndPositionList_capacity = 128;
+
 /** Be wary to the possibility of pending edits causing this to not be up to date. */
-let EDI_lineEndPositionList_data = new Uint32Array(EDI_lineEndPositionList_capacity);
+let EDI_lineEndPositionList_data = new Uint32Array(INTS[fEDI_lineEndPositionList_capacity]);
 let EDI_lineEndPositionList_count = 0;
 
 let EDI_textSourceIdentifier = '';

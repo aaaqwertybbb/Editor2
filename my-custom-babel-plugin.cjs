@@ -40,7 +40,6 @@ module.exports = function (babel) {
     "fEDI_gutterWidthStyleValue",
     "fEDI_gutterWidthTotal",
     "fEDI_didChangeTextDocument_version",
-    "fEDI_indexCursor",
     //"fEDI_offsetLine",
     //"fEDI_offsetColumn_withRespectToThisIndexLine",
     //"fEDI_offsetColumn",
@@ -48,7 +47,6 @@ module.exports = function (babel) {
     //"fEDI_offsetWithinSpan",
     "fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar",
     "fEDI_contentWidth",
-    "fEDI_indent_ORIGINAL_indentBy",
     "fEDI_indent_SMALL_lineAndColumnIndices_indexLine",
     "fEDI_indent_startingIndex",
     "fEDI_recentBoundingClientRect_left",
@@ -70,8 +68,6 @@ module.exports = function (babel) {
     "fEDI_longestLine_indexLine",
     "fEDI_longestLine_length",
     "fEDI_scrollEndDeadline",
-    "fEDI_sum_diffPositive",
-    "fEDI_sum_diffNegative",
     "fEDI_lastReadNumber_scrollTop",
     "fEDI_cursor_editKind",
     "fEDI_cursor_indexLine",
@@ -113,8 +109,6 @@ module.exports = function (babel) {
     "fEDI_cursor_selectionIndexEndColumnVISUAL",
     "fEDI_cursor_selectionIndexAnchorColumnVISUAL_DRAWN",
     "fEDI_cursor_selectionIndexEndColumnVISUAL_DRAWN",
-    "fEDI_selectionStartWidth",
-    "fEDI_selectionEndWidth",
     "fEDI_detail_smallColumnVisual",
     "fEDI_detail_largeColumnVisual",
     "fEDI_w_indexColumn_Goal",
@@ -123,8 +117,6 @@ module.exports = function (babel) {
     "fEDI_w_indexSpan",
     "fEDI_w_ringBufferIndex",
     "fEDI_ringBuffer_indexZero",
-    //"fEDI_EDI_characterWidth",
-    "fEDI_EDI_horizontal_scrollbar_widthValue",
     "fEDI_lastReadNumber_scrollLeft",
     "fEDI_lastReadNumber_offsetHeight",
     "fEDI_lastReadNumber_offsetWidth",
@@ -337,19 +329,7 @@ module.exports = function (babel) {
     "byteDIALOG_Settings_editorDebugShowAdjacentCharacters",
     "byteDIALOG_hasBeenMeasured",
     "byteDIALOG_windowExists",
-    "byteDIALOG_HIDE_shouldRestoreFocus",
 
-    "fDIALOG_left",
-    "fDIALOG_top",
-    "fDIALOG_width",
-    "fDIALOG_height",
-    "fDIALOG_left_DRAWN",
-    "fDIALOG_top_DRAWN",
-    "fDIALOG_width_DRAWN",
-    "fDIALOG_height_DRAWN",
-    "fDIALOG_before_X",
-    "fDIALOG_before_Y",
-    "fDIALOG_after_X",
     "fDIALOG_after_Y",
 
     "fAUTOCOMPLETE_items_slice_start",
@@ -384,7 +364,6 @@ module.exports = function (babel) {
     "fWIDGETrenderKind_Show_countOfPendingRequests",
 
     "byteWIDGET_isRenderPending",
-    "byteWIDGET_shouldRestoreFocus",
 
     "byteDIALOG_isRenderPending",
 
@@ -392,7 +371,6 @@ module.exports = function (babel) {
     "byteTOOLTIP_pending_renderKind",
     "byteTOOLTIP_exists",
     "byteDIALOG_currentDialogKind",
-    "byteDIALOG_SHOW_currentDialogKind",
 
     "fMENU_ticketId_counter",
     "fMENU_ticketId_pending",
@@ -403,9 +381,6 @@ module.exports = function (babel) {
     "fMENU_top",
     "fMENU_renderKind_Set_countOfPendingRequests",
 
-    "byteMENU_HIDE_shouldRestoreFocus",
-    "byteMENU_SET_NOTshouldFocus",
-    "byteMENU_NOTshouldFocus",
     "byteMENU_isRenderPending",
 
     "byteWIDGET_WidgetKind_pending",

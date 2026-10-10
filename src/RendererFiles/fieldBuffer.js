@@ -87,10 +87,6 @@ const get_EDI_findOverlay_show = () => BYTES[2];
 const set_EDI_findOverlay_show = (byte) => BYTES[2] = byte;
 
 /** returns a number, beware '===' */
-const get_EDI_findOverlay_isBeingShownDueToMultiCursorMatching = () => BYTES[3];
-const set_EDI_findOverlay_isBeingShownDueToMultiCursorMatching = (byte) => BYTES[3] = byte;
-
-/** returns a number, beware '===' */
 const get_EDI_fileStartsWithBom = () => BYTES[4];
 const set_EDI_fileStartsWithBom = (byte) => BYTES[4] = byte;
 
@@ -117,9 +113,6 @@ const byteDIALOG_hasBeenMeasured = 11;
 
 const byteDIALOG_windowExists = 12;
 
-/** TODO: obsolete */
-const byteDIALOG_HIDE_shouldRestoreFocus = 13;
-
 const byteAUTOCOMPLETE_exists = 14;
 
 const byteAUTOCOMPLETE_isRenderPending = 15;
@@ -132,10 +125,6 @@ const byteAUTOCOMPLETE_isCheckingTrailingEdge = 17;
 const byteAUTOCOMPLETE_scrollIsFetchingData = 18;
 
 const byteWIDGET_isRenderPending = 19;
-
-/** TODO: obsolete */
-const byteWIDGET_shouldRestoreFocus = 20;
-BYTES[byteWIDGET_shouldRestoreFocus] = 1;
 
 const byteDIALOG_isRenderPending = 21;
 
@@ -150,24 +139,11 @@ const byteTOOLTIP_pending_renderKind = 23;
 
 const byteTOOLTIP_exists = 24;
 
+/** TODO: seemingly could be made obsolete sensibly */
 const byteDIALOG_currentDialogKind = 25;
-
-/** TODO: obsolete */
-const byteDIALOG_SHOW_currentDialogKind = 26;
-
-const byteMENU_HIDE_shouldRestoreFocus = 27;
-BYTES[byteMENU_HIDE_shouldRestoreFocus] = 1;
-
-/** TODO: obsolete */
-const byteMENU_SET_NOTshouldFocus = 28;
-
-/** TODO: obsolete */
-const byteMENU_NOTshouldFocus = 29;
 
 const byteMENU_isRenderPending = 30;
 
-/** TODO: obsolete */
-const byteWIDGET_WidgetKind_pending = 31;
 const byteWIDGET_WidgetKind_drawn = 32;
 
 const byteTreeView_pooledNode_nodeKind = 33;
@@ -378,16 +354,8 @@ const fEDI_scrollEndDeadline = 4;
 
 const fEDI_virtualCount = 5;
 
-/** TODO: obsolete */
-const fEDI_sum_diffPositive = 6;
-/** TODO: obsolete */
-const fEDI_sum_diffNegative = 8;
-
 const fEDI_ONSCROLLvirtualCount = 7;
 INTS[fEDI_ONSCROLLvirtualCount] = 0;
-
-
-const fEDI_findOverlay_isBeingShownDueToMultiCursorMatching_originMatchNumber = 9;
 
 const fEDI_drawn_count_of_digits_longest_line_number = 10;
 
@@ -418,13 +386,6 @@ INTS[fEDI_gutterWidthTotal] = 32;
 
 const fEDI_didChangeTextDocument_version = 16;
 
-/**
- * All the 'EDI_cursorList' loops are currently using the variable 'i'.
- * I'm experimenting with a few of the loops though such that at the start of every loop they set this variable equal to 'i'.
- * Then in any functions like getCharacter, I might be able to contextually find the character much faster.
- * */
-const fEDI_indexCursor = 17;
-
 const fEDI_longestLine_indexLine = 18;
 
 const fEDI_longestLine_length = 19;
@@ -435,8 +396,6 @@ const fEDI_longestLine_length = 19;
 const fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar = 20;
 
 const fEDI_contentWidth = 21;
-
-const fEDI_indent_ORIGINAL_indentBy = 22;
 
 const fEDI_indent_SMALL_lineAndColumnIndices_indexLine = 23;
 
@@ -538,8 +497,6 @@ const fEDI_w_ringBufferIndex = 62;
 // And this -1
 const fEDI_ringBuffer_indexZero = 63;
 
-const fEDI_EDI_horizontal_scrollbar_widthValue = 64;
-
 /** The value of 'EDI_baseElement.scrollLeft' at the most recent scroll event that occurred */
 const fEDI_lastReadNumber_scrollLeft = 65;
 
@@ -566,9 +523,6 @@ const fEDI_EDI_indentLess_startingLinePos_end = 73;
 
 const fEDI_EDI_cursorBlinkLastTimestamp = 74;
 
-/** 'EDI_init' and 'EDI_drawHorizontalScrollbar' related */
-const fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left = 75;
-
 /** TODO: What happens when you overflow 'INTS[fEDI_prevVli]' does it overflow such that you're the correct diff? */
 const fEDI_prevVli = 76;
 /** TODO: What happens when you overflow 'INTS[fEDI_prevVli]' does it overflow such that you're the correct diff? */
@@ -590,7 +544,7 @@ const fEDI_getLineAndColumnIndices_indexLine = 83;
 const fEDI_getLineAndColumnIndices_indexColumn = 84;
 
 const fEDI_cursorVisualColumnIndex = 85;
-const fEDI_cursorVisualColumnIndex_relativeToThisLineIndex = 86;
+
 const fEDI_ontab_visualWidth_perCharacter = 87;
 
 const fEDI_getLineBoundaryPositions_start = 88;
@@ -605,46 +559,12 @@ const fEDI_cursor_selectionIndexEndColumnVISUAL = 93;
 const fEDI_cursor_selectionIndexAnchorColumnVISUAL_DRAWN = 94;
 const fEDI_cursor_selectionIndexEndColumnVISUAL_DRAWN = 95;
 
-const fEDI_selectionStartWidth = 96;
-const fEDI_selectionEndWidth = 97;
-
 const fEDI_detail_smallColumnVisual = 98;
 const fEDI_detail_largeColumnVisual = 99;
 
 const fEDI_cursor_cached_indentation_string_visualWidth = 100;
 
 const fEDI_cursor_editLengthVisual = 101;
-
-/**
- * TODO: obsolete
- * 
- * defaults to viewport size then getBoundingClientRect says the exact pixels upon trying to resize
- * need to track resizes and store the useragent width/height by the onmousedown and then on resize get proportion and update left top width height.
- */
-const fDIALOG_left = 102;
-/** TODO: obsolete */
-const fDIALOG_top = 103;
-/** TODO: obsolete */
-const fDIALOG_width = 104;
-/** TODO: obsolete */
-const fDIALOG_height = 105;
-
-/** TODO: obsolete */
-const fDIALOG_left_DRAWN = 106;
-/** TODO: obsolete */
-const fDIALOG_top_DRAWN = 107;
-/** TODO: obsolete */
-const fDIALOG_width_DRAWN = 108;
-/** TODO: obsolete */
-const fDIALOG_height_DRAWN = 109;
-
-// TODO: Are 'fDIALOG_before_X' and 'fDIALOG_before_Y' actually doing anything?...
-// ...When it comes to their after counterparts 'fDIALOG_after_X' and 'fDIALOG_after_Y'...
-// ...it is believed that the counterparts are doing nothing, so also check the before.
-/** TODO: obsolete */
-const fDIALOG_before_X = 110;
-/** TODO: obsolete */
-const fDIALOG_before_Y = 111;
 
 // TODO: What does 'fDIALOG_after_X' and 'fDIALOG_after_Y' even get used for? It seems they always only get set to 0 over and over and do nothing?
 /** TODO: obsolete */
@@ -943,4 +863,70 @@ const OFFSET_MENU = 128; // Slots 128 to 159
 
 
 // TODO: '..._EDI_indent_ORIGINAL_indentBy()' is no longer in use
+
+
+
+
+
+/**
+ * TODO: obsolete
+ * 
+ * returns a number, beware '==='
+ */
+const get_EDI_findOverlay_isBeingShownDueToMultiCursorMatching = () => BYTES[3];
+const set_EDI_findOverlay_isBeingShownDueToMultiCursorMatching = (byte) => BYTES[3] = byte;
+
+/** TODO: obsolete */
+const fEDI_findOverlay_isBeingShownDueToMultiCursorMatching_originMatchNumber = 9;
+
+
+/**
+ * TODO: This seems to be obsolete
+ * 
+ * 'EDI_init' and 'EDI_drawHorizontalScrollbar' related
+ */
+const fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left = 75;
+
+/** TODO: I don't think you've ever actually used this, you only are setting it, obsolete? */
+const fEDI_cursorVisualColumnIndex_relativeToThisLineIndex = 86;
+
+// TODO: probably can be made obsolete these various
+// ```
+// const fEDI_EDI_RemoveSelection_smallPosition = 71;
+// const fEDI_EDI_RemoveSelection_largePosition = 72;
+// ```
+//
+// if only one edit can exist at a time you only the count of int32 required for the edit which requires the most of them.
+// and then you can share the int32 entries.
+//
+// tbh the same is kinda true for things like:
+// const fEDI_getLineBoundaryPositions_start = 88;
+// const fEDI_getLineBoundaryPositions_end = 89;
+//
+// you only need as many int32 as necessary for the largest amount of "return values" from a function.
+// this means you'd have to immediately read them though so just think about it.
+// maybe functions with low frequency invocations can share the same int32 entries or something.
+
+
+/**
+ * TODO: This comment was attached to the obsolete fDIALOG_width... int32's and may or may not be useful or meaningful I only glanced at it TODO: read the comment and decide.
+ * 
+ * defaults to viewport size then getBoundingClientRect says the exact pixels upon trying to resize
+ * need to track resizes and store the useragent width/height by the onmousedown and then on resize get proportion and update left top width height.
+ * 
+ * 
+ * 
+ * 
+ * TODO: This comment... determine if is meaningful / move it to the dialogGlobal.js if it is meaningful etc...
+ * 
+ * // TODO: Are 'fDIALOG_before_X' and 'fDIALOG_before_Y' actually doing anything?...
+ * // ...When it comes to their after counterparts 'fDIALOG_after_X' and 'fDIALOG_after_Y'...
+ * // ...it is believed that the counterparts are doing nothing, so also check the before.
+ */
+
+
+
+
+
+
 

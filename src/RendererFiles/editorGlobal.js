@@ -3574,11 +3574,6 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
 
     let ORIGINAL_incrementBy = (startingIndex + 1 - SMALL_lineAndColumnIndices_indexLine) * per_edit_length;
     let incrementBy = ORIGINAL_incrementBy;
-
-    //let ORIGINAL_incrementBy = INTS[fEDI_indent_ORIGINAL_indentBy];
-    //let incrementBy = INTS[fEDI_indent_ORIGINAL_indentBy];
-    //INTS[fEDI_indent_ORIGINAL_indentBy] = 0;
-
     
     let bytesLength = per_edit_length;
 
@@ -3707,10 +3702,6 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
     // multiply by n to get the decrement because it deals with the existence of whitespace to be removed so you need to actually sum this as you handle each event
     // so that when you get to the finalize you have it all sum'd up (although yes this logic probably doesn't even belong in the event but it is there and 1 thing at a time).
 
-    //let ORIGINAL_decrementBy = INTS[fEDI_indent_ORIGINAL_indentBy];
-    //let decrementBy = INTS[fEDI_indent_ORIGINAL_indentBy];
-    //INTS[fEDI_indent_ORIGINAL_indentBy] = 0;
-
     let startingIndex = INTS[fEDI_indent_startingIndex];
     INTS[fEDI_indent_startingIndex] = 0;
     let SMALL_lineAndColumnIndices_indexLine = INTS[fEDI_indent_SMALL_lineAndColumnIndices_indexLine];
@@ -3774,7 +3765,6 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
 
     // Remember the total whitespace removed
     let ORIGINAL_decrementBy = DETERMINE_decrementBy;
-    //INTS[fEDI_indent_ORIGINAL_indentBy] = ORIGINAL_decrementBy;
     let decrementBy = ORIGINAL_decrementBy;
 
     //// TODO: use better formatting
@@ -5391,11 +5381,6 @@ function EDI_drawHorizontalScrollbar() {
         INTS[fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left] = INTS[fEDI_gutterWidthTotal];
     }
 
-    //if (INTS[fEDI_EDI_horizontal_scrollbar_widthValue] !== (EDI_baseElement.clientWidth - INTS[fEDI_gutterWidthTotal])) {
-    //    INTS[fEDI_EDI_horizontal_scrollbar_widthValue] = EDI_baseElement.clientWidth - INTS[fEDI_gutterWidthTotal];
-    //    EDI_horizontal_scrollbar.style.width = INTS[fEDI_EDI_horizontal_scrollbar_widthValue] + 'px';
-    //}
-
     if (INTS[fEDI_longestLine_length] !== INTS[fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar]) {
         
         INTS[fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar] = INTS[fEDI_longestLine_length];
@@ -6763,11 +6748,6 @@ function EDI_onblur() {
  * but there is 0 reasoning, understanding, or measurements behind my decision.
  * 
  * ===
- * 
- * TODO: Instead of having two counters 'fEDI_sum_diffNegative' and 'fEDI_sum_diffPositive' could you do this with just one counter?
- * TODO: Avoid checking for the CSS class that indicates whether a line is not syntax highlighted.
- * This comment of mine refers to one of the previously listed TODO's but I don't know which one. Furthermore I need to decide whether what I'm saying in this comment is even worth while keeping but that's a TODO for another day.
- * "it's wrong wait I see what's going on. You can't just sum them because overlap cancels out sometimes. If you have both but no full the larger side is cancelled out by the smaller amount I think... I'm gonna rain check that one... I'm thinking about more than 1 instance of an overlap breaking that math"
  * 
  * TODO: I believe that the 'EDI_drawViewPort_FindTrackedSyntax_StartingIndex' is actually wrong when you have a multiline comment that spans multiple lines and, after the closing of that syntax you on the same line start typing anything that isn't supposed to receive the comment syntax highlighting, you'll find that it erroneously receives the comment syntax highlighting.
  * 

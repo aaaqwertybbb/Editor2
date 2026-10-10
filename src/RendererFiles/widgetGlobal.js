@@ -83,8 +83,6 @@ function WIDGET_render_do_Show() {
     let WIDGET_element = document.getElementById('WIDGET');
     if (BYTES[byteWIDGET_WidgetKind_drawn] !== WidgetKind_None) {
         WIDGET_element = null;
-        // You don't have to invoke 'WIDGET_state_do_Hide' because there was a 1 to 1 overwrite of all the state due to the 'WIDGET_show' invocation which triggered this function.
-        BYTES[byteWIDGET_shouldRestoreFocus] = 0; // going to show a different widget so don't bother with focus here
         WIDGET_render_do_Hide();
     }
 

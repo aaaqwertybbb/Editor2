@@ -110,7 +110,6 @@ function DIALOG_render_do_DimensionsChanged() {
 
 function DIALOG_render_do_Show() {
     if (BYTES[byteDIALOG_currentDialogKind] !== DialogKind_None) {
-        BYTES[byteDIALOG_HIDE_shouldRestoreFocus] = 1;
         DIALOG_render_do_Hide();
     }
 

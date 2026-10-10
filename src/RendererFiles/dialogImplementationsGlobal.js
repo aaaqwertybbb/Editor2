@@ -225,11 +225,11 @@ class DIALOG_FindAll_TreeViewDirector {
                     let nodeKind = TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
                     // TODO: Insert range, or at the least 'pre-emptively' resize the list so that it fits each insertion without resizing per insertion.
                     this.nodeList.insert(indexItem + 1 + i, nodeKind, indexItem + 1 + i, depth + 1);
-                    this.component.itemHeightTotal = this.tvd_getTotalCount() * this.component.itemHeightNumber;
-                    this.component.scrollbar_space_generator.style.height = this.component.itemHeightTotal + 'px';
                 }
             }
 
+            this.component.itemHeightTotal = this.tvd_getTotalCount() * this.component.itemHeightNumber;
+            this.component.scrollbar_space_generator.style.height = this.component.itemHeightTotal + 'px';
             this.component.draw_render_fullReset_request();
         }
         else if (nodeKind === TreeViewNodeKind_isExpandable_isExpanded) {

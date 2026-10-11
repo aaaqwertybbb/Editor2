@@ -488,10 +488,10 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
 
         const insertionCount = childFilesystemEntries.length;
 
-        if (insertionCount > 2) {
-            EXPLORER_draw_render_fullReset_request();
-            return;
-        }
+        //if (insertionCount > 8) {
+        //    EXPLORER_draw_render_fullReset_request();
+        //    return;
+        //}
 
         let final_ringBufferIndexItem = get_final_ringBufferIndexItem();
 
@@ -602,7 +602,7 @@ function handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndex, fina
         //
         let temp1 = EXPLORER_ringBuffer[usurpee_ringBufferIndex];
         let temp2 = null;
-        let countToInsertionCount = 0;
+        //let countToInsertionCount = 0;
         for (let n_ringBufferIndex = usurpee_ringBufferIndex;;) {
             // TODO: This guard doesn't do anything?
             //if (n_ringBufferIndex >= inclusive_earliest_rebel_ringBufferIndex) {

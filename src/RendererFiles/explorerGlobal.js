@@ -524,18 +524,20 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
             }
             // TODO: This is a weird way to get the 'final_indexItem' (part 2 of 2)
             final_indexItem += availableRingBufferNodesVisuallyAfterExpandedOne;
-            const aaa_next_ringBufferIndex = ringBufferIndexItem + 1;
-            if (aaa_next_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
-                aaa_next_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
-            }
-            if (insertionCount >= availableRingBufferNodesVisuallyAfterExpandedOne) {
-                EXPLORER_draw_BATCH_request(indexItem + 1, availableRingBufferNodesVisuallyAfterExpandedOne, 3, aaa_next_ringBufferIndex);
-                return;
-            }
         }
 
-        handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndexItem, final_indexItem, indexItem, ringBufferIndexItem, insertionCount);
-        EXPLORER_draw_BATCH_request(indexItem + 1, insertionCount, 3, ringBufferIndexItem + 1);
+        const aaa_next_ringBufferIndex = ringBufferIndexItem + 1;
+        if (aaa_next_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
+            aaa_next_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
+        }
+
+        if (insertionCount >= availableRingBufferNodesVisuallyAfterExpandedOne) {
+            EXPLORER_draw_BATCH_request(indexItem + 1, availableRingBufferNodesVisuallyAfterExpandedOne, 3, aaa_next_ringBufferIndex);
+        }
+        else {
+            handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndexItem, final_indexItem, indexItem, ringBufferIndexItem, insertionCount);
+            EXPLORER_draw_BATCH_request(indexItem + 1, insertionCount, 3, aaa_next_ringBufferIndex);
+        }
     }
     else if (nodeKind === TreeViewNodeKind_isExpandable_isExpanded) {
 

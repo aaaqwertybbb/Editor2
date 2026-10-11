@@ -496,7 +496,8 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
 
             // If ringBufferIndexItem === final_ringBufferIndexItem
             // you can just "do nothing" so to speak (you need to "update the scrollbar" still / etc...)
-            if (ringBufferIndexItem === final_ringBufferIndexItem) { EXPLORER_draw_render_fullReset_request(); return; }
+            // and you've already "update the scrollbar"ed so you just return.
+            if (ringBufferIndexItem === final_ringBufferIndexItem) { return; }
 
             // If insertion count completely shifts visible TreeViewNodes that exist under the expanded TreeViewNode off screen you can just
             // redraw every node below the one that was expanded.

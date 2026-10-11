@@ -515,6 +515,14 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
                         break;
                     }
                 }
+                const aaa_next_ringBufferIndex = ringBufferIndexItem + 1;
+                if (aaa_next_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
+                    aaa_next_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
+                }
+                if (insertionCount >= availableRingBufferNodesVisuallyAfterExpandedOne) {
+                    EXPLORER_draw_BATCH_request(indexItem + 1, insertionCount, 3, aaa_next_ringBufferIndex);
+                    return;
+                }
             }
 
             let nextBy1_ringBufferIndexItem = (ringBufferIndexItem + 1) % INTS[fEXPLORER_virtualCount];

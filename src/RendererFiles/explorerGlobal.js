@@ -530,13 +530,7 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
                 }
             }
 
-            let aaa_current_indexItem = indexItem + 1; // +1 to target the next TreeViewNode that comes after the one that you expanded.
-            let verticalStyleNumber = (aaa_current_indexItem + insertionCount) * INTS[fEXPLORER_itemHeightNumber]; // then add top of insertionCount
-
-            let current_indexItem = indexItem;
-            current_indexItem++;
-            ({ current_indexItem, verticalStyleNumber } = handleRingBufferNodesThatGetPushedOffscreen(ringBufferIndexItem, current_indexItem, final_ringBufferIndexItem, final_indexItem, indexItem, verticalStyleNumber, indexItem, ringBufferIndexItem, insertionCount));
-
+            handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndexItem, final_indexItem, indexItem, ringBufferIndexItem, insertionCount);
             EXPLORER_draw_BATCH_request(indexItem + 1, 1, 3, ringBufferIndexItem + 1);
         }
         else {
@@ -567,15 +561,7 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
     }
 }
 
-function handleRingBufferNodesThatGetPushedOffscreen(ringBufferIndexItem,
-                                                     current_indexItem,
-                                                     final_ringBufferIndex,
-                                                     final_indexItem,
-                                                     indexItem,
-                                                     verticalStyleNumber,
-                                                     indexItem_of_expanded_node,
-                                                     ringBufferIndex_of_expanded_node,
-                                                     insertionCount) {
+function handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndex, final_indexItem, indexItem_of_expanded_node, ringBufferIndex_of_expanded_node, insertionCount) {
     let usurpee_itemIndex = indexItem_of_expanded_node + 1;
     let usurpee_ringBufferIndex = ringBufferIndex_of_expanded_node + 1;
     if (usurpee_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
@@ -672,8 +658,6 @@ function handleRingBufferNodesThatGetPushedOffscreen(ringBufferIndexItem,
             usurpee_ringBufferIndex = INTS[fEXPLORER_virtualCount] - 1;
         }
     }
-
-    return { current_indexItem, verticalStyleNumber };
 }
 
 function get_final_ringBufferIndexItem() {

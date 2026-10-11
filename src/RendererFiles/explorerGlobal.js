@@ -488,54 +488,54 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
 
         const insertionCount = childFilesystemEntries.length;
 
-        if (insertionCount === 1) {
-            let final_ringBufferIndexItem = get_final_ringBufferIndexItem();
+        if (insertionCount > 2) {
+            EXPLORER_draw_render_fullReset_request();
+            return;
+        }
 
-            // This case doesn't make sense, it means the virtualCount === 0
-            if (final_ringBufferIndexItem < 0) { EXPLORER_draw_render_fullReset_request(); return; }
+        let final_ringBufferIndexItem = get_final_ringBufferIndexItem();
 
-            // If ringBufferIndexItem === final_ringBufferIndexItem
-            // you can just "do nothing" so to speak (you need to "update the scrollbar" still / etc...)
-            // and you've already "update the scrollbar"ed so you just return.
-            if (ringBufferIndexItem === final_ringBufferIndexItem) { return; }
+        // This case doesn't make sense, it means the virtualCount === 0
+        if (final_ringBufferIndexItem < 0) { EXPLORER_draw_render_fullReset_request(); return; }
 
-            // TODO: This is a weird way to get the 'final_indexItem' (part 1 of 2)
-            let final_indexItem = indexItem;
+        // If ringBufferIndexItem === final_ringBufferIndexItem
+        // you can just "do nothing" so to speak (you need to "update the scrollbar" still / etc...)
+        // and you've already "update the scrollbar"ed so you just return.
+        if (ringBufferIndexItem === final_ringBufferIndexItem) { return; }
 
-            // If insertion count completely shifts visible TreeViewNodes that exist under the expanded TreeViewNode off screen you can just
-            // redraw every node below the one that was expanded.
-            {
-                // So this is asking what is the distance from ringBufferIndexItem to final_ringBufferIndexItem
-                // TODO: determine a more optimized way to calculate this than just looping over and over.
-                let availableRingBufferNodesVisuallyAfterExpandedOne = 0;
-                for (let n_index = 0;;) {
-                    availableRingBufferNodesVisuallyAfterExpandedOne++;
-                    n_index = n_index + 1;
-                    if (n_index >= INTS[fEXPLORER_virtualCount]) {
-                        n_index -= INTS[fEXPLORER_virtualCount];
-                    }
-                    if (n_index === final_ringBufferIndexItem) {
-                        break;
-                    }
+        // TODO: This is a weird way to get the 'final_indexItem' (part 1 of 2)
+        let final_indexItem = indexItem;
+
+        let availableRingBufferNodesVisuallyAfterExpandedOne = 0;
+        // If insertion count completely shifts visible TreeViewNodes that exist under the expanded TreeViewNode off screen you can just
+        // redraw every node below the one that was expanded.
+        {
+            // So this is asking what is the distance from ringBufferIndexItem to final_ringBufferIndexItem
+            // TODO: determine a more optimized way to calculate this than just looping over and over.
+            for (let n_index = 0;;) {
+                availableRingBufferNodesVisuallyAfterExpandedOne++;
+                n_index = n_index + 1;
+                if (n_index >= INTS[fEXPLORER_virtualCount]) {
+                    n_index -= INTS[fEXPLORER_virtualCount];
                 }
-                // TODO: This is a weird way to get the 'final_indexItem' (part 2 of 2)
-                final_indexItem += availableRingBufferNodesVisuallyAfterExpandedOne;
-                const aaa_next_ringBufferIndex = ringBufferIndexItem + 1;
-                if (aaa_next_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
-                    aaa_next_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
-                }
-                if (insertionCount >= availableRingBufferNodesVisuallyAfterExpandedOne) {
-                    EXPLORER_draw_BATCH_request(indexItem + 1, insertionCount, 3, aaa_next_ringBufferIndex);
-                    return;
+                if (n_index === final_ringBufferIndexItem) {
+                    break;
                 }
             }
+            // TODO: This is a weird way to get the 'final_indexItem' (part 2 of 2)
+            final_indexItem += availableRingBufferNodesVisuallyAfterExpandedOne;
+            const aaa_next_ringBufferIndex = ringBufferIndexItem + 1;
+            if (aaa_next_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
+                aaa_next_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
+            }
+            if (insertionCount >= availableRingBufferNodesVisuallyAfterExpandedOne) {
+                EXPLORER_draw_BATCH_request(indexItem + 1, insertionCount, 3, aaa_next_ringBufferIndex);
+                return;
+            }
+        }
 
-            handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndexItem, final_indexItem, indexItem, ringBufferIndexItem, insertionCount);
-            EXPLORER_draw_BATCH_request(indexItem + 1, 1, 3, ringBufferIndexItem + 1);
-        }
-        else {
-            EXPLORER_draw_render_fullReset_request();
-        }
+        handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndexItem, final_indexItem, indexItem, ringBufferIndexItem, insertionCount);
+        EXPLORER_draw_BATCH_request(indexItem + 1, insertionCount, 3, ringBufferIndexItem + 1);
     }
     else if (nodeKind === TreeViewNodeKind_isExpandable_isExpanded) {
 
@@ -602,8 +602,13 @@ function handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndex, fina
         //
         let temp1 = EXPLORER_ringBuffer[usurpee_ringBufferIndex];
         let temp2 = null;
+        let countToInsertionCount = 0;
         for (let n_ringBufferIndex = usurpee_ringBufferIndex;;) {
-            if (n_ringBufferIndex === inclusive_earliest_rebel_ringBufferIndex) {
+            // TODO: This guard doesn't do anything?
+            //if (n_ringBufferIndex >= inclusive_earliest_rebel_ringBufferIndex) {
+            //    break;
+            //}
+            if (n_ringBufferIndex === inclusive_earliest_rebel_ringBufferIndex + i) {
                 break;
             }
 
@@ -619,6 +624,13 @@ function handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndex, fina
             temp2 = EXPLORER_ringBuffer[destination_ringBufferIndex];
             EXPLORER_ringBuffer[destination_ringBufferIndex] = temp1;
             temp1 = temp2;
+
+            //if (n_ringBufferIndex === inclusive_earliest_rebel_ringBufferIndex) {
+            //    break;
+            //}
+            //if (++countToInsertionCount === insertionCount) {
+            //    break;
+            //}
         }
 
         EXPLORER_ringBuffer[usurpee_ringBufferIndex] = overwrittenRebel;

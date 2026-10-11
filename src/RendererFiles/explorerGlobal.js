@@ -503,6 +503,17 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
             // redraw every node below the one that was expanded.
             {
                 // So this is asking what is the distance from ringBufferIndexItem to final_ringBufferIndexItem
+                let availableRingBufferNodesVisuallyAfterExpandedOne = 0;
+                for (let n_index = 0;;) {
+                    availableRingBufferNodesVisuallyAfterExpandedOne++;
+                    n_index = n_index + 1;
+                    if (n_index >= INTS[fEXPLORER_virtualCount]) {
+                        n_index -= INTS[fEXPLORER_virtualCount];
+                    }
+                    if (n_index === final_ringBufferIndexItem) {
+                        break;
+                    }
+                }
             }
 
             let nextBy1_ringBufferIndexItem = (ringBufferIndexItem + 1) % INTS[fEXPLORER_virtualCount];

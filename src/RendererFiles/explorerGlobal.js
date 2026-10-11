@@ -491,8 +491,18 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
         if (insertionCount === 1) {
             let final_ringBufferIndexItem = get_final_ringBufferIndexItem();
 
+            // This case doesn't make sense, it means the virtualCount === 0
             if (final_ringBufferIndexItem < 0) { EXPLORER_draw_render_fullReset_request(); return; }
+
+            // If ringBufferIndexItem === final_ringBufferIndexItem
+            // you can just "do nothing" so to speak (you need to "update the scrollbar" still / etc...)
             if (ringBufferIndexItem === final_ringBufferIndexItem) { EXPLORER_draw_render_fullReset_request(); return; }
+
+            // If insertion count completely shifts visible TreeViewNodes that exist under the expanded TreeViewNode off screen you can just
+            // redraw every node below the one that was expanded.
+            {
+                // So this is asking what is the distance from ringBufferIndexItem to final_ringBufferIndexItem
+            }
 
             let nextBy1_ringBufferIndexItem = (ringBufferIndexItem + 1) % INTS[fEXPLORER_virtualCount];
             if (nextBy1_ringBufferIndexItem === final_ringBufferIndexItem) {

@@ -485,6 +485,7 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
 
         INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
         EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
+
         if (filesystemEntries.length === 1) {
             let final_ringBufferIndexItem = get_final_ringBufferIndexItem();
             if (final_ringBufferIndexItem < 0) { EXPLORER_draw_render_fullReset_request(); return; }
@@ -499,38 +500,13 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
             
             let current_indexItem = indexItem;
             current_indexItem++;
-            for (let current_ringBufferIndexItem = ringBufferIndexItem;;) {
-                current_indexItem++;
-                current_ringBufferIndexItem = (current_ringBufferIndexItem + 1) % INTS[fEXPLORER_virtualCount];
-                if (final_ringBufferIndexItem === current_ringBufferIndexItem) {
-                    let depth = 0;
-                    if ((indexItem + 1) < EXPLORER_treeViewNodes.count_abstract) {
-                        depth = EXPLORER_treeViewNodes.getDepth((indexItem + 1));
-                    }
-                    EXPLORER_ringBuffer[current_ringBufferIndexItem].style.transform = `translate(${(CONST_EXPLORER_offsetPerDepth * depth)}px, ${(indexItem + 1) * INTS[fEXPLORER_itemHeightNumber]}px)`;
-                    break;
-                }
-                let depth = 0;
-                if (current_indexItem < EXPLORER_treeViewNodes.count_abstract) {
-                    depth = EXPLORER_treeViewNodes.getDepth(current_indexItem);
-                }
-                EXPLORER_ringBuffer[current_ringBufferIndexItem].style.transform = `translate(${CONST_EXPLORER_offsetPerDepth * depth}px, ${verticalStyleNumber}px)`;
-                verticalStyleNumber += INTS[fEXPLORER_itemHeightNumber];
-            }
+            ({ current_indexItem, verticalStyleNumber } = setYTo_plusEqualsInsertionCount_(ringBufferIndexItem, current_indexItem, final_ringBufferIndexItem, indexItem, verticalStyleNumber));
 
             let loopIndex = 0;
 
             let temp = EXPLORER_ringBuffer[final_ringBufferIndexItem];
             let temp2 = null;
-            for (let current_ringBufferIndexItem = ringBufferIndexItem;;) {
-                current_ringBufferIndexItem = (current_ringBufferIndexItem + 1) % INTS[fEXPLORER_virtualCount];
-                temp2 = EXPLORER_ringBuffer[current_ringBufferIndexItem];
-                EXPLORER_ringBuffer[current_ringBufferIndexItem] = temp;
-                temp = temp2;
-                if (final_ringBufferIndexItem === current_ringBufferIndexItem) {
-                    break;
-                }
-            }
+            ({ temp2, temp } = moveFinalRingBufferEntryShiftEverythingIndex(ringBufferIndexItem, temp2, temp, final_ringBufferIndexItem));
 
             EXPLORER_draw_BATCH_request(indexItem + 1, 1, 3, ringBufferIndexItem + 1);
         }
@@ -560,6 +536,41 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
             EXPLORER_draw_render_fullReset_request();
         }
     }
+}
+
+function setYTo_plusEqualsInsertionCount_(ringBufferIndexItem, current_indexItem, final_ringBufferIndexItem, indexItem, verticalStyleNumber) {
+    for (let current_ringBufferIndexItem = ringBufferIndexItem; ;) {
+        current_indexItem++;
+        current_ringBufferIndexItem = (current_ringBufferIndexItem + 1) % INTS[fEXPLORER_virtualCount];
+        if (final_ringBufferIndexItem === current_ringBufferIndexItem) {
+            let depth = 0;
+            if ((indexItem + 1) < EXPLORER_treeViewNodes.count_abstract) {
+                depth = EXPLORER_treeViewNodes.getDepth((indexItem + 1));
+            }
+            EXPLORER_ringBuffer[current_ringBufferIndexItem].style.transform = `translate(${(CONST_EXPLORER_offsetPerDepth * depth)}px, ${(indexItem + 1) * INTS[fEXPLORER_itemHeightNumber]}px)`;
+            break;
+        }
+        let depth = 0;
+        if (current_indexItem < EXPLORER_treeViewNodes.count_abstract) {
+            depth = EXPLORER_treeViewNodes.getDepth(current_indexItem);
+        }
+        EXPLORER_ringBuffer[current_ringBufferIndexItem].style.transform = `translate(${CONST_EXPLORER_offsetPerDepth * depth}px, ${verticalStyleNumber}px)`;
+        verticalStyleNumber += INTS[fEXPLORER_itemHeightNumber];
+    }
+    return { current_indexItem, verticalStyleNumber };
+}
+
+function moveFinalRingBufferEntryShiftEverythingIndex(ringBufferIndexItem, temp2, temp, final_ringBufferIndexItem) {
+    for (let current_ringBufferIndexItem = ringBufferIndexItem; ;) {
+        current_ringBufferIndexItem = (current_ringBufferIndexItem + 1) % INTS[fEXPLORER_virtualCount];
+        temp2 = EXPLORER_ringBuffer[current_ringBufferIndexItem];
+        EXPLORER_ringBuffer[current_ringBufferIndexItem] = temp;
+        temp = temp2;
+        if (final_ringBufferIndexItem === current_ringBufferIndexItem) {
+            break;
+        }
+    }
+    return { temp2, temp };
 }
 
 function get_final_ringBufferIndexItem() {

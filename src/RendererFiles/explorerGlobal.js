@@ -579,7 +579,7 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
 // When the index increases you can do either:
     // Case A: (can at times approach branchless "99% branch prediction" essentially is the goal, you so rarely hit the if it ends up being very fast because the branch miss is so rare)
     //         Depending on the scenario, this can give less clock cycles.
-    //         For example, in a loop this is more performant than modulo.
+    //         For example, in a loop where you do this calculation every iteration, this is more performant than modulo'ing each iteration.
     let nextDomNodeIndex = ringBufferIndex_of_expanded_node + 1;
     if (nextDomNodeIndex >= INTS[fEXPLORER_virtualCount]) {
         nextDomNodeIndex -= INTS[fEXPLORER_virtualCount];

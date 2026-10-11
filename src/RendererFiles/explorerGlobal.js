@@ -601,9 +601,8 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
 function handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndex, final_indexItem, indexItem_of_expanded_node, ringBufferIndex_of_expanded_node, insertionCount) {
     let usurpee_itemIndex = indexItem_of_expanded_node + 1;
     let usurpee_ringBufferIndex = ringBufferIndex_of_expanded_node + 1;
-    // ???
     if (usurpee_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
-        usurpee_ringBufferIndex = INTS[fEXPLORER_virtualCount] - 1;
+        usurpee_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
     }
 
     // When you shift by 1 over and over the rebels you need to have a null slot to write into.
@@ -659,8 +658,7 @@ function handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndex, fina
 
             n_ringBufferIndex++;
             if (n_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
-                // ???
-                n_ringBufferIndex = INTS[fEXPLORER_virtualCount] - 1;
+                n_ringBufferIndex -= INTS[fEXPLORER_virtualCount]
             }
 
             const destination_ringBufferIndex = n_ringBufferIndex;
@@ -682,15 +680,13 @@ function handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndex, fina
         usurpee_itemIndex++; // you "need" this to track for later
 
         usurpee_ringBufferIndex++;
-        // ???
         if (usurpee_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
-            usurpee_ringBufferIndex = INTS[fEXPLORER_virtualCount] - 1;
+            usurpee_ringBufferIndex -= INTS[fEXPLORER_virtualCount]
         }
 
         rebel_ringBufferIndex++;
-        // ???
         if (rebel_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
-            rebel_ringBufferIndex = INTS[fEXPLORER_virtualCount] - 1;
+            rebel_ringBufferIndex -= INTS[fEXPLORER_virtualCount]
         }
     }
 
@@ -712,9 +708,8 @@ function handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndex, fina
         usurpee_itemIndex++;
 
         usurpee_ringBufferIndex++;
-        // ???
         if (usurpee_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
-            usurpee_ringBufferIndex = INTS[fEXPLORER_virtualCount] - 1;
+            usurpee_ringBufferIndex -= INTS[fEXPLORER_virtualCount]
         }
     }
 }

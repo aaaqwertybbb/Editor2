@@ -593,6 +593,7 @@ function handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndex, fina
 
     const inclusive_earliest_rebel_ringBufferIndex = rebel_ringBufferIndex;
 
+    // the way I shift the nodes is horrific to look at but "first draft" or something
     for (let i = 0; i < insertionCount; i++) {
         // "to be overwritten"
         const overwrittenRebel = EXPLORER_ringBuffer[rebel_ringBufferIndex];

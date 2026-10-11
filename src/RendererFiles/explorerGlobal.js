@@ -577,6 +577,11 @@ function setYTo_plusEqualsInsertionCount_(ringBufferIndexItem, current_indexItem
             if ((indexItem + 1) < EXPLORER_treeViewNodes.count_abstract) {
                 depth = EXPLORER_treeViewNodes.getDepth((indexItem + 1));
             }
+            // kinda hacky logic that says "for all except the final node because that one is going to be moved such that it draws a child of the expanded node"
+            // so you need to expand this logic to say "for all except ???"
+            // You can start by plucking off those ringBuffer elements that you know will be pushed off the screen.
+            // I think that makes more sense.
+            // You change this loop into two loops (at the very least temporarily to make more sense of the problem)
             EXPLORER_ringBuffer[current_ringBufferIndexItem].style.transform = `translate(${(CONST_EXPLORER_offsetPerDepth * depth)}px, ${(indexItem + 1) * INTS[fEXPLORER_itemHeightNumber]}px)`;
             break;
         }

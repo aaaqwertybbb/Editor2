@@ -472,6 +472,8 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
     //
     // I'll put scrollHeight in quotes cause I'm iffy on whether I wanna say scrollHeight or the viewable height of the UI in question or like
     // idk I'm tired but that's what I can confirm isn't working.
+    //
+    // seems like just being scrollTop > 0 breaks expand anyways I'm done for day
 
     if (nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded) {
         divItem.firstChild.replaceData(0, 1, '-');

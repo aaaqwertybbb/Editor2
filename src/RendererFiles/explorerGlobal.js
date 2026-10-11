@@ -463,6 +463,10 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
     let depth = INTS[fTreeView_poolret_pooledNode_depth];
     let nodeKind = BYTES[byteTreeView_byteret_pooledNode_nodeKind];
 
+    // It isn't fully working
+    // I got a case to break when I collapsed while scroll top > 0
+    // and then the collapse causes a scroll at the same time I click the chevron.
+
     if (nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded) {
         divItem.firstChild.replaceData(0, 1, '-');
 

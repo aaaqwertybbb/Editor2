@@ -488,7 +488,9 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
 
         if (filesystemEntries.length === 1) {
             let final_ringBufferIndexItem = get_final_ringBufferIndexItem();
+
             if (final_ringBufferIndexItem < 0) { EXPLORER_draw_render_fullReset_request(); return; }
+            if (ringBufferIndexItem === final_ringBufferIndexItem) { EXPLORER_draw_render_fullReset_request(); return; }
 
             let nextBy1_ringBufferIndexItem = (ringBufferIndexItem + 1) % INTS[fEXPLORER_virtualCount];
             if (nextBy1_ringBufferIndexItem === final_ringBufferIndexItem) {
@@ -496,6 +498,9 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
                 return;
             }
 
+            // +2 =>
+                // +1 to target the next item'
+                // then +1 to plusEqualsByInsertionCount which in this case I hardcoded the length of 1 case with an if statement that wraps this.
             let verticalStyleNumber = (indexItem + 2) * INTS[fEXPLORER_itemHeightNumber];
             
             let current_indexItem = indexItem;

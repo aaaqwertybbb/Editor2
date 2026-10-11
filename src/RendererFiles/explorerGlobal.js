@@ -525,11 +525,12 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
                 }
             }
 
-            let nextBy1_ringBufferIndexItem = (ringBufferIndexItem + 1) % INTS[fEXPLORER_virtualCount];
-            if (nextBy1_ringBufferIndexItem === final_ringBufferIndexItem) {
-                EXPLORER_draw_render_fullReset_request();
-                return;
-            }
+            // This case no longer exists due to the just added one
+            //let nextBy1_ringBufferIndexItem = (ringBufferIndexItem + 1) % INTS[fEXPLORER_virtualCount];
+            //if (nextBy1_ringBufferIndexItem === final_ringBufferIndexItem) {
+            //    EXPLORER_draw_render_fullReset_request();
+            //    return;
+            //}
 
             let aaa_current_indexItem = indexItem + 1; // +1 to target the next TreeViewNode that comes after the one that you expanded.
             let verticalStyleNumber = (aaa_current_indexItem + insertionCount) * INTS[fEXPLORER_itemHeightNumber]; // then add top of insertionCount

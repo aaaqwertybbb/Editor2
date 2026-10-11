@@ -498,10 +498,8 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
                 return;
             }
 
-            // +2 =>
-                // +1 to target the next item'
-                // then +1 to plusEqualsByInsertionCount which in this case I hardcoded the length of 1 case with an if statement that wraps this.
-            let verticalStyleNumber = (indexItem + 2) * INTS[fEXPLORER_itemHeightNumber];
+            let aaa_current_indexItem = indexItem + 1; // +1 to target the next item'
+            let verticalStyleNumber = (aaa_current_indexItem + 1) * INTS[fEXPLORER_itemHeightNumber]; // then +1 to plusEqualsByInsertionCount which in this case I hardcoded the length of 1 case with an if statement that wraps this.
             
             let current_indexItem = indexItem;
             current_indexItem++;

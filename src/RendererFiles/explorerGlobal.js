@@ -567,35 +567,6 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
     }
 }
 
-function setYTo_plusEqualsInsertionCount_(ringBufferIndexItem, current_indexItem, final_ringBufferIndexItem, indexItem, verticalStyleNumber) {
-    // This loop can receive them positioned properly I suppose.
-    // If you're already looping over them though it doesn't make sense to do that.
-    for (let current_ringBufferIndexItem = ringBufferIndexItem; ;) {
-        current_indexItem++;
-        current_ringBufferIndexItem = (current_ringBufferIndexItem + 1) % INTS[fEXPLORER_virtualCount];
-        if (final_ringBufferIndexItem === current_ringBufferIndexItem) {
-            let depth = 0;
-            if ((indexItem + 1) < EXPLORER_treeViewNodes.count_abstract) {
-                depth = EXPLORER_treeViewNodes.getDepth((indexItem + 1));
-            }
-            // kinda hacky logic that says "for all except the final node because that one is going to be moved such that it draws a child of the expanded node"
-            // so you need to expand this logic to say "for all except ???"
-            // You can start by plucking off those ringBuffer elements that you know will be pushed off the screen.
-            // I think that makes more sense.
-            // You change this loop into two loops (at the very least temporarily to make more sense of the problem)
-            EXPLORER_ringBuffer[current_ringBufferIndexItem].style.transform = `translate(${(CONST_EXPLORER_offsetPerDepth * depth)}px, ${(indexItem + 1) * INTS[fEXPLORER_itemHeightNumber]}px)`;
-            break;
-        }
-        let depth = 0;
-        if (current_indexItem < EXPLORER_treeViewNodes.count_abstract) {
-            depth = EXPLORER_treeViewNodes.getDepth(current_indexItem);
-        }
-        EXPLORER_ringBuffer[current_ringBufferIndexItem].style.transform = `translate(${CONST_EXPLORER_offsetPerDepth * depth}px, ${verticalStyleNumber}px)`;
-        verticalStyleNumber += INTS[fEXPLORER_itemHeightNumber];
-    }
-    return { current_indexItem, verticalStyleNumber };
-}
-
 function handleRingBufferNodesThatGetPushedOffscreen(ringBufferIndexItem,
                                                      current_indexItem,
                                                      final_ringBufferIndex,
@@ -616,6 +587,7 @@ function handleRingBufferNodesThatGetPushedOffscreen(ringBufferIndexItem,
     //
     // (note the 'null' is just for example sake it doesn't ever actually get set to null you just immediately do the shift)
     //
+    // This comment's explanation is a bit incomplete:
     // [usurpeeA, usurpeeB, rebelA, rebelB] that becomes [rebelA, usurpeeB, null, rebelB] that becomes [rebelA, usurpeeB, usurpeeA, rebelB]
     // that becomes [rebelA, rebelB, usurpeeA, null] that becomes [rebelA, rebelB, usurpeeA, usurpeeB]
     // 
@@ -702,25 +674,6 @@ function handleRingBufferNodesThatGetPushedOffscreen(ringBufferIndexItem,
     }
 
     return { current_indexItem, verticalStyleNumber };
-}
-
-function inefficient_shiftTheUsurpee() {
-    //for () {
-    //    
-    //}
-}
-
-function moveFinalRingBufferEntryShiftEverythingIndex(ringBufferIndexItem, temp2, temp, final_ringBufferIndexItem) {
-    for (let current_ringBufferIndexItem = ringBufferIndexItem; ;) {
-        current_ringBufferIndexItem = (current_ringBufferIndexItem + 1) % INTS[fEXPLORER_virtualCount];
-        temp2 = EXPLORER_ringBuffer[current_ringBufferIndexItem];
-        EXPLORER_ringBuffer[current_ringBufferIndexItem] = temp;
-        temp = temp2;
-        if (final_ringBufferIndexItem === current_ringBufferIndexItem) {
-            break;
-        }
-    }
-    return { temp2, temp };
 }
 
 function get_final_ringBufferIndexItem() {

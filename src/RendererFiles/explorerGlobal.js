@@ -499,6 +499,9 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
             // and you've already "update the scrollbar"ed so you just return.
             if (ringBufferIndexItem === final_ringBufferIndexItem) { return; }
 
+            // TODO: This is a weird way to get the 'final_indexItem' (part 1 of 2)
+            let final_indexItem = indexItem;
+
             // If insertion count completely shifts visible TreeViewNodes that exist under the expanded TreeViewNode off screen you can just
             // redraw every node below the one that was expanded.
             {
@@ -515,6 +518,8 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
                         break;
                     }
                 }
+                // TODO: This is a weird way to get the 'final_indexItem' (part 2 of 2)
+                final_indexItem += availableRingBufferNodesVisuallyAfterExpandedOne;
                 const aaa_next_ringBufferIndex = ringBufferIndexItem + 1;
                 if (aaa_next_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
                     aaa_next_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
@@ -527,16 +532,34 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
 
             let aaa_current_indexItem = indexItem + 1; // +1 to target the next TreeViewNode that comes after the one that you expanded.
             let verticalStyleNumber = (aaa_current_indexItem + insertionCount) * INTS[fEXPLORER_itemHeightNumber]; // then add top of insertionCount
-            
+
+            //let current_indexItem = indexItem;
+            //current_indexItem++;
+            //({ current_indexItem, verticalStyleNumber } = shiftEverythingByInsertionCount(ringBufferIndexItem, current_indexItem, final_ringBufferIndexItem, indexItem, verticalStyleNumber));
+
+            // ringBufferIndexItem,
+            // current_indexItem,
+            // final_ringBufferIndex,
+            // final_indexItem,
+            // indexItem,
+            // verticalStyleNumber,
+            // indexItem_of_expanded_node,
+            // ringBufferIndex_of_expanded_node,
+            // insertionCount
+
             let current_indexItem = indexItem;
             current_indexItem++;
-            ({ current_indexItem, verticalStyleNumber } = setYTo_plusEqualsInsertionCount_(ringBufferIndexItem, current_indexItem, final_ringBufferIndexItem, indexItem, verticalStyleNumber));
+            ({ current_indexItem, verticalStyleNumber } = handleRingBufferNodesThatGetPushedOffscreen(ringBufferIndexItem, current_indexItem, final_ringBufferIndexItem, final_indexItem, indexItem, verticalStyleNumber, indexItem, ringBufferIndexItem, insertionCount));
+            
+            //current_indexItem = indexItem;
+            //current_indexItem++;
+            //({ current_indexItem, verticalStyleNumber } = setYTo_plusEqualsInsertionCount_(ringBufferIndexItem, current_indexItem, final_ringBufferIndexItem, indexItem, verticalStyleNumber));
 
             let loopIndex = 0;
 
-            let temp = EXPLORER_ringBuffer[final_ringBufferIndexItem];
-            let temp2 = null;
-            ({ temp2, temp } = moveFinalRingBufferEntryShiftEverythingIndex(ringBufferIndexItem, temp2, temp, final_ringBufferIndexItem));
+            //let temp = EXPLORER_ringBuffer[final_ringBufferIndexItem];
+            //let temp2 = null;
+            //({ temp2, temp } = moveFinalRingBufferEntryShiftEverythingIndex(ringBufferIndexItem, temp2, temp, final_ringBufferIndexItem));
 
             EXPLORER_draw_BATCH_request(indexItem + 1, 1, 3, ringBufferIndexItem + 1);
         }
@@ -569,6 +592,8 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
 }
 
 function setYTo_plusEqualsInsertionCount_(ringBufferIndexItem, current_indexItem, final_ringBufferIndexItem, indexItem, verticalStyleNumber) {
+    // This loop can receive them positioned properly I suppose.
+    // If you're already looping over them though it doesn't make sense to do that.
     for (let current_ringBufferIndexItem = ringBufferIndexItem; ;) {
         current_indexItem++;
         current_ringBufferIndexItem = (current_ringBufferIndexItem + 1) % INTS[fEXPLORER_virtualCount];
@@ -593,6 +618,202 @@ function setYTo_plusEqualsInsertionCount_(ringBufferIndexItem, current_indexItem
         verticalStyleNumber += INTS[fEXPLORER_itemHeightNumber];
     }
     return { current_indexItem, verticalStyleNumber };
+}
+
+function handleRingBufferNodesThatGetPushedOffscreen(ringBufferIndexItem,
+                                                     current_indexItem,
+                                                     final_ringBufferIndex,
+                                                     final_indexItem,
+                                                     indexItem,
+                                                     verticalStyleNumber,
+                                                     indexItem_of_expanded_node,
+                                                     ringBufferIndex_of_expanded_node,
+                                                     insertionCount) {
+    //ringBufferIndex--;
+    //if (ringBufferIndex < 0) {
+    //    ringBufferIndex = local_ArrayFrom_textElement_children_length - 1;
+    //}
+    //current_indexItem = final_indexItem;
+    //let current_ringBufferIndex = final_ringBufferIndex;
+
+    // you have to do it in place though and the count isn't large it is based on viewport
+    // shifting in bulk is good and should be done that way but initially probably isn't the end of the world
+    // if it is difference between in place or not.
+    //
+    // you don't swap them though you 
+    // are inserting them so yeah it is a lot of shifting it's fine for now though
+
+    let usurpee_itemIndex = indexItem_of_expanded_node + 1;
+    let usurpee_ringBufferIndex = ringBufferIndex_of_expanded_node + 1;
+    if (usurpee_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
+        usurpee_ringBufferIndex = INTS[fEXPLORER_virtualCount] - 1;
+    }
+    let most_recently_usurped_ringBufferNode = null;
+
+    // When you shift by 1 over and over the rebels you need to have a null slot to write into.
+    // Thus you need to start at the earliest rebel so there is a contiguous block of:
+    //
+    // (note the 'null' is just for example sake it doesn't ever actually get set to null you just immediately do the shift)
+    //
+    // [usurpeeA, usurpeeB, rebelA, rebelB] that becomes [rebelA, usurpeeB, null, rebelB] that becomes [rebelA, usurpeeB, usurpeeA, rebelB]
+    // that becomes [rebelA, rebelB, usurpeeA, null] that becomes [rebelA, rebelB, usurpeeA, usurpeeB]
+    // 
+    // the final step is to batch draw the rebels
+    //
+    // TODO: calculate the earliest rebel node faster than just "looping a minus 1 over and over"
+    ///
+    // TODO: You don't need to shift you can just swap?
+    //
+    let rebel_itemIndex = final_indexItem;
+    let rebel_ringBufferIndex = final_ringBufferIndex;
+    for (let i = 1/* start at 1 so you skip a loop */; i < insertionCount; i++) {
+        rebel_itemIndex--;
+        rebel_ringBufferIndex--;
+        if (rebel_ringBufferIndex < 0) {
+            rebel_ringBufferIndex = INTS[fEXPLORER_virtualCount] - 1;
+        }
+    }
+
+    const inclusive_earliest_rebel_indexItem = rebel_ringBufferIndex;
+    const inclusive_earliest_rebel_ringBufferIndex = rebel_ringBufferIndex;
+
+    for (let i = 0; i < insertionCount; i++) {
+        most_recently_usurped_ringBufferNode = EXPLORER_ringBuffer[usurpee_ringBufferIndex];
+
+        // "to be overwritten"
+        const overwrittenRebel = EXPLORER_ringBuffer[rebel_ringBufferIndex];
+
+        //EXPLORER_ringBuffer[usurpee_ringBufferIndex] = EXPLORER_ringBuffer[rebel_ringBufferIndex];
+        //EXPLORER_ringBuffer[rebel_ringBufferIndex] = most_recently_usurped_ringBufferNode;
+
+        //inefficient_shiftTheUsurpee(usurpee_ringBufferIndex);
+        let temp1 = EXPLORER_ringBuffer[usurpee_ringBufferIndex];
+        let temp2 = null;
+        for (let n_ringBufferIndex = usurpee_ringBufferIndex;;) {
+            if (n_ringBufferIndex === inclusive_earliest_rebel_ringBufferIndex) {
+                break;
+            }
+
+            //const source_ringBufferIndex = n_ringBufferIndex;
+
+            n_ringBufferIndex++;
+            if (n_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
+                n_ringBufferIndex = INTS[fEXPLORER_virtualCount] - 1;
+            }
+
+            const destination_ringBufferIndex = n_ringBufferIndex;
+
+            temp2 = EXPLORER_ringBuffer[destination_ringBufferIndex];
+            EXPLORER_ringBuffer[destination_ringBufferIndex] = temp1;
+            temp1 = temp2;
+        }
+
+        EXPLORER_ringBuffer[usurpee_ringBufferIndex] = overwrittenRebel;
+        
+        usurpee_itemIndex++; // you "need" this to track for later
+
+        usurpee_ringBufferIndex++;
+        if (usurpee_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
+            usurpee_ringBufferIndex = INTS[fEXPLORER_virtualCount] - 1;
+        }
+
+        // TODO: You don't need to shift you can just swap?
+        //
+        // no, you do need to shift because it isn't like 1 to 1 or something.
+        //
+        rebel_ringBufferIndex++;
+        if (rebel_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
+            rebel_ringBufferIndex = INTS[fEXPLORER_virtualCount] - 1;
+        }
+
+        // fix the transform y of the usurped node
+        //{
+        //    // The usurped node "receives" the indices of the rebel.
+        //    const indexItem = rebel_itemIndex;
+        //    const indexRingBuffer = rebel_ringBufferIndex;
+//
+        //    let depth = 0;
+        //    if (indexItem < EXPLORER_treeViewNodes.count_abstract) {
+        //        depth = EXPLORER_treeViewNodes.getDepth(indexItem);
+        //    }
+//
+        //    EXPLORER_ringBuffer[indexRingBuffer].style.transform = `translate(${CONST_EXPLORER_offsetPerDepth * depth}px, ${INTS[fEXPLORER_itemHeightNumber] * indexItem}px)`;
+        //    //verticalStyleNumber += ;
+        //}
+        //inefficient_shiftTheUsurpee();
+
+        //break;
+    }
+
+
+
+    // fix the transform y of the usurped nodes
+
+    //const inclusive_earliest_rebel_indexItem = rebel_ringBufferIndex;
+    //const inclusive_earliest_rebel_ringBufferIndex = rebel_ringBufferIndex;
+
+    /*indexItem; // already declared error
+    let indexRingBuffer = inclusive_earliest_rebel_ringBufferIndex;
+    for (;;) {
+
+        if (indexRingBuffer === final_ringBufferIndex) {
+            break;
+        }
+
+        let depth = 0;
+        if (indexItem < EXPLORER_treeViewNodes.count_abstract) {
+            depth = EXPLORER_treeViewNodes.getDepth(indexItem);
+        }
+
+        EXPLORER_ringBuffer[indexRingBuffer].style.transform = `translate(${CONST_EXPLORER_offsetPerDepth * depth}px, ${INTS[fEXPLORER_itemHeightNumber] * indexItem}px)`;
+
+        indexItem++;
+
+        indexRingBuffer++;
+        if (indexRingBuffer >= INTS[fEXPLORER_virtualCount]) {
+            indexRingBuffer = INTS[fEXPLORER_virtualCount] - 1;
+        }
+    }*/
+
+    // everytime you do a usurp you move 1 further and that means you'll be at the first usurped node after its repositioning
+    // and can start to fix transform y's.
+
+    //indexItem; // already declared error
+    //let indexRingBuffer = inclusive_earliest_rebel_ringBufferIndex;
+    for (/*let i = 0; i < insertionCount; i++*/;;) {
+
+        //if (usurpee_ringBufferIndex === final_ringBufferIndex) {
+        //    break;
+        //}
+
+        let depth = 0;
+        if (usurpee_itemIndex < EXPLORER_treeViewNodes.count_abstract) {
+            depth = EXPLORER_treeViewNodes.getDepth(usurpee_itemIndex);
+        }
+
+        EXPLORER_ringBuffer[usurpee_ringBufferIndex].style.transform = `translate(${CONST_EXPLORER_offsetPerDepth * depth}px, ${INTS[fEXPLORER_itemHeightNumber] * usurpee_itemIndex}px)`;
+
+        if (usurpee_ringBufferIndex === final_ringBufferIndex) {
+            break;
+        }
+
+        usurpee_itemIndex++;
+
+        usurpee_ringBufferIndex++;
+        if (usurpee_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
+            usurpee_ringBufferIndex = INTS[fEXPLORER_virtualCount] - 1;
+        }
+    }
+
+
+
+    return { current_indexItem, verticalStyleNumber };
+}
+
+function inefficient_shiftTheUsurpee() {
+    //for () {
+    //    
+    //}
 }
 
 function moveFinalRingBufferEntryShiftEverythingIndex(ringBufferIndexItem, temp2, temp, final_ringBufferIndexItem) {

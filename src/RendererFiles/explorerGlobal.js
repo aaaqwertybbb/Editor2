@@ -512,7 +512,7 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
         {
             // So this is asking what is the distance from ringBufferIndexItem to final_ringBufferIndexItem
             // TODO: determine a more optimized way to calculate this than just looping over and over.
-            for (let n_index = 0;;) {
+            for (let n_index = ringBufferIndexItem;;) {
                 availableRingBufferNodesVisuallyAfterExpandedOne++;
                 n_index = n_index + 1;
                 if (n_index >= INTS[fEXPLORER_virtualCount]) {
@@ -529,7 +529,7 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
                 aaa_next_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
             }
             if (insertionCount >= availableRingBufferNodesVisuallyAfterExpandedOne) {
-                EXPLORER_draw_BATCH_request(indexItem + 1, insertionCount, 3, aaa_next_ringBufferIndex);
+                EXPLORER_draw_BATCH_request(indexItem + 1, availableRingBufferNodesVisuallyAfterExpandedOne, 3, aaa_next_ringBufferIndex);
                 return;
             }
         }

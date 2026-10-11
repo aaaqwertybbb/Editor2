@@ -486,11 +486,7 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
         INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
         EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
         if (filesystemEntries.length === 1) {
-            //let lastIndexRendered = ;
-            // See comment "Awkward explicit inlining of 'EXPLORER_indexItemTo_ringBufferIndexItem'" for more information.
-            let final_ringBufferIndexItem = INTS[fEXPLORER_virtualCount] - 1;
-            if (final_ringBufferIndexItem >= INTS[fEXPLORER_ringBuffer_length] || final_ringBufferIndexItem < 0) final_ringBufferIndexItem = -1;
-            else final_ringBufferIndexItem = (final_ringBufferIndexItem + INTS[fEXPLORER_ringBufferIndexZero]) % INTS[fEXPLORER_virtualCount];
+            let final_ringBufferIndexItem = get_final_ringBufferIndexItem();
             if (final_ringBufferIndexItem < 0) { EXPLORER_draw_render_fullReset_request(); return; }
 
             let nextBy1_ringBufferIndexItem = (ringBufferIndexItem + 1) % INTS[fEXPLORER_virtualCount];
@@ -498,10 +494,6 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
                 EXPLORER_draw_render_fullReset_request();
                 return;
             }
-
-            //let lastVertical = EXPLORER_ringBuffer[final_ringBufferIndexItem].style.transform;
-
-            //EXPLORER_ringBuffer[nextBy1_ringBufferIndexItem] = EXPLORER_ringBuffer[final_ringBufferIndexItem];
 
             let verticalStyleNumber = (indexItem + 2) * INTS[fEXPLORER_itemHeightNumber];
             
@@ -522,12 +514,10 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
                 if (current_indexItem < EXPLORER_treeViewNodes.count_abstract) {
                     depth = EXPLORER_treeViewNodes.getDepth(current_indexItem);
                 }
-                // ${CONST_EXPLORER_offsetPerDepth * depth}
                 EXPLORER_ringBuffer[current_ringBufferIndexItem].style.transform = `translate(${CONST_EXPLORER_offsetPerDepth * depth}px, ${verticalStyleNumber}px)`;
                 verticalStyleNumber += INTS[fEXPLORER_itemHeightNumber];
             }
 
-            //current_ringBufferIndexItem = (current_ringBufferIndexItem + 1) % INTS[fEXPLORER_virtualCount];
             let loopIndex = 0;
 
             let temp = EXPLORER_ringBuffer[final_ringBufferIndexItem];
@@ -537,27 +527,12 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
                 temp2 = EXPLORER_ringBuffer[current_ringBufferIndexItem];
                 EXPLORER_ringBuffer[current_ringBufferIndexItem] = temp;
                 temp = temp2;
-                //if (loopIndex++ === 0) {
-                //    temp = EXPLORER_ringBuffer[current_ringBufferIndexItem];
-                //}
                 if (final_ringBufferIndexItem === current_ringBufferIndexItem) {
-                    //EXPLORER_ringBuffer[current_ringBufferIndexItem] = temp;
                     break;
                 }
             }
 
             EXPLORER_draw_BATCH_request(indexItem + 1, 1, 3, ringBufferIndexItem + 1);
-
-            // I just can't focus right now
-            
-
-            //let nextBy2_ringBufferIndexItem = (ringBufferIndexItem + 2) % INTS[fEXPLORER_virtualCount];
-//
-            //for (let current_ringBufferIndexItem = nextBy2_ringBufferIndexItem;;) {
-            //    if () {
-            //        
-            //    }
-            //}
         }
         else {
             EXPLORER_draw_render_fullReset_request();
@@ -585,6 +560,16 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
             EXPLORER_draw_render_fullReset_request();
         }
     }
+}
+
+function get_final_ringBufferIndexItem() {
+    // See comment "Awkward explicit inlining of 'EXPLORER_indexItemTo_ringBufferIndexItem'" for more information.
+    let final_ringBufferIndexItem = INTS[fEXPLORER_virtualCount] - 1;
+    if (final_ringBufferIndexItem >= INTS[fEXPLORER_ringBuffer_length] || final_ringBufferIndexItem < 0) final_ringBufferIndexItem = -1;
+    else final_ringBufferIndexItem = (final_ringBufferIndexItem + INTS[fEXPLORER_ringBufferIndexZero]) % INTS[fEXPLORER_virtualCount];
+    if (final_ringBufferIndexItem < 0) { return -1; }
+
+    return final_ringBufferIndexItem;
 }
 
 function EXPLORER_arrowRight(divItem, indexItem, ringBufferIndexItem) {

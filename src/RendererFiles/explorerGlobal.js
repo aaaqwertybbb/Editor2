@@ -575,6 +575,29 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
     }
 }
 
+/*
+// When the index increases you can do either:
+    // Case A: (can at times approach branchless "99% branch prediction" essentially is the goal, you so rarely hit the if it ends up being very fast because the branch miss is so rare)
+    //         Depending on the scenario, this can give (I wanna say off the top of my head) 5x to 10x less clock cycles than using modulo each loop iteration.
+    //         For example, in a loop this is more performant than modulo.
+    let nextDomNodeIndex = ringBufferIndex_of_expanded_node + 1;
+    if (nextDomNodeIndex >= INTS[fEXPLORER_virtualCount]) {
+        nextDomNodeIndex -= INTS[fEXPLORER_virtualCount];
+    }
+    // Case B:
+    let nextDomNodeIndex = (ringBufferIndex_of_expanded_node + 1) % INTS[fEXPLORER_virtualCount];
+
+
+// When the index decreases you can do either:
+    // Case A: (see previous example for description)
+    let previousDomNodeIndex = ringBufferIndex_of_expanded_node - 1;
+    if (previousDomNodeIndex < 0) {
+        previousDomNodeIndex = INTS[fEXPLORER_virtualCount] - 1;
+    }
+    // Case B:
+    let previousDomNodeIndex = (ringBufferIndex_of_expanded_node - 1 + INTS[fEXPLORER_virtualCount]) % INTS[fEXPLORER_virtualCount];
+*/
+
 function handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndex, final_indexItem, indexItem_of_expanded_node, ringBufferIndex_of_expanded_node, insertionCount) {
     let usurpee_itemIndex = indexItem_of_expanded_node + 1;
     let usurpee_ringBufferIndex = ringBufferIndex_of_expanded_node + 1;

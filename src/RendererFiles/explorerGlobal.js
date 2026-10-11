@@ -468,10 +468,10 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
 
         EXPLORER_treeViewNodes.setNodeKind(indexItem, TreeViewNodeKind_isExpandable_isExpanded);
 
-        const filesystemEntries = await window.myAPI.getFilesystemEntries_argumentIsId(key);
+        const childFilesystemEntries = await window.myAPI.getFilesystemEntries_argumentIsId(key);
 
-        for (let i = 0; i < filesystemEntries.length; i++) {
-            let entry = filesystemEntries[i];
+        for (let i = 0; i < childFilesystemEntries.length; i++) {
+            let entry = childFilesystemEntries[i];
             let nodeKind;
             if (entry.isDirectory) {
                 nodeKind = TreeViewNodeKind_isExpandable_NOTisExpanded;
@@ -486,7 +486,9 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
         INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
         EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
 
-        if (filesystemEntries.length === 1) {
+        const insertionCount = childFilesystemEntries.length;
+
+        if (insertionCount === 1) {
             let final_ringBufferIndexItem = get_final_ringBufferIndexItem();
 
             if (final_ringBufferIndexItem < 0) { EXPLORER_draw_render_fullReset_request(); return; }
@@ -498,8 +500,8 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
                 return;
             }
 
-            let aaa_current_indexItem = indexItem + 1; // +1 to target the next item'
-            let verticalStyleNumber = (aaa_current_indexItem + 1) * INTS[fEXPLORER_itemHeightNumber]; // then +1 to plusEqualsByInsertionCount which in this case I hardcoded the length of 1 case with an if statement that wraps this.
+            let aaa_current_indexItem = indexItem + 1; // +1 to target the next TreeViewNode that comes after the one that you expanded.
+            let verticalStyleNumber = (aaa_current_indexItem + insertionCount) * INTS[fEXPLORER_itemHeightNumber]; // then add top of insertionCount
             
             let current_indexItem = indexItem;
             current_indexItem++;

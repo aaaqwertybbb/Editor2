@@ -466,6 +466,9 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
     // It isn't fully working
     // I got a case to break when I collapsed while scroll top > 0
     // and then the collapse causes a scroll at the same time I click the chevron.
+    //
+    // I think specifically the collapse has to make the content smaller than scrollHeight
+    // and then the browser forces scroll top to 0 as a result.
 
     if (nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded) {
         divItem.firstChild.replaceData(0, 1, '-');

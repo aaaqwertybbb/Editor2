@@ -264,6 +264,23 @@ Editor enter key
 
 I think you do this by moving the HTML elements within the ring buffer itself.
 
+===============
 
+16 children of the RenderFiles directory.
+all you gotta do today at a minimum is get i.e.:
+
+2 of them
+
+if you say if child count is === 2 then you can get that
+to work when you expand
+at minimum
+
+and then from there you can get the other case of any child count
+
+and then from there the case where the child count overlaps the end of the viewable content etc...
+
+==============
+
+enter key scroll timing issue or is the code for that edge case just wrong?
 
 

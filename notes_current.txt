@@ -436,8 +436,35 @@ function get_final_ringBufferIndexItem() {
     return final_ringBufferIndexItem;
 }
 
+===========
 
+I did the ... at 12
 
+I don't see a world where I don't get the job.
+
+The guy said "I know the listing said 'such and such role' but I'm hiring for every role".
+Sort of came across as a "if you see a different role you'd want you can ask for it instead".
+
+But there's the implication that if I don't get this role that there's also other ones they need.
+
+The guy who is supposed to call me letting me know I got the role is on vacation so I'm supposed
+to get a call like next week on Monday or Tuesday.
+
+They have a 90 day probationary period where they can fire you if you aren't deemed to be doing the job well.
+
+----
+
+"I don't see a world where I don't get the job."
+
+What I mean by this is, combined with their probationary period, you'd have to really mess up I think
+to not get the role if you came in for an interview.
+
+I don't mean "I" specifically what I mean is I feel like all you had to do was schedule an interview,
+and then show up for like 5 minutes, then they're like okay in a week we'll call you.
+
+=========
+
+I have an
 
 
 

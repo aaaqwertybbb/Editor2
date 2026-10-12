@@ -608,3 +608,19 @@ function handleRingBufferNodesThatGetPushedOffscreen(
 }
 
 
+> sorry I mean to say. I don't think I have a great understanding of this shifting step. I knew when I was writing the code that what I was doing wasn't efficient.
+> I just don't know (does that make sense, maybe I'm just tired)
+
+< ...
+< The Solution: The "Mirror Trick" (Triple Reversal)
+< ...
+
+
+all in all I was trying to understand why I failed to think of the mirror trick in the moment.
+And I understand the algorithm but I don't feel like I understand it.
+I know how to do it I just don't feel like I understand it.
+And I can understand it I imagine in time.
+I just want to be clear about the fact that I don't understand.
+
+
+

@@ -604,16 +604,19 @@ function handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndex, fina
     }
 
     const inclusive_earliest_rebel_ringBufferIndex = rebel_ringBufferIndex;
-    const inclusive_earliest_rebel_ringBufferItem = rebel_itemIndex;
 
     // 3. Perform a block rotation via triple-reversal 
     // This repositions all 'usurpees' and 'rebels' in O(N) operations total, discarding the nested loops
     const end_of_rebel_block = final_ringBufferIndex;
     
-    // TODO: Is this safe 'inclusive_earliest_rebel_ringBufferIndex - 1'?
-    EXPLORER_reverseBufferSegment(usurpee_ringBufferIndex, inclusive_earliest_rebel_ringBufferIndex - 1); // Reverse Usurpees
-    EXPLORER_reverseBufferSegment(inclusive_earliest_rebel_ringBufferIndex, end_of_rebel_block);           // Reverse Rebels
-    EXPLORER_reverseBufferSegment(usurpee_ringBufferIndex, end_of_rebel_block);                           // Reverse entire window
+    const endOfUsurpeeBlock = inclusive_earliest_rebel_ringBufferIndex - 1;
+    if (endOfUsurpeeBlock < 0) {
+        endOfUsurpeeBlock = INTS[fEXPLORER_virtualCount] - 1;
+    }
+
+    EXPLORER_reverseBufferSegment(usurpee_ringBufferIndex, endOfUsurpeeBlock);                   // Reverse Usurpees
+    EXPLORER_reverseBufferSegment(inclusive_earliest_rebel_ringBufferIndex, end_of_rebel_block); // Reverse Rebels
+    EXPLORER_reverseBufferSegment(usurpee_ringBufferIndex, end_of_rebel_block);                  // Reverse entire window
 
     // everytime you do a usurp you move 1 further and that means you'll be at the first usurped node after its repositioning
     // and can start to fix transform y's.

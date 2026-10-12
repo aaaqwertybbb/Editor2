@@ -592,19 +592,7 @@ function handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndex, fina
         usurpee_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
     }
 
-    // When you shift by 1 over and over the rebels you need to have a null slot to write into.
-    // Thus you need to start at the earliest rebel so there is a contiguous block of:
-    //
-    // (note the 'null' is just for example sake it doesn't ever actually get set to null you just immediately do the shift)
-    //
-    // This comment's explanation is a bit incomplete:
-    // [usurpeeA, usurpeeB, rebelA, rebelB] that becomes [rebelA, usurpeeB, null, rebelB] that becomes [rebelA, usurpeeB, usurpeeA, rebelB]
-    // that becomes [rebelA, rebelB, usurpeeA, null] that becomes [rebelA, rebelB, usurpeeA, usurpeeB]
-    // 
-    // the final step is to batch draw the rebels
-    //
     // TODO: calculate the earliest rebel node faster than just "looping a minus 1 over and over"
-    //
     let rebel_itemIndex = final_indexItem;
     let rebel_ringBufferIndex = final_ringBufferIndex;
     for (let i = 1/* start at 1 so you skip a loop */; i < insertionCount; i++) {
@@ -617,31 +605,15 @@ function handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndex, fina
 
     const inclusive_earliest_rebel_ringBufferIndex = rebel_ringBufferIndex;
 
-    // the way I shift the nodes is horrific to look at but "first draft" or something
-    //
-    // TODO: I think you can swap [usurpee_ringBufferIndex] and [inclusive_earliest_rebel_ringBufferIndex + i] or something...
-    // ...the current way is extremely wasteful.
-    //
     for (let i = 0; i < insertionCount; i++) {
-        // "to be overwritten"
         const overwrittenRebel = EXPLORER_ringBuffer[rebel_ringBufferIndex];
 
-        // this looks like it does 1 too many?
-        // after looking at it retrospectively, I'm kinda tired I need time to keep looking at it.
-        //
         let temp1 = EXPLORER_ringBuffer[usurpee_ringBufferIndex];
         let temp2 = null;
-        //let countToInsertionCount = 0;
         for (let n_ringBufferIndex = usurpee_ringBufferIndex;;) {
-            // TODO: This guard doesn't do anything?
-            //if (n_ringBufferIndex >= inclusive_earliest_rebel_ringBufferIndex) {
-            //    break;
-            //}
             if (n_ringBufferIndex === inclusive_earliest_rebel_ringBufferIndex + i) {
                 break;
             }
-
-            //const source_ringBufferIndex = n_ringBufferIndex;
 
             n_ringBufferIndex++;
             if (n_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
@@ -653,13 +625,6 @@ function handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndex, fina
             temp2 = EXPLORER_ringBuffer[destination_ringBufferIndex];
             EXPLORER_ringBuffer[destination_ringBufferIndex] = temp1;
             temp1 = temp2;
-
-            //if (n_ringBufferIndex === inclusive_earliest_rebel_ringBufferIndex) {
-            //    break;
-            //}
-            //if (++countToInsertionCount === insertionCount) {
-            //    break;
-            //}
         }
 
         EXPLORER_ringBuffer[usurpee_ringBufferIndex] = overwrittenRebel;

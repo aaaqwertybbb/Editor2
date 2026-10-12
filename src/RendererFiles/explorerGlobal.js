@@ -472,8 +472,6 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
     //
     // I'll put scrollHeight in quotes cause I'm iffy on whether I wanna say scrollHeight or the viewable height of the UI in question or like
     // idk I'm tired but that's what I can confirm isn't working.
-    //
-    // seems like just being scrollTop > 0 breaks expand anyways I'm done for day
 
     if (nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded) {
         divItem.firstChild.replaceData(0, 1, '-');
@@ -500,55 +498,44 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
 
         const insertionCount = childFilesystemEntries.length;
 
-        //if (insertionCount > 8) {
-        //    EXPLORER_draw_render_fullReset_request();
-        //    return;
-        //}
-
         let final_ringBufferIndexItem = get_final_ringBufferIndexItem();
 
         // This case doesn't make sense, it means the virtualCount === 0
         if (final_ringBufferIndexItem < 0) { EXPLORER_draw_render_fullReset_request(); return; }
 
-        // If ringBufferIndexItem === final_ringBufferIndexItem
-        // you can just "do nothing" so to speak (you need to "update the scrollbar" still / etc...)
-        // and you've already "update the scrollbar"ed so you just return.
+        // you can just "do nothing" so to speak (you need to "update the scrollbar" still / etc...) and you've already "update the scrollbar"ed so you just return.
         if (ringBufferIndexItem === final_ringBufferIndexItem) { return; }
 
         // TODO: This is a weird way to get the 'final_indexItem' (part 1 of 2)
         let final_indexItem = indexItem;
 
+        // If insertion count completely shifts visible TreeViewNodes that exist under the expanded TreeViewNode off screen you can just redraw every node below the one that was expanded.
+        // TODO: determine a more optimized way to calculate this than just looping over and over.
         let availableRingBufferNodesVisuallyAfterExpandedOne = 0;
-        // If insertion count completely shifts visible TreeViewNodes that exist under the expanded TreeViewNode off screen you can just
-        // redraw every node below the one that was expanded.
-        {
-            // So this is asking what is the distance from ringBufferIndexItem to final_ringBufferIndexItem
-            // TODO: determine a more optimized way to calculate this than just looping over and over.
-            for (let n_index = ringBufferIndexItem;;) {
-                availableRingBufferNodesVisuallyAfterExpandedOne++;
-                n_index = n_index + 1;
-                if (n_index >= INTS[fEXPLORER_virtualCount]) {
-                    n_index -= INTS[fEXPLORER_virtualCount];
-                }
-                if (n_index === final_ringBufferIndexItem) {
-                    break;
-                }
+        for (let n_index = ringBufferIndexItem;;) {
+            availableRingBufferNodesVisuallyAfterExpandedOne++;
+            n_index = n_index + 1;
+            if (n_index >= INTS[fEXPLORER_virtualCount]) {
+                n_index -= INTS[fEXPLORER_virtualCount];
             }
-            // TODO: This is a weird way to get the 'final_indexItem' (part 2 of 2)
-            final_indexItem += availableRingBufferNodesVisuallyAfterExpandedOne;
+            if (n_index === final_ringBufferIndexItem) {
+                break;
+            }
         }
+        // TODO: This is a weird way to get the 'final_indexItem' (part 2 of 2)
+        final_indexItem += availableRingBufferNodesVisuallyAfterExpandedOne;
 
-        const aaa_next_ringBufferIndex = ringBufferIndexItem + 1;
-        if (aaa_next_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
-            aaa_next_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
+        const next_ringBufferIndex = ringBufferIndexItem + 1;
+        if (next_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
+            next_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
         }
 
         if (insertionCount >= availableRingBufferNodesVisuallyAfterExpandedOne) {
-            EXPLORER_draw_BATCH_request(indexItem + 1, availableRingBufferNodesVisuallyAfterExpandedOne, 3, aaa_next_ringBufferIndex);
+            EXPLORER_draw_BATCH_request(indexItem + 1, availableRingBufferNodesVisuallyAfterExpandedOne, 3, next_ringBufferIndex);
         }
         else {
             handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndexItem, final_indexItem, indexItem, ringBufferIndexItem, insertionCount);
-            EXPLORER_draw_BATCH_request(indexItem + 1, insertionCount, 3, aaa_next_ringBufferIndex);
+            EXPLORER_draw_BATCH_request(indexItem + 1, insertionCount, 3, next_ringBufferIndex);
         }
     }
     else if (nodeKind === TreeViewNodeKind_isExpandable_isExpanded) {

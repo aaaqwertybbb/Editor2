@@ -528,11 +528,15 @@ You're all completely clueless
 
 Google AI
 
+...
+
 1. Eliminate the Nested Ripple Loops ((O(1)) or (O(N)) Block Shifts)
 
 Instead of stepping through the buffer shifting items one by one (temp1 = temp2), you can conceptualize this as a block rotation or array slice repositioning.
 - The Math Approach: Calculate the indices of the two contiguous segments (the "usurpees" and the "rebels") inside your array.
 - The Trick: You can rotate a segment of an array in-place using three array reversals: reverse the first part, reverse the second part, and reverse the whole block. This avoids inner loops completely and runs in linear time relative only to the affected window size.
+
+...
 
 function handleRingBufferNodesThatGetPushedOffscreen(
     final_ringBufferIndex, 

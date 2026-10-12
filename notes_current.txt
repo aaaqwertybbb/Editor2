@@ -631,3 +631,13 @@ Eat right exercise.
 There's endless amounts of things to understand so what does it even matter in terms of rushing
 
 
+If you sacrifice your health to write more code, learn one more concept.
+Tomorrow you'll find another concept you don't understand because there's always one.
+And then due to your frail state of health you're more on edge and that concept breaks you.
+
+Versus if you're healthy and can just consistently take in any problem given to you and solve it.
+"so solve the mirror trick"
+I've been writing lots and lots of code for many days in a row
+that's what I'm saying I am having a tired moment I solved x y z and now mirror trick etc...
+you know what I mean
+it just is what it is

@@ -652,6 +652,17 @@ function handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndex, fina
     }
 }
 
+/*
+Wait I understand - understand.
+
+You don't want to actually reverse the usurpee(s) or the rebel(s).
+
+So you reverse each group individually prior to reversing the entirety.
+
+That's what I was trying to say where I didn't quite see it but I knew what steps to take.
+I think I actually see it now.
+*/
+
 // Helper to reverse a segment inside the ring buffer in-place
 // This allows us to perform block rotations without element-by-element shifting loops
 function EXPLORER_reverseBufferSegment(start, end) {

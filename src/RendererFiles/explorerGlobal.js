@@ -604,46 +604,29 @@ function handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndex, fina
     }
 
     const inclusive_earliest_rebel_ringBufferIndex = rebel_ringBufferIndex;
+    const inclusive_earliest_rebel_ringBufferItem = rebel_itemIndex;
 
+    // 3. Perform a block rotation via triple-reversal 
+    // This repositions all 'usurpees' and 'rebels' in O(N) operations total, discarding the nested loops
+    const end_of_rebel_block = final_ringBufferIndex;
+    
+    // TODO: Is this safe 'inclusive_earliest_rebel_ringBufferIndex - 1'?
+    EXPLORER_reverseBufferSegment(usurpee_ringBufferIndex, inclusive_earliest_rebel_ringBufferIndex - 1); // Reverse Usurpees
+    EXPLORER_reverseBufferSegment(inclusive_earliest_rebel_ringBufferIndex, end_of_rebel_block);           // Reverse Rebels
+    EXPLORER_reverseBufferSegment(usurpee_ringBufferIndex, end_of_rebel_block);                           // Reverse entire window
+
+    // everytime you do a usurp you move 1 further and that means you'll be at the first usurped node after its repositioning
+    // and can start to fix transform y's.
+
+    // The 'rebels' will be drawn with their text, depth, and translateY immediately after this function so you can skip them.
+    // Since everything was reversed in earlier steps this is the way to do exactly that.
     for (let i = 0; i < insertionCount; i++) {
-        const overwrittenRebel = EXPLORER_ringBuffer[rebel_ringBufferIndex];
-
-        let temp1 = EXPLORER_ringBuffer[usurpee_ringBufferIndex];
-        let temp2 = null;
-        for (let n_ringBufferIndex = usurpee_ringBufferIndex;;) {
-            if (n_ringBufferIndex === inclusive_earliest_rebel_ringBufferIndex + i) {
-                break;
-            }
-
-            n_ringBufferIndex++;
-            if (n_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
-                n_ringBufferIndex -= INTS[fEXPLORER_virtualCount]
-            }
-
-            const destination_ringBufferIndex = n_ringBufferIndex;
-
-            temp2 = EXPLORER_ringBuffer[destination_ringBufferIndex];
-            EXPLORER_ringBuffer[destination_ringBufferIndex] = temp1;
-            temp1 = temp2;
-        }
-
-        EXPLORER_ringBuffer[usurpee_ringBufferIndex] = overwrittenRebel;
-        
-        usurpee_itemIndex++; // you "need" this to track for later
-
         usurpee_ringBufferIndex++;
         if (usurpee_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
             usurpee_ringBufferIndex -= INTS[fEXPLORER_virtualCount]
         }
-
-        rebel_ringBufferIndex++;
-        if (rebel_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
-            rebel_ringBufferIndex -= INTS[fEXPLORER_virtualCount]
-        }
+        usurpee_itemIndex++;
     }
-
-    // everytime you do a usurp you move 1 further and that means you'll be at the first usurped node after its repositioning
-    // and can start to fix transform y's.
 
     for (;;) {
         let depth = 0;
@@ -662,6 +645,30 @@ function handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndex, fina
         usurpee_ringBufferIndex++;
         if (usurpee_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
             usurpee_ringBufferIndex -= INTS[fEXPLORER_virtualCount]
+        }
+    }
+}
+
+// Helper to reverse a segment inside the ring buffer in-place
+// This allows us to perform block rotations without element-by-element shifting loops
+function EXPLORER_reverseBufferSegment(start, end) {
+    let left = start;
+    let right = end;
+    while (left !== right) {
+        const temp = EXPLORER_ringBuffer[left];
+        EXPLORER_ringBuffer[left] = EXPLORER_ringBuffer[right];
+        EXPLORER_ringBuffer[right] = temp;
+
+        if (left === right) break;
+        left++;
+        if (left >= INTS[fEXPLORER_virtualCount]) {
+            left -= INTS[fEXPLORER_virtualCount]
+        }
+
+        if (left === right) break;
+        right--;
+        if (right < 0) {
+            right = INTS[fEXPLORER_virtualCount] - 1;
         }
     }
 }

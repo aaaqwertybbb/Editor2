@@ -474,13 +474,15 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
     // idk I'm tired but that's what I can confirm isn't working.
 
     if (nodeKind === TreeViewNodeKind_isExpandable_NOTisExpanded) {
-        divItem.firstChild.replaceData(0, 1, '-');
 
+        divItem.firstChild.replaceData(0, 1, '-');
         EXPLORER_treeViewNodes.setNodeKind(indexItem, TreeViewNodeKind_isExpandable_isExpanded);
 
         const childFilesystemEntries = await window.myAPI.getFilesystemEntries_argumentIsId(key);
+        const insertionCount = childFilesystemEntries.length;
+        if (insertionCount === 0) { return; }
 
-        for (let i = 0; i < childFilesystemEntries.length; i++) {
+        for (let i = 0; i < insertionCount; i++) {
             let entry = childFilesystemEntries[i];
             let nodeKind;
             if (entry.isDirectory) {
@@ -496,18 +498,12 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
         INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
         EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
 
-        const insertionCount = childFilesystemEntries.length;
-
         let final_ringBufferIndexItem = get_final_ringBufferIndexItem();
 
         // This case doesn't make sense, it means the virtualCount === 0
         if (final_ringBufferIndexItem < 0) { EXPLORER_draw_render_fullReset_request(); return; }
-
         // you can just "do nothing" so to speak (you need to "update the scrollbar" still / etc...) and you've already "update the scrollbar"ed so you just return.
         if (ringBufferIndexItem === final_ringBufferIndexItem) { return; }
-
-        // TODO: This is a weird way to get the 'final_indexItem' (part 1 of 2)
-        let final_indexItem = indexItem;
 
         // If insertion count completely shifts visible TreeViewNodes that exist under the expanded TreeViewNode off screen you can just redraw every node below the one that was expanded.
         // TODO: determine a more optimized way to calculate this than just looping over and over.
@@ -522,13 +518,13 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
                 break;
             }
         }
-        // TODO: This is a weird way to get the 'final_indexItem' (part 2 of 2)
-        final_indexItem += availableRingBufferNodesVisuallyAfterExpandedOne;
 
         const next_ringBufferIndex = ringBufferIndexItem + 1;
         if (next_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
             next_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
         }
+
+        const final_indexItem = indexItem + availableRingBufferNodesVisuallyAfterExpandedOne; // TODO: This is a weird way to get the 'final_indexItem'
 
         if (insertionCount >= availableRingBufferNodesVisuallyAfterExpandedOne) {
             EXPLORER_draw_BATCH_request(indexItem + 1, availableRingBufferNodesVisuallyAfterExpandedOne, 3, next_ringBufferIndex);
@@ -553,12 +549,24 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
                 break;
             }
         }
-        if (countChildren > 0) { // TODO: is this check necessary?
-            EXPLORER_treeViewNodes.removeAt(indexItem + 1, countChildren);
-            INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
-            EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
-            EXPLORER_draw_render_fullReset_request();
-        }
+
+        if (countChildren === 0) { return; }
+
+        EXPLORER_treeViewNodes.removeAt(indexItem + 1, countChildren);
+        INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
+        EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
+
+        let final_ringBufferIndexItem = get_final_ringBufferIndexItem();
+
+        // This case doesn't make sense, it means the virtualCount === 0
+        if (final_ringBufferIndexItem < 0) { EXPLORER_draw_render_fullReset_request(); return; }
+        // you can just "do nothing" so to speak (you need to "update the scrollbar" still / etc...) and you've already "update the scrollbar"ed so you just return.
+        if (ringBufferIndexItem === final_ringBufferIndexItem) { return; }
+
+        // I think it's gonna be something relating to the ' ~' lines. (the ones that are out of range of the dataset but given the UI you have "empty divs" there so you can populate those "empty divs" if the need ever arises.)
+        // Regardless, it's extremely similar to the expand logic in terms of swapping the two groups.
+
+        EXPLORER_draw_render_fullReset_request();
     }
 }
 

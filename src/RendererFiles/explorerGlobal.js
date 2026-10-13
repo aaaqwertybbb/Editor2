@@ -580,23 +580,24 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
         }
         else {
             EXPLORER_draw_render_fullReset_request();
-            const final_indexItem = indexItem + availableRingBufferNodesVisuallyAfterCollapsedOne; // TODO: This is a weird way to get the 'final_indexItem'
-            handleRingBufferNodesThatAreOffscreen_collapse(final_ringBufferIndexItem, final_indexItem, indexItem, ringBufferIndexItem, countChildren, availableRingBufferNodesVisuallyAfterCollapsedOne);
 
-
-            let recycled_itemIndex = indexItem;
-            let recycled_ringBufferIndex = ringBufferIndexItem;
-            const displaced_count = availableRingBufferNodesVisuallyAfterCollapsedOne - childCount;
-            // TODO: calculate the earliest displaced node faster than just "looping a minus 1 over and over"
-            for (let i = 0; i < displaced_count; i++) {
-                recycled_itemIndex++;
-                recycled_ringBufferIndex++;
-                if (recycled_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
-                    recycled_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
-                }
-            }
-
-            EXPLORER_draw_BATCH_request(recycled_itemIndex, childCount, 3, recycled_ringBufferIndex);
+            //const final_indexItem = indexItem + availableRingBufferNodesVisuallyAfterCollapsedOne; // TODO: This is a weird way to get the 'final_indexItem'
+            //handleRingBufferNodesThatAreOffscreen_collapse(final_ringBufferIndexItem, final_indexItem, indexItem, ringBufferIndexItem, countChildren, availableRingBufferNodesVisuallyAfterCollapsedOne);
+//
+//
+            //let recycled_itemIndex = indexItem;
+            //let recycled_ringBufferIndex = ringBufferIndexItem;
+            //const displaced_count = availableRingBufferNodesVisuallyAfterCollapsedOne - childCount;
+            //// TODO: calculate the earliest displaced node faster than just "looping a minus 1 over and over"
+            //for (let i = 0; i < displaced_count; i++) {
+            //    recycled_itemIndex++;
+            //    recycled_ringBufferIndex++;
+            //    if (recycled_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
+            //        recycled_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
+            //    }
+            //}
+//
+            //EXPLORER_draw_BATCH_request(recycled_itemIndex, childCount, 3, recycled_ringBufferIndex);
         }
 
         // you want to do the opposite in terms of setting translateY / skipping the ones you redraw.

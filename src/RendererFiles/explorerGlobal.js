@@ -559,8 +559,26 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
         // you can just "do nothing" so to speak (you need to "update the scrollbar" still / etc...) and you've already "update the scrollbar"ed so you just return.
         if (ringBufferIndexItem === final_ringBufferIndexItem) { return; }
 
-        // I think it's gonna be something relating to the ' ~' lines. (the ones that are out of range of the dataset but given the UI you have "empty divs" there so you can populate those "empty divs" if the need ever arises.)
-        // Regardless, it's extremely similar to the expand logic in terms of swapping the two groups.
+        const next_ringBufferIndex = ringBufferIndexItem + 1;
+        if (next_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
+            next_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
+        }
+
+        //const final_indexItem = indexItem + availableRingBufferNodesVisuallyAfterExpandedOne; // TODO: This is a weird way to get the 'final_indexItem'
+
+
+        // you want to do the opposite in terms of setting translateY / skipping the ones you redraw.
+        // you're gonna translateY the "rebels" this time.
+        // and you're gonna batch the "usurpees".
+
+
+        //if (insertionCount >= availableRingBufferNodesVisuallyAfterExpandedOne) {
+        //    EXPLORER_draw_BATCH_request(indexItem + 1, availableRingBufferNodesVisuallyAfterExpandedOne, 3, next_ringBufferIndex);
+        //}
+        //else {
+        //    handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndexItem, final_indexItem, indexItem, ringBufferIndexItem, insertionCount);
+        //    EXPLORER_draw_BATCH_request(indexItem + 1, insertionCount, 3, next_ringBufferIndex);
+        //}
 
         EXPLORER_draw_render_fullReset_request();
     }

@@ -571,6 +571,8 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
         // you're gonna translateY the "rebels" this time.
         // and you're gonna batch the "usurpees".
 
+        // You want to know the "remaining ring buffer nodes visually that are not a child of the collapsed node"
+
 
         //if (insertionCount >= availableRingBufferNodesVisuallyAfterExpandedOne) {
         //    EXPLORER_draw_BATCH_request(indexItem + 1, availableRingBufferNodesVisuallyAfterExpandedOne, 3, next_ringBufferIndex);

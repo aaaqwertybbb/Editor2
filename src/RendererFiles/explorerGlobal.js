@@ -570,26 +570,22 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
             }
         }
 
-        const next_ringBufferIndex = ringBufferIndexItem + 1;
-        if (next_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
-            next_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
-        }
-
         if (countChildren >= availableRingBufferNodesVisuallyAfterCollapsedOne) {
+            const next_ringBufferIndex = ringBufferIndexItem + 1;
+            if (next_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
+                next_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
+            }
+
             EXPLORER_draw_BATCH_request(indexItem + 1, availableRingBufferNodesVisuallyAfterCollapsedOne, 3, next_ringBufferIndex);
         }
         else {
-            //EXPLORER_draw_render_fullReset_request();
-            
-            const final_indexItem = indexItem + availableRingBufferNodesVisuallyAfterCollapsedOne; // TODO: This is a weird way to get the 'final_indexItem'
-            handleRingBufferNodesThatAreOffscreen_collapse(final_ringBufferIndexItem, final_indexItem, indexItem, ringBufferIndexItem, countChildren, availableRingBufferNodesVisuallyAfterCollapsedOne);
-
+            handleRingBufferNodesThatAreOffscreen_collapse(final_ringBufferIndexItem, indexItem, ringBufferIndexItem, countChildren, availableRingBufferNodesVisuallyAfterCollapsedOne);
 
             let recycled_itemIndex = indexItem;
             let recycled_ringBufferIndex = ringBufferIndexItem;
             const displaced_count = availableRingBufferNodesVisuallyAfterCollapsedOne - countChildren;
             // TODO: calculate the earliest displaced node faster than just "looping a minus 1 over and over"
-            for (let i = 0; i < displaced_count; i++) {
+            for (let i = 0; i < (displaced_count + 1); i++) {
                 recycled_itemIndex++;
                 recycled_ringBufferIndex++;
                 if (recycled_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
@@ -599,16 +595,10 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
 
             EXPLORER_draw_BATCH_request(recycled_itemIndex, countChildren, 3, recycled_ringBufferIndex);
         }
-
-        // you want to do the opposite in terms of setting translateY / skipping the ones you redraw.
-        // you're gonna translateY the "rebels" this time.
-        // and you're gonna batch the "usurpees".
-
-        // You want to know the "remaining ring buffer nodes visually that are not a child of the collapsed node"
     }
 }
 
-function handleRingBufferNodesThatAreOffscreen_collapse(final_ringBufferIndex, final_indexItem, indexItem_of_collapsed_node, ringBufferIndex_of_collapsed_node, recycleCount, availableRingBufferNodesVisuallyAfterCollapsedOne) {
+function handleRingBufferNodesThatAreOffscreen_collapse(final_ringBufferIndex, indexItem_of_collapsed_node, ringBufferIndex_of_collapsed_node, recycleCount, availableRingBufferNodesVisuallyAfterCollapsedOne) {
     let displaced_itemIndex = indexItem_of_collapsed_node;
     let displaced_ringBufferIndex = ringBufferIndex_of_collapsed_node;
     // TODO: calculate the earliest displaced node faster than just "looping a minus 1 over and over"
@@ -626,12 +616,11 @@ function handleRingBufferNodesThatAreOffscreen_collapse(final_ringBufferIndex, f
         recycle_ringBufferIndex -= INTS[fEXPLORER_virtualCount]
     }
 
-    const inclusive_earliest_recycle_ringBufferIndex = recycle_ringBufferIndex;
-
-    const inclusive_earliest_displaced_ringBufferIndex = displaced_ringBufferIndex;
-
     // 3. Perform a block rotation via triple-reversal 
     // This repositions all 'recycle(s)' and 'displaced(s)' in O(N) operations total, discarding the nested loops
+    
+    const inclusive_earliest_recycle_ringBufferIndex = recycle_ringBufferIndex;
+
     const end_of_recycle_block = displaced_ringBufferIndex - 1;
     if (end_of_recycle_block < 0) {
         end_of_recycle_block = INTS[fEXPLORER_virtualCount] - 1;
@@ -641,14 +630,16 @@ function handleRingBufferNodesThatAreOffscreen_collapse(final_ringBufferIndex, f
 
     EXPLORER_reverseBufferSegment(inclusive_earliest_recycle_ringBufferIndex, end_of_recycle_block); // Reverse Recycle(s)
     EXPLORER_reverseBufferSegment(displaced_ringBufferIndex, endOfDisplacedBlock);                   // Reverse Displaced(s)
-    EXPLORER_reverseBufferSegment(recycle_ringBufferIndex, endOfDisplacedBlock);                  // Reverse entire window
+    EXPLORER_reverseBufferSegment(recycle_ringBufferIndex, endOfDisplacedBlock);                     // Reverse entire window
 
     // The 'recycles' will be drawn with their text, depth, and translateY immediately after this function so you can skip them.
     // Since everything was reversed in earlier steps this is the way to do exactly that.
     displaced_ringBufferIndex = recycle_ringBufferIndex;
     displaced_itemIndex = recycle_itemIndex;
 
-    for (let i = 0; i < availableRingBufferNodesVisuallyAfterCollapsedOne - recycleCount; i++) {
+    const displacedCount = availableRingBufferNodesVisuallyAfterCollapsedOne - recycleCount;
+
+    for (let i = 0; i < displacedCount; i++) {
         let depth = 0;
         if (displaced_itemIndex < EXPLORER_treeViewNodes.count_abstract) {
             depth = EXPLORER_treeViewNodes.getDepth(displaced_itemIndex);

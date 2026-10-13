@@ -593,7 +593,7 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
     }
 }
 
-function handleRingBufferNodesThatAreOffscreen_collapse(final_ringBufferIndex, final_indexItem, indexItem_of_expanded_node, ringBufferIndex_of_expanded_node, insertionCount) {
+function handleRingBufferNodesThatAreOffscreen_collapse(final_ringBufferIndex, final_indexItem, indexItem_of_expanded_node, ringBufferIndex_of_expanded_node, recycleCount) {
     let usurpee_itemIndex = indexItem_of_expanded_node + 1;
     let usurpee_ringBufferIndex = ringBufferIndex_of_expanded_node + 1;
     if (usurpee_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
@@ -603,7 +603,7 @@ function handleRingBufferNodesThatAreOffscreen_collapse(final_ringBufferIndex, f
     // TODO: calculate the earliest rebel node faster than just "looping a minus 1 over and over"
     let rebel_itemIndex = final_indexItem;
     let rebel_ringBufferIndex = final_ringBufferIndex;
-    for (let i = 1/* start at 1 so you skip a loop */; i < insertionCount; i++) {
+    for (let i = 1/* start at 1 so you skip a loop */; i < recycleCount; i++) {
         rebel_itemIndex--;
         rebel_ringBufferIndex--;
         if (rebel_ringBufferIndex < 0) {

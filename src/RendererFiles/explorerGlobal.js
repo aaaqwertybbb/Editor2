@@ -459,9 +459,9 @@ function EXPLORER_oncontextmenu(divItem, indexItem, event_button, event_clientX,
 async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBufferIndexItem) {
     // TODO: !!!! You might need to be careful with async and the TreeView_pooledNode; I'm not certain whether you do or don't have to be careful, and I don't feel like looking into it at the moment.
     EXPLORER_treeViewNodes.getElementAt(indexItem);
-    let key = INTS[fTreeView_poolret_pooledNode_key];
-    let depth = INTS[fTreeView_poolret_pooledNode_depth];
-    let nodeKind = BYTES[byteTreeView_byteret_pooledNode_nodeKind];
+    const key = INTS[fTreeView_poolret_pooledNode_key];
+    const depth = INTS[fTreeView_poolret_pooledNode_depth];
+    const nodeKind = BYTES[byteTreeView_byteret_pooledNode_nodeKind];
 
     // It isn't fully working
     // I got a case to break when I collapsed while scroll top > 0
@@ -483,14 +483,10 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
         if (insertionCount === 0) { return; }
 
         for (let i = 0; i < insertionCount; i++) {
-            let entry = childFilesystemEntries[i];
-            let nodeKind;
-            if (entry.isDirectory) {
-                nodeKind = TreeViewNodeKind_isExpandable_NOTisExpanded;
-            }
-            else {
-                nodeKind = TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
-            }
+            const entry = childFilesystemEntries[i];
+            const nodeKind = entry.isDirectory
+                ? TreeViewNodeKind_isExpandable_NOTisExpanded
+                : TreeViewNodeKind_NOTisExpandable_NOTisExpanded;
             // TODO: Insert range, or at the least 'pre-emptively' resize the list so that it fits each insertion without resizing per insertion.
             EXPLORER_treeViewNodes.insert(indexItem + 1 + i, nodeKind, entry.id, depth + 1);
         }
@@ -498,7 +494,7 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
         INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
         EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
 
-        let final_ringBufferIndexItem = get_final_ringBufferIndexItem();
+        const final_ringBufferIndexItem = get_final_ringBufferIndexItem();
 
         // This case doesn't make sense, it means the virtualCount === 0
         if (final_ringBufferIndexItem < 0) { EXPLORER_draw_render_fullReset_request(); return; }
@@ -556,7 +552,7 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
         INTS[fEXPLORER_itemHeightTotal] = EXPLORER_treeViewNodes.count_abstract * INTS[fEXPLORER_itemHeightNumber];
         EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
 
-        let final_ringBufferIndexItem = get_final_ringBufferIndexItem();
+        const final_ringBufferIndexItem = get_final_ringBufferIndexItem();
 
         // This case doesn't make sense, it means the virtualCount === 0
         if (final_ringBufferIndexItem < 0) { EXPLORER_draw_render_fullReset_request(); return; }

@@ -593,76 +593,9 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
     }
 }
 
-function handleRingBufferNodesThatAreOffscreen_collapse(final_ringBufferIndex, final_indexItem, indexItem_of_expanded_node, ringBufferIndex_of_expanded_node, recycleCount) {
-    let usurpee_itemIndex = indexItem_of_expanded_node + 1;
-    let usurpee_ringBufferIndex = ringBufferIndex_of_expanded_node + 1;
-    if (usurpee_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
-        usurpee_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
-    }
-
-    // TODO: calculate the earliest rebel node faster than just "looping a minus 1 over and over"
-    let rebel_itemIndex = final_indexItem;
-    let rebel_ringBufferIndex = final_ringBufferIndex;
-    for (let i = 1/* start at 1 so you skip a loop */; i < recycleCount; i++) {
-        rebel_itemIndex--;
-        rebel_ringBufferIndex--;
-        if (rebel_ringBufferIndex < 0) {
-            rebel_ringBufferIndex = INTS[fEXPLORER_virtualCount] - 1;
-        }
-    }
-
-    const inclusive_earliest_rebel_ringBufferIndex = rebel_ringBufferIndex;
-
-    // 3. Perform a block rotation via triple-reversal 
-    // This repositions all 'usurpees' and 'rebels' in O(N) operations total, discarding the nested loops
-    const end_of_rebel_block = final_ringBufferIndex;
-    
-    const endOfUsurpeeBlock = inclusive_earliest_rebel_ringBufferIndex - 1;
-    if (endOfUsurpeeBlock < 0) {
-        endOfUsurpeeBlock = INTS[fEXPLORER_virtualCount] - 1;
-    }
-
-    EXPLORER_reverseBufferSegment(usurpee_ringBufferIndex, endOfUsurpeeBlock);                   // Reverse Usurpees
-    EXPLORER_reverseBufferSegment(inclusive_earliest_rebel_ringBufferIndex, end_of_rebel_block); // Reverse Rebels
-    EXPLORER_reverseBufferSegment(usurpee_ringBufferIndex, end_of_rebel_block);                  // Reverse entire window
-
-    // everytime you do a usurp you move 1 further and that means you'll be at the first usurped node after its repositioning
-    // and can start to fix transform y's.
-
-    //// The 'rebels' will be drawn with their text, depth, and translateY immediately after this function so you can skip them.
-    //// Since everything was reversed in earlier steps this is the way to do exactly that.
-    //for (let i = 0; i < insertionCount; i++) {
-    //    usurpee_ringBufferIndex++;
-    //    if (usurpee_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
-    //        usurpee_ringBufferIndex -= INTS[fEXPLORER_virtualCount]
-    //    }
-    //    usurpee_itemIndex++;
-    //}
-
-    for (;;) {
-        let depth = 0;
-        if (usurpee_itemIndex < EXPLORER_treeViewNodes.count_abstract) {
-            depth = EXPLORER_treeViewNodes.getDepth(usurpee_itemIndex);
-        }
-
-        EXPLORER_ringBuffer[usurpee_ringBufferIndex].style.transform = `translate(${CONST_EXPLORER_offsetPerDepth * depth}px, ${INTS[fEXPLORER_itemHeightNumber] * usurpee_itemIndex}px)`;
-
-        usurpee_itemIndex++;
-
-        usurpee_ringBufferIndex++;
-        if (usurpee_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
-            usurpee_ringBufferIndex -= INTS[fEXPLORER_virtualCount]
-        }
-
-        if (usurpee_ringBufferIndex === inclusive_earliest_rebel_ringBufferIndex) {
-            break;
-        }
-    }
-}
-
-function handleRingBufferNodesThatAreOffscreen_expand(final_ringBufferIndex, final_indexItem, indexItem_of_expanded_node, ringBufferIndex_of_expanded_node, insertionCount) {
-    let displaced_itemIndex = indexItem_of_expanded_node + 1;
-    let displaced_ringBufferIndex = ringBufferIndex_of_expanded_node + 1;
+function handleRingBufferNodesThatAreOffscreen_collapse(final_ringBufferIndex, final_indexItem, indexItem_of_collapsed_node, ringBufferIndex_of_collapsed_node, recycleCount) {
+    let displaced_itemIndex = indexItem_of_collapsed_node + 1;
+    let displaced_ringBufferIndex = ringBufferIndex_of_collapsed_node + 1;
     if (displaced_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
         displaced_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
     }
@@ -670,7 +603,7 @@ function handleRingBufferNodesThatAreOffscreen_expand(final_ringBufferIndex, fin
     // TODO: calculate the earliest recycled node faster than just "looping a minus 1 over and over"
     let recycle_itemIndex = final_indexItem;
     let recycle_ringBufferIndex = final_ringBufferIndex;
-    for (let i = 1/* start at 1 so you skip a loop */; i < insertionCount; i++) {
+    for (let i = 1/* start at 1 so you skip a loop */; i < recycleCount; i++) {
         recycle_itemIndex--;
         recycle_ringBufferIndex--;
         if (recycle_ringBufferIndex < 0) {
@@ -698,7 +631,74 @@ function handleRingBufferNodesThatAreOffscreen_expand(final_ringBufferIndex, fin
 
     // The 'recycles' will be drawn with their text, depth, and translateY immediately after this function so you can skip them.
     // Since everything was reversed in earlier steps this is the way to do exactly that.
-    for (let i = 0; i < insertionCount; i++) {
+    for (let i = 0; i < recycleCount; i++) {
+        displaced_ringBufferIndex++;
+        if (displaced_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
+            displaced_ringBufferIndex -= INTS[fEXPLORER_virtualCount]
+        }
+        displaced_itemIndex++;
+    }
+
+    for (;;) {
+        let depth = 0;
+        if (displaced_itemIndex < EXPLORER_treeViewNodes.count_abstract) {
+            depth = EXPLORER_treeViewNodes.getDepth(displaced_itemIndex);
+        }
+
+        EXPLORER_ringBuffer[displaced_ringBufferIndex].style.transform = `translate(${CONST_EXPLORER_offsetPerDepth * depth}px, ${INTS[fEXPLORER_itemHeightNumber] * displaced_itemIndex}px)`;
+
+        if (displaced_ringBufferIndex === final_ringBufferIndex) {
+            break;
+        }
+
+        displaced_itemIndex++;
+
+        displaced_ringBufferIndex++;
+        if (displaced_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
+            displaced_ringBufferIndex -= INTS[fEXPLORER_virtualCount]
+        }
+    }
+}
+
+function handleRingBufferNodesThatAreOffscreen_expand(final_ringBufferIndex, final_indexItem, indexItem_of_expanded_node, ringBufferIndex_of_expanded_node, recycleCount) {
+    let displaced_itemIndex = indexItem_of_expanded_node + 1;
+    let displaced_ringBufferIndex = ringBufferIndex_of_expanded_node + 1;
+    if (displaced_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
+        displaced_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
+    }
+
+    // TODO: calculate the earliest recycled node faster than just "looping a minus 1 over and over"
+    let recycle_itemIndex = final_indexItem;
+    let recycle_ringBufferIndex = final_ringBufferIndex;
+    for (let i = 1/* start at 1 so you skip a loop */; i < recycleCount; i++) {
+        recycle_itemIndex--;
+        recycle_ringBufferIndex--;
+        if (recycle_ringBufferIndex < 0) {
+            recycle_ringBufferIndex = INTS[fEXPLORER_virtualCount] - 1;
+        }
+    }
+
+    const inclusive_earliest_recycle_ringBufferIndex = recycle_ringBufferIndex;
+
+    // 3. Perform a block rotation via triple-reversal 
+    // This repositions all 'displaced(s)' and 'recycle(s)' in O(N) operations total, discarding the nested loops
+    const end_of_recycle_block = final_ringBufferIndex;
+    
+    const endOfDisplacedBlock = inclusive_earliest_recycle_ringBufferIndex - 1;
+    if (endOfDisplacedBlock < 0) {
+        endOfDisplacedBlock = INTS[fEXPLORER_virtualCount] - 1;
+    }
+
+    EXPLORER_reverseBufferSegment(displaced_ringBufferIndex, endOfDisplacedBlock);                   // Reverse Displaced(s)
+    EXPLORER_reverseBufferSegment(inclusive_earliest_recycle_ringBufferIndex, end_of_recycle_block); // Reverse Recycle(s)
+    EXPLORER_reverseBufferSegment(displaced_ringBufferIndex, end_of_recycle_block);                  // Reverse entire window
+
+    // everytime you do a usurp you move 1 further and that means you'll be at the first usurped node after its repositioning
+    // and can start to fix transform y's.
+
+    // The 'recycles' will be drawn with their text, depth, and translateY immediately after this function so you can skip them.
+    // Since everything was reversed in earlier steps this is the way to do exactly that.
+    for (let i = 0; i < recycleCount; i++) {
         displaced_ringBufferIndex++;
         if (displaced_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
             displaced_ringBufferIndex -= INTS[fEXPLORER_virtualCount]

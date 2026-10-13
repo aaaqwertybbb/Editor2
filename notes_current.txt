@@ -688,3 +688,25 @@ I think I did and then paused the movie I don't remember though.
 
 TODO: tree view collapse
 
+/*
+// When the index increases you can do either:
+    // Case A: (can at times approach branchless "99% branch prediction" essentially is the goal, you so rarely hit the if it ends up being very fast because the branch miss is so rare)
+    //         Depending on the scenario, this can give less clock cycles.
+    //         For example, in a loop where you do this calculation every iteration, this is more performant than modulo'ing each iteration.
+    let nextDomNodeIndex = ringBufferIndex_of_expanded_node + 1;
+    if (nextDomNodeIndex >= INTS[fEXPLORER_virtualCount]) {
+        nextDomNodeIndex -= INTS[fEXPLORER_virtualCount];
+    }
+    // Case B:
+    let nextDomNodeIndex = (ringBufferIndex_of_expanded_node + 1) % INTS[fEXPLORER_virtualCount];
+
+
+// When the index decreases you can do either:
+    // Case A: (see previous example for description)
+    let previousDomNodeIndex = ringBufferIndex_of_expanded_node - 1;
+    if (previousDomNodeIndex < 0) {
+        previousDomNodeIndex = INTS[fEXPLORER_virtualCount] - 1;
+    }
+    // Case B:
+    let previousDomNodeIndex = (ringBufferIndex_of_expanded_node - 1 + INTS[fEXPLORER_virtualCount]) % INTS[fEXPLORER_virtualCount];
+*/

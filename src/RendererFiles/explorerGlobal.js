@@ -525,7 +525,7 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
         }
         else {
             const final_indexItem = indexItem + availableRingBufferNodesVisuallyAfterExpandedOne; // TODO: This is a weird way to get the 'final_indexItem'
-            handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndexItem, final_indexItem, indexItem, ringBufferIndexItem, insertionCount);
+            handleRingBufferNodesThatAreOffscreen_expand(final_ringBufferIndexItem, final_indexItem, indexItem, ringBufferIndexItem, insertionCount);
             EXPLORER_draw_BATCH_request(indexItem + 1, insertionCount, 3, next_ringBufferIndex);
         }
     }
@@ -580,9 +580,9 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
         }
         else {
             EXPLORER_draw_render_fullReset_request();
-            // const final_indexItem = indexItem + availableRingBufferNodesVisuallyAfterCollapsedOne; // TODO: This is a weird way to get the 'final_indexItem'
-            // handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndexItem, final_indexItem, indexItem, ringBufferIndexItem, insertionCount);
-            // EXPLORER_draw_BATCH_request(indexItem + 1, insertionCount, 3, next_ringBufferIndex);
+            //const final_indexItem = indexItem + availableRingBufferNodesVisuallyAfterCollapsedOne; // TODO: This is a weird way to get the 'final_indexItem'
+            //handleRingBufferNodesThatAreOffscreen_collapse(final_ringBufferIndexItem, final_indexItem, indexItem, ringBufferIndexItem, availableRingBufferNodesVisuallyAfterCollapsedOne);
+            //EXPLORER_draw_BATCH_request(indexItem + 1, availableRingBufferNodesVisuallyAfterCollapsedOne, 3, next_ringBufferIndex);
         }
 
         // you want to do the opposite in terms of setting translateY / skipping the ones you redraw.
@@ -593,30 +593,74 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
     }
 }
 
-/*
-// When the index increases you can do either:
-    // Case A: (can at times approach branchless "99% branch prediction" essentially is the goal, you so rarely hit the if it ends up being very fast because the branch miss is so rare)
-    //         Depending on the scenario, this can give less clock cycles.
-    //         For example, in a loop where you do this calculation every iteration, this is more performant than modulo'ing each iteration.
-    let nextDomNodeIndex = ringBufferIndex_of_expanded_node + 1;
-    if (nextDomNodeIndex >= INTS[fEXPLORER_virtualCount]) {
-        nextDomNodeIndex -= INTS[fEXPLORER_virtualCount];
+function handleRingBufferNodesThatAreOffscreen_collapse(final_ringBufferIndex, final_indexItem, indexItem_of_expanded_node, ringBufferIndex_of_expanded_node, insertionCount) {
+    let usurpee_itemIndex = indexItem_of_expanded_node + 1;
+    let usurpee_ringBufferIndex = ringBufferIndex_of_expanded_node + 1;
+    if (usurpee_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
+        usurpee_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
     }
-    // Case B:
-    let nextDomNodeIndex = (ringBufferIndex_of_expanded_node + 1) % INTS[fEXPLORER_virtualCount];
 
-
-// When the index decreases you can do either:
-    // Case A: (see previous example for description)
-    let previousDomNodeIndex = ringBufferIndex_of_expanded_node - 1;
-    if (previousDomNodeIndex < 0) {
-        previousDomNodeIndex = INTS[fEXPLORER_virtualCount] - 1;
+    // TODO: calculate the earliest rebel node faster than just "looping a minus 1 over and over"
+    let rebel_itemIndex = final_indexItem;
+    let rebel_ringBufferIndex = final_ringBufferIndex;
+    for (let i = 1/* start at 1 so you skip a loop */; i < insertionCount; i++) {
+        rebel_itemIndex--;
+        rebel_ringBufferIndex--;
+        if (rebel_ringBufferIndex < 0) {
+            rebel_ringBufferIndex = INTS[fEXPLORER_virtualCount] - 1;
+        }
     }
-    // Case B:
-    let previousDomNodeIndex = (ringBufferIndex_of_expanded_node - 1 + INTS[fEXPLORER_virtualCount]) % INTS[fEXPLORER_virtualCount];
-*/
 
-function handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndex, final_indexItem, indexItem_of_expanded_node, ringBufferIndex_of_expanded_node, insertionCount) {
+    const inclusive_earliest_rebel_ringBufferIndex = rebel_ringBufferIndex;
+
+    // 3. Perform a block rotation via triple-reversal 
+    // This repositions all 'usurpees' and 'rebels' in O(N) operations total, discarding the nested loops
+    const end_of_rebel_block = final_ringBufferIndex;
+    
+    const endOfUsurpeeBlock = inclusive_earliest_rebel_ringBufferIndex - 1;
+    if (endOfUsurpeeBlock < 0) {
+        endOfUsurpeeBlock = INTS[fEXPLORER_virtualCount] - 1;
+    }
+
+    EXPLORER_reverseBufferSegment(usurpee_ringBufferIndex, endOfUsurpeeBlock);                   // Reverse Usurpees
+    EXPLORER_reverseBufferSegment(inclusive_earliest_rebel_ringBufferIndex, end_of_rebel_block); // Reverse Rebels
+    EXPLORER_reverseBufferSegment(usurpee_ringBufferIndex, end_of_rebel_block);                  // Reverse entire window
+
+    // everytime you do a usurp you move 1 further and that means you'll be at the first usurped node after its repositioning
+    // and can start to fix transform y's.
+
+    //// The 'rebels' will be drawn with their text, depth, and translateY immediately after this function so you can skip them.
+    //// Since everything was reversed in earlier steps this is the way to do exactly that.
+    //for (let i = 0; i < insertionCount; i++) {
+    //    usurpee_ringBufferIndex++;
+    //    if (usurpee_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
+    //        usurpee_ringBufferIndex -= INTS[fEXPLORER_virtualCount]
+    //    }
+    //    usurpee_itemIndex++;
+    //}
+
+    for (;;) {
+        let depth = 0;
+        if (usurpee_itemIndex < EXPLORER_treeViewNodes.count_abstract) {
+            depth = EXPLORER_treeViewNodes.getDepth(usurpee_itemIndex);
+        }
+
+        EXPLORER_ringBuffer[usurpee_ringBufferIndex].style.transform = `translate(${CONST_EXPLORER_offsetPerDepth * depth}px, ${INTS[fEXPLORER_itemHeightNumber] * usurpee_itemIndex}px)`;
+
+        usurpee_itemIndex++;
+
+        usurpee_ringBufferIndex++;
+        if (usurpee_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
+            usurpee_ringBufferIndex -= INTS[fEXPLORER_virtualCount]
+        }
+
+        if (usurpee_ringBufferIndex === inclusive_earliest_rebel_ringBufferIndex) {
+            break;
+        }
+    }
+}
+
+function handleRingBufferNodesThatAreOffscreen_expand(final_ringBufferIndex, final_indexItem, indexItem_of_expanded_node, ringBufferIndex_of_expanded_node, insertionCount) {
     let usurpee_itemIndex = indexItem_of_expanded_node + 1;
     let usurpee_ringBufferIndex = ringBufferIndex_of_expanded_node + 1;
     if (usurpee_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
@@ -682,17 +726,6 @@ function handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndex, fina
         }
     }
 }
-
-/*
-Wait I understand - understand.
-
-You don't want to actually reverse the usurpee(s) or the rebel(s).
-
-So you reverse each group individually prior to reversing the entirety.
-
-That's what I was trying to say where I didn't quite see it but I knew what steps to take.
-I think I actually see it now.
-*/
 
 // Helper to reverse a segment inside the ring buffer in-place
 // This allows us to perform block rotations without element-by-element shifting loops

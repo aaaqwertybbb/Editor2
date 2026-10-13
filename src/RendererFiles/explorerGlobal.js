@@ -576,9 +576,10 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
         }
 
         if (countChildren >= availableRingBufferNodesVisuallyAfterCollapsedOne) {
-            // EXPLORER_draw_BATCH_request(indexItem + 1, availableRingBufferNodesVisuallyAfterCollapsedOne, 3, next_ringBufferIndex);
+            EXPLORER_draw_BATCH_request(indexItem + 1, availableRingBufferNodesVisuallyAfterCollapsedOne, 3, next_ringBufferIndex);
         }
         else {
+            EXPLORER_draw_render_fullReset_request();
             // const final_indexItem = indexItem + availableRingBufferNodesVisuallyAfterCollapsedOne; // TODO: This is a weird way to get the 'final_indexItem'
             // handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndexItem, final_indexItem, indexItem, ringBufferIndexItem, insertionCount);
             // EXPLORER_draw_BATCH_request(indexItem + 1, insertionCount, 3, next_ringBufferIndex);
@@ -589,8 +590,6 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
         // and you're gonna batch the "usurpees".
 
         // You want to know the "remaining ring buffer nodes visually that are not a child of the collapsed node"
-
-        EXPLORER_draw_render_fullReset_request();
     }
 }
 

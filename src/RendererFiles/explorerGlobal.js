@@ -520,12 +520,11 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
             next_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
         }
 
-        const final_indexItem = indexItem + availableRingBufferNodesVisuallyAfterExpandedOne; // TODO: This is a weird way to get the 'final_indexItem'
-
         if (insertionCount >= availableRingBufferNodesVisuallyAfterExpandedOne) {
             EXPLORER_draw_BATCH_request(indexItem + 1, availableRingBufferNodesVisuallyAfterExpandedOne, 3, next_ringBufferIndex);
         }
         else {
+            const final_indexItem = indexItem + availableRingBufferNodesVisuallyAfterExpandedOne; // TODO: This is a weird way to get the 'final_indexItem'
             handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndexItem, final_indexItem, indexItem, ringBufferIndexItem, insertionCount);
             EXPLORER_draw_BATCH_request(indexItem + 1, insertionCount, 3, next_ringBufferIndex);
         }
@@ -559,28 +558,37 @@ async function EXPLORER_expandCollapseIconWasClicked(divItem, indexItem, ringBuf
         // you can just "do nothing" so to speak (you need to "update the scrollbar" still / etc...) and you've already "update the scrollbar"ed so you just return.
         if (ringBufferIndexItem === final_ringBufferIndexItem) { return; }
 
+        let availableRingBufferNodesVisuallyAfterCollapsedOne = 0;
+        for (let n_index = ringBufferIndexItem;;) {
+            availableRingBufferNodesVisuallyAfterCollapsedOne++;
+            n_index = n_index + 1;
+            if (n_index >= INTS[fEXPLORER_virtualCount]) {
+                n_index -= INTS[fEXPLORER_virtualCount];
+            }
+            if (n_index === final_ringBufferIndexItem) {
+                break;
+            }
+        }
+
         const next_ringBufferIndex = ringBufferIndexItem + 1;
         if (next_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
             next_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
         }
 
-        //const final_indexItem = indexItem + availableRingBufferNodesVisuallyAfterExpandedOne; // TODO: This is a weird way to get the 'final_indexItem'
-
+        if (countChildren >= availableRingBufferNodesVisuallyAfterCollapsedOne) {
+            // EXPLORER_draw_BATCH_request(indexItem + 1, availableRingBufferNodesVisuallyAfterCollapsedOne, 3, next_ringBufferIndex);
+        }
+        else {
+            // const final_indexItem = indexItem + availableRingBufferNodesVisuallyAfterCollapsedOne; // TODO: This is a weird way to get the 'final_indexItem'
+            // handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndexItem, final_indexItem, indexItem, ringBufferIndexItem, insertionCount);
+            // EXPLORER_draw_BATCH_request(indexItem + 1, insertionCount, 3, next_ringBufferIndex);
+        }
 
         // you want to do the opposite in terms of setting translateY / skipping the ones you redraw.
         // you're gonna translateY the "rebels" this time.
         // and you're gonna batch the "usurpees".
 
         // You want to know the "remaining ring buffer nodes visually that are not a child of the collapsed node"
-
-
-        //if (insertionCount >= availableRingBufferNodesVisuallyAfterExpandedOne) {
-        //    EXPLORER_draw_BATCH_request(indexItem + 1, availableRingBufferNodesVisuallyAfterExpandedOne, 3, next_ringBufferIndex);
-        //}
-        //else {
-        //    handleRingBufferNodesThatGetPushedOffscreen(final_ringBufferIndexItem, final_indexItem, indexItem, ringBufferIndexItem, insertionCount);
-        //    EXPLORER_draw_BATCH_request(indexItem + 1, insertionCount, 3, next_ringBufferIndex);
-        //}
 
         EXPLORER_draw_render_fullReset_request();
     }

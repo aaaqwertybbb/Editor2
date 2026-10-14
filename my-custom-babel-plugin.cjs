@@ -15,9 +15,6 @@ module.exports = function (babel) {
     "get_EDI_findOverlay_show",
     "set_EDI_findOverlay_show",
     
-    "get_EDI_findOverlay_isBeingShownDueToMultiCursorMatching",
-    "set_EDI_findOverlay_isBeingShownDueToMultiCursorMatching",
-    
     "get_EDI_fileStartsWithBom",
     "set_EDI_fileStartsWithBom",
     
@@ -31,7 +28,6 @@ module.exports = function (babel) {
   // List all the variable names you want to inline
   const TARGET_VARIABLES = [
 
-    "fEDI_findOverlay_isBeingShownDueToMultiCursorMatching_originMatchNumber",
     "fEDI_drawn_count_of_digits_longest_line_number",
     "fEDI_detailRank",
     "fEDI_detail_smallPosition",
@@ -55,7 +51,6 @@ module.exports = function (babel) {
     "fEDI_poolret_pooledTrackedSyntax_start",
     "fEDI_poolret_pooledTrackedSyntax_length",
     "fEDI_findOverlay_show",
-    "fEDI_findOverlay_isBeingShownDueToMultiCursorMatching",
     "fEDI_fileStartsWithBom",
     "fEDI_findOverlay_wasSearched",
     "fEDI_findOverlay_options_matchWord",

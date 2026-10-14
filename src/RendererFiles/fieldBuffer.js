@@ -86,14 +86,6 @@ set_EDI_recentBoundingClientRect_isNull_intFalsey(1);
 const get_EDI_findOverlay_show = () => BYTES[2];
 const set_EDI_findOverlay_show = (byte) => BYTES[2] = byte;
 
-/**
- * TODO: obsolete
- * 
- * returns a number, beware '==='
- */
-const get_EDI_findOverlay_isBeingShownDueToMultiCursorMatching = () => BYTES[3];
-const set_EDI_findOverlay_isBeingShownDueToMultiCursorMatching = (byte) => BYTES[3] = byte;
-
 /** returns a number, beware '===' */
 const get_EDI_fileStartsWithBom = () => BYTES[4];
 const set_EDI_fileStartsWithBom = (byte) => BYTES[4] = byte;
@@ -367,9 +359,6 @@ const fEDI_virtualCount = 5;
 
 const fEDI_ONSCROLLvirtualCount = 6;
 INTS[fEDI_ONSCROLLvirtualCount] = 0;
-
-/** TODO: obsolete */
-const fEDI_findOverlay_isBeingShownDueToMultiCursorMatching_originMatchNumber = 7;
 
 const fEDI_drawn_count_of_digits_longest_line_number = 8;
 

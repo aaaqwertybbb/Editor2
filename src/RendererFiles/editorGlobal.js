@@ -1182,7 +1182,6 @@ function EDI_indentLess() {
  */
 async function EDI_copySelection() {
 	if (!EDI_cursor_hasSelection()) {
-		// TODO: This code has a bug and doesn't work with multicursor... EDI_onMouseDownDetailRankThree needs to accept a cursor rather than acting on EDI_primaryCursor
     	EDI_onMouseDownDetailRankThree(0, false, INTS[fEDI_cursor_indexLine], INTS[fEDI_cursor_indexColumn]);
 	}
 	let selectionAnchor = INTS[fEDI_cursor_selectionAnchor];
@@ -2119,7 +2118,6 @@ function EDI_render_do_RemoveSelection() {
         let linesRemovedCount = 0;
         // -1 since you can't remove EOF
         for (var iVarDependent = INTS[fEDI_cursor_indexLine]; iVarDependent < INTS[fEDI_lineEndPositionList_count] - 1; iVarDependent++) {
-            // TODO: all of these reads need to be raw for this work with multicursor just remember that for tomorrow don't worry about this right now just focus on the one task but remember this for tomorrow.
             let lineEnding = EDI_lineEndPositionList_data[iVarDependent];
             if (lineEnding >= INTS[fEDI_cursor_editPosition] && lineEnding < INTS[fEDI_cursor_editPosition] + editLength) {
                 linesRemovedCount++;
@@ -2627,7 +2625,6 @@ function EDI_state_do_Backspace(event) {
     if (INTS[fEDI_cursor_indexColumn] === 0) {
         if (INTS[fEDI_cursor_indexLine] > 0) {
 
-            // TODO: multicursor bugs are more likely to occur with this logic:
             // TODO: this logic is extremely suspect given editIndexLine and editIndexColumn...
             // ...as well if you move the cursor during a pending edit then finalize does it edit the correct positions?
             //
@@ -2954,10 +2951,6 @@ function EDI_editEvent_theEditIself_Tab(event) {
     }
     else {
         if (event.shiftKey) {
-            // TODO: This code has a bug and doesn't work with multicursor... EDI_onMouseDownDetailRankThree needs to accept a cursor rather than acting on EDI_primaryCursor...
-            // ...multi-cursor in and of itself is buggy that's why I'm not overly concerned with adding this in a bugged state...
-            // ...everything is buggy and it is very anxiety inducing and for the time being I guess it just has to be that way as I transition
-            // towards a useable editor all the features are coming together but there's this awkward phase of "I can start using it but also not really" or something I just idk.
             EDI_onMouseDownDetailRankThree(0, false, INTS[fEDI_cursor_indexLine], INTS[fEDI_cursor_indexColumn]);
             if (INTS[fEDI_cursor_editKind] !== EditKind_IndentLess) {
                 EDI_startEdit(EditKind_IndentLess, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
@@ -5493,7 +5486,6 @@ function EDI_movementBasedCacheInvalidation() {
     }
     EDI_cursor_enterKey_newLinePlusIndentation_byteList = null;
     EDI_cursor_cached_indentation_string = null;
-    set_EDI_findOverlay_isBeingShownDueToMultiCursorMatching(false);
 }
 //#endregion
 
@@ -5984,7 +5976,7 @@ async function EDI_onKeyDown_keyLengthEqualsOne_ctrlKey(event) {
 
             EDI_finalizeEdit();
             await EDI_copySelection();
-            EDI_removeSelection(); // TODO: Multicursor bad
+            EDI_removeSelection();
             EDI_render_request(RenderKind_Cursor_n);
             if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
                 EDI_cursorBlink_startChecking(); // TODO: this one is especially questionable since it invoked 'EDI_removeSelection' prior to the draw cursor?
@@ -7822,9 +7814,6 @@ function EDI_findOverlay_showSetter(showValue) {
         input.addEventListener('keydown', EDI_findOverlay_input_onkeydown);
         input.addEventListener('blur', EDI_findOverlay_input_onblur);
         EDI_findOverlay.appendChild(input);
-        if (!get_EDI_findOverlay_isBeingShownDueToMultiCursorMatching()) {
-            input.focus();
-        }
         
         let divCurrentOfTotal = document.createElement('div');
         let spanBlank = document.createElement('span');
@@ -7912,7 +7901,6 @@ function EDI_findOverlay_showSetter(showValue) {
         	checkboxMatchWord.removeEventListener('change', EDI_findOverlay_checkboxMatchWord_onchange);
         }
         EDI_findOverlay.innerHTML = '';
-        set_EDI_findOverlay_isBeingShownDueToMultiCursorMatching(false);
     }
 
     set_EDI_findOverlay_show(showValue);

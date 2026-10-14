@@ -41,7 +41,6 @@ let EDI_cursor_gapBufferWriteToSpanElement = null;
 const EDI_cursor_caretRow = document.createElement('div');
 EDI_cursor_caretRow.id = "EDI_caretRow-1";
 EDI_cursor_caretRow.className = "EDI_caretRow";
-//EDI_cursor_caretRow.style.left = gutterWidthTotal_withPxUnits;
 if (EDI_virtualization_horizontal) {
     EDI_cursor_caretRow.style.width = EDI_virtualization_horizontal.style.width;
 }
@@ -472,6 +471,8 @@ function EDI_scrollViewport_scroll() {
  * - the second chunk is the latter
 */
 function EDI_render_do_Scroll(timestamp) {
+
+    /** TODO: I cannot scroll when my cursor is over the gutter, this is erroneous behavior */
 
     // --- 2. THE FINE-GRAINED MOVE (The GPU trick) ---
     // Since your lines are virtualized, you only want to shift the text container 
@@ -1077,6 +1078,7 @@ function EDI_render_do_IndentLess() {
             // TODO: This is not entirely correct. Presumably most specifically I am referring to the first line that is selected.
             if (textSelectionDiv && innerRemoveCount >= 1 && innerRemoveCount <= 4) {
                 let lineSelectionDiv = textSelectionDiv.children[selectionLineDivIndex--];
+                // TODO: precalculate 'widthNumberValue' outside of this loop.
                 let widthNumberValue = parseFloat(lineSelectionDiv.style.width, 10);
                 let lesstraWidth;
                 switch (innerRemoveCount) {
@@ -5368,6 +5370,8 @@ function EDI_drawHorizontalScrollbar() {
 
         const virtualization_horizontal_style_width_attribute = INTS[fEDI_contentWidth] + 'px';
 
+        /** TODO: I cannot scroll when my cursor is over the gutter, this is erroneous behavior */
+
         EDI_virtualization_horizontal.style.width = virtualization_horizontal_style_width_attribute;
         // TODO: Why ' + INTS[fEDI_gutterWidthTotal]'?
         EDI_virtualization_horizontal.style.width = INTS[fEDI_contentWidth] + INTS[fEDI_gutterWidthTotal] + 'px';
@@ -6435,6 +6439,7 @@ function EDI_createStyleForSelection_indentMore() {
     let extraWidth = 4 * EDI_characterWidth;
     for (let i = 0; i < textSelectionDiv.children.length; i++) {
         let lineSelectionDiv = textSelectionDiv.children[i];
+        // TODO: precalculate 'widthNumberValue' outside of this loop.
         let widthNumberValue = parseFloat(lineSelectionDiv.style.width, 10);
         widthNumberValue += extraWidth;
         lineSelectionDiv.style.width = widthNumberValue + 'px';

@@ -549,9 +549,6 @@ const fEDI_ret_getIndexFromX_visualColumns = 70;
 
 const fEDI_cursorVisualColumnIndex = 71;
 
-/** TODO: I don't think you've ever actually used this, you only are setting it, obsolete? */
-const fEDI_cursorVisualColumnIndex_relativeToThisLineIndex = 72;
-
 const fEDI_ontab_visualWidth_perCharacter = 73;
 
 const fEDI_cursor_selectionIndexAnchorColumnVISUAL = 74;

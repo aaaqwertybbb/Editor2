@@ -1233,7 +1233,6 @@ async function EDI_duplicateSelection() {
     INTS[fEDI_cursor_indexLine] = large_lineAndColumnIndices_indexLine;
     INTS[fEDI_cursor_indexColumn] = large_lineAndColumnIndices_indexColumn;
     INTS[fEDI_cursorVisualColumnIndex] = large_lineAndColumnIndices_indexColumn;
-    INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = large_lineAndColumnIndices_indexLine;
 
     INTS[fEDI_editret_cursor_EDI_duplicate_small] = small;
     INTS[fEDI_editret_cursor_EDI_duplicate_length] = length;
@@ -1489,7 +1488,6 @@ function EDI_render_do_DuplicateOrPaste() {
                     INTS[fEDI_cursor_indexLine]++;
                     INTS[fEDI_cursor_indexColumn] = 0;
                     INTS[fEDI_cursorVisualColumnIndex] = 0;
-                    INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex]++;
 
                     continue;
                 }
@@ -1508,7 +1506,6 @@ function EDI_render_do_DuplicateOrPaste() {
                         INTS[fEDI_cursor_indexLine]++;
                         INTS[fEDI_cursor_indexColumn] = 0;
                         INTS[fEDI_cursorVisualColumnIndex] = 0;
-                        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex]++;
                         last_valid_indexColumn_currentLine = 0;
 
                         continue;
@@ -1549,7 +1546,6 @@ function EDI_render_do_DuplicateOrPaste() {
                         INTS[fEDI_cursor_indexLine]++;
                         INTS[fEDI_cursor_indexColumn] = 0;
                         INTS[fEDI_cursorVisualColumnIndex] = 0;
-                        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex]++;
                         // last_valid_indexColumn_currentLine is being set when splitting the text.
 
                         continue;
@@ -2060,7 +2056,6 @@ function EDI_removeSelection() {
     INTS[fEDI_cursor_indexLine] = smallLineAndColumnIndices_indexLine;
     INTS[fEDI_cursor_indexColumn] = smallLineAndColumnIndices_indexColumn;
     INTS[fEDI_cursorVisualColumnIndex] = smallLineAndColumnIndices_indexColumn;
-    INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = smallLineAndColumnIndices_indexLine;
     INTS[fEDI_cursor_editIndexLine] = smallLineAndColumnIndices_indexLine;
     INTS[fEDI_cursor_editIndexColumn] = smallLineAndColumnIndices_indexColumn;
 
@@ -2074,7 +2069,6 @@ function EDI_removeSelection() {
     INTS[fEDI_cursor_indexLine] = smallLineAndColumnIndices_indexLine;
     INTS[fEDI_cursor_indexColumn] = smallLineAndColumnIndices_indexColumn;
     INTS[fEDI_cursorVisualColumnIndex] = smallLineAndColumnIndices_indexColumn;
-    INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = smallLineAndColumnIndices_indexLine;
 
     INTS[fEDI_cursor_editLength] = editLength;
     
@@ -2227,7 +2221,6 @@ function EDI_render_do_RemoveSelection() {
             INTS[fEDI_cursor_indexColumn] = smallLineAndColumnIndices_indexColumn;
             // TODO: this cursorVisualColumnIndex... logic here seems like it can be skipped here so long as you do it once by the end of the function to the correct indices.
             INTS[fEDI_cursorVisualColumnIndex] = smallLineAndColumnIndices_indexColumn;
-            INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = smallLineAndColumnIndices_indexLine;
 
             walkLineUntilIndexColumn();
 
@@ -2266,7 +2259,6 @@ function EDI_render_do_RemoveSelection() {
             INTS[fEDI_cursor_indexColumn] = 0;
             // TODO: this cursorVisualColumnIndex... logic here seems like it can be skipped here so long as you do it once by the end of the function to the correct indices.
             INTS[fEDI_cursorVisualColumnIndex] = 0;
-            INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = INTS[fEDI_cursor_indexLine];
 
             EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
             let remaining = largePosition - INTS[fEDI_ret_getLineBoundaryPositions_start];
@@ -2307,7 +2299,6 @@ function EDI_render_do_RemoveSelection() {
             INTS[fEDI_cursor_indexColumn] = smallLineAndColumnIndices_indexColumn;
             // TODO: this cursorVisualColumnIndex... logic here seems like it can be skipped here so long as you do it once by the end of the function to the correct indices.
             INTS[fEDI_cursorVisualColumnIndex] = smallLineAndColumnIndices_indexColumn;
-            INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = smallLineAndColumnIndices_indexLine;
 
             if (smallLineDiv) {
                 if (largeLineDiv) { // - [x] keeping, removing
@@ -2643,7 +2634,6 @@ function EDI_state_do_Backspace(event) {
             INTS[fEDI_cursor_indexLine]--;
             INTS[fEDI_cursor_indexColumn] = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
             INTS[fEDI_cursorVisualColumnIndex] = INTS[fEDI_cursor_indexColumn];
-            INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex]--;
             INTS[fEDI_cursor_editPosition]--;
             INTS[fEDI_cursor_editLength]++;
             INTS[fEDI_cursor_editIndexLine] = INTS[fEDI_cursor_indexLine];
@@ -4379,7 +4369,7 @@ function EDI_drawViewPort_FindTrackedSyntax_StartingIndex(indexLine) {
  */
 function EDI_trackedSyntaxReposition_find(positionIndex) {
 
-    let local_EDI_trackedSyntaxList = EDI_trackedSyntaxList;
+    const local_EDI_trackedSyntaxList = EDI_trackedSyntaxList;
 
     let left = 0;
     let right = local_EDI_trackedSyntaxList.count_abstract - 1;
@@ -4623,7 +4613,6 @@ function EDI_set_indexColumn_and_visualColumn_relativeTo_storedVisualWidth(lineS
         if (rx < charMidpointX) {
             INTS[fEDI_cursor_indexColumn] = indexColumn;
             INTS[fEDI_cursorVisualColumnIndex] = visualColumns;
-            // TODO: fEDI_cursorVisualColumnIndex_relativeToThisLineIndex
             return;
         }
 
@@ -4635,7 +4624,6 @@ function EDI_set_indexColumn_and_visualColumn_relativeTo_storedVisualWidth(lineS
     // If clicked past the end of the line text
     INTS[fEDI_cursor_indexColumn] = indexColumn;
     INTS[fEDI_cursorVisualColumnIndex] = visualColumns;
-    // TODO: fEDI_cursorVisualColumnIndex_relativeToThisLineIndex
 }
 
 /**
@@ -5572,7 +5560,6 @@ function EDI_onKeyDown_ArrowLeft(event) {
         INTS[fEDI_cursor_indexLine] = lineAndColumnIndices_indexLine;
         INTS[fEDI_cursor_indexColumn] = lineAndColumnIndices_indexColumn;
         INTS[fEDI_cursorVisualColumnIndex] = lineAndColumnIndices_indexColumn;
-        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = lineAndColumnIndices_indexLine;
         INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_cursor_selectionEnd];
         INTS[fEDI_cursor_selectionIndexAnchorLine] = INTS[fEDI_cursor_selectionIndexEndLine];
         INTS[fEDI_cursor_selectionIndexAnchorColumn] = INTS[fEDI_cursor_selectionIndexEndColumn];
@@ -5629,7 +5616,6 @@ function EDI_onKeyDown_ArrowLeft(event) {
                 INTS[fEDI_cursor_indexColumn] = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
                 EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
                 INTS[fEDI_cursorVisualColumnIndex] = EDI_getEntireLineVisualWidth(INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end]);
-                INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex]--;
             }
         }
         EDI_postKeyboardMovementSelectionLogic(event.shiftKey);
@@ -5724,7 +5710,6 @@ function EDI_onKeyDown_ArrowRight(event) {
         INTS[fEDI_cursor_indexLine] = lineAndColumnIndices_indexLine;
         INTS[fEDI_cursor_indexColumn] = lineAndColumnIndices_indexColumn;
         INTS[fEDI_cursorVisualColumnIndex] = lineAndColumnIndices_indexColumn;
-        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = lineAndColumnIndices_indexLine;
         INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_cursor_selectionEnd];
         INTS[fEDI_cursor_selectionIndexAnchorLine] = INTS[fEDI_cursor_selectionIndexEndLine];
         INTS[fEDI_cursor_selectionIndexAnchorColumn] = INTS[fEDI_cursor_selectionIndexEndColumn];
@@ -5776,7 +5761,6 @@ function EDI_onKeyDown_ArrowRight(event) {
                 INTS[fEDI_cursor_indexColumn] = 0;
                 INTS[fEDI_cursor_indexLine]++;
                 INTS[fEDI_cursorVisualColumnIndex] = 0;
-                INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex]++;
             }
         }
         EDI_postKeyboardMovementSelectionLogic(event.shiftKey);
@@ -5803,7 +5787,6 @@ function EDI_onKeyDown_Home(event) {
         INTS[fEDI_cursor_indexLine] = 0;
         INTS[fEDI_cursor_indexColumn] = 0;
         INTS[fEDI_cursorVisualColumnIndex] = 0;
-        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = 0;
     }
     else {
         let endExclusiveIndentationIndexColumn = EDI_measureEndExclusiveIndentationIndexColumn();
@@ -5992,7 +5975,6 @@ async function EDI_onKeyDown_keyLengthEqualsOne_ctrlKey(event) {
             INTS[fEDI_cursor_indexLine] = selectionEndLineAndColumnIndices_indexLine;
             INTS[fEDI_cursor_indexColumn] = selectionEndLineAndColumnIndices_indexColumn;
             INTS[fEDI_cursorVisualColumnIndex] = selectionEndLineAndColumnIndices_indexColumn;
-            INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = selectionEndLineAndColumnIndices_indexLine;
             EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
             break;
         case 'f':
@@ -6052,7 +6034,6 @@ function EDI_cursor_clear() {
     INTS[fEDI_cursor_indexLine] = 0;
     INTS[fEDI_cursor_indexColumn] = 0;
     INTS[fEDI_cursorVisualColumnIndex] = 0;
-    INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = 0;
     INTS[fEDI_cursor_STORED_visualWidth] = 0;
     INTS[fEDI_cursor_cursorTranslateYValue] = 0;
     INTS[fEDI_cursor_cursorTranslateXValue] = 0;
@@ -7008,7 +6989,6 @@ function EDI_onMouseDownDetailRankOne(event_button, event_shiftKey, indexLineCli
         INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
         INTS[fEDI_cursorVisualColumnIndex] = indexColumnVisual;
         INTS[fEDI_cursor_STORED_visualWidth] = indexColumnVisual;
-        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
     
         INTS[fEDI_cursor_selectionEnd] = EDI_getPositionIndex_cursor_raw();
         INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
@@ -7031,7 +7011,6 @@ function EDI_onMouseDownDetailRankTwo(event_button, event_shiftKey, indexLineCli
     INTS[fEDI_cursor_indexLine] = indexLineClicked;
     INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
     INTS[fEDI_cursorVisualColumnIndex] = indexColumnVisual;
-    INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
     let positionIndex = EDI_getPositionIndex_cursor_raw();
     
     EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
@@ -7169,7 +7148,6 @@ function EDI_onMouseDownDetailRankThree(event_button, event_shiftKey, indexLineC
     INTS[fEDI_cursor_indexLine] = indexLineClicked;
     INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
     INTS[fEDI_cursorVisualColumnIndex] = indexColumnClicked;
-    INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
     
     INTS[fEDI_cursor_selectionAnchor] = EDI_getPositionIndex_Overload(INTS[fEDI_cursor_indexLine], 0);
     INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = 0;
@@ -7186,7 +7164,6 @@ function EDI_onMouseDownDetailRankThree(event_button, event_shiftKey, indexLineC
         INTS[fEDI_cursor_indexLine]++;
         INTS[fEDI_cursor_indexColumn] = 0;
         INTS[fEDI_cursorVisualColumnIndex] = 0;
-        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex]++;
         EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
         INTS[fEDI_cursor_selectionEnd] = INTS[fEDI_ret_getLineBoundaryPositions_start];
         INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
@@ -7253,7 +7230,6 @@ function EDI_onMouseMove_WRAPIT(event) {
         INTS[fEDI_cursor_indexLine] = indexLine;
         INTS[fEDI_cursor_indexColumn] = indexColumn;
         INTS[fEDI_cursorVisualColumnIndex] = indexColumnVisual;
-        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLine;
 
         if (get_EDI_detailRank() === 3) {
             EDI_onMouseMoveDetailRankThree(indexLine, indexColumn);
@@ -7280,7 +7256,6 @@ function EDI_onMouseMoveDetailRankOne(indexLineClicked, indexColumnClicked, inde
     INTS[fEDI_cursor_indexLine] = indexLineClicked;
     INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
     INTS[fEDI_cursorVisualColumnIndex] = indexColumnVisual;
-    INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
 
     INTS[fEDI_cursor_selectionEnd] = EDI_getPositionIndex_cursor_raw();
     INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
@@ -7300,7 +7275,6 @@ function EDI_onMouseMoveDetailRankTwo(indexLineClicked, indexColumnClicked, inde
         INTS[fEDI_cursor_indexLine] = indexLineClicked;
         INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
         INTS[fEDI_cursorVisualColumnIndex] = indexColumnClicked;
-        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
         let positionIndex = nextPositionIndex;
 
         INTS[fEDI_cursor_selectionEnd] = positionIndex;
@@ -7337,7 +7311,6 @@ function EDI_onMouseMoveDetailRankTwo(indexLineClicked, indexColumnClicked, inde
         INTS[fEDI_cursor_indexLine] = indexLineClicked;
         INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
         INTS[fEDI_cursorVisualColumnIndex] = indexColumnVisual;
-        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
         let positionIndex = nextPositionIndex;
 
         INTS[fEDI_cursor_selectionEnd] = positionIndex;
@@ -7384,7 +7357,6 @@ function EDI_onMouseMoveDetailRankTwo(indexLineClicked, indexColumnClicked, inde
         INTS[fEDI_cursor_indexLine] = largeLineAndColumnIndices_indexLine;
         INTS[fEDI_cursor_indexColumn] = largeLineAndColumnIndices_indexColumn;
         INTS[fEDI_cursorVisualColumnIndex] = INTS[fEDI_detail_largeColumnVisual];
-        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = largeLineAndColumnIndices_indexLine;
         INTS[fEDI_cursor_selectionEnd] = INTS[fEDI_detail_largePosition];
         INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
     }
@@ -7408,7 +7380,6 @@ function EDI_onMouseMoveDetailRankThree(indexLineClicked, indexColumnClicked) {
             INTS[fEDI_cursor_indexLine] = smallLineAndColumnPositionIndices_indexLine;
             INTS[fEDI_cursor_indexColumn] = smallLineAndColumnPositionIndices_indexColumn;
             INTS[fEDI_cursorVisualColumnIndex] = smallLineAndColumnPositionIndices_indexColumn;
-            INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = smallLineAndColumnPositionIndices_indexLine;
         }
 
         if (INTS[fEDI_cursor_selectionEnd] !== INTS[fEDI_detail_smallPosition]) {
@@ -7432,7 +7403,6 @@ function EDI_onMouseMoveDetailRankThree(indexLineClicked, indexColumnClicked) {
             INTS[fEDI_cursor_indexLine] = smallLineAndColumnPositionIndices_indexLine;
             INTS[fEDI_cursor_indexColumn] = smallLineAndColumnPositionIndices_indexColumn;
             INTS[fEDI_cursorVisualColumnIndex] = smallLineAndColumnPositionIndices_indexColumn;
-            INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = smallLineAndColumnPositionIndices_indexLine;
 
             INTS[fEDI_cursor_selectionEnd] = INTS[fEDI_detail_smallPosition];
             INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
@@ -7443,7 +7413,6 @@ function EDI_onMouseMoveDetailRankThree(indexLineClicked, indexColumnClicked) {
         INTS[fEDI_cursor_indexLine] = indexLineClicked;
         INTS[fEDI_cursor_indexColumn] = 0;
         INTS[fEDI_cursorVisualColumnIndex] = 0;
-        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
 
         INTS[fEDI_cursor_selectionEnd] = EDI_getPositionIndex_Overload(indexLineClicked, 0);
         INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
@@ -7460,7 +7429,6 @@ function EDI_onMouseMoveDetailRankThree(indexLineClicked, indexColumnClicked) {
         INTS[fEDI_cursor_indexLine] = indexLineClicked;
         INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
         INTS[fEDI_cursorVisualColumnIndex] = indexColumnClicked;
-        INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex] = indexLineClicked;
         let positionIndex = EDI_getPositionIndex_Overload(indexLineClicked, indexColumnClicked);
 
         // move to end of line...
@@ -7479,7 +7447,6 @@ function EDI_onMouseMoveDetailRankThree(indexLineClicked, indexColumnClicked) {
             INTS[fEDI_cursor_indexLine]++;
             INTS[fEDI_cursor_indexColumn] = 0;
             INTS[fEDI_cursorVisualColumnIndex] = 0;
-            INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex]++;
             positionIndex++;
 
             INTS[fEDI_cursor_selectionEnd] = positionIndex;

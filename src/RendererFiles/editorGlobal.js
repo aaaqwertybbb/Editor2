@@ -1839,18 +1839,19 @@ function EDI_render_do_EnterKey() {
             gutterTextNode.replaceData(0, gutterTextNode.length, `${local_EDI_lineEndPositionList_count + 1}`);
         }
         
-        let shouldRenderEntireViewport = false;
+        let isASingledOutCase = false;
 
         // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
         let ringBufferIndex_current = INTS[fEDI_cursor_editIndexLine] - INTS[fEDI_virtualIndexLine];
         if (ringBufferIndex_current >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_current < 0) ringBufferIndex_current = -1;
         else ringBufferIndex_current = (ringBufferIndex_current + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
-        if (ringBufferIndex_current < 0)
-            shouldRenderEntireViewport = true;
+        const lineIsPartOfTheCurrentVirtualizedContent = ringBufferIndex_current < 0
+            ? false
+            : true;
 
         // There are some cases that I don't feel like thinking about at the moment, this if statement singles them out.
         if (INTS[fEDI_virtualCount] <= 1 || EDI_ringBuffer_text.length !== INTS[fEDI_virtualCount])
-            shouldRenderEntireViewport = true;
+            isASingledOutCase = true;
 
         // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
         let ringBufferIndex_first = INTS[fEDI_virtualIndexLine] - INTS[fEDI_virtualIndexLine]; // I found it 'INTS[fEDI_virtualIndexLine] - INTS[fEDI_virtualIndexLine]'
@@ -1865,8 +1866,8 @@ function EDI_render_do_EnterKey() {
         else ringBufferIndex_last = (ringBufferIndex_last + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
 
         // 5 cases:
-        // - "shouldRenderEntireViewport case": throws an exception
-        // - TODO: you need to handle a "line is not part of the current virtualized content" case
+        // - "isASingledOutCase case": throws an exception
+        // - "!lineIsPartOfTheCurrentVirtualizedContent" case
         // - "start of line":
         // - "end of line":
         // - "among a line":
@@ -1883,7 +1884,14 @@ function EDI_render_do_EnterKey() {
         // Thus, your cursor on the second enter key event is among a line.
         // But if there wasn't indentation, your cursor is actually at the start of the newly added line.
 
-        if (shouldRenderEntireViewport) { throw new Error(); }
+        if (!lineIsPartOfTheCurrentVirtualizedContent) { // "!lineIsPartOfTheCurrentVirtualizedContent"
+            // hmm is incorrect "nothing to draw", you need to actually draw maybe if the next index is in view
+            // because you've split the line above it that was out of view?
+            // TODO: I'm not sure.
+            return;
+        }
+
+        if (isASingledOutCase) { throw new Error(); } // "isASingledOutCase case"
 
         if (INTS[fEDI_cursor_editIndexColumn] === 0) { // start of line
             EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, ringBufferIndex_current);

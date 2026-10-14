@@ -1896,79 +1896,68 @@ function EDI_render_do_EnterKey() {
         // Thus, your cursor on the second enter key event is among a line.
         // But if there wasn't indentation, your cursor is actually at the start of the newly added line.
 
-        if (!shouldRenderEntireViewport && INTS[fEDI_cursor_editIndexColumn] === 0) { // start of line
+        if (shouldRenderEntireViewport) { throw new Error(); }
+
+        if (INTS[fEDI_cursor_editIndexColumn] === 0) { // start of line
             EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, ringBufferIndex_current);
             EDI_lineWasInsertedValidateGutter();
-            return;
         }
         else {
-            if (!shouldRenderEntireViewport) {
-                // ensure this conditional branch returns if handled, otherwise it will execute the fallback case erroneously
-                let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_editIndexLine]);
+            let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_editIndexLine]);
 
-                if (lastValidIndexColumn === INTS[fEDI_cursor_editIndexColumn]) { // end of line
-                    let next_ringBufferIndex = (ringBufferIndex_current + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
-                    EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, next_ringBufferIndex);
-                    const textNode = EDI_ringBuffer_text[next_ringBufferIndex].firstChild;
-                    textNode.replaceData(0, textNode.length, EDI_cursor_cached_indentation_string);
-                    EDI_lineWasInsertedValidateGutter();
-                    return;
+            if (lastValidIndexColumn === INTS[fEDI_cursor_editIndexColumn]) { // end of line
+                let next_ringBufferIndex = (ringBufferIndex_current + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
+                EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, next_ringBufferIndex);
+                const textNode = EDI_ringBuffer_text[next_ringBufferIndex].firstChild;
+                textNode.replaceData(0, textNode.length, EDI_cursor_cached_indentation_string);
+                EDI_lineWasInsertedValidateGutter();
+            }
+            else { // among a line
+
+                // among a line uses 'walkLineUntilIndexColumn', this function takes a cursor and accesses the fields: 'indexLine', and 'indexColumn'.
+                // This is problematic because one needs to use INTS[fEDI_cursor_editIndexColumn] for this renderKind.
+                // Since only this case needs the logic I'm going to isolate it to here.
+                //
+                // Remember 'indexLine', and 'indexColumn'.
+                // Set them to the edit respective fields.
+                //
+                // Prior to returning from this function restore the original 'indexLine', and 'indexColumn'. (1 of 2)
+                let remember_cursorIndexLine = INTS[fEDI_cursor_indexLine];
+                let remember_cursorIndexColumn = INTS[fEDI_cursor_indexColumn];
+
+                INTS[fEDI_cursor_indexLine] = INTS[fEDI_cursor_editIndexLine];
+                INTS[fEDI_cursor_indexColumn] = INTS[fEDI_cursor_editIndexColumn];
+
+                let spanText = EDI_cursor_cached_indentation_string;
+
+                walkLineUntilIndexColumn();
+                if (w_div === w_divNONE) {
+                    throw new Error();
                 }
-                else { // among a line
+                
+                if (INTS[fEDI_w_indexColumn_Goal] > 0) {
+                    if (INTS[fEDI_w_indexColumn_Goal] !== INTS[fEDI_w_indexColumn_Sum] + w_div.textContent.length) {
+                        const textNode = w_div.firstChild;
+                        const data = textNode.data;
 
-                    // among a line uses 'walkLineUntilIndexColumn', this function takes a cursor and accesses the fields: 'indexLine', and 'indexColumn'.
-                    // This is problematic because one needs to use INTS[fEDI_cursor_editIndexColumn] for this renderKind.
-                    // Since only this case needs the logic I'm going to isolate it to here.
-                    //
-                    // Remember 'indexLine', and 'indexColumn'.
-                    // Set them to the edit respective fields.
-                    // Prior to returning from this function restore the original 'indexLine', and 'indexColumn'. (1 of 2)
-
-                    let remember_cursorIndexLine = INTS[fEDI_cursor_indexLine];
-                    let remember_cursorIndexColumn = INTS[fEDI_cursor_indexColumn];
-
-                    INTS[fEDI_cursor_indexLine] = INTS[fEDI_cursor_editIndexLine];
-                    INTS[fEDI_cursor_indexColumn] = INTS[fEDI_cursor_editIndexColumn];
-
-                    let spanText = EDI_cursor_cached_indentation_string;
-
-                    walkLineUntilIndexColumn();
-                    if (w_div === w_divNONE) {
-                        // TODO: silent error bad
-                        //console.log('// EDI_enter TODO: silent error bad');
-                        // It's awkward because this isn't so much an "error" it actually
-                        // is essentially saying "the cursor edit position is not in view"
-                        // That being said the text you see on screen does bug out until you scroll it out of view and back into view again
-                        return;
+                        let firstText = data.substring(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
+                        let lastText = data.substring(INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
+                        textNode.replaceData(0, textNode.length, firstText);
+                        spanText += lastText; // += due to the possibility of indentation
                     }
-                    
-                    if (INTS[fEDI_w_indexColumn_Goal] > 0) {
-                        if (INTS[fEDI_w_indexColumn_Goal] !== INTS[fEDI_w_indexColumn_Sum] + w_div.textContent.length) {
-                            const textNode = w_div.firstChild;
-                            const data = textNode.data;
-
-                            let firstText = data.substring(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
-                            let lastText = data.substring(INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
-                            textNode.replaceData(0, textNode.length, firstText);
-                            spanText += lastText; // += due to the possibility of indentation
-                        }
-                    }
-
-                    let next_ringBufferIndex = (INTS[fEDI_w_ringBufferIndex] + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
-                    EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, next_ringBufferIndex);
-                    const textNode = EDI_ringBuffer_text[next_ringBufferIndex].firstChild;
-                    textNode.replaceData(0, textNode.length, spanText);
-                    EDI_lineWasInsertedValidateGutter();
-
-                    // Prior to returning from this function restore the original 'indexLine', and 'indexColumn'. (2 of 2)
-                    INTS[fEDI_cursor_indexLine] = remember_cursorIndexLine;
-                    INTS[fEDI_cursor_indexColumn] = remember_cursorIndexColumn;
-                    return;
                 }
+
+                let next_ringBufferIndex = (INTS[fEDI_w_ringBufferIndex] + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
+                EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, next_ringBufferIndex);
+                const textNode = EDI_ringBuffer_text[next_ringBufferIndex].firstChild;
+                textNode.replaceData(0, textNode.length, spanText);
+                EDI_lineWasInsertedValidateGutter();
+
+                // Prior to returning from this function restore the original 'indexLine', and 'indexColumn'. (2 of 2)
+                INTS[fEDI_cursor_indexLine] = remember_cursorIndexLine;
+                INTS[fEDI_cursor_indexColumn] = remember_cursorIndexColumn;
             }
         }
-
-        // fallback case : implicit fallback case; TODO: why did I have to add a comment for this? ("implicit fallback case;" wasn't originally here I just wrote it myself)
     }
 }
 

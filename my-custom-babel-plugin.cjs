@@ -126,7 +126,6 @@ module.exports = function (babel) {
     "fEDI_editret_RemoveSelection_largePosition",
     "fEDI_editret_indentLess_startingLinePos_end",
     "fEDI_EDI_cursorBlinkLastTimestamp",
-    "fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left",
     "fEDI_prevVli",
     "fEDI_currVli",
     "fEDI_onResize_timer",

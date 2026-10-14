@@ -414,25 +414,6 @@ TODO: maybe don't nearly-duplicate these classes.
   border: 1px solid var(--primary-border-color);
 }
 
-#EDI_horizontal_scrollbar_sticky {
-  position: sticky;
-  left: 0;
-  top: 0;
-}
-
-#EDI_horizontal_scrollbar {
-  position: absolute;
-  overflow-x: scroll;
-  height: 14px;
-  width: 100px;
-  bottom: 0;
-  left: 37.5859px;
-}
-
-#EDI_horizontal_scrollbar_virtualization_boundary {
-  height: 1px;
-}
-
 #EDI_gutter_container {
   position: sticky;
   left: 0;

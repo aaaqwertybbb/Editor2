@@ -533,13 +533,6 @@ const fEDI_EDI_mouseOver_event_clientX = 62;
 
 const fEDI_EDI_cursorBlinkLastTimestamp = 63;
 
-/**
- * TODO: This seems to be obsolete
- * 
- * 'EDI_init' and 'EDI_drawHorizontalScrollbar' related
- */
-const fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left = 64;
-
 /** TODO: What happens when you overflow 'INTS[fEDI_prevVli]' does it overflow such that you're the correct diff? */
 const fEDI_prevVli = 65;
 /** TODO: What happens when you overflow 'INTS[fEDI_prevVli]' does it overflow such that you're the correct diff? */
@@ -781,8 +774,6 @@ const EDI_gutter_scroll_mover = EDI_baseElement.children[1].children[0];
 const EDI_text = EDI_baseElement.children[2].children[0];
 const EDI_selection = EDI_baseElement.children[2].children[0].children[0];
 const EDI_cursorListElement = EDI_baseElement.children[2].children[0].children[1];
-//const EDI_horizontal_scrollbar = EDI_baseElement.children[1].children[0];
-//const EDI_horizontal_scrollbar_virtualization_boundary = EDI_baseElement.children[1].children[0].children[0];
 
 /**
  * If you have an extension listed here, it is expected that the "function to invoke" exists.

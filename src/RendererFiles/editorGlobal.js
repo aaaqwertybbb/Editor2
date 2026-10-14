@@ -198,9 +198,6 @@ let EDI_language_line_lex = null;
 function EDI_init() {
     //EDI_ringBuffer_mapHighlights.length = 0;
 
-    //EDI_horizontal_scrollbar.style.left = '0px';
-    INTS[fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left] = 0;
-
     EDI_cursorListElement.appendChild(EDI_cursor_caretRow);
 
     EDI_measureLineHeightAndCharacterWidth();
@@ -5374,11 +5371,6 @@ function EDI_drawGutter_Width() {
  * then at that point you redraw this.
  */
 function EDI_drawHorizontalScrollbar() {
-    if (INTS[fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left] !== INTS[fEDI_gutterWidthTotal]) {
-        //EDI_horizontal_scrollbar.style.left = gutterWidthTotal_withPxUnits;
-        INTS[fEDI_DRAWN_NUMBER_EDI_horizontal_scrollbar_style_left] = INTS[fEDI_gutterWidthTotal];
-    }
-
     if (INTS[fEDI_longestLine_length] !== INTS[fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar]) {
         
         INTS[fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar] = INTS[fEDI_longestLine_length];
@@ -5401,13 +5393,6 @@ function EDI_drawHorizontalScrollbar() {
 
         EDI_cursor_caretRow.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
     }
-    
-    // TODO: this is directly tied to a scroll event on EDI_baseElement so handle it from there perhaps?
-    // TODO: this code is duplicated inside EDI_render_do_Scroll when it returns early due to nothing vertically having changed, reduce duplication?
-    // TODO: 'INTS[fEDI_lastReadNumber_scrollLeft]' here?
-    //if (EDI_horizontal_scrollbar.scrollLeft !== EDI_baseElement.scrollLeft) {
-    //    EDI_horizontal_scrollbar.scrollLeft = EDI_baseElement.scrollLeft;
-    //}
 }
 
 /**

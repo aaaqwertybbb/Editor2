@@ -2505,6 +2505,9 @@ function EDI_state_do_Delete(event) {
         }
         else {
             // TODO: When a single delete key (non ctrl) causes a tab of length <4 to fall into a slot of 4 your (visual length of a line tracking) code breaks.
+            //
+            // subTODO: I wrote an example of the above TODO but it actually is describing something else.
+            //          it is saying "a\t\t" delete 'a'
             // Example of the above TODO:
             // 3widthTab 4widthTab
             // delete event for 3widthTab

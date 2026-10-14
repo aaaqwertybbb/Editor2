@@ -6067,35 +6067,8 @@ function EDI_drawCursor(timestamp, NOTscrollCursorIntoView) {
 
     INTS[fEDI_cursor_cursorTranslateYValue] = INTS[fEDI_cursor_indexLine] * INTS[fEDI_lineHeight];
 
-
-// cursor should store visual column then
-// and relative to line index
-
-
 /*
-TODO:
-INTS[fEDI_cursor_indexLine]
-
-- [ ] Resets:
-    - [ ] ArrowDown
-    - [ ] ArrowUp
-    - [ ] MouseDown where 'cursorVisualColumnIndex_relativeToThisLineIndex' !== the line index mouse down-ed on.
-    - [ ] MouseMove where 'cursorVisualColumnIndex_relativeToThisLineIndex' !== the line index mouse move-ed on.
-- [ ] Updates:
-    - [ ] All edits where 'cursorVisualColumnIndex_relativeToThisLineIndex' === the line index edited, and the edit comes at or a lower column index than that of the cursor need to update the cursorVisualColumnIndex
-    - [ ] MouseDown where 'cursorVisualColumnIndex_relativeToThisLineIndex' === the same line index that the cursor is on, determine the 'characters traveled' to go from initial position to mouse down position and modify by how many chars/tabs etc... you traveled over
-    - [ ] ArrowLeft where 'cursorVisualColumnIndex_relativeToThisLineIndex' === the same line index that the cursor is on, determine the 'characters traveled' to go from initial position to ending position and modify by how many chars/tabs etc... you traveled over
-        - [ ] No modifiers
-        - [ ] CtrlKey
-        - [ ] When NOT holding shift, but you have an active selection
-    - [ ] ArrowRight where 'cursorVisualColumnIndex_relativeToThisLineIndex' === the same line index that the cursor is on, determine the 'characters traveled' to go from initial position to ending position and modify by how many chars/tabs etc... you traveled over
-        - [ ] No modifiers
-        - [ ] CtrlKey
-        - [ ] When NOT holding shift, but you have an active selection
 - [ ] Further necessary details:
-    - [ ] I... does MouseDown need to finalize the edits?
-    - [ ] Do other things need to finalize the edits?
-    - [ ] ArrowLeft/ArrowRight?
     - [ ] Preferably if you insert text, then remove text, but the removed text is part of the text that you inserted
           that you'd just modify the "gap buffer" and avoid:
           - insert
@@ -6111,28 +6084,7 @@ INTS[fEDI_cursor_indexLine]
         - [ ] (i.e.: not yet?)
         - [ ] Thus you get the simple batching of edits 100% correct first
         - [ ] And do the other complex batching later.
-- [ ] A thought for checking the answer:
-    - [ ] Ctrl+Shift+F for 'INTS[fEDI_cursor_indexColumn]' and make sure any modifications to it (eventually) result in a modification to 'fEDI_cursorVisualColumnIndex'.
-        - [ ] I say eventually because maybe you'd in some cases save the 'fEDI_cursorVisualColumnIndex' part until the end I'm not sure I just consider that maybe there'd be a case where that's done.
-    - [ ] Ctrl+Shift+F for 'INTS[fEDI_cursorVisualColumnIndex_relativeToThisLineIndex]' and make sure any modifications to it (eventually) result in a modification to 'fEDI_cursorVisualColumnIndex_relativeToThisLineIndex' and then if this changes update 'fEDI_cursor_indexColumn' accordingly.
 */
-
-
-    ////getXFromIndex(lineText, targetIndex, charWidth, paddingLeft = 0)
-    //let visualColumns = 0;
-    ////// Clamp target index to string boundaries
-    ////const end = Math.min(targetIndex, lineText.length);
-    //const end = INTS[fEDI_cursor_indexColumn];
-    //for (let i = 0; i < end; i++) {
-    //    if (lineText[i] === '\t') {
-    //        // Calculate spaces to next tab stop
-    //        visualColumns += 4 - (visualColumns % 4);
-    //    } else {
-    //        visualColumns += 1;
-    //    }
-    //}
-    //return paddingLeft + (visualColumns * charWidth);
-
 
     INTS[fEDI_cursor_cursorTranslateXValue] = INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth;
 

@@ -38,19 +38,6 @@ const EDI_cursor_gapBuffer = new Uint8Array(CONST_EDI_cursor_GAP_BUFFER_CAPACITY
 
 let EDI_cursor_gapBufferWriteToSpanElement = null;
 
-const EDI_cursor_caretRow = document.createElement('div');
-EDI_cursor_caretRow.id = "EDI_caretRow-1";
-EDI_cursor_caretRow.className = "EDI_caretRow";
-if (EDI_virtualization_horizontal) {
-    EDI_cursor_caretRow.style.width = EDI_virtualization_horizontal.style.width;
-}
-
-const EDI_cursor_cursorElement = document.createElement('div');
-EDI_cursor_cursorElement.id = "EDI_cursor-1";
-EDI_cursor_cursorElement.className = "EDI_cursor";
-
-EDI_cursor_caretRow.appendChild(EDI_cursor_cursorElement);
-
 /**
  * Depending on 'BYTES[byteEDI_cursor_enterKeyEventKind]' this may either start OR end with '\n'.
  * 
@@ -196,8 +183,6 @@ let EDI_language_line_lex = null;
 
 function EDI_init() {
     //EDI_ringBuffer_mapHighlights.length = 0;
-
-    EDI_cursorListElement.appendChild(EDI_cursor_caretRow);
 
     EDI_measureLineHeightAndCharacterWidth();
     EDI_measureBaseElement();
@@ -6493,7 +6478,6 @@ function EDI_render_do_Resize(timestamp) {
 
         EDI_render_do_Scroll(timestamp);
         // # Redraw cursor selection virtualization
-        // Code Duplication: # Redraw cursor selection virtualization... TODO: This is using 'EDI_primaryCursor' rather than 'EDI_cursorList[i]' so it is surely incorrect?
         EDI_createStyleForSelection();
     }
 

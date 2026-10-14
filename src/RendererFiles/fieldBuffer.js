@@ -755,11 +755,14 @@ const EDI_baseElement = document.getElementById('EDITOR');
 
 const EDI_scroll_viewport = EDI_baseElement.children[0];
 const EDI_virtualization_horizontal = EDI_baseElement.children[0].children[0];
+
 const EDI_gutter = EDI_baseElement.children[1];
 const EDI_gutter_scroll_mover = EDI_baseElement.children[1].children[0];
+
 const EDI_text = EDI_baseElement.children[2].children[0];
 const EDI_selection = EDI_baseElement.children[2].children[0].children[0];
-const EDI_cursorListElement = EDI_baseElement.children[2].children[0].children[1];
+const EDI_cursor_caretRow = EDI_baseElement.children[2].children[0].children[1];
+const EDI_cursor_cursorElement = EDI_baseElement.children[2].children[0].children[1].children[0];
 
 /**
  * If you have an extension listed here, it is expected that the "function to invoke" exists.

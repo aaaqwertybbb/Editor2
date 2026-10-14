@@ -492,10 +492,6 @@ TODO: maybe don't nearly-duplicate these classes.
   display: contents;
 }
 
-#EDI_cursorList {
-  display: contents;
-}
-
 .EDI_caretRow {
   width: 100%;
   height: var(--EDITOR-line-height);

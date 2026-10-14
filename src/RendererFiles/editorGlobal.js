@@ -4333,23 +4333,20 @@ async function processLspQueue() {
 
 /**
  * if (trackedSyntax_StartingIndex === NaN || trackedSyntax_StartingIndex === -1) { trackedSyntax_StartingIndex = EDI_trackedSyntaxList.count_abstract; }
- * @param {*} indexLineAaa 
+ * @param {*} indexLine 
  * @returns 
  */
-function EDI_drawViewPort_FindTrackedSyntax_StartingIndex(indexLineAaa) {
+function EDI_drawViewPort_FindTrackedSyntax_StartingIndex(indexLine) {
 
-    // TODO: 'indexLineAaa' and 'indexLineBbb'; babel compiler error when both were named indexLine.
+    const local_EDI_trackedSyntaxList = EDI_trackedSyntaxList;
 
-    let local_EDI_trackedSyntaxList = EDI_trackedSyntaxList;
-
-    EDI_ret_getLineBoundaryPositions_raw(indexLineAaa);
+    EDI_ret_getLineBoundaryPositions_raw(indexLine);
     const positionIndex = INTS[fEDI_ret_getLineBoundaryPositions_start];
 
     let left = 0;
     let right = local_EDI_trackedSyntaxList.count_abstract - 1;
 
-    // umm isn't indexLineBbb supposed to be 'trackedSyntax_I'
-    let indexLineBbb = -1;
+    let trackedSyntax_I = -1;
 
     while (left <= right) {
         const mid = Math.floor((left + right) / 2);
@@ -4357,7 +4354,7 @@ function EDI_drawViewPort_FindTrackedSyntax_StartingIndex(indexLineAaa) {
         local_EDI_trackedSyntaxList.getElementAt(mid);
         
         if (INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length] > positionIndex) {
-            indexLineBbb = mid;
+            trackedSyntax_I = mid;
 
             if (INTS[fEDI_poolret_pooledTrackedSyntax_start] === positionIndex) {
                 break;
@@ -4373,7 +4370,7 @@ function EDI_drawViewPort_FindTrackedSyntax_StartingIndex(indexLineAaa) {
         }
     }
 
-    return indexLineBbb;
+    return trackedSyntax_I;
 }
 
 /**

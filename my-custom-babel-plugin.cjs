@@ -71,7 +71,6 @@ module.exports = function (babel) {
     "fEDI_ontab_visualWidth_perCharacter",
     "fEDI_cursor_STORED_visualWidth",
     "fEDI_cursor_cursorTranslateYValue",
-    "fEDI_cursor_cursorTranslateXValue",
     "fEDI_cursor_selectionAnchor",
     "fEDI_cursor_selectionEnd",
     "fEDI_cursor_selectionIndexAnchorLine",

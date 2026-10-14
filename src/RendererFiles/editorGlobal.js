@@ -30,6 +30,7 @@ let gutterWidthTotal_withPxUnits = '';
  * TODO: "this is assumed to never be 0"?
  */
 let EDI_characterWidth = 8;
+let EDI_cursor_cursorTranslateXValue = 0;
 
 /**
  * When this is cleared the information is not removed, only 'gapBufferCount' is set to 0.
@@ -6015,7 +6016,7 @@ function EDI_cursor_clear() {
     INTS[fEDI_cursorVisualColumnIndex] = 0;
     INTS[fEDI_cursor_STORED_visualWidth] = 0;
     INTS[fEDI_cursor_cursorTranslateYValue] = 0;
-    INTS[fEDI_cursor_cursorTranslateXValue] = 0;
+    EDI_cursor_cursorTranslateXValue = 0;
     INTS[fEDI_cursor_selectionAnchor] = 0;
     INTS[fEDI_cursor_selectionEnd] = 0;
     INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = 0;
@@ -6065,13 +6066,18 @@ function EDI_drawCursor(timestamp, NOTscrollCursorIntoView) {
 
     INTS[fEDI_EDI_cursorBlinkLastTimestamp] = timestamp;
 
-    INTS[fEDI_cursor_cursorTranslateYValue] = INTS[fEDI_cursor_indexLine] * INTS[fEDI_lineHeight];
+    const newY = INTS[fEDI_cursor_indexLine] * INTS[fEDI_lineHeight];
+    const newX = INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth;
 
-    // ??? How have I not noticed this before. EDI_characterWidth has a decimal value and you're truncating it.
-    INTS[fEDI_cursor_cursorTranslateXValue] = INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth;
+    if (newY !== INTS[fEDI_cursor_cursorTranslateYValue]) {
+        INTS[fEDI_cursor_cursorTranslateYValue] = newY;
+        EDI_cursor_caretRow.style.transform = `translateY(${newY}px)`;
+    }
 
-    EDI_cursor_caretRow.style.transform = `translateY(${INTS[fEDI_cursor_cursorTranslateYValue]}px)`;
-    EDI_cursor_cursorElement.style.transform = `translateX(${INTS[fEDI_cursor_cursorTranslateXValue]}px)`;
+    if (newX !== EDI_cursor_cursorTranslateXValue) {
+        EDI_cursor_cursorTranslateXValue = newX;
+        EDI_cursor_cursorElement.style.transform = `translateX(${newX}px)`;
+    }
 
     EDI_createStyleForSelection();
 
@@ -6386,16 +6392,16 @@ function EDI_scrollCursorIntoView() {
         scrollY = changeToMakeBottomTouch + (2 * INTS[fEDI_lineHeight]);
     }
 
-    if (INTS[fEDI_cursor_cursorTranslateXValue] < INTS[fEDI_lastReadNumber_scrollLeft]) {
-        scrollX = INTS[fEDI_cursor_cursorTranslateXValue] - INTS[fEDI_lastReadNumber_scrollLeft];
+    if (EDI_cursor_cursorTranslateXValue < INTS[fEDI_lastReadNumber_scrollLeft]) {
+        scrollX = EDI_cursor_cursorTranslateXValue - INTS[fEDI_lastReadNumber_scrollLeft];
     }
-    else if (INTS[fEDI_cursor_cursorTranslateXValue] >= INTS[fEDI_lastReadNumber_scrollLeft] + INTS[fEDI_lastReadNumber_offsetWidth]) {
+    else if (EDI_cursor_cursorTranslateXValue >= INTS[fEDI_lastReadNumber_scrollLeft] + INTS[fEDI_lastReadNumber_offsetWidth]) {
         // I want to use clientWidth but I don't have any logic for no scrollbar thus single page fitting text might bug out and trigger
         // scrollBy over and over.
 
         // make the right touch then add characterWidth is probably the algorithm to get a perfect fill maybe do characterWidth * 2 skip an event when spamming arrowRight?
         let currentRight = INTS[fEDI_lastReadNumber_scrollLeft] + INTS[fEDI_lastReadNumber_offsetWidth];
-        let changeToMakeRightTouch = INTS[fEDI_cursor_cursorTranslateXValue] - currentRight;
+        let changeToMakeRightTouch = EDI_cursor_cursorTranslateXValue - currentRight;
         scrollX = changeToMakeRightTouch + (4 * EDI_characterWidth);
     }
 
@@ -6852,7 +6858,7 @@ function EDI_onMouseDown(event) {
     EDI_ret_getLineBoundaryPositions_raw(indexLine);
 
     if (INTS[fEDI_cursor_indexLine] === indexLine) {
-        if (rX >= INTS[fEDI_cursor_cursorTranslateXValue]) {
+        if (rX >= EDI_cursor_cursorTranslateXValue) {
             EDI_ret_getIndexFromX_sameLine_newRxIsLarger(rX, INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
         }
         else {
@@ -7130,7 +7136,7 @@ function EDI_onMouseMove_WRAPIT(event) {
         EDI_ret_getLineBoundaryPositions_raw(indexLine);
 
         if (INTS[fEDI_cursor_indexLine] === indexLine) {
-            if (rX >= INTS[fEDI_cursor_cursorTranslateXValue]) {
+            if (rX >= EDI_cursor_cursorTranslateXValue) {
                 EDI_ret_getIndexFromX_sameLine_newRxIsLarger(rX, INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
             }
             else {
@@ -7391,7 +7397,7 @@ function EDI_onContextMenu() {
         MENU_MenuOption_factory(CommandKind_Find, 'Find'),
     ];
 
-    let menuLeft = INTS[fEDI_recentBoundingClientRect_left] + INTS[fEDI_gutterWidthTotal] + INTS[fEDI_cursor_cursorTranslateXValue] - INTS[fEDI_lastReadNumber_scrollLeft];
+    let menuLeft = INTS[fEDI_recentBoundingClientRect_left] + INTS[fEDI_gutterWidthTotal] + EDI_cursor_cursorTranslateXValue - INTS[fEDI_lastReadNumber_scrollLeft];
     let menuTop = INTS[fEDI_recentBoundingClientRect_top] + INTS[fEDI_cursor_cursorTranslateYValue] + INTS[fEDI_lineHeight] - INTS[fEDI_lastReadNumber_scrollTop];
 
     menuSet(optionList, menuLeft, menuTop, EDI_MenuOnClick, /*target*/ null, /*elementToFocusOnCompleted*/ null, /*disableFocusOnCompleted*/ false, /*index*/ 0);

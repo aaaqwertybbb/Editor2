@@ -1915,6 +1915,9 @@ function EDI_render_do_EnterKey() {
                 INTS[fEDI_cursor_indexLine] = INTS[fEDI_cursor_editIndexLine];
                 INTS[fEDI_cursor_indexColumn] = INTS[fEDI_cursor_editIndexColumn];
 
+                // TODO: (when holding enter key) Among a line, where you have indentation will recreate the same 'spanText' over and over, very wasteful. This includes the wasteful steps of substringing...
+                // ...cache 'spanText'.
+                //
                 let spanText = EDI_cursor_cached_indentation_string;
 
                 walkLineUntilIndexColumn();

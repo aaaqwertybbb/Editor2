@@ -1120,11 +1120,6 @@ function EDI_render_do_IndentLess() {
 }
 
 function EDI_indentLess() {
-
-    // everything in indentMore / indentLess likely needs to use the '_raw' variants for each function.
-    // as for indentLess, it likely HAS to be written correctly.
-    // i.e.: you HAVE to move all of the logic to the finalize otherwise it will be impossible (or each event will have to re-determine what was removed by the previous event and that is a terrible solution.)
-
     // selection positions
     let SMALL_pos;
     let LARGE_pos;
@@ -1210,8 +1205,6 @@ async function EDI_copySelection() {
  */
 async function EDI_duplicateSelection() {
 	if (!EDI_cursor_hasSelection()) {
-		// TODO: This code has a bug and doesn't work with multicursor... EDI_onMouseDownDetailRankThree needs to accept a cursor rather than acting on EDI_primaryCursor...
-        // ...these days the todo is somewhat incorrect, it takes cursor now, but you'd need to check whether this causes the selection of two cursors to overlap.
     	EDI_onMouseDownDetailRankThree(0, false, INTS[fEDI_cursor_indexLine], INTS[fEDI_cursor_indexColumn]);
 	}
 
@@ -5355,12 +5348,6 @@ function EDI_drawGutter_Width() {
     for (let i = 0; i < INTS[fEDI_ArrayFrom_textElement_children_length]/*a 'ArrayFrom_gutter_children_length' would always be equal to the textElement equivalent*/; i++) {
         EDI_ringBuffer_gutter[i].style.width = gutterWidth;
     }
-    
-    //for (let i = 0; i < INTS[fEDI_ArrayFrom_textElement_children_length]; i++) {
-    //    EDI_ringBuffer_text[i].style.left = gutterWidthTotal_withPxUnits;
-    //}
-
-    //EDI_cursor_caretRow.style.left = gutterWidthTotal_withPxUnits;
 
     return true;
 }

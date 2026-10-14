@@ -377,7 +377,7 @@ function EDI_render_do_CreateViewport() {
     }
 
     EDI_gutter_scroll_mover.replaceChildren(gutterFragment);
-    EDI_text.prepend(textFragment);
+    EDI_text.insertBefore(textFragment, EDI_cursor_caretRow);
 
     EDI_ringBuffer_gutter = Array.from(EDI_gutter_scroll_mover.children);
 

@@ -357,7 +357,7 @@ function EDI_render_do_CreateViewport() {
 
     INTS[fEDI_ringBuffer_indexZero] = 0;
     const gutterWidth = `${INTS[fEDI_gutterWidthStyleValue]}px`;
-    const local_EDI_horizontal_scrollbar_virtualization_boundary_style_width = EDI_virtualization_horizontal.style.width;
+    const virtualization_horizontal_style_width_attribute = EDI_virtualization_horizontal.style.width;
 
     const gutterFragment = document.createDocumentFragment();
     const textFragment = document.createDocumentFragment();
@@ -384,7 +384,7 @@ function EDI_render_do_CreateViewport() {
 
         const textLineElement = document.createElement('div');
         textLineElement.className = 'eT';
-        textLineElement.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
+        textLineElement.style.width = virtualization_horizontal_style_width_attribute;
         textLineElement.appendChild(document.createTextNode(''));
         textFragment.appendChild(textLineElement);
         EDI_ringBuffer_text[loopIndex] = textLineElement;
@@ -5381,17 +5381,17 @@ function EDI_drawHorizontalScrollbar() {
             INTS[fEDI_contentWidth] = Math.floor(EDI_baseElement.clientWidth - INTS[fEDI_gutterWidthTotal]);
         }
 
-        let local_EDI_horizontal_scrollbar_virtualization_boundary_style_width = INTS[fEDI_contentWidth] + 'px';
+        const virtualization_horizontal_style_width_attribute = INTS[fEDI_contentWidth] + 'px';
 
-        EDI_virtualization_horizontal.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
+        EDI_virtualization_horizontal.style.width = virtualization_horizontal_style_width_attribute;
         // TODO: Why ' + INTS[fEDI_gutterWidthTotal]'?
         EDI_virtualization_horizontal.style.width = INTS[fEDI_contentWidth] + INTS[fEDI_gutterWidthTotal] + 'px';
 
         for (let i = 0; i < INTS[fEDI_ArrayFrom_textElement_children_length]; i++) {
-            EDI_ringBuffer_text[i].style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
+            EDI_ringBuffer_text[i].style.width = virtualization_horizontal_style_width_attribute;
         }
 
-        EDI_cursor_caretRow.style.width = local_EDI_horizontal_scrollbar_virtualization_boundary_style_width;
+        EDI_cursor_caretRow.style.width = virtualization_horizontal_style_width_attribute;
     }
 }
 

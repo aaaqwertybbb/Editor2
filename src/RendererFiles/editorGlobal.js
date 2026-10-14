@@ -7632,6 +7632,43 @@ function EDI_registerHandlers() {
     EDI_baseElement.addEventListener('blur', EDI_onblur);
 
     EDI_scroll_viewport.addEventListener('scroll', EDI_scrollViewport_scroll, { passive: true });
+
+    EDI_gutter.addEventListener('wheel', EDI_onWheelGutter, { passive: false /* 'e.preventDefault();' is used*/ });
+}
+
+function EDI_onWheelGutter(e) {
+    // Prevent page zooming if Ctrl is held, matching default browser behavior
+    if (e.ctrlKey) return;
+
+/*
+// Forward the vertical and horizontal scroll directly to the native viewport
+EDI_scroll_viewport.scrollTop += e.deltaY;
+EDI_scroll_viewport.scrollLeft += e.deltaX;
+
+====
+
+does 'EDI_scroll_viewport.scrollTop += e.deltaY; EDI_scroll_viewport.scrollLeft += e.deltaX;' work on all operating systems?
+I recall in the past I did logic that used deltaX for horizontal scrolling and on linux it didn't do anything.
+I had to check if shiftKey was held and then use the deltaY on the scrollLeft.
+
+====
+
+No, it does not work identically across all operating systems due to how different platforms handle standard computer mice with a single, vertical scroll wheel.
+Your recollection...
+*/
+
+    // 1. If Shift is held and there's no native deltaX, 
+    //    use deltaY to drive horizontal scrolling (Linux standard mouse fix)
+    if (e.shiftKey && !e.deltaX) {
+        EDI_scroll_viewport.scrollLeft += e.deltaY;
+    } else {
+        // 2. Normal behavior for trackpads and Windows OS-translated events
+        EDI_scroll_viewport.scrollTop += e.deltaY;
+        EDI_scroll_viewport.scrollLeft += e.deltaX;
+    }
+
+    // Prevent the event from bubbling up and doing nothing
+    e.preventDefault();
 }
 
 //#region findOverlay

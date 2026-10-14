@@ -1745,7 +1745,7 @@ function EDI_render_do_TabKey() {
 
         // TODO: 'fEDI_cursor_editRenderedDisplacement' here and check other render_do's
 
-        INTS[fEDI_cursor_indexColumn] -= EDI_on_tab_bytes.length; // awkward thing to have 'walkLineUntilIndexColumn' invocation work then at end of block I '+= EDI_on_tab_bytes.length'.
+        INTS[fEDI_cursor_indexColumn] -= EDI_on_tab_bytes.length; // awkward thing to have 'walkLineUntilIndexColumn' invocation work then at end of block I '+= EDI_on_tab_bytes.length'. (1 of 2)
 
         walkLineUntilIndexColumn();
 
@@ -1764,7 +1764,7 @@ function EDI_render_do_TabKey() {
 
         w_div.firstChild.insertData(INTS[fEDI_w_indexColumn_SpanTextContentRelative], EDI_on_tab_string);
 
-        INTS[fEDI_cursor_indexColumn] += EDI_on_tab_bytes.length; // awkward thing to have 'walkLineUntilIndexColumn' invocation work then at end of block I '+= EDI_on_tab_bytes.length'.
+        INTS[fEDI_cursor_indexColumn] += EDI_on_tab_bytes.length; // awkward thing to have 'walkLineUntilIndexColumn' invocation work then at end of block I '+= EDI_on_tab_bytes.length'. (2 of 2)
     }
 }
 
@@ -1813,10 +1813,7 @@ function EDI_tabKey() {
         }
     }
 
-    INTS[fEDI_cursor_indexColumn] += EDI_on_tab_bytes.length; // this has to come after the 'walkLineUntilIndexColumn' invocation.
-    //INTS[fEDI_cursorVisualColumnIndex] += EDI_on_tab_bytes.length * INTS[fEDI_ontab_visualWidth_perCharacter];
-    // I say 'uhhhh' cause I'm trying to get an obvious case to work and it isn't working entirely and I'm so tired so just like "uhhhhhhhhh"
-    // oh wait lol tab-stops
+    INTS[fEDI_cursor_indexColumn] += EDI_on_tab_bytes.length;
 
     EDI_render_request(RenderKind_TabKey);
 }
@@ -1868,11 +1865,12 @@ function EDI_render_do_EnterKey() {
         if (ringBufferIndex_last >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_last < 0) ringBufferIndex_last = -1;
         else ringBufferIndex_last = (ringBufferIndex_last + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
 
-        // 4 cases:
+        // 5 cases:
+        // - "shouldRenderEntireViewport case": throws an exception
+        // - TODO: you need to handle a "line is not part of the current virtualized content" case
         // - "start of line":
         // - "end of line":
         // - "among a line":
-        // - "fallback case": this last case is a fallback case and redraws the entire viewport in the case that the UI is in an "unpredictable state" and cannot be optimally redrawn in a smaller more specific redraw.
 
         // TODO: Rewrite this comment in a way that isn't rambling:
         //

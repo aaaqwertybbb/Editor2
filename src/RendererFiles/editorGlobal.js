@@ -472,8 +472,6 @@ function EDI_scrollViewport_scroll() {
 */
 function EDI_render_do_Scroll(timestamp) {
 
-    /** TODO: I cannot scroll when my cursor is over the gutter, this is erroneous behavior */
-
     // --- 2. THE FINE-GRAINED MOVE (The GPU trick) ---
     // Since your lines are virtualized, you only want to shift the text container 
     // by the tiny "sub-pixel remainder" of the scroll so it feels perfectly smooth.
@@ -5368,13 +5366,10 @@ function EDI_drawHorizontalScrollbar() {
             INTS[fEDI_contentWidth] = Math.floor(EDI_baseElement.clientWidth - INTS[fEDI_gutterWidthTotal]);
         }
 
+        // The scrollViewport currently has a 'left/inset' that places it beyond the gutter. So the gutterWidthTotal being added is not necessary.
         const virtualization_horizontal_style_width_attribute = INTS[fEDI_contentWidth] + 'px';
 
-        /** TODO: I cannot scroll when my cursor is over the gutter, this is erroneous behavior */
-
         EDI_virtualization_horizontal.style.width = virtualization_horizontal_style_width_attribute;
-        // TODO: Why ' + INTS[fEDI_gutterWidthTotal]'?
-        EDI_virtualization_horizontal.style.width = INTS[fEDI_contentWidth] + INTS[fEDI_gutterWidthTotal] + 'px';
 
         for (let i = 0; i < INTS[fEDI_ArrayFrom_textElement_children_length]; i++) {
             EDI_ringBuffer_text[i].style.width = virtualization_horizontal_style_width_attribute;

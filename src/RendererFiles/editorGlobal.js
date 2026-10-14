@@ -1838,6 +1838,7 @@ function EDI_render_do_EnterKey() {
         return;
     }
 
+    // TODO: instead of a loop, handle the rendering in a more optimized bulk operation that renders the remaining 'INTS[fEDI_cursor_editLineFeedCount] - INTS[fEDI_cursor_editRenderedDisplacement]'
     while (INTS[fEDI_cursor_editRenderedDisplacement] < INTS[fEDI_cursor_editLineFeedCount]) {
         INTS[fEDI_cursor_editRenderedDisplacement]++;
 

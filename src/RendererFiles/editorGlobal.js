@@ -3301,7 +3301,6 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
     }
     EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition], EDI_cursor_gapBuffer, /*offset*/ 0, /*length*/ INTS[fEDI_cursor_gapBufferCount]);
 
-    let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
     EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
     let lineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
     let lineAndColumnIndices_indexColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
@@ -3311,7 +3310,7 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
 
     // --- CLEAN INTEGRATION ---
     enqueueLSPNotification({
-        absolutePath: textSourceIdentifier,
+        absolutePath: EDI_FORMATTED_textSourceIdentifier,
         version: version,
         startLine: lineAndColumnIndices_indexLine,
         startCharacter: lineAndColumnIndices_indexColumn,
@@ -3415,7 +3414,6 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
 
     EDI_textByteList_insertBytes(actualEditPosition, bytes, /*offset*/ 0, length);
 
-    let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
     EDI_ret_getLineAndColumnIndices_raw(actualEditPosition);
     let lineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
     let lineAndColumnIndices_indexColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
@@ -3423,7 +3421,7 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
     let version = INTS[fEDI_didChangeTextDocument_version];
     enqueueLSPNotification({
-        absolutePath: textSourceIdentifier,
+        absolutePath: EDI_FORMATTED_textSourceIdentifier,
         version: version,
         startLine: lineAndColumnIndices_indexLine,
         startCharacter: lineAndColumnIndices_indexColumn,
@@ -3469,7 +3467,6 @@ function EDI_finalizeEdit_Tab(indexLine_editOccurredOn) {
         EDI_lineEndPositionList_data[i] += length;
     }
 
-    let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
     EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
     let lineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
     let lineAndColumnIndices_indexColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
@@ -3479,7 +3476,7 @@ function EDI_finalizeEdit_Tab(indexLine_editOccurredOn) {
 
     // --- CLEAN INTEGRATION ---
     enqueueLSPNotification({
-        absolutePath: textSourceIdentifier,
+        absolutePath: EDI_FORMATTED_textSourceIdentifier,
         version: version,
         startLine: lineAndColumnIndices_indexLine,
         startCharacter: lineAndColumnIndices_indexColumn,
@@ -4015,7 +4012,6 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
         EDI_lineEndPositionList_data[i] += insertionLength;
     }
 
-    let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
     EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
     let lineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
     let lineAndColumnIndices_indexColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
@@ -4025,7 +4021,7 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
 
     // --- CLEAN INTEGRATION ---
     enqueueLSPNotification({
-        absolutePath: textSourceIdentifier,
+        absolutePath: EDI_FORMATTED_textSourceIdentifier,
         version: version,
         startLine: lineAndColumnIndices_indexLine,
         startCharacter: lineAndColumnIndices_indexColumn,
@@ -4098,7 +4094,6 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
         EDI_lineEndPositionList_data[i] += insertionLength;
     }
 
-    let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
     EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
     let lineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
     let lineAndColumnIndices_indexColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
@@ -4108,7 +4103,7 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
 
     // --- CLEAN INTEGRATION ---
     enqueueLSPNotification({
-        absolutePath: textSourceIdentifier,
+        absolutePath: EDI_FORMATTED_textSourceIdentifier,
         version: version,
         startLine: lineAndColumnIndices_indexLine,
         startCharacter: lineAndColumnIndices_indexColumn,
@@ -4215,14 +4210,13 @@ function EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_
 
     EDI_textByteList_removeAt(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength]);
 
-    let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
     let text = '';
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
     let version = INTS[fEDI_didChangeTextDocument_version];
 
     // --- CLEAN INTEGRATION ---
     enqueueLSPNotification({
-        absolutePath: textSourceIdentifier,
+        absolutePath: EDI_FORMATTED_textSourceIdentifier,
         version: version,
         startLine: startLineAndColumnIndices_indexLine,
         startCharacter: startLineAndColumnIndices_indexColumn,

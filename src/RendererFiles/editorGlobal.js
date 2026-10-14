@@ -6067,6 +6067,18 @@ function EDI_drawCursor(timestamp, NOTscrollCursorIntoView) {
 
     INTS[fEDI_cursor_cursorTranslateYValue] = INTS[fEDI_cursor_indexLine] * INTS[fEDI_lineHeight];
 
+    // ??? How have I not noticed this before. EDI_characterWidth has a decimal value and you're truncating it.
+    INTS[fEDI_cursor_cursorTranslateXValue] = INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth;
+
+    EDI_cursor_caretRow.style.transform = `translateY(${INTS[fEDI_cursor_cursorTranslateYValue]}px)`;
+    EDI_cursor_cursorElement.style.transform = `translateX(${INTS[fEDI_cursor_cursorTranslateXValue]}px)`;
+
+    EDI_createStyleForSelection();
+
+    if (!NOTscrollCursorIntoView) {
+        EDI_scrollCursorIntoView();
+    }
+
 /*
 - [ ] Further necessary details:
     - [ ] Preferably if you insert text, then remove text, but the removed text is part of the text that you inserted
@@ -6085,17 +6097,6 @@ function EDI_drawCursor(timestamp, NOTscrollCursorIntoView) {
         - [ ] Thus you get the simple batching of edits 100% correct first
         - [ ] And do the other complex batching later.
 */
-
-    INTS[fEDI_cursor_cursorTranslateXValue] = INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth;
-
-    EDI_cursor_caretRow.style.transform = `translateY(${INTS[fEDI_cursor_cursorTranslateYValue]}px)`;
-    EDI_cursor_cursorElement.style.transform = `translateX(${INTS[fEDI_cursor_cursorTranslateXValue]}px)`;
-
-    EDI_createStyleForSelection();
-
-    if (!NOTscrollCursorIntoView) {
-        EDI_scrollCursorIntoView();
-    }
 }
 
 function EDI_draw_cursor_debug() {

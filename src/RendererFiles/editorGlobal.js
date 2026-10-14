@@ -2467,6 +2467,12 @@ function EDI_state_do_Delete(event) {
         // ...delete as if everything is a width of 1
         // ...if you see a tab you set a boolean
         // ...when done deleting everything if you check the boolean and it says you saw a tab you throw away the visual measurements and just "RESET" calculate it.
+        //
+        // TODO: no that isn't correct...
+        // The problem with tabs is movement from right to left.
+        // Delete key is left to right
+        // You gotta look into every detail of this cause you don't fully remember all the details.
+        // I do think there is something problematic with delete key but maybe you can solve it without a "RESET" due to the movement being left to right.
 
         if (event.ctrlKey) {
             // INTS[fEDI_cursor_editPosition] is intended to be equal due to the batch requirements / a new edit would also be equal.

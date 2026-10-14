@@ -2659,18 +2659,11 @@ function EDI_state_do_Backspace(event) {
     else {
         if (event.ctrlKey) {
             // INTS[fEDI_cursor_editPosition] is intended to be equal due to the batch requirements / a new edit would also be equal.
-
             let originalCharacterKind = EDI_getCharacterKind(String.fromCharCode(EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition] - 1]));
             INTS[fEDI_cursor_editPosition]--;
             INTS[fEDI_cursor_editIndexColumn]--;
             INTS[fEDI_cursor_editLength]++;
-            //INTS[fEDI_cursor_editLengthVisual]++;
             INTS[fEDI_cursor_indexColumn]--;
-            //INTS[fEDI_cursorVisualColumnIndex]--;
-            //if (originalCharacterKind === CharacterKind_Whitespace && EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
-            //    INTS[fEDI_cursor_editLengthVisual] += 3;
-            //    INTS[fEDI_cursorVisualColumnIndex] -= 3;
-            //}
 
             while (INTS[fEDI_cursor_indexColumn] > 0) {
                 if (EDI_getCharacterKind(String.fromCharCode(EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition] - 1])) !== originalCharacterKind) {
@@ -2679,13 +2672,7 @@ function EDI_state_do_Backspace(event) {
                 INTS[fEDI_cursor_editPosition]--;
                 INTS[fEDI_cursor_editIndexColumn]--;
                 INTS[fEDI_cursor_editLength]++;
-                //INTS[fEDI_cursor_editLengthVisual]++;
                 INTS[fEDI_cursor_indexColumn]--;
-                //INTS[fEDI_cursorVisualColumnIndex]--;
-                //if (originalCharacterKind === CharacterKind_Whitespace && EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
-                //    INTS[fEDI_cursor_editLengthVisual] += 3;
-                //    INTS[fEDI_cursorVisualColumnIndex] -= 3;
-                //}
             }
 
             EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
@@ -2767,15 +2754,6 @@ function EDI_render_do_InsertLtr() {
  * @param {string} character 
  */
 function EDI_insertDo(character) {
-    /*
-    TODO: (optimization idea) if you are inserting at the 0th or length position it might be worthwhile
-    to have a conditional branch make the textContent with 1 less slice invocation.
-
-    TODO: (optimization idea) I'm going to get this less optimized version to work, but you might want to
-    make a copy of the span so you only have to "insert" text to the end of the span.
-    And then this removes 1 of the slice invocations, rather than inserting "possibly" among the existing textContent.
-    */
-
     EDI_cursor_gapBuffer[INTS[fEDI_cursor_gapBufferCount]] = character.charCodeAt(0);
     INTS[fEDI_cursor_gapBufferCount]++;
 
@@ -3035,12 +3013,6 @@ function EDI_NOTcanBatch_insert() {
  * @returns 
  */
 function EDI_NOTcanBatch_enter() {
-    // 
-    // Currently: You actually can do shift+enter then enter and it batches just not
-    // enter then shift+enter
-    // And it actually works which makes sense.
-    // I might permit the shift key at point then I just need to slowly feel more and more comfortable with this.
-    // 
     return BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_None ||
            INTS[fEDI_cursor_editKind] !== EditKind_Enter ||
            INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_END_editIndexLine] ||

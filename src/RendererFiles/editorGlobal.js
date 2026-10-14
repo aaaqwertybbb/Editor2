@@ -6778,13 +6778,13 @@ function walkLineUntilIndexColumn() {
  * @param {HTMLElement} gutterLineElement 
  * @param {HTMLElement} divElement 
  */
-function EDI_drawLine(indexLine, gutterLineElement, textLineElement, indexLineVisually) {
+function EDI_drawLine(indexLine, gutterLineElement, textLineElement, indexLineForGutterLineNumberText) {
     let textNode = gutterLineElement.firstChild;
     if (indexLine >= INTS[fEDI_lineEndPositionList_count]) {
         textNode.replaceData(0, textNode.length, '~');
     }
     else {
-        textNode.replaceData(0, textNode.length, `${indexLineVisually + 1}`);
+        textNode.replaceData(0, textNode.length, `${indexLineForGutterLineNumberText + 1}`);
     }
 
     let trackedSyntax_StartingIndex = EDI_drawViewPort_FindTrackedSyntax_StartingIndex(indexLine);
@@ -6796,17 +6796,11 @@ function EDI_drawLine(indexLine, gutterLineElement, textLineElement, indexLineVi
     const lineStart = INTS[fEDI_ret_getLineBoundaryPositions_start];
     const lineEnd = INTS[fEDI_ret_getLineBoundaryPositions_end];
 
-    //ringBufferIndex = (ringBufferIndex + 1) % local_ArrayFrom_textElement_children_length;
-
     textLineElement.className = 'eT';
     textNode = textLineElement.firstChild;
     textNode.replaceData(0, textNode.length, lineStart === lineEnd ? '' : EDI_decoder.decode(EDI_textByteList_bytes.subarray(lineStart, lineEnd)));
 
-    //const translateY = `${vertical}px`;
-    //gutter.style.top = translateY;
-    //div.style.top = translateY;
-//
-    //vertical += local_lineHeight;
+    // TODO: I believe this function deliberately doesn't modify the top so you can "shove whatever text you want into the line?"
 }
 
 //#region mousedown

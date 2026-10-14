@@ -2015,7 +2015,6 @@ function EDI_EnterKey(ctrlKey, originalIndexLine, originalIndexColumn) {
  */
 function EDI_removeSelection() {
     if (INTS[fEDI_cursor_editKind] != EditKind_None) {
-        // TODO: multicursor confusion scenario is likely to happy due to this code, but the code isn't related enough for me to change it yet.
         EDI_finalizeEdit();
     }
 
@@ -2481,10 +2480,6 @@ function EDI_state_do_Delete(event) {
             tempIndexColumn++;
             tempPosition++;
             INTS[fEDI_cursor_editLength]++;
-            //INTS[fEDI_cursor_editLengthVisual]++;
-            //if (originalCharacterKind === CharacterKind_Whitespace && EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
-            //    INTS[fEDI_cursor_editLengthVisual] += 3;
-            //}
             
             while (INTS[fEDI_cursor_indexColumn] < lastValidIndexColumn) {
                 if (tempIndexColumn < lineEnd) {
@@ -2499,10 +2494,6 @@ function EDI_state_do_Delete(event) {
                 tempIndexColumn++;
                 tempPosition++;
                 INTS[fEDI_cursor_editLength]++;
-                //INTS[fEDI_cursor_editLengthVisual]++;
-                //if (originalCharacterKind === CharacterKind_Whitespace && EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
-                //    INTS[fEDI_cursor_editLengthVisual] += 3;
-                //}
             }
 
             EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
@@ -2511,24 +2502,25 @@ function EDI_state_do_Delete(event) {
                 tempIndexColumn, INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
             let columnVisual = INTS[fEDI_ret_getIndexFromX_visualColumns];
             INTS[fEDI_cursor_editLengthVisual] += columnVisual - INTS[fEDI_cursorVisualColumnIndex];
-            
-            // TODO: When a single delete key (non ctrl) causes a tab of length <4 to fall into a slot of 4 your code breaks.
-            //
-            // TODO: You can fix this by doing some sort of reset-ish calculation for consecutive delete key presses that batch...
-            // ...you recalculate the entire visual length instead of appending to a previous.
-
         }
         else {
+            // TODO: When a single delete key (non ctrl) causes a tab of length <4 to fall into a slot of 4 your (visual length of a line tracking) code breaks.
+            // Example of the above TODO:
+            // 3widthTab 4widthTab
+            // delete event for 3widthTab
+            // 4widthTab becomes a 3widthTab
+            // delete event for the tab that became a 3widthTab
+            //
+            // erroneous: (delete 3widthTab) + (delete 3widthTab) => visual width edit of 6
+            // reality:   (delete 3widthTab) + (delete 4widthTab) => visual width edit of 7
+            //
+            // Further explanation: consider if instead of pressing two distinct delete key events, you had pressed Ctrl + Delete.
+            // 
+            // TODO: You can fix this by doing some sort of reset-ish calculation for consecutive delete key presses that batch you recalculate the entire visual length instead of appending to a previous.
+
             INTS[fEDI_cursor_editLength]++;
             INTS[fEDI_cursor_editLengthVisual]++;
             if (EDI_textByteList_bytes[INTS[fEDI_cursor_editPosition]] === CONST_EDI_ASCII_TAB) {
-                // TODO: For delete key you could probably pre-calculate the tab-width cause it'd always bring the next tab if there is one to the same starting column during a
-                // ...ctrl delete keypress or something not that you should I'm just observing this so consider it at some point for yes or no.
-                //
-                // ^ no it's more complicated than that you fell into it so the actual width was 4 because the fact that you fell into 3 isn't reflected yet
-                //
-                // You handle the insertion of tabs as their own edit; you do NOT do this with the removal of tabs, this entire thought process was flawed from the start.
-                //
                 let tabLength = 4 - (INTS[fEDI_cursorVisualColumnIndex] % 4);
                 INTS[fEDI_cursor_editLengthVisual] += (tabLength - 1);
             }

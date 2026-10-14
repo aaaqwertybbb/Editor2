@@ -2462,6 +2462,12 @@ function EDI_state_do_Delete(event) {
         }
     }
     else {
+
+        // TODO: All in all I think you should just use the "visual corruption" logic that you have somewhere else in this file...
+        // ...delete as if everything is a width of 1
+        // ...if you see a tab you set a boolean
+        // ...when done deleting everything if you check the boolean and it says you saw a tab you throw away the visual measurements and just "RESET" calculate it.
+
         if (event.ctrlKey) {
             // INTS[fEDI_cursor_editPosition] is intended to be equal due to the batch requirements / a new edit would also be equal.
             let tempIndexColumn = INTS[fEDI_cursor_indexColumn];

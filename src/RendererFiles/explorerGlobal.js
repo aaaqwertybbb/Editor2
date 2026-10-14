@@ -63,11 +63,6 @@ const EXPLORER_cursorElement = document.createElement('div');
 EXPLORER_cursorElement.className = 'TREEVIEW_cursor';
 EXPLORER_text.appendChild(EXPLORER_cursorElement);
 
-//<div id="EDI_scroll_viewport" class="EXPLORER_scroll_viewport">
-//    <!-- This element stretches to your full content size (240,019px) to force the native scrollbar thumb to scale correctly. -->
-//    <div id="EDI_scrollbar_space_generator"></div>
-//</div>
-
 const EXPLORER_itemListElement = document.createElement('div');
 EXPLORER_itemListElement.className = 'TREEVIEW_itemList';
 EXPLORER_text.appendChild(EXPLORER_itemListElement);

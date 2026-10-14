@@ -1838,24 +1838,15 @@ function EDI_render_do_EnterKey() {
         return;
     }
 
-    // you're missing either a:
-    // - for loop
-    // - or preferably a shift by some count other than just one
-    //
     while (INTS[fEDI_cursor_editRenderedDisplacement] < INTS[fEDI_cursor_editLineFeedCount]) {
         INTS[fEDI_cursor_editRenderedDisplacement]++;
 
-        // TODO: You're gonna have to tighten the virtualization logic?
-
-        // TODO: This 'ringBufferIndex_firstTilde' is maybe correct I don't know but it's been a long time since I wrote this line of code, and glancing at it, it looks like you need to subtract 1?
-
         const local_EDI_lineEndPositionList_count = INTS[fEDI_lineEndPositionList_count] + INTS[fEDI_cursor_editRenderedDisplacement] - 1;
-
+        
         // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
         let ringBufferIndex_firstTilde = local_EDI_lineEndPositionList_count - INTS[fEDI_virtualIndexLine];
         if (ringBufferIndex_firstTilde >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_firstTilde < 0) ringBufferIndex_firstTilde = -1;
         else ringBufferIndex_firstTilde = (ringBufferIndex_firstTilde + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
-
         if (ringBufferIndex_firstTilde >= 0) {
             const gutterTextNode = EDI_gutter_scroll_mover.children[ringBufferIndex_firstTilde].firstChild;
             gutterTextNode.replaceData(0, gutterTextNode.length, `${local_EDI_lineEndPositionList_count + 1}`);
@@ -1867,7 +1858,6 @@ function EDI_render_do_EnterKey() {
         let ringBufferIndex_current = INTS[fEDI_cursor_editIndexLine] - INTS[fEDI_virtualIndexLine];
         if (ringBufferIndex_current >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_current < 0) ringBufferIndex_current = -1;
         else ringBufferIndex_current = (ringBufferIndex_current + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
-
         if (ringBufferIndex_current < 0)
             shouldRenderEntireViewport = true;
 
@@ -1881,14 +1871,11 @@ function EDI_render_do_EnterKey() {
         else ringBufferIndex_first = (ringBufferIndex_first + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
 
         // TODO: Use PREVIOUS here from 'ringBufferIndex_first'
-
+        //
         // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
         let ringBufferIndex_last = (INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1) - INTS[fEDI_virtualIndexLine];
         if (ringBufferIndex_last >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_last < 0) ringBufferIndex_last = -1;
         else ringBufferIndex_last = (ringBufferIndex_last + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
-
-        // TODO: reminder for when virtualization padding is improved, this function might need to be looked at.
-        // TODO: Track the enter keystroke the same as any other insertion edit and have it pending until it needs to be finalized.
 
         // 4 cases:
         // - "start of line":
@@ -1896,9 +1883,17 @@ function EDI_render_do_EnterKey() {
         // - "among a line":
         // - "fallback case": this last case is a fallback case and redraws the entire viewport in the case that the UI is in an "unpredictable state" and cannot be optimally redrawn in a smaller more specific redraw.
 
-        // consider using 'BYTES[byteEDI_cursor_enterKeyEventKind]' for the 'render'?
-
-        // Is holding down ctrl+enter / shift+enter batchable?
+        // TODO: Rewrite this comment in a way that isn't rambling:
+        //
+        // Currently this is written in a way that ignores 'BYTES[byteEDI_cursor_enterKeyEventKind]' for the 'render'.
+        // This is because consecutive enter key events are not necessarily rendered the same way.
+        // For example, if the cursor is among a line. And you render the first enter key event.
+        // The cursor is among a line.
+        // But that second enter key event may or may not be among a line.
+        // If indentation existed on the original line and prior to the cursor position,
+        // that indentation is copied to the line that was created by the enter key event.
+        // Thus, your cursor on the second enter key event is among a line.
+        // But if there wasn't indentation, your cursor is actually at the start of the newly added line.
 
         if (!shouldRenderEntireViewport && INTS[fEDI_cursor_editIndexColumn] === 0) { // start of line
             EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, ringBufferIndex_current);

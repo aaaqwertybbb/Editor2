@@ -1916,14 +1916,13 @@ function EDI_render_do_EnterKey() {
                 }
                 else { // among a line
 
-
                     // among a line uses 'walkLineUntilIndexColumn', this function takes a cursor and accesses the fields: 'indexLine', and 'indexColumn'.
                     // This is problematic because one needs to use INTS[fEDI_cursor_editIndexColumn] for this renderKind.
                     // Since only this case needs the logic I'm going to isolate it to here.
                     //
                     // Remember 'indexLine', and 'indexColumn'.
                     // Set them to the edit respective fields.
-                    // Prior to returning from this function restore the original 'indexLine', and 'indexColumn'.
+                    // Prior to returning from this function restore the original 'indexLine', and 'indexColumn'. (1 of 2)
 
                     let remember_cursorIndexLine = INTS[fEDI_cursor_indexLine];
                     let remember_cursorIndexColumn = INTS[fEDI_cursor_indexColumn];
@@ -1931,7 +1930,6 @@ function EDI_render_do_EnterKey() {
                     INTS[fEDI_cursor_indexLine] = INTS[fEDI_cursor_editIndexLine];
                     INTS[fEDI_cursor_indexColumn] = INTS[fEDI_cursor_editIndexColumn];
 
-                    let spanClassName = '';
                     let spanText = EDI_cursor_cached_indentation_string;
 
                     walkLineUntilIndexColumn();
@@ -1943,10 +1941,6 @@ function EDI_render_do_EnterKey() {
                         // That being said the text you see on screen does bug out until you scroll it out of view and back into view again
                         return;
                     }
-
-                    let shouldPreserveCssClassWhenSplittingAmongLine = false;
-                    
-                    // code has been removed from this function to avoid cluttering my find all
                     
                     if (INTS[fEDI_w_indexColumn_Goal] > 0) {
                         if (INTS[fEDI_w_indexColumn_Goal] !== INTS[fEDI_w_indexColumn_Sum] + w_div.textContent.length) {
@@ -1957,9 +1951,6 @@ function EDI_render_do_EnterKey() {
                             let lastText = data.substring(INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
                             textNode.replaceData(0, textNode.length, firstText);
                             spanText += lastText; // += due to the possibility of indentation
-                            //if (shouldPreserveCssClassWhenSplittingAmongLine) {
-                            //    spanClassName = wx_xsxpxaxn.className;
-                            //}
                         }
                     }
 
@@ -1969,6 +1960,7 @@ function EDI_render_do_EnterKey() {
                     textNode.replaceData(0, textNode.length, spanText);
                     EDI_lineWasInsertedValidateGutter();
 
+                    // Prior to returning from this function restore the original 'indexLine', and 'indexColumn'. (2 of 2)
                     INTS[fEDI_cursor_indexLine] = remember_cursorIndexLine;
                     INTS[fEDI_cursor_indexColumn] = remember_cursorIndexColumn;
                     return;

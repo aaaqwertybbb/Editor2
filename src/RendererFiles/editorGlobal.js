@@ -30,6 +30,9 @@ let gutterWidthTotal_withPxUnits = '';
  * TODO: "this is assumed to never be 0"?
  */
 let EDI_characterWidth = 8;
+/**
+ * This is likely a decimal value once it gets measured for real, do not try to put it in an int container.
+ */
 let EDI_cursor_cursorTranslateXValue = 0;
 
 /**
@@ -6377,7 +6380,8 @@ function EDI_scrollCursorIntoView() {
     let scrollX = 0;
     let scrollY = 0;
 
-    let local_lastReadNumber_scrollTop = INTS[fEDI_lastReadNumber_scrollTop];
+    const local_lastReadNumber_scrollTop = INTS[fEDI_lastReadNumber_scrollTop];
+    const currentRight = INTS[fEDI_lastReadNumber_scrollLeft] + INTS[fEDI_lastReadNumber_offsetWidth];
 
     if (INTS[fEDI_cursor_cursorTranslateYValue] < local_lastReadNumber_scrollTop) {
         scrollY = INTS[fEDI_cursor_cursorTranslateYValue] - local_lastReadNumber_scrollTop;
@@ -6392,17 +6396,25 @@ function EDI_scrollCursorIntoView() {
         scrollY = changeToMakeBottomTouch + (2 * INTS[fEDI_lineHeight]);
     }
 
+    // Use a 1.5 or 2 pixel tolerance to absorb any browser subpixel rounding discrepancies
+    const subpixelTolerance = 2;
+
     if (EDI_cursor_cursorTranslateXValue < INTS[fEDI_lastReadNumber_scrollLeft]) {
         scrollX = EDI_cursor_cursorTranslateXValue - INTS[fEDI_lastReadNumber_scrollLeft];
     }
-    else if (EDI_cursor_cursorTranslateXValue >= INTS[fEDI_lastReadNumber_scrollLeft] + INTS[fEDI_lastReadNumber_offsetWidth]) {
+    else if (EDI_cursor_cursorTranslateXValue >= (currentRight - subpixelTolerance)) {
         // I want to use clientWidth but I don't have any logic for no scrollbar thus single page fitting text might bug out and trigger
         // scrollBy over and over.
 
         // make the right touch then add characterWidth is probably the algorithm to get a perfect fill maybe do characterWidth * 2 skip an event when spamming arrowRight?
-        let currentRight = INTS[fEDI_lastReadNumber_scrollLeft] + INTS[fEDI_lastReadNumber_offsetWidth];
         let changeToMakeRightTouch = EDI_cursor_cursorTranslateXValue - currentRight;
         scrollX = changeToMakeRightTouch + (4 * EDI_characterWidth);
+
+        // CRITICAL GUARD FOR ARRAYS: 
+        // If the scroll change is negligible, clear it to completely kill infinite scroll spamming.
+        if (Math.abs(scrollX) < 1) {
+            scrollX = 0;
+        }
     }
 
     // This is asynchronous, this is the bug cause

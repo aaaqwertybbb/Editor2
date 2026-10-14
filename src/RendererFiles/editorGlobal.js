@@ -7636,26 +7636,24 @@ function EDI_registerHandlers() {
     EDI_gutter.addEventListener('wheel', EDI_onWheelGutter, { passive: false /* 'e.preventDefault();' is used*/ });
 }
 
+/**
+ * TODO: determine whether this 'Option 2' that Google AI mentioned would be superior to the current solution...
+ * ...(currently an event listener is added to the gutter that applies the wheel deltas to the scrollViewport).
+ * 
+ * Option 2: Stretch the scroll viewport to inset: 0 and pad the space
+ * 
+ * If you want native scrolling everywhere without any JS event listeners, you must make the invisible scroll viewport cover the entire editor window,
+ * and instead use padding or margins to push the horizontal scrollbar away from the gutter.
+ * 
+ * 1. Keep EDI_scroll_viewport at inset: 0 (don't shift its left to 38px).
+ * 2. Shift the content inside it instead: Apply margin-left: 38px or left: 38px to your inner spacer element (#EDI_scrollbar_space_generator).
+ * 
+ * Note: Depending on the OS (especially Windows vs macOS), Option 2 might cause the horizontal scrollbar track to draw underneath your visual canvas or
+ * layout weirdly. Option 1 is typically preferred for custom virtualized text editors because it keeps your structural boundaries explicitly separated.
+*/
 function EDI_onWheelGutter(e) {
     // Prevent page zooming if Ctrl is held, matching default browser behavior
     if (e.ctrlKey) return;
-
-/*
-// Forward the vertical and horizontal scroll directly to the native viewport
-EDI_scroll_viewport.scrollTop += e.deltaY;
-EDI_scroll_viewport.scrollLeft += e.deltaX;
-
-====
-
-does 'EDI_scroll_viewport.scrollTop += e.deltaY; EDI_scroll_viewport.scrollLeft += e.deltaX;' work on all operating systems?
-I recall in the past I did logic that used deltaX for horizontal scrolling and on linux it didn't do anything.
-I had to check if shiftKey was held and then use the deltaY on the scrollLeft.
-
-====
-
-No, it does not work identically across all operating systems due to how different platforms handle standard computer mice with a single, vertical scroll wheel.
-Your recollection...
-*/
 
     // 1. If Shift is held and there's no native deltaX, 
     //    use deltaY to drive horizontal scrolling (Linux standard mouse fix)

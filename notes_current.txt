@@ -682,3 +682,7 @@ I spent a long time trying to write a C# parser during a time in my life where I
 And I think I have GC trauma that makes me overly sensitive to the concept of GC overhead.
 And I'm widdling that down with time.
 
+Like the extent that I lived out first hand seeing GC overhead, it creates an initial unhealthy relationship.
+I need GC therapy.
+Dealing with text when you're completely clueless, GC go brrr
+

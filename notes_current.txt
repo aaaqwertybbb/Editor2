@@ -582,3 +582,23 @@ function EDI_cursorBlink_trailingEdge(timestamp) {
 specifically what I see is 'INTS[fEDI_EDI_cursorBlinkLastTimestamp] = 0;' causing an "infinite loop"
 no wait nvm I'm just exhausted lol
 
+
+...
+...
+...
+...
+
+
+>
+I feel like this is an extremely weird event log. Why are there so many paint events and most are 'layer root #document?'
+(dev tools > rendering tool > event log tab > check only 'painting', I provided an image in this prompt)
+
+
+<
+This Event Log is highly abnormal for a text editor and exposes exactly why your optimizations are being completely ignored.
+|
+The fact that you see a massive sequence of Paint events every 16–17 milliseconds (matching a standard 60Hz display frame rate), all explicitly targeted at the Layer root:
+#document, means your application is trapped in a Global Repaint Loop.
+
+
+

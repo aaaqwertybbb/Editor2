@@ -31,3 +31,16 @@ causing the full-text green paint flash you've been fighting.
 <
 To keep the text cached perfectly on the GPU, your cursor blinking and focus logic should never touch class names.
 Instead, it should mutate composite-only properties directly on the element's style object.
+
+...
+
+<
+Instead of adding and removing the class to stop and start the blinker, leave the .EDI_cursor_focus class on the cursor element permanently.
+|
+To control whether the cursor is actively blinking or frozen solid, use the highly optimized composite property animationPlayState.
+Toggling this property stays entirely on the GPU composite track and never forces a document style or paint invalidation.
+
+
+
+
+

@@ -701,4 +701,6 @@ and you learn things in a really awkward way". Like you gotta pace yourself and 
 
 And heap defragmentation get them super squished up you're good to go forget the swiss cheese
 
+=======
 
+I'm very pleased with my life I'm just commenting on the odd typed array usage and other GC oddities in the code.

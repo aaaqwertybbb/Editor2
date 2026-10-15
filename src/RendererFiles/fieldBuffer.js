@@ -86,6 +86,8 @@ set_EDI_recentBoundingClientRect_isNull_intFalsey(1);
 const get_EDI_findOverlay_show = () => BYTES[2];
 const set_EDI_findOverlay_show = (byte) => BYTES[2] = byte;
 
+const byteEDI_editorHasFocus = 3;
+
 /** returns a number, beware '===' */
 const get_EDI_fileStartsWithBom = () => BYTES[4];
 const set_EDI_fileStartsWithBom = (byte) => BYTES[4] = byte;

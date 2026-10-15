@@ -134,6 +134,8 @@ module.exports = function (babel) {
     "fEDI_lineEndPositionList_capacity",
     "fEDI_lineEndPositionList_count",
 
+    "byteEDI_editorHasFocus",
+
     "byteEDI_queueHead",
     "byteEDI_queueTail",
     "BUFFER_SIZE",

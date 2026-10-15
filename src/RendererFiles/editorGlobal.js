@@ -6131,7 +6131,8 @@ function EDI_draw_cursor_debug() {
 
     text += ' | (' + INTS[fEDI_longestLine_indexLine] + ', ' + INTS[fEDI_longestLine_length] + ')';
 
-    EDI_debug.replaceChildren(text);
+    const textNode = EDI_debug.firstChild;
+    textNode.replaceData(0, textNode.length, text);
 }
 
 /**
@@ -6360,8 +6361,11 @@ function EDI_cursorBlink_trailingEdge(timestamp) {
     const time = timestamp - INTS[fEDI_EDI_cursorBlinkLastTimestamp];
     if (time >= 500) {
         BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] = 0;
-        // TODO: This is a timing issue of the rAF vs you losing focus on the editor.
-        EDI_cursor_cursorElement.classList.add('EDI_cursor_focus');
+        if (BYTES[byteEDI_editorHasFocus]) {
+            // TODO: This is a timing issue of the rAF vs you losing focus on the editor (if you blur, this trailing edge doesn't get cancelled at the moment.)...
+            // ...^ 'if (BYTES[byteEDI_editorHasFocus])' is the fix but you need to confirm if this works before you remove the TODO and this line of the comment.
+            EDI_cursor_cursorElement.style.animationPlayState = 'running';
+        }
         EDI_draw_cursor_debug();
         INTS[fEDI_EDI_cursorBlinkLastTimestamp] = 0;
     }
@@ -6372,7 +6376,15 @@ function EDI_cursorBlink_trailingEdge(timestamp) {
 
 function EDI_cursorBlink_startChecking() {
     BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] = 1;
-    EDI_cursor_cursorElement.classList.remove('EDI_cursor_focus');
+
+    EDI_cursor_cursorElement.style.animationPlayState = 'paused';
+    //EDI_cursor_cursorElement.style.opacity = '1';
+    // 2. FORCE the animation timeline back to 0 (the solid visible frame)
+    const animations = EDI_cursor_cursorElement.getAnimations();
+    if (animations.length > 0) {
+        animations[0].currentTime = 0; // Instantly snaps the blink track back to 0%, making it 100% visible
+    }
+
     requestAnimationFrame(EDI_cursorBlink_trailingEdge);
 }
 
@@ -6602,11 +6614,11 @@ function EDI_hideTooltip() {
 }
 
 function EDI_onfocus() {
-    EDI_cursor_cursorElement.classList.add('EDI_cursor_focus');
+    BYTES[byteEDI_editorHasFocus] = 1;
 }
 
 function EDI_onblur() {
-    EDI_cursor_cursorElement.classList.remove('EDI_cursor_focus');
+    BYTES[byteEDI_editorHasFocus] = 0;
 }
 
 //// Find-All for "EDI_debug_optimization" to find all the commented out logic that was related to this.

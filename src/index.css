@@ -508,13 +508,8 @@ TODO: maybe don't nearly-duplicate these classes.
   position: absolute;
   left: 0;
   top: 0;
-
-  opacity: 1;
-  will-change: opacity;
+  will-change: transform, opacity;
   contain: strict;
-}
-
-.EDI_cursor_focus {
   animation: blink-animation 1s linear infinite;
 }
 

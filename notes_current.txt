@@ -678,5 +678,7 @@ But I was also thinking that a JavaScript object was being made behind the scene
 But it seems to just pass the numbers back and forth from JavaScript to C++ / vice versa
 
 
-
+I spent a long time trying to write a C# parser during a time in my life where I had like 0 understanding of GC.
+And I think I have GC trauma that makes me overly sensitive to the concept of GC overhead.
+And I'm widdling that down with time.
 

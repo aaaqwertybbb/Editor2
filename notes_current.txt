@@ -343,3 +343,18 @@ Now that the macro-task allocations are truly stripped down to zero:
 - Would you like to check how this heartbeat strategy interacts with your main editor frame scrolling updates?
 - If you run a quick test with this setup, does the paint flashing tool remain completely dark while typing?
 
+
+>
+Which way is the gold standard for text editors?
+
+
+<
+The absolute gold standard for production-grade text editors (like VS Code/Monaco and Sublime Text) is not to use setInterval or setTimeout loop patterns at all.
+Instead, they rely on pure asynchronous macro-task debouncing via a clearable setTimeout logic branch.
+|
+...
+
+
+
+
+

@@ -686,3 +686,8 @@ Like the extent that I lived out first hand seeing GC overhead, it creates an in
 I need GC therapy.
 Dealing with text when you're completely clueless, GC go brrr
 
+
+I'd say it's the exact reason you see me using the INTS and BOOLS typed arrays.
+And I get so annoyed because it's like you don't know what I've seen.
+I'm trying to come to terms with the reality of GC overhead.
+And I'm just working my way through it slowly maybe one day they'll be gone entirely.

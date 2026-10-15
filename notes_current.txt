@@ -540,7 +540,16 @@ And "how do you update the debug text without painting the editor" still isn't s
 
 ...
 ...
+
+
+>
+maybe: is it painting over and over so quickly that the paint flash never fades? I look at the layer tool visualization and it is flickering constantly during the debounce.
+
+
+<
 ...
+
+
 ...
 
 >

@@ -704,3 +704,9 @@ And heap defragmentation get them super squished up you're good to go forget the
 =======
 
 I'm very pleased with my life I'm just commenting on the odd typed array usage and other GC oddities in the code.
+
+Back in the day when I had the original "IDE".
+My gen 2 was hitting world records.
+I stored the parsed tree for EVERY file in my dogfooded IDE.
+My computer one day started sounding like there was a truck parked in my room.
+The fan was going crazy and needed to be replaced.

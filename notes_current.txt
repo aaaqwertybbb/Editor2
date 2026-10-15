@@ -47,8 +47,22 @@ Toggling this property stays entirely on the GPU composite track and never force
 // 1. INSIDE YOUR NAVIGATION HANDLER (When an arrow key is pressed):
 // Freeze the animation instantly so the cursor remains solid while moving
 EDI_cursor_cursorElement.style.animationPlayState = 'paused';
-EDI_cursor_cursorElement.style.opacity = '1'; // Ensures it freezes visibly
 
+// /* this line of code doesn't work */ EDI_cursor_cursorElement.style.opacity = '1'; // Ensures it freezes visibly
+//
+// >
+// Sometimes when I run ... the cursor ends up invisible?
+//
+// <
+// ...
+// When you set style.animationPlayState = 'paused', the browser freezes the animation at whatever exact percentage frame it was on during that millisecond.
+// If the animation was on a frame where opacity was 0 (the invisible phase of the blink), setting style.opacity = '1' right next to it gets overridden
+// because active CSS keyframes have a higher style cascade priority than standard inline style assignments in many browser rendering states.
+//
+const animations = EDI_cursor_cursorElement.getAnimations();
+if (animations.length > 0) {
+    animations[0].currentTime = 0; // Instantly snaps the blink track back to 0%, making it 100% visible
+}
 
 // 2. INSIDE YOUR TRAILING EDGE FUNCTION (When movement stops):
 function EDI_cursorBlink_trailingEdge(timestamp) {

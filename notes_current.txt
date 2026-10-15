@@ -447,3 +447,80 @@ Now that the timer mechanics are clear, let me know
 - Does adopting the Clear/Set strategy finally eliminate that stubborn green paint flashing box when you stop moving the cursor?
 - Are you ready to look at how virtualized text line recycling behaves when scrolling up and down the file?
 
+===============
+
+>
+This is all very confusing. I messed around with exactly what I chose to comment out, and what impact it had on the paint flashing lasting the entire length of the debounce or not.
+|
+The following code at the bottom of this does not have a lasting paint flash. All I have to do is comment out the animation logic, and at that point you get a lasting paint flash.
+|
+```javascript
+function EDI_cursorBlink_trailingEdge(timestamp) {
+    const time = timestamp - INTS[fEDI_EDI_cursorBlinkLastTimestamp];
+    if (time >= 3500) {
+        BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] = 0;
+        //if (BYTES[byteEDI_editorHasFocus]) {
+        //    EDI_cursor_cursorElement.style.animationPlayState = 'running';
+        //}
+        EDI_draw_cursor_debug();
+        INTS[fEDI_EDI_cursorBlinkLastTimestamp] = 0;
+    }
+    else {
+        requestAnimationFrame(EDI_cursorBlink_trailingEdge);
+    }
+}
+
+function EDI_cursorBlink_startChecking() {
+    BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] = 1;
+
+    EDI_cursor_cursorElement.style.animationPlayState = 'paused';
+    const animations = EDI_cursor_cursorElement.getAnimations();
+    if (animations.length > 0) {
+        animations[0].currentTime = 0; // Instantly snaps the blink track back to 0%, making it 100% visible
+    }
+
+    requestAnimationFrame(EDI_cursorBlink_trailingEdge);
+}
+```
+
+
+<
+It makes complete sense why this is confusing, but your discovery finally reveals the exact mechanism behind the ghost green rectangle.
+|
+When you comment out the animation logic, you create a silent loop fight between your requestAnimationFrame countdown and Chromium’s hardware rendering path.
+Here is precisely what is happening under the hood:
+|
+The Secret: will-change: opacity, transform is a Promise
+|
+In your CSS, you added will-change: opacity, transform; to the cursor. This tells Chromium:
+"Keep this element on its own isolated GPU layer because its visual state is going to change constantly."
+|
+Chromium honors that promise. However, when you comment out the animation manipulation logic (style.animationPlayState = 'paused' and currentTime = 0),
+the CSS animation continues to run in the background. Your code then boots up a requestAnimationFrame loop that checks timestamps every single frame.
+|
+Because requestAnimationFrame tells the browser "I am about to mutate the visual tree on the next frame," Chromium is forced to keep the cursor's GPU layer active, open, and alert.
+Combined with the background CSS keyframe animation ticking away, the browser marks that layer as continuously dirty.
+The Paint Flashing tool detects this perpetual layer-readiness state and keeps the green highlight turned on for the entire duration of the loop.
+|
+Why Putting the Animation Logic Back In Fixes It
+|
+When you leave the animation code uncommented:
+1. style.animationPlayState = 'paused' and currentTime = 0 execute immediately.
+2. This instantly freezes the cursor's visual state on the GPU. The graphics card now knows with 100% certainty that the pixels on that layer are locked solid and static.
+3. Even though requestAnimationFrame is still looping in the background checking numbers, Chromium realizes no actual visual properties are being modified on the cursor layer.
+4. Because the layer is frozen, the rendering engine skips repainting it entirely. The paint flashing box turns off.
+|
+The Key Takeaway
+|
+Your test proves that Chromium is smart enough to optimize away a requestAnimationFrame loop if the underlying DOM elements are completely frozen.
+|
+The fact that the green paint flashing box disappears when your animation logic is left active means your GPU isolation is working exactly as intended.
+The browser successfully locks down the layer, stops painting it during the countdown, and only flashes green once at the very end when EDI_draw_cursor_debug() replaces the text node.
+|
+Now that you've isolated exactly how the browser behaves when the animation is frozen:
+- When the animation code is active, does the editor run smoothly without any noticeable lag or stuttering?
+- Are you ready to see how this setup handles scrolling through lines of code, or do you want to clean up the rAF loop into a setTimeout to see if it lowers CPU usage even further?
+
+
+
+

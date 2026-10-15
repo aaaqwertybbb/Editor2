@@ -407,12 +407,43 @@ By using this approach alongside your optimized contain: strict;, will-change: t
 - While Typing: The engine ignores the DOM updates completely and handles cursor repositioning purely on isolated GPU tracks.
 - When Stopping: It updates the text node exactly once.
 - When Idle: Your app consumes exactly zero clock cycles, matching the behavior of premium native editors.
-
+|
 If you want to move forward with the production standard, let me know:
 - Does adopting this Clear/Set lifecycle clear up the frozen green paint flash box during your cursor pauses?
 - Are you ready to dive into the next performance layer, like how virtualized text scrolling line recycling interacts with these layers?
 
 
+>
+That is to say they use a debounce strategy of '1. Destructive (Clear/Set)' which is the slowest version?
 
 
+<
+Yes, exactly. It sounds counterintuitive, but the production gold standard relies on the "Destructive (Clear/Set)" approach because it prioritizes energy efficiency and
+idle battery consumption over micro-optimizations of the JavaScript engine.
+|
+While it is technically the "slowest" strategy in terms of pure CPU operations during the exact millisecond you press a key, that overhead is practically invisible to the user.
+|
+Why "Slowest" in JavaScript is "Fastest" in a Desktop App
+1. Macro-tasks are Cheaper than Repaints: Registering or canceling a setTimeout handle inside Chromium's underlying C++ event loop takes less than 0.01 milliseconds.
+   Compared to a DOM style recalculation or a canvas repaint (which takes 2.0 to 16.0+ milliseconds), the event loop cost of clearTimeout is a rounding error.
+2. The "Idle Until Urgent" Principle: A text editor is not a video game. A video game needs a game loop running constantly at 60+ frames per second to update physics and rendering trees.
+   A text editor spends 95% of its life sitting completely idle while a human stares at the screen thinking about what to type next.
+3. Battery & OS Sleep Integration: If you use a persistent setInterval or polling watchdog loop, your Electron app continuously tells the operating system's kernel:
+   "Hey, wake up the CPU core every 200ms, I have JavaScript to run."
+   This prevents the CPU from entering deep low-power sleep states (C-states), causing laptop batteries to drain rapidly and forcing cooling fans to spin up.
+|
+How Premium Editors Look at the Trade-off
+|
+Production engines like VS Code make a deliberate choice:
+- When the user is typing furiously: They accept a microscopic, imperceptible tax on the event loop (destroying and recreating one timer handle per keystroke).
+  In exchange, they keep the UI execution lane clear by postponing all heavy text layout changes until typing stops.
+- When the user stops typing: The timer fires exactly once, runs the payload, and destroys itself. The application immediately drops down to 0% CPU usage,
+  consuming absolutely no power or processing cycles.
+
+By choosing this pattern alongside your contain: strict;, will-change: transform;, and direct GPU animation manipulation,
+your editor achieves the exact same performance profile as native elite applications.
+
+Now that the timer mechanics are clear, let me know
+- Does adopting the Clear/Set strategy finally eliminate that stubborn green paint flashing box when you stop moving the cursor?
+- Are you ready to look at how virtualized text line recycling behaves when scrolling up and down the file?
 

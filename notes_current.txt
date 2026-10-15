@@ -699,4 +699,6 @@ and you learn things in a really awkward way". Like you gotta pace yourself and 
 "my app is slow cause the Smis are causing excess GC overhead due to creating a root node that the GC has to check and confirm is indeed a primitive
  so I'm gonna put like 100 Smis in this uint32array"
 
+And heap defragmentation get them super squished up you're good to go forget the swiss cheese
+
 

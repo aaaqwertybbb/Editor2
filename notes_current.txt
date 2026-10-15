@@ -92,11 +92,28 @@ The Fix: Completely Decouple Debug Updates from the Blink Cycle
 
 ...
 ...
+
+>
+It's extremely strange. I commented out the animation modifications to test whether that was the issue before I moved code around.
+|
+And now, for the entire duration of my debounce, a single "event" of the "paint flashing" from the dev tools "rendering" tool sits there the entire duration.
+
+
+<
+That persistent green rectangle means Chromium is trapped in an active compositor update loop for the entire duration of your debounce timer.
+|
+When you use the DevTools Paint Flashing tool, a green rectangle lights up whenever pixels change. If the green box stays lit continuously rather than
+flashing once and turning off, it means the browser is continuously rerendering or invalidating that layer on every single
+frame of your requestAnimationFrame loop.
+
+
 ...
 ...
 
-> I am completely open to doing this change. And to me it even makes more sense. But I am confused. Originally I did a timeout based debounce.
-> I believe specifically I did what is called a coallesced debounce. And then in the past you saw that and told me use a rAF debounce.
+>
+I am completely open to doing this change. And to me it even makes more sense. But I am confused. Originally I did a timeout based debounce.
+I believe specifically I did what is called a coallesced debounce. And then in the past you saw that and told me use a rAF debounce.
+
 
 <
 ```javascript

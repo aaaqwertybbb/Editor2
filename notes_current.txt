@@ -602,3 +602,42 @@ The fact that you see a massive sequence of Paint events every 16–17 milliseco
 
 *sigh*
 
+
+====
+
+
+>
+What are your thoughts on requestAnimationFrame (I have an example of this at the bottom of the prompt) debouncing versus setTimeout?
+|
+function EDI_render_do_ScrollTrailingEdgeCheck(timestamp) {
+    if (timestamp < INTS[fEDI_scrollEndDeadline]) {
+        requestAnimationFrame(EDI_render_do_ScrollTrailingEdgeCheck);
+        return;
+    }
+
+    EDI_onScroll_TrailingEdge();
+}
+
+
+<
+For a high-performance Electron text editor, using requestAnimationFrame (rAF) is the superior pattern,
+but your current implementation functions more like a polling loop rather than a true debounce.
+Here is a breakdown of how requestAnimationFrame compares to setTimeout for this specific use case, and how to optimize it.
+...
+<
+The Solution: A True rAF Debounce Pattern
+```javascript
+let scrollTimeoutId = null;
+function EDI_onScroll_EventHandler() {
+    // 1. Immediately cancel the pending trailing-edge timeout
+    clearTimeout(scrollTimeoutId);
+
+    // 2. Set a fresh timeout for the trailing edge
+    scrollTimeoutId = setTimeout(() => {
+        // 3. The time has elapsed! Now schedule the visual update on the next animation frame
+        requestAnimationFrame(EDI_onScroll_TrailingEdge);
+    }, 100); // Your scroll end threshold (e.g., 100ms)
+}
+```
+
+

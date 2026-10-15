@@ -710,3 +710,5 @@ My gen 2 was hitting world records.
 I stored the parsed tree for EVERY file in my dogfooded IDE.
 My computer one day started sounding like there was a truck parked in my room.
 The fan was going crazy and needed to be replaced.
+
+The battery was EXTREMELY puffy too like on the verge of exploding

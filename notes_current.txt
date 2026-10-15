@@ -657,6 +657,13 @@ TODO: fix these functions
 - [ ] EXPLORER_render_do_ScrollTrailingEdgeCheck
 
 
+>
+Does setTimeout allocate an object in JavaScript that needs to be garbage collected? It returns a number only from what I can tell.
+I think that's the main way I'd wrap my head around things: that setTimeout doesn't have high GC overhead.
 
 
-
+<
+...
+1. The JavaScript Side (Zero Heap Overhead)
+...
+2. The Native Engine Side (Chromium's C++ Timer Queue)

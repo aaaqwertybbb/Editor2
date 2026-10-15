@@ -375,22 +375,42 @@ TODO: maybe don't nearly-duplicate these classes.
 }
 
 #EDI_debug {
-  height: 1.5em;
+  /* 1. Pulls it completely out of the shared document flow */
+  position: absolute; 
+  bottom: 0;
+  left: 0;
+
+  /* 2. CRITICAL: Explicit, static dimensions so contain: size validates */
+  width: 100vw;       /* Stretches safely across the view width */
+  height: 1.5em;      /* Explicitly locks down the height container */
+  
   font-family: monospace;
+  overflow: hidden;
+
+  /* 3. Validates perfectly because dimensions are absolute and static */
+  contain: strict; 
+
+  will-change: transform;
 }
 
-#EDITOR {
+#EDITOR_anchor {
   outline: none;
   height: calc(100% - 1.5em);
+  position: relative; /* Acts as the absolute coordinate root for the child */
+  display: flex;
+  flex: 1;
+  /* NO containment rules here; let flexbox dynamically calculate the size */
+}
+
+#EDITOR_inner_container {
+  position: absolute;
+  inset: 0;             /* Locks width and height to 100% of the resolved anchor size */
   overflow: hidden;
-  position: relative;
   font-family: monospace;
   cursor: text;
-  display: flex;
-  /* 1. Ensure it occupies its own discrete space next to the treeview */
-  flex: 1;
-  /* will-change: transform; */
-  /* background-color: var(--primary-background-color); */
+  
+  /* CRITICAL: Now that geometry is mathematically precise, the browser blocks 
+     any inner layouts or paints from escaping this bounding box. */
   contain: strict;
 }
 
@@ -472,6 +492,7 @@ TODO: maybe don't nearly-duplicate these classes.
   tab-size: 4;
 
   contain: strict;
+  /* will-change: transform; */
 }
 
 #EDI_text {

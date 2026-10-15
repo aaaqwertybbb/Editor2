@@ -18,3 +18,16 @@ which will severely degrade performance as file sizes grow.
 When Chromium reads your CSS, it validates the containment rules. For contain: strict (which includes contain: size),
 the specification explicitly mandates that the element's width and height must be resolvable independent of its contents and layout environment.
 Because your rules rely on fluid flexbox values, it fails validation.
+
+...
+
+<
+Because your cursor sits nested within the text view structure, adding that class forces a global style invalidation cascade from the cursor node all
+the way up through #EDI_text to the layout root. This invalidation drops the engine out of its optimized GPU layer caches and recalculates everything,
+causing the full-text green paint flash you've been fighting.
+
+...
+
+<
+To keep the text cached perfectly on the GPU, your cursor blinking and focus logic should never touch class names.
+Instead, it should mutate composite-only properties directly on the element's style object.

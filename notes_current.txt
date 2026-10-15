@@ -646,3 +646,5 @@ I bought it cause it wasn't creating a macroTask so I was like okay maybe it isn
 I say "seemingly invented"
 because now they're gaslighting me lol?
 
+I had the setTimeout logic originally they told me to do the burn cpu rAF thing as they now are saying
+

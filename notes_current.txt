@@ -522,5 +522,17 @@ Now that you've isolated exactly how the browser behaves when the animation is f
 - Are you ready to see how this setup handles scrolling through lines of code, or do you want to clean up the rAF loop into a setTimeout to see if it lowers CPU usage even further?
 
 
+>
+What causes the most confusion for me is the two overlapping goals.
+|
+I think I want to ignore the debounce changes because I'm not satisfied until the debounce stops touching the editor entirely.
+|
+That is to say, there's two problems going on.
+- debounce optimally
+- how do you update the debug text without painting the editor
+|
+And "how do you update the debug text without painting the editor" still isn't solved even if I comment out the animation?
 
 
+<
+...

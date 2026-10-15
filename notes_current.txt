@@ -40,6 +40,33 @@ Instead of adding and removing the class to stop and start the blinker, leave th
 To control whether the cursor is actively blinking or frozen solid, use the highly optimized composite property animationPlayState.
 Toggling this property stays entirely on the GPU composite track and never forces a document style or paint invalidation.
 
+...
+
+<
+```javascript
+// 1. INSIDE YOUR NAVIGATION HANDLER (When an arrow key is pressed):
+// Freeze the animation instantly so the cursor remains solid while moving
+EDI_cursor_cursorElement.style.animationPlayState = 'paused';
+EDI_cursor_cursorElement.style.opacity = '1'; // Ensures it freezes visibly
+
+
+// 2. INSIDE YOUR TRAILING EDGE FUNCTION (When movement stops):
+function EDI_cursorBlink_trailingEdge(timestamp) {
+    const time = timestamp - INTS[fEDI_EDI_cursorBlinkLastTimestamp];
+    if (time >= 2500) {
+        BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] = 0;
+        
+        // Unfreeze the animation track without changing classes!
+        EDI_cursor_cursorElement.style.animationPlayState = 'running';
+        
+        EDI_draw_cursor_debug();
+        INTS[fEDI_EDI_cursorBlinkLastTimestamp] = 0;
+    }
+    else {
+        requestAnimationFrame(EDI_cursorBlink_trailingEdge);
+    }
+}
+```
 
 
 

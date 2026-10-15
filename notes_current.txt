@@ -600,5 +600,5 @@ This Event Log is highly abnormal for a text editor and exposes exactly why your
 The fact that you see a massive sequence of Paint events every 16–17 milliseconds (matching a standard 60Hz display frame rate), all explicitly targeted at the Layer root:
 #document, means your application is trapped in a Global Repaint Loop.
 
-
+*sigh*
 

@@ -11,3 +11,10 @@ The gutter does not flash, but all the text on screen for some reason does. This
 <
 Based on the green boxes highlighting your code, your editor is suffering from full-text repaints on every cursor movement,
 which will severely degrade performance as file sizes grow.
+
+...
+
+<
+When Chromium reads your CSS, it validates the containment rules. For contain: strict (which includes contain: size),
+the specification explicitly mandates that the element's width and height must be resolvable independent of its contents and layout environment.
+Because your rules rely on fluid flexbox values, it fails validation.

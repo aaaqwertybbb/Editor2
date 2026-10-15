@@ -667,6 +667,9 @@ I think that's the main way I'd wrap my head around things: that setTimeout does
 1. The JavaScript Side (Zero Heap Overhead)
 ...
 2. The Native Engine Side (Chromium's C++ Timer Queue)
+...
+3. The Only Catch: Closures (Where GC Can Happen)
+...
 
 
 I don't know the more I think about it the more I think it makes sense.

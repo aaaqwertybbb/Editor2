@@ -641,3 +641,8 @@ function EDI_onScroll_EventHandler() {
 ```
 
 
+For context, Google AI seemingly invented this concept of a "rAF debounce" where you burn the CPU.
+I bought it cause it wasn't creating a macroTask so I was like okay maybe it isn't as bad.
+I say "seemingly invented"
+because now they're gaslighting me lol?
+

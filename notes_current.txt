@@ -83,5 +83,9 @@ function EDI_cursorBlink_trailingEdge(timestamp) {
 ```
 
 
-
-
+<
+Because Chromium batches style updates and paints into a single microtask frame, updating the debug text node right as the animation state is
+altered causes the browser to merge both rendering pipelines. The compositor flattens the rendering tree updates together,
+leaking paint invalidations right back across your editor canvas.
+|
+The Fix: Completely Decouple Debug Updates from the Blink Cycle

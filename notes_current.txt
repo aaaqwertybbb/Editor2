@@ -1,1 +1,13 @@
 I just finished updating my private notes I'm gonna update these too.
+
+=====
+
+>
+In reference to 'Dynamic Editor Components'. If I go to the 'Rendering' tool. And then turn on the checkbox for 'paint flashing'.
+The gutter does not flash, but all the text on screen for some reason does. This is what it looks like when I move just the cursor.
+(I provided a very small low resolution image)
+
+
+<
+Based on the green boxes highlighting your code, your editor is suffering from full-text repaints on every cursor movement,
+which will severely degrade performance as file sizes grow.

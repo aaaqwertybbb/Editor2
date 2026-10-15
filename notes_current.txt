@@ -145,8 +145,21 @@ function EDI_handleCursorMove() {
 ```
 
 
-
-
+>
+If I'm going to change the code to the setTimeout version. I want to make sure that I'm not just spinning my wheels but instead making progress and
+doing something I haven't done yet -- that I'm learning something from the code change.
+|
+That is to say, there seems to be a few ways to "get debounce behavior" when using 'setTimeout'.
+|
+But I want to understand every way of doing so, and furthermore what the fastest most optimal ways are.
+|
+'clearTimeout' each keypress was not good cause you're stopping a timeout and I think you used the words "setTimeout is a (something) task?".
+|
+So then I went for "coallesced" debouncing which I let the debounce run for 2500ms but inside the function invoked by the setTimeout I have an
+if statement that checks a timestamp of when the last event was. If the timestamp is too recent it invoked 'setTimeout' again with the same function.
+This means every 2500ms you are making the '(something) event' rather than every keystroke.
+|
+I presume I can go even further and just keep re-using the same setTimeout?
 
 
 

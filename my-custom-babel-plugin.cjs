@@ -133,6 +133,7 @@ module.exports = function (babel) {
     "fEDI_textByteList_count",
     "fEDI_lineEndPositionList_capacity",
     "fEDI_lineEndPositionList_count",
+    "fEDI_cursorBlinkingTrailingEdgeTimeoutId",
 
     "byteEDI_editorHasFocus",
 

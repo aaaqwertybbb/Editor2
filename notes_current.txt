@@ -649,7 +649,7 @@ because now they're gaslighting me lol?
 I had the setTimeout logic originally they told me to do the burn cpu rAF thing as they now are saying
 
 
-TODO: figure out a way to measure the impact of (rAF CPU poll) vs (cancelTimeout+setTimeout) vs (setTimeout coallesced)
+TODO: figure out a way to measure the impact of (rAF CPU poll) vs (clearTimeout+setTimeout) vs (setTimeout coallesced)
 TODO: fix these functions
 - [ ] AUTOCOMPLETE_events_scroll_render_trailingEdgeCheck
 - [ ] EDI_render_do_ScrollTrailingEdgeCheck
@@ -716,8 +716,8 @@ function EDI_drawCursor(timestamp, NOTscrollCursorIntoView) {
     }
 
     if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
-        // Why track "isChecking_..." anymore if you're doing this cancelTimeout logic?
-        // Because the assumption is that I was wrong about how expensive 'cancelTimeout' and 'setTimeout' were
+        // Why track "isChecking_..." anymore if you're doing this clearTimeout logic?
+        // Because the assumption is that I was wrong about how expensive 'clearTimeout' and 'setTimeout' were
         // with respect to when the timeout doesn't end up being executed due to repeatedly setting and cancelling over and over.
         //
         // That is not to say however that my modifications to the UI are not expensive.
@@ -736,8 +736,8 @@ function EDI_drawCursor(timestamp, NOTscrollCursorIntoView) {
     // And maybe there is more to it than just an 'id' on the JavaScript side of things but I'm just modifying my assumptions a bit
     // based on new knowledge I've gained and seeing where it leads.
     //
-    cancelTimeout(cursorBlinkingTrailingEdgeTimeoutId);
-    cursorBlinkingTrailingEdgeTimeoutId = setTimeout(cursorBlinkingTrailingEdge);
+    clearTimeout(cursorBlinkingTrailingEdgeTimeoutId);
+    cursorBlinkingTrailingEdgeTimeoutId = setTimeout(cursorBlinkingTrailingEdge, 500);
 }
 
 function cursorBlinkingTrailingEdge() {

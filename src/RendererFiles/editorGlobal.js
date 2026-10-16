@@ -2853,10 +2853,6 @@ function EDI_editEvent(editKind, event, clipboardContent) {
         default:
             throw new Error(`The EditKind:${editKind} was not recognized.`);
     }
-
-    if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
-        EDI_cursorBlink_startChecking();
-    }
 }
 
 function EDI_editEvent_theEditIself_InsertLtr(event) {
@@ -5605,9 +5601,6 @@ function EDI_onKeyDown_ArrowLeft(event) {
     }
     INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
     EDI_render_request(RenderKind_Cursor_n);
-    if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
-        EDI_cursorBlink_startChecking();
-    }
 }
 
 /** @returns {boolean} whether invoking function ought to return */
@@ -5633,9 +5626,6 @@ function EDI_onKeyDown_ArrowDown(event) {
         EDI_postKeyboardMovementSelectionLogic(event.shiftKey);
 
         EDI_render_request(RenderKind_Cursor_n);
-        if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
-            EDI_cursorBlink_startChecking();
-        }
     }
     return false;
 }
@@ -5662,9 +5652,6 @@ function EDI_onKeyDown_ArrowUp(event) {
         }
         EDI_postKeyboardMovementSelectionLogic(event.shiftKey);
         EDI_render_request(RenderKind_Cursor_n);
-        if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
-            EDI_cursorBlink_startChecking();
-        }
     }
     return false;
 }
@@ -5750,9 +5737,6 @@ function EDI_onKeyDown_ArrowRight(event) {
     }
     INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
     EDI_render_request(RenderKind_Cursor_n);
-    if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
-        EDI_cursorBlink_startChecking();
-    }
 }
 
 /** @returns {boolean} whether invoking function ought to return */
@@ -5785,9 +5769,6 @@ function EDI_onKeyDown_Home(event) {
     EDI_postKeyboardMovementSelectionLogic(event.shiftKey);
     INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
     EDI_render_request(RenderKind_Cursor_n);
-    if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
-        EDI_cursorBlink_startChecking();
-    }
     return false;
 }
 
@@ -5822,9 +5803,6 @@ function EDI_onKeyDown_End(event) {
     EDI_postKeyboardMovementSelectionLogic(event.shiftKey);
     INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
     EDI_render_request(RenderKind_Cursor_n);
-    if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
-        EDI_cursorBlink_startChecking();
-    }
     return false;
 }
 
@@ -5846,9 +5824,6 @@ function EDI_onKeyDown_PageDown(event) {
         // TODO: allow someone to select via this keybind, but for now it causes a bad selection if you { 'Ctrl' + 'a' } then use it so I'm clearing any active selection here for now.
         INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_cursor_selectionEnd];
         EDI_render_request(RenderKind_Cursor_n);
-        if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
-            EDI_cursorBlink_startChecking();
-        }
     }
 }
 
@@ -5870,9 +5845,6 @@ function EDI_onKeyDown_PageUp(event) {
         // TODO: allow someone to select via this keybind, but for now it causes a bad selection if you { 'Ctrl' + 'a' } then use it so I'm clearing any active selection here for now.
         INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_cursor_selectionEnd];
         EDI_render_request(RenderKind_Cursor_n);
-        if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
-            EDI_cursorBlink_startChecking();
-        }
     }
 }
 
@@ -5923,9 +5895,6 @@ async function EDI_onKeyDown_keyLengthEqualsOne_ctrlKey(event) {
             await EDI_copySelection();
             EDI_removeSelection();
             EDI_render_request(RenderKind_Cursor_n);
-            if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
-                EDI_cursorBlink_startChecking(); // TODO: this one is especially questionable since it invoked 'EDI_removeSelection' prior to the draw cursor?
-            }
             break;
         case 'v':
 
@@ -6087,6 +6056,30 @@ function EDI_drawCursor(timestamp, NOTscrollCursorIntoView) {
     if (!NOTscrollCursorIntoView) {
         EDI_scrollCursorIntoView();
     }
+
+    if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
+        // Why track "isChecking_..." anymore if you're doing this clearTimeout logic?
+        // Because the assumption is that I was wrong about how expensive 'clearTimeout' and 'setTimeout' were
+        // with respect to when the timeout doesn't end up being executed due to repeatedly setting and cancelling over and over.
+        //
+        // That is not to say however that my modifications to the UI are not expensive.
+        // So I don't want to change more than 1 variable at a time here.
+        //
+        BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] = 1;
+        EDI_cursor_cursorElement.style.animationPlayState = 'paused';
+        const animations = EDI_cursor_cursorElement.getAnimations();
+        if (animations.length > 0) {
+            animations[0].currentTime = 0; // Instantly snaps the blink track back to 0%, making it 100% visible
+        }
+    }
+    // The question comes down to what each stage of a setTimeout costs.
+    // Previously I assumed 'setTimeout' allocated an object somewhere in the JavaScript heap and that it'd trigger JS GC in some way and cause visual jank.
+    // Now I know it only allocates an object in C++, and the JavaScript to C++ (or vice versa) interactions are just done via the 'id'.
+    // And maybe there is more to it than just an 'id' on the JavaScript side of things but I'm just modifying my assumptions a bit
+    // based on new knowledge I've gained and seeing where it leads.
+    //
+    clearTimeout(INTS[fEDI_cursorBlinkingTrailingEdgeTimeoutId]);
+    INTS[fEDI_cursorBlinkingTrailingEdgeTimeoutId] = setTimeout(EDI_cursorBlinkingTrailingEdge, 500);
 
 /*
 - [ ] Further necessary details:
@@ -6347,45 +6340,15 @@ function EDI_createStyleForSelection_indentMore() {
     INTS[fEDI_cursor_DRAWN_selectionEnd] = INTS[fEDI_cursor_selectionEnd];
 }
 
-/**
- * Any code that wants to stop then start the cursor blinking again needs to:
- * - enqueue rAF for drawing the cursor
- * - *optional* check if statement for 'BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge]' to avoid redundant invocations of 'EDI_cursorBlink_startChecking'
- * - invoke 'EDI_cursorBlink_startChecking'
- * - downstream trigger the rAF for drawing the cursor wherein 'INTS[fEDI_EDI_cursorBlinkLastTimestamp]' gets set to the rAF timestamp.
- *     - or, modify some other part of the rAF pipeline (only if necessary) / etc...
- * 
- * NOTE: the draw cursor rAF needs to be enqueued prior to the 'EDI_cursorBlink_startChecking' invocation.
- */
-function EDI_cursorBlink_trailingEdge(timestamp) {
-    const time = timestamp - INTS[fEDI_EDI_cursorBlinkLastTimestamp];
-    if (time >= 500) {
-        BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] = 0;
-        if (BYTES[byteEDI_editorHasFocus]) {
-            // TODO: This is a timing issue of the rAF vs you losing focus on the editor (if you blur, this trailing edge doesn't get cancelled at the moment.)...
-            // ...^ 'if (BYTES[byteEDI_editorHasFocus])' is the fix but you need to confirm if this works before you remove the TODO and this line of the comment.
-            EDI_cursor_cursorElement.style.animationPlayState = 'running';
-        }
-        EDI_draw_cursor_debug();
-        INTS[fEDI_EDI_cursorBlinkLastTimestamp] = 0;
+function EDI_cursorBlinkingTrailingEdge() {
+    BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] = 0;
+    // TODO: does modifying animationPlayState benefit from rAF?
+    if (BYTES[byteEDI_editorHasFocus]) {
+        EDI_cursor_cursorElement.style.animationPlayState = 'running';
     }
-    else {
-        requestAnimationFrame(EDI_cursorBlink_trailingEdge);
-    }
-}
-
-function EDI_cursorBlink_startChecking() {
-    BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] = 1;
-
-    EDI_cursor_cursorElement.style.animationPlayState = 'paused';
-    //EDI_cursor_cursorElement.style.opacity = '1';
-    // 2. FORCE the animation timeline back to 0 (the solid visible frame)
-    const animations = EDI_cursor_cursorElement.getAnimations();
-    if (animations.length > 0) {
-        animations[0].currentTime = 0; // Instantly snaps the blink track back to 0%, making it 100% visible
-    }
-
-    requestAnimationFrame(EDI_cursorBlink_trailingEdge);
+    // TODO: (rAF) / it is possible that you paint more than the debug text due to combining that text modification with the same rAF frame...
+    // ...that updates something more directly related to the text editor itself (i.e.: if you group this text modification with modifying the 'animationPlayState').
+    EDI_draw_cursor_debug();
 }
 
 function EDI_scrollCursorIntoView() {
@@ -6904,9 +6867,6 @@ function EDI_onMouseDown(event) {
     if (rX < -1 * CONST_EDI_gutterPaddingRight) {
         set_EDI_detailRank(3);
         EDI_onMouseDownDetailRankThree(event.button, event.shiftKey, indexLine, indexColumn);
-        if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
-            EDI_cursorBlink_startChecking();
-        }
         return;
     }
 
@@ -6921,10 +6881,6 @@ function EDI_onMouseDown(event) {
     else {
         set_EDI_detailRank(1);
         EDI_onMouseDownDetailRankOne(event.button, event.shiftKey, indexLine, indexColumn, indexColumnVisual);
-    }
-
-    if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
-        EDI_cursorBlink_startChecking();
     }
 }
 
@@ -7194,10 +7150,6 @@ function EDI_onMouseMove_WRAPIT(event) {
         }
         else if (get_EDI_detailRank() === 1) {
             EDI_onMouseMoveDetailRankOne(indexLine, indexColumn, indexColumnVisual);
-        }
-
-        if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
-            EDI_cursorBlink_startChecking();
         }
     }
     else {

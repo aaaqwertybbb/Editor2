@@ -362,6 +362,8 @@ const fEDI_virtualCount = 5;
 const fEDI_ONSCROLLvirtualCount = 6;
 INTS[fEDI_ONSCROLLvirtualCount] = 0;
 
+const fEDI_cursorBlinkingTrailingEdgeTimeoutId = 7;
+
 const fEDI_drawn_count_of_digits_longest_line_number = 8;
 
 const fEDI_detail_smallPosition = 9;

@@ -6390,16 +6390,11 @@ function EDI_render_do_Resize() {
     let remember_virtualCount = INTS[fEDI_virtualCount];
     update_virtualCount();
     if (INTS[fEDI_virtualCount] !== remember_virtualCount) {
-        // Trigger scroll leading edge downstream
-        INTS[fEDI_intFalsey_isScrolling] = 0;
-
+        INTS[fEDI_intFalsey_isScrolling] = 0; // Trigger scroll leading edge downstream
         EDI_render_do_Scroll();
-        // # Redraw cursor selection virtualization
-        EDI_createStyleForSelection();
     }
 
     set_EDI_recentBoundingClientRect_isNull_intFalsey(1);
-
     EDI_drawHorizontalScrollbar();
 }
 

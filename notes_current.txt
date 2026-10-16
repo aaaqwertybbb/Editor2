@@ -691,3 +691,57 @@ Coallesce is just a longer poll delay
 I want the cursor trailing edge to only paint the "debug text"
 rather than what it currently does which ends up painting the editor's text too for some reason
 and possibly it is even causing the entire page to be painted
+
+```javascript
+let cursorBlinkingTrailingEdgeTimeoutId = 0; // setTimeout returns a number, but '0' is explicitly never returned, this keeps the variable monomorphic.
+
+function EDI_drawCursor(timestamp, NOTscrollCursorIntoView) {
+    const newY = INTS[fEDI_cursor_indexLine] * INTS[fEDI_lineHeight];
+    const newX = INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth;
+
+    if (newY !== INTS[fEDI_cursor_cursorTranslateYValue]) {
+        INTS[fEDI_cursor_cursorTranslateYValue] = newY;
+        EDI_cursor_caretRow.style.transform = `translateY(${newY}px)`;
+    }
+
+    if (newX !== EDI_cursor_cursorTranslateXValue) {
+        EDI_cursor_cursorTranslateXValue = newX;
+        EDI_cursor_cursorElement.style.transform = `translateX(${newX}px)`;
+    }
+
+    EDI_createStyleForSelection();
+
+    if (!NOTscrollCursorIntoView) {
+        EDI_scrollCursorIntoView();
+    }
+
+    if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
+        BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] = 1;
+        EDI_cursor_cursorElement.style.animationPlayState = 'paused';
+        const animations = EDI_cursor_cursorElement.getAnimations();
+        if (animations.length > 0) {
+            animations[0].currentTime = 0; // Instantly snaps the blink track back to 0%, making it 100% visible
+        }
+    }
+    // The question comes down to what each stage of a setTimeout costs.
+    // Previously I assumed 'setTimeout' allocated an object somewhere in the JavaScript heap and that it'd trigger JS GC in some way and cause visual jank.
+    // Now I know it only allocates an object in C++, and the JavaScript to C++ (or vice versa) interactions are just done via the 'id'.
+    // And maybe there is more to it than just an 'id' on the JavaScript side of things but I'm just modifying my assumptions a bit
+    // based on new knowledge I've gained and seeing where it leads.
+    //
+    cancelTimeout(cursorBlinkingTrailingEdgeTimeoutId);
+    cursorBlinkingTrailingEdgeTimeoutId = setTimeout(cursorBlinkingTrailingEdge);
+}
+
+function cursorBlinkingTrailingEdge() {
+    BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] = 0;
+    // TODO: does modifying animationPlayState benefit from rAF?
+    if (BYTES[byteEDI_editorHasFocus]) {
+        EDI_cursor_cursorElement.style.animationPlayState = 'running';
+    }
+    // TODO: it is possible that you paint more than the debug text due to combining that text modification with the same rAF frame...
+    // ...that updates something more directly related to the text editor itself (i.e.: if you group this text modification with modifying the 'animationPlayState').
+    EDI_draw_cursor_debug();
+}
+```
+

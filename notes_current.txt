@@ -746,3 +746,12 @@ I don't regret the time spent, I regret the idea of spending further time in the
 The worry of spending further time: it's a feeling of regret that literally makes me feel sick. Nostalgia, anxiety, fomo and it all leads into panic.
 (again only the idea of further time, I don't regret the time I spent, I learned a ton and enjoyed my time doing it)
 
+
+I told this "story" only once in a very early repo that is long gone. It was when I first started writing a vanilla JS version of the "IDE".
+
+During Wrath of the Lich King (anniversary I think they called it)
+I was the main tank of a guild.
+
+
+
+

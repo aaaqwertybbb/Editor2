@@ -642,12 +642,8 @@ function EDI_onScroll_LeadingEdge(local_prevVli, local_currVli) {
     return false;
 }
 
-/**
- * must set 'INTS[fEDI_intFalsey_isScrolling] = 0;' within this function.
- */
 function EDI_onScroll_TrailingEdge() {
     INTS[fEDI_intFalsey_isScrolling] = 0;
-    BYTES[byteisCheckingTrailingEdge] = 0;
     EDI_render_request(RenderKind_SyntaxHighlighting);
 }
 

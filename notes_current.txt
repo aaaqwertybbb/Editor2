@@ -770,14 +770,14 @@ I feel like I wanna go to sleep
 the cravings etc...
 
 
-byteisCheckingTrailingEdge
-fEDI_intFalsey_isScrolling
+- [x] byteisCheckingTrailingEdge
+- [ ] fEDI_intFalsey_isScrolling
 
-byteEXPLORER_isCheckingTrailingEdge
+- [ ] byteEXPLORER_isCheckingTrailingEdge
 
-byteAUTOCOMPLETE_isCheckingTrailingEdge
+- [ ] byteAUTOCOMPLETE_isCheckingTrailingEdge
 
-fEDI_EDI_cursorBlinkLastTimestamp
+- [x] fEDI_EDI_cursorBlinkLastTimestamp
 
 
 

@@ -165,9 +165,6 @@ const byteEDI_cursor_selectionDivExists = 30;
 
 const byteEDI_onResize_hasTrailingCall = 31;
 
-/** Also is used from 'EDI_render_do_SetText()', and 'EDI_render_do_Resize()', not just 'EDI_render_do_Scroll()' */
-const byteisCheckingTrailingEdge = 32;
-
 const byteisProcessingLspQueue = 33;
 
 const byteEDI_isRenderPending = 34;
@@ -521,8 +518,6 @@ const fEDI_ArrayFrom_textElement_children_length = 60;
 const fEDI_EDI_mouseOver_event_clientY = 61;
 
 const fEDI_EDI_mouseOver_event_clientX = 62;
-
-const fEDI_EDI_cursorBlinkLastTimestamp = 63;
 
 const fEXPLORER_render_do_ScrollTrailingEdgeCheckTimeoutId = 64;
 

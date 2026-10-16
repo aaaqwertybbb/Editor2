@@ -716,6 +716,13 @@ function EDI_drawCursor(timestamp, NOTscrollCursorIntoView) {
     }
 
     if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
+        // Why track "isChecking_..." anymore if you're doing this cancelTimeout logic?
+        // Because the assumption is that I was wrong about how expensive 'cancelTimeout' and 'setTimeout' were
+        // with respect to when the timeout doesn't end up being executed due to repeatedly setting and cancelling over and over.
+        //
+        // That is not to say however that my modifications to the UI are not expensive.
+        // So I don't want to change more than 1 variable at a time here.
+        //
         BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] = 1;
         EDI_cursor_cursorElement.style.animationPlayState = 'paused';
         const animations = EDI_cursor_cursorElement.getAnimations();

@@ -335,6 +335,7 @@ function EDI_clearHighlights(ringBufferIndexOfDiv) {
     }
 }
 
+/** TODO: This should grow or shrink when you resize, rather than the current behavior which recreates every single dom element. */
 function EDI_render_do_CreateViewport() {
 
     EDI_clearHighlights();

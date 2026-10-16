@@ -461,6 +461,9 @@ function EDI_scrollViewport_scroll() {
 */
 function EDI_render_do_Scroll(timestamp) {
 
+    clearTimeout(INTS[fEDI_render_do_ScrollTrailingEdgeCheckTimeoutId]);
+    INTS[fEDI_render_do_ScrollTrailingEdgeCheckTimeoutId] = setTimeout(EDI_onScroll_TrailingEdge, 200);
+
     // --- 2. THE FINE-GRAINED MOVE (The GPU trick) ---
     // Since your lines are virtualized, you only want to shift the text container 
     // by the tiny "sub-pixel remainder" of the scroll so it feels perfectly smooth.
@@ -590,12 +593,6 @@ function EDI_onScroll_LeadingEdge(local_prevVli, local_currVli) {
 
     INTS[fEDI_intFalsey_isScrolling] = 1;
 
-    // TODO: If you can prove that the leading edge or 'INTS[fEDI_intFalsey_isScrolling]' is "equivalent" to 'BYTES[byteisCheckingTrailingEdge]' then you can reduce the code here.
-    if (BYTES[byteisCheckingTrailingEdge] === 0) {
-        BYTES[byteisCheckingTrailingEdge] = 1;
-        requestAnimationFrame(EDI_render_do_ScrollTrailingEdgeCheck);
-    }
-
     EDI_finalizeEdit();
 
     // TODO: I'm fairly certain that this needs to go above 'INTS[fEDI_intFalsey_isScrolling] = 1;' at a minimum. (this is the only horizontal scroll short circuit to avoid vertical scroll logic from running)
@@ -645,15 +642,6 @@ function EDI_onScroll_LeadingEdge(local_prevVli, local_currVli) {
     }
 
     return false;
-}
-
-function EDI_render_do_ScrollTrailingEdgeCheck(timestamp) {
-    if (timestamp < INTS[fEDI_scrollEndDeadline]) {
-        requestAnimationFrame(EDI_render_do_ScrollTrailingEdgeCheck);
-        return;
-    }
-
-    EDI_onScroll_TrailingEdge();
 }
 
 /**
@@ -722,11 +710,8 @@ function EDI_render_do_SetText(timestamp) {
     INTS[fEDI_currVli] = INTS[fEDI_virtualIndexLine];
     INTS[fEDI_ONSCROLLvirtualIndexLine] = INTS[fEDI_virtualIndexLine];
 
-    INTS[fEDI_scrollEndDeadline] = timestamp + 1000;
-    if (BYTES[byteisCheckingTrailingEdge] === 0) {
-        BYTES[byteisCheckingTrailingEdge] = 1;
-        requestAnimationFrame(EDI_render_do_ScrollTrailingEdgeCheck);
-    }
+    clearTimeout(INTS[fEDI_render_do_ScrollTrailingEdgeCheckTimeoutId]);
+    INTS[fEDI_render_do_ScrollTrailingEdgeCheckTimeoutId] = setTimeout(EDI_onScroll_TrailingEdge, 200);
 }
 
 /**

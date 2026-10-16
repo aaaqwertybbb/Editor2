@@ -443,6 +443,8 @@ const fEDI_cursor_STORED_visualWidth = 29;
 
 const fEDI_cursor_cursorTranslateYValue = 30;
 
+const fEDI_render_do_ScrollTrailingEdgeCheckTimeoutId = 31;
+
 const fEDI_cursor_selectionAnchor = 32;
 const fEDI_cursor_selectionEnd = 33;
 

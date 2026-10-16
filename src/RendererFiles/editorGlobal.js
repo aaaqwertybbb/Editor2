@@ -209,7 +209,7 @@ function EDI_init() {
     EDI_registerHandlers();
 }
 
-function EDI_render_do(timestamp) {
+function EDI_render_do() {
     // Process everything in the queue until head catches up to tail
     while (BYTES[byteEDI_queueHead] !== BYTES[byteEDI_queueTail]) {
         // Read the item at the head and advance the head pointer safely
@@ -221,7 +221,7 @@ function EDI_render_do(timestamp) {
                 EDI_render_do_Scroll();
                 break;
             case RenderKind_Resize:
-                EDI_render_do_Resize(timestamp);
+                EDI_render_do_Resize();
                 break;
             case RenderKind_InsertLtr:
                 EDI_render_do_InsertLtr();
@@ -254,7 +254,7 @@ function EDI_render_do(timestamp) {
                 EDI_render_do_Clear();
                 break;
             case RenderKind_SetText:
-                EDI_render_do_SetText(timestamp);
+                EDI_render_do_SetText();
                 break;
             case RenderKind_CreateViewport:
                 EDI_render_do_CreateViewport();
@@ -263,13 +263,13 @@ function EDI_render_do(timestamp) {
                 EDI_render_do_SyntaxHighlighting();
                 break;
             case RenderKind_Cursor_flag_scrollIntoViewExplicit:
-                EDI_render_do_cursor_flag_scrollIntoViewExplicit(timestamp);
+                EDI_render_do_cursor_flag_scrollIntoViewExplicit();
                 break;
             case RenderKind_Cursor_flag_doNotScrollIntoView:
-                EDI_drawCursor(timestamp, /*NOTscrollCursorIntoView*/ true);
+                EDI_drawCursor(/*NOTscrollCursorIntoView*/ true);
                 break;
             case RenderKind_Cursor_n:
-                EDI_drawCursor(timestamp, /*NOTscrollCursorIntoView*/ false);
+                EDI_drawCursor(/*NOTscrollCursorIntoView*/ false);
                 break;
         }
     }
@@ -698,10 +698,10 @@ function EDI_clear() {
     EDI_render_request(RenderKind_Clear);
 }
 
-function EDI_render_do_SetText(timestamp) {
+function EDI_render_do_SetText() {
     EDI_render_do_Clear();
     update_VirtualIndexLine();
-    EDI_render_do_Scroll(timestamp);
+    EDI_render_do_Scroll();
 
     // TODO: what is paragraph this doing?
     INTS[fEDI_prevVli] = INTS[fEDI_ONSCROLLvirtualIndexLine];
@@ -5940,8 +5940,7 @@ function EDI_onKeyDown_keyLengthEqualsOne_altKey(event) {
 
 //#region cursorDrawing
 /** obsolete-ish */
-function EDI_render_do_cursor_flag_scrollIntoViewExplicit(timestamp) {
-    INTS[fEDI_EDI_cursorBlinkLastTimestamp] = timestamp;
+function EDI_render_do_cursor_flag_scrollIntoViewExplicit() {
     let notShouldScrollIntoView = false;
     let flag_scrollIntoViewExplicit = false;
 
@@ -5951,7 +5950,7 @@ function EDI_render_do_cursor_flag_scrollIntoViewExplicit(timestamp) {
         // TODO: consider setting 'notShouldScrollIntoView' to false to avoid two scroll into views redundantly?
         EDI_scrollCursorIntoView();
     }
-    EDI_drawCursor(timestamp, notShouldScrollIntoView);
+    EDI_drawCursor(notShouldScrollIntoView);
 }
 
 function EDI_cursor_hasSelection() {
@@ -6017,10 +6016,7 @@ function EDI_cursor_clear() {
  * 
  * @param {boolean} NOTscrollCursorIntoView 
  */
-function EDI_drawCursor(timestamp, NOTscrollCursorIntoView) {
-
-    INTS[fEDI_EDI_cursorBlinkLastTimestamp] = timestamp;
-
+function EDI_drawCursor(NOTscrollCursorIntoView) {
     const newY = INTS[fEDI_cursor_indexLine] * INTS[fEDI_lineHeight];
     const newX = INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth;
 
@@ -6392,7 +6388,7 @@ function EDI_render_do_RedrawSelection() {
 }
 //#endregion
 
-function EDI_render_do_Resize(timestamp) {
+function EDI_render_do_Resize() {
     EDI_measureBaseElement();
 
     let remember_virtualCount = INTS[fEDI_virtualCount];
@@ -6406,7 +6402,7 @@ function EDI_render_do_Resize(timestamp) {
         clearTimeout(INTS[fEDI_render_do_ScrollTrailingEdgeCheckTimeoutId]);
         INTS[fEDI_render_do_ScrollTrailingEdgeCheckTimeoutId] = setTimeout(EDI_onScroll_TrailingEdge, 200);
 
-        EDI_render_do_Scroll(timestamp);
+        EDI_render_do_Scroll();
         // # Redraw cursor selection virtualization
         EDI_createStyleForSelection();
     }

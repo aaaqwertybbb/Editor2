@@ -680,3 +680,10 @@ But it seems to just pass the numbers back and forth from JavaScript to C++ / vi
 oh my goodness it's 8:46 I gotta get to bed
 
 ========
+
+COST OF A MACRO TASK
+- queueing
+- cancelling
+- executing
+
+Coallesce is just a longer poll delay

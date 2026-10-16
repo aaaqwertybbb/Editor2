@@ -344,7 +344,6 @@ module.exports = function (babel) {
     "fAUTOCOMPLETE_virtualIndex",
     "fAUTOCOMPLETE_ringBufferIndexZero",
     "fAUTOCOMPLETE_scrollTop",
-    "fAUTOCOMPLETE_scrollEndDeadline",
     "fAUTOCOMPLETE_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING",
     "fAPP_lineHeight",
 
@@ -418,7 +417,6 @@ module.exports = function (babel) {
     "fEXPLORER_SET_ITEMS_itemHeightNumber",
     "fEXPLORER_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING",
     "fEXPLORER_LARGEST_DEPTH_SEEN_NOT_THE_CSS_JUST_THE_DEPTH",
-    "fEXPLORER_scrollEndDeadline",
     "fEXPLORER_scrollFetchData_virtualIndex",
     "fEXPLORER_scrollFetchData_virtualCount",
     "fEXPLORER_scrollFetchData_ringBufferIndexZero",

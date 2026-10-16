@@ -119,7 +119,7 @@ class TreeViewComponent {
         }
     }
 
-    renderDo = (timestamp) => {
+    renderDo = () => {
         let renderKind = 0;
         
         // Synchronously exhaust the item queue for this animation frame
@@ -129,13 +129,13 @@ class TreeViewComponent {
                     this.TREEVIEW_render_do_Cursor();
                     break;
                 case TREEVIEWrenderKind_Create:
-                    this.TREEVIEW_render_do_Create(timestamp);
+                    this.TREEVIEW_render_do_Create();
                     break;
                 case TREEVIEWrenderKind_Batch:
-                    this.TREEVIEW_render_do_Batch(timestamp);
+                    this.TREEVIEW_render_do_Batch();
                     break;
                 case TREEVIEWrenderKind_Scroll:
-                    this.TREEVIEW_render_do_Scroll(timestamp);
+                    this.TREEVIEW_render_do_Scroll();
                     break;
                 case TREEVIEWrenderKind_Scroll_PullDataDrawResult:
                     this.TREEVIEW_render_do_Scroll_PullDataDrawResult();
@@ -144,10 +144,10 @@ class TreeViewComponent {
                     this.TREEVIEW_render_do_SetItems();
                     break;
                 case TREEVIEWrenderKind_FullReset:
-                    this.TREEVIEW_render_do_FullReset(timestamp);
+                    this.TREEVIEW_render_do_FullReset();
                     break;
                 case TREEVIEWrenderKind_Resize:
-                    this.TREEVIEW_render_do_Resize(timestamp);
+                    this.TREEVIEW_render_do_Resize();
                     break;
             }
         }
@@ -186,7 +186,7 @@ class TreeViewComponent {
         this.TREEVIEW_render_request(TREEVIEWrenderKind_SetItems);
     }
 
-    TREEVIEW_render_do_Create(timestamp) {
+    TREEVIEW_render_do_Create() {
         if (this.rootElement.parentElement) {
             // It is the case that I invoke 'draw_create_request' when creating the tree view for the first time.
             // But I also do this when I re-open the os input file dialog and pick either a separate or the same folder.
@@ -194,7 +194,7 @@ class TreeViewComponent {
             //
             // TODO: but, perhaps this is best left to the consumer of the TreeViewComponent to invoke themselves...
             // ...in such a scenario. Until further decision is made I'll have the invocation here.
-            this.TREEVIEW_render_do_FullReset(timestamp);
+            this.TREEVIEW_render_do_FullReset();
             // TODO: Should there be a return here?...
             // ...more accurately the concern is 'TREEVIEW_draw_create_request_parentElement.insertBefore'
             // and 'this.draw_addEvents()'
@@ -210,7 +210,7 @@ class TreeViewComponent {
 
         this.measureBaseElement();
 
-        this.TREEVIEW_render_do_Scroll(timestamp);
+        this.TREEVIEW_render_do_Scroll();
     }
 
     /**
@@ -226,8 +226,8 @@ class TreeViewComponent {
         this.TREEVIEW_render_request(TREEVIEWrenderKind_Create);
     }
 
-    TREEVIEW_render_do_Batch(timestamp) {
-        this.director.tvd_drawItem_BATCH(this.start, this.length, this.onePositiveDiff_twoNegativeDiff_orThreeFullScreen, this.caseThreeOrigin, timestamp);
+    TREEVIEW_render_do_Batch() {
+        this.director.tvd_drawItem_BATCH(this.start, this.length, this.onePositiveDiff_twoNegativeDiff_orThreeFullScreen, this.caseThreeOrigin);
     }
 
     /**
@@ -286,9 +286,9 @@ class TreeViewComponent {
         }
     }
 
-    TREEVIEW_render_do_Scroll(timestamp) {
+    TREEVIEW_render_do_Scroll() {
         if (this.TREEVIEW_ArrayFrom_itemListElement_children_length !== this.virtualCount) {
-            this.TREEVIEW_render_do_FullReset(timestamp);
+            this.TREEVIEW_render_do_FullReset();
         }
         else {
 
@@ -314,17 +314,17 @@ class TreeViewComponent {
                 let diff = currVli - prevVli;
 
                 if (diff > 0 && diff < this.virtualCount) {
-                    this.director.tvd_drawItem_BATCH(prevVli + this._ONSCROLLvirtualCount, diff, 1, undefined, timestamp);
+                    this.director.tvd_drawItem_BATCH(prevVli + this._ONSCROLLvirtualCount, diff, 1, undefined);
                 }
                 else if (diff < 0 && (diff *= -1) < this.virtualCount) {
-                    this.director.tvd_drawItem_BATCH(currVli, diff, 2, undefined, timestamp);
+                    this.director.tvd_drawItem_BATCH(currVli, diff, 2, undefined);
                 }
                 else {
                     if (diff === 0) {
-                        this.director.scrollEndDeadline = timestamp + 300;
+                        this.director.tvd_drawItem_BATCH_CASE_DIFF_EQUALS_ZERO();
                     }
                     else {
-                        this.director.tvd_drawItem_BATCH(this.virtualIndex_ofScrollTop, this.virtualCount, 3, undefined, timestamp);
+                        this.director.tvd_drawItem_BATCH(this.virtualIndex_ofScrollTop, this.virtualCount, 3, undefined);
                     }
                 }
             }
@@ -345,7 +345,7 @@ class TreeViewComponent {
         this.TREEVIEW_render_request(TREEVIEWrenderKind_Batch);
     }
 
-    TREEVIEW_render_do_FullReset(timestamp) {
+    TREEVIEW_render_do_FullReset() {
         this.ensure_boundingClientRect();
 
         this._ONSCROLLvirtualCount = this.virtualCount;
@@ -398,7 +398,7 @@ class TreeViewComponent {
 
         // TODO: This if statement check is awkward because the previous if statement ought to have guaranteed this one to be true.
         if (this.itemListElement.children.length === this.virtualCount) {
-            this.director.tvd_drawItem_BATCH(this.virtualIndex_ofScrollTop, this.virtualCount, 3, undefined, timestamp);
+            this.director.tvd_drawItem_BATCH(this.virtualIndex_ofScrollTop, this.virtualCount, 3, undefined);
         }
     }
 
@@ -581,12 +581,12 @@ class TreeViewComponent {
         }
     }
 
-    TREEVIEW_render_do_Resize(timestamp) {
+    TREEVIEW_render_do_Resize() {
         this.measureBaseElement();
 
         this.boundingClientRect = null;
         this.ensure_boundingClientRect();
-        this.TREEVIEW_render_do_FullReset(timestamp);
+        this.TREEVIEW_render_do_FullReset();
     }
 
     /**

@@ -779,11 +779,11 @@ the cravings etc...
 
 - [x] fEDI_EDI_cursorBlinkLastTimestamp
 
+- [x] fAUTOCOMPLETE_scrollEndDeadline
 
+- [ ] // TODO: I'm putting this in treeViewComponent.js as well for now when diff === 0:
 
-
-
-
+- [ ] this.director.scrollEndDeadline =  + 300;
 
 
 

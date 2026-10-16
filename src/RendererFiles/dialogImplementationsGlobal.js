@@ -35,7 +35,7 @@ class DIALOG_FindAll_TreeViewDirector {
     /** 
      * @param {number} caseThreeOrigin if left undefined or (falsey but not 0), this will default to 'this.component.ringBufferIndexZero'
      */
-    tvd_drawItem_BATCH(start, length, onePositiveDiff_twoNegativeDiff_orThreeFullScreen, caseThreeOrigin, timestamp) {
+    tvd_drawItem_BATCH(start, length, onePositiveDiff_twoNegativeDiff_orThreeFullScreen, caseThreeOrigin) {
         let upperBound = start + length;
         let totalCount = this.nodeList.count_abstract;
         let loopCounter = 0;
@@ -143,6 +143,10 @@ class DIALOG_FindAll_TreeViewDirector {
         else if (onePositiveDiff_twoNegativeDiff_orThreeFullScreen === 2) {
             this.component.ringBufferIndexZero = lastIndex - (loopTotalIterations - 1);
         }
+    }
+
+    tvd_drawItem_BATCH_CASE_DIFF_EQUALS_ZERO() {
+        return;
     }
     
     /*** Not every key invokes this. */
@@ -479,7 +483,7 @@ function DIALOG_checkboxEditorDebugShowAdjacentCharacters_onchange() {
     if (!checkboxEditorDebugShowAdjacentCharacters) return;
 
     BYTES[byteDIALOG_Settings_editorDebugShowAdjacentCharacters] = checkboxEditorDebugShowAdjacentCharacters.checked;
-    EDI_drawCursor(/*timestamp*/ 0, /*NOTscrollCursorIntoView*/ false);
+    EDI_drawCursor(/*NOTscrollCursorIntoView*/ false);
 }
 
 function DIALOG_DocumentSymbol_Create() {

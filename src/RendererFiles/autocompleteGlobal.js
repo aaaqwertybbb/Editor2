@@ -39,7 +39,7 @@ function AUTOCOMPLETE_render_request(renderKind) {
     }
 }
 
-function AUTOCOMPLETE_render_do(timestamp) {
+function AUTOCOMPLETE_render_do() {
     while (BYTES[byteAUTOCOMPLETE_queueHead] !== BYTES[byteAUTOCOMPLETE_queueTail]) {
         // Uses the exact same masking logic, but reads from the higher memory region
         const absoluteIndex = OFFSET_AUTOCOMPLETE + (BYTES[byteAUTOCOMPLETE_queueHead] & UI_SLOT_MASK);
@@ -48,7 +48,7 @@ function AUTOCOMPLETE_render_do(timestamp) {
 
         switch (renderKind) {
             case AUTOCOMPLETErenderKind_Show:
-                AUTOCOMPLETE_render_do_show(timestamp);
+                AUTOCOMPLETE_render_do_show();
                 break;
             case AUTOCOMPLETErenderKind_Hide:
                 AUTOCOMPLETE_render_do_hide();
@@ -60,7 +60,7 @@ function AUTOCOMPLETE_render_do(timestamp) {
                 AUTOCOMPLETE_render_create_lines();
                 break;
             case AUTOCOMPLETErenderKind_Scroll:
-                AUTOCOMPLETE_events_scroll_render(timestamp);
+                AUTOCOMPLETE_events_scroll_render();
                 break;
         }
     }
@@ -152,7 +152,7 @@ function AUTOCOMPLETE_render_RESET_lines(AUTOCOMPLETE_itemList) {
     }
 }
 
-function AUTOCOMPLETE_render_do_show(timestamp) {
+function AUTOCOMPLETE_render_do_show() {
 
     // TODO: The code as is already isn't guaranteed to not race condition with the lsp requests
     // so this continues failing to avoid race condition, but now if the lsp throws an error you don't get locked out forever.
@@ -256,7 +256,7 @@ function AUTOCOMPLETE_render_do_show(timestamp) {
     AUTOCOMPLETE_cursor_render_set();
 
     INTS[fAUTOCOMPLETE_virtualIndex] = INTS[fAUTOCOMPLETE_virtualCount];
-    AUTOCOMPLETE_events_scroll_render(timestamp);
+    AUTOCOMPLETE_events_scroll_render();
     INTS[fAUTOCOMPLETE_virtualIndex] = 0;
 }
 
@@ -424,9 +424,7 @@ function AUTOCOMPLETE_events_scroll_receive(event) {
     AUTOCOMPLETE_render_request(AUTOCOMPLETErenderKind_Scroll);
 }
 
-function AUTOCOMPLETE_events_scroll_render(timestamp) {
-
-    INTS[fAUTOCOMPLETE_scrollEndDeadline] = timestamp + 300;
+function AUTOCOMPLETE_events_scroll_render() {
 
     clearTimeout(INTS[fAUTOCOMPLETE_isCheckingTrailingEdgeTimeoutId]);
     INTS[fAUTOCOMPLETE_isCheckingTrailingEdgeTimeoutId] = setTimeout(AUTOCOMPLETE_events_scroll_render_trailingEdgeDo, 300);

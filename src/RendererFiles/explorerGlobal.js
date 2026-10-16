@@ -145,10 +145,7 @@ function EXPLORER_drawItem_BATCH_trailingEdge() {
 /** 
  * @param {number} caseThreeOrigin if left undefined or (falsey but not 0), this will default to 'INTS[fEXPLORER_ringBufferIndexZero]'
  */
-function EXPLORER_drawItem_BATCH(start, length, onePositiveDiff_twoNegativeDiff_orThreeFullScreen, caseThreeOrigin, timestamp) {
-
-    // TODO: I'm putting this in treeViewComponent.js as well for now when diff === 0:
-    INTS[fEXPLORER_scrollEndDeadline] = timestamp + 200;
+function EXPLORER_drawItem_BATCH(start, length, onePositiveDiff_twoNegativeDiff_orThreeFullScreen, caseThreeOrigin) {
 
     clearTimeout(INTS[fEXPLORER_render_do_ScrollTrailingEdgeCheckTimeoutId]);
     INTS[fEXPLORER_render_do_ScrollTrailingEdgeCheckTimeoutId] = setTimeout(EXPLORER_drawItem_BATCH_trailingEdge, 200);
@@ -874,7 +871,7 @@ function EXPLORER_render_request(renderKind) {
     }
 }
 
-function EXPLORER_render_do(timestamp) {
+function EXPLORER_render_do() {
     while (BYTES[byteEXPLORER_queueHead] !== BYTES[byteEXPLORER_queueTail]) {
         // Uses the exact same masking logic, but reads from the higher memory region
         const absoluteIndex = OFFSET_EXPLORER + (BYTES[byteEXPLORER_queueHead] & UI_SLOT_MASK);
@@ -886,13 +883,13 @@ function EXPLORER_render_do(timestamp) {
                 EXPLORER_render_do_Cursor();
                 break;
             case TREEVIEWrenderKind_Create:
-                EXPLORER_render_do_Create(timestamp);
+                EXPLORER_render_do_Create();
                 break;
             case TREEVIEWrenderKind_Batch:
-                EXPLORER_render_do_Batch(timestamp);
+                EXPLORER_render_do_Batch();
                 break;
             case TREEVIEWrenderKind_Scroll:
-                EXPLORER_render_do_Scroll(timestamp);
+                EXPLORER_render_do_Scroll();
                 break;
             case TREEVIEWrenderKind_Scroll_PullDataDrawResult:
                 EXPLORER_render_do_Scroll_PullDataDrawResult();
@@ -901,10 +898,10 @@ function EXPLORER_render_do(timestamp) {
                 EXPLORER_render_do_SetItems();
                 break;
             case TREEVIEWrenderKind_FullReset:
-                EXPLORER_render_do_FullReset(timestamp);
+                EXPLORER_render_do_FullReset();
                 break;
             case TREEVIEWrenderKind_Resize:
-                EXPLORER_render_do_Resize(timestamp);
+                EXPLORER_render_do_Resize();
                 break;
         }
     }
@@ -939,7 +936,7 @@ function EXPLORER_setItems(itemHeightNumber, itemHeightStyleAttributeValueString
     EXPLORER_render_request(TREEVIEWrenderKind_SetItems);
 }
 
-function EXPLORER_render_do_Create(timestamp) {
+function EXPLORER_render_do_Create() {
     if (EXPLORER_rootElement.parentElement) {
         // It is the case that I invoke 'draw_create_request' when creating the tree view for the first time.
         // But I also do this when I re-open the os input file dialog and pick either a separate or the same folder.
@@ -947,7 +944,7 @@ function EXPLORER_render_do_Create(timestamp) {
         //
         // TODO: but, perhaps this is best left to the consumer of the TreeViewComponent to invoke themselves...
         // ...in such a scenario. Until further decision is made I'll have the invocation here.
-        EXPLORER_render_do_FullReset(timestamp);
+        EXPLORER_render_do_FullReset();
         // TODO: Should there be a return here?...
         // ...more accurately the concern is 'TREEVIEW_draw_create_request_parentElement.insertBefore'
         // and 'EXPLORER_draw_addEvents()'
@@ -963,7 +960,7 @@ function EXPLORER_render_do_Create(timestamp) {
 
     EXPLORER_measureBaseElement();
 
-    EXPLORER_render_do_Scroll(timestamp);
+    EXPLORER_render_do_Scroll();
 }
 
 /**
@@ -979,8 +976,8 @@ function EXPLORER_draw_create_request(parentElement, insertBeforeThisChild) {
     EXPLORER_render_request(TREEVIEWrenderKind_Create);
 }
 
-function EXPLORER_render_do_Batch(timestamp) {
-    EXPLORER_drawItem_BATCH(INTS[fEXPLORER_start], INTS[fEXPLORER_length], INTS[fEXPLORER_onePositiveDiff_twoNegativeDiff_orThreeFullScreen], INTS[fEXPLORER_caseThreeOrigin], timestamp);
+function EXPLORER_render_do_Batch() {
+    EXPLORER_drawItem_BATCH(INTS[fEXPLORER_start], INTS[fEXPLORER_length], INTS[fEXPLORER_onePositiveDiff_twoNegativeDiff_orThreeFullScreen], INTS[fEXPLORER_caseThreeOrigin]);
 }
 
 /**
@@ -1015,9 +1012,9 @@ function EXPLORER_draw_removeEvents() {
     window.removeEventListener('resize', EXPLORER_event_windowResize);
 }
 
-function EXPLORER_render_do_Scroll(timestamp) {
+function EXPLORER_render_do_Scroll() {
     if (INTS[fEXPLORER_ringBuffer_length] !== INTS[fEXPLORER_virtualCount]) {
-        EXPLORER_render_do_FullReset(timestamp);
+        EXPLORER_render_do_FullReset();
     }
     else {
 
@@ -1049,17 +1046,18 @@ function EXPLORER_render_do_Scroll(timestamp) {
             let diff = currVli - prevVli;
 
             if (diff > 0 && diff < INTS[fEXPLORER_virtualCount]) {
-                EXPLORER_drawItem_BATCH(prevVli + INTS[fEXPLORER_ONSCROLLvirtualCount], diff, 1, undefined, timestamp);
+                EXPLORER_drawItem_BATCH(prevVli + INTS[fEXPLORER_ONSCROLLvirtualCount], diff, 1, undefined);
             }
             else if (diff < 0 && (diff *= -1) < INTS[fEXPLORER_virtualCount]) {
-                EXPLORER_drawItem_BATCH(currVli, diff, 2, undefined, timestamp);
+                EXPLORER_drawItem_BATCH(currVli, diff, 2, undefined);
             }
             else {
                 if (diff === 0) {
-                    INTS[fEXPLORER_scrollEndDeadline] = timestamp + 300;
+                    clearTimeout(INTS[fEXPLORER_render_do_ScrollTrailingEdgeCheckTimeoutId]);
+                    INTS[fEXPLORER_render_do_ScrollTrailingEdgeCheckTimeoutId] = setTimeout(EXPLORER_drawItem_BATCH_trailingEdge, 200);
                 }
                 else {
-                    EXPLORER_drawItem_BATCH(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3, undefined, timestamp);
+                    EXPLORER_drawItem_BATCH(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3, undefined);
                 }
             }
         }
@@ -1080,7 +1078,7 @@ function EXPLORER_draw_BATCH_request(start, length, onePositiveDiff_twoNegativeD
     EXPLORER_render_request(TREEVIEWrenderKind_Batch);
 }
 
-function EXPLORER_render_do_FullReset(timestamp) {
+function EXPLORER_render_do_FullReset() {
     EXPLORER_ensure_boundingClientRect();
 
     INTS[fEXPLORER_ONSCROLLvirtualCount] = INTS[fEXPLORER_virtualCount];
@@ -1128,7 +1126,7 @@ function EXPLORER_render_do_FullReset(timestamp) {
         INTS[fEXPLORER_ringBuffer_length] = EXPLORER_ringBuffer.length;
     }
 
-    EXPLORER_drawItem_BATCH(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3, undefined, timestamp);
+    EXPLORER_drawItem_BATCH(INTS[fEXPLORER_virtualIndex_ofScrollTop], INTS[fEXPLORER_virtualCount], 3, undefined);
 }
 
 /**
@@ -1315,12 +1313,12 @@ function EXPLORER_event_keydown(event) {
     }
 }
 
-function EXPLORER_render_do_Resize(timestamp) {
+function EXPLORER_render_do_Resize() {
     EXPLORER_measureBaseElement();
 
     BYTES[byteEXPLORER_boundingClientRect_isValid] = 0;
     EXPLORER_ensure_boundingClientRect();
-    EXPLORER_render_do_FullReset(timestamp);
+    EXPLORER_render_do_FullReset();
 }
 
 /**

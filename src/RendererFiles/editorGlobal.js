@@ -650,7 +650,7 @@ function EDI_onScroll_TrailingEdge() {
 function EDI_render_do_Clear() {
     EDI_clearHighlights();
 
-    EDI_drawCursor(/*timestamp*/ 0, /*NOTscrollCursorIntoView*/ false);
+    EDI_drawCursor(/*NOTscrollCursorIntoView*/ false);
     EDI_clearSelectionStyle();
     // TODO: Wait what? Setting the text invokes clear.
     // So everytime you change the text you've been re-initializing the editor?
@@ -4859,7 +4859,7 @@ function EDI_moveCursor_indexLine_indexColumn(indexLine, indexColumn) {
 
     INTS[fEDI_cursor_indexLine] = indexLine;
     
-    // TODO: selectionAnchor = selectionEnd; EDI_drawCursor(/*timestamp*/ 0, /*NOTscrollCursorIntoView*/ false); # being the way to clear a selection should be documented / wrapped by a method for ease of use / readability?
+    // TODO: selectionAnchor = selectionEnd; EDI_drawCursor(/*NOTscrollCursorIntoView*/ false); # being the way to clear a selection should be documented / wrapped by a method for ease of use / readability?
     INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_cursor_selectionEnd];
     EDI_render_request(RenderKind_Cursor_n);
 }

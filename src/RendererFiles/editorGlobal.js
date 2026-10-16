@@ -6390,13 +6390,8 @@ function EDI_render_do_Resize() {
     let remember_virtualCount = INTS[fEDI_virtualCount];
     update_virtualCount();
     if (INTS[fEDI_virtualCount] !== remember_virtualCount) {
-        // why 'update_verticalVirtualizationBoundary' here???
-        update_verticalVirtualizationBoundary(INTS[fEDI_lineEndPositionList_count] + 1);
-
+        // Trigger scroll leading edge downstream
         INTS[fEDI_intFalsey_isScrolling] = 0;
-
-        clearTimeout(INTS[fEDI_render_do_ScrollTrailingEdgeCheckTimeoutId]);
-        INTS[fEDI_render_do_ScrollTrailingEdgeCheckTimeoutId] = setTimeout(EDI_onScroll_TrailingEdge, 200);
 
         EDI_render_do_Scroll();
         // # Redraw cursor selection virtualization

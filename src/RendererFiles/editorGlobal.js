@@ -6400,6 +6400,9 @@ function EDI_render_do_Resize() {
 
 function EDI_onResize() {
     if (INTS[fEDI_onResize_timer] === 0) {
+        // TODO: '109' has no meaning behind it...
+        // ...TODO: Figure out how to get this to always trigger faster than the 200ms timeout of the scroll trailing edge...
+        // ...lest thou receiveth many object allocation from scroll trailing edge. You see cause you see the syntax highlight happening while resizing.
         INTS[fEDI_onResize_timer] = setTimeout(EDI_onResize_startThrottleTimeout_aaa, 109);
     }
 }

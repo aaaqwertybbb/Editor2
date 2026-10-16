@@ -687,3 +687,7 @@ COST OF A MACRO TASK
 - executing
 
 Coallesce is just a longer poll delay
+
+I want the cursor trailing edge to only paint the "debug text"
+rather than what it currently does which ends up painting the editor's text too for some reason
+and possibly it is even causing the entire page to be painted

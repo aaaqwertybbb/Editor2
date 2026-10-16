@@ -6399,37 +6399,14 @@ function EDI_render_do_Resize() {
 }
 
 function EDI_onResize() {
-    EDI_render_request(RenderKind_Resize);
-}
-
-// 1. The Entry Point (Replaces WRAPIT)
-function EDI_onResize_WRAPIT() {
-    // If timer is running, just note that a trailing call is needed
-    if (INTS[fEDI_onResize_timer]) {
-        BYTES[byteEDI_onResize_hasTrailingCall] = 1;
-        return;
+    if (INTS[fEDI_onResize_timer] === 0) {
+        INTS[fEDI_onResize_timer] = setTimeout(EDI_onResize_startThrottleTimeout_aaa, 109);
     }
-
-    // Leading edge: Execute immediately
-    EDI_onResize();
-
-    // Start the throttle window
-    EDI_onResize_startThrottleTimeout();
 }
 
-// 2. The Gatekeeper
-function EDI_onResize_startThrottleTimeout() {
-    INTS[fEDI_onResize_timer] = setTimeout(() => {
-        if (BYTES[byteEDI_onResize_hasTrailingCall] === 1) {
-            BYTES[byteEDI_onResize_hasTrailingCall] = 0;
-            EDI_onResize();
-            
-            EDI_onResize_startThrottleTimeout();
-        }
-        else {
-            INTS[fEDI_onResize_timer] = 0;
-        }
-    }, 500);
+function EDI_onResize_startThrottleTimeout_aaa() {
+    EDI_render_request(RenderKind_Resize);
+    INTS[fEDI_onResize_timer] = 0;
 }
 
 async function EDI_MenuOnClick(isCancelled, menuOption, request) {
@@ -7437,7 +7414,7 @@ function EDI_registerHandlers() {
     EDI_baseElement.addEventListener('mousedown', EDI_onMouseDown);
 
     EDI_baseElement.addEventListener('contextmenu', EDI_onContextMenu);
-    window.addEventListener('resize', EDI_onResize_WRAPIT);
+    window.addEventListener('resize', EDI_onResize);
 
     // Attach a single listener to your text container (Event Delegation)
     EDI_baseElement.addEventListener('mouseover', EDI_mouseOver);

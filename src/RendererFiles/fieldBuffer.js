@@ -556,6 +556,8 @@ const fEDI_ret_getIndexFromX_visualColumns = 70;
 
 const fEDI_cursorVisualColumnIndex = 71;
 
+const fAUTOCOMPLETE_isCheckingTrailingEdgeTimeoutId = 72;
+
 const fEDI_ontab_visualWidth_perCharacter = 73;
 
 const fEDI_cursor_selectionIndexAnchorColumnVISUAL = 74;

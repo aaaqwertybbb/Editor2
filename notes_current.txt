@@ -651,7 +651,7 @@ I had the setTimeout logic originally they told me to do the burn cpu rAF thing 
 
 TODO: figure out a way to measure the impact of (rAF CPU poll) vs (clearTimeout+setTimeout) vs (setTimeout coallesced)
 TODO: fix these functions
-- [ ] AUTOCOMPLETE_events_scroll_render_trailingEdgeCheck
+- [/] AUTOCOMPLETE_events_scroll_render_trailingEdgeCheck
 - [/] EDI_render_do_ScrollTrailingEdgeCheck
 - [/] EDI_cursorBlink_trailingEdge
 - [/] EXPLORER_render_do_ScrollTrailingEdgeCheck
@@ -775,7 +775,7 @@ fEDI_intFalsey_isScrolling
 
 byteEXPLORER_isCheckingTrailingEdge
 
-
+byteAUTOCOMPLETE_isCheckingTrailingEdge
 
 
 

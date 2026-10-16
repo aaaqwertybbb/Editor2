@@ -428,10 +428,8 @@ function AUTOCOMPLETE_events_scroll_render(timestamp) {
 
     INTS[fAUTOCOMPLETE_scrollEndDeadline] = timestamp + 300;
 
-    if (!BYTES[byteAUTOCOMPLETE_isCheckingTrailingEdge]) {
-        BYTES[byteAUTOCOMPLETE_isCheckingTrailingEdge] = 1;
-        requestAnimationFrame(AUTOCOMPLETE_events_scroll_render_trailingEdgeCheck);
-    }
+    clearTimeout(INTS[fAUTOCOMPLETE_isCheckingTrailingEdgeTimeoutId]);
+    INTS[fAUTOCOMPLETE_isCheckingTrailingEdgeTimeoutId] = setTimeout(AUTOCOMPLETE_events_scroll_render_trailingEdgeDo, 300);
 
     let prevVli = INTS[fAUTOCOMPLETE_virtualIndex];
 
@@ -501,16 +499,6 @@ function AUTOCOMPLETE_events_scroll_render(timestamp) {
         div.style.top = `${verticalOffset}px`;
         verticalOffset += INTS[fAPP_lineHeight];
     }
-}
-
-function AUTOCOMPLETE_events_scroll_render_trailingEdgeCheck(timestamp) {
-    if (timestamp < INTS[fAUTOCOMPLETE_scrollEndDeadline]) {
-        requestAnimationFrame(AUTOCOMPLETE_events_scroll_render_trailingEdgeCheck);
-        return;
-    }
-
-    BYTES[byteAUTOCOMPLETE_isCheckingTrailingEdge] = 0;
-    AUTOCOMPLETE_events_scroll_render_trailingEdgeDo();
 }
 
 function AUTOCOMPLETE_events_scroll_render_trailingEdgeDo() {

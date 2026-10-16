@@ -136,6 +136,8 @@ module.exports = function (babel) {
     "fEDI_cursorBlinkingTrailingEdgeTimeoutId",
     "fEDI_render_do_ScrollTrailingEdgeCheckTimeoutId",
 
+    "fEXPLORER_render_do_ScrollTrailingEdgeCheckTimeoutId",
+
     "byteEDI_editorHasFocus",
 
     "byteEDI_queueHead",
@@ -143,6 +145,7 @@ module.exports = function (babel) {
     "BUFFER_SIZE",
     "BUFFER_MASK",
 
+    "fAUTOCOMPLETE_isCheckingTrailingEdgeTimeoutId",
     "AUTOCOMPLETErenderKind_None",
     "AUTOCOMPLETErenderKind_Show",
     "AUTOCOMPLETErenderKind_Hide",

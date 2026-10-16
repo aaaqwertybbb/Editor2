@@ -655,6 +655,9 @@ function EDI_render_do_Clear() {
     EDI_clearSelectionStyle();
     // TODO: Wait what? Setting the text invokes clear.
     // So everytime you change the text you've been re-initializing the editor?
+    // TODO: This should re-use the dom elements...
+    // ...part of that means also to NOT invoke 'EDI_render_do_CreateViewport' at the end of this function...
+    // ...but if 'EDI_render_do_CreateViewport' has necessary side effects beyond populating dom elements you need to trigger said side effects somehow.
     const local_EDI_ringBuffer_text = EDI_ringBuffer_text;
     let line = w_divNONE;
     while (line = local_EDI_ringBuffer_text.pop()) {

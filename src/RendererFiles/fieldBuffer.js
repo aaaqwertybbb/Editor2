@@ -527,6 +527,8 @@ const fEDI_EDI_mouseOver_event_clientX = 62;
 
 const fEDI_EDI_cursorBlinkLastTimestamp = 63;
 
+const fEXPLORER_render_do_ScrollTrailingEdgeCheckTimeoutId = 64;
+
 /** TODO: What happens when you overflow 'INTS[fEDI_prevVli]' does it overflow such that you're the correct diff? */
 const fEDI_prevVli = 65;
 /** TODO: What happens when you overflow 'INTS[fEDI_prevVli]' does it overflow such that you're the correct diff? */

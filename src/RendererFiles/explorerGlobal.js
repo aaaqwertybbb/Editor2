@@ -134,15 +134,6 @@ function EXPLORER_setChosenWorkspace(chooseWorkspaceResult) {
     EXPLORER_scrollbar_space_generator.style.height = INTS[fEXPLORER_itemHeightTotal] + 'px';
 }
 
-function EXPLORER_render_do_ScrollTrailingEdgeCheck(timestamp) {
-    if (timestamp < INTS[fEXPLORER_scrollEndDeadline]) {
-        requestAnimationFrame(EXPLORER_render_do_ScrollTrailingEdgeCheck);
-        return;
-    }
-
-    EXPLORER_drawItem_BATCH_trailingEdge();
-}
-
 function EXPLORER_drawItem_BATCH_trailingEdge() {
     BYTES[byteEXPLORER_isCheckingTrailingEdge] = 0;
     if (BYTES[byteEXPLORER_scrollIsFetchingData] === 0) {
@@ -159,10 +150,8 @@ function EXPLORER_drawItem_BATCH(start, length, onePositiveDiff_twoNegativeDiff_
     // TODO: I'm putting this in treeViewComponent.js as well for now when diff === 0:
     INTS[fEXPLORER_scrollEndDeadline] = timestamp + 200;
 
-    if (BYTES[byteEXPLORER_isCheckingTrailingEdge] === 0) {
-        BYTES[byteEXPLORER_isCheckingTrailingEdge] = 1;
-        requestAnimationFrame(EXPLORER_render_do_ScrollTrailingEdgeCheck);
-    }
+    clearTimeout(INTS[fEXPLORER_render_do_ScrollTrailingEdgeCheckTimeoutId]);
+    INTS[fEXPLORER_render_do_ScrollTrailingEdgeCheckTimeoutId] = setTimeout(EXPLORER_drawItem_BATCH_trailingEdge, 200);
 
     let upperBound = start + length;
     let totalCount = EXPLORER_treeViewNodes.count_abstract;

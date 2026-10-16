@@ -676,4 +676,3 @@ I don't know the more I think about it the more I think it makes sense.
 I knew it returned a number.
 But I was also thinking that a JavaScript object was being made behind the scenes that represented the C++ state.
 But it seems to just pass the numbers back and forth from JavaScript to C++ / vice versa
-

@@ -218,7 +218,7 @@ function EDI_render_do(timestamp) {
 
         switch (renderKind) {
             case RenderKind_Scroll:
-                EDI_render_do_Scroll(timestamp);
+                EDI_render_do_Scroll();
                 break;
             case RenderKind_Resize:
                 EDI_render_do_Resize(timestamp);
@@ -459,7 +459,7 @@ function EDI_scrollViewport_scroll() {
  * - the first chunk is up to the wrap around
  * - the second chunk is the latter
 */
-function EDI_render_do_Scroll(timestamp) {
+function EDI_render_do_Scroll() {
 
     clearTimeout(INTS[fEDI_render_do_ScrollTrailingEdgeCheckTimeoutId]);
     INTS[fEDI_render_do_ScrollTrailingEdgeCheckTimeoutId] = setTimeout(EDI_onScroll_TrailingEdge, 200);
@@ -484,8 +484,6 @@ function EDI_render_do_Scroll(timestamp) {
     let local_prevVli = INTS[fEDI_ONSCROLLvirtualIndexLine];
     const local_currVli = INTS[fEDI_virtualIndexLine];
     INTS[fEDI_ONSCROLLvirtualIndexLine] = local_currVli;
-
-    INTS[fEDI_scrollEndDeadline] = timestamp + 200;
 
     if (INTS[fEDI_intFalsey_isScrolling] === 0) {
         // (Comment group ID: 'do_Scroll/LeadingEdge')...and here the locals are passed to the LeadingEdge because only when performing the LeadingEdge do you need to use the global versions. (part 1 of 3)
@@ -6405,7 +6403,8 @@ function EDI_render_do_Resize(timestamp) {
 
         INTS[fEDI_intFalsey_isScrolling] = 0;
 
-        INTS[fEDI_scrollEndDeadline] = timestamp + 1000;
+        clearTimeout(INTS[fEDI_render_do_ScrollTrailingEdgeCheckTimeoutId]);
+        INTS[fEDI_render_do_ScrollTrailingEdgeCheckTimeoutId] = setTimeout(EDI_onScroll_TrailingEdge, 200);
 
         EDI_render_do_Scroll(timestamp);
         // # Redraw cursor selection virtualization

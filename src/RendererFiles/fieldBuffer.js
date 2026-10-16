@@ -354,9 +354,6 @@ const fEDI_ONSCROLLvirtualIndexLine = 3;
 // This set used to be -1 to indicate a non existent value, 500 "seems to work" but a proof of it being an equivalent solution has not thoroughly been thought out, only a sort of "yeah that probably works" kinda vibe.
 INTS[fEDI_ONSCROLLvirtualIndexLine] = 500;
 
-/** Also is used from 'EDI_render_do_SetText()', and 'EDI_render_do_Resize()', not just 'EDI_render_do_Scroll()' */
-const fEDI_scrollEndDeadline = 4;
-
 const fEDI_virtualCount = 5;
 
 const fEDI_ONSCROLLvirtualCount = 6;

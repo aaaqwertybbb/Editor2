@@ -653,7 +653,7 @@ TODO: figure out a way to measure the impact of (rAF CPU poll) vs (clearTimeout+
 TODO: fix these functions
 - [ ] AUTOCOMPLETE_events_scroll_render_trailingEdgeCheck
 - [ ] EDI_render_do_ScrollTrailingEdgeCheck
-- [ ] EDI_cursorBlink_trailingEdge
+- [x] EDI_cursorBlink_trailingEdge
 - [ ] EXPLORER_render_do_ScrollTrailingEdgeCheck
 
 
@@ -752,3 +752,11 @@ function cursorBlinkingTrailingEdge() {
 }
 ```
 
+======
+
+You don't need a separate one 'byteEDI_isChecking_cursorBlinkTrailingEdge'
+but you do need 'cursorBlinkingTrailingEdgeTimeoutId'
+check for non-zero is better to avoid the pointless 'isChecking_...'
+
+I'm not feeling great, not that I'm feeling bad, I just am eh
+I don't know what I'm gonna get done

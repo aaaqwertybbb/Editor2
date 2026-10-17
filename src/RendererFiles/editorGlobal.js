@@ -657,7 +657,6 @@ function EDI_render_do_Clear() {
     // Force case 3
     INTS[fEDI_prevVli] = 0;
     INTS[fEDI_currVli] = INTS[fEDI_virtualCount];
-    EDI_render_do_CreateViewport();
 }
 
 function EDI_state_clear(trackingUint32MaxHeap_initialCapacity) {

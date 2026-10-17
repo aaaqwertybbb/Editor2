@@ -799,3 +799,5 @@ it still doesn't initialize properly unless you open an actual file I can prob f
 
 Am I shadowbanned, I don't want anyone to see me whining and thinking I'm cringe
 
+
+I'm fixing enter key

@@ -7,7 +7,6 @@ const path = require('node:path');
 const fs = require('fs');
 const AppDatabase = require('./Database/database').default;
 const { spawn } = require('node:child_process');
-const { URI } = require('vscode-uri');
 const os = require('os');
 const lspTypes = require('./lspTypes');
 
@@ -50,6 +49,12 @@ let remainingStdoutFromPartiallyReadEvent = null;
 let mostRecentRequest = null;
 
 /**
+ * TODO: What are these two lines of code doing in an example that I'm looking at?
+ * const webContents = event.sender;
+ * const win = BrowserWindow.fromWebContents(webContents);
+ * 
+ * ====
+ * 
  * TODO: Is it problematic to bring mainWindow into this scope? It is created within `const createWindow`...
  * ...and until now has only been accessible from that arrow function.
  * ...
@@ -130,6 +135,7 @@ const createWindow = () => {
 	ipcMain.handle('rename-file', renameFile);
 	ipcMain.handle('save-file', saveFile);
 	ipcMain.handle('editor-save-file', editorSaveFile);
+	ipcMain.handle('editor-save-file-as', editorSaveFileAs);
 	ipcMain.handle('paste-clipboard-absolute-path-to-directory', pasteClipboardAbsolutePathToDirectory);
 
 	mainWindowCapture = mainWindow;
@@ -891,29 +897,9 @@ async function editorReadAllText_byteArray(event, absolutePath) {
 			}
 			openedDocumentUri = null; // Should be set null regardless of language server existence to ensure it gets cleared if language server was running then stopped
 		}
-
-		let tdi = lspTypes.MAIN_message_construct_textDocumentItem(
-			absolutePath,   // uri
-			'javascript',   // languageId
-			0,              // version
-			itHasBom.text); // text
-		let messageObject = lspTypes.MAIN_message_construct_didOpenTextDocumentNotification(tdi);
-		let messageJson = MAIN_encodeMessageObject(messageObject);
 		if (languageServerHandshakeSuccess && languageServer) {
-			languageServer.stdin.write(messageJson);
-			openedDocumentUri = absolutePath;
-
-			// TODO: Somewhat nonsensical to check 'openedDocumentUri' but I'm not sure if it was ever validated and I don't wanna deal with it right now...
-			// ...
-			// More so, I don't want this new logic to ever have a possibility of crashing the old logic (which simply wanted to read the text.)
-			// So until I guarantee that 'openedDocumentUri' is validated, I don't want to take any risks with it. (and maybe it is validated I just don't know either which way)
-			//
-			if (openedDocumentUri) {
-				let tdIdentifier = lspTypes.MAIN_message_construct_textDocumentIdentifier(openedDocumentUri);
-				let customFullFileLexRequest = lspTypes.MAIN_message_construct_CustomFullFileLexRequest(tdIdentifier);
-				mostRecentRequest = customFullFileLexRequest;
-				languageServer.stdin.write(MAIN_encodeMessageObject(customFullFileLexRequest));
-			}
+			lsp_write_didOpenTextDocumentNotification();
+			lsp_write_customFullFileLexRequest();
 		}
 		
 		return {
@@ -934,6 +920,33 @@ async function editorReadAllText_byteArray(event, absolutePath) {
 			lineEndString: null,
 			lineEndCount: null
 		};
+	}
+}
+
+function lsp_write_didOpenTextDocumentNotification(absolutePath, text) {
+	let tdi = lspTypes.MAIN_message_construct_textDocumentItem(
+		absolutePath,   // uri
+		'javascript',   // languageId
+		0,              // version
+		text); // text
+	let messageObject = lspTypes.MAIN_message_construct_didOpenTextDocumentNotification(tdi);
+	let messageJson = MAIN_encodeMessageObject(messageObject);
+
+	languageServer.stdin.write(messageJson);
+	openedDocumentUri = absolutePath;
+}
+
+function lsp_write_customFullFileLexRequest() {
+	// TODO: Somewhat nonsensical to check 'openedDocumentUri' but I'm not sure if it was ever validated and I don't wanna deal with it right now...
+	// ...
+	// More so, I don't want this new logic to ever have a possibility of crashing the old logic (which simply wanted to read the text.)
+	// So until I guarantee that 'openedDocumentUri' is validated, I don't want to take any risks with it. (and maybe it is validated I just don't know either which way)
+	//
+	if (openedDocumentUri) {
+		let tdIdentifier = lspTypes.MAIN_message_construct_textDocumentIdentifier(openedDocumentUri);
+		let customFullFileLexRequest = lspTypes.MAIN_message_construct_CustomFullFileLexRequest(tdIdentifier);
+		mostRecentRequest = customFullFileLexRequest;
+		languageServer.stdin.write(MAIN_encodeMessageObject(customFullFileLexRequest));
 	}
 }
 
@@ -1553,7 +1566,7 @@ async function saveFile(event, absolutePath, text) {
 			throw new Error('The destination path is a directory');
 		}
 
-		fs.writeFile(absolutePath, text, () => {});
+		fs.writeFileSync(absolutePath, text);
 	}
 	catch (err) {
 		console.error("Error saving file:", err);
@@ -1573,11 +1586,50 @@ async function editorSaveFile(event, absolutePath, uint8Array, count, EDI_lineEn
 		if (!EDI_lineEndString)
 			EDI_lineEndString = '\n';
 
-		fs.writeFile(absolutePath, MAIN_decode_experimental_textonly(uint8Array, /*start*/ 0, count, EDI_lineEndString, EDI_fileStartsWithBom), () => {});
+		fs.writeFileSync(absolutePath, MAIN_decode_experimental_textonly(uint8Array, /*start*/ 0, count, EDI_lineEndString, EDI_fileStartsWithBom));
 	}
 	catch (err) {
 		console.error("Error saving file:", err);
 		return [];
+	}
+}
+
+async function editorSaveFileAs(event, uint8Array, count, EDI_lineEndString, EDI_fileStartsWithBom) {
+
+	const webContents = event.sender;
+    const win = BrowserWindow.fromWebContents(webContents);
+
+	// Configure the native "Save As" dialog box
+	const { canceled, filePath } = await dialog.showSaveDialog(win, {
+		title: 'Save File As',
+		//defaultPath: path.join(app.getPath('downloads'), 'untitled.txt'), // Default folder & name
+		filters: [
+			{ name: 'Text Files', extensions: ['txt'] },
+			{ name: 'All Files', extensions: ['*'] }
+		]
+	});
+
+	// If the user cancelled the dialog, return false
+	if (canceled || !filePath) {
+		return { success: false, canceled: true };
+	}
+
+	try {
+		// Write data to the user's selected path
+		// use parameter ", 'utf-8'?"
+		const basename = path.basename(filePath);
+		const formattedAbsolutePath = formatAbsolutePath(filePath);
+		const text = MAIN_decode_experimental_textonly(uint8Array, /*start*/ 0, count, EDI_lineEndString, EDI_fileStartsWithBom);
+		fs.writeFileSync(filePath, text);
+		let pathId = database.addAbsolutePath(filePath, basename);
+		pathId = database.addAbsolutePath(formattedAbsolutePath, basename);
+		if (languageServerHandshakeSuccess && languageServer) {
+			lsp_write_didOpenTextDocumentNotification(formattedAbsolutePath, text);
+			lsp_write_customFullFileLexRequest();
+		}
+		return { success: true, absolutePath:filePath, formattedAbsolutePath:formattedAbsolutePath };
+	} catch (error) {
+		return { success: false, error: error.message };
 	}
 }
 

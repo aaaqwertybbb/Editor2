@@ -178,6 +178,14 @@ function dialog_documentSymbol_onResizeAction() {
     }
 }
 
+async function documentBody_onKeyDown_saveFileAs(rawData) {
+    const result = await window.myAPI.editorSaveFileAs(rawData.uint8arrayTextBytes, rawData.countOfBytesInUse, rawData.lineEndString, rawData.fileStartsWithBom);
+    if (result.success) {
+        EDI_textSourceIdentifier = result.absolutePath;
+        EDI_FORMATTED_textSourceIdentifier = result.formattedAbsolutePath;
+    }
+}
+
 function documentBody_onKeyDown(event) {
     switch (event.key) {
         case 's':
@@ -185,13 +193,17 @@ function documentBody_onKeyDown(event) {
             if (!event.ctrlKey) return;
 
             const unvalidatedAbsolutePath = EDI_textSourceIdentifier;
-            if (unvalidatedAbsolutePath === null) { return; }
-
             const rawData = EDI_getFinalizedEditsAndRawSaveFileData();
+
             if (rawData.uint8arrayTextBytes) {
                 event.preventDefault();
                 event.stopPropagation();
-                window.myAPI.editorSaveFile(unvalidatedAbsolutePath, rawData.uint8arrayTextBytes, rawData.countOfBytesInUse, rawData.lineEndString, rawData.fileStartsWithBom);
+                if (unvalidatedAbsolutePath === null) {
+                    documentBody_onKeyDown_saveFileAs(rawData);
+                }
+                else {
+                    window.myAPI.editorSaveFile(unvalidatedAbsolutePath, rawData.uint8arrayTextBytes, rawData.countOfBytesInUse, rawData.lineEndString, rawData.fileStartsWithBom);
+                }
             }
             return;
         case 'F':

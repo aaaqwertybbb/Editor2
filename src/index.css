@@ -394,7 +394,6 @@ TODO: maybe don't nearly-duplicate these classes.
 }
 
 #EDITOR_anchor {
-  outline: none;
   height: calc(100% - 1.5em);
   position: relative; /* Acts as the absolute coordinate root for the child */
   display: flex;
@@ -403,6 +402,7 @@ TODO: maybe don't nearly-duplicate these classes.
 }
 
 #EDITOR_inner_container {
+  outline: none;
   position: absolute;
   inset: 0;             /* Locks width and height to 100% of the resolved anchor size */
   overflow: hidden;

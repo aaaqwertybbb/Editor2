@@ -1498,7 +1498,7 @@ async function EXPLORER_openInEditor(absolutePath, shouldFocus) {
         itHasBom.lineEndString,
         itHasBom.lineEndCount);
     if (shouldFocus) {
-        let editor = document.getElementById('EDITOR');
+        let editor = document.getElementById('EDITOR_inner_container');
         if (editor) {
             editor.focus();
         }

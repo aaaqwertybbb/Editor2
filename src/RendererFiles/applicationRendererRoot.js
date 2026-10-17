@@ -195,10 +195,7 @@ function documentBody_onKeyDown(event) {
             if (!event.ctrlKey) return;
             DIALOG_show(DialogKind_FindAll, null, null);
         case 'Escape':
-            // TODO: Provide a way to disable the next (body, and useCapture) 'Escape' keypress...
-            // ...so a widget can restore focus to the relevant UI rather than
-            // the 'EDITOR' when the user presses 'Escape' to "cancel".
-            const editor = document.getElementById('EDITOR');
+            const editor = document.getElementById('EDITOR_inner_container');
             if (editor) {
                 editor.focus();
             }
@@ -214,7 +211,7 @@ function documentBody_onKeyDown(event) {
             return;
         case 'E':
             if (event.altKey && event.shiftKey) {
-                const editor = document.getElementById('EDITOR');
+                const editor = document.getElementById('EDITOR_inner_container');
                 if (editor) {
                     editor.focus();
                     EXPLORER_setShow(false);

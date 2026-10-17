@@ -746,9 +746,6 @@ const fEXPLORER_boundingClientRect_top = 145;
 // Although it might "just work" because you're using locals which would become negative?
 // TODO: figure it out
 
-
-
-//const EDI_baseElement = document.getElementById('EDITOR');
 const EDI_baseElement = document.getElementById('EDITOR_inner_container');
 
 const EDI_scroll_viewport = EDI_baseElement.children[0];

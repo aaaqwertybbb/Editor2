@@ -205,6 +205,7 @@ function EDI_init() {
     EDI_drawHorizontalScrollbar();
     EDI_drawCursor();
 
+    EDI_trackingUint32MaxHeap = new TrackingUint32MaxHeap();
     EDI_state_setText_byteArray(new Uint8Array(), /*fileStartsWithBom*/ false, /*textSourceIdentifier*/ null, /*FORMATTED_textSourceIdentifier*/ null, /*extensionKind*/ 0, /*lineEndString*/ '\n', /*lineEndCount*/ 0);
 
     EDI_registerHandlers();
@@ -660,6 +661,11 @@ function EDI_render_do_Clear() {
 }
 
 function EDI_state_clear(trackingUint32MaxHeap_initialCapacity) {
+    if (trackingUint32MaxHeap_initialCapacity === 0) {
+        // 0 will break the capacity of the heap
+        trackingUint32MaxHeap_initialCapacity = undefined;
+    }
+
     EDI_finalizeEdit();
     EDI_cursor_clear();
     set_EDI_recentBoundingClientRect_isNull_intFalsey(1);

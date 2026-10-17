@@ -803,3 +803,4 @@ Am I shadowbanned, I don't want anyone to see me whining and thinking I'm cringe
 I'm fixing enter key
 
 if startOfLine === endOfLine === endOfFile
+TODO: check 'startOfLine === endOfLine' alone (no endOfFile)

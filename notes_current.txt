@@ -804,3 +804,6 @@ I'm fixing enter key
 
 if startOfLine === endOfLine === endOfFile
 TODO: check 'startOfLine === endOfLine' alone (no endOfFile)
+
+oh wow I was able to copy and paste all of editorGlobal.js into that initial "null" file.
+The longest line is borked though it doesn't update other than when initially opening a file

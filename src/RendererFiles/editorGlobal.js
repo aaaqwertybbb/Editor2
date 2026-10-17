@@ -5061,7 +5061,7 @@ function EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_la
         // You don't need to clear 'EDI_ringBuffer_text[sourceIndex].textContent', that's done in the final step of this function
         // when invoking 'EDI_drawLine'.
         if (EDI_gutter_scroll_mover.children[sourceIndex].textContent === '~') {
-            const destination_textNode_gutter = EDI_gutter_scroll_mover.children[destinationIndex];
+            const destination_textNode_gutter = EDI_gutter_scroll_mover.children[destinationIndex].firstChild;
             destination_textNode_gutter.replaceData(0, destination_textNode_gutter.length, '~');
         }
         destinationIndex = (destinationIndex + 1) % local_ArrayFrom_textElement_children_length;

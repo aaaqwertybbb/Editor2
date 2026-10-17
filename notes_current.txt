@@ -787,12 +787,6 @@ the cravings etc...
 
 =====
 
-I feel sad, anxious, lonely, abandoned.
-I saw the song had 1 less like.
-And it's a pretty niche song too.
-Did someone previously like the video and then remove their like because of something I said?
-
-I'm trying to focus and make progress on the code but I'm just struggling to focus I keep thinking about that
 
 
 - [ ] change file (don't recreate the dom nodes)

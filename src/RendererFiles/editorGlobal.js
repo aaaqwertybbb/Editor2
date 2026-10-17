@@ -591,8 +591,6 @@ function EDI_onScroll_LeadingEdge(local_prevVli, local_currVli) {
 
     INTS[fEDI_intFalsey_isScrolling] = 1;
 
-    EDI_finalizeEdit();
-
     // TODO: I'm fairly certain that this needs to go above 'INTS[fEDI_intFalsey_isScrolling] = 1;' at a minimum. (this is the only horizontal scroll short circuit to avoid vertical scroll logic from running)
     if (INTS[fEDI_prevVli] === INTS[fEDI_virtualIndexLine] && INTS[fEDI_ONSCROLLvirtualCount] === INTS[fEDI_virtualCount]) {
         return true;

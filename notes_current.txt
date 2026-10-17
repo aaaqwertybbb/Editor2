@@ -809,3 +809,7 @@ oh wow I was able to copy and paste all of editorGlobal.js into that initial "nu
 The longest line is borked though it doesn't update other than when initially opening a file
 
 What does Anna Kendrick, Eminem, and Avril Lavigne -- all have in common?
+
+^There's no hidden meaning to this
+
+I got recommended Anna Kendrick when I'm gone and Avril Lavigne and when you're gone and Eminem came to mind so I said that

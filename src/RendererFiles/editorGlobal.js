@@ -199,7 +199,7 @@ function EDI_init() {
 
     INTS[fEDI_gutterWidthStyleValue] = EDI_characterWidth;
 
-    EDI_drawGutter_Width();
+    EDI_drawGutter_Width(INTS[fEDI_lineEndPositionList_count]);
 
     INTS[fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar] = 1; // necessary for the first render, otherwise the if statement sees 0 !== 0.
     EDI_drawHorizontalScrollbar();
@@ -774,7 +774,7 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
 
     update_verticalVirtualizationBoundary();
 
-    EDI_drawGutter_Width();
+    EDI_drawGutter_Width(INTS[fEDI_lineEndPositionList_count]);
     EDI_render_request(RenderKind_Cursor_n);
     EDI_drawHorizontalScrollbar();
     // Force 'case 3' within 'EDI_render_do_Scroll' downstream
@@ -1857,7 +1857,7 @@ function EDI_render_do_EnterKey() {
 
         if (INTS[fEDI_cursor_editIndexColumn] === 0) { // start of line
             EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, ringBufferIndex_current);
-            EDI_lineWasInsertedValidateGutter();
+            EDI_lineWasInsertedValidateGutter(INTS[fEDI_lineEndPositionList_count] + INTS[fEDI_cursor_editLineFeedCount]);
         }
         else {
             let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_editIndexLine]);
@@ -1867,7 +1867,7 @@ function EDI_render_do_EnterKey() {
                 EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, next_ringBufferIndex);
                 const textNode = EDI_ringBuffer_text[next_ringBufferIndex].firstChild;
                 textNode.replaceData(0, textNode.length, EDI_cursor_cached_indentation_string);
-                EDI_lineWasInsertedValidateGutter();
+                EDI_lineWasInsertedValidateGutter(INTS[fEDI_lineEndPositionList_count] + INTS[fEDI_cursor_editLineFeedCount]);
             }
             else { // among a line
 
@@ -1911,7 +1911,7 @@ function EDI_render_do_EnterKey() {
                 EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, next_ringBufferIndex);
                 const textNode = EDI_ringBuffer_text[next_ringBufferIndex].firstChild;
                 textNode.replaceData(0, textNode.length, spanText);
-                EDI_lineWasInsertedValidateGutter();
+                EDI_lineWasInsertedValidateGutter(INTS[fEDI_lineEndPositionList_count] + INTS[fEDI_cursor_editLineFeedCount]);
 
                 // Prior to returning from this function restore the original 'indexLine', and 'indexColumn'. (2 of 2)
                 INTS[fEDI_cursor_indexLine] = remember_cursorIndexLine;
@@ -2304,7 +2304,7 @@ function EDI_render_do_RemoveSelection() {
             // TODO: This will be wrong because you'd need to explicitly redraw the large selection line index.
             EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_last, ringBufferIndex_current, linesRemovedCount);
 
-            if (EDI_drawGutter_Width()) {
+            if (EDI_drawGutter_Width(INTS[fEDI_lineEndPositionList_count] - linesRemovedCount)) {
                 // If true then you need to also draw the dependent UI
                 EDI_render_request(RenderKind_Cursor_n);
                 EDI_drawHorizontalScrollbar();
@@ -4973,8 +4973,8 @@ function EDI_measureEndExclusiveIndentationIndexColumn() {
     return count;
 }
 
-function EDI_lineWasInsertedValidateGutter() {
-    if (EDI_drawGutter_Width()) {
+function EDI_lineWasInsertedValidateGutter(lineCount) {
+    if (EDI_drawGutter_Width(lineCount)) {
         // If true then you need to also draw the dependent UI
         EDI_render_request(RenderKind_Cursor_n);
         EDI_drawHorizontalScrollbar();
@@ -5247,12 +5247,8 @@ function EDI_decode_textonly(start, length) {
  * for the dependent UI.
  * The confusion, if there is any, comes from the dependent UI in some scenarios being required independently of whether drawGutter changes. And at other times they're solely dependent on whether drawGutter changes.
  */
-function EDI_drawGutter_Width() {
-    let count = INTS[fEDI_lineEndPositionList_count];
-    if (BYTES[byteEDI_cursor_enterKeyEventKind] !== EnterKeyEventKind_None) {
-        count += 1;
-    }
-    let digitCountOfLargestLineNumber = positiveNumbersOnly_countDigitsLoop(count);
+function EDI_drawGutter_Width(lineCount) {
+    let digitCountOfLargestLineNumber = positiveNumbersOnly_countDigitsLoop(lineCount);
     if (INTS[fEDI_drawn_count_of_digits_longest_line_number] === digitCountOfLargestLineNumber) return false;
 
     INTS[fEDI_drawn_count_of_digits_longest_line_number] = digitCountOfLargestLineNumber;

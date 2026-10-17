@@ -1938,7 +1938,7 @@ function EDI_EnterKey(ctrlKey, originalIndexLine, originalIndexColumn) {
     }
 
     if (BYTES[byteEDI_cursor_enterKeyEventKind] === 0) {
-        if (INTS[fEDI_cursor_indexColumn] === 0) {
+        if (INTS[fEDI_cursor_indexColumn] === 0 && lastValidIndexColumn !== 0) {
             BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_StartOfLine;
         }
         else {

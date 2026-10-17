@@ -204,7 +204,7 @@ function EDI_init() {
     INTS[fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar] = 1; // necessary for the first render, otherwise the if statement sees 0 !== 0.
     EDI_drawHorizontalScrollbar();
     EDI_render_request(RenderKind_Cursor_n);
-    requestAnimationFrame(EDI_draw_cursor_debug);
+    EDI_drawCursor();
 
     EDI_registerHandlers();
 }

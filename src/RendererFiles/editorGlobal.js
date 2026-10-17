@@ -1779,6 +1779,7 @@ function EDI_tabKey() {
 }
 
 function EDI_render_do_EnterKey() {
+    // TODO: This is wrong because you haven't inserted the lines yet so you just redraw the exact same height more or less (it does "work somewhat" cause you can miss and then at some point you'll probably hit enter again and see it fix something but that's still wrong.).
     update_verticalVirtualizationBoundary();
 
     if (INTS[fEDI_cursor_editKind] !== EditKind_Enter) {

@@ -788,7 +788,7 @@ the cravings etc...
 =====
 
 
-- [ ] change file (don't recreate the dom nodes)
+- [x] change file (don't recreate the dom nodes)
 - [ ] resize (grow or shrink as necessary)
 ^ that's it
 

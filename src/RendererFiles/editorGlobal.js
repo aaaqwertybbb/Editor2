@@ -205,6 +205,8 @@ function EDI_init() {
     EDI_drawHorizontalScrollbar();
     EDI_drawCursor();
 
+    EDI_state_setText_byteArray(new Uint8Array(), /*fileStartsWithBom*/ false, /*textSourceIdentifier*/ null, /*FORMATTED_textSourceIdentifier*/ null, /*extensionKind*/ 0, /*lineEndString*/ '\n', /*lineEndCount*/ 0);
+
     EDI_registerHandlers();
 }
 
@@ -650,17 +652,6 @@ function EDI_render_do_Clear() {
 
     EDI_drawCursor(/*NOTscrollCursorIntoView*/ false);
     EDI_clearSelectionStyle();
-    // TODO: Wait what? Setting the text invokes clear.
-    // So everytime you change the text you've been re-initializing the editor?
-    // TODO: This should re-use the dom elements...
-    // ...part of that means also to NOT invoke 'EDI_render_do_CreateViewport' at the end of this function...
-    // ...but if 'EDI_render_do_CreateViewport' has necessary side effects beyond populating dom elements you need to trigger said side effects somehow.
-    const local_EDI_ringBuffer_text = EDI_ringBuffer_text;
-    let line = w_divNONE;
-    while (line = local_EDI_ringBuffer_text.pop()) {
-        line.remove();
-    }
-    EDI_gutter_scroll_mover.innerHTML = '';
     // TODO: Clear the ring buffer state?
 
     // Force case 3

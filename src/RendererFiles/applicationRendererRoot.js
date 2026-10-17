@@ -183,7 +183,10 @@ function documentBody_onKeyDown(event) {
         case 's':
         case 'S':
             if (!event.ctrlKey) return;
+            
             const unvalidatedAbsolutePath = EDI_textSourceIdentifier;
+            if (EDI_textSourceIdentifier === null) { return; }
+
             const rawData = EDI_getFinalizedEditsAndRawSaveFileData();
             if (rawData.uint8arrayTextBytes) {
                 event.preventDefault();

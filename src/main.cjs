@@ -898,7 +898,7 @@ async function editorReadAllText_byteArray(event, absolutePath) {
 			openedDocumentUri = null; // Should be set null regardless of language server existence to ensure it gets cleared if language server was running then stopped
 		}
 		if (languageServerHandshakeSuccess && languageServer) {
-			lsp_write_didOpenTextDocumentNotification();
+			lsp_write_didOpenTextDocumentNotification(absolutePath, itHasBom.text);
 			lsp_write_customFullFileLexRequest();
 		}
 		

@@ -821,4 +821,3 @@ I gotta redraw the width of the UI when the length of the longest line changes.
 
 - [ ] Some variables are named wrong ('EDI_virtualization_horizontal' no longer is an accurate variable name, this points to something different.)
 
-

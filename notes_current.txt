@@ -869,3 +869,23 @@ Soon after that I dropped out of college.
 And ever since I've been living with my parents.
 
 I haven't "hung out with a friend" in real life either in 8 years at this point.
+
+=========
+
+I gotta redraw the width of the UI when the length of the longest line changes.
+
+- [ ] InsertLtr
+- [ ] Enter
+- [ ] Tab
+- [ ] IndentMore
+- [ ] IndentLess
+- [ ] Paste
+- [ ] Duplicate
+- [ ] DeleteLtr_BackspaceRtl_RemoveTextNoBatching
+
+- [ ] Edge cases where you have extremely frequent and wasteful redrawing of the UI width
+    - [ ] For example, if I hold down the letter 'a', on the longest line, each character insertion of 'a' should NOT redraw the with of the UI
+        - [ ] it should be "batched"/"throttled"/"etc..."
+
+}
+

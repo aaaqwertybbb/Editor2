@@ -876,28 +876,29 @@ I gotta redraw the width of the UI when the length of the longest line changes.
 
 - [ ] InsertLtr
     - [x] simple
-    - [ ] complex
+    - [ ] multiline
 - [ ] Enter
-    - [ ] simple
+    - [x] simple
+        - [x] I think this is specifically gonna be single line the 'EnterKeyEventKind_AmongALine' case
     - [ ] complex
 - [ ] Tab
     - [x] simple
-    - [ ] complex
+    - [ ] multiline
 - [ ] IndentMore
     - [x] simple
-    - [ ] complex
+    - [ ] multiline
 - [ ] IndentLess
     - [x] simple
-    - [ ] complex
+    - [ ] multiline
 - [ ] Paste
     - [x] simple
-    - [ ] complex
+    - [ ] multiline
 - [ ] Duplicate
     - [x] simple
-    - [ ] complex
+    - [ ] multiline
 - [ ] DeleteLtr_BackspaceRtl_RemoveTextNoBatching
     - [x] simple
-    - [ ] complex
+    - [ ] multiline
 
 - [ ] Edge cases where you have extremely frequent and wasteful redrawing of the UI width
     - [ ] For example, if I hold down the letter 'a', on the longest line, each character insertion of 'a' should NOT redraw the with of the UI

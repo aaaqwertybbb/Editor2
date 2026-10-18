@@ -3357,6 +3357,14 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
         let lastSplitVisualWidth = INTS[fEDI_ret_getIndexFromX_visualColumns] - firstSplitVisualWidth;
         EDI_trackingUint32MaxHeap.updateLength(INTS[fEDI_cursor_editIndexLine], actualNewLineVisualWidth + lastSplitVisualWidth);
         actualNewLineVisualWidth = firstSplitVisualWidth;
+        if (INTS[fEDI_longestLine_indexLine] === INTS[fEDI_cursor_editIndexLine]) {
+            if (EDI_trackingUint32MaxHeap.tryPooledPeek() &&
+                (INTS[fEDI_longestLine_length] !== EDI_trackingUint32MaxHeap.unpack_pool_length || INTS[fEDI_longestLine_indexLine] !== EDI_trackingUint32MaxHeap.unpack_pool_lineIndex)) {
+                    INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
+                    INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
+                    requestAnimationFrame(EDI_drawHorizontalScrollbar);
+            }
+        }
     }
 
     for (var i = actualIndexLine; i < INTS[fEDI_lineEndPositionList_count]; i++) {

@@ -775,7 +775,6 @@ check for non-zero is better to avoid the pointless 'isChecking_...'
 
 =====
 
-
 - [x] change file (don't recreate the dom nodes)
 - [ ] resize (grow or shrink as necessary)
 

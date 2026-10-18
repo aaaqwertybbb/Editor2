@@ -4001,6 +4001,7 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
             (INTS[fEDI_longestLine_length] !== EDI_trackingUint32MaxHeap.unpack_pool_length || INTS[fEDI_longestLine_indexLine] !== EDI_trackingUint32MaxHeap.unpack_pool_lineIndex)) {
                 INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
                 INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
+                requestAnimationFrame(EDI_drawHorizontalScrollbar);
         }
     }
 
@@ -4083,6 +4084,7 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
             (INTS[fEDI_longestLine_length] !== EDI_trackingUint32MaxHeap.unpack_pool_length || INTS[fEDI_longestLine_indexLine] !== EDI_trackingUint32MaxHeap.unpack_pool_lineIndex)) {
                 INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
                 INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
+                requestAnimationFrame(EDI_drawHorizontalScrollbar);
         }
     }
 

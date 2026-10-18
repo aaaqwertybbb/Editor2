@@ -890,10 +890,10 @@ I gotta redraw the width of the UI when the length of the longest line changes.
     - [ ] simple
     - [ ] complex
 - [ ] Paste
-    - [ ] simple
+    - [x] simple
     - [ ] complex
 - [ ] Duplicate
-    - [ ] simple
+    - [x] simple
     - [ ] complex
 - [ ] DeleteLtr_BackspaceRtl_RemoveTextNoBatching
     - [x] simple

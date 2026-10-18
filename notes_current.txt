@@ -881,13 +881,13 @@ I gotta redraw the width of the UI when the length of the longest line changes.
     - [ ] simple
     - [ ] complex
 - [ ] Tab
-    - [ ] simple
+    - [x] simple
     - [ ] complex
 - [ ] IndentMore
-    - [ ] simple
+    - [x] simple
     - [ ] complex
 - [ ] IndentLess
-    - [ ] simple
+    - [x] simple
     - [ ] complex
 - [ ] Paste
     - [x] simple

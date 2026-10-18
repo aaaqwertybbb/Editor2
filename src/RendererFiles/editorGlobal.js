@@ -3092,6 +3092,9 @@ function EDI_editEvent_checkFor_NOTcanBatch_IndentMore() {
             return false;
     }
 
+    // TODO: if "fEDI_cursor_editLength" > "..." then finalize the edit? or no limit on edit length per batch for indent more?...
+    // ...maybe there already is one idk
+
     return true;
 }
 
@@ -3143,6 +3146,9 @@ function EDI_editEvent_checkFor_NOTcanBatch_IndentLess() {
         INTS[fEDI_indent_startingIndex] === startingIndex) {
             return false;
     }
+
+    // TODO: if "fEDI_cursor_editLength" > "..." then finalize the edit? or no limit on edit length per batch for indent less?...
+    // ...maybe there already is one idk
 
     return true;
 }
@@ -3597,6 +3603,7 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
             (INTS[fEDI_longestLine_length] !== EDI_trackingUint32MaxHeap.unpack_pool_length || INTS[fEDI_longestLine_indexLine] !== EDI_trackingUint32MaxHeap.unpack_pool_lineIndex)) {
                 INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
                 INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
+                requestAnimationFrame(EDI_drawHorizontalScrollbar);
         }
     }
     
@@ -3909,6 +3916,7 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
             (INTS[fEDI_longestLine_length] !== EDI_trackingUint32MaxHeap.unpack_pool_length || INTS[fEDI_longestLine_indexLine] !== EDI_trackingUint32MaxHeap.unpack_pool_lineIndex)) {
                 INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
                 INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
+                requestAnimationFrame(EDI_drawHorizontalScrollbar);
         }
     }
 

@@ -388,10 +388,6 @@ function MENU_MenuOption_factory(commandKind, text) {
 
 /*
 TODO:
-- [ ] "Rewrite" menuGlobal.js
-    - [ ] Too many root references when the menu isn't even being shown.
-    - [ ] If you make 1 allocation to create a menu you can avoid the null references at the root level
-          when not showing the Menu.
 - [ ] "If you lack classes you'll have a nightmare of a time creating instances and refactoring in the future"
     - [ ] The solution is to have all functions that are intended for external interaction to never construct an instance.
     - [ ] They just give data separately and internally the object is made for them
@@ -400,11 +396,6 @@ TODO:
     - [ ] If it is the correct thing to do that's one thing but don't mindlessly create hidden classes.
 - [ ] Remove the obsolete INTS entries that widgetGlobal.js no longer is using.
 - [ ] Remove the obsolete INTS entries that menuGlobal.js no longer is using.
-- [ ] Move the count and capacity from editorGlobal.js to INTS
-    - [ ] EDI_textByteList_count TODO: Consider local variable of value for high usage loops or some such?
-    - [ ] EDI_textByteList_capacity
-    - [ ] EDI_lineEndPositionList_count TODO: Consider local variable of value for high usage loops or some such?
-    - [ ] EDI_lineEndPositionList_capacity
 - [ ] If the initial state is '[]' in attempt to ...
     - [ ] if the array kind is reference entries
     - [ ] have them all share the initial version
@@ -415,7 +406,6 @@ TODO:
 - [ ] Move all the transpiled const to fieldBuffer.js
     - [ ] so you know by just glancing at the `__COMPILEDbundle__.js` whether they've all been transpiled or not.
     - [ ] i.e.: 'const CommandKind_None = 0;', 'const CommandKind_Submenu = 1;'
-- [ ] Reduce dialogGlobal.js root level variables to just 1 null or non-null "pattern".
 - [ ] TODO: maybe the menu should always be empty, and just be some div that moves left top positions and you can put anything you want in it.
     - [ ] ^This is probably a bad idea, at the least for now it is
 - [ ] TODO: submenus
@@ -425,5 +415,4 @@ TODO:
 - [ ] Check all the rAF code, nothing should be async unless there's a really good reason for it and even then could a good enough reason even exist?
 - [ ] TODO: menuGlobal.js blur events
 - [ ] TODO: widgetGlobal.js blur events
-- [ ] TODO: rewrite the dialogGlobal.js
 */

@@ -820,3 +820,5 @@ I gotta redraw the width of the UI when the length of the longest line changes.
 - [ ] Do multiline spanning edits correctly update the longest line heap? (I don't think they do)
 
 - [ ] Some variables are named wrong ('EDI_virtualization_horizontal' no longer is an accurate variable name, this points to something different.)
+
+I wanna say the final 31 minutes made me do a complete 180 I'd watched more than an hour and was ready to stop.

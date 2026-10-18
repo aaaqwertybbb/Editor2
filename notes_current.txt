@@ -875,13 +875,29 @@ I haven't "hung out with a friend" in real life either in 8 years at this point.
 I gotta redraw the width of the UI when the length of the longest line changes.
 
 - [ ] InsertLtr
+    - [x] simple
+    - [ ] complex
 - [ ] Enter
+    - [ ] simple
+    - [ ] complex
 - [ ] Tab
+    - [ ] simple
+    - [ ] complex
 - [ ] IndentMore
+    - [ ] simple
+    - [ ] complex
 - [ ] IndentLess
+    - [ ] simple
+    - [ ] complex
 - [ ] Paste
+    - [ ] simple
+    - [ ] complex
 - [ ] Duplicate
+    - [ ] simple
+    - [ ] complex
 - [ ] DeleteLtr_BackspaceRtl_RemoveTextNoBatching
+    - [x] simple
+    - [ ] complex
 
 - [ ] Edge cases where you have extremely frequent and wasteful redrawing of the UI width
     - [ ] For example, if I hold down the letter 'a', on the longest line, each character insertion of 'a' should NOT redraw the with of the UI

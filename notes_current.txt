@@ -820,3 +820,11 @@ I gotta redraw the width of the UI when the length of the longest line changes.
 - [ ] Do multiline spanning edits correctly update the longest line heap? (I don't think they do)
 
 - [ ] Some variables are named wrong ('EDI_virtualization_horizontal' no longer is an accurate variable name, this points to something different.)
+
+it sucks that I have my door open all the time.
+
+My parents are in the room that is immediately to the left if I were to walk out of mine.
+
+So I can't "cry cry"
+I have to constantly try to stop myself
+cause if they got up to get something from the kitchen they'd see me just bawling my eyes out and it's like wtf are you doing

@@ -758,18 +758,6 @@ You don't need a separate one 'byteEDI_isChecking_cursorBlinkTrailingEdge'
 but you do need 'cursorBlinkingTrailingEdgeTimeoutId'
 check for non-zero is better to avoid the pointless 'isChecking_...'
 
-I'm not feeling great, not that I'm feeling bad, I just am eh
-I don't know what I'm gonna get done
-
-Like I feel fine, I just feel extremely inattentive
-
-While I was at work today, towards the end I was thinking I'd buy a drink with caffeine in it.
-And go above my 200mg amount.
-It's just a 1 200mg pill in the morning that I've been taking for many months now.
-I feel like I wanna go to sleep
-the cravings etc...
-
-
 - [x] byteisCheckingTrailingEdge
 - [ ] fEDI_intFalsey_isScrolling
 
@@ -790,87 +778,8 @@ the cravings etc...
 
 - [x] change file (don't recreate the dom nodes)
 - [ ] resize (grow or shrink as necessary)
-^ that's it
-
-
-The initial state of an unopened file that I just made progress on,
-it still doesn't initialize properly unless you open an actual file I can prob fix that rn tho
-
-
-Am I shadowbanned, I don't want anyone to see me whining and thinking I'm cringe
-
-
-I'm fixing enter key
-
-if startOfLine === endOfLine === endOfFile
-TODO: check 'startOfLine === endOfLine' alone (no endOfFile)
-
-oh wow I was able to copy and paste all of editorGlobal.js into that initial "null" file.
-The longest line is borked though it doesn't update other than when initially opening a file
-
-What does Anna Kendrick, Eminem, and Avril Lavigne -- all have in common?
-
-^There's no hidden meaning to this
-
-I got recommended Anna Kendrick when I'm gone and Avril Lavigne and when you're gone and Eminem came to mind so I said that
-"when I'm gone just carry on ..."
 
 ====
-
-I see "brock being a simp for 6 minutes and 35 seconds straight"
-
-I'd rather be a simp than...
-I can live with that
-
-Movie today was Grease for the first time
-
-///
-
-omg I just had a memory.
-
-I was on a date with a girl. It was over the break when I was at rutgers and dorming.
-I was still at the dorms and everyone else went home.
-I put on "Call me by your name" and we watched that lmao
-
-Is it weird to be on a date with a girl and then put on a movie about a gay relationship?
-
-=======
-
-I have one of those "awake at 1 am thinking about the past situations" too that happened.
-
-She put he hand on my waist/leg and I jumped/flinched as if a firework went off or something
-
-It was during the movie maybe I was just invested in the movie so it surprised me.
-"who touched me is there someone else here oh yeah"
-
-====
-
-"who cares"
-
-you don't understand she never came over again after that date
-
-I talked about the girl that I felt crushed about.
-That wasn't the same girl.
-
-But I felt crushed with that girl.
-
-Then I went on the date that I'm talking about.
-
-So my ego was just in smithereens after that
-
-that was actually the last date I went on it's been like 8 years
-
-====
-
-I was thinking on this while I went shopping this morning.
-
-Soon after that I dropped out of college.
-
-And ever since I've been living with my parents.
-
-I haven't "hung out with a friend" in real life either in 8 years at this point.
-
-=========
 
 I gotta redraw the width of the UI when the length of the longest line changes.
 
@@ -912,6 +821,3 @@ I gotta redraw the width of the UI when the length of the longest line changes.
 - [ ] Do multiline spanning edits correctly update the longest line heap? (I don't think they do)
 
 - [ ] Some variables are named wrong ('EDI_virtualization_horizontal' no longer is an accurate variable name, this points to something different.)
-
-}
-

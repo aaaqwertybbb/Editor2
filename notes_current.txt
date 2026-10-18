@@ -887,5 +887,11 @@ I gotta redraw the width of the UI when the length of the longest line changes.
     - [ ] For example, if I hold down the letter 'a', on the longest line, each character insertion of 'a' should NOT redraw the with of the UI
         - [ ] it should be "batched"/"throttled"/"etc..."
 
+- [ ] Longest line when file is just EOF and you insert by holding 'a' on line number 1, the longest line isn't updating it stays 0,0
+    - [ ] TODO: check when there's more than 1 line if this EOF issue still occurs for:
+        - [ ] EOF line has no text and you do that holding 'a' insertion
+        - [ ] EOF line has text and you do that holding 'a' insertion
+
+
 }
 

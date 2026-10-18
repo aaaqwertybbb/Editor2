@@ -3033,7 +3033,8 @@ function EDI_editEvent_checkFor_NOTcanBatch_Tab(event) {
         }
         else {
             if (INTS[fEDI_cursor_editIndexLine] === INTS[fEDI_cursor_indexLine] &&
-                INTS[fEDI_cursor_editIndexColumn] + (EDI_on_tab_bytes.length * INTS[fEDI_cursor_editLength]) === INTS[fEDI_cursor_indexColumn]) {
+                INTS[fEDI_cursor_editIndexColumn] + (EDI_on_tab_bytes.length * INTS[fEDI_cursor_editLength]) === INTS[fEDI_cursor_indexColumn] &&
+                INTS[fEDI_cursor_editLength] < CONST_EDI_cursor_GAP_BUFFER_CAPACITY) {
                     return false;
             }
         }
@@ -3461,11 +3462,14 @@ function EDI_finalizeEdit_Tab(indexLine_editOccurredOn) {
         (INTS[fEDI_longestLine_length] !== EDI_trackingUint32MaxHeap.unpack_pool_length || INTS[fEDI_longestLine_indexLine] !== EDI_trackingUint32MaxHeap.unpack_pool_lineIndex)) {
             INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
             INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
+            requestAnimationFrame(EDI_drawHorizontalScrollbar);
     }
+
+    indexLine_editOccurredOn = INTS[fEDI_cursor_editIndexLine];
 
     EDI_finalizeEdit_ClearEditState();
 
-    return INTS[fEDI_cursor_editIndexLine];
+    return indexLine_editOccurredOn;
 }
 
 function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {

@@ -5781,6 +5781,7 @@ function EDI_onKeyDown_End(event) {
 
 function EDI_onKeyDown_PageDown(event) {
     event.stopPropagation();
+    event.preventDefault();
 
     if (event.ctrlKey) {
         INTS[fEDI_cursor_indexLine] = INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount];
@@ -5798,10 +5799,14 @@ function EDI_onKeyDown_PageDown(event) {
         INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_cursor_selectionEnd];
         EDI_render_request(RenderKind_Cursor_n);
     }
+    else {
+        EDI_scroll_viewport.scrollBy(0, INTS[fEDI_lineHeight] * INTS[fEDI_virtualCount]);
+    }
 }
 
 function EDI_onKeyDown_PageUp(event) {
     event.stopPropagation();
+    event.preventDefault();
 
     if (event.ctrlKey) {        
         INTS[fEDI_cursor_indexLine] = INTS[fEDI_virtualIndexLine];
@@ -5818,6 +5823,9 @@ function EDI_onKeyDown_PageUp(event) {
         // TODO: allow someone to select via this keybind, but for now it causes a bad selection if you { 'Ctrl' + 'a' } then use it so I'm clearing any active selection here for now.
         INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_cursor_selectionEnd];
         EDI_render_request(RenderKind_Cursor_n);
+    }
+    else {
+        EDI_scroll_viewport.scrollBy(0, -1 * INTS[fEDI_lineHeight] * INTS[fEDI_virtualCount]);
     }
 }
 

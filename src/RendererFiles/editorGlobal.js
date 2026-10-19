@@ -3289,7 +3289,6 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
     let version = INTS[fEDI_didChangeTextDocument_version];
 
-    // --- CLEAN INTEGRATION ---
     enqueueLSPNotification({
         absolutePath: EDI_FORMATTED_textSourceIdentifier,
         version: version,
@@ -3299,7 +3298,6 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
         endCharacter: lineAndColumnIndices_indexColumn,
         text: text
     });
-    // -------------------------
 
     EDI_trackingUint32MaxHeap.updateLength_diff(indexLine_editOccurredOn, INTS[fEDI_cursor_editLength]);
     if (EDI_trackingUint32MaxHeap.tryPooledPeek() &&
@@ -3464,7 +3462,6 @@ function EDI_finalizeEdit_Tab(indexLine_editOccurredOn) {
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
     let version = INTS[fEDI_didChangeTextDocument_version];
 
-    // --- CLEAN INTEGRATION ---
     enqueueLSPNotification({
         absolutePath: EDI_FORMATTED_textSourceIdentifier,
         version: version,
@@ -3474,7 +3471,6 @@ function EDI_finalizeEdit_Tab(indexLine_editOccurredOn) {
         endCharacter: lineAndColumnIndices_indexColumn,
         text: text
     });
-    // -------------------------
 
     let editLengthVisual = length * INTS[fEDI_ontab_visualWidth_perCharacter];
     if (INTS[fEDI_ontab_visualWidth_perCharacter] === 4) {
@@ -3610,9 +3606,7 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
         EDI_lineEndPositionList_data[lineI] += ORIGINAL_incrementBy;
     }
 
-    // --- CLEAN INTEGRATION ---
     enqueueLSPNotification(lspObject);
-    // -------------------------
 
     // 'startingIndex' is the larger index, the loop that this variable comes from goes in reverse.
     // This information doesn't matter much here but I'm ensuring an understanding incase the future necessitates it.
@@ -3923,9 +3917,7 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
         EDI_lineEndPositionList_data[lineI] -= ORIGINAL_decrementBy;
     }
 
-    // --- CLEAN INTEGRATION ---
     enqueueLSPNotification(lspObject);
-    // -------------------------
 
     // 'startingIndex' is the larger index, the loop that this variable comes from goes in reverse.
     // This information doesn't matter much here but I'm ensuring an understanding incase the future necessitates it.
@@ -4014,7 +4006,6 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
     let version = INTS[fEDI_didChangeTextDocument_version];
 
-    // --- CLEAN INTEGRATION ---
     enqueueLSPNotification({
         absolutePath: EDI_FORMATTED_textSourceIdentifier,
         version: version,
@@ -4024,7 +4015,6 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
         endCharacter: lineAndColumnIndices_indexColumn,
         text: text
     });
-    // -------------------------
 
     if (linesInsertedCount === 0) {
         indexLine_editOccurredOn = INTS[fEDI_cursor_editIndexLine];
@@ -4097,7 +4087,6 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
     let version = INTS[fEDI_didChangeTextDocument_version];
 
-    // --- CLEAN INTEGRATION ---
     enqueueLSPNotification({
         absolutePath: EDI_FORMATTED_textSourceIdentifier,
         version: version,
@@ -4107,7 +4096,6 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
         endCharacter: lineAndColumnIndices_indexColumn,
         text: text
     });
-    // -------------------------
 
     if (linesInsertedCount === 0) {
         indexLine_editOccurredOn = INTS[fEDI_cursor_editIndexLine];
@@ -4211,7 +4199,6 @@ function EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
     let version = INTS[fEDI_didChangeTextDocument_version];
 
-    // --- CLEAN INTEGRATION ---
     enqueueLSPNotification({
         absolutePath: EDI_FORMATTED_textSourceIdentifier,
         version: version,
@@ -4221,7 +4208,6 @@ function EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_
         endCharacter: endLineAndColumnIndices_indexColumn,
         text: text
     });
-    // -------------------------
 
     if (startLineAndColumnIndices_indexLine === endLineAndColumnIndices_indexLine) {
         EDI_trackingUint32MaxHeap.updateLength_diff(INTS[fEDI_cursor_editIndexLine], -1 * INTS[fEDI_cursor_editLengthVisual]);

@@ -3219,6 +3219,7 @@ function EDI_finalizeEdit() {
 }
 
 function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
+    // given the current state of the following for loop, you do indeed need this set to 0 otherwise the 0th line will not track visual length properly cause it'll try to update a line index of '-1' in the heap.
     indexLine_editOccurredOn = 0;
     for (let i = INTS[fEDI_lineEndPositionList_count] - 1; i >= 0; i--) {
         if (INTS[fEDI_cursor_editPosition] <= EDI_lineEndPositionList_data[i]) {
@@ -3309,7 +3310,8 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     let actualIndexLine = INTS[fEDI_cursor_editIndexLine];
     let actualNewLineVisualWidth = INTS[fEDI_cursor_cached_indentation_string_visualWidth];
     
-    let specialCaseNumber = 0;
+    let specialCase_number = 0;
+    let specialCase_firstLineIndexInserted = 0; // TODO: This is probably the lineIndex you end up on after the loop minus some number, maybe 'INTS[fEDI_cursor_editLineFeedCount]'.
 
     if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine) {
         actualEditPosition++; // Move past the current line's '\n'
@@ -3331,7 +3333,10 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
         // ...every line EXCEPT for the first one inserted will receive a visual length of 'actualNewLineVisualWidth'...
         // ...and then when you're done you have the special case where the first line you inserted gets visual width of the "temporary variable holds EOF line visual length"
         // 
-        //specialCaseNumber = ;
+        specialCase_firstLineIndexInserted = actualIndexLine;
+        const lastLineIndex = INTS[fEDI_lineEndPositionList_count] - 1;
+        specialCase_number = EDI_trackingUint32MaxHeap.getLength(lastLineIndex);
+        EDI_trackingUint32MaxHeap.updateLength(lastLineIndex, actualNewLineVisualWidth);
     }
     else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine) {
         // Contrary to 'EnterKeyEventKind_EndOfLine' this case actually does NOT have to move past the "current line's '\n'"
@@ -3417,6 +3422,22 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
         EDI_lineEndPositionList_insert(actualIndexLine, actualLineFeedPosition, actualNewLineVisualWidth);
         actualIndexLine++;
         actualLineFeedPosition += per_edit_insertionCount;
+    }
+
+    if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfFile) {
+        EDI_trackingUint32MaxHeap.updateLength(specialCase_firstLineIndexInserted, specialCase_number);
+        if (EDI_trackingUint32MaxHeap.tryPooledPeek() &&
+            (INTS[fEDI_longestLine_length] !== EDI_trackingUint32MaxHeap.unpack_pool_length || INTS[fEDI_longestLine_indexLine] !== EDI_trackingUint32MaxHeap.unpack_pool_lineIndex)) {
+                // "aaa\n" => 'EDI_lineEndPositionList_insert' causes a temporary longest line index is 1 and the longest line length is 0
+                // that needs to be overwritten.
+                // The example is "as you type it" so the '\n' gets finalized and that's when you see the wrong answer it is only temporary due to 'EDI_lineEndPositionList_insert'.
+                //
+                // TODO: This should be looked into a bit more?
+                //
+                INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
+                INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
+                requestAnimationFrame(EDI_drawHorizontalScrollbar);
+        }
     }
     
     EDI_finalizeEdit_ClearEditState();

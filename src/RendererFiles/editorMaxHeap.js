@@ -911,6 +911,17 @@ class TrackingUint32MaxHeap {
       this._sinkDown(logicalIndex);
     }
   }
+
+  getLength(lineIndex) {
+    // 1. Look up where this line index currently lives in the heap array
+    if (lineIndex >= this.lineIndexToHeapIndex.length) { throw new Error(); }
+    
+    const logicalIndex = this.lineIndexToHeapIndex[lineIndex];
+    if (logicalIndex === -1) { throw new Error(); }
+
+    const bufferIndex = logicalIndex * 2;
+    return this.heap[bufferIndex];
+  }
   
   /**
    * @param {*} diff positive or negative to reflect length change

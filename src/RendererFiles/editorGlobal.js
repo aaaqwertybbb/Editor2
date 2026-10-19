@@ -2770,13 +2770,13 @@ function EDI_editEvent(editKind, event, clipboardContent) {
     // check for NOTcanBatch... I don't want the switch in the for loop... if you have a selection then you have a not can batch?
     switch (editKind) {
         case EditKind_InsertLtr:
-            shouldFinalizeAllCursors = EDI_editEvent_checkFor_NOTcanBatch_InsertLtr();
+            shouldFinalizeAllCursors = EDI_NOTcanBatch_insert();
             break;
         case EditKind_DeleteLtr:
-            shouldFinalizeAllCursors = EDI_editEvent_checkFor_NOTcanBatch_DeleteLtr();
+            shouldFinalizeAllCursors = EDI_NOTcanBatch_delete();
             break;
         case EditKind_BackspaceRtl:
-            shouldFinalizeAllCursors = EDI_editEvent_checkFor_NOTcanBatch_BackspaceRtl();
+            shouldFinalizeAllCursors = EDI_NOTcanBatch_backspace();
             break;
         case EditKind_Tab:
             shouldFinalizeAllCursors = EDI_editEvent_checkFor_NOTcanBatch_Tab(event);
@@ -2988,30 +2988,6 @@ function EDI_NOTcanBatch_delete() {
            INTS[fEDI_cursor_indexLine] !== INTS[fEDI_cursor_editIndexLine] ||
            INTS[fEDI_cursor_indexColumn] !== INTS[fEDI_cursor_editIndexColumn] ||
            EDI_cursor_hasSelection();
-}
-
-/** @returns {boolean} 'shouldFinalizeAllCursors' */
-function EDI_editEvent_checkFor_NOTcanBatch_InsertLtr() {
-    if (EDI_NOTcanBatch_insert()) {
-        return true;
-    }
-    return false;
-}
-
-/** @returns {boolean} 'shouldFinalizeAllCursors' */
-function EDI_editEvent_checkFor_NOTcanBatch_DeleteLtr() {
-    if (EDI_NOTcanBatch_delete()) {
-        return true;
-    }
-    return false;
-}
-
-/** @returns {boolean} 'shouldFinalizeAllCursors' */
-function EDI_editEvent_checkFor_NOTcanBatch_BackspaceRtl() {
-    if (EDI_NOTcanBatch_backspace()) {
-        return true;
-    }
-    return false;
 }
 
 /** @returns {boolean} 'shouldFinalizeAllCursors' */

@@ -926,3 +926,9 @@ duplicate
       (i.e.: too many other features were missing to warrant me handling that cognitive overhead or something)
       (as well too many other features that actually did exist were still unorganized and I need their code to settle first)
 
+/**
+ * Visual Studio Code when I removed this no longer used function 'EDI_editEvent_checkFor_NOTcanBatch_Tab' code "fell" into place
+ * and then it got the same styling as if it were no longer used.
+ * This says something about how vscode "caches the syntax highlighing".
+ * It was only for a moment.
+*/

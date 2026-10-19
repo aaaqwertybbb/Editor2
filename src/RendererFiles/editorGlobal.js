@@ -2836,7 +2836,7 @@ function EDI_editEvent_theEditIself_InsertLtr(event) {
     // TODO: I'm moving 'EDI_movementBasedCacheInvalidation' to the finalize of the respective edits...
     // ...this invocation doesn't have a 'EDI_finalizeEdit();' invocation immediately above it. I believe this will be fine...
     // ...due to "EDI_NOTcanBatch_..." logic causing the 'EDI_finalizeEdit();'.
-    EDI_movementBasedCacheInvalidation();
+    //
     // You can do this because the function 'EDI_NOTcanBatch_insert' was already checked for all the cursors, if it is possible to batch, the editKind will stay InsertLtr otherwise it is finalized and set to None.
     // TODO: Use if === EditKind_None for copy and paste safety / it might just even be more readable
     if (INTS[fEDI_cursor_editKind] !== EditKind_InsertLtr) {
@@ -2852,7 +2852,7 @@ function EDI_editEvent_theEditIself_DeleteLtr(event) {
     // TODO: I'm moving 'EDI_movementBasedCacheInvalidation' to the finalize of the respective edits...
     // ...this invocation doesn't have a 'EDI_finalizeEdit();' invocation immediately above it. I believe this will be fine...
     // ...due to "EDI_NOTcanBatch_..." logic causing the 'EDI_finalizeEdit();'.
-    EDI_movementBasedCacheInvalidation();
+    //
     if (EDI_cursor_hasSelection()) {
         EDI_removeSelection();
     }
@@ -2869,7 +2869,7 @@ function EDI_editEvent_theEditIself_BackspaceRtl(event) {
     // TODO: I'm moving 'EDI_movementBasedCacheInvalidation' to the finalize of the respective edits...
     // ...this invocation doesn't have a 'EDI_finalizeEdit();' invocation immediately above it. I believe this will be fine...
     // ...due to "EDI_NOTcanBatch_..." logic causing the 'EDI_finalizeEdit();'.
-    EDI_movementBasedCacheInvalidation();
+    //
     if (EDI_cursor_hasSelection()) {
         EDI_removeSelection();
     }
@@ -2887,7 +2887,7 @@ function EDI_editEvent_theEditIself_Tab(event) {
     // TODO: I'm moving 'EDI_movementBasedCacheInvalidation' to the finalize of the respective edits...
     // ...this invocation doesn't have a 'EDI_finalizeEdit();' invocation immediately above it. I believe this will be fine...
     // ...due to "EDI_NOTcanBatch_..." logic causing the 'EDI_finalizeEdit();'.
-    EDI_movementBasedCacheInvalidation();
+    //
     if (EDI_cursor_hasSelection()) {
         if (event.shiftKey) {
             if (INTS[fEDI_cursor_editKind] !== EditKind_IndentLess) {
@@ -5421,34 +5421,6 @@ function EDI_postKeyboardMovementSelectionLogic(shiftKey) {
         INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
     }
 }
-
-/**
- * This function is expected to be used for a variety of scenarios,
- * but the initial use-case is caching the indentation when holding the 'enter' key, so that each consecutive event can know what the indentation was on the previous
- * event and not have to re-calculate it.
- * 
- * Then, the idea is that when the cursor moves you invoke this to invalidate that indentation cache so it gets recalculated.
- * 
- * TODO: I am quite certain that there are cases where this should be invoked but it isn't currently.
- * 
- * TODO: I believe this function to be an unoptimized solution, just that there are more pressing matters to attend to.
- */
-function EDI_movementBasedCacheInvalidation() {
-    if (INTS[fEDI_cursor_editKind] === EditKind_Enter) {
-        //
-        // this only happens once even if you have many cursors because the next cursor that enters this function would be and editKind of None.
-        //
-        // The main concern is when a user holds down the Enter key, so while this change causes any cursor movement to finalize a pending Enter edit, it won't be nearly as detrimental as if holding down the Enter key were to not be optimized.
-        //
-        // TODO: Permit more than one Enter key edit event to batch
-        // TODO: Cap the amount of enter key edit events that can batch as was done with the insertion.
-        // TODO: Having Enter be an insertion, instead of its own EditKind, sounds like the better long term goal but it is believed that this change is trainsitionally helpful in getting to that final best solution.
-        //
-        EDI_finalizeEdit();
-    }
-    EDI_cursor_enterKey_newLinePlusIndentation_byteList = null;
-    EDI_cursor_cached_indentation_string = null;
-}
 //#endregion
 
 //#region keydown
@@ -5538,8 +5510,6 @@ function EDI_onKeyDown_ArrowLeft(event) {
     if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
         EDI_finalizeEdit();
     }
-
-    EDI_movementBasedCacheInvalidation();
 
     if (EDI_cursor_hasSelection() && !event.shiftKey) {
         let small;
@@ -5632,7 +5602,6 @@ function EDI_onKeyDown_ArrowDown(event) {
         if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
             EDI_finalizeEdit();
         }
-        EDI_movementBasedCacheInvalidation();
         EDI_preKeyboardMovementSelectionLogic(event.shiftKey);
         if (INTS[fEDI_cursor_indexLine] < INTS[fEDI_lineEndPositionList_count] - 1) {
             INTS[fEDI_cursor_indexLine]++;
@@ -5659,7 +5628,6 @@ function EDI_onKeyDown_ArrowUp(event) {
         if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
             EDI_finalizeEdit();
         }
-        EDI_movementBasedCacheInvalidation();
         EDI_preKeyboardMovementSelectionLogic(event.shiftKey);
         if (INTS[fEDI_cursor_indexLine] > 0) {
             INTS[fEDI_cursor_indexLine]--;
@@ -5680,7 +5648,6 @@ function EDI_onKeyDown_ArrowRight(event) {
     if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
         EDI_finalizeEdit();
     }
-    EDI_movementBasedCacheInvalidation();
 
     if (EDI_cursor_hasSelection() && !event.shiftKey) {
         let large;
@@ -5764,7 +5731,6 @@ function EDI_onKeyDown_Home(event) {
     if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
         EDI_finalizeEdit();
     }
-    EDI_movementBasedCacheInvalidation();
     EDI_preKeyboardMovementSelectionLogic(event.shiftKey);
     if (event.ctrlKey) {
         INTS[fEDI_cursor_indexLine] = 0;
@@ -5797,7 +5763,6 @@ function EDI_onKeyDown_End(event) {
     if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
         EDI_finalizeEdit();
     }
-    EDI_movementBasedCacheInvalidation();
     EDI_preKeyboardMovementSelectionLogic(event.shiftKey);
 
     const originalLine = INTS[fEDI_cursor_indexLine];
@@ -5906,7 +5871,6 @@ async function EDI_onKeyDown_keyLengthEqualsOne_ctrlKey(event) {
     //
     // Ah you'll have to put it per case cause the paste ctrl+v for example you need to let batch.
     // 
-    EDI_movementBasedCacheInvalidation();
     switch (event.key) {
         case 'c':
             

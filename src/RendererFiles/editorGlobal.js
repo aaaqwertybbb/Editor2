@@ -3360,10 +3360,6 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
         EDI_trackingUint32MaxHeap.updateLength(INTS[fEDI_cursor_editIndexLine], actualNewLineVisualWidth + lastSplitVisualWidth);
         specialCase_firstLineIndexInserted = actualIndexLine;
         specialCase_number = firstSplitVisualWidth;
-        //actualNewLineVisualWidth = firstSplitVisualWidth; // set special set first
-        // TODO: This is wrong the first line gets firstSplitVisualWidth...
-        // ...then every line except for the last one to be inserted gets 'actualNewLineVisualWidth' and then...
-        // ...the last one gets 'actualNewLineVisualWidth + lastSplitVisualWidth'
         if (INTS[fEDI_longestLine_indexLine] === INTS[fEDI_cursor_editIndexLine]) {
             if (EDI_trackingUint32MaxHeap.tryPooledPeek() &&
                 (INTS[fEDI_longestLine_length] !== EDI_trackingUint32MaxHeap.unpack_pool_length || INTS[fEDI_longestLine_indexLine] !== EDI_trackingUint32MaxHeap.unpack_pool_lineIndex)) {
@@ -3433,6 +3429,8 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
                 //
                 // TODO: This should be looked into a bit more?
                 //
+                // Of course this is happening updateLength doesn't draw the UI?
+                // 
                 INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
                 INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
                 requestAnimationFrame(EDI_drawHorizontalScrollbar);

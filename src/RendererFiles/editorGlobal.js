@@ -4270,6 +4270,13 @@ function EDI_finalizeEdit_ClearEditState() {
 
     // TODO: You do indeed have to clear this because of ctrl or shift cases of enter.
     BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_None;
+
+    // TODO: I want to put these in the paste case directly and above the 'EDI_finalizeEdit_ClearEditState' invocation...
+    // ...but 'EDI_cursor_clear' needs to "clear an unfinalized edit" (I think that would be the sensible behavior at least)...
+    // ...and I'm not currently doing this, but maybe you could simplify that by invoking 'EDI_finalizeEdit_ClearEditState' rather...
+    // ...than duplicating the logic?
+    EDI_cursor_enterKey_newLinePlusIndentation_byteList = null;
+    EDI_cursor_cached_indentation_string = null;
 }
 //#endregion
 
@@ -5896,6 +5903,9 @@ async function EDI_onKeyDown_keyLengthEqualsOne_ctrlKey(event) {
     // TODO: I'm moving 'EDI_movementBasedCacheInvalidation' to the finalize of the respective edits...
     // ...this invocation doesn't have a 'EDI_finalizeEdit();' invocation immediately above it.
     // ...(!!!!this isn't the same comment as the others) THIS ONE SHOULD PROBABLY JUST INVOKE 'EDI_finalizeEdit();' STRAIGHT UP IF EDIT IS NOT NONE
+    //
+    // Ah you'll have to put it per case cause the paste ctrl+v for example you need to let batch.
+    // 
     EDI_movementBasedCacheInvalidation();
     switch (event.key) {
         case 'c':
@@ -5921,7 +5931,16 @@ async function EDI_onKeyDown_keyLengthEqualsOne_ctrlKey(event) {
             event.preventDefault();
             event.stopPropagation();
 
+            // TODO: Somehow you need to have a heuristic for whether this invocation is needed...
+            // ...maybe you track whether the user has focus on the editor...
+            // ...and if they blur, you set state to say "you need to read the clipboard if you try to paste something in the future because it might have changed"...
+            // ...another case would be where the editor itself knows it modified the clipboard, like ctrl+c...
+            // ...although you'd probably only care about consecutive invocations...
+            // ...but if they lose focus on the editor then come back and paste again in a way that would batch with a previous paste...
+            // ...you'll have to make sure the readClipboard didn't change, if it did you'll have to finalize which internally will clear all the paste cached state...
+            // ...then for the new incoming paste event you'll have to recreate all the cached information.
             let clipboard = await window.myAPI.readClipboard();
+            
             EDI_editEvent(EditKind_Paste, event, clipboard);
             break;
         case 'd':
@@ -5997,6 +6016,12 @@ function EDI_cursor_hasSelection() {
 }
 
 /**
+ * !!!! You need to be careful. You might think "I can tie state clearing solely to the respective edit's finalize"...
+ * ...but it feels sensible that if I wanted to just reset everything I'd be allowed to just invoke 'EDI_cursor_clear()'...
+ * ...without having to worry about finalizing any pending edits...
+ * ...(I think this is unfortunate I'd prefer it weren't the case but I can't help but think it is a very important thing to get right.)...
+ * ...so all the edit finalize logic needs to correctly clear its state here as well.
+ * 
  * The code that clears the editor is dependent on this method NOT clearing 'BYTES[byteEDI_cursor_selectionDivExists]'
  * 
  * Somewhat duplicated code: This messes with the language features if I invoke clear() in the constructor, it puts "| undefined" on all the types.
@@ -6790,8 +6815,6 @@ function EDI_onMouseDown(event) {
     if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
         EDI_finalizeEdit();
     }
-
-    EDI_movementBasedCacheInvalidation();
 
     if (BYTES[byteTOOLTIP_exists] === 1) {
         TOOLTIP_hide();

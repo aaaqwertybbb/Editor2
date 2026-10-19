@@ -3358,7 +3358,9 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
             firstSplitVisualWidth);
         let lastSplitVisualWidth = INTS[fEDI_ret_getIndexFromX_visualColumns] - firstSplitVisualWidth;
         EDI_trackingUint32MaxHeap.updateLength(INTS[fEDI_cursor_editIndexLine], actualNewLineVisualWidth + lastSplitVisualWidth);
-        actualNewLineVisualWidth = firstSplitVisualWidth;
+        specialCase_firstLineIndexInserted = actualIndexLine;
+        specialCase_number = firstSplitVisualWidth;
+        //actualNewLineVisualWidth = firstSplitVisualWidth; // set special set first
         // TODO: This is wrong the first line gets firstSplitVisualWidth...
         // ...then every line except for the last one to be inserted gets 'actualNewLineVisualWidth' and then...
         // ...the last one gets 'actualNewLineVisualWidth + lastSplitVisualWidth'
@@ -3373,10 +3375,7 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     }
 
     for (var i = actualIndexLine; i < INTS[fEDI_lineEndPositionList_count]; i++) {
-        // am I being trolled by my past self?
-        // += (per_edit_insertionCount * INTS[fEDI_cursor_editLineFeedCount])
-        // okay no this might be right, but I'm still being trolled by my previous self for the loose meaning of 'fEDI_cursor_editLength'
-        // alternating between character count inserted and times the event triggered.
+        // TODO: the loose meaning of 'fEDI_cursor_editLength' is bothersome
         EDI_lineEndPositionList_data[i] += INTS[fEDI_cursor_editLength];
     }
 
@@ -3431,6 +3430,20 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
                 // "aaa\n" => 'EDI_lineEndPositionList_insert' causes a temporary longest line index is 1 and the longest line length is 0
                 // that needs to be overwritten.
                 // The example is "as you type it" so the '\n' gets finalized and that's when you see the wrong answer it is only temporary due to 'EDI_lineEndPositionList_insert'.
+                //
+                // TODO: This should be looked into a bit more?
+                //
+                INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
+                INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
+                requestAnimationFrame(EDI_drawHorizontalScrollbar);
+        }
+    }
+    else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_AmongALine) {
+        EDI_trackingUint32MaxHeap.updateLength(specialCase_firstLineIndexInserted, specialCase_number);
+        if (EDI_trackingUint32MaxHeap.tryPooledPeek() &&
+            (INTS[fEDI_longestLine_length] !== EDI_trackingUint32MaxHeap.unpack_pool_length || INTS[fEDI_longestLine_indexLine] !== EDI_trackingUint32MaxHeap.unpack_pool_lineIndex)) {
+                // "gets finalized and that's when you see the wrong answer it is only temporary due to 'EDI_lineEndPositionList_insert'."
+                // is happening again for this case too...
                 //
                 // TODO: This should be looked into a bit more?
                 //

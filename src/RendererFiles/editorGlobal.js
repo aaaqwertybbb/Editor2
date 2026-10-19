@@ -3219,6 +3219,7 @@ function EDI_finalizeEdit() {
 }
 
 function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
+    indexLine_editOccurredOn = 0;
     for (let i = INTS[fEDI_lineEndPositionList_count] - 1; i >= 0; i--) {
         if (INTS[fEDI_cursor_editPosition] <= EDI_lineEndPositionList_data[i]) {
             EDI_lineEndPositionList_data[i] += INTS[fEDI_cursor_editLength];

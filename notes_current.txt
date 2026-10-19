@@ -951,3 +951,5 @@ duplicate
 - vscode restored the timestamp that the file was when I undid?
 - I'm pretty sure I saved the file prior to the undo.
 - I'm out of it though idk
+
+EOF enter key has a bugged line length count where it maybe is copying the length or m aybe it inserts it in the wrong place.

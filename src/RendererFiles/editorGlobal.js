@@ -3360,6 +3360,9 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
         EDI_trackingUint32MaxHeap.updateLength(INTS[fEDI_cursor_editIndexLine], actualNewLineVisualWidth + lastSplitVisualWidth);
         specialCase_firstLineIndexInserted = actualIndexLine;
         specialCase_number = firstSplitVisualWidth;
+        // TODO: This updating of the longest line UI is somewhat redundant with the specialCase_... logic...
+        // ...except it isn't entirely redundant because this one actually does a 'requestAnimationFrame(EDI_drawHorizontalScrollbar);'.
+        // And if you split the longest line you can split it so that the firstSplit is >= or the lastSplit is and thus you'd be yeah you'd need to draw the okay.
         if (INTS[fEDI_longestLine_indexLine] === INTS[fEDI_cursor_editIndexLine]) {
             if (EDI_trackingUint32MaxHeap.tryPooledPeek() &&
                 (INTS[fEDI_longestLine_length] !== EDI_trackingUint32MaxHeap.unpack_pool_length || INTS[fEDI_longestLine_indexLine] !== EDI_trackingUint32MaxHeap.unpack_pool_lineIndex)) {

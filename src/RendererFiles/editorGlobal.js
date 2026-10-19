@@ -3105,6 +3105,7 @@ function EDI_editEvent_checkFor_NOTcanBatch_IndentLess() {
         LARGE_pos = INTS[fEDI_cursor_selectionAnchor];
     }
 
+    // TODO: You could probably have cache for these things too, like if the batch is "complex" to calculate you cache some of the repeated computation.
     EDI_ret_getLineAndColumnIndices_raw(SMALL_pos);
     let SMALL_lineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
 

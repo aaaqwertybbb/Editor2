@@ -915,11 +915,13 @@ duplicate
 	    - [ ] cache the remainder of the state that ought to be
     - [ ] UI width
 
-- [ ] all the edit can batch validation needs to check that the 
+- [ ] // TODO: You could probably have cache for these things too, like if the batch is "complex" to calculate you cache some of the repeated computation.
+
+- [/] all the edit can batch validation needs to check that the 
     - [ ] tab doesn't check the current edit kind is tab?
     - [ ] etc...
 - [ ] paste and duplicate 'shouldFinalizeAllCursors = true;' is not good
-- [ ] The checkFor 'EDI_editEvent_checkFor_NOTcanBatch_InsertLtr' was related to multicursors
+- [/] The checkFor 'EDI_editEvent_checkFor_NOTcanBatch_InsertLtr' was related to multicursors
       where the validation had a more complicated step.
       You should remove them since all you need now is the original 'EDI_NOTcanBatch_insert' that were made during the initial single cursor phase prior to multicursor.
       (multicursor was removed once I was satisfied that I could implement it because by "implement it" I had it messily working and it added too much complexity and I was like I'll come back later.)
@@ -938,3 +940,14 @@ duplicate
     - [ ] Versus what currently would happen, you insert 5 characters as an edit, then a separate edit removes 1 character.
     - [ ] ArrowLeft and etc... I'd say that's another TODO after, start off by getting them to batch without movement between them.
     - [ ] The movement between them means you insert 5 characters if you haven't finalized and you try remove one of those 5 pending characters you don't do 2 edits you just change the pending edit.
+
+- I commented out my-custom-babel-plugin.cjs
+- I ran npm run build
+- I removed the comment
+- I didn't npm run build
+- I used 'undo'
+- I ran npm run build
+- NOTreusedFilesCount: 0
+- vscode restored the timestamp that the file was when I undid?
+- I'm pretty sure I saved the file prior to the undo.
+- I'm out of it though idk

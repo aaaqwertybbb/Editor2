@@ -3360,17 +3360,6 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
         EDI_trackingUint32MaxHeap.updateLength(INTS[fEDI_cursor_editIndexLine], actualNewLineVisualWidth + lastSplitVisualWidth);
         specialCase_firstLineIndexInserted = actualIndexLine;
         specialCase_number = firstSplitVisualWidth;
-        // TODO: This updating of the longest line UI is somewhat redundant with the specialCase_... logic...
-        // ...except it isn't entirely redundant because this one actually does a 'requestAnimationFrame(EDI_drawHorizontalScrollbar);'.
-        // And if you split the longest line you can split it so that the firstSplit is >= or the lastSplit is and thus you'd be yeah you'd need to draw the okay.
-        if (INTS[fEDI_longestLine_indexLine] === INTS[fEDI_cursor_editIndexLine]) {
-            if (EDI_trackingUint32MaxHeap.tryPooledPeek() &&
-                (INTS[fEDI_longestLine_length] !== EDI_trackingUint32MaxHeap.unpack_pool_length || INTS[fEDI_longestLine_indexLine] !== EDI_trackingUint32MaxHeap.unpack_pool_lineIndex)) {
-                    INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
-                    INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
-                    requestAnimationFrame(EDI_drawHorizontalScrollbar);
-            }
-        }
     }
 
     for (var i = actualIndexLine; i < INTS[fEDI_lineEndPositionList_count]; i++) {
@@ -3434,6 +3423,11 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
                 //
                 // Of course this is happening updateLength doesn't draw the UI?
                 // 
+                // yeah cause you lost the longest line temporarily you moved it into the specialCase variables.
+                // Then updated the EOF to have the length of the indentation.
+                // So then EDI_lineEndPositionList_insert(...) internally updates the UI and it doesn't see the "specialCase variable's visual length existing in the heap" anymore
+                // and it took the line you just added like if both end up 0 it's just w/e the algorithm picked one or the other due to some tiebreaker cause you only had the 2 lines
+                //
                 INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
                 INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
                 requestAnimationFrame(EDI_drawHorizontalScrollbar);
@@ -3448,6 +3442,10 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
                 //
                 // TODO: This should be looked into a bit more?
                 //
+                // The "debug" UI that showed the line index with longest visual length and its value was correct.
+                // But for some reason the horizontal scrollbar was slightly longer than it should've been and then I inserted 1 character and finalized to cause it to redraw
+                // and then it drew properly then ?
+                // 
                 INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
                 INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
                 requestAnimationFrame(EDI_drawHorizontalScrollbar);

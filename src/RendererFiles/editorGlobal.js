@@ -3017,7 +3017,8 @@ function EDI_editEvent_checkFor_NOTcanBatch_Tab(event) {
             return EDI_editEvent_checkFor_NOTcanBatch_IndentLess();
         }
         else {
-            if (INTS[fEDI_cursor_editIndexLine] === INTS[fEDI_cursor_indexLine] &&
+            if (INTS[fEDI_cursor_editKind] === EditKind_Tab &&
+                INTS[fEDI_cursor_editIndexLine] === INTS[fEDI_cursor_indexLine] &&
                 INTS[fEDI_cursor_editIndexColumn] + (EDI_on_tab_bytes.length * INTS[fEDI_cursor_editLength]) === INTS[fEDI_cursor_indexColumn] &&
                 INTS[fEDI_cursor_editLength] < CONST_EDI_cursor_GAP_BUFFER_CAPACITY) {
                     return false;

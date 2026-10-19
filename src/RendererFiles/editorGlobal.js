@@ -4222,20 +4222,6 @@ function EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_
     EDI_finalizeEdit_ClearEditState();
 
     return indexLine_editOccurredOn;
-
-    /*
-    - Syntax is fully encompassed by the removed text  => remove
-    - Syntax's open is encompassed by the removed text => invalidate
-
-    invalidate => remove
-
-    Are these the same thing then?
-
-    If the open is removed then yeah
-    strings are possibly more complex than the multi-line-comment because the same open as close
-
-    TODO: If the open is > 1 characters long then an insertions among those characters is a break too.
-    */
 }
 
 function EDI_finalizeEdit_ClearEditState() {

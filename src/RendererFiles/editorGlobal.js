@@ -3308,6 +3308,8 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     let actualLineFeedPosition = actualEditPosition;
     let actualIndexLine = INTS[fEDI_cursor_editIndexLine];
     let actualNewLineVisualWidth = INTS[fEDI_cursor_cached_indentation_string_visualWidth];
+    
+    let specialCaseNumber = 0;
 
     if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfLine) {
         actualEditPosition++; // Move past the current line's '\n'
@@ -3329,6 +3331,7 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
         // ...every line EXCEPT for the first one inserted will receive a visual length of 'actualNewLineVisualWidth'...
         // ...and then when you're done you have the special case where the first line you inserted gets visual width of the "temporary variable holds EOF line visual length"
         // 
+        //specialCaseNumber = ;
     }
     else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine) {
         // Contrary to 'EnterKeyEventKind_EndOfLine' this case actually does NOT have to move past the "current line's '\n'"
@@ -3365,6 +3368,8 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     }
 
     for (var i = actualIndexLine; i < INTS[fEDI_lineEndPositionList_count]; i++) {
+        // am I being trolled by my past self?
+        // += (per_edit_insertionCount * INTS[fEDI_cursor_editLineFeedCount])
         EDI_lineEndPositionList_data[i] += INTS[fEDI_cursor_editLength];
     }
 

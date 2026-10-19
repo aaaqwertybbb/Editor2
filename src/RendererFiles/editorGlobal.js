@@ -3370,6 +3370,8 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     for (var i = actualIndexLine; i < INTS[fEDI_lineEndPositionList_count]; i++) {
         // am I being trolled by my past self?
         // += (per_edit_insertionCount * INTS[fEDI_cursor_editLineFeedCount])
+        // okay no this might be right, but I'm still being trolled by my previous self for the loose meaning of 'fEDI_cursor_editLength'
+        // alternating between character count inserted and times the event triggered.
         EDI_lineEndPositionList_data[i] += INTS[fEDI_cursor_editLength];
     }
 

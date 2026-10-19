@@ -2801,7 +2801,7 @@ function EDI_editEvent(editKind, event, clipboardContent) {
             shouldFinalizeAllCursors = EDI_editEvent_checkFor_NOTcanBatch_IndentLess();
             break;
         case EditKind_Enter:
-            shouldFinalizeAllCursors = EDI_editEvent_checkFor_NOTcanBatch_Enter(event);
+            shouldFinalizeAllCursors = EDI_NOTcanBatch_enter();
             break;
         case EditKind_Paste:
             shouldFinalizeAllCursors = true;
@@ -3036,8 +3036,7 @@ function EDI_editEvent_checkFor_NOTcanBatch_Tab(event) {
  * 
  */
 function EDI_editEvent_checkFor_NOTcanBatch_IndentMore() {
-    // TODO: Should this be: 'INTS[fEDI_cursor_editKind] !== EditKind_IndentMore'?
-    if (INTS[fEDI_cursor_editKind] === EditKind_IndentLess) {
+    if (INTS[fEDI_cursor_editKind] !== EditKind_IndentMore) {
         return true;
     }
     
@@ -3091,8 +3090,7 @@ function EDI_editEvent_checkFor_NOTcanBatch_IndentMore() {
  * 
  */
 function EDI_editEvent_checkFor_NOTcanBatch_IndentLess() {
-    // TODO: Should this be: 'INTS[fEDI_cursor_editKind] !== EditKind_IndentLess'?
-    if (INTS[fEDI_cursor_editKind] === EditKind_IndentMore) {
+    if (INTS[fEDI_cursor_editKind] !== EditKind_IndentLess) {
         return true;
     }
     
@@ -3137,11 +3135,6 @@ function EDI_editEvent_checkFor_NOTcanBatch_IndentLess() {
     // ...maybe there already is one idk
 
     return true;
-}
-
-/** @returns {boolean} 'shouldFinalizeAllCursors' */
-function EDI_editEvent_checkFor_NOTcanBatch_Enter(event) {
-    return EDI_NOTcanBatch_enter();
 }
 //#endregion
 

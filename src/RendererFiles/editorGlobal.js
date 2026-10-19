@@ -2768,6 +2768,18 @@ function EDI_editEvent(editKind, event, clipboardContent) {
     }
 
     // check for NOTcanBatch... I don't want the switch in the for loop... if you have a selection then you have a not can batch?
+    //
+    // NOTcanBatch is bothersome to read, canBatch is a possibility?
+    // 
+    // The perspective of "NOTcanBatch" is confusing.
+    // I thought this switch was over the current editKind.
+    //
+    // And the current editKind was checking whether the incoming event could batch with it.
+    //
+    // what this actually says is something like "the incoming event is checking whether the current editKind could batch with it"
+    //
+    // "current editKind"/"pending editKind"
+    //
     switch (editKind) {
         case EditKind_InsertLtr:
             shouldFinalizeAllCursors = EDI_NOTcanBatch_insert();

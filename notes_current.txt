@@ -897,3 +897,20 @@ and I felt horrible later in the day.
 but it at least feels manageable.
 
 So the longer I wait the better in terms of how I'll feel
+
+====
+
+- [x] no movement cache invalidation just do it in the finalize of respective edit
+
+paste
+    - [ ] caching
+	    - [ ] optimize the cache invalidation
+            - [ ] let clipboard = await window.myAPI.readClipboard();
+	    - [ ] cache the remainder of the state that ought to be
+    - [ ] UI width
+duplicate
+    - [ ] caching
+	    - [ ] optimize the cache invalidation
+            - [ ] TODO: something?
+	    - [ ] cache the remainder of the state that ought to be
+    - [ ] UI width

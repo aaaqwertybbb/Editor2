@@ -2833,10 +2833,6 @@ function EDI_editEvent(editKind, event, clipboardContent) {
 }
 
 function EDI_editEvent_theEditIself_InsertLtr(event) {
-    // TODO: I'm moving 'EDI_movementBasedCacheInvalidation' to the finalize of the respective edits...
-    // ...this invocation doesn't have a 'EDI_finalizeEdit();' invocation immediately above it. I believe this will be fine...
-    // ...due to "EDI_NOTcanBatch_..." logic causing the 'EDI_finalizeEdit();'.
-    //
     // You can do this because the function 'EDI_NOTcanBatch_insert' was already checked for all the cursors, if it is possible to batch, the editKind will stay InsertLtr otherwise it is finalized and set to None.
     // TODO: Use if === EditKind_None for copy and paste safety / it might just even be more readable
     if (INTS[fEDI_cursor_editKind] !== EditKind_InsertLtr) {
@@ -2849,10 +2845,6 @@ function EDI_editEvent_theEditIself_InsertLtr(event) {
 }
 
 function EDI_editEvent_theEditIself_DeleteLtr(event) {
-    // TODO: I'm moving 'EDI_movementBasedCacheInvalidation' to the finalize of the respective edits...
-    // ...this invocation doesn't have a 'EDI_finalizeEdit();' invocation immediately above it. I believe this will be fine...
-    // ...due to "EDI_NOTcanBatch_..." logic causing the 'EDI_finalizeEdit();'.
-    //
     if (EDI_cursor_hasSelection()) {
         EDI_removeSelection();
     }
@@ -2866,10 +2858,6 @@ function EDI_editEvent_theEditIself_DeleteLtr(event) {
 }
 
 function EDI_editEvent_theEditIself_BackspaceRtl(event) {
-    // TODO: I'm moving 'EDI_movementBasedCacheInvalidation' to the finalize of the respective edits...
-    // ...this invocation doesn't have a 'EDI_finalizeEdit();' invocation immediately above it. I believe this will be fine...
-    // ...due to "EDI_NOTcanBatch_..." logic causing the 'EDI_finalizeEdit();'.
-    //
     if (EDI_cursor_hasSelection()) {
         EDI_removeSelection();
     }
@@ -2884,10 +2872,6 @@ function EDI_editEvent_theEditIself_BackspaceRtl(event) {
 }
 
 function EDI_editEvent_theEditIself_Tab(event) {
-    // TODO: I'm moving 'EDI_movementBasedCacheInvalidation' to the finalize of the respective edits...
-    // ...this invocation doesn't have a 'EDI_finalizeEdit();' invocation immediately above it. I believe this will be fine...
-    // ...due to "EDI_NOTcanBatch_..." logic causing the 'EDI_finalizeEdit();'.
-    //
     if (EDI_cursor_hasSelection()) {
         if (event.shiftKey) {
             if (INTS[fEDI_cursor_editKind] !== EditKind_IndentLess) {

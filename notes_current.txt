@@ -914,3 +914,15 @@ duplicate
             - [ ] TODO: something?
 	    - [ ] cache the remainder of the state that ought to be
     - [ ] UI width
+
+- [ ] all the edit can batch validation needs to check that the 
+    - [ ] tab doesn't check the current edit kind is tab?
+    - [ ] etc...
+- [ ] paste and duplicate 'shouldFinalizeAllCursors = true;' is not good
+- [ ] The checkFor 'EDI_editEvent_checkFor_NOTcanBatch_InsertLtr' was related to multicursors
+      where the validation had a more complicated step.
+      You should remove them since all you need now is the original 'EDI_NOTcanBatch_insert' that were made during the initial single cursor phase prior to multicursor.
+      (multicursor was removed once I was satisfied that I could implement it because by "implement it" I had it messily working and it added too much complexity and I was like I'll come back later.)
+      (i.e.: too many other features were missing to warrant me handling that cognitive overhead or something)
+      (as well too many other features that actually did exist were still unorganized and I need their code to settle first)
+

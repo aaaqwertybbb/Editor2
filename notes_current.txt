@@ -932,3 +932,9 @@ duplicate
  * This says something about how vscode "caches the syntax highlighing".
  * It was only for a moment.
 */
+
+- [ ] TODO: permit positive and negative edits to batch where sensible.
+    - [ ] for example: if you insert 5 characters and then press backspace a single time, then finalize, you only insert the 4 characters.
+    - [ ] Versus what currently would happen, you insert 5 characters as an edit, then a separate edit removes 1 character.
+    - [ ] ArrowLeft and etc... I'd say that's another TODO after, start off by getting them to batch without movement between them.
+    - [ ] The movement between them means you insert 5 characters if you haven't finalized and you try remove one of those 5 pending characters you don't do 2 edits you just change the pending edit.

@@ -3315,6 +3315,13 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
         actualLineFeedPosition += per_edit_insertionCount - 1;
         actualIndexLine++;
     }
+    else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfFile) {
+        //actualEditPosition++; // Move past the current line's '\n'
+        //actualLineFeedPosition = actualEditPosition;
+        //actualLineFeedPosition += per_edit_insertionCount - 1;
+        //actualIndexLine++;
+        //actualNewLineVisualWidth;
+    }
     else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_StartOfLine) {
         // Contrary to 'EnterKeyEventKind_EndOfLine' this case actually does NOT have to move past the "current line's '\n'"
         // NOTE: Ctrl + Enter keybind is a known case for why this line of code is needed, perhaps there are more that will come later I have no idea.
@@ -3336,6 +3343,9 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
         let lastSplitVisualWidth = INTS[fEDI_ret_getIndexFromX_visualColumns] - firstSplitVisualWidth;
         EDI_trackingUint32MaxHeap.updateLength(INTS[fEDI_cursor_editIndexLine], actualNewLineVisualWidth + lastSplitVisualWidth);
         actualNewLineVisualWidth = firstSplitVisualWidth;
+        // TODO: This is wrong the first line gets firstSplitVisualWidth...
+        // ...then every line except for the last one to be inserted gets 'actualNewLineVisualWidth' and then...
+        // ...the last one gets 'actualNewLineVisualWidth + lastSplitVisualWidth'
         if (INTS[fEDI_longestLine_indexLine] === INTS[fEDI_cursor_editIndexLine]) {
             if (EDI_trackingUint32MaxHeap.tryPooledPeek() &&
                 (INTS[fEDI_longestLine_length] !== EDI_trackingUint32MaxHeap.unpack_pool_length || INTS[fEDI_longestLine_indexLine] !== EDI_trackingUint32MaxHeap.unpack_pool_lineIndex)) {

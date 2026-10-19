@@ -2778,7 +2778,7 @@ function EDI_editEvent(editKind, event, clipboardContent) {
     //
     // what this actually says is something like "the incoming event is checking whether the current editKind could batch with it"
     //
-    // "current editKind"/"pending editKind"
+    // "current editKind"/"pending editKind"/"previous_and_not_yet_finalized editKind"
     //
     switch (editKind) {
         case EditKind_InsertLtr:
@@ -2791,6 +2791,7 @@ function EDI_editEvent(editKind, event, clipboardContent) {
             shouldFinalizeAllCursors = EDI_NOTcanBatch_backspace();
             break;
         case EditKind_Tab:
+            // yeah "aaaa\t" all as one "edit" crashed the app
             shouldFinalizeAllCursors = EDI_editEvent_checkFor_NOTcanBatch_Tab(event);
             break;
         case EditKind_IndentMore:

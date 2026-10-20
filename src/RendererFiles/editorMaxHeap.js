@@ -869,7 +869,6 @@ class TrackingUint32MaxHeap {
     return true;
   }
 
-  /** TODO: Eventual "garbage collection / defragmentation" of the 'this._resizePositionMap' and 'this.nextId' for the no longer in use 'this.nextId'(s) */
   insert(lineIndex, lineLength) {
     // Ensure heap capacity
     if (this.size >= this.capacity) {

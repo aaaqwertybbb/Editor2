@@ -717,81 +717,57 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
     INTS[fEDI_lastReadNumber_scrollLeft] = 0;
 
     EDI_state_clear(lineEndCount);
-
     set_EDI_fileStartsWithBom(fileStartsWithBom);
-
     EDI_textSourceIdentifier = textSourceIdentifier;
     EDI_FORMATTED_textSourceIdentifier = FORMATTED_textSourceIdentifier;
     BYTES[byteEDI_extensionKind] = extensionKind;
     EDI_language_line_lex_SET(BYTES[byteEDI_extensionKind]);
-
     EDI_lineEndString = lineEndString;
     if (!EDI_lineEndString) {
         EDI_lineEndString = '\n';
     }
 
     // Not using 'uint8Array' feels very wasteful.
-    //
-    // Once you've ensured capacity for some length then you don't have to worry about allocating the 'EDI_textByteList_bytes',
-    // you'll just write over the data that currently exists.
-    //
-    // But even still, you're doing the 'set' although perhaps that isn't all too cumbersome?
-    //
-    // My concern is: a user opens a file, just to immediately open a different file.
+    // Once you've ensured capacity for some length then you don't have to worry about allocating the 'EDI_textByteList_bytes', you'll just write over the data that currently exists.
+    // But even still, you're doing the 'set' although perhaps that isn't all too cumbersome? My concern is: a user opens a file, just to immediately open a different file.
     // 
     EDI_textByteList_ensureCapacityForInsertion(0, uint8Array.length);
-    EDI_textByteList_bytes.set(uint8Array, 0);
-    INTS[fEDI_textByteList_count] = uint8Array.length;
-
     const local_EDI_textByteList_bytes = EDI_textByteList_bytes;
+    local_EDI_textByteList_bytes.set(uint8Array, 0);
+    INTS[fEDI_textByteList_count] = uint8Array.length;
     const local_EDI_textByteList_count = INTS[fEDI_textByteList_count];
+
+    EDI_lineEndPositionList_ensureCapacityForInsertion(0, lineEndCount);
+    const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
+
+    const local_EDI_trackingUint32MaxHeap = EDI_trackingUint32MaxHeap;
 
     let lineLengthVisual = 0; /** TODO: Track the linePosition last seen when making a line or something you don't have to increment this per character, you just need the difference of the last line drawn to the current or something. */
     let local_EDI_lineEndPositionList_count = INTS[fEDI_lineEndPositionList_count];
 
-    EDI_lineEndPositionList_ensureCapacityForInsertion(0, lineEndCount);
-
-// When a file is opened you, without this function, end up invoking END_lineEndPositionList_insert(...) many times.
-// That function has various checks, resizing, and shifting logic.
-// None of this logic needs to be ran when opening the file for the first time because the resizing is done prior to inserting the individual lines.
-// And all the inserts are done where 'lineIndex === list.count'
-//
-// function EDI_lineEndPositionList_UNSAFEinsertUNSAFE(lineIndex, position, lineLengthVisual) {
-//     EDI_trackingUint32MaxHeap.insert(lineIndex, lineLengthVisual);
-//     EDI_lineEndPositionList_data[lineIndex] = position;
-//     INTS[fEDI_lineEndPositionList_count]++;
-// }
-
-    for (var sourceI = 0; sourceI < local_EDI_textByteList_count; sourceI++) {
-        lineLengthVisual++; // avoid branching by eager counting the lineLengthVisual and then excluding the lineEnding later
+    for (var sourceI = 0; sourceI < local_EDI_textByteList_count; ++sourceI) {
+        ++lineLengthVisual; // avoid branching by eager counting the lineLengthVisual and then excluding the lineEnding later
         if (local_EDI_textByteList_bytes[sourceI] === CONST_EDI_ASCII_TAB) {
             lineLengthVisual += ((4 - ((lineLengthVisual - 1) % 4)) - 1); // (tab logic): avoid branching by eager counting... 'lineLengthVisual - 1... % 4)) - 1)'
         }
         else if (local_EDI_textByteList_bytes[sourceI] === CONST_EDI_ASCII_LINE_FEED) {
-            // (they are not exactly the same) EDI_lineEndPositionList_UNSAFEinsertUNSAFE (1 of 2)
-            // -----------------------------------------------------------------------------------
-            // EDI_lineEndPositionList_UNSAFEinsertUNSAFE(local_EDI_lineEndPositionList_count++, sourceI, lineLengthVisual - 1); START
-            EDI_trackingUint32MaxHeap.insert(local_EDI_lineEndPositionList_count, lineLengthVisual - 1);
-            EDI_lineEndPositionList_data[local_EDI_lineEndPositionList_count] = sourceI;
-            INTS[fEDI_lineEndPositionList_count]++;
-            local_EDI_lineEndPositionList_count++;
-            // EDI_lineEndPositionList_UNSAFEinsertUNSAFE(local_EDI_lineEndPositionList_count++, sourceI, lineLengthVisual - 1); END
+            // (they are not exactly the same) (1 of 2) EDI_lineEndPositionList_UNSAFEinsertUNSAFE(local_EDI_lineEndPositionList_count++, sourceI, lineLengthVisual - 1)
+            local_EDI_trackingUint32MaxHeap.insert(local_EDI_lineEndPositionList_count, lineLengthVisual - 1);
+            local_EDI_lineEndPositionList_data[local_EDI_lineEndPositionList_count] = sourceI;
+            ++local_EDI_lineEndPositionList_count;
             lineLengthVisual = 0;
         }
     }
 
-    // (they are not exactly the same) EDI_lineEndPositionList_UNSAFEinsertUNSAFE (2 of 2)
-    // -----------------------------------------------------------------------------------
-    // EDI_lineEndPositionList_UNSAFEinsertUNSAFE(local_EDI_lineEndPositionList_count++, local_EDI_textByteList_count, lineLengthVisual); START
-    EDI_trackingUint32MaxHeap.insert(local_EDI_lineEndPositionList_count, lineLengthVisual);
-    EDI_lineEndPositionList_data[local_EDI_lineEndPositionList_count] = local_EDI_textByteList_count;
-    INTS[fEDI_lineEndPositionList_count]++;
-    local_EDI_lineEndPositionList_count++; // TODO: The ++ here "isn't needed" but it makes the code consistent and less prone to future mistakes should another access of 'INTS[fEDI_lineEndPositionList_count]' be made after this point in the future.
-    // EDI_lineEndPositionList_UNSAFEinsertUNSAFE(local_EDI_lineEndPositionList_count++, local_EDI_textByteList_count, lineLengthVisual); END
+    // (they are not exactly the same) (2 of 2) EDI_lineEndPositionList_UNSAFEinsertUNSAFE(local_EDI_lineEndPositionList_count++, local_EDI_textByteList_count, lineLengthVisual)
+    local_EDI_trackingUint32MaxHeap.insert(local_EDI_lineEndPositionList_count, lineLengthVisual);
+    local_EDI_lineEndPositionList_data[local_EDI_lineEndPositionList_count] = local_EDI_textByteList_count;
 
-    EDI_trackingUint32MaxHeap.tryPooledPeek();
-    INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
-    INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
+    INTS[fEDI_lineEndPositionList_count] = local_EDI_lineEndPositionList_count + 1; // local_EDI_lineEndPositionList_count doesn't contain the +1
+
+    local_EDI_trackingUint32MaxHeap.tryPooledPeek();
+    INTS[fEDI_longestLine_indexLine] = local_EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
+    INTS[fEDI_longestLine_length] = local_EDI_trackingUint32MaxHeap.unpack_pool_length;
 
     update_VirtualIndexLine();
     update_virtualCount();
@@ -815,6 +791,17 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
 
     EDI_render_request(RenderKind_SetText);
 }
+
+// When a file is opened you, without this function, end up invoking END_lineEndPositionList_insert(...) many times.
+// That function has various checks, resizing, and shifting logic.
+// None of this logic needs to be ran when opening the file for the first time because the resizing is done prior to inserting the individual lines.
+// And all the inserts are done where 'lineIndex === list.count'
+//
+// function EDI_lineEndPositionList_UNSAFEinsertUNSAFE(lineIndex, position, lineLengthVisual) {
+//     EDI_trackingUint32MaxHeap.insert(lineIndex, lineLengthVisual);
+//     EDI_lineEndPositionList_data[lineIndex] = position;
+//     INTS[fEDI_lineEndPositionList_count]++;
+// }
 
 /**
  * @param {string} text 

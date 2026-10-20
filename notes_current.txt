@@ -972,3 +972,8 @@ And then remembered I don't get cell service when I'm in the cooler.
 And it was messing with my head worrying about it.
 So after 20 minutes I asked my boss if I could clock out after explaining the situation.
 
+===
+
+I checked and the ensure capacity actually starts at a super low number
+if you type 16 characters to trigger it you'll actually get a power of 2.
+It's a while loop that *= the required

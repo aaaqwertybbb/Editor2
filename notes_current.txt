@@ -977,3 +977,13 @@ So after 20 minutes I asked my boss if I could clock out after explaining the si
 I checked and the ensure capacity actually starts at a super low number
 if you type 16 characters to trigger it you'll actually get a power of 2.
 It's a while loop that *= the required
+
+===
+
+they haven't called me yet
+hopefully it is just delayed like tomorrow or something
+they said Monday Tuesday
+so hopefully it is just gonna be delayed opposed to me being ghosted idk
+like knock on wood etc...
+
+I saw waterworld on land "Mad Max 2: The Road Warrior"

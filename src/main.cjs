@@ -547,6 +547,50 @@ function hasBOM(filePath) {
 	*/
 }
 
+/**
+ * started off with code snippet from Google AI Overview for "node fs determine if file has bom":
+ */
+function hasBOM_withPadding(filePath, paddingLength) {
+	// Use a small buffer to read just the first 3-4 bytes
+	const buffer = Buffer.alloc(4);
+	const fd = fs.openSync(filePath, 'r');
+	fs.readSync(fd, buffer, 0, 4, 0);
+
+	let stat = fs.statSync(filePath);
+
+	// Check for common BOM signatures
+	// UTF-8: EF BB BF
+	if (buffer[0] === 0xEF && buffer[1] === 0xBB && buffer[2] === 0xBF) {
+		const bufferaaa = Buffer.alloc(stat.size - 4 + paddingLength);
+		fs.readSync(fd, bufferaaa, 0, bufferaaa.length, 3);
+		fs.closeSync(fd);
+		return {
+			text: bufferaaa.toString(),
+			fileStartsWithBom: true
+		};
+	}
+	else {
+		const bufferaaa = Buffer.alloc(stat.size + paddingLength);
+		fs.readSync(fd, bufferaaa, 0, bufferaaa.length, 0);
+		fs.closeSync(fd);
+		return {
+			text: bufferaaa.toString(),
+			fileStartsWithBom: false
+		};
+	}
+
+	/*
+	// UTF-16 Little Endian: FF FE
+	if (buffer[0] === 0xFF && buffer[1] === 0xFE) {
+		return 'UTF-16LE';
+	}
+	// UTF-16 Big Endian: FE FF
+	if (buffer[0] === 0xFE && buffer[1] === 0xFF) {
+		return 'UTF-16BE';
+	}
+	*/
+}
+
 async function chooseDirectory (event) {
 	const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
 	if (result.canceled) {
@@ -873,7 +917,9 @@ async function editorReadAllText_byteArray(event, absolutePath) {
 		let basename = path.basename(absolutePath);
 		let extension = path.extname(absolutePath);
 
-		let itHasBom = hasBOM(absolutePath);
+		const paddingLength = 1024;
+
+		let itHasBom = hasBOM_withPadding(absolutePath, paddingLength);
 
 		const firstNewlineMatch = itHasBom.text.match(/\r?\n/);
 		let lineEndString = firstNewlineMatch ? firstNewlineMatch[0] : '\n';
@@ -904,7 +950,7 @@ async function editorReadAllText_byteArray(event, absolutePath) {
 		
 		return {
 			paddedUint8Array: uint8Array,
-			textLength: uint8Array.length,
+			textLength: uint8Array.length - paddingLength,
 			fileStartsWithBom: itHasBom.fileStartsWithBom,
 			formattedAbsolutePath: itHasBom.formattedAbsolutePath,
 			extension: itHasBom.extension,
@@ -914,7 +960,8 @@ async function editorReadAllText_byteArray(event, absolutePath) {
 	}
 	catch (err) {
 		return {
-			uint8Array: null,
+			paddedUint8Array: null,
+			textLength: 0,
 			fileStartsWithBom: null,
 			formattedAbsolutePath: null,
 			extension: null,

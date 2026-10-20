@@ -8005,6 +8005,10 @@ function EDI_textByteList_duplicateWithin(sourceStart, destinationStart, length)
 
     INTS[fEDI_textByteList_count] += length;
 }
+/**
+This looks good except for step '3.' that worries me. The idea of allocating the exact requiredCapacity would mean any text insertion even of length 1 would immediately cause
+reallocation right? Is that problematic?
+ */
 function EDI_textByteList_ensureCapacityForInsertion(index, count) {
     // TODO: sparse insertions?
     const requiredCapacity = Math.max(INTS[fEDI_textByteList_count] + count, index);
@@ -8026,10 +8030,11 @@ function EDI_textByteList_ensureCapacityForInsertion(index, count) {
         capacityNew = minGrowth;
     }
 
-    // 3. Safety fallback: If a massive block of text was pasted, 
-    //    ensure capacityNew meets the required size immediately.
+    // 3. Safety fallback for massive inserts (e.g., large copy/paste):
+    //    If capacityNew still doesn't fit requiredCapacity, pad requiredCapacity 
+    //    by 1024 bytes so the user can keep typing immediately after pasting.
     if (capacityNew < requiredCapacity) {
-        capacityNew = requiredCapacity;
+        capacityNew = requiredCapacity + 1024;
     }
 
     // Safety check against integer overflow / negative bounds

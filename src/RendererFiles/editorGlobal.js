@@ -820,6 +820,9 @@ function EDI_state_setText_byteArray(paddedUint8Array, textLength, fileStartsWit
     INTS[fEDI_longestLine_indexLine] = local_EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
     INTS[fEDI_longestLine_length] = local_EDI_trackingUint32MaxHeap.unpack_pool_length;
 
+    // TODO: Timing of 'EDI_render_do_SetText'...
+    // ...probably what you can do is invoke the inner render requests directly...
+    // ...but you'd still have a moment where they can click and the event sees current layout like scrollTop etc...
     EDI_render_request(RenderKind_SetText);
 }
 

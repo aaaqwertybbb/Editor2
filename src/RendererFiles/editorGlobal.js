@@ -8005,7 +8005,6 @@ function EDI_textByteList_duplicateWithin(sourceStart, destinationStart, length)
     INTS[fEDI_textByteList_count] += length;
 }
 function EDI_textByteList_ensureCapacityForInsertion(index, count) {
-    // TODO: sparse insertions?
     const requiredCapacity = Math.max(INTS[fEDI_textByteList_count] + count, index);
     
     // If we already have enough capacity, do absolutely nothing
@@ -8013,10 +8012,22 @@ function EDI_textByteList_ensureCapacityForInsertion(index, count) {
         return;
     }
 
-    // Calculate the new capacity by doubling until it fits
-    let capacityNew = INTS[fEDI_textByteList_capacity] || 1; // Prevent infinite loops if capacity is 0
-    while (capacityNew < requiredCapacity) {
-        capacityNew *= 2;
+    let capacityNew = INTS[fEDI_textByteList_capacity];
+
+    // 1. Scale geometrically by 1.125x (current + current / 8)
+    capacityNew = capacityNew + (capacityNew >> 3);
+
+    // 2. Minimum growth step: Ensure it grows by at least 1024 bytes 
+    //    so small files don't reallocate on every single keystroke.
+    const minGrowth = INTS[fEDI_textByteList_capacity] + 1024;
+    if (capacityNew < minGrowth) {
+        capacityNew = minGrowth;
+    }
+
+    // 3. Safety fallback: If a massive block of text was pasted, 
+    //    ensure capacityNew meets the required size immediately.
+    if (capacityNew < requiredCapacity) {
+        capacityNew = requiredCapacity;
     }
 
     // Safety check against integer overflow / negative bounds

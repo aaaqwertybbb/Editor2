@@ -699,7 +699,7 @@ function EDI_render_do_SetText() {
     update_verticalVirtualizationBoundary();
 
     EDI_drawGutter_Width(INTS[fEDI_lineEndPositionList_count]);
-    EDI_render_request(RenderKind_Cursor_n);
+    EDI_drawCursor(/*NOTscrollCursorIntoView*/ false);
     EDI_drawHorizontalScrollbar();
     // Force 'case 3' within 'EDI_render_do_Scroll' downstream
     // TODO: (this comment is being made sometime after this solution was written but from memory...)...
@@ -6040,8 +6040,9 @@ function EDI_cursor_clear() {
     INTS[fEDI_cursor_indexColumn] = 0;
     INTS[fEDI_cursorVisualColumnIndex] = 0;
     INTS[fEDI_cursor_STORED_visualWidth] = 0;
-    INTS[fEDI_cursor_cursorTranslateYValue] = 0;
-    EDI_cursor_cursorTranslateXValue = 0;
+    // TODO: You can't include 'fEDI_cursor_cursorTranslateYValue' or 'EDI_cursor_cursorTranslateXValue' here. Otherwise changing a file won't redraw the cursor at 0,0
+    //INTS[fEDI_cursor_cursorTranslateYValue] = 0;
+    //EDI_cursor_cursorTranslateXValue = 0;
     INTS[fEDI_cursor_selectionAnchor] = 0;
     INTS[fEDI_cursor_selectionEnd] = 0;
     INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = 0;

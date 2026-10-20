@@ -764,6 +764,10 @@ function EDI_state_setText_byteArray(paddedUint8Array, textLength, fileStartsWit
     INTS[fEDI_textByteList_count] = textLength;
     const local_EDI_textByteList_count = INTS[fEDI_textByteList_count];
 
+    if (lineEndCount === 0) {
+        // TODO: Move this inside of 'EDI_lineEndPositionList_ensureCapacityForInsertion'?
+        lineEndCount = 16;
+    }
     EDI_lineEndPositionList_ensureCapacityForInsertion(0, lineEndCount);
     const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
 

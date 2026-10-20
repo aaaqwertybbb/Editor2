@@ -8005,10 +8005,6 @@ function EDI_textByteList_duplicateWithin(sourceStart, destinationStart, length)
 
     INTS[fEDI_textByteList_count] += length;
 }
-/**
-This looks good except for step '3.' that worries me. The idea of allocating the exact requiredCapacity would mean any text insertion even of length 1 would immediately cause
-reallocation right? Is that problematic?
- */
 function EDI_textByteList_ensureCapacityForInsertion(index, count) {
     // TODO: sparse insertions?
     const requiredCapacity = Math.max(INTS[fEDI_textByteList_count] + count, index);

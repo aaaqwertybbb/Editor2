@@ -8034,7 +8034,8 @@ function EDI_lineEndPositionList_clear() {
     INTS[fEDI_lineEndPositionList_count] = 0;
 }
 /**
- * 'EDI_lineEndPositionList_UNSAFEinsertUNSAFE' exists, if this function is modified you may need to update the unsafe version.
+ * 'EDI_lineEndPositionList_UNSAFEinsertUNSAFE' is a "function" that is explicitly inlined in the 'EDI_state_setText_byteArray' function.
+ * If you modify this function you may need to find the comments with 'EDI_lineEndPositionList_UNSAFEinsertUNSAFE' and update the explicitly inlined logic.
  * 
  * TODO: ensure all the parameters are encoded, especially because I'm noticing myself forgetting.
  */

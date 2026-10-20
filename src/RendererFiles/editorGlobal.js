@@ -754,6 +754,10 @@ function EDI_state_setText_byteArray(paddedUint8Array, textLength, fileStartsWit
     // "it worked and now you broke it and you didn't even have a reason for doing it...?"...
     // ...but I'm just messing around at the moment / am confused as to how I'd measure some of these things.
     // So I'm just trying to recognize the patterns.
+    //
+    // ^speaking of someone breaking the code doing "optimizations" that have 0 measurements behind them...
+    // everything is borked ima fix it.
+    // 
 
     EDI_textByteList_bytes = paddedUint8Array;
     const local_EDI_textByteList_bytes = EDI_textByteList_bytes;

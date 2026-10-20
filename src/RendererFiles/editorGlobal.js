@@ -205,7 +205,6 @@ function EDI_init() {
     EDI_drawHorizontalScrollbar();
     EDI_drawCursor();
 
-    EDI_trackingUint32MaxHeap = new TrackingUint32MaxHeap();
     EDI_state_setText_byteArray(new Uint8Array(16), /*textLength*/ 0, /*fileStartsWithBom*/ false, /*textSourceIdentifier*/ null, /*FORMATTED_textSourceIdentifier*/ null, /*extensionKind*/ 0, /*lineEndString*/ '\n', /*lineEndCount*/ 0);
 
     EDI_registerHandlers();

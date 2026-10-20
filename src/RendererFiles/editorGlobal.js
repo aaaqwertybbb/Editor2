@@ -780,6 +780,7 @@ function EDI_state_setText_byteArray(paddedUint8Array, textLength, fileStartsWit
     // 
 
     EDI_textByteList_bytes = paddedUint8Array;
+    INTS[fEDI_textByteList_capacity] = paddedUint8Array.length;
     const local_EDI_textByteList_bytes = EDI_textByteList_bytes;
     INTS[fEDI_textByteList_count] = textLength;
     const local_EDI_textByteList_count = INTS[fEDI_textByteList_count];
@@ -8005,6 +8006,7 @@ function EDI_textByteList_duplicateWithin(sourceStart, destinationStart, length)
     INTS[fEDI_textByteList_count] += length;
 }
 function EDI_textByteList_ensureCapacityForInsertion(index, count) {
+    // TODO: sparse insertions?
     const requiredCapacity = Math.max(INTS[fEDI_textByteList_count] + count, index);
     
     // If we already have enough capacity, do absolutely nothing

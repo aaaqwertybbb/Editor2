@@ -8059,6 +8059,7 @@ function EDI_lineEndPositionList_insert(lineIndex, position, lineLengthVisual) {
     EDI_lineEndPositionList_data[lineIndex] = position;
     INTS[fEDI_lineEndPositionList_count]++;
 
+    // TODO: probably remove this and let the invoker do it themselves if warranted.
     if (EDI_trackingUint32MaxHeap.tryPooledPeek() &&
         (INTS[fEDI_longestLine_length] !== EDI_trackingUint32MaxHeap.unpack_pool_length || INTS[fEDI_longestLine_indexLine] !== EDI_trackingUint32MaxHeap.unpack_pool_lineIndex)) {
             INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;

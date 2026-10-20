@@ -727,6 +727,12 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
         EDI_lineEndString = '\n';
     }
 
+    // TODO: You actually should measure things before changing them...
+    // ...at the moment I'm more or less trying to pass time and see if I can recognize patterns...
+    // ...but what I'm doing is a terrible idea, even I'd be a annoyed if someone did this to me: just start changing things with 0 measurements like it worked and now you broke it and you didn't even have a reason for doing it...
+    // ...but I'm just messing around at the moment / am confused as to how I'd measure some of these things.
+    // So I'm just trying to recognize the patterns.
+
     // Not using 'uint8Array' feels very wasteful.
     // Once you've ensured capacity for some length then you don't have to worry about allocating the 'EDI_textByteList_bytes', you'll just write over the data that currently exists.
     // But even still, you're doing the 'set' although perhaps that isn't all too cumbersome? My concern is: a user opens a file, just to immediately open a different file.
@@ -758,7 +764,7 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
     let lineLengthVisual = 0; /** TODO: Track the linePosition last seen when making a line or something you don't have to increment this per character, you just need the difference of the last line drawn to the current or something. */
     let local_EDI_lineEndPositionList_count = INTS[fEDI_lineEndPositionList_count];
 
-    for (var sourceI = 0; sourceI < local_EDI_textByteList_count; ++sourceI) {
+    for (let sourceI = 0; sourceI < local_EDI_textByteList_count; ++sourceI) {
         ++lineLengthVisual; // avoid branching by eager counting the lineLengthVisual and then excluding the lineEnding later
         if (local_EDI_textByteList_bytes[sourceI] === CONST_EDI_ASCII_TAB) {
             lineLengthVisual += ((4 - ((lineLengthVisual - 1) % 4)) - 1); // (tab logic): avoid branching by eager counting... 'lineLengthVisual - 1... % 4)) - 1)'

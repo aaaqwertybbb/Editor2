@@ -692,7 +692,27 @@ function EDI_clear() {
 
 function EDI_render_do_SetText() {
     EDI_render_do_Clear();
+
     update_VirtualIndexLine();
+    update_virtualCount();
+
+    update_verticalVirtualizationBoundary();
+
+    EDI_drawGutter_Width(INTS[fEDI_lineEndPositionList_count]);
+    EDI_render_request(RenderKind_Cursor_n);
+    EDI_drawHorizontalScrollbar();
+    // Force 'case 3' within 'EDI_render_do_Scroll' downstream
+    // TODO: (this comment is being made sometime after this solution was written but from memory...)...
+    // ...I believe this works because when you change the text you guarantee a virtual index line of '0' because the scrollTop gets moved to 0...
+    // ...the partial solution is to set it to anything other than '0' so the editor detects that a line of text needs to be drawn...
+    // ...but this isn't enough because you want the editor to draw every line, thus you make the difference...
+    // ...in the virtual index line equal to the count of lines being displayed, i.e.: set virtual index line to 'INTS[fEDI_virtualCount]'...
+    // ...then it sees the new value for virtual index line is 0...
+    // ...the difference between the previous and new value is 'INTS[fEDI_virtualCount]'...
+    // ...thus 'INTS[fEDI_virtualCount]' amount of lines get redrawn...
+    // ...i.e.: the entire viewport is redrawn with the new file's text.
+    INTS[fEDI_ONSCROLLvirtualIndexLine] = INTS[fEDI_virtualCount];
+
     EDI_render_do_Scroll();
 
     // TODO: what is paragraph this doing?
@@ -799,26 +819,6 @@ function EDI_state_setText_byteArray(paddedUint8Array, textLength, fileStartsWit
     local_EDI_trackingUint32MaxHeap.tryPooledPeek();
     INTS[fEDI_longestLine_indexLine] = local_EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
     INTS[fEDI_longestLine_length] = local_EDI_trackingUint32MaxHeap.unpack_pool_length;
-
-    update_VirtualIndexLine();
-    update_virtualCount();
-
-    update_verticalVirtualizationBoundary();
-
-    EDI_drawGutter_Width(INTS[fEDI_lineEndPositionList_count]);
-    EDI_render_request(RenderKind_Cursor_n);
-    EDI_drawHorizontalScrollbar();
-    // Force 'case 3' within 'EDI_render_do_Scroll' downstream
-    // TODO: (this comment is being made sometime after this solution was written but from memory...)...
-    // ...I believe this works because when you change the text you guarantee a virtual index line of '0' because the scrollTop gets moved to 0...
-    // ...the partial solution is to set it to anything other than '0' so the editor detects that a line of text needs to be drawn...
-    // ...but this isn't enough because you want the editor to draw every line, thus you make the difference...
-    // ...in the virtual index line equal to the count of lines being displayed, i.e.: set virtual index line to 'INTS[fEDI_virtualCount]'...
-    // ...then it sees the new value for virtual index line is 0...
-    // ...the difference between the previous and new value is 'INTS[fEDI_virtualCount]'...
-    // ...thus 'INTS[fEDI_virtualCount]' amount of lines get redrawn...
-    // ...i.e.: the entire viewport is redrawn with the new file's text.
-    INTS[fEDI_ONSCROLLvirtualIndexLine] = INTS[fEDI_virtualCount];
 
     EDI_render_request(RenderKind_SetText);
 }

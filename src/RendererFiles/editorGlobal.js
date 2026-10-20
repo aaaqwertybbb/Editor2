@@ -206,7 +206,7 @@ function EDI_init() {
     EDI_drawCursor();
 
     EDI_trackingUint32MaxHeap = new TrackingUint32MaxHeap();
-    EDI_state_setText_byteArray(new Uint8Array(), /*fileStartsWithBom*/ false, /*textSourceIdentifier*/ null, /*FORMATTED_textSourceIdentifier*/ null, /*extensionKind*/ 0, /*lineEndString*/ '\n', /*lineEndCount*/ 0);
+    EDI_state_setText_byteArray(new Uint8Array(16), /*textLength*/ 0, /*fileStartsWithBom*/ false, /*textSourceIdentifier*/ null, /*FORMATTED_textSourceIdentifier*/ null, /*extensionKind*/ 0, /*lineEndString*/ '\n', /*lineEndCount*/ 0);
 
     EDI_registerHandlers();
 }
@@ -706,11 +706,33 @@ function EDI_render_do_SetText() {
 }
 
 /**
+ * Not using 'uint8Array' feels very wasteful.
+ * Once you've ensured capacity for some length then you don't have to worry about allocating the 'EDI_textByteList_bytes', you'll just write over the data that currently exists.
+ * But even still, you're doing the 'set' although perhaps that isn't all too cumbersome? My concern is: a user opens a file, just to immediately open a different file.
+ * 
+ * I remember what my worry was.
+ * If you receive a byte array that is exactly the right size to fit the text.
+ * And then you insert a character, you'll double the current capacity.
+ * And you'll end up with this MASSIVE wasted space.
+ *
+ * Versus if you matched a power of 2 "on the way up"
+ * I think you'd at the very least on average end up with a smaller amount of wasted space.
+ * 
+ * I think I can allocate the byte array to have some padding though and that'd fix it all.
+ *
+ * But again, once you finish the padding you now do a double of the entire length
+ * like are you really gonna type out twice the existing characters each time you open a file?
+ *
+ * The "extremely large possibility edits" should do their own ensureCapacity check prior to the edit.
+ * And then everything else can just kinda do (umm this is probably too small but like reallocate with another 1024 bytes)
+ * Maybe you can get a differential equation to predict the next capacity.
+ * ^I don't know what a differential equation is I'm just meme-ing.
+ * 
  * TODO: assert that the function parameters fit the requirements as described in the respective param documentation.
- * @param {*} uint8Array the length is exactly the length of the text, with all line endings replaced by '\n' regardless of the desired line ending when saving the file (or copying text, etc...)
+ * @param {*} paddedUint8Array all line endings replaced by '\n' regardless of the desired line ending when saving the file (or copying text, etc...). 'paddedUint8Array.length' is not necessarily equal to 'textLength'. If you want to avoid reallocating when you type a single character. You can pad the uint8array, a padding of 1 gives a textLength of 'paddedUint8Array.length - 1'.
  * @param {*} lineEndString this is the desired line ending when saving the file (or copying text, etc...)
  */
-function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString, lineEndCount) {
+function EDI_state_setText_byteArray(paddedUint8Array, textLength, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString, lineEndCount) {
     EDI_scroll_viewport.scrollTop = 0;
     INTS[fEDI_lastReadNumber_scrollTop] = 0;
     EDI_scroll_viewport.scrollLeft = 0;
@@ -734,27 +756,9 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
     // ...but I'm just messing around at the moment / am confused as to how I'd measure some of these things.
     // So I'm just trying to recognize the patterns.
 
-    // Not using 'uint8Array' feels very wasteful.
-    // Once you've ensured capacity for some length then you don't have to worry about allocating the 'EDI_textByteList_bytes', you'll just write over the data that currently exists.
-    // But even still, you're doing the 'set' although perhaps that isn't all too cumbersome? My concern is: a user opens a file, just to immediately open a different file.
-    // 
-    // I remember what my worry was.
-    // If you receive a byte array that is exactly the right size to fit the text.
-    // And then you insert a character, you'll double the current capacity.
-    // And you'll end up with this MASSIVE wasted space.
-    //
-    // Versus if you matched a power of 2 "on the way up"
-    // I think you'd at the very least on average end up with a smaller amount of wasted space.
-    // 
-    // I think I can allocate the byte array to have some padding though and that'd fix it all.
-    //
-    // But again, once you finish the padding you now do a double of the entire length
-    // like are you really gonna type out twice the existing characters each time you open a file?
-    //
-    EDI_textByteList_ensureCapacityForInsertion(0, uint8Array.length);
+    EDI_textByteList_bytes = paddedUint8Array;
     const local_EDI_textByteList_bytes = EDI_textByteList_bytes;
-    local_EDI_textByteList_bytes.set(uint8Array, 0);
-    INTS[fEDI_textByteList_count] = uint8Array.length;
+    INTS[fEDI_textByteList_count] = textLength;
     const local_EDI_textByteList_count = INTS[fEDI_textByteList_count];
 
     EDI_lineEndPositionList_ensureCapacityForInsertion(0, lineEndCount);
@@ -838,7 +842,8 @@ function EDI_state_setText(text, fileStartsWithBom, textSourceIdentifier, FORMAT
     const uint8Array = EDI_encoder.encode(normalizedText); /** how do I 'encodeInto' when a character might actually be multi-byte thus I don't ever truly know the size ahead of time? */
     let lineEndCount = countNewlines(text);
 
-    EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString, lineEndCount);
+    // TODO: add padding to this function's uint8Array.
+    EDI_state_setText_byteArray(uint8Array, /*textLength*/ 0, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString, lineEndCount);
 }
 
 function countNewlines(sourceString) {

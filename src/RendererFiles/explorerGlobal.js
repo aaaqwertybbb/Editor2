@@ -1485,12 +1485,13 @@ function EXPLORER_setShow(shouldShow) {
 async function EXPLORER_openInEditor(absolutePath, shouldFocus) {
     const itHasBom = await window.myAPI.editorReadAllText_byteArray(absolutePath);
 
-    if (!itHasBom.uint8Array) {
+    if (!itHasBom.paddedUint8Array) {
         return;
     }
 
     EDI_state_setText_byteArray(
-        itHasBom.uint8Array,
+        itHasBom.paddedUint8Array,
+        itHasBom.textLength,
         itHasBom.fileStartsWithBom,
         /*textSourceIdentifier*/ absolutePath,
         /*FORMATTED_textSourceIdentifier*/ itHasBom.formattedAbsolutePath,

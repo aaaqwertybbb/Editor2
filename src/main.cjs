@@ -903,7 +903,8 @@ async function editorReadAllText_byteArray(event, absolutePath) {
 		}
 		
 		return {
-			uint8Array: uint8Array,
+			paddedUint8Array: uint8Array,
+			textLength: uint8Array.length,
 			fileStartsWithBom: itHasBom.fileStartsWithBom,
 			formattedAbsolutePath: itHasBom.formattedAbsolutePath,
 			extension: itHasBom.extension,

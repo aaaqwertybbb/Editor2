@@ -731,6 +731,19 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
     // Once you've ensured capacity for some length then you don't have to worry about allocating the 'EDI_textByteList_bytes', you'll just write over the data that currently exists.
     // But even still, you're doing the 'set' although perhaps that isn't all too cumbersome? My concern is: a user opens a file, just to immediately open a different file.
     // 
+    // I remember what my worry was.
+    // If you receive a byte array that is exactly the right size to fit the text.
+    // And then you insert a character, you'll double the current capacity.
+    // And you'll end up with this MASSIVE wasted space.
+    //
+    // Versus if you matched a power of 2 "on the way up"
+    // I think you'd at the very least on average end up with a smaller amount of wasted space.
+    // 
+    // I think I can allocate the byte array to have some padding though and that'd fix it all.
+    //
+    // But again, once you finish the padding you now do a double of the entire length
+    // like are you really gonna type out twice the existing characters each time you open a file?
+    //
     EDI_textByteList_ensureCapacityForInsertion(0, uint8Array.length);
     const local_EDI_textByteList_bytes = EDI_textByteList_bytes;
     local_EDI_textByteList_bytes.set(uint8Array, 0);
@@ -763,7 +776,7 @@ function EDI_state_setText_byteArray(uint8Array, fileStartsWithBom, textSourceId
     local_EDI_trackingUint32MaxHeap.insert(local_EDI_lineEndPositionList_count, lineLengthVisual);
     local_EDI_lineEndPositionList_data[local_EDI_lineEndPositionList_count] = local_EDI_textByteList_count;
 
-    INTS[fEDI_lineEndPositionList_count] = local_EDI_lineEndPositionList_count + 1; // local_EDI_lineEndPositionList_count doesn't contain the +1
+    INTS[fEDI_lineEndPositionList_count] = local_EDI_lineEndPositionList_count + 1; // local_EDI_lineEndPositionList_count is off by '1' if used beyond this line
 
     local_EDI_trackingUint32MaxHeap.tryPooledPeek();
     INTS[fEDI_longestLine_indexLine] = local_EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;

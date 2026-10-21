@@ -1036,3 +1036,12 @@ I am writing my own language server in C# so I'm gonna just make it work.
 Looking at both problems might result in procrastination and not making any progress.
 I'll do it as correct as I can mentally handle on the first go.
 But I'm not adverse to having slight differences that I need to go back to fix such as method names, or maybe I did slightly different parameters.
+
+====
+
+my plan for "as you type syntax highlighting"
+is that I'll just send the lsp words at a time and ask what to color them.
+
+In terms of "you might need a mixture of lexical information as well not just semantic in order for the language server to determine what something is".
+I'm gonna recreate my text insertion buffer on the language server and keep it up to date word by word as I type.
+Each time I give it a word to add to the replicated text insertion buffer I'll get a response back telling me what to color that word.

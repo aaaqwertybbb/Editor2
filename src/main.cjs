@@ -2,6 +2,8 @@
 // I don't want to touch the originally scaffolded "if (require('electron-squirrel-startup'))" at the moment.
 // thus this file is staying common js.
 
+// TODO: If main.cjs throws an error will the languageServer process be killed (if previously was started)?
+
 const { app, BrowserWindow, dialog, ipcMain, clipboard } = require('electron');
 const path = require('node:path');
 const fs = require('fs');
@@ -371,6 +373,13 @@ function MAIN_initializeLanguageServer() {
 					case 'textDocument/completion_slice':
 						// I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
 						mainWindowCapture.webContents.send('from-main', { method:mostRecentRequest.method, result:messageObject.result });
+						break;
+					case 'textDocument/CustomEditorVerifyLspTextAgainstEditorTextRequest':
+						// I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
+						// TODO: Make a text area dialog and put the text inside it?
+						// TODO: This is only async so timing issue more than likely is possible
+						setClipboard(null, messageObject.result);
+						mainWindowCapture.webContents.send('from-main', { method:mostRecentRequest.method });
 						break;
 				}
 			}

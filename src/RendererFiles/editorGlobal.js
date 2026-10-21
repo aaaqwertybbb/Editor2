@@ -183,6 +183,8 @@ const keywordHighlight = new Highlight();
 CSS.highlights.set("js-keywords", keywordHighlight);
 const keywordControlHighlight = new Highlight();
 CSS.highlights.set("js-keywords-control", keywordControlHighlight);
+const typeHighlight = new Highlight();
+CSS.highlights.set("js-type", typeHighlight);
 const memberHighlight = new Highlight();
 CSS.highlights.set("js-member", memberHighlight);
 const functionHighlight = new Highlight();
@@ -6781,9 +6783,12 @@ function EDI_syntaxHighlight_parallelArray(div, ringBufferIndexOfDiv, lineStart,
                         identifierHighlight.add(range);
                     }
                     else if (originalStyleByte === 6) {
-                        memberHighlight.add(range);
+                        typeHighlight.add(range);
                     }
                     else if (originalStyleByte === 7) {
+                        memberHighlight.add(range);
+                    }
+                    else if (originalStyleByte === 8) {
                         functionHighlight.add(range);
                     }
                     continue outerWhile;
@@ -6814,9 +6819,12 @@ function EDI_syntaxHighlight_parallelArray(div, ringBufferIndexOfDiv, lineStart,
             identifierHighlight.add(range);
         }
         else if (TRAILINGstyleByteTRAILING === 6) {
-            memberHighlight.add(range);
+            typeHighlight.add(range);
         }
         else if (TRAILINGstyleByteTRAILING === 7) {
+            memberHighlight.add(range);
+        }
+        else if (TRAILINGstyleByteTRAILING === 8) {
             functionHighlight.add(range);
         }
     }

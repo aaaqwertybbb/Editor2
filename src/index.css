@@ -562,6 +562,10 @@ TODO: maybe don't nearly-duplicate these classes.
   color: var(--editor-syntax-keywordControl-color);
 }
 
+::highlight(js-type) {
+  color: var(--editor-syntax-type-color);
+}
+
 ::highlight(js-member) {
   color: var(--editor-syntax-member-color);
 }

@@ -1031,7 +1031,7 @@ Lighter.
 
 As for getting the exact LSP method names and parameters correctly:
 I look at this as two separate problems.
-I am writing my own LSP in C# so I'm gonna just make it work.
+I am writing my own language server in C# so I'm gonna just make it work.
 (that is to say)
 Looking at both problems might result in procrastination and not making any progress.
 I'll do it as correct as I can mentally handle on the first go.

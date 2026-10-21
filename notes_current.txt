@@ -997,3 +997,7 @@ rather than the donuts I had yesterday etc...
 
 I'm realizing I actually wrote something more like a "transaction buffer"
 than a "gap buffer" so I gotta rename things when I get back from the store.
+
+I'm gonna try out a different approach to the syntax highlighting than what currently is written:
+    parallel array logic
+^it is common from what I understand, I believe it is what "SciTE is a SCIntilla based Text Editor" does.

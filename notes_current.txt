@@ -1028,3 +1028,11 @@ provided you separate the lexing phase from the rendering phase.
 I'm gonna put all syntax highlight calculations in the LSP logic.
 This way the monolithic JS module has a massive chunk of code removed from it relative to what it was.
 Lighter.
+
+As for getting the exact LSP method names and parameters correctly:
+I look at this as two separate problems.
+I am writing my own LSP in C# so I'm gonna just make it work.
+(that is to say)
+Looking at both problems might result in procrastination and not making any progress.
+I'll do it as correct as I can mentally handle on the first go.
+But I'm not adverse to having slight differences that I need to go back to fix such as method names, or maybe I did slightly different parameters.

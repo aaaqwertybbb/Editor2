@@ -1068,3 +1068,20 @@ I gotta pool the syntax highlighting objects still
 ====
 
 they still haven't called me I got my phone right here been waiting
+
+====
+
+I gotta fix the shifting of the syntax highlighting too.
+
+Step 1:
+- [ ] Modifying text needs to shift the syntax highlighting
+- [ ] Inserting new text like doesn't have to syntax highlight it just needs to offset the existing syntax highlighting
+
+Step 2:
+- [ ] Inserting the text when finalizing you get the syntax highlighting for that newly inserted text.
+- [ ] lsp gives you a small uint8array and you put that into your larger one.
+
+Step 3:
+- [ ] As you type replicate your insertion buffer in the language server
+- [ ] and get word by word responses on what the syntax highlighting of what was typed should be.
+

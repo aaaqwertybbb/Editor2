@@ -1063,7 +1063,7 @@ prob fnal tme I mke a plylst bt ths ws hype af
 
 ====
 
-I gotta pool the syntax highlighting objects still
+- [ ] I gotta pool the syntax highlighting objects still
 
 ====
 
@@ -1082,6 +1082,15 @@ Step 2:
 - [ ] lsp gives you a small uint8array and you put that into your larger one.
 
 Step 3:
+- [ ] Large scale invalidation of existing syntax highlighting.
+- [ ] Typing a comment or something
+- [ ] When typing a comment, the /* you fake make everything after it a comment by just recoloring the virtualized content
+      directly without modifying the color buffer.
+      - [ ] When finalizing the comment then you can probably overwrite everything
+- [ ] And then removing a comment too
+- [ ] And the lsp is gonna handle all of it then just send back a byte array with a start position and then
+      you set that smaller byte array at start into your larger one.
+
+Step 4:
 - [ ] As you type replicate your insertion buffer in the language server
 - [ ] and get word by word responses on what the syntax highlighting of what was typed should be.
-

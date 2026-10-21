@@ -1001,3 +1001,22 @@ than a "gap buffer" so I gotta rename things when I get back from the store.
 I'm gonna try out a different approach to the syntax highlighting than what currently is written:
     parallel array logic
 ^it is common from what I understand, I believe it is what "SciTE is a SCIntilla based Text Editor" does.
+
+====
+
+Google AI:
+
+>
+I have much of the editor already written. So I need to explain what problem I'm facing.
+|
+I have syntax highlighting. But it is slow and I cannot scroll the text into view with syntax highlighting immediately applied. I have to debounce the syntax highlighting.
+|
+The scroll logic is highly optimized with a ring buffer and only re-renders the newly scrolled into view text.
+|
+It is just that the way I determine what is syntax highlighted is by looking at a bunch of objects and it just takes too much overhead.
+|
+Would the parallel array on its on be enough to permit syntax highlighting immediately while I'm scrolling?
+
+<
+Yes, switching to a parallel Uint8Array is absolutely enough to enable immediate, zero-latency syntax highlighting while scrolling,
+provided you separate the lexing phase from the rendering phase.

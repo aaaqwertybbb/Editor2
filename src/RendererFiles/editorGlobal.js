@@ -177,7 +177,20 @@ let EDI_ringBuffer_needsSyntaxHighlightingFlags = new Uint8Array(0);
  */
 let EDI_ringBuffer_mapHighlights = [];
 
-let EDI_language_line_lex = null;
+const keywordHighlight = new Highlight();
+CSS.highlights.set("js-keywords", keywordHighlight);
+const keywordControlHighlight = new Highlight();
+CSS.highlights.set("js-keywords-control", keywordControlHighlight);
+const memberHighlight = new Highlight();
+CSS.highlights.set("js-member", memberHighlight);
+const functionHighlight = new Highlight();
+CSS.highlights.set("js-function", functionHighlight);
+const identifierHighlight = new Highlight();
+CSS.highlights.set("js-identifier", identifierHighlight);
+const commentHighlight = new Highlight();
+CSS.highlights.set("js-comment", commentHighlight);
+const stringHighlight = new Highlight();
+CSS.highlights.set("js-string", stringHighlight);
 
 //// Find-All for "EDI_debug_optimization" to find all the commented out logic that was related to this.
 // let EDI_debug_optimization_has_logged_disassembleFunction = false;
@@ -762,7 +775,6 @@ function EDI_state_setText_byteArray(paddedUint8Array, textLength, fileStartsWit
     EDI_textSourceIdentifier = textSourceIdentifier;
     EDI_FORMATTED_textSourceIdentifier = FORMATTED_textSourceIdentifier;
     BYTES[byteEDI_extensionKind] = extensionKind;
-    EDI_language_line_lex_SET(BYTES[byteEDI_extensionKind]);
     EDI_lineEndString = lineEndString;
     if (!EDI_lineEndString) {
         EDI_lineEndString = '\n';
@@ -6656,6 +6668,8 @@ function EDI_render_do_SyntaxHighlighting() {
         EDI_render_do_RedrawSelection();
     }
 
+    return; // TODO: rewrite syntax highlighting to use a parallel array
+
     const local_EDI_ringBuffer_needsSyntaxHighlightingFlags = EDI_ringBuffer_needsSyntaxHighlightingFlags;
     let currentIndexRingBuffer = INTS[fEDI_ringBuffer_indexZero];
     let currentIndexLine = INTS[fEDI_virtualIndexLine];
@@ -7435,17 +7449,6 @@ function EDI_toExtensionKind(extensionWithPeriod) {
             return ExtensionKind_JavaScript;
         default:
             return ExtensionKind_None;
-    }
-}
-
-function EDI_language_line_lex_SET(extensionKind) {
-    switch (extensionKind) {
-        //case ExtensionKind_JavaScript:
-            //EDI_language_line_lex = JS_line_lex;
-            //break;
-        default:
-            EDI_language_line_lex = PLAINTEXT_line_lex;
-            break;
     }
 }
 

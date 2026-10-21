@@ -1020,3 +1020,5 @@ Would the parallel array on its on be enough to permit syntax highlighting immed
 <
 Yes, switching to a parallel Uint8Array is absolutely enough to enable immediate, zero-latency syntax highlighting while scrolling,
 provided you separate the lexing phase from the rendering phase.
+|
+...

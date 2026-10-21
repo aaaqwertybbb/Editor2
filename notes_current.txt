@@ -1045,3 +1045,9 @@ is that I'll just send the lsp words at a time and ask what to color them.
 In terms of "you might need a mixture of lexical information as well not just semantic in order for the language server to determine what something is".
 I'm gonna recreate my text insertion buffer on the language server and keep it up to date word by word as I type.
 Each time I give it a word to add to the replicated text insertion buffer I'll get a response back telling me what to color that word.
+
+=======
+
+In terms of managing workload and anxiety:
+
+I think I need to get the multiline spanning syntax to syntax highlight today and that's it.

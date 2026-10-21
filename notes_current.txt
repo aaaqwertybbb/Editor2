@@ -1060,3 +1060,7 @@ so on opening a file it looks correct with respect to multiline spanning syntax 
 ====
 
 prob fnal tme I mke a plylst bt ths ws hype af
+
+====
+
+I gotta pool the syntax highlighting objects still

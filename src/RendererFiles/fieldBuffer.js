@@ -469,7 +469,7 @@ const fEDI_cursor_editRenderedDisplacement = 46;
 const fEDI_cursor_editRenderedDisplacement_INDEX_LINE_OFFSET = 47;
 const fEDI_cursor_END_editIndexLine = 48;
 const fEDI_cursor_END_editIndexColumn = 49;
-const fEDI_cursor_gapBufferCount = 50;
+const fEDI_cursor_textInsertionBufferCount = 50;
 
 /**
  * TODO: probably is sensible to use this for the enter key too but I'm firstly adding it for the sake of backspace so

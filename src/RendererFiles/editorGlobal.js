@@ -38,9 +38,9 @@ let EDI_cursor_cursorTranslateXValue = 0;
 /**
  * When this is cleared the information is not removed, only 'gapBufferCount' is set to 0.
  */
-const EDI_cursor_gapBuffer = new Uint8Array(CONST_EDI_cursor_GAP_BUFFER_CAPACITY);
+const EDI_cursor_textInsertionBuffer = new Uint8Array(CONST_EDI_cursor_GAP_BUFFER_CAPACITY);
 
-let EDI_cursor_gapBufferWriteToSpanElement = null;
+let EDI_cursor_textInsertionBufferWriteToSpanElement = null;
 
 /**
  * Depending on 'BYTES[byteEDI_cursor_enterKeyEventKind]' this may either start OR end with '\n'.
@@ -2742,11 +2742,11 @@ function EDI_render_do_InsertLtr() {
         return;
     }
     if (INTS[fEDI_cursor_editRenderedDisplacement] < INTS[fEDI_cursor_editLength]) {
-        if (EDI_cursor_gapBufferWriteToSpanElement) {
+        if (EDI_cursor_textInsertionBufferWriteToSpanElement) {
 
-            EDI_cursor_gapBufferWriteToSpanElement.firstChild.insertData(
+            EDI_cursor_textInsertionBufferWriteToSpanElement.firstChild.insertData(
                 (INTS[fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex]) + INTS[fEDI_cursor_editRenderedDisplacement],
-                EDI_decoder.decode(EDI_cursor_gapBuffer.subarray(INTS[fEDI_cursor_editRenderedDisplacement], INTS[fEDI_cursor_editLength])));
+                EDI_decoder.decode(EDI_cursor_textInsertionBuffer.subarray(INTS[fEDI_cursor_editRenderedDisplacement], INTS[fEDI_cursor_editLength])));
 
             INTS[fEDI_cursor_editRenderedDisplacement] = INTS[fEDI_cursor_editLength];
         }
@@ -2757,8 +2757,8 @@ function EDI_render_do_InsertLtr() {
  * @param {string} character 
  */
 function EDI_insertDo(character) {
-    EDI_cursor_gapBuffer[INTS[fEDI_cursor_gapBufferCount]] = character.charCodeAt(0);
-    INTS[fEDI_cursor_gapBufferCount]++;
+    EDI_cursor_textInsertionBuffer[INTS[fEDI_cursor_textInsertionBufferCount]] = character.charCodeAt(0);
+    INTS[fEDI_cursor_textInsertionBufferCount]++;
 
     INTS[fEDI_cursor_editLength]++;
     INTS[fEDI_cursor_indexColumn]++;
@@ -3297,12 +3297,12 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
             EDI_trackedSyntaxList.setLength(i, INTS[fEDI_poolret_pooledTrackedSyntax_length] + INTS[fEDI_cursor_editLength]);
         }
     }
-    EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition], EDI_cursor_gapBuffer, /*offset*/ 0, /*length*/ INTS[fEDI_cursor_gapBufferCount]);
+    EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition], EDI_cursor_textInsertionBuffer, /*offset*/ 0, /*length*/ INTS[fEDI_cursor_textInsertionBufferCount]);
 
     EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
     let lineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
     let lineAndColumnIndices_indexColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
-    let text = EDI_decoder.decode(EDI_cursor_gapBuffer.subarray(0, INTS[fEDI_cursor_gapBufferCount]));
+    let text = EDI_decoder.decode(EDI_cursor_textInsertionBuffer.subarray(0, INTS[fEDI_cursor_textInsertionBufferCount]));
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
     let version = INTS[fEDI_didChangeTextDocument_version];
 
@@ -4308,8 +4308,8 @@ function EDI_finalizeEdit_ClearEditState() {
     INTS[fEDI_cursor_editRenderedDisplacement] = 0;
     INTS[fEDI_cursor_END_editIndexLine] = 0;
     INTS[fEDI_cursor_END_editIndexColumn] = 0;
-    INTS[fEDI_cursor_gapBufferCount] = 0;
-    EDI_cursor_gapBufferWriteToSpanElement = null;
+    INTS[fEDI_cursor_textInsertionBufferCount] = 0;
+    EDI_cursor_textInsertionBufferWriteToSpanElement = null;
     INTS[fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = 0;
     INTS[fEDI_cursor_editLineFeedCount] = 0;
     EDI_lineEndPositionList_PENDING.clear();
@@ -5394,20 +5394,20 @@ function EDI_drawHorizontalScrollbar() {
 function EDI_insertGapBufferSpan() {
     walkLineUntilIndexColumn();
     if (w_div === w_divNONE) {
-        EDI_cursor_gapBufferWriteToSpanElement = null;
+        EDI_cursor_textInsertionBufferWriteToSpanElement = null;
         INTS[fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = 0;
         return;
     }
 
     if (INTS[fEDI_w_indexColumn_Goal] == 0) {
-        EDI_cursor_gapBufferWriteToSpanElement = w_div;
+        EDI_cursor_textInsertionBufferWriteToSpanElement = w_div;
         INTS[fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = 0;
     }
     else {
-        EDI_cursor_gapBufferWriteToSpanElement = w_div;
+        EDI_cursor_textInsertionBufferWriteToSpanElement = w_div;
 
-        if (INTS[fEDI_w_indexColumn_Goal] === INTS[fEDI_w_indexColumn_Sum] + EDI_cursor_gapBufferWriteToSpanElement.textContent.length) {
-            INTS[fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = EDI_cursor_gapBufferWriteToSpanElement.textContent.length;
+        if (INTS[fEDI_w_indexColumn_Goal] === INTS[fEDI_w_indexColumn_Sum] + EDI_cursor_textInsertionBufferWriteToSpanElement.textContent.length) {
+            INTS[fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = EDI_cursor_textInsertionBufferWriteToSpanElement.textContent.length;
         }
         else {
             INTS[fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = INTS[fEDI_w_indexColumn_SpanTextContentRelative];
@@ -6064,7 +6064,7 @@ function EDI_cursor_clear() {
     INTS[fEDI_cursor_END_editIndexLine] = 0;
     INTS[fEDI_cursor_END_editIndexColumn] = 0;
 
-    INTS[fEDI_cursor_gapBufferCount] = 0;
+    INTS[fEDI_cursor_textInsertionBufferCount] = 0;
 
     EDI_cursor_enterKey_newLinePlusIndentation_byteList = null;
     EDI_cursor_cached_indentation_string = null;

@@ -89,7 +89,7 @@ module.exports = function (babel) {
     "fEDI_cursor_editRenderedDisplacement_INDEX_LINE_OFFSET",
     "fEDI_cursor_END_editIndexLine",
     "fEDI_cursor_END_editIndexColumn",
-    "fEDI_cursor_gapBufferCount",
+    "fEDI_cursor_textInsertionBufferCount",
     "fEDI_cursor_editLineFeedCount",
     "fEDI_editret_cursor_EDI_duplicate_small",
     "fEDI_editret_cursor_EDI_duplicate_length",

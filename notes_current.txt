@@ -992,3 +992,8 @@ Today for the energy calories I had 4 plain bagels, I ate them plain
 rather than the donuts I had yesterday etc...
 
 *for the first time btw, sorry I forgot to add that
+
+====
+
+I'm realizing I actually wrote something more like a "transaction buffer"
+than a "gap buffer" so I gotta rename things when I get back from the store.

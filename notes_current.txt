@@ -1097,6 +1097,6 @@ Step 4:
 
 ====
 
-- [ ] I gotta eat a lb of 98% fat free ground chicken with sriracha
-- [ ] I gotta exercise
+- [x] I gotta eat a lb of 98% fat free ground chicken with sriracha
+- [x] I gotta exercise
 - [ ] I gotta continue awaiting this phone call

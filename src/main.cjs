@@ -375,7 +375,6 @@ function MAIN_initializeLanguageServer() {
 						mainWindowCapture.webContents.send('from-main', { method:mostRecentRequest.method, result:messageObject.result });
 						break;
 					case 'textDocument/CustomEditorVerifyLspTextAgainstEditorTextRequest':
-						// I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
 						// TODO: Make a text area dialog and put the text inside it?
 						// TODO: This is only async so timing issue more than likely is possible
 						setClipboard(null, messageObject.result);

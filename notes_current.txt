@@ -1022,3 +1022,9 @@ Yes, switching to a parallel Uint8Array is absolutely enough to enable immediate
 provided you separate the lexing phase from the rendering phase.
 |
 ...
+
+====
+
+I'm gonna put all syntax highlight calculations in the LSP logic.
+This way the monolithic JS module has a massive chunk of code removed from it relative to what it was.
+Lighter.

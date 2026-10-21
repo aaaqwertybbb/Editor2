@@ -314,6 +314,11 @@ function MAIN_initializeLanguageServer() {
 	//languageServer = spawn('node', [
 	//	'C:\\Users\\hunte\\AppData\\Roaming\\npm\\node_modules\\typescript-language-server\\lib\\cli.mjs',
 	//	'--stdio']);
+	//
+	// adding UI to change some field in a json file in AppData sounds like a remote code execution nightmare that I don't wanna deal with right now.
+	// theoretically this also is one but it feels sensible to do something like hardcoding this and the git history and etc...
+	// making it a setting makes it feel too official and safe when it isn't.
+	//
 	languageServer = spawn('C:\\Users\\hunte\\Repos\\New folder (7)\\LanguageServer2\\JSLSApp\\bin\\Release\\net10.0\\publish\\JSLSApp.exe');
 
 	/*

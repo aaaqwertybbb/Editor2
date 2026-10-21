@@ -6,8 +6,6 @@ import "./javascriptFeatures"
 
 let EDI_trackingUint32MaxHeap = new TrackingUint32MaxHeap();
 
-const EDI_trackedSyntaxList = new TrackedSyntaxList(32);
-
 /**
  * @type {UInt32List}
  */
@@ -710,7 +708,8 @@ function EDI_state_clear(trackingUint32MaxHeap_initialCapacity) {
     INTS[fEDI_longestLine_length] = 0;
     
     // This placement is very odd you await the async and... it works seemingly but happenstance kinda odd timing that just kinda works?
-    EDI_trackedSyntaxList.clear();
+    //EDI_txrxaxcxkxexdxSxyxnxtxaxxxLxixsxtx.clear();
+    // TODO: Consider clearing the 'EDI_styleBuffer'
 }
 
 function EDI_clear() {
@@ -2136,30 +2135,6 @@ function EDI_render_do_RemoveSelection() {
         let original_edit_length = INTS[fEDI_cursor_editLength];
         INTS[fEDI_cursor_editLength] = 0;
 
-        let indexTrackedSyntax = EDI_drawViewPort_FindTrackedSyntax_StartingIndex(INTS[fEDI_cursor_indexLine]);
-        if (indexTrackedSyntax === NaN || indexTrackedSyntax === -1) {
-            indexTrackedSyntax = EDI_trackedSyntaxList.count_abstract;
-        }
-        let possibleTrackedSyntaxToSpanSingleLine = false;
-        if (indexTrackedSyntax < EDI_trackedSyntaxList.count_abstract) {
-            EDI_trackedSyntaxList.getElementAt(indexTrackedSyntax);
-            if (INTS[fEDI_poolret_pooledTrackedSyntax_start] < EDI_lineEndPositionList_data[INTS[fEDI_cursor_indexLine]]) {
-                possibleTrackedSyntaxToSpanSingleLine = true;
-            }
-            // TODO: This has no reason to be a for loop
-            for (let i = INTS[fEDI_cursor_indexLine] - 1; i >= 0; i--) {
-                let lineEndPosition = EDI_lineEndPositionList_data[i];
-                if (INTS[fEDI_poolret_pooledTrackedSyntax_start] < lineEndPosition &&
-                    INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length] > lineEndPosition) {
-                        possibleTrackedSyntaxToSpanSingleLine = false;
-                        break;
-                }
-                else {
-                    break;
-                }
-            }
-        }
-
         let linesRemovedCount = 0;
         // -1 since you can't remove EOF
         for (var iVarDependent = INTS[fEDI_cursor_indexLine]; iVarDependent < INTS[fEDI_lineEndPositionList_count] - 1; iVarDependent++) {
@@ -2168,28 +2143,6 @@ function EDI_render_do_RemoveSelection() {
                 linesRemovedCount++;
                 INTS[fEDI_cursor_editLineFeedCount]++;
                 EDI_lineEndPositionList_PENDING.insert(EDI_lineEndPositionList_PENDING.count, lineEnding);
-
-                if (possibleTrackedSyntaxToSpanSingleLine) {
-                    let NOTlineEndBelongsToSyntax;
-                    if (iVarDependent >= INTS[fEDI_lineEndPositionList_count])
-                        NOTlineEndBelongsToSyntax = true;
-                    else if (INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length] <= EDI_lineEndPositionList_data[iVarDependent])
-                        NOTlineEndBelongsToSyntax = true;
-                    
-                    if (NOTlineEndBelongsToSyntax) {
-                        EDI_trackedSyntaxList.removeAt(indexTrackedSyntax, 1);
-
-                        // do not increment because removed
-                        possibleTrackedSyntaxToSpanSingleLine = false;
-                        if (indexTrackedSyntax < EDI_trackedSyntaxList.count_abstract) {
-                            EDI_trackedSyntaxList.getElementAt(indexTrackedSyntax);
-                            if (INTS[fEDI_poolret_pooledTrackedSyntax_start] < lineEnding &&
-                                INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length] > lineEnding) {
-                                    possibleTrackedSyntaxToSpanSingleLine = true;
-                            }
-                        }
-                    }
-                }
             }
             else {
                 break;
@@ -2225,21 +2178,6 @@ function EDI_render_do_RemoveSelection() {
             //INTS[fEDI_cursorVisualColumnIndex] = small_columnVisual;
 
             //EDI_ret_getIndexFromColumn_RESET();
-        }
-
-        if (linesRemovedCount > 0 && possibleTrackedSyntaxToSpanSingleLine) {
-            // The next line end will NOT be removed, so you need to check whether it was encompassed by the possible syntax.
-            //
-            // Inside the for loop you need to do this when you exhaust the encompassed line ends for a given syntax and move to the next one too.
-            //
-            let NOTlineEndBelongsToSyntax;
-            if (iVarDependent >= INTS[fEDI_lineEndPositionList_count])
-                NOTlineEndBelongsToSyntax = true;
-            else if (INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length] <= EDI_lineEndPositionList_data[iVarDependent])
-                NOTlineEndBelongsToSyntax = true;
-            
-            if (NOTlineEndBelongsToSyntax)
-                EDI_trackedSyntaxList.removeAt(indexTrackedSyntax, 1);
         }
 
         let finalLineEndPosition = EDI_lineEndPositionList_data[INTS[fEDI_cursor_indexLine] + linesRemovedCount];
@@ -2423,10 +2361,6 @@ function EDI_render_do_Delete() {
                     if (INTS[fEDI_cursor_indexLine] < INTS[fEDI_lineEndPositionList_count] - 1) {
 
                         remaining--;
-
-                        if (w_div.className === 'eCM') {
-                            EDI_stopTrackingIfTrackedSyntaxMadeToSpanSingleLine();
-                        }
 
                         // Merge the lines if both are visible.
                         // TODO: Use NEXT here (... + 1)
@@ -2621,10 +2555,6 @@ function EDI_render_do_Backspace() {
                     if (INTS[fEDI_cursor_indexLine] < INTS[fEDI_lineEndPositionList_count] - 1) {
 
                         remaining--;
-
-                        if (w_div.className === 'eCM') {
-                            EDI_stopTrackingIfTrackedSyntaxMadeToSpanSingleLine();
-                        }
 
                         // Merge the lines if both are visible.
                         // TODO: Use NEXT here (... + 1)
@@ -3309,21 +3239,6 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
             break;
         }
     }
-    for (var i = 0; i < EDI_trackedSyntaxList.count_abstract; i++) {
-        EDI_trackedSyntaxList.getElementAt(i);
-        if (INTS[fEDI_cursor_editPosition] <= INTS[fEDI_poolret_pooledTrackedSyntax_start]) {
-            EDI_trackedSyntaxList.setStart(i, INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_cursor_editLength]);
-        }
-        else if (BYTES[byteEDI_byteret_pooledTrackedSyntax_trackedSyntaxKind] === TrackedSyntaxKind_Comment &&
-                INTS[fEDI_cursor_editPosition] === INTS[fEDI_poolret_pooledTrackedSyntax_start] + 1) {
-
-            // TODO: Insertion of '*' probably shouldn't remove.
-            EDI_trackedSyntaxList.removeAt(i, 1);
-        }
-        else if (INTS[fEDI_cursor_editPosition] > INTS[fEDI_poolret_pooledTrackedSyntax_start] && INTS[fEDI_cursor_editPosition] < INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length]) {
-            EDI_trackedSyntaxList.setLength(i, INTS[fEDI_poolret_pooledTrackedSyntax_length] + INTS[fEDI_cursor_editLength]);
-        }
-    }
     EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition], EDI_cursor_textInsertionBuffer, /*offset*/ 0, /*length*/ INTS[fEDI_cursor_textInsertionBufferCount]);
 
     EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
@@ -3441,8 +3356,6 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
         EDI_lineEndPositionList_data[i] += INTS[fEDI_cursor_editLength];
     }
 
-    EDI_trackedSyntaxList_inefficientUpdateStartAndLength(actualEditPosition, INTS[fEDI_cursor_editLength]);
-
     let bytes = EDI_cursor_enterKey_newLinePlusIndentation_byteList;
     const per_edit_length = bytes.length;
     let length = per_edit_length;
@@ -3548,8 +3461,6 @@ function EDI_finalizeEdit_Tab(indexLine_editOccurredOn) {
         }
     }
 
-    EDI_trackedSyntaxList_inefficientUpdateStartAndLength(INTS[fEDI_cursor_editPosition], length);
-
     EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition], bytes, /*offset*/ 0, /*length*/ length);
 
     for (var i = INTS[fEDI_cursor_editIndexLine]; i < INTS[fEDI_lineEndPositionList_count]; i++) {
@@ -3629,18 +3540,6 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
     // # Determine the total count of text that will be inserted, prior to actually beginning the edit.
     // ...
 
-    // # Update the 'START POSITIONS specifically' of the tracked syntax list by the total count of text that will be inserted.
-    let trackedSyntaxReposition_i = EDI_trackedSyntaxReposition_find(startingLinePos_end + 1);
-    if (trackedSyntaxReposition_i === NaN || trackedSyntaxReposition_i === -1) {
-        trackedSyntaxReposition_i = EDI_trackedSyntaxList.count_abstract;
-    }
-    for (var i = trackedSyntaxReposition_i; i < EDI_trackedSyntaxList.count_abstract; i++) {
-        EDI_trackedSyntaxList.setStart(
-            i,
-            EDI_trackedSyntaxList.getStart(i) + ORIGINAL_incrementBy);
-    }
-    trackedSyntaxReposition_i--;
-
     let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
     EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]); // TODO: dead code?
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
@@ -3665,22 +3564,6 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
     for (var lineI = startingIndex; lineI >= SMALL_lineAndColumnIndices_indexLine; lineI--) {
         EDI_ret_getLineBoundaryPositions_raw(lineI);
         const line_start = INTS[fEDI_ret_getLineBoundaryPositions_start];
-
-        for (; trackedSyntaxReposition_i >= 0; trackedSyntaxReposition_i--) {
-            let start = EDI_trackedSyntaxList.getStart(trackedSyntaxReposition_i);
-            if (line_start <= start) {
-                // # There's a second (relative to this entire function) modification to the start positions of the tracked syntax list
-                EDI_trackedSyntaxList.setStart(trackedSyntaxReposition_i, start + incrementBy);
-            }
-            else {
-                break;
-            }
-        }
-        EDI_trackedSyntaxList.getElementAt(trackedSyntaxReposition_i);
-        if (line_start > INTS[fEDI_poolret_pooledTrackedSyntax_start] && line_start < INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length]) {
-            // # Then, you immediately know the trackedSyntax that encompasses the insertion (if it exists), so you increment its length by the text inserted on that respective line.
-            EDI_trackedSyntaxList.setLength(trackedSyntaxReposition_i, INTS[fEDI_poolret_pooledTrackedSyntax_length] + bytesLength);
-        }
 
         // # Insert the text on the respective line.
         EDI_textByteList_insertBytes(line_start, bytes, 0 /*offset*/, bytesLength /*length*/);
@@ -3893,17 +3776,6 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
     //    //}
     //}
 
-    let trackedSyntaxReposition_i = EDI_trackedSyntaxReposition_find(INTS[fEDI_editret_indentLess_startingLinePos_end] + 1);
-    if (trackedSyntaxReposition_i === NaN || trackedSyntaxReposition_i === -1) {
-        trackedSyntaxReposition_i = EDI_trackedSyntaxList.count_abstract;
-    }
-    for (var i = trackedSyntaxReposition_i; i < EDI_trackedSyntaxList.count_abstract; i++) {
-        EDI_trackedSyntaxList.setStart(
-            i,
-            EDI_trackedSyntaxList.getStart(i) - ORIGINAL_decrementBy);
-    }
-    trackedSyntaxReposition_i--;
-
     let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
     EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]); // TODO: dead code?
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
@@ -3985,20 +3857,6 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
             }
         }
 
-        for (; trackedSyntaxReposition_i >= 0; trackedSyntaxReposition_i--) {
-            let start = EDI_trackedSyntaxList.getStart(trackedSyntaxReposition_i);
-            if (line_start <= start) {
-                EDI_trackedSyntaxList.setStart(trackedSyntaxReposition_i, start - decrementBy);
-            }
-            else {
-                break;
-            }
-        }
-        EDI_trackedSyntaxList.getElementAt(trackedSyntaxReposition_i);
-        if (line_start > INTS[fEDI_poolret_pooledTrackedSyntax_start] && line_start < INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length]) {
-            EDI_trackedSyntaxList.setLength(trackedSyntaxReposition_i, INTS[fEDI_poolret_pooledTrackedSyntax_length] - innerRemoveCount);
-        }
-
         EDI_textByteList_removeAt(line_start, innerRemoveCount);
 
         lspObject.arrayOfEditInformation.push({
@@ -4038,9 +3896,7 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
     return indexLine_editOccurredOn;
 }
 
-function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
-    EDI_trackedSyntaxList_inefficientUpdateStartAndLength(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength]);
-    
+function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {    
     let content = EDI_cursor_EDI_paste_clipboardContent;
     EDI_cursor_EDI_paste_clipboardContent = null;
 
@@ -4134,8 +3990,6 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
 }
 
 function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
-    EDI_trackedSyntaxList_inefficientUpdateStartAndLength(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength]);
-
     let small = INTS[fEDI_editret_cursor_EDI_duplicate_small];
     let length = INTS[fEDI_editret_cursor_EDI_duplicate_length];
 
@@ -4272,27 +4126,6 @@ function EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_
             break;
         }
     }
-    for (var i = EDI_trackedSyntaxList.count_abstract - 1; i >= 0; i--) {
-        EDI_trackedSyntaxList.getElementAt(i);
-        if (INTS[fEDI_cursor_editPosition] < INTS[fEDI_poolret_pooledTrackedSyntax_start]) {
-            EDI_trackedSyntaxList.setStart(i, INTS[fEDI_poolret_pooledTrackedSyntax_start] - INTS[fEDI_cursor_editLength]);
-        }
-        else if (INTS[fEDI_poolret_pooledTrackedSyntax_start] >= INTS[fEDI_cursor_editPosition] && INTS[fEDI_poolret_pooledTrackedSyntax_start] < INTS[fEDI_cursor_editPosition] + INTS[fEDI_cursor_editLength]) {
-            // TODO: This needs to remove more than 1 at a time
-            EDI_trackedSyntaxList.removeAt(i, 1);
-        }
-        else if (BYTES[byteEDI_byteret_pooledTrackedSyntax_trackedSyntaxKind] === TrackedSyntaxKind_Comment &&
-                (INTS[fEDI_poolret_pooledTrackedSyntax_start] + 1) >= INTS[fEDI_cursor_editPosition] && (INTS[fEDI_poolret_pooledTrackedSyntax_start] + 1) < INTS[fEDI_cursor_editPosition] + INTS[fEDI_cursor_editLength]) {
-            // TODO: You can invalidate a >1 char long by removing beyond just the first unless a character afterwards falls into place that is valid by chance
-            //
-            // only multi-line-comments that span multiple lines are stored in EDI_trackedSyntaxList with the 'TrackedSyntaxKind_Comment'
-            //
-            EDI_trackedSyntaxList.removeAt(i, 1);
-        }
-        else if (INTS[fEDI_cursor_editPosition] > INTS[fEDI_poolret_pooledTrackedSyntax_start] && INTS[fEDI_cursor_editPosition] < INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length]) {
-            EDI_trackedSyntaxList.setLength(i, INTS[fEDI_poolret_pooledTrackedSyntax_length] - INTS[fEDI_cursor_editLength]);
-        }
-    }
 
     EDI_textByteList_removeAt(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength]);
 
@@ -4391,86 +4224,6 @@ async function processLspQueue() {
     }
 
     BYTES[byteisProcessingLspQueue] = 0;
-}
-
-/**
- * if (trackedSyntax_StartingIndex === NaN || trackedSyntax_StartingIndex === -1) { trackedSyntax_StartingIndex = EDI_trackedSyntaxList.count_abstract; }
- * @param {*} indexLine 
- * @returns 
- */
-function EDI_drawViewPort_FindTrackedSyntax_StartingIndex(indexLine) {
-
-    const local_EDI_trackedSyntaxList = EDI_trackedSyntaxList;
-
-    EDI_ret_getLineBoundaryPositions_raw(indexLine);
-    const positionIndex = INTS[fEDI_ret_getLineBoundaryPositions_start];
-
-    let left = 0;
-    let right = local_EDI_trackedSyntaxList.count_abstract - 1;
-
-    let trackedSyntax_I = -1;
-
-    while (left <= right) {
-        const mid = Math.floor((left + right) / 2);
-
-        local_EDI_trackedSyntaxList.getElementAt(mid);
-        
-        if (INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length] > positionIndex) {
-            trackedSyntax_I = mid;
-
-            if (INTS[fEDI_poolret_pooledTrackedSyntax_start] === positionIndex) {
-                break;
-            }
-            
-            right = mid - 1;
-        }
-        else if (INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length] <= positionIndex) {
-            left = mid + 1;
-        }
-        else {
-            return; // NaN
-        }
-    }
-
-    return trackedSyntax_I;
-}
-
-/**
- * if (trackedSyntax_StartingIndex === NaN || trackedSyntax_StartingIndex === -1) { trackedSyntax_StartingIndex = EDI_trackedSyntaxList.count_abstract; }
- * Probably should make 1 of these and accept a predicate.
- */
-function EDI_trackedSyntaxReposition_find(positionIndex) {
-
-    const local_EDI_trackedSyntaxList = EDI_trackedSyntaxList;
-
-    let left = 0;
-    let right = local_EDI_trackedSyntaxList.count_abstract - 1;
-
-    let indexLine = -1;
-
-    while (left <= right) {
-        const mid = Math.floor((left + right) / 2);
-
-        let start = local_EDI_trackedSyntaxList.getStart(mid);
-        
-        if (positionIndex <= start) {
-            indexLine = mid;
-
-            if (positionIndex === start) {
-                break;
-            }
-            
-            right = mid - 1;
-        }
-        else if (positionIndex > start) {
-            left = mid + 1;
-        }
-        else {
-            return; // NaN
-        }
-    }
-
-    return indexLine;
 }
 
 /** modification of Google AI Overview "javascript count of digits" */
@@ -5098,24 +4851,6 @@ function EDI_lineWasInsertedValidateGutter(lineCount) {
 }
 
 /**
- * TODO: This uses a linear search and likely can be optimized.
- * 
- * @param {*} indexPosition 
- * @param {*} insertionCount 
- */
-function EDI_trackedSyntaxList_inefficientUpdateStartAndLength(indexPosition, insertionCount) {
-    for (var i = 0; i < EDI_trackedSyntaxList.count_abstract; i++) {
-        EDI_trackedSyntaxList.getElementAt(i);
-        if (indexPosition <= INTS[fEDI_poolret_pooledTrackedSyntax_start]) {
-            EDI_trackedSyntaxList.setStart(i, INTS[fEDI_poolret_pooledTrackedSyntax_start] + insertionCount);
-        }
-        else if (indexPosition > INTS[fEDI_poolret_pooledTrackedSyntax_start] && indexPosition < INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length]) {
-            EDI_trackedSyntaxList.setLength(i, INTS[fEDI_poolret_pooledTrackedSyntax_length] + insertionCount);
-        }
-    }
-}
-
-/**
  * TODO: implement this but by an arbitrary distance
  * 
  * TODO: Try these functions at the limits i.e.: I think you got _last and then ... the ... should be _last or like the one before it or something or both try both.
@@ -5193,52 +4928,6 @@ function EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_la
             (local_virtualIndexLine + local_virtualCount - 1 - i));
         if (ringBufferIndex === breakingPoint) break; // awkward positioning of this break, it seems somewhat necessary but need to take time to read the code further and try to have it moved somewhere more sensible.
         ringBufferIndex = (ringBufferIndex - 1 + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
-    }
-}
-
-function EDI_stopTrackingIfTrackedSyntaxMadeToSpanSingleLine() {
-    // binary search for 'if (INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length] > positionIndex)'
-    let indexTrackedSyntax = EDI_drawViewPort_FindTrackedSyntax_StartingIndex(INTS[fEDI_cursor_indexLine]);
-    if (indexTrackedSyntax === NaN || indexTrackedSyntax === -1) {
-        indexTrackedSyntax = EDI_trackedSyntaxList.count_abstract;
-    }
-    if (indexTrackedSyntax < EDI_trackedSyntaxList.count_abstract) {
-        EDI_trackedSyntaxList.getElementAt(indexTrackedSyntax);
-        if (INTS[fEDI_poolret_pooledTrackedSyntax_start] < INTS[fEDI_cursor_editPosition]) {
-            let moreThanOneLineEndPositionIsEncompassed = false;
-
-            // TODO: This has no reason to be a for loop
-            for (let i = INTS[fEDI_cursor_indexLine] - 1; i >= 0; i--) {
-                let lineEndPosition = EDI_lineEndPositionList_data[i];
-                if (INTS[fEDI_poolret_pooledTrackedSyntax_start] < lineEndPosition &&
-                    INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length] > lineEndPosition) {
-                        moreThanOneLineEndPositionIsEncompassed = true;
-                        break;
-                }
-                else {
-                    break;
-                }
-            }
-            
-            if (!moreThanOneLineEndPositionIsEncompassed) {
-                // TODO: This has no reason to be a for loop
-                for (let i = INTS[fEDI_cursor_indexLine] + 1; i < INTS[fEDI_lineEndPositionList_count]; i++) {
-                    let lineEndPosition = EDI_lineEndPositionList_data[i];
-                    if (INTS[fEDI_poolret_pooledTrackedSyntax_start] < lineEndPosition &&
-                        INTS[fEDI_poolret_pooledTrackedSyntax_start] + INTS[fEDI_poolret_pooledTrackedSyntax_length] > lineEndPosition) {
-                            moreThanOneLineEndPositionIsEncompassed = true;
-                            break;
-                    }
-                    else {
-                        break;
-                    }
-                }
-
-                if (!moreThanOneLineEndPositionIsEncompassed) {
-                    EDI_trackedSyntaxList.removeAt(indexTrackedSyntax, 1);
-                }
-            }
-        }
     }
 }
 
@@ -6926,10 +6615,6 @@ function EDI_drawLine(indexLine, gutterLineElement, textLineElement, indexLineFo
         textNode.replaceData(0, textNode.length, `${indexLineForGutterLineNumberText + 1}`);
     }
 
-    let trackedSyntax_StartingIndex = EDI_drawViewPort_FindTrackedSyntax_StartingIndex(indexLine);
-    if (trackedSyntax_StartingIndex === NaN || trackedSyntax_StartingIndex === -1) {
-        trackedSyntax_StartingIndex = EDI_trackedSyntaxList.count_abstract;
-    }
     EDI_ret_getLineBoundaryPositions_raw(indexLine);
     //JS_line_lex(???----textLineElement, INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end], trackedSyntax_StartingIndex);
     const lineStart = INTS[fEDI_ret_getLineBoundaryPositions_start];

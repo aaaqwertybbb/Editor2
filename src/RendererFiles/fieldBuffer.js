@@ -408,9 +408,11 @@ const fEDI_recentBoundingClientRect_top = 22;
 
 // ====
 const fTreeView_poolret_pooledNode_key = 23;
+/** TODO: obsolete */
 const fEDI_poolret_pooledTrackedSyntax_start = 23;
 
 const fTreeView_poolret_pooledNode_depth = 24;
+/** TODO: obsolete */
 const fEDI_poolret_pooledTrackedSyntax_length = 24;
 // ====
 

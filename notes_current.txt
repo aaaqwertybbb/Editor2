@@ -1051,3 +1051,9 @@ Each time I give it a word to add to the replicated text insertion buffer I'll g
 In terms of managing workload and anxiety:
 
 I think I need to get the multiline spanning syntax to syntax highlight today and that's it.
+
+====
+
+*CustomFullFileLexRequest specifically is what I mean
+so on opening a file it looks correct with respect to multiline spanning syntax being syntax highlighting.
+

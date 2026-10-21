@@ -6760,6 +6760,12 @@ function EDI_syntaxHighlight_parallelArray(div, ringBufferIndexOfDiv, lineStart,
                     else if (originalStyleByte === 2) {
                         commentHighlight.add(range);
                     }
+                    else if (originalStyleByte === 3) {
+                        keywordHighlight.add(range);
+                    }
+                    else if (originalStyleByte === 4) {
+                        identifierHighlight.add(range);
+                    }
                     continue outerWhile;
                 }
             }
@@ -6777,6 +6783,12 @@ function EDI_syntaxHighlight_parallelArray(div, ringBufferIndexOfDiv, lineStart,
         }
         else if (TRAILINGstyleByteTRAILING === 2) {
             commentHighlight.add(range);
+        }
+        else if (TRAILINGstyleByteTRAILING === 3) {
+            keywordHighlight.add(range);
+        }
+        else if (TRAILINGstyleByteTRAILING === 4) {
+            identifierHighlight.add(range);
         }
     }
 }

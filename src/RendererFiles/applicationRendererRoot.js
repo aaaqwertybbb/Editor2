@@ -71,45 +71,7 @@ async function window_myAPI_onMessage(data) {
                 EDI_listComponent_getItemsCountFunc);
             DIALOG_show(DialogKind_DocumentSymbol, dialog_documentSymbol_onResizeAction, null);
         case 'textDocument/CustomFullFileLexRequest':
-            /*
-            The C# code:
-            ```csharp
-            _psuedoFourFieldTrackedSyntaxList.Add((int)TrackedSyntaxKind.String);
-            _psuedoFourFieldTrackedSyntaxList.Add(token.Position.line);
-            _psuedoFourFieldTrackedSyntaxList.Add(token.Position.character);
-            _psuedoFourFieldTrackedSyntaxList.Add(token.Length);
-            ```
-            */
-            const fieldCount = 4;
-
-            if (data.result.length % fieldCount !== 0) {
-                throw new Error('mismatched field count');
-            }
-
-            const data_result = data.result;
-            const data_countAbstract = data_result.length / fieldCount;
-            const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
-            const local_EDI_lineEndPositionList_count = INTS[fEDI_lineEndPositionList_count];
-
-            const trackedSyntaxList = EDI_trackedSyntaxList;
-            trackedSyntaxList.clear();
-            trackedSyntaxList.ensureCapacityForInsertion(0, data_countAbstract);
-
-            // TODO: Don't do this, there likely are existing functions that will do this.
-            for (let i = 0; i < data_countAbstract; i++) {
-                const line = data_result[(i * fieldCount) + 1];
-                let lineStart = 0;
-                if (line < local_EDI_lineEndPositionList_count && line !== 0) {
-                    lineStart = local_EDI_lineEndPositionList_data[line - 1] + 1;
-                }
-
-                trackedSyntaxList.insert(
-                    trackedSyntaxList.count_abstract,
-                    data_result[(i * fieldCount) + 0],             // let trackedSyntaxKind = data_result[(i * fieldCount) + 0];
-                    lineStart + data_result[(i * fieldCount) + 2], // let character = data_result[(i * fieldCount) + 2];
-                    data_result[(i * fieldCount) + 3]);            // let length = data_result[(i * fieldCount) + 3];
-            }
-            
+            const styleBuffer = Uint8Array.fromBase64(data.result);
             break;
         case 'textDocument/hover':
             if (BYTES[byteEDI_mousemove_eventListener_isActive] === 0) {

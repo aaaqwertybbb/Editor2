@@ -300,11 +300,6 @@ function MAIN_decodeMessage(jsonBytes) {
 
 function MAIN_initializeLanguageServer() {
 
-	if (os.homedir() !== 'C:\\Users\\hunte') {
-		console.log("MAIN_initializeLanguageServer(): os.homedir() !== 'C:\\Users\\hunte'");
-		return;
-	}
-
 	let initializeMessageObject = lspTypes.MAIN_constructMessageObject(
 		'initialize',
 		lspTypes.MAIN_message_construct_initializeParams(openedDirectory/*formatAbsolutePath(openedDirectory)*/, workspaceDirectories));

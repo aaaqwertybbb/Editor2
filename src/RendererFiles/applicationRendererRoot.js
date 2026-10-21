@@ -71,7 +71,7 @@ async function window_myAPI_onMessage(data) {
                 EDI_listComponent_getItemsCountFunc);
             DIALOG_show(DialogKind_DocumentSymbol, dialog_documentSymbol_onResizeAction, null);
         case 'textDocument/CustomFullFileLexRequest':
-            const styleBuffer = Uint8Array.fromBase64(data.result);
+            EDI_styleBuffer = Uint8Array.fromBase64(data.result);
             break;
         case 'textDocument/hover':
             if (BYTES[byteEDI_mousemove_eventListener_isActive] === 0) {

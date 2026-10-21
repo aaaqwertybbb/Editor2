@@ -177,6 +177,8 @@ let EDI_ringBuffer_needsSyntaxHighlightingFlags = new Uint8Array(0);
  */
 let EDI_ringBuffer_mapHighlights = [];
 
+let EDI_styleBuffer = [];
+
 const keywordHighlight = new Highlight();
 CSS.highlights.set("js-keywords", keywordHighlight);
 const keywordControlHighlight = new Highlight();
@@ -6668,8 +6670,6 @@ function EDI_render_do_SyntaxHighlighting() {
         EDI_render_do_RedrawSelection();
     }
 
-    return; // TODO: rewrite syntax highlighting to use a parallel array
-
     const local_EDI_ringBuffer_needsSyntaxHighlightingFlags = EDI_ringBuffer_needsSyntaxHighlightingFlags;
     let currentIndexRingBuffer = INTS[fEDI_ringBuffer_indexZero];
     let currentIndexLine = INTS[fEDI_virtualIndexLine];
@@ -6683,10 +6683,6 @@ function EDI_render_do_SyntaxHighlighting() {
     if (currentIndexLine < local_EDI_lineEndPositionList_count && currentIndexLine !== 0) {
         lineEnd = local_EDI_lineEndPositionList_data[currentIndexLine - 1];
     }
-
-    let trackedSyntax_I = EDI_drawViewPort_FindTrackedSyntax_StartingIndex(currentIndexLine);
-    if (trackedSyntax_I === NaN || trackedSyntax_I === -1)
-        trackedSyntax_I = EDI_trackedSyntaxList.count_abstract;
     
     const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
     
@@ -6711,13 +6707,76 @@ function EDI_render_do_SyntaxHighlighting() {
         if (local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] === 1) {
             local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] = 0;
             EDI_clearHighlights(currentIndexRingBuffer);
-            trackedSyntax_I = JS_line_lex(EDI_ringBuffer_text[currentIndexRingBuffer], currentIndexRingBuffer, trackedSyntax_I, lineStart);
+            EDI_syntaxHighlight_parallelArray(EDI_ringBuffer_text[currentIndexRingBuffer], currentIndexRingBuffer, lineStart, lineEnd);
         }
 
         currentIndexLine++;
         currentIndexRingBuffer++;
         if (currentIndexRingBuffer >= local_ArrayFrom_textElement_children_length) {
             currentIndexRingBuffer = 0;
+        }
+    }
+}
+
+function EDI_syntaxHighlight_parallelArray(div, ringBufferIndexOfDiv, lineStart, lineEnd) {
+    const textNode = div.firstChild;
+
+    let start = 0;
+    let length = 0;
+
+    let i = lineStart;
+
+    let TRAILINGstyleByteTRAILING = 0;
+
+    // TODO: optimize the loop
+    outerWhile: while (true) {
+        if (i >= lineEnd) {
+            TRAILINGstyleByteTRAILING = 0;
+            break;
+        }
+        if (EDI_styleBuffer[i] !== 0) {
+            const originalStyleByte = EDI_styleBuffer[i];
+            if (originalStyleByte === undefined) { // out of bounds
+                TRAILINGstyleByteTRAILING = 0;
+                break;
+            }
+            start = i - lineStart;
+            length = 0;
+            while (true) {
+                i++;
+                length++;
+                if (i >= lineEnd) {
+                    TRAILINGstyleByteTRAILING = originalStyleByte;
+                    break outerWhile;
+                }
+                if (EDI_styleBuffer[i] !== originalStyleByte) {
+                    let range = new Range();
+                    range.setStart(textNode, start);
+                    range.setEnd(textNode, start + length);
+                    EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
+                    if (originalStyleByte === 1) {
+                        stringHighlight.add(range);
+                    }
+                    else if (originalStyleByte === 2) {
+                        commentHighlight.add(range);
+                    }
+                    continue outerWhile;
+                }
+            }
+        }
+        i++;
+    }
+
+    if (length > 0) {
+        let range = new Range();
+        range.setStart(textNode, start);
+        range.setEnd(textNode, start + length);
+        EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
+        if (TRAILINGstyleByteTRAILING === 1) {
+            stringHighlight.add(range);
+        }
+        else if (TRAILINGstyleByteTRAILING === 2) {
+            commentHighlight.add(range);
         }
     }
 }

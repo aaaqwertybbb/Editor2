@@ -521,6 +521,8 @@ function EDI_render_do_Scroll() {
 
     let absDiff = diff < 0 ? -diff : diff;
 
+    let permitImmediateSyntaxHighlighting = false;
+
     if (absDiff >= virtualCount) {
         lowerBound = local_currVli;
         absDiff = virtualCount; // Bound the loop run to the size of your screen viewport
@@ -530,11 +532,13 @@ function EDI_render_do_Scroll() {
         lowerBound = local_prevVli + INTS[fEDI_ONSCROLLvirtualCount];
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1; // Moving down: Capture index BEFORE updating indexZero
         INTS[fEDI_ringBuffer_indexZero] = (INTS[fEDI_ringBuffer_indexZero] + diff) % local_ArrayFrom_textElement_children_length;
+        permitImmediateSyntaxHighlighting = true;
     }
     else {
         lowerBound = local_currVli;
         INTS[fEDI_ringBuffer_indexZero] = (INTS[fEDI_ringBuffer_indexZero] - absDiff + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1; // Moving up: Capture index AFTER updating indexZero
+        permitImmediateSyntaxHighlighting = true;
     }
 
     upperBound = lowerBound + absDiff;
@@ -565,8 +569,6 @@ function EDI_render_do_Scroll() {
             ringBufferIndex = 0;
         }
 
-        local_EDI_ringBuffer_needsSyntaxHighlightingFlags[ringBufferIndex] = 1;
-
         const gutter = local_EDI_ringBuffer_gutter[ringBufferIndex];
         const div = local_EDI_ringBuffer_text[ringBufferIndex];
 
@@ -583,6 +585,15 @@ function EDI_render_do_Scroll() {
 
         textNode = div.firstChild;
         textNode.replaceData(0, textNode.length, lineStart === lineEnd ? '' : local_EDI_decoder.decode(local_bytes.subarray(lineStart, lineEnd)));
+
+        if (permitImmediateSyntaxHighlighting) {
+            local_EDI_ringBuffer_needsSyntaxHighlightingFlags[ringBufferIndex] = 0;
+            EDI_clearHighlights(ringBufferIndex);
+            EDI_syntaxHighlight_parallelArray(div, ringBufferIndex, lineStart, lineEnd);
+        }
+        else {
+            local_EDI_ringBuffer_needsSyntaxHighlightingFlags[ringBufferIndex] = 1;
+        }
 
         const translateY = `translateY(${vertical}px)`;
         gutter.style.transform = translateY;

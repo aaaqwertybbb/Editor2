@@ -533,7 +533,8 @@ function hasBOM(filePath) {
 		fs.closeSync(fd);
 		return {
 			text: bufferaaa.toString(),
-			fileStartsWithBom: true
+			fileStartsWithBom: true,
+			byteLength: bufferaaa.length
 		};
 	}
 	else {
@@ -542,7 +543,8 @@ function hasBOM(filePath) {
 		fs.closeSync(fd);
 		return {
 			text: bufferaaa.toString(),
-			fileStartsWithBom: false
+			fileStartsWithBom: false,
+			byteLength: bufferaaa.length
 		};
 	}
 
@@ -576,7 +578,7 @@ function hasBOM_withPadding(filePath, paddingLength) {
 		fs.readSync(fd, bufferaaa, 0, bufferaaa.length, 3);
 		fs.closeSync(fd);
 		return {
-			text: bufferaaa.toString(),
+			text: bufferaaa.toString(0, stat.size - 4),
 			fileStartsWithBom: true
 		};
 	}
@@ -585,7 +587,7 @@ function hasBOM_withPadding(filePath, paddingLength) {
 		fs.readSync(fd, bufferaaa, 0, bufferaaa.length, 0);
 		fs.closeSync(fd);
 		return {
-			text: bufferaaa.toString(),
+			text: bufferaaa.toString(0, bufferaaa.length),
 			fileStartsWithBom: false
 		};
 	}
@@ -930,13 +932,15 @@ async function editorReadAllText_byteArray(event, absolutePath) {
 
 		const paddingLength = 1024;
 
-		let itHasBom = hasBOM_withPadding(absolutePath, paddingLength);
+		let itHasBom = hasBOM(absolutePath, paddingLength);
 
 		const firstNewlineMatch = itHasBom.text.match(/\r?\n/);
 		let lineEndString = firstNewlineMatch ? firstNewlineMatch[0] : '\n';
 
 		itHasBom.text = itHasBom.text.replaceAll('\r\n', '\n');
-		const uint8Array = (new TextEncoder()).encode(itHasBom.text); /** how do I 'encodeInto' when a character might actually be multi-byte thus I don't ever truly know the size ahead of time? */
+		const processedByteLength = new TextEncoder().encode(itHasBom.text).length;
+		const uint8Array = new Uint8Array(processedByteLength + paddingLength);
+		(new TextEncoder()).encodeInto(itHasBom.text, uint8Array);
 
 		let lineEndCount = countNewlines(itHasBom.text);
 
@@ -955,13 +959,13 @@ async function editorReadAllText_byteArray(event, absolutePath) {
 			openedDocumentUri = null; // Should be set null regardless of language server existence to ensure it gets cleared if language server was running then stopped
 		}
 		if (languageServerHandshakeSuccess && languageServer) {
-			lsp_write_didOpenTextDocumentNotification(absolutePath, itHasBom.text);
+			lsp_write_didOpenTextDocumentNotification(absolutePath, itHasBom.text, paddingLength);
 			lsp_write_customFullFileLexRequest();
 		}
 		
 		return {
 			paddedUint8Array: uint8Array,
-			textLength: uint8Array.length - paddingLength,
+			textLength: processedByteLength,
 			fileStartsWithBom: itHasBom.fileStartsWithBom,
 			formattedAbsolutePath: itHasBom.formattedAbsolutePath,
 			extension: itHasBom.extension,
@@ -982,7 +986,7 @@ async function editorReadAllText_byteArray(event, absolutePath) {
 	}
 }
 
-function lsp_write_didOpenTextDocumentNotification(absolutePath, text) {
+function lsp_write_didOpenTextDocumentNotification(absolutePath, text, paddingLength) {
 	let tdi = lspTypes.MAIN_message_construct_textDocumentItem(
 		absolutePath,   // uri
 		'javascript',   // languageId
@@ -1005,7 +1009,8 @@ function lsp_write_customFullFileLexRequest() {
 		let tdIdentifier = lspTypes.MAIN_message_construct_textDocumentIdentifier(openedDocumentUri);
 		let customFullFileLexRequest = lspTypes.MAIN_message_construct_CustomFullFileLexRequest(tdIdentifier);
 		mostRecentRequest = customFullFileLexRequest;
-		languageServer.stdin.write(MAIN_encodeMessageObject(customFullFileLexRequest));
+		let cnst = MAIN_encodeMessageObject(customFullFileLexRequest);
+		languageServer.stdin.write(cnst);
 	}
 }
 
@@ -1682,10 +1687,10 @@ async function editorSaveFileAs(event, uint8Array, count, EDI_lineEndString, EDI
 		fs.writeFileSync(filePath, text);
 		let pathId = database.addAbsolutePath(filePath, basename);
 		pathId = database.addAbsolutePath(formattedAbsolutePath, basename);
-		if (languageServerHandshakeSuccess && languageServer) {
-			lsp_write_didOpenTextDocumentNotification(formattedAbsolutePath, text);
-			lsp_write_customFullFileLexRequest();
-		}
+		//if (languageServerHandshakeSuccess && languageServer) {
+		//	lsp_write_didOpenTextDocumentNotification(formattedAbsolutePath, text);
+		//	lsp_write_customFullFileLexRequest();
+		//}
 		return { success: true, absolutePath:filePath, formattedAbsolutePath:formattedAbsolutePath };
 	} catch (error) {
 		return { success: false, error: error.message };

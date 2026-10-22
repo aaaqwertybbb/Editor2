@@ -965,7 +965,7 @@ async function editorReadAllText_byteArray(event, absolutePath) {
 		
 		return {
 			paddedUint8Array: uint8Array,
-			textLength: processedByteLength,
+			textByteLength: processedByteLength,
 			fileStartsWithBom: itHasBom.fileStartsWithBom,
 			formattedAbsolutePath: itHasBom.formattedAbsolutePath,
 			extension: itHasBom.extension,
@@ -976,7 +976,7 @@ async function editorReadAllText_byteArray(event, absolutePath) {
 	catch (err) {
 		return {
 			paddedUint8Array: null,
-			textLength: 0,
+			textByteLength: 0,
 			fileStartsWithBom: null,
 			formattedAbsolutePath: null,
 			extension: null,

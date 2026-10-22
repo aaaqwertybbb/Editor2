@@ -220,7 +220,7 @@ function EDI_init() {
     EDI_drawHorizontalScrollbar();
     EDI_drawCursor();
 
-    EDI_state_setText_byteArray(new Uint8Array(16), /*textLength*/ 0, /*fileStartsWithBom*/ false, /*textSourceIdentifier*/ null, /*FORMATTED_textSourceIdentifier*/ null, /*extensionKind*/ 0, /*lineEndString*/ '\n', /*lineEndCount*/ 0);
+    EDI_state_setText_byteArray(new Uint8Array(16), /*textByteLength*/ 0, /*fileStartsWithBom*/ false, /*textSourceIdentifier*/ null, /*FORMATTED_textSourceIdentifier*/ null, /*extensionKind*/ 0, /*lineEndString*/ '\n', /*lineEndCount*/ 0);
 
     EDI_registerHandlers();
 }
@@ -778,7 +778,7 @@ function EDI_render_do_SetText() {
  * @param {*} paddedUint8Array all line endings replaced by '\n' regardless of the desired line ending when saving the file (or copying text, etc...). 'paddedUint8Array.length' is not necessarily equal to 'textLength'. If you want to avoid reallocating when you type a single character. You can pad the uint8array, a padding of 1 gives a textLength of 'paddedUint8Array.length - 1'.
  * @param {*} lineEndString this is the desired line ending when saving the file (or copying text, etc...)
  */
-function EDI_state_setText_byteArray(paddedUint8Array, textLength, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString, lineEndCount) {
+function EDI_state_setText_byteArray(paddedUint8Array, textByteLength, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString, lineEndCount) {
     EDI_scroll_viewport.scrollTop = 0;
     INTS[fEDI_lastReadNumber_scrollTop] = 0;
     EDI_scroll_viewport.scrollLeft = 0;
@@ -808,7 +808,7 @@ function EDI_state_setText_byteArray(paddedUint8Array, textLength, fileStartsWit
     EDI_textByteList_bytes = paddedUint8Array;
     INTS[fEDI_textByteList_capacity] = paddedUint8Array.length;
     const local_EDI_textByteList_bytes = EDI_textByteList_bytes;
-    INTS[fEDI_textByteList_count] = textLength;
+    INTS[fEDI_textByteList_count] = textByteLength;
     const local_EDI_textByteList_count = INTS[fEDI_textByteList_count];
 
     if (lineEndCount === 0) {
@@ -880,7 +880,7 @@ function EDI_state_setText(text, fileStartsWithBom, textSourceIdentifier, FORMAT
     let lineEndCount = countNewlines(text);
 
     // TODO: add padding to this function's uint8Array.
-    EDI_state_setText_byteArray(uint8Array, /*textLength*/ 0, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString, lineEndCount);
+    EDI_state_setText_byteArray(uint8Array, /*textByteLength*/ 0, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString, lineEndCount);
 }
 
 function countNewlines(sourceString) {

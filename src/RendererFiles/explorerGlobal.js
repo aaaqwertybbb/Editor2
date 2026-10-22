@@ -1491,7 +1491,7 @@ async function EXPLORER_openInEditor(absolutePath, shouldFocus) {
 
     EDI_state_setText_byteArray(
         itHasBom.paddedUint8Array,
-        itHasBom.textLength,
+        itHasBom.textByteLength,
         itHasBom.fileStartsWithBom,
         /*textSourceIdentifier*/ absolutePath,
         /*FORMATTED_textSourceIdentifier*/ itHasBom.formattedAbsolutePath,

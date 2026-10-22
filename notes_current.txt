@@ -1157,3 +1157,11 @@ If you want to ensure your syntax highlighting remains incredibly fast during sc
 - Clear Old Highlights: When a line scrolls out of view, remember to clear its ranges from your HighlightRegistry so the browser can immediately free those DOM nodes.
 |
 Would you like to review your scrolling/render loop structure to ensure you aren't accidentally triggering layout thrashing, or should we look at how you are managing the HighlightRegistry for off-screen lines?
+
+====
+
+Remember when I used to trip about seeing "I hate everything about you" show up in my recommended.
+
+I've been seeing Rammstein "Du Hast" nonstop lately,
+yall can't get anything past me I know...
+

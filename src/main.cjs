@@ -1009,8 +1009,7 @@ function lsp_write_customFullFileLexRequest() {
 		let tdIdentifier = lspTypes.MAIN_message_construct_textDocumentIdentifier(openedDocumentUri);
 		let customFullFileLexRequest = lspTypes.MAIN_message_construct_CustomFullFileLexRequest(tdIdentifier);
 		mostRecentRequest = customFullFileLexRequest;
-		let cnst = MAIN_encodeMessageObject(customFullFileLexRequest);
-		languageServer.stdin.write(cnst);
+		languageServer.stdin.write(MAIN_encodeMessageObject(customFullFileLexRequest));
 	}
 }
 

@@ -354,7 +354,10 @@ function MAIN_initializeLanguageServer() {
 			
 			if (!messageObject) return;
 
-			if (messageObject.id && mostRecentRequest && messageObject.id === mostRecentRequest.id && mostRecentRequest.method) {
+			if (messageObject.method === 'window/showMessage') {
+				mainWindowCapture.webContents.send('from-main', { method:messageObject.method, result:messageObject.params });
+			}
+			else if (messageObject.id && mostRecentRequest && messageObject.id === mostRecentRequest.id && mostRecentRequest.method) {
 				switch (mostRecentRequest.method) {
 					case 'textDocument/documentSymbol':
 						mainWindowCapture.webContents.send('from-main', { method:mostRecentRequest.method, result:messageObject.result });

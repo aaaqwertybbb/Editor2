@@ -1239,3 +1239,5 @@ You can insert statements on the fly as the editor types by swapping like a link
 
 No I'm wrong wait what about statements opening up inside and then you'd have to enumerate over them...
 not a statement I mean a scope inside the middle of a scope you'd have to enumerate the child scope's children to see all your own children
+
+Shower thoughts: left branch child, right branch sibling

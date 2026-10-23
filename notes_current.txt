@@ -1233,3 +1233,6 @@ But the representation of a group of statements...?
 The problem with this might be quickly checking the 0th child for position encompassing cursor or something
 or like if you wanted to jump around or binary search the children for the one that encompasses the cursor
 you'd have to enumerate them into a buffer or something.
+
+I was out exercising I just got back but I had that idea I think it sounds kinda good.
+You can insert statements on the fly as the editor types by swapping like a linked list just those like few nodes

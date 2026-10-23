@@ -1242,3 +1242,9 @@ not a statement I mean a scope inside the middle of a scope you'd have to enumer
 
 Shower thoughts: left branch child, right branch sibling
 Specifically in relation to statements only!
+
+I actually was completely on point with how I saw the plus's and minus's.
+I asked google AI and it pretty much said exactly what my thoughts were EXCEPT
+
+They dropped a massive spoiler alert:
+"A Modern Alternative: The Green/Red Tree (Roslyn Pattern)"

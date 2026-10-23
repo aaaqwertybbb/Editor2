@@ -22,6 +22,7 @@ let AUTOCOMPLETE_ringBuffer = null;
 let AUTOCOMPLETE_scrollLeft = 0;
 
 let AUTOCOMPLETE_lastSeenFilter = null;
+let AUTOCOMPLETE_lastSeen_totalLength_SLICE = 0;
 
 function AUTOCOMPLETE_render_request(renderKind) {
     if (BYTES[byteAUTOCOMPLETE_queueHead] !== BYTES[byteAUTOCOMPLETE_queueTail]) {
@@ -325,6 +326,13 @@ function AUTOCOMPLETE_slice(lspResult) {
         for (let i = 0; i < local_AUTOCOMPLETE_ringBuffer_length; i++) {
             local_AUTOCOMPLETE_ringBuffer[i].style.width = widthAttributeValueString;
         }
+    }
+
+    if (AUTOCOMPLETE_lastSeen_totalLength_SLICE !== lspResult.totalLength) {
+        AUTOCOMPLETE_lastSeen_totalLength_SLICE = lspResult.totalLength;
+        // TODO: This doesn't need mail.ceil but perhaps add it to ensure things?
+        let itemHeightTotalNumber = AUTOCOMPLETE_lastSeen_totalLength_SLICE * INTS[fAPP_lineHeight] + CONST_AUTOCOMPLETE_topPadding;
+        AUTOCOMPLETE_scrollbar_space_generator.style.height = itemHeightTotalNumber + 'px';
     }
 }
 

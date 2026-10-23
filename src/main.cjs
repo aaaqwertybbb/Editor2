@@ -1077,13 +1077,13 @@ async function editorCompletionRequest(event, indexLine, indexColumn) {
 }
 
 // I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
-async function editorCompletionRequest_slice(event, indexStart, indexEnd) {
+async function editorCompletionRequest_slice(event, indexStart, indexEnd, filter) {
 	try {
 		if (!languageServerHandshakeSuccess || !languageServer || !openedDocumentUri) return;
 
 		let tdIdentifier = lspTypes.MAIN_message_construct_textDocumentIdentifier(openedDocumentUri);
 		//let position = lspTypes.MAIN_message_construct_position(indexLine, indexColumn);
-		let completionRequest_slice = lspTypes.MAIN_message_construct_CompletionRequest_slice(tdIdentifier, indexStart, indexEnd);
+		let completionRequest_slice = lspTypes.MAIN_message_construct_CompletionRequest_slice(tdIdentifier, indexStart, indexEnd, filter);
 		mostRecentRequest = completionRequest_slice;
 		languageServer.stdin.write(MAIN_encodeMessageObject(completionRequest_slice));
 	}

@@ -122,7 +122,7 @@ export function MAIN_message_construct_CompletionRequest(textDocumentIdentifier,
     };
 }
 
-export function MAIN_message_construct_CompletionRequest_slice(textDocumentIdentifier, indexStart, indexEnd) {
+export function MAIN_message_construct_CompletionRequest_slice(textDocumentIdentifier, indexStart, indexEnd, filter) {
     return {
         id: messageId++,
         method: 'textDocument/completion_slice',
@@ -130,6 +130,7 @@ export function MAIN_message_construct_CompletionRequest_slice(textDocumentIdent
             textDocument: textDocumentIdentifier,
             indexStart: indexStart,
             indexEnd: indexEnd,
+            filter: filter,
         },
     };
 }

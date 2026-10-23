@@ -5234,6 +5234,7 @@ function EDI_onKeyDown(event) {
             break;
         case 'Escape':
             EDI_finalizeEdit();
+            AUTOCOMPLETE_hide();
             break;
         case 'Tab':
             event.preventDefault();
@@ -5675,6 +5676,15 @@ async function EDI_onKeyDown_keyLengthEqualsOne_ctrlKey(event) {
             event.stopPropagation();
 
             EDI_editEvent(EditKind_Duplicate, event);
+            break;
+        case 'r':
+
+            if (BYTES[byteAUTOCOMPLETE_exists]) {
+                AUTOCOMPLETE_events_scroll_render_trailingEdgeDo(EDI_decoder.decode(EDI_cursor_textInsertionBuffer.subarray(0, INTS[fEDI_cursor_textInsertionBufferCount])));
+            }
+
+            event.preventDefault();
+            event.stopPropagation();
             break;
         case 'a':
 

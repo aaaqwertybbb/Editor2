@@ -251,7 +251,7 @@ function AUTOCOMPLETE_render_do_show() {
 
     BYTES[byteAUTOCOMPLETE_exists] = 1;
 
-    local_AUTOCOMPLETEElement.focus();
+    //local_AUTOCOMPLETEElement.focus();
 
     AUTOCOMPLETE_cursor_render_set();
 
@@ -499,13 +499,13 @@ function AUTOCOMPLETE_events_scroll_render() {
     }
 }
 
-function AUTOCOMPLETE_events_scroll_render_trailingEdgeDo() {
+function AUTOCOMPLETE_events_scroll_render_trailingEdgeDo(filter) {
     if (!BYTES[byteAUTOCOMPLETE_scrollIsFetchingData]) {
         INTS[fAUTOCOMPLETE_sliceVirtualIndex_SLICE] = INTS[fAUTOCOMPLETE_virtualIndex];
         INTS[fAUTOCOMPLETE_sliceVirtualCount_SLICE] = INTS[fAUTOCOMPLETE_virtualCount];
         INTS[fAUTOCOMPLETE_sliceRingBufferIndexZero_SLICE] = INTS[fAUTOCOMPLETE_ringBufferIndexZero];
         BYTES[byteAUTOCOMPLETE_scrollIsFetchingData] = 1;
-        window.myAPI.editorCompletionRequest_slice(INTS[fAUTOCOMPLETE_virtualIndex], INTS[fAUTOCOMPLETE_virtualIndex] + INTS[fAUTOCOMPLETE_virtualCount]);
+        window.myAPI.editorCompletionRequest_slice(INTS[fAUTOCOMPLETE_virtualIndex], INTS[fAUTOCOMPLETE_virtualIndex] + INTS[fAUTOCOMPLETE_virtualCount], filter);
     }
 }
 

@@ -1174,3 +1174,9 @@ hopefully they're just taking a bit longer than they expected they said monday/t
 
 I'm a little iffy on what I said I wrote it all on the fly without thinking first
 I'm at least gonna just have it not be the most recent commit so I can feel a bit better.
+
+====
+
+I realize too that most of my time wasn't spent making an IDE, it was spent
+delusionally thinking I was capable of making one while wasting all my time on "World of Warcraft"
+and binge eating if I'm gonna be completely honest.

@@ -1172,3 +1172,5 @@ hopefully they're just taking a bit longer than they expected they said monday/t
 
 =======
 
+I'm a little iffy on what I said I wrote it all on the fly without thinking first
+I'm at least gonna just have it not be the most recent commit so I can feel a bit better.

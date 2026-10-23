@@ -1241,3 +1241,4 @@ No I'm wrong wait what about statements opening up inside and then you'd have to
 not a statement I mean a scope inside the middle of a scope you'd have to enumerate the child scope's children to see all your own children
 
 Shower thoughts: left branch child, right branch sibling
+Specifically in relation to statements only!

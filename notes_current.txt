@@ -1236,3 +1236,5 @@ you'd have to enumerate them into a buffer or something.
 
 I was out exercising I just got back but I had that idea I think it sounds kinda good.
 You can insert statements on the fly as the editor types by swapping like a linked list just those like few nodes
+
+No I'm wrong wait what about statements opening up inside and then you'd have to enumerate over them...

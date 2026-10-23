@@ -248,6 +248,8 @@ function AUTOCOMPLETE_render_do_show() {
     INTS[fAUTOCOMPLETE_items_slice_end] = lspResult.itemsEnd;
     INTS[fAUTOCOMPLETE_items_totalLength] = lspResult.totalLength;
 
+    INTS[fAUTOCOMPLETE_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING] = 0;
+
     // TODO: This doesn't need mail.ceil but perhaps add it to ensure things?
     let itemHeightTotalNumber = INTS[fAUTOCOMPLETE_items_totalLength] * INTS[fAPP_lineHeight] + CONST_AUTOCOMPLETE_topPadding;
     AUTOCOMPLETE_scrollbar_space_generator.style.height = itemHeightTotalNumber + 'px';
@@ -326,6 +328,8 @@ function AUTOCOMPLETE_slice(lspResult) {
         for (let i = 0; i < local_AUTOCOMPLETE_ringBuffer_length; i++) {
             local_AUTOCOMPLETE_ringBuffer[i].style.width = widthAttributeValueString;
         }
+
+        AUTOCOMPLETE_scrollbar_space_generator.style.width = widthAttributeValueString;
     }
 
     if (AUTOCOMPLETE_lastSeen_totalLength_SLICE !== lspResult.totalLength) {

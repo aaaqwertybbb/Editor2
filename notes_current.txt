@@ -1220,3 +1220,12 @@ And I understand if anything I've done in the past is irredeemable in your eyes
 
 My thesis on the performance impact of Smis is gonna get the nobel prize one day.
 Then they'll understand... that the real issue was layout thrashing and other expensive DOM things
+
+====
+
+TODO: Consider instead of having a "BodyList" on every scope...
+...That every statement is a linked list that tracks a depth...
+...and the children of a statement node is the IEnumerable while (next.Depth == (parentDepth + 1)) { moveNext(); }
+or something...
+...The expressions would likely be strictly a tree datastructure.
+But the representation of a group of statements...?

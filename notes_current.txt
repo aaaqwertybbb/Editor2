@@ -1218,3 +1218,5 @@ I think it is a song that plays on marriage vows because of a double meaning of 
 I don't hate you I have nothing against you.
 And I understand if anything I've done in the past is irredeemable in your eyes
 
+My thesis on the performance impact of Smis is gonna get the nobel prize one day.
+Then they'll understand... that the real issue was layout thrashing and other expensive DOM things

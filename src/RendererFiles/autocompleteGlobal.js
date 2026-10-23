@@ -21,6 +21,8 @@ let AUTOCOMPLETE_ringBuffer = null;
 
 let AUTOCOMPLETE_scrollLeft = 0;
 
+let AUTOCOMPLETE_lastSeenFilter = null;
+
 function AUTOCOMPLETE_render_request(renderKind) {
     if (BYTES[byteAUTOCOMPLETE_queueHead] !== BYTES[byteAUTOCOMPLETE_queueTail]) {
         const lastAbsoluteIndex = OFFSET_AUTOCOMPLETE + ((BYTES[byteAUTOCOMPLETE_queueTail] - 1) & UI_SLOT_MASK);
@@ -281,8 +283,10 @@ function AUTOCOMPLETE_slice(lspResult) {
     let NEXT_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING = currentWIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING;
 
     let ringBufferIndex = INTS[fAUTOCOMPLETE_ringBufferIndexZero];
+    let loopCount = 0;
 
     for (let i = 0; i < lspResult.items.length; i++) {
+        loopCount++;
         let item = lspResult.items[i];
         let div = local_AUTOCOMPLETE_ringBuffer[ringBufferIndex];
         ringBufferIndex = (ringBufferIndex + 1) % local_AUTOCOMPLETE_ringBuffer_length;
@@ -293,6 +297,13 @@ function AUTOCOMPLETE_slice(lspResult) {
         if (item.label.length > NEXT_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING) {
             NEXT_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING = item.label.length;
         }
+    }
+
+    for (; loopCount < INTS[fAUTOCOMPLETE_virtualCount]; loopCount++) {
+        let div = local_AUTOCOMPLETE_ringBuffer[ringBufferIndex];
+        ringBufferIndex = (ringBufferIndex + 1) % local_AUTOCOMPLETE_ringBuffer_length;
+        div.className = '';
+        div.textContent = '~';
     }
 
     if (NEXT_WIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING > currentWIDTH_NODE_DRAWN_NUMBER_IN_CH_UNITS_NO_PADDING) {
@@ -505,6 +516,18 @@ function AUTOCOMPLETE_events_scroll_render_trailingEdgeDo(filter) {
         INTS[fAUTOCOMPLETE_sliceVirtualCount_SLICE] = INTS[fAUTOCOMPLETE_virtualCount];
         INTS[fAUTOCOMPLETE_sliceRingBufferIndexZero_SLICE] = INTS[fAUTOCOMPLETE_ringBufferIndexZero];
         BYTES[byteAUTOCOMPLETE_scrollIsFetchingData] = 1;
+
+        if (filter === undefined) {
+            if (AUTOCOMPLETE_lastSeenFilter === null && INTS[fEDI_cursor_textInsertionBufferCount] > 0) {
+                AUTOCOMPLETE_lastSeenFilter = EDI_decoder.decode(EDI_cursor_textInsertionBuffer.subarray(0, INTS[fEDI_cursor_textInsertionBufferCount]));
+            }
+            else if (AUTOCOMPLETE_lastSeenFilter !== null && INTS[fEDI_cursor_textInsertionBufferCount] === 0) {
+                AUTOCOMPLETE_lastSeenFilter = null;
+            }
+
+            filter = AUTOCOMPLETE_lastSeenFilter;
+        }
+
         window.myAPI.editorCompletionRequest_slice(INTS[fAUTOCOMPLETE_virtualIndex], INTS[fAUTOCOMPLETE_virtualIndex] + INTS[fAUTOCOMPLETE_virtualCount], filter);
     }
 }

@@ -5680,7 +5680,7 @@ async function EDI_onKeyDown_keyLengthEqualsOne_ctrlKey(event) {
         case 'r':
 
             if (BYTES[byteAUTOCOMPLETE_exists]) {
-                AUTOCOMPLETE_events_scroll_render_trailingEdgeDo(EDI_decoder.decode(EDI_cursor_textInsertionBuffer.subarray(0, INTS[fEDI_cursor_textInsertionBufferCount])));
+                AUTOCOMPLETE_events_scroll_render_trailingEdgeDo(EDI_autocomplete_get_filter());
             }
 
             event.preventDefault();
@@ -5723,6 +5723,35 @@ async function EDI_onKeyDown_keyLengthEqualsOne_ctrlKey(event) {
             EDI_requestLspComplete();
             break;
     }
+}
+
+function EDI_autocomplete_get_filter() {
+    let wordToLeftOfCursor = '';
+    if (INTS[fEDI_cursor_editKind] === EditKind_None || INTS[fEDI_cursor_editKind] === EditKind_InsertLtr) {
+        let columnNoEdit = INTS[fEDI_cursor_indexColumn] - INTS[fEDI_cursor_editLength];
+        if (columnNoEdit > 0) {
+            let position = EDI_getPositionIndex_cursor_raw() - INTS[fEDI_cursor_editLength];
+            let typeOfLeftCharacter = EDI_getCharacterPrevious_KIND(columnNoEdit, position);
+            if (typeOfLeftCharacter === CharacterKind_LetterOrDigit) {
+                let another_column = columnNoEdit - 1;
+                let another_position = position - 1;
+                // TODO: checks it twice...
+                while (another_column > 0) {
+                    let another_charKind = EDI_getCharacterPrevious_KIND(another_column, another_position);
+                    if (another_charKind !== CharacterKind_LetterOrDigit) {
+                        //another_column++;
+                        //another_position++;
+                        break;
+                    }
+                    another_column--;
+                    another_position--;
+                }
+                let text = EDI_decode_textonly(another_position, position - another_position);
+                wordToLeftOfCursor = text;
+            }
+        }
+    }
+    return wordToLeftOfCursor + EDI_decoder.decode(EDI_cursor_textInsertionBuffer.subarray(0, INTS[fEDI_cursor_textInsertionBufferCount]));
 }
 
 function EDI_onKeyDown_keyLengthEqualsOne_altKey(event) {

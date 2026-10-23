@@ -527,7 +527,7 @@ function AUTOCOMPLETE_events_scroll_render_trailingEdgeDo(filter) {
 
         if (filter === undefined) {
             if (AUTOCOMPLETE_lastSeenFilter === null && INTS[fEDI_cursor_textInsertionBufferCount] > 0) {
-                AUTOCOMPLETE_lastSeenFilter = EDI_decoder.decode(EDI_cursor_textInsertionBuffer.subarray(0, INTS[fEDI_cursor_textInsertionBufferCount]));
+                AUTOCOMPLETE_lastSeenFilter = EDI_autocomplete_get_filter();
             }
             else if (AUTOCOMPLETE_lastSeenFilter !== null && INTS[fEDI_cursor_textInsertionBufferCount] === 0) {
                 AUTOCOMPLETE_lastSeenFilter = null;

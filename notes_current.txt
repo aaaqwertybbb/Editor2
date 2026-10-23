@@ -1171,28 +1171,3 @@ They still haven't called me :(
 hopefully they're just taking a bit longer than they expected they said monday/tuesday
 
 =======
-
-I'm a little iffy on what I said I wrote it all on the fly without thinking first
-I'm at least gonna just have it not be the most recent commit so I can feel a bit better.
-
-====
-
-I realize too that most of my time wasn't spent making an IDE, it was spent
-delusionally thinking I was capable of making one while wasting all my time on "World of Warcraft"
-and binge eating if I'm gonna be completely honest.
-
-====
-
-Like especially at the age of like 21 till 23 or 24
-I was a complete loser in the sense that I actually didn't do much of anything at all
-other than play videogames while sitting in my room alone.
-
-====
-
-My dad is a developer of 30+ years.
-He one day asked his boss if I could work there or something.
-The first task I had was to investigate the Blazor pre-release and let them know if it was anything interesting lol
-
-====
-
-I ended up quiting that job cause I always would just quit everything back then I always gave up

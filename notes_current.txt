@@ -1340,3 +1340,19 @@ It is highly likely that your application is simply delayed rather than ghosted.
 In the hiring world, falling a few days behind a promised timeline is incredibly common and normal.
 |
 ...
+
+====
+
+When finalizing these edits you need to modify the 'EDI_styleBuffer'
+
+- [ ] EditKind_InsertLtr
+- [ ] EditKind_Enter
+- [ ] EditKind_Tab
+- [ ] EditKind_IndentMore
+- [ ] EditKind_IndentLess
+- [ ] EditKind_Paste
+- [ ] EditKind_Duplicate
+- [ ] EditKind_DeleteLtr
+- [ ] EditKind_BackspaceRtl
+- [ ] EditKind_RemoveTextNoBatching
+

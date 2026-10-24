@@ -4021,6 +4021,8 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
     let columnVisual = INTS[fEDI_ret_getIndexFromX_visualColumns];
 
     EDI_textByteList_duplicateWithin(small, INTS[fEDI_cursor_editPosition], length);
+    // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
+    EDI_styleBuffer_insertBytes(INTS[fEDI_cursor_editPosition], new Uint8Array(length), 0, length);
 
     // TODO: You should be able to do this much faster than looping over the selected bytes since you know the line end positions that exist and would know whether the selection will insert line endings.
 

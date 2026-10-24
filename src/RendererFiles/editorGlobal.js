@@ -77,29 +77,41 @@ let EDI_clipboard_may_have_changed = true;
 /**
  * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
  * 
- * 'EDI_cursor_EDI_paste_clipboardContent_string = null' needs to be followed up with 'EDI_clipboard_may_have_changed = true; EDI_cursor_EDI_paste_clipboardContent_bytes = null;'
+ * 'EDI_cursor_EDI_paste_clipboardContent_string = null' needs to be followed up with 'EDI_clipboard_may_have_changed = true; EDI_cursor_EDI_paste_clipboardContent_bytes = null; EDI_cursor_EDI_paste_clipboardContent_totalLineEndCount = 0;'
  */
 let EDI_cursor_EDI_paste_clipboardContent_string = null;
 /**
  * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
  * 
- * 'EDI_cursor_EDI_paste_clipboardContent_bytes = null' needs to be followed up with 'EDI_clipboard_may_have_changed = true; EDI_cursor_EDI_paste_clipboardContent_string = null; EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = null; EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = null;'
+ * 'EDI_cursor_EDI_paste_clipboardContent_bytes = null' needs to be followed up with 'EDI_clipboard_may_have_changed = true; EDI_cursor_EDI_paste_clipboardContent_string = null; EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = null; EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = null; EDI_cursor_EDI_paste_clipboardContent_totalLineEndCount = 0;'
  */
 let EDI_cursor_EDI_paste_clipboardContent_bytes = null;
 /**
  * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
  * 
- * 'EDI_cursor_EDI_paste_clipboardContent_bytes = null' needs to be followed up with 'EDI_clipboard_may_have_changed = true; EDI_cursor_EDI_paste_clipboardContent_string = null; EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = null; EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = null;'
+ * 'EDI_cursor_EDI_paste_clipboardContent_bytes = null' needs to be followed up with 'EDI_clipboard_may_have_changed = true; EDI_cursor_EDI_paste_clipboardContent_string = null; EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = null; EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = null; EDI_cursor_EDI_paste_clipboardContent_totalLineEndCount = 0;'
  * 
  * editPosition + this[i]
  */
-let EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = 0;
+let EDI_cursor_EDI_paste_clipboardContent_totalLineEndCount = 0;
 /**
  * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
  * 
- * 'EDI_cursor_EDI_paste_clipboardContent_bytes = null' needs to be followed up with 'EDI_clipboard_may_have_changed = true; EDI_cursor_EDI_paste_clipboardContent_string = null; EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = null; EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = null;'
+ * 'EDI_cursor_EDI_paste_clipboardContent_bytes = null' needs to be followed up with 'EDI_clipboard_may_have_changed = true; EDI_cursor_EDI_paste_clipboardContent_string = null; EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = null; EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = null; EDI_cursor_EDI_paste_clipboardContent_totalLineEndCount = 0;'
+ * 
+ * editPosition + this[i]
+ * 
+ * EOF style
  */
-let EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = 0;
+let EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = null;
+/**
+ * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
+ * 
+ * 'EDI_cursor_EDI_paste_clipboardContent_bytes = null' needs to be followed up with 'EDI_clipboard_may_have_changed = true; EDI_cursor_EDI_paste_clipboardContent_string = null; EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = null; EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = null; EDI_cursor_EDI_paste_clipboardContent_totalLineEndCount = 0;'
+ * 
+ * EOF style
+ */
+let EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = null;
 
 const EDI_debug = document.getElementById('EDI_debug');
 const EDI_findOverlay = document.getElementById('EDI_findOverlay');
@@ -3718,7 +3730,7 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
 function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
     let content = EDI_cursor_EDI_paste_clipboardContent_string;
 
-    let linesInsertedCount = EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS.length;
+    let linesInsertedCount = EDI_cursor_EDI_paste_clipboardContent_totalLineEndCount;
     let insertionLength = EDI_cursor_EDI_paste_clipboardContent_string.length;
 
     let editLengthVisual = 0;
@@ -3757,7 +3769,7 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
 
     if (linesInsertedCount === 0) {
         indexLine_editOccurredOn = INTS[fEDI_cursor_editIndexLine];
-        EDI_trackingUint32MaxHeap.updateLength_diff(indexLine_editOccurredOn, editLengthVisual);
+        EDI_trackingUint32MaxHeap.updateLength_diff(indexLine_editOccurredOn, EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths[0]);
         if (EDI_trackingUint32MaxHeap.tryPooledPeek() &&
             (INTS[fEDI_longestLine_length] !== EDI_trackingUint32MaxHeap.unpack_pool_length || INTS[fEDI_longestLine_indexLine] !== EDI_trackingUint32MaxHeap.unpack_pool_lineIndex)) {
                 INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
@@ -6082,16 +6094,17 @@ async function EDI_read_clipboard() {
         // TODO: what are the possible returned values of 'await window.myAPI.readClipboard();'? Is it nullable?
         EDI_cursor_EDI_paste_clipboardContent_string = EDI_cursor_EDI_paste_clipboardContent_string.replaceAll('\r\n', '\n');
         EDI_cursor_EDI_paste_clipboardContent_bytes = EDI_encoder.encode(EDI_cursor_EDI_paste_clipboardContent_string);
-        const totalLineEndCount = countNewlines(EDI_cursor_EDI_paste_clipboardContent_string);
-        EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = new Array(totalLineEndCount);
-        EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = new Array(totalLineEndCount);
+        EDI_cursor_EDI_paste_clipboardContent_totalLineEndCount = countNewlines(EDI_cursor_EDI_paste_clipboardContent_string);
+        EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = new Array(1 + EDI_cursor_EDI_paste_clipboardContent_totalLineEndCount);
+        EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = new Array(1 + EDI_cursor_EDI_paste_clipboardContent_totalLineEndCount);
 
         let lineEndIndex = 0;
         let visualLength = 0;
 
         // TODO: multibyte logic
         const byteLength = EDI_cursor_EDI_paste_clipboardContent_bytes.length;
-        for (let i = 0; i < byteLength; i++) {
+        let i = 0;
+        for (; i < byteLength; i++) {
             switch (EDI_cursor_EDI_paste_clipboardContent_bytes[i]) {
                 case 10:
                     EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS[lineEndIndex] = i;
@@ -6107,6 +6120,9 @@ async function EDI_read_clipboard() {
                     break;
             }
         }
+
+        EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS[lineEndIndex] = i;
+        EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths[lineEndIndex] = visualLength;
     }
 }
 

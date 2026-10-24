@@ -1316,18 +1316,17 @@ function EDI_render_do_DuplicateOrPaste() {
 
     let needsToRender = false;
     let byteArray = null;
-    let small = 0;
-    let length = 0;
-    let large = 0;
+    let insert_character_count = 0;
+    let positionIndex = 0;
 
     if (INTS[fEDI_cursor_editKind] !== EditKind_Duplicate) {
         if (INTS[fEDI_cursor_editRenderedDisplacement] < INTS[fEDI_cursor_editLength]) {
             needsToRender = true;
             INTS[fEDI_cursor_editRenderedDisplacement]++;
-            small = INTS[fEDI_editret_cursor_EDI_duplicate_small];
-            length = INTS[fEDI_editret_cursor_EDI_duplicate_length];
-            large = small + length;
-            byteArray = EDI_textByteList_bytes.subarray(small, large);
+            insert_character_count = INTS[fEDI_editret_cursor_EDI_duplicate_length];
+            const large = INTS[fEDI_editret_cursor_EDI_duplicate_small] + insert_character_count;
+            byteArray = EDI_textByteList_bytes.subarray(INTS[fEDI_editret_cursor_EDI_duplicate_small], large);
+            positionIndex = large;
         }
     }
     else if (INTS[fEDI_cursor_editKind] !== EditKind_Paste) {
@@ -1336,13 +1335,12 @@ function EDI_render_do_DuplicateOrPaste() {
             EDI_cursor_edit_eventCount_drawn++;
             byteArray = EDI_cursor_EDI_paste_clipboardContent_bytes;
             INTS[fEDI_cursor_editLength] = byteArray.length;
-            large = EDI_getPositionIndex_cursor_raw();
-            small = large; // TODO: less awkward variables, they are for duplicate
-            length = 0;    // TODO: less awkward variables, they are for duplicate
+            positionIndex = EDI_getPositionIndex_cursor_raw();
+            insert_character_count = EDI_cursor_EDI_paste_clipboardContent_string.length;
         }
     }
 
-    if (needsToRender) {
+    if (!needsToRender) {
         return;
     }
 
@@ -1352,8 +1350,6 @@ function EDI_render_do_DuplicateOrPaste() {
         //alert('// EDI_paste TODO: silent error bad');
         return;
     }
-
-    let positionIndex = large;
 
     let linesInsertedCount = 0;
     let insertionLength = 0;
@@ -1392,7 +1388,6 @@ function EDI_render_do_DuplicateOrPaste() {
 
     let original_indexColumn_SpanTextContentRelative = INTS[fEDI_w_indexColumn_SpanTextContentRelative];
     let original_span_textContent_length = w_div.textContent.length;
-    let original_tracked_syntax_start = positionIndex - INTS[fEDI_cursor_indexColumn] + INTS[fEDI_w_indexColumn_Sum];
 
     let offset = 0;
 
@@ -1403,67 +1398,65 @@ function EDI_render_do_DuplicateOrPaste() {
      */
     let characterKindNumber_NEEDS_WRITTEN = 0;
 
-    if (offset < length) {
-        while (true) {
+    while (true) {
 
-            characterKindNumber_NEEDS_WRITTEN = 0;
+        characterKindNumber_NEEDS_WRITTEN = 0;
 
-            if (offset >= length) {
-                if (wordLength > 0) characterKindNumber_NEEDS_WRITTEN = 2/*wordLetterOrDigit*/;
-                else if (linefeedLength > 0) characterKindNumber_NEEDS_WRITTEN = 1/*'\n'*/;
-            }
-            else {
-                switch (byteArray[offset]) {
-                    //case '\n':
-                    case 10:
-                        if (wordLength > 0) characterKindNumber_NEEDS_WRITTEN = 2/*wordLetterOrDigit*/;
-                        break;
-                    default:
-                        if (linefeedLength > 0) characterKindNumber_NEEDS_WRITTEN = 1/*'\n'*/;
-                        break;
-                }
-            }
-            switch (characterKindNumber_NEEDS_WRITTEN) {
-                case 1/*'\n'*/:
-                    DUPLICATE_writeLinefeed();
-                    break;
-                case 2/*wordLetterOrDigit*/:
-                    EDI_duplicate_and_paste_writeWord(wordLength, EDI_decoder.decode(byteArray.subarray(wordStart, wordStart + wordLength)));
-                    last_valid_indexColumn_currentLine += wordLength;
-                    wordStart = 0;
-                    wordLength = 0;
-                    break;
-            }
-
-            if (offset >= length) {
-                break;
-            }
-            else {
-                switch (byteArray[offset]) {
-                    //case '\n':
-                    case 10:
-                        insertionLength++;
-                        linesInsertedCount++;
-                        //
-                        linefeedLength++;
-                        break;
-                    default:
-                        // TODO: Extremely important next line but it doesn't fully pattern with every case so it is somewhat out of nowhere
-                        // TODO: This is nonsensical you cannot numerically compare a ringBuffer index because the zeroth index isn't necessarily 0
-                        if (ringBufferIndex_current > ringBufferIndex_last) return;
-                        //
-                        insertionLength++;
-                        //
-                        if (wordLength === 0) {
-                            wordStart = offset;
-                        }
-                        wordLength++;
-                        break;
-                }
-            }
-    
-            ++offset;
+        if (offset >= insert_character_count) {
+            if (wordLength > 0) characterKindNumber_NEEDS_WRITTEN = 2/*wordLetterOrDigit*/;
+            else if (linefeedLength > 0) characterKindNumber_NEEDS_WRITTEN = 1/*'\n'*/;
         }
+        else {
+            switch (byteArray[offset]) {
+                //case '\n':
+                case 10:
+                    if (wordLength > 0) characterKindNumber_NEEDS_WRITTEN = 2/*wordLetterOrDigit*/;
+                    break;
+                default:
+                    if (linefeedLength > 0) characterKindNumber_NEEDS_WRITTEN = 1/*'\n'*/;
+                    break;
+            }
+        }
+        switch (characterKindNumber_NEEDS_WRITTEN) {
+            case 1/*'\n'*/:
+                DUPLICATE_writeLinefeed();
+                break;
+            case 2/*wordLetterOrDigit*/:
+                EDI_duplicate_and_paste_writeWord(wordLength, EDI_decoder.decode(byteArray.subarray(wordStart, wordStart + wordLength)));
+                last_valid_indexColumn_currentLine += wordLength;
+                wordStart = 0;
+                wordLength = 0;
+                break;
+        }
+
+        if (offset >= insert_character_count) {
+            break;
+        }
+        else {
+            switch (byteArray[offset]) {
+                //case '\n':
+                case 10:
+                    insertionLength++;
+                    linesInsertedCount++;
+                    //
+                    linefeedLength++;
+                    break;
+                default:
+                    // TODO: Extremely important next line but it doesn't fully pattern with every case so it is somewhat out of nowhere
+                    // TODO: This is nonsensical you cannot numerically compare a ringBuffer index because the zeroth index isn't necessarily 0
+                    if (ringBufferIndex_current > ringBufferIndex_last) return;
+                    //
+                    insertionLength++;
+                    //
+                    if (wordLength === 0) {
+                        wordStart = offset;
+                    }
+                    wordLength++;
+                    break;
+            }
+        }
+
+        ++offset;
     }
 
     if (linesInsertedCount > 0) {

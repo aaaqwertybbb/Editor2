@@ -1396,3 +1396,36 @@ EDI_MenuOnClick(...)    EDI_onKeyDown_keyLengthEqualsOne_ctrlKey(...)
         |
     EDI_finalizeEdit_Paste()
 
+====
+
+- [ ] async get clipboard
+    - [ ] cache this
+    - [ ] track copy from within editor
+    - [ ] track onblur from editor
+    - [ ] maybe even also do onfocus for the editor
+    - [ ] to set the boolean "needs to read clipboard"/"clipboard is possibly out of date"
+- [ ] EDI_cursor_EDI_paste_clipboardContent = content;
+- [ ] tabs: take them as is or convert them to the respective setting for tabs/spaces?
+    - [ ] Initial answer: take them as is
+- [ ] newlines: take them as is or convert them to '\n'
+    - [ ] Answer: convert them to '\n' because the editor only supports storage of '\n' and then swapping to '\r\n' when copying/saving text out / etc...
+- [ ] Thus you might have to cache 'EDI_cursor_EDI_paste_clipboardContent' as its converted string.
+- [ ] EDI_paste can contain all the logic that caches (presumably every cached piece of data would be done once here)
+    - [ ] And then a boolean will tell you that the cache is invalid so you know to calculate everything.
+- [ ] EDI_render_do_DuplicateOrPaste() is somewhat annoying but I want to keep it as a method that handles duplicate and paste if I can for the time being.
+- [ ] That being said, you'd have everything calculated already so that you can in the case of 'paste' there should be no "cache calculations" they should be made already.
+- [ ] Finalize edit needs to ensure that every render has occurred because the finalize will clear the cache. (is what I'm thinking... but you also might wanna paste in multiple places. But you can always get this upcoming version to clear in finalize and then expand how long you keep the cache alive for those other cases later)
+- [ ] You need to batch more than 1 event.
+- [ ] TODO: in the scroll event handler, if there is a pending event could you finalize from there it would still be timing issue for the render_scroll but maybe far less buggy?
+- [ ] ...
+
+
+
+
+
+
+
+
+
+
+

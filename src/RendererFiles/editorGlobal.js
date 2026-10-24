@@ -1619,15 +1619,6 @@ function EDI_paste(content) {
 
     EDI_cursor_EDI_paste_clipboardContent = content;
 
-    // TODO: Consider having this string available rather than making it everytime this function is invoked.
-    let EDI_on_tab_string = '';
-    for (let i = 0; i < EDI_on_tab_bytes.length; i++) {
-        EDI_on_tab_string += String.fromCharCode(EDI_on_tab_bytes[i]);
-    }
-
-    // for generating tabs of some count
-    let stringBuilderArray = [];
-
     let linesInsertedCount = 0;
     let insertionLength = 0;
 

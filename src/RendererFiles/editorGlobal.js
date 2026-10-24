@@ -175,7 +175,9 @@ let EDI_ringBuffer_needsSyntaxHighlightingFlags = new Uint8Array(0);
  */
 let EDI_ringBuffer_mapHighlights = [];
 
-let EDI_styleBuffer = [];
+let EDI_styleBuffer = new Uint8Array(0);
+let EDI_styleBuffer_count = 0;
+let EDI_styleBuffer_capacity = 0;
 
 const keywordHighlight = new Highlight();
 CSS.highlights.set("js-keywords", keywordHighlight);
@@ -7891,6 +7893,158 @@ function EDI_textByteList_copyTo(bytesSource, sourceStart, bytesDestination, des
         }
 
         EDI_textByteList_bytes.copyWithin(destinationStart, sourceStart, sourceStart + length);
+    }
+    else {
+        bytesDestination.set(bytesSource.subarray(sourceStart, sourceStart + length), destinationStart);
+    }
+}
+//#endregion
+
+//#region EDI_styleBuffer
+/**
+ * Does not clear the information, only sets 'EDI_styleBuffer_count' to '0'.
+ */
+function EDI_styleBuffer_clear() {
+    EDI_styleBuffer_count = 0;
+}
+/**
+ * TODO: ensure all the parameters are encoded, especially because I'm noticing myself forgetting.
+ */
+function EDI_styleBuffer_insert(index, byte) {
+    EDI_styleBuffer_ensureCapacityForInsertion(index, 1);
+
+    if (index !== EDI_styleBuffer_count) {
+        EDI_styleBuffer_copyTo(EDI_styleBuffer_bytes, index, EDI_styleBuffer_bytes, index + 1, EDI_styleBuffer_count - index);
+    }
+
+    EDI_styleBuffer_bytes[index] = byte;
+
+    EDI_styleBuffer_count++;
+}
+/**
+ * @param {number} index 
+ * @param {Uint8Array} incomingBs the incoming bytes, name avoids confusion with EDI_styleBuffer_bytes
+ * @param {number} offset the offset to begin reading from
+ * @param {number} length the amount of bytes to read
+ */
+function EDI_styleBuffer_insertBytes(index, incomingBs, offset, length) {
+    // 1. Validate that the source parameters are within the actual bounds of incomingBs
+    if (offset < 0 || length < 0 || offset + length > incomingBs.length) {
+        throw new RangeError(
+            //`Invalid source bounds: offset ${offset} and length ${length} exceed incomingBs.length of ${incomingBs.length}.`
+        );
+    }
+
+    // 2. Validate that the target insertion index makes sense
+    if (index < 0 || index > EDI_styleBuffer_count) {
+        throw new RangeError(
+            //`Invalid insertion index: index ${index} must be between 0 and current count ${EDI_styleBuffer_count}.`
+        );
+    }
+
+    EDI_styleBuffer_ensureCapacityForInsertion(index, length);
+
+    if (index !== EDI_styleBuffer_count) {
+        EDI_styleBuffer_copyTo(EDI_styleBuffer_bytes, index, EDI_styleBuffer_bytes, index + length, EDI_styleBuffer_count - index);
+    }
+
+    // TODO: Google AI is telling me:
+    // < In JavaScript, calling .subarray(0, incomingBs.length) on a TypedArray does not duplicate memory or create a heavy object.
+    // < It is already optimized under the hood.
+    // < ...
+    // < You can simplify your code back down to a single line without losing any performance:
+    // < ...
+    //
+    const segmentToInsert = (offset === 0 && offset + length === incomingBs.length)
+        ? incomingBs
+        : incomingBs.subarray(offset, offset + length);
+    EDI_styleBuffer_bytes.set(segmentToInsert, index);
+
+    EDI_styleBuffer_count += length;
+}
+/**
+ * Does not clear trailing information.
+ * 
+ * count === 0 immediately returns
+ */
+function EDI_styleBuffer_removeAt(index, count) {
+    if (index > EDI_styleBuffer_count) { throw new Error('removeAt(...): index > EDI_styleBuffer_count'); }
+    if (index + count > EDI_styleBuffer_count) { throw new Error('removeAt(...): index + count > EDI_styleBuffer_count'); }
+    if (count === 0) { return; }
+
+    if (index + count === EDI_styleBuffer_count) {
+        let shiftableCount = EDI_styleBuffer_count - (index + count);
+        if (shiftableCount > 0) {
+            EDI_styleBuffer_copyTo(
+                EDI_styleBuffer_bytes,
+                index + count,
+                EDI_styleBuffer_bytes,
+                index,
+                shiftableCount);
+        }
+    }
+    else {
+        EDI_styleBuffer_copyTo(
+            EDI_styleBuffer_bytes,
+            index + count,
+            EDI_styleBuffer_bytes,
+            index,
+            EDI_styleBuffer_count - (index + count));
+    }
+
+    EDI_styleBuffer_count -= count;
+}
+function EDI_styleBuffer_ensureCapacityForInsertion(index, count) {
+    // TODO: sparse insertions?
+    const requiredCapacity = Math.max(EDI_styleBuffer_count + count, index);
+    
+    // If we already have enough capacity, do absolutely nothing
+    if (requiredCapacity <= EDI_styleBuffer_capacity) {
+        return;
+    }
+
+    let capacityNew = EDI_styleBuffer_capacity;
+
+    // 1. Scale geometrically by 1.125x (current + current / 8)
+    capacityNew = capacityNew + (capacityNew >> 3);
+
+    // 2. Minimum growth step: Ensure it grows by at least 1024 bytes 
+    //    so small files don't reallocate on every single keystroke.
+    const minGrowth = EDI_styleBuffer_capacity + 1024;
+    if (capacityNew < minGrowth) {
+        capacityNew = minGrowth;
+    }
+
+    // 3. Safety fallback for massive inserts (e.g., large copy/paste):
+    //    If capacityNew still doesn't fit requiredCapacity, pad requiredCapacity 
+    //    by 1024 bytes so the user can keep typing immediately after pasting.
+    if (capacityNew < requiredCapacity) {
+        capacityNew = requiredCapacity + 1024;
+    }
+
+    // Safety check against integer overflow / negative bounds
+    if (capacityNew < EDI_styleBuffer_capacity) {
+        throw new Error('ensureCapacityForInsertion(...): Capacity overflowed or went negative');
+    }
+
+    // Allocate and copy EXACTLY ONCE
+    let bytesNew = new Uint8Array(capacityNew);
+    EDI_styleBuffer_copyTo(EDI_styleBuffer_bytes, 0, bytesNew, 0, EDI_styleBuffer_count);
+    
+    // Commit the changes to your global/module state
+    EDI_styleBuffer_bytes = bytesNew;
+    EDI_styleBuffer_capacity = capacityNew;
+}
+/**
+ * inclusive/exclusive
+ */
+function EDI_styleBuffer_copyTo(bytesSource, sourceStart, bytesDestination, destinationStart, length) {
+    if (bytesSource === bytesDestination) {
+        if (bytesSource !== EDI_styleBuffer_bytes) {
+            throw new Error('bytesSource === bytesDestination ; but bytesSource !== EDI_styleBuffer_bytes');
+        }
+
+        EDI_styleBuffer_bytes.copyWithin(destinationStart, sourceStart, sourceStart + length);
     }
     else {
         bytesDestination.set(bytesSource.subarray(sourceStart, sourceStart + length), destinationStart);

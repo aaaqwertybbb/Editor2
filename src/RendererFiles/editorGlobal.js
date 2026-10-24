@@ -3556,10 +3556,12 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
     let lspObject = {
         absolutePath: textSourceIdentifier,
         version: version,
-        arrayOfEditInformation: []
+        arrayOfEditInformation: [] // TODO: the capacity should already be known
     };
 
     let perEdit_text = EDI_decoder.decode(bytes);
+
+    const perEdit_styleBuffer_changes = new Uint8Array(bytesLength);
 
     // # Descending indexLine loop:
     //     # Insert the text on the respective line.
@@ -3575,6 +3577,8 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
 
         // # Insert the text on the respective line.
         EDI_textByteList_insertBytes(line_start, bytes, 0 /*offset*/, bytesLength /*length*/);
+        // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
+        EDI_styleBuffer_insertBytes(line_start, perEdit_styleBuffer_changes, 0, bytesLength);
 
         lspObject.arrayOfEditInformation.push({
             startLine: lineI,

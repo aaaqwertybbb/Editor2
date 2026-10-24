@@ -3242,6 +3242,8 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
         }
     }
     EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition], EDI_cursor_textInsertionBuffer, /*offset*/ 0, /*length*/ INTS[fEDI_cursor_textInsertionBufferCount]);
+    // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
+    EDI_styleBuffer_insertBytes(INTS[fEDI_cursor_editPosition], new Uint8Array(INTS[fEDI_cursor_textInsertionBufferCount]), 0, INTS[fEDI_cursor_textInsertionBufferCount]);
 
     EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
     let lineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
@@ -7914,16 +7916,18 @@ function EDI_styleBuffer_insert(index, byte) {
     EDI_styleBuffer_ensureCapacityForInsertion(index, 1);
 
     if (index !== EDI_styleBuffer_count) {
-        EDI_styleBuffer_copyTo(EDI_styleBuffer_bytes, index, EDI_styleBuffer_bytes, index + 1, EDI_styleBuffer_count - index);
+        EDI_styleBuffer_copyTo(EDI_styleBuffer, index, EDI_styleBuffer, index + 1, EDI_styleBuffer_count - index);
     }
 
-    EDI_styleBuffer_bytes[index] = byte;
+    EDI_styleBuffer[index] = byte;
 
     EDI_styleBuffer_count++;
 }
 /**
+ * TODO: if you are just inserting 0's add a function for that or maybe a function for anything and then you're inserting it at each position for a length from an offset.
+ * 
  * @param {number} index 
- * @param {Uint8Array} incomingBs the incoming bytes, name avoids confusion with EDI_styleBuffer_bytes
+ * @param {Uint8Array} incomingBs the incoming bytes, name avoids confusion with EDI_styleBuffer
  * @param {number} offset the offset to begin reading from
  * @param {number} length the amount of bytes to read
  */
@@ -7945,7 +7949,7 @@ function EDI_styleBuffer_insertBytes(index, incomingBs, offset, length) {
     EDI_styleBuffer_ensureCapacityForInsertion(index, length);
 
     if (index !== EDI_styleBuffer_count) {
-        EDI_styleBuffer_copyTo(EDI_styleBuffer_bytes, index, EDI_styleBuffer_bytes, index + length, EDI_styleBuffer_count - index);
+        EDI_styleBuffer_copyTo(EDI_styleBuffer, index, EDI_styleBuffer, index + length, EDI_styleBuffer_count - index);
     }
 
     // TODO: Google AI is telling me:
@@ -7958,7 +7962,7 @@ function EDI_styleBuffer_insertBytes(index, incomingBs, offset, length) {
     const segmentToInsert = (offset === 0 && offset + length === incomingBs.length)
         ? incomingBs
         : incomingBs.subarray(offset, offset + length);
-    EDI_styleBuffer_bytes.set(segmentToInsert, index);
+    EDI_styleBuffer.set(segmentToInsert, index);
 
     EDI_styleBuffer_count += length;
 }
@@ -7976,18 +7980,18 @@ function EDI_styleBuffer_removeAt(index, count) {
         let shiftableCount = EDI_styleBuffer_count - (index + count);
         if (shiftableCount > 0) {
             EDI_styleBuffer_copyTo(
-                EDI_styleBuffer_bytes,
+                EDI_styleBuffer,
                 index + count,
-                EDI_styleBuffer_bytes,
+                EDI_styleBuffer,
                 index,
                 shiftableCount);
         }
     }
     else {
         EDI_styleBuffer_copyTo(
-            EDI_styleBuffer_bytes,
+            EDI_styleBuffer,
             index + count,
-            EDI_styleBuffer_bytes,
+            EDI_styleBuffer,
             index,
             EDI_styleBuffer_count - (index + count));
     }
@@ -8029,10 +8033,10 @@ function EDI_styleBuffer_ensureCapacityForInsertion(index, count) {
 
     // Allocate and copy EXACTLY ONCE
     let bytesNew = new Uint8Array(capacityNew);
-    EDI_styleBuffer_copyTo(EDI_styleBuffer_bytes, 0, bytesNew, 0, EDI_styleBuffer_count);
+    EDI_styleBuffer_copyTo(EDI_styleBuffer, 0, bytesNew, 0, EDI_styleBuffer_count);
     
     // Commit the changes to your global/module state
-    EDI_styleBuffer_bytes = bytesNew;
+    EDI_styleBuffer = bytesNew;
     EDI_styleBuffer_capacity = capacityNew;
 }
 /**
@@ -8040,11 +8044,11 @@ function EDI_styleBuffer_ensureCapacityForInsertion(index, count) {
  */
 function EDI_styleBuffer_copyTo(bytesSource, sourceStart, bytesDestination, destinationStart, length) {
     if (bytesSource === bytesDestination) {
-        if (bytesSource !== EDI_styleBuffer_bytes) {
-            throw new Error('bytesSource === bytesDestination ; but bytesSource !== EDI_styleBuffer_bytes');
+        if (bytesSource !== EDI_styleBuffer) {
+            throw new Error('bytesSource === bytesDestination ; but bytesSource !== EDI_styleBuffer');
         }
 
-        EDI_styleBuffer_bytes.copyWithin(destinationStart, sourceStart, sourceStart + length);
+        EDI_styleBuffer.copyWithin(destinationStart, sourceStart, sourceStart + length);
     }
     else {
         bytesDestination.set(bytesSource.subarray(sourceStart, sourceStart + length), destinationStart);

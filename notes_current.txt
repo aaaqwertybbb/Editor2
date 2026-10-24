@@ -1345,7 +1345,7 @@ In the hiring world, falling a few days behind a promised timeline is incredibly
 
 When finalizing these edits you need to modify the 'EDI_styleBuffer'
 
-- [ ] EditKind_InsertLtr
+- [x] EditKind_InsertLtr
 - [ ] EditKind_Enter
 - [ ] EditKind_Tab
 - [ ] EditKind_IndentMore

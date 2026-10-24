@@ -3805,6 +3805,7 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
 
     if (linesInsertedCount === 0) {
         indexLine_editOccurredOn = INTS[fEDI_cursor_editIndexLine];
+        // TODO: 'EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths[0]' is wrong
         EDI_trackingUint32MaxHeap.updateLength_diff(indexLine_editOccurredOn, EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths[0]);
         if (EDI_trackingUint32MaxHeap.tryPooledPeek() &&
             (INTS[fEDI_longestLine_length] !== EDI_trackingUint32MaxHeap.unpack_pool_length || INTS[fEDI_longestLine_indexLine] !== EDI_trackingUint32MaxHeap.unpack_pool_lineIndex)) {
@@ -3831,6 +3832,8 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
 
     let editLengthVisual = 0;
 
+    // it's stored at +1
+
     // TODO: The state that is retrieved via this paragraph of code I think already exists in this function somewhere. i.e.: needs optimization (remove redundancy)
     EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
     EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_ret_getLineAndColumnIndices_indexLine]);
@@ -3846,6 +3849,55 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
     for (var i = INTS[fEDI_cursor_editIndexLine] + linesInsertedCount; i < INTS[fEDI_lineEndPositionList_count]; i++) {
         EDI_lineEndPositionList_data[i] += insertionLength;
     }
+
+    // TODO: you can like reverse them or something
+
+/*
+function Aaa() {
+    const apple = 2;
+    return apple;
+}
+
+LineIndex | Visual Width | Line end position
+============================================
+        0 |           16 |                16
+        1 |           20 |                37
+        2 |           17 |                55
+        3 |            1 |                57
+        4 |            0 |                58
+
+====
+
+select it all and then ctrl+d
+
+function Aaa() {
+    const apple = 2;
+    return apple;
+}
+function Aaa() {
+    const apple = 2;
+    return apple;
+}
+
+
+====
+
+OR
+
+function Aaa() {
+    constAaa() {
+    const apple = 2;
+    return apple;
+}
+
+duplicate "Aaa() {
+    const"
+
+====
+
+*/
+
+    
 
     EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
     let lineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
@@ -3864,15 +3916,23 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
         text: text
     });
 
-    if (linesInsertedCount === 0) {
-        indexLine_editOccurredOn = INTS[fEDI_cursor_editIndexLine];
-        EDI_trackingUint32MaxHeap.updateLength_diff(indexLine_editOccurredOn, EDI_cursor_EDI_duplication_arrayLineVisualLengths[0]);
-        if (EDI_trackingUint32MaxHeap.tryPooledPeek() &&
-            (INTS[fEDI_longestLine_length] !== EDI_trackingUint32MaxHeap.unpack_pool_length || INTS[fEDI_longestLine_indexLine] !== EDI_trackingUint32MaxHeap.unpack_pool_lineIndex)) {
-                INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
-                INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
-                requestAnimationFrame(EDI_drawHorizontalScrollbar);
-        }
+    indexLine_editOccurredOn = INTS[fEDI_cursor_editIndexLine];
+    // TODO: 'EDI_cursor_EDI_duplication_arrayLineVisualLengths[0]' is wrong
+    EDI_trackingUint32MaxHeap.updateLength_diff(indexLine_editOccurredOn, EDI_cursor_EDI_duplication_arrayLineVisualLengths[0]);
+    if (EDI_trackingUint32MaxHeap.tryPooledPeek() &&
+        (INTS[fEDI_longestLine_length] !== EDI_trackingUint32MaxHeap.unpack_pool_length || INTS[fEDI_longestLine_indexLine] !== EDI_trackingUint32MaxHeap.unpack_pool_lineIndex)) {
+            INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
+            INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
+            requestAnimationFrame(EDI_drawHorizontalScrollbar);
+    }
+
+    // it's the same logic as the enter key
+    // I need to get there in phases though
+    //
+    for (let i = 0; i < EDI_cursor_EDI_duplication_arrayLinePositions_OFFSETS.length - 1; i++) {
+        let linePosition = INTS[fEDI_cursor_editPosition] + EDI_cursor_EDI_duplication_arrayLinePositions_OFFSETS[i];
+        let lineVisualLength = EDI_cursor_EDI_duplication_arrayLineVisualLengths[i + 1]; // TODO: 'EDI_cursor_EDI_duplication_arrayLineVisualLengths[0]' is wrong
+        EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine] + i, linePosition, lineVisualLength);
     }
 
     EDI_finalizeEdit_ClearEditState();

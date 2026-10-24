@@ -77,9 +77,21 @@ let EDI_clipboard_may_have_changed = true;
 /**
  * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
  * 
- * 'EDI_cursor_EDI_paste_clipboardContent = null' needs to be followed up with 'EDI_clipboard_may_have_changed = true'
+ * 'EDI_cursor_EDI_paste_clipboardContent_string = null' needs to be followed up with 'EDI_clipboard_may_have_changed = true; EDI_cursor_EDI_paste_clipboardContent_bytes = null;'
  */
-let EDI_cursor_EDI_paste_clipboardContent = null;
+let EDI_cursor_EDI_paste_clipboardContent_string = null;
+/**
+ * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
+ * 
+ * 'EDI_cursor_EDI_paste_clipboardContent_bytes = null' needs to be followed up with 'EDI_clipboard_may_have_changed = true; EDI_cursor_EDI_paste_clipboardContent_string = null; EDI_cursor_EDI_paste_clipboardContent_lineEndCount = 0;'
+ */
+let EDI_cursor_EDI_paste_clipboardContent_bytes = null;
+/**
+ * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
+ * 
+ * 'EDI_cursor_EDI_paste_clipboardContent_bytes = null' needs to be followed up with 'EDI_clipboard_may_have_changed = true; EDI_cursor_EDI_paste_clipboardContent_string = null; EDI_cursor_EDI_paste_clipboardContent_lineEndCount = 0;'
+ */
+let EDI_cursor_EDI_paste_clipboardContent_lineEndCount = 0;
 
 const EDI_debug = document.getElementById('EDI_debug');
 const EDI_findOverlay = document.getElementById('EDI_findOverlay');
@@ -885,7 +897,7 @@ function EDI_state_setText(text, fileStartsWithBom, textSourceIdentifier, FORMAT
 
     const normalizedText = text.replaceAll('\r\n', '\n');
     const uint8Array = EDI_encoder.encode(normalizedText); /** how do I 'encodeInto' when a character might actually be multi-byte thus I don't ever truly know the size ahead of time? */
-    let lineEndCount = countNewlines(text);
+    let lineEndCount = countNewlines(text); // TODO: This using 'text' rather the 'normalizedText' feels upsetting at a glance.
 
     // TODO: add padding to this function's uint8Array.
     EDI_state_setText_byteArray(uint8Array, /*textByteLength*/ 0, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString, lineEndCount);
@@ -1316,7 +1328,7 @@ function EDI_render_do_DuplicateOrPaste() {
         }
         else if (INTS[fEDI_cursor_editKind] === EditKind_Paste) {
             large = EDI_getPositionIndex_cursor_raw();
-            let clipboardContent = EDI_cursor_EDI_paste_clipboardContent;
+            let clipboardContent = EDI_cursor_EDI_paste_clipboardContent_string;
             let clipboardContentLength = clipboardContent.length;
 
             let lengthBytes = 0;
@@ -1665,7 +1677,7 @@ function EDI_paste() {
 
     // TODO: You need to move the cursor immediately and you need to cache MOST calculated information relative to the text being pasted...
     // ...because it is all quite expensive what needs to be done to do it when holding down ctrl+v or something.
-    const content = EDI_cursor_EDI_paste_clipboardContent;
+    const content = EDI_cursor_EDI_paste_clipboardContent_string;
 
     for (var sourceI = 0; sourceI < content.length; sourceI++) {
         switch (content.charCodeAt(sourceI)) {
@@ -3916,10 +3928,10 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
 
 /** TODO: the finalize for paste is also very bad, not just the event/render */
 function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {    
-    let content = EDI_cursor_EDI_paste_clipboardContent;
+    let content = EDI_cursor_EDI_paste_clipboardContent_string;
 
-    let linesInsertedCount = 0;
-    let insertionLength = 0;
+    let linesInsertedCount = EDI_cursor_EDI_paste_clipboardContent_lineEndCount;
+    let insertionLength = EDI_cursor_EDI_paste_clipboardContent_string.length;
 
     let editLengthVisual = 0;
 
@@ -3928,57 +3940,7 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
     EDI_ret_getIndexFromColumn_RESET(INTS[fEDI_cursor_editIndexColumn], INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end]);
     let columnVisual = INTS[fEDI_ret_getIndexFromX_visualColumns];
 
-    // TODO: You probably should get their pasted string to be normalized with 'replaceAll'
-    // 
-    for (var sourceI = 0; sourceI < content.length; sourceI++) {
-        const code = content.charCodeAt(sourceI);
-        switch (code) {
-            //case CONST_EDI_ASCII_TAB:
-            //    // TODO: Should paste convert tabs to spaces depending on the user's settings for tabs or spaces?
-            //    // if so this commented code would do so, but specifically every tab becomes 4 spaces this commented code doesn't convert to spaces relative to tab width.
-            //    // ----
-            //    //EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition] + insertionLength, EDI_on_tab_bytes, /*offset*/ 0, /*length*/ EDI_on_tab_bytes.length);
-            //    //insertionLength += EDI_on_tab_bytes.length;
-            //    break;
-            case CONST_EDI_ASCII_LINE_FEED:
-                EDI_textByteList_insert(INTS[fEDI_cursor_editPosition] + insertionLength, CONST_EDI_ASCII_LINE_FEED);
-                // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
-                if (EDI_styleBuffer_count !== 0) {
-                    EDI_styleBuffer_insert(INTS[fEDI_cursor_editPosition] + insertionLength, 0);
-                }
-                EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine] + linesInsertedCount, INTS[fEDI_cursor_editPosition] + insertionLength, 0);
-                insertionLength++;
-                linesInsertedCount++;
-                break;
-            case 13 /* carriage return '\r' */:
-                if (sourceI < content.length - 1 && content.charCodeAt(sourceI + 1) === CONST_EDI_ASCII_LINE_FEED) {
-                    sourceI++;
-                }
-                EDI_textByteList_insert(INTS[fEDI_cursor_editPosition] + insertionLength, CONST_EDI_ASCII_LINE_FEED);
-                if (EDI_styleBuffer_count !== 0) {
-                    EDI_styleBuffer_insert(INTS[fEDI_cursor_editPosition] + insertionLength, 0);
-                }
-                EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine] + linesInsertedCount, INTS[fEDI_cursor_editPosition] + insertionLength, 0);
-                insertionLength++;
-                linesInsertedCount++;
-                break;
-            case CONST_EDI_ASCII_TAB:
-                let tabLength = 4 - (columnVisual % 4);
-                columnVisual += (tabLength - 1);
-                editLengthVisual += (tabLength - 1);
-                // TODO: What is the "overhead" of falling through this case to the default?
-                // ^ one massive source of overhead is cognitive holey moley.
-            default:
-                editLengthVisual++;
-                columnVisual++;
-                EDI_textByteList_insert(INTS[fEDI_cursor_editPosition] + insertionLength, code);
-                if (EDI_styleBuffer_count !== 0) {
-                    EDI_styleBuffer_insert(INTS[fEDI_cursor_editPosition] + insertionLength, 0);
-                }
-                insertionLength++;
-                break;
-        }
-    }
+    EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition], EDI_cursor_EDI_paste_clipboardContent_bytes, 0, EDI_cursor_EDI_paste_clipboardContent_bytes.length);
 
     for (var i = INTS[fEDI_cursor_editIndexLine] + linesInsertedCount; i < INTS[fEDI_lineEndPositionList_count]; i++) {
         EDI_lineEndPositionList_data[i] += insertionLength;
@@ -4194,7 +4156,17 @@ function EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_
     return indexLine_editOccurredOn;
 }
 
+/** This function needs the 'INTS[fEDI_cursor_editKind]' that was finalized, and will set it to 'EditKind_None' internally, so don't do it yourself within a specific finalizeEdit function. */
 function EDI_finalizeEdit_ClearEditState() {
+
+    if (INTS[fEDI_cursor_editKind] !== EditKind_Paste) {
+        // TODO: You can over time have this be a longer living cache but for now just get accuracy while still allowing me to paste, move cursor, paste, move cursor, etc...
+        EDI_cursor_EDI_paste_clipboardContent_bytes;
+        EDI_cursor_EDI_paste_clipboardContent_string;
+        EDI_cursor_EDI_paste_clipboardContent_lineEndCount;
+        EDI_clipboard_may_have_changed = true;
+    }
+
     INTS[fEDI_cursor_editKind] = EditKind_None;
     INTS[fEDI_cursor_editLength] = 0;
     INTS[fEDI_cursor_editLengthVisual] = 0;
@@ -5808,6 +5780,8 @@ function EDI_cursor_hasSelection() {
 }
 
 /**
+ * TODO: move this closer to 'EDI_finalizeEdit_ClearEditState'
+ * 
  * !!!! You need to be careful. You might think "I can tie state clearing solely to the respective edit's finalize"...
  * ...but it feels sensible that if I wanted to just reset everything I'd be allowed to just invoke 'EDI_cursor_clear()'...
  * ...without having to worry about finalizing any pending edits...
@@ -5855,7 +5829,9 @@ function EDI_cursor_clear() {
     INTS[fEDI_cursor_editLineFeedCount] = 0;
     EDI_cursor_edit_flagLineChanged = -1;
 
-    EDI_cursor_EDI_paste_clipboardContent = null;
+    EDI_cursor_EDI_paste_clipboardContent_string = null;
+    EDI_cursor_EDI_paste_clipboardContent_bytes = null;
+    EDI_cursor_EDI_paste_clipboardContent_lineEndCount = 0;
     EDI_clipboard_may_have_changed = true;
 
     INTS[fEDI_editret_cursor_EDI_duplicate_small] = 0;
@@ -6304,7 +6280,11 @@ async function EDI_read_clipboard() {
     if (EDI_clipboard_may_have_changed) {
         EDI_clipboard_may_have_changed = false;
         EDI_finalizeEdit();
-        EDI_cursor_EDI_paste_clipboardContent = await window.myAPI.readClipboard();
+        EDI_cursor_EDI_paste_clipboardContent_string = await window.myAPI.readClipboard();
+        // TODO: what are the possible returned values of 'await window.myAPI.readClipboard();'? Is it nullable?
+        EDI_cursor_EDI_paste_clipboardContent_string = EDI_cursor_EDI_paste_clipboardContent_string.replaceAll('\r\n', '\n');
+        EDI_cursor_EDI_paste_clipboardContent_bytes = EDI_encoder.encode(EDI_cursor_EDI_paste_clipboardContent_string);
+        EDI_cursor_EDI_paste_clipboardContent_lineEndCount = countNewlines(EDI_cursor_EDI_paste_clipboardContent_string);
     }
 }
 

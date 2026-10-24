@@ -960,7 +960,7 @@ const OFFSET_MENU = 128; // Slots 128 to 159
 /**
  * TODO: This comment was on both variables what was it referring to?
  * 
- * // same comment that pertains to EDI_cursor_EDI_paste_clipboardContent is somewhat relevant here
+ * // same comment that pertains to EDI_cursor_EDI_paste_clipboardContent_string is somewhat relevant here
  * 
  * const fEDI_editret_cursor_EDI_duplicate_small = 99;
  * const fEDI_editret_cursor_EDI_duplicate_length = 100;

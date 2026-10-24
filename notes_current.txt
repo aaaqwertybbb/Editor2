@@ -1352,3 +1352,6 @@ And are just gawking at me.
 
 I don't care about making an IDE.
 What I want is to demonstrate that I am stronger
+
+All in all it has nothing to do with an IDE
+it's just about life

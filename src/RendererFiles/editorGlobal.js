@@ -3761,6 +3761,10 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
     let columnVisual = INTS[fEDI_ret_getIndexFromX_visualColumns];
 
     EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition], EDI_cursor_EDI_paste_clipboardContent_bytes, 0, EDI_cursor_EDI_paste_clipboardContent_bytes.length);
+    // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
+    if (EDI_styleBuffer_count !== 0) {
+        EDI_styleBuffer_insertBytes(INTS[fEDI_cursor_editPosition], EDI_cursor_EDI_paste_clipboardContent_bytes, 0, EDI_cursor_EDI_paste_clipboardContent_bytes.length);
+    }
 
     for (var i = INTS[fEDI_cursor_editIndexLine] + linesInsertedCount; i < INTS[fEDI_lineEndPositionList_count]; i++) {
         EDI_lineEndPositionList_data[i] += insertionLength;

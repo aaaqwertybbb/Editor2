@@ -1441,6 +1441,8 @@ function EDI_render_do_DuplicateOrPaste() {
     // TODO: An optimization to check whether you even need to redraw any lines perhaps is possible but it would add too much complexity at the moment and so it isn't being considered...
     // ...i.e.: if you're inserting so many lines that you know you'll scroll or that only a small amount of lines need to be redrawn due to predicting a scroll event.
 
+    // idk I gotta go cook/eat a lb of 98% fat free ground chicken with sriracha
+
     let offset = 0;
 
     /**

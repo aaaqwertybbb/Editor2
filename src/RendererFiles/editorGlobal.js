@@ -83,15 +83,23 @@ let EDI_cursor_EDI_paste_clipboardContent_string = null;
 /**
  * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
  * 
- * 'EDI_cursor_EDI_paste_clipboardContent_bytes = null' needs to be followed up with 'EDI_clipboard_may_have_changed = true; EDI_cursor_EDI_paste_clipboardContent_string = null; EDI_cursor_EDI_paste_clipboardContent_lineEndCount = 0;'
+ * 'EDI_cursor_EDI_paste_clipboardContent_bytes = null' needs to be followed up with 'EDI_clipboard_may_have_changed = true; EDI_cursor_EDI_paste_clipboardContent_string = null; EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = null; EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = null;'
  */
 let EDI_cursor_EDI_paste_clipboardContent_bytes = null;
 /**
  * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
  * 
- * 'EDI_cursor_EDI_paste_clipboardContent_bytes = null' needs to be followed up with 'EDI_clipboard_may_have_changed = true; EDI_cursor_EDI_paste_clipboardContent_string = null; EDI_cursor_EDI_paste_clipboardContent_lineEndCount = 0;'
+ * 'EDI_cursor_EDI_paste_clipboardContent_bytes = null' needs to be followed up with 'EDI_clipboard_may_have_changed = true; EDI_cursor_EDI_paste_clipboardContent_string = null; EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = null; EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = null;'
+ * 
+ * editPosition + this[i]
  */
-let EDI_cursor_EDI_paste_clipboardContent_lineEndCount = 0;
+let EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = 0;
+/**
+ * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
+ * 
+ * 'EDI_cursor_EDI_paste_clipboardContent_bytes = null' needs to be followed up with 'EDI_clipboard_may_have_changed = true; EDI_cursor_EDI_paste_clipboardContent_string = null; EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = null; EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = null;'
+ */
+let EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = 0;
 
 const EDI_debug = document.getElementById('EDI_debug');
 const EDI_findOverlay = document.getElementById('EDI_findOverlay');
@@ -1410,7 +1418,6 @@ function EDI_render_do_DuplicateOrPaste() {
         }
         else {
             switch (byteArray[offset]) {
-                //case '\n':
                 case 10:
                     if (wordLength > 0) characterKindNumber_NEEDS_WRITTEN = 2/*wordLetterOrDigit*/;
                     break;
@@ -1436,23 +1443,14 @@ function EDI_render_do_DuplicateOrPaste() {
         }
         else {
             switch (byteArray[offset]) {
-                //case '\n':
                 case 10:
                     insertionLength++;
                     linesInsertedCount++;
-                    //
                     linefeedLength++;
                     break;
                 default:
-                    // TODO: Extremely important next line but it doesn't fully pattern with every case so it is somewhat out of nowhere
-                    // TODO: This is nonsensical you cannot numerically compare a ringBuffer index because the zeroth index isn't necessarily 0
-                    if (ringBufferIndex_current > ringBufferIndex_last) return;
-                    //
                     insertionLength++;
-                    //
-                    if (wordLength === 0) {
-                        wordStart = offset;
-                    }
+                    if (wordLength === 0) { wordStart = offset; }
                     wordLength++;
                     break;
             }
@@ -1463,13 +1461,7 @@ function EDI_render_do_DuplicateOrPaste() {
 
     if (linesInsertedCount > 0) {
         update_verticalVirtualizationBoundary(INTS[fEDI_lineEndPositionList_count] + linesInsertedCount);
-        // I uncommented this, it isn't doing what I want it to. I'm just gonna be done for now.
-        // TODO: draw gutter?
     }
-
-    // TODO: You might want to do a reset and get cursor correct visual position (or modify the above logic to track that)
-
-
 }
 
 /**
@@ -1514,6 +1506,7 @@ function DUPLICATE_writeLinefeed(functionState, linefeedLength) {
             }
             else { // among a line
                 // This case should be optimized such that you get it over with at the start of the edit (it is one time you shift the right side text by the amount of lines inserted and you know this already then the content per line inserted you still gotta get on the fly-ish)
+                // yeah the most optimal solution I believe would be drawing all the inserted line feeds first if you tracked them by position ahead of time?
 
                 let spanText = '';
 
@@ -3722,10 +3715,10 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
 }
 
 /** TODO: the finalize for paste is also very bad, not just the event/render */
-function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {    
+function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
     let content = EDI_cursor_EDI_paste_clipboardContent_string;
 
-    let linesInsertedCount = EDI_cursor_EDI_paste_clipboardContent_lineEndCount;
+    let linesInsertedCount = EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS.length;
     let insertionLength = EDI_cursor_EDI_paste_clipboardContent_string.length;
 
     let editLengthVisual = 0;
@@ -3960,9 +3953,10 @@ function EDI_finalizeEdit_ClearEditState() {
 
     if (INTS[fEDI_cursor_editKind] !== EditKind_Paste) {
         // TODO: You can over time have this be a longer living cache but for now just get accuracy while still allowing me to paste, move cursor, paste, move cursor, etc...
-        EDI_cursor_EDI_paste_clipboardContent_bytes;
-        EDI_cursor_EDI_paste_clipboardContent_string;
-        EDI_cursor_EDI_paste_clipboardContent_lineEndCount;
+        EDI_cursor_EDI_paste_clipboardContent_string = null;
+        EDI_cursor_EDI_paste_clipboardContent_bytes = null;
+        EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = null;
+        EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = null;
         EDI_clipboard_may_have_changed = true;
     }
 
@@ -5634,7 +5628,8 @@ function EDI_cursor_clear() {
 
     EDI_cursor_EDI_paste_clipboardContent_string = null;
     EDI_cursor_EDI_paste_clipboardContent_bytes = null;
-    EDI_cursor_EDI_paste_clipboardContent_lineEndCount = 0;
+    EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = null;
+    EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = null;
     EDI_clipboard_may_have_changed = true;
 
     INTS[fEDI_editret_cursor_EDI_duplicate_small] = 0;
@@ -6087,7 +6082,31 @@ async function EDI_read_clipboard() {
         // TODO: what are the possible returned values of 'await window.myAPI.readClipboard();'? Is it nullable?
         EDI_cursor_EDI_paste_clipboardContent_string = EDI_cursor_EDI_paste_clipboardContent_string.replaceAll('\r\n', '\n');
         EDI_cursor_EDI_paste_clipboardContent_bytes = EDI_encoder.encode(EDI_cursor_EDI_paste_clipboardContent_string);
-        EDI_cursor_EDI_paste_clipboardContent_lineEndCount = countNewlines(EDI_cursor_EDI_paste_clipboardContent_string);
+        const totalLineEndCount = countNewlines(EDI_cursor_EDI_paste_clipboardContent_string);
+        EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = new Array(totalLineEndCount);
+        EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = new Array(totalLineEndCount);
+
+        let lineEndIndex = 0;
+        let visualLength = 0;
+
+        // TODO: multibyte logic
+        const byteLength = EDI_cursor_EDI_paste_clipboardContent_bytes.length;
+        for (let i = 0; i < byteLength; i++) {
+            switch (EDI_cursor_EDI_paste_clipboardContent_bytes[i]) {
+                case 10:
+                    EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS[lineEndIndex] = i;
+                    EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths[lineEndIndex] = visualLength;
+                    lineEndIndex++;
+                    visualLength = 0;
+                    break;
+                case 9:
+                    visualLength += 4 - (visualLength % 4);
+                    break;
+                default:
+                    visualLength++;
+                    break;
+            }
+        }
     }
 }
 

@@ -1379,16 +1379,10 @@ function EDI_render_do_DuplicateOrPaste() {
     else ringBufferIndex_last = (ringBufferIndex_last + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
 
     /** TODO: All this variable needs to be is a boolean for whether you're at the end of the line or not. */
-    let last_valid_indexColumn_currentLine = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
+    let last_valid_indexColumn_currentLine_isAt = INTS[fEDI_cursor_indexColumn] === EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
 
     // TODO: An optimization to check whether you even need to redraw any lines perhaps is possible but it would add too much complexity at the moment and so it isn't being considered...
     // ...i.e.: if you're inserting so many lines that you know you'll scroll or that only a small amount of lines need to be redrawn due to predicting a scroll event.
-
-    let shouldPreserveCssClassWhenSplittingAmongLine = false;
-    let hasSeenLinefeed = false;
-
-    let original_indexColumn_SpanTextContentRelative = INTS[fEDI_w_indexColumn_SpanTextContentRelative];
-    let original_span_textContent_length = w_div.textContent.length;
 
     let offset = 0;
 
@@ -1398,6 +1392,13 @@ function EDI_render_do_DuplicateOrPaste() {
      * 2 => wordLetterOrDigit
      */
     let characterKindNumber_NEEDS_WRITTEN = 0;
+
+    let functionState = {
+        ringBufferIndex_current: ringBufferIndex_current,
+        ringBufferIndex_first: ringBufferIndex_first,
+        ringBufferIndex_last: ringBufferIndex_last,
+        last_valid_indexColumn_currentLine_isAt: last_valid_indexColumn_currentLine_isAt,
+    };
 
     while (true) {
 
@@ -1420,11 +1421,11 @@ function EDI_render_do_DuplicateOrPaste() {
         }
         switch (characterKindNumber_NEEDS_WRITTEN) {
             case 1/*'\n'*/:
-                DUPLICATE_writeLinefeed();
+                DUPLICATE_writeLinefeed(functionState, linefeedLength);
+                linefeedLength = 0;
                 break;
             case 2/*wordLetterOrDigit*/:
                 EDI_duplicate_and_paste_writeWord(wordLength, EDI_decoder.decode(byteArray.subarray(wordStart, wordStart + wordLength)));
-                last_valid_indexColumn_currentLine += wordLength;
                 wordStart = 0;
                 wordLength = 0;
                 break;
@@ -1468,113 +1469,95 @@ function EDI_render_do_DuplicateOrPaste() {
 
     // TODO: You might want to do a reset and get cursor correct visual position (or modify the above logic to track that)
 
-    /**
-     * TODO: If this ends up working don't duplicate this code, this is the 'EDI_EnterKey' function; copy, paste, and probably modified.
-     */
-    function DUPLICATE_writeLinefeed() {
-        if (!hasSeenLinefeed) {
-            hasSeenLinefeed = true;
-            shouldPreserveCssClassWhenSplittingAmongLine = EDI_duplicate_and_paste_handleNotHasSeenLinefeed(hasSeenLinefeed, original_indexColumn_SpanTextContentRelative, original_span_textContent_length, positionIndex);
+
+}
+
+/**
+ * TODO: If this ends up working don't duplicate this code, this is the 'EDI_EnterKey' function; copy, paste, and probably modified.
+ */
+function DUPLICATE_writeLinefeed(functionState, linefeedLength) {
+    // TODO: this is a very lazy solution to the problem, likely a more optimal way is available. Also name the variable?
+    for (let handleLineCounter = 0; handleLineCounter < linefeedLength; handleLineCounter++) {
+        if (INTS[fEDI_cursor_indexColumn] === 0 && !functionState.last_valid_indexColumn_currentLine_isAt) { // start of line
+            
+            EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(functionState.ringBufferIndex_last, functionState.ringBufferIndex_current);
+
+            functionState.ringBufferIndex_current = (functionState.ringBufferIndex_current + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
+            w_div = EDI_ringBuffer_text[functionState.ringBufferIndex_current];
+            INTS[fEDI_w_indexColumn_Goal] = 0;
+            INTS[fEDI_w_indexColumn_Sum] = 0;
+            INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
+            INTS[fEDI_cursor_indexLine]++;
+            INTS[fEDI_cursor_indexColumn] = 0;
+            INTS[fEDI_cursorVisualColumnIndex] = 0;
+
+            continue;
         }
+        else {
+            // ensure this conditional branch continues if handled, otherwise it will execute the fallback case erroneously
+            if (functionState.last_valid_indexColumn_currentLine_isAt) { // end of line
 
-        // TODO: this is a very lazy solution to the problem, likely a more optimal way is available. Also name the variable?
-        for (let handleLineCounter = 0; handleLineCounter < linefeedLength; handleLineCounter++) {
-            // TODO: This is nonsensical you cannot numerically compare a ringBuffer index because the zeroth index isn't necessarily 0
-            if (ringBufferIndex_current > ringBufferIndex_last) {
-                // A scroll should take place and handle the rest
-                // Note: any lines indices that don't change between the current scrollTop and what is shown with the new scrollTop...
-                // ...won't redraw so you still need to run this code for some of the lines.
-                // you could probably predict which lines in particular overlap or some such but it isn't being done here currently.
-                break;
-            }
-
-            if (INTS[fEDI_cursor_indexColumn] === 0 && last_valid_indexColumn_currentLine !== 0) { // start of line
+                functionState.ringBufferIndex_current = (functionState.ringBufferIndex_current + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
                 
-                EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, ringBufferIndex_current);
+                EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(functionState.ringBufferIndex_last, functionState.ringBufferIndex_current);
 
-                ringBufferIndex_current = (ringBufferIndex_current + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
-                w_div = EDI_ringBuffer_text[ringBufferIndex_current];
+                w_div = EDI_ringBuffer_text[functionState.ringBufferIndex_current];
                 INTS[fEDI_w_indexColumn_Goal] = 0;
                 INTS[fEDI_w_indexColumn_Sum] = 0;
                 INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
                 INTS[fEDI_cursor_indexLine]++;
                 INTS[fEDI_cursor_indexColumn] = 0;
                 INTS[fEDI_cursorVisualColumnIndex] = 0;
+                // functionState.last_valid_indexColumn_currentLine_isAt = true; // already is true
 
                 continue;
             }
-            else {
-                // ensure this conditional branch continues if handled, otherwise it will execute the fallback case erroneously
-                if (last_valid_indexColumn_currentLine === INTS[fEDI_cursor_indexColumn]) { // end of line
+            else { // among a line
+                // This case should be optimized such that you get it over with at the start of the edit (it is one time you shift the right side text by the amount of lines inserted and you know this already then the content per line inserted you still gotta get on the fly-ish)
 
-                    ringBufferIndex_current = (ringBufferIndex_current + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
-                    
-                    EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, ringBufferIndex_current);
+                let spanText = '';
 
-                    w_div = EDI_ringBuffer_text[ringBufferIndex_current];
-                    INTS[fEDI_w_indexColumn_Goal] = 0;
-                    INTS[fEDI_w_indexColumn_Sum] = 0;
-                    INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
-                    INTS[fEDI_cursor_indexLine]++;
-                    INTS[fEDI_cursor_indexColumn] = 0;
-                    INTS[fEDI_cursorVisualColumnIndex] = 0;
-                    last_valid_indexColumn_currentLine = 0;
+                if (INTS[fEDI_w_indexColumn_Goal] > 0) {
+                    if (INTS[fEDI_w_indexColumn_Goal] !== INTS[fEDI_w_indexColumn_Sum] + w_div.textContent.length) {
+                        const textNode = w_div.firstChild;
+                        const data = textNode.data;
 
-                    continue;
-                }
-                else { // among a line
-                    // This case can only happen once at the start of the edit
-
-                    let spanClassName = '';
-                    let spanText = '';
-
-                    if (INTS[fEDI_w_indexColumn_Goal] > 0) {
-                        if (INTS[fEDI_w_indexColumn_Goal] !== INTS[fEDI_w_indexColumn_Sum] + w_div.textContent.length) {
-                            const textNode = w_div.firstChild;
-                            const data = textNode.data;
-
-                            let firstText = data.substring(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
-                            let lastText = data.substring(INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
-                            last_valid_indexColumn_currentLine = lastText.length;
-                            textNode.replaceData(0, textNode.length, firstText);
-                            spanText += lastText; // This might NOT have to be +=, but it is due to the enter key method having needed += and this continues the pattern.
-                            //if (shouldPreserveCssClassWhenSplittingAmongLine) {
-                            //    spanClassName = wx_xsxpxaxn.className;
-                            //}
-                        }
+                        let firstText = data.substring(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
+                        let lastText = data.substring(INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
+                        // functionState.last_valid_indexColumn_currentLine_isAt = false; // already is false
+                        textNode.replaceData(0, textNode.length, firstText);
+                        spanText += lastText; // This might NOT have to be +=, but it is due to the enter key method having needed += and this continues the pattern.
                     }
-
-                    ringBufferIndex_current = (ringBufferIndex_current + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
-
-                    EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, ringBufferIndex_current);
-
-                    const textNode = EDI_ringBuffer_text[ringBufferIndex_current].firstChild;
-                    textNode.replaceData(0, textNode.length, spanText);
-
-                    w_div = EDI_ringBuffer_text[ringBufferIndex_current];
-                    INTS[fEDI_w_indexColumn_Goal] = 0;
-                    INTS[fEDI_w_indexColumn_Sum] = 0;
-                    INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
-                    INTS[fEDI_cursor_indexLine]++;
-                    INTS[fEDI_cursor_indexColumn] = 0;
-                    INTS[fEDI_cursorVisualColumnIndex] = 0;
-                    // last_valid_indexColumn_currentLine is being set when splitting the text.
-
-                    continue;
                 }
+
+                functionState.ringBufferIndex_current = (functionState.ringBufferIndex_current + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
+
+                EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(functionState.ringBufferIndex_last, functionState.ringBufferIndex_current);
+
+                const textNode = EDI_ringBuffer_text[functionState.ringBufferIndex_current].firstChild;
+                textNode.replaceData(0, textNode.length, spanText);
+
+                w_div = EDI_ringBuffer_text[functionState.ringBufferIndex_current];
+                INTS[fEDI_w_indexColumn_Goal] = 0;
+                INTS[fEDI_w_indexColumn_Sum] = 0;
+                INTS[fEDI_w_indexColumn_SpanTextContentRelative] = 0;
+                INTS[fEDI_cursor_indexLine]++;
+                INTS[fEDI_cursor_indexColumn] = 0;
+                INTS[fEDI_cursorVisualColumnIndex] = 0;
+                // functionState.last_valid_indexColumn_currentLine_isAt is being set when splitting the text. // and already is false
+
+                continue;
             }
         }
-
-        linefeedLength = 0;
     }
+}
 
-    function EDI_duplicate_and_paste_writeWord(wordLength, word) {
-        w_div.firstChild.insertData(INTS[fEDI_w_indexColumn_SpanTextContentRelative], word);
+function EDI_duplicate_and_paste_writeWord(wordLength, word) {
+    w_div.firstChild.insertData(INTS[fEDI_w_indexColumn_SpanTextContentRelative], word);
 
-        INTS[fEDI_cursor_indexColumn] += wordLength;
-        INTS[fEDI_cursorVisualColumnIndex] += wordLength;
-        INTS[fEDI_w_indexColumn_SpanTextContentRelative] += wordLength;
-    }
+    INTS[fEDI_cursor_indexColumn] += wordLength;
+    INTS[fEDI_cursorVisualColumnIndex] += wordLength;
+    INTS[fEDI_w_indexColumn_SpanTextContentRelative] += wordLength;
 }
 
 function EDI_paste() {
@@ -1588,14 +1571,6 @@ function EDI_paste() {
     // TODO: The previous render logic was actually moving the cursor as well. Just something to keep in mind, you might see a bug related to this.
     // TODO: ^Moving the cursor would be done here.
     EDI_render_request(RenderKind_DuplicateOrPaste);
-}
-
-/**
- * @returns {boolean} 'shouldPreserveCssClassWhenSplittingAmongLine'
- */
-function EDI_duplicate_and_paste_handleNotHasSeenLinefeed(hasSeenLinefeed, original_indexColumn_SpanTextContentRelative, original_span_textContent_length, indexPosition) {
-    // code has been removed from this function to avoid cluttering my find all
-    hasSeenLinefeed = true;
 }
 
 function EDI_render_do_TabKey() {

@@ -4147,6 +4147,8 @@ function EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_
     }
 
     EDI_textByteList_removeAt(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength]);
+    // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
+    EDI_styleBuffer_removeAt(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength]);
 
     let text = '';
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;

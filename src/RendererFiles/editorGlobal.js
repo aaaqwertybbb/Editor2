@@ -3846,7 +3846,7 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
         EDI_styleBuffer_insertBytes(INTS[fEDI_cursor_editPosition], new Uint8Array(length), 0, length);
     }
 
-    for (var i = INTS[fEDI_cursor_editIndexLine] + linesInsertedCount; i < INTS[fEDI_lineEndPositionList_count]; i++) {
+    for (var i = INTS[fEDI_cursor_editIndexLine] /*+ linesInsertedCount*/; i < INTS[fEDI_lineEndPositionList_count]; i++) {
         EDI_lineEndPositionList_data[i] += insertionLength;
     }
 

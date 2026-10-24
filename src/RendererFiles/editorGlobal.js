@@ -3904,6 +3904,7 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
     return indexLine_editOccurredOn;
 }
 
+/** TODO: the finalize for paste is also very bad, not just the event/render */
 function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {    
     let content = EDI_cursor_EDI_paste_clipboardContent;
     EDI_cursor_EDI_paste_clipboardContent = null;
@@ -3932,6 +3933,8 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
             //    break;
             case CONST_EDI_ASCII_LINE_FEED:
                 EDI_textByteList_insert(INTS[fEDI_cursor_editPosition] + insertionLength, CONST_EDI_ASCII_LINE_FEED);
+                // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
+                EDI_styleBuffer_insert(INTS[fEDI_cursor_editPosition] + insertionLength, 0);
                 EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine] + linesInsertedCount, INTS[fEDI_cursor_editPosition] + insertionLength, 0);
                 insertionLength++;
                 linesInsertedCount++;
@@ -3941,6 +3944,7 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
                     sourceI++;
                 }
                 EDI_textByteList_insert(INTS[fEDI_cursor_editPosition] + insertionLength, CONST_EDI_ASCII_LINE_FEED);
+                EDI_styleBuffer_insert(INTS[fEDI_cursor_editPosition] + insertionLength, 0);
                 EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine] + linesInsertedCount, INTS[fEDI_cursor_editPosition] + insertionLength, 0);
                 insertionLength++;
                 linesInsertedCount++;
@@ -3955,6 +3959,7 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
                 editLengthVisual++;
                 columnVisual++;
                 EDI_textByteList_insert(INTS[fEDI_cursor_editPosition] + insertionLength, code);
+                EDI_styleBuffer_insert(INTS[fEDI_cursor_editPosition] + insertionLength, 0);
                 insertionLength++;
                 break;
         }

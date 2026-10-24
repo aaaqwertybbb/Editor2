@@ -1422,6 +1422,10 @@ EDI_MenuOnClick(...)    EDI_onKeyDown_keyLengthEqualsOne_ctrlKey(...)
 
 
 
+As we can see that is a plate of 98% fat free ground chicken.
+In either case we can see the amount of chicken on the plate is strictly decreasing.
+Which means that the chicken will eventually be entirely consumed.
+
 
 
 

@@ -70,9 +70,14 @@ let EDI_cursor_cached_indentation_string = null;
 let EDI_cursor_edit_flagLineChanged = -1;
 
 /**
- * TODO: Consider putting this at the editor level and then delay setting it to null until all cursors have made use of it?...
- * ...an NRE is thrown with this at the editor level so I'm moving it per cursor but...
- * Then again it is only multiple references, not multiple separate objects...
+ * 'await window.myAPI.editorSetClipboard(...);' needs to be followed up with 'EDI_clipboard_may_have_changed = false'
+ * When reading the clipboard use 'await EDI_read_clipboard();'
+ */
+let EDI_clipboard_may_have_changed = true;
+/**
+ * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
+ * 
+ * 'EDI_cursor_EDI_paste_clipboardContent = null' needs to be followed up with 'EDI_clipboard_may_have_changed = true'
  */
 let EDI_cursor_EDI_paste_clipboardContent = null;
 
@@ -1237,7 +1242,8 @@ async function EDI_copySelection() {
         small = selectionEnd;
         large = selectionAnchor;
     }
-    return window.myAPI.editorSetClipboard(EDI_textByteList_bytes, small, large - small, EDI_lineEndString);
+    await window.myAPI.editorSetClipboard(EDI_textByteList_bytes, small, large - small, EDI_lineEndString);
+    EDI_clipboard_may_have_changed = true;
 }
 
 /**
@@ -1607,17 +1613,12 @@ function EDI_render_do_DuplicateOrPaste() {
     }
 }
 
-/**
- * @param {*} content 
- */
-function EDI_paste(content) {
+function EDI_paste() {
     let positionIndex = EDI_getPositionIndex_cursor_raw();
 
     INTS[fEDI_cursor_editPosition] = positionIndex;
     INTS[fEDI_cursor_editIndexLine] = INTS[fEDI_cursor_indexLine];
     INTS[fEDI_cursor_editIndexColumn] = INTS[fEDI_cursor_indexColumn];
-
-    EDI_cursor_EDI_paste_clipboardContent = content;
 
     let linesInsertedCount = 0;
     let insertionLength = 0;
@@ -1664,6 +1665,7 @@ function EDI_paste(content) {
 
     // TODO: You need to move the cursor immediately and you need to cache MOST calculated information relative to the text being pasted...
     // ...because it is all quite expensive what needs to be done to do it when holding down ctrl+v or something.
+    const content = EDI_cursor_EDI_paste_clipboardContent;
 
     for (var sourceI = 0; sourceI < content.length; sourceI++) {
         switch (content.charCodeAt(sourceI)) {
@@ -2720,7 +2722,7 @@ function EDI_insertDo(character) {
 /**
  * @param {*} clipboardContent This is a temporary hack to help in transitioning paste to an edit.
  */
-function EDI_editEvent(editKind, event, clipboardContent) {
+function EDI_editEvent(editKind, event) {
     // check for pending => selection
     // if so then finalize all current pending
     // ...this actually is checking for selection, then presuming at least 1 cursor has a pending...
@@ -2833,7 +2835,7 @@ function EDI_editEvent(editKind, event, clipboardContent) {
             EDI_editEvent_theEditIself_Enter(event);
             break;
         case EditKind_Paste:
-            EDI_editEvent_theEditIself_Paste(clipboardContent);
+            EDI_editEvent_theEditIself_Paste();
             break;
         case EditKind_Duplicate:
             EDI_editEvent_theEditIself_Duplicate();
@@ -2939,11 +2941,11 @@ function EDI_editEvent_theEditIself_Enter(event) {
     EDI_render_request(RenderKind_Cursor_n);
 }
 
-function EDI_editEvent_theEditIself_Paste(clipboardContent) {
+function EDI_editEvent_theEditIself_Paste() {
     if (INTS[fEDI_cursor_editKind] !== EditKind_Enter) {
         EDI_startEdit(EditKind_Paste, EDI_getPositionIndex_cursor_raw(), /*editLength*/ 0);
     }
-    EDI_paste(clipboardContent);
+    EDI_paste();
     INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
     EDI_render_request(RenderKind_Cursor_n);
 }
@@ -3915,7 +3917,6 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
 /** TODO: the finalize for paste is also very bad, not just the event/render */
 function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {    
     let content = EDI_cursor_EDI_paste_clipboardContent;
-    EDI_cursor_EDI_paste_clipboardContent = null;
 
     let linesInsertedCount = 0;
     let insertionLength = 0;
@@ -5693,17 +5694,8 @@ async function EDI_onKeyDown_keyLengthEqualsOne_ctrlKey(event) {
             event.preventDefault();
             event.stopPropagation();
 
-            // TODO: Somehow you need to have a heuristic for whether this invocation is needed...
-            // ...maybe you track whether the user has focus on the editor...
-            // ...and if they blur, you set state to say "you need to read the clipboard if you try to paste something in the future because it might have changed"...
-            // ...another case would be where the editor itself knows it modified the clipboard, like ctrl+c...
-            // ...although you'd probably only care about consecutive invocations...
-            // ...but if they lose focus on the editor then come back and paste again in a way that would batch with a previous paste...
-            // ...you'll have to make sure the readClipboard didn't change, if it did you'll have to finalize which internally will clear all the paste cached state...
-            // ...then for the new incoming paste event you'll have to recreate all the cached information.
-            let clipboard = await window.myAPI.readClipboard();
-            
-            EDI_editEvent(EditKind_Paste, event, clipboard);
+            await EDI_read_clipboard();
+            EDI_editEvent(EditKind_Paste, event);
             break;
         case 'd':
 
@@ -5864,6 +5856,7 @@ function EDI_cursor_clear() {
     EDI_cursor_edit_flagLineChanged = -1;
 
     EDI_cursor_EDI_paste_clipboardContent = null;
+    EDI_clipboard_may_have_changed = true;
 
     INTS[fEDI_editret_cursor_EDI_duplicate_small] = 0;
     INTS[fEDI_editret_cursor_EDI_duplicate_length] = 0;
@@ -6297,13 +6290,21 @@ async function EDI_MenuOnClick(isCancelled, menuOption, request) {
             return EDI_copySelection();
         case CommandKind_Paste:
             EDI_finalizeEdit();
-            let clipboard = await window.myAPI.readClipboard();
-            EDI_paste(clipboard);
+            await EDI_read_clipboard();
+            EDI_paste();
             EDI_render_request(RenderKind_Cursor_n);
             return;
         case CommandKind_Find:
             EDI_findOverlay_showSetter(!get_EDI_findOverlay_show());
             return;
+    }
+}
+
+async function EDI_read_clipboard() {
+    if (EDI_clipboard_may_have_changed) {
+        EDI_clipboard_may_have_changed = false;
+        EDI_finalizeEdit();
+        EDI_cursor_EDI_paste_clipboardContent = await window.myAPI.readClipboard();
     }
 }
 
@@ -6391,10 +6392,12 @@ function EDI_hideTooltip() {
 
 function EDI_onfocus() {
     BYTES[byteEDI_editorHasFocus] = 1;
+    EDI_clipboard_may_have_changed = true;
 }
 
 function EDI_onblur() {
     BYTES[byteEDI_editorHasFocus] = 0;
+    EDI_clipboard_may_have_changed = true;
 }
 
 //// Find-All for "EDI_debug_optimization" to find all the commented out logic that was related to this.

@@ -3843,27 +3843,6 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
         EDI_styleBuffer_insertBytes(INTS[fEDI_cursor_editPosition], new Uint8Array(length), 0, length);
     }
 
-    // TODO: You should be able to do this much faster than looping over the selected bytes since you know the line end positions that exist and would know whether the selection will insert line endings.
-
-    // TODO: bad
-    for (let offset = 0; offset < length; offset++) {
-        switch (EDI_textByteList_bytes[small + offset]) {
-            case CONST_EDI_ASCII_LINE_FEED:
-                EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine] + linesInsertedCount, INTS[fEDI_cursor_editPosition] + insertionLength, 0);
-                break;
-            case CONST_EDI_ASCII_TAB:
-                let tabLength = 4 - (columnVisual % 4);
-                columnVisual += (tabLength - 1);
-                editLengthVisual += (tabLength - 1);
-                // switch case fallthrough
-            default:
-                editLengthVisual++;
-                columnVisual++;
-                insertionLength++;
-                break;
-        }
-    }
-
     for (var i = INTS[fEDI_cursor_editIndexLine] + linesInsertedCount; i < INTS[fEDI_lineEndPositionList_count]; i++) {
         EDI_lineEndPositionList_data[i] += insertionLength;
     }
@@ -3887,7 +3866,7 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
 
     if (linesInsertedCount === 0) {
         indexLine_editOccurredOn = INTS[fEDI_cursor_editIndexLine];
-        EDI_trackingUint32MaxHeap.updateLength_diff(indexLine_editOccurredOn, editLengthVisual);
+        EDI_trackingUint32MaxHeap.updateLength_diff(indexLine_editOccurredOn, EDI_cursor_EDI_duplication_arrayLineVisualLengths[0]);
         if (EDI_trackingUint32MaxHeap.tryPooledPeek() &&
             (INTS[fEDI_longestLine_length] !== EDI_trackingUint32MaxHeap.unpack_pool_length || INTS[fEDI_longestLine_indexLine] !== EDI_trackingUint32MaxHeap.unpack_pool_lineIndex)) {
                 INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
@@ -6180,7 +6159,11 @@ async function EDI_read_clipboard() {
 function EDI_read_duplication() {
     if (EDI_duplication_may_have_changed) {
         EDI_duplication_may_have_changed = false;
-        EDI_finalizeEdit();
+        
+        // Timing don't do this like u did in the other
+        //EDI_finalizeEdit();
+
+
         //EDI_cursor_EDI_duplication_string = await window.myAPI.readClipboard();
         // TODO: what are the possible returned values of 'await window.myAPI.readClipboard();'? Is it nullable?
         //EDI_cursor_EDI_duplication_string = EDI_cursor_EDI_duplication_string.replaceAll('\r\n', '\n');

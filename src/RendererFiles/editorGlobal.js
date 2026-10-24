@@ -1509,6 +1509,7 @@ function EDI_render_do_DuplicateOrPaste() {
 
     if (linesInsertedCount > 0) {
         update_verticalVirtualizationBoundary(INTS[fEDI_lineEndPositionList_count] + linesInsertedCount);
+        EDI_lineWasInsertedValidateGutter(INTS[fEDI_lineEndPositionList_count] + linesInsertedCount);
     }
 }
 

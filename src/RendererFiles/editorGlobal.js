@@ -712,6 +712,7 @@ function EDI_state_clear(trackingUint32MaxHeap_initialCapacity) {
     // This placement is very odd you await the async and... it works seemingly but happenstance kinda odd timing that just kinda works?
     //EDI_txrxaxcxkxexdxSxyxnxtxaxxxLxixsxtx.clear();
     // TODO: Consider clearing the 'EDI_styleBuffer'
+    EDI_styleBuffer_count = 0;
 }
 
 function EDI_clear() {
@@ -3243,7 +3244,9 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
     }
     EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition], EDI_cursor_textInsertionBuffer, /*offset*/ 0, /*length*/ INTS[fEDI_cursor_textInsertionBufferCount]);
     // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
-    EDI_styleBuffer_insertBytes(INTS[fEDI_cursor_editPosition], new Uint8Array(INTS[fEDI_cursor_textInsertionBufferCount]), 0, INTS[fEDI_cursor_textInsertionBufferCount]);
+    if (EDI_styleBuffer_count !== 0) {
+        EDI_styleBuffer_insertBytes(INTS[fEDI_cursor_editPosition], new Uint8Array(INTS[fEDI_cursor_textInsertionBufferCount]), 0, INTS[fEDI_cursor_textInsertionBufferCount]);
+    }
 
     EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
     let lineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
@@ -3379,7 +3382,9 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
 
     EDI_textByteList_insertBytes(actualEditPosition, bytes, /*offset*/ 0, length);
     // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
-    EDI_styleBuffer_insertBytes(actualEditPosition, new Uint8Array(bytes.length), 0, bytes.length);
+    if (EDI_styleBuffer_count !== 0) {
+        EDI_styleBuffer_insertBytes(actualEditPosition, new Uint8Array(bytes.length), 0, bytes.length);
+    }
 
     EDI_ret_getLineAndColumnIndices_raw(actualEditPosition);
     let lineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
@@ -3469,7 +3474,9 @@ function EDI_finalizeEdit_Tab(indexLine_editOccurredOn) {
 
     EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition], bytes, /*offset*/ 0, /*length*/ length);
     // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
-    EDI_styleBuffer_insertBytes(INTS[fEDI_cursor_editPosition], new Uint8Array(bytes.length), 0, bytes.length);
+    if (EDI_styleBuffer_count !== 0) {
+        EDI_styleBuffer_insertBytes(INTS[fEDI_cursor_editPosition], new Uint8Array(bytes.length), 0, bytes.length);
+    }
 
     for (var i = INTS[fEDI_cursor_editIndexLine]; i < INTS[fEDI_lineEndPositionList_count]; i++) {
         EDI_lineEndPositionList_data[i] += length;
@@ -3578,7 +3585,9 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
         // # Insert the text on the respective line.
         EDI_textByteList_insertBytes(line_start, bytes, 0 /*offset*/, bytesLength /*length*/);
         // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
-        EDI_styleBuffer_insertBytes(line_start, perEdit_styleBuffer_changes, 0, bytesLength);
+        if (EDI_styleBuffer_count !== 0) {
+            EDI_styleBuffer_insertBytes(line_start, perEdit_styleBuffer_changes, 0, bytesLength);
+        }
 
         lspObject.arrayOfEditInformation.push({
             startLine: lineI,
@@ -3871,7 +3880,9 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
 
         EDI_textByteList_removeAt(line_start, innerRemoveCount);
         // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
-        EDI_styleBuffer_removeAt(line_start, innerRemoveCount);
+        if (EDI_styleBuffer_count !== 0) {
+            EDI_styleBuffer_removeAt(line_start, innerRemoveCount);
+        }
 
         lspObject.arrayOfEditInformation.push({
             startLine: lineI,
@@ -3940,7 +3951,9 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
             case CONST_EDI_ASCII_LINE_FEED:
                 EDI_textByteList_insert(INTS[fEDI_cursor_editPosition] + insertionLength, CONST_EDI_ASCII_LINE_FEED);
                 // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
-                EDI_styleBuffer_insert(INTS[fEDI_cursor_editPosition] + insertionLength, 0);
+                if (EDI_styleBuffer_count !== 0) {
+                    EDI_styleBuffer_insert(INTS[fEDI_cursor_editPosition] + insertionLength, 0);
+                }
                 EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine] + linesInsertedCount, INTS[fEDI_cursor_editPosition] + insertionLength, 0);
                 insertionLength++;
                 linesInsertedCount++;
@@ -3950,7 +3963,9 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
                     sourceI++;
                 }
                 EDI_textByteList_insert(INTS[fEDI_cursor_editPosition] + insertionLength, CONST_EDI_ASCII_LINE_FEED);
-                EDI_styleBuffer_insert(INTS[fEDI_cursor_editPosition] + insertionLength, 0);
+                if (EDI_styleBuffer_count !== 0) {
+                    EDI_styleBuffer_insert(INTS[fEDI_cursor_editPosition] + insertionLength, 0);
+                }
                 EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine] + linesInsertedCount, INTS[fEDI_cursor_editPosition] + insertionLength, 0);
                 insertionLength++;
                 linesInsertedCount++;
@@ -3965,7 +3980,9 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
                 editLengthVisual++;
                 columnVisual++;
                 EDI_textByteList_insert(INTS[fEDI_cursor_editPosition] + insertionLength, code);
-                EDI_styleBuffer_insert(INTS[fEDI_cursor_editPosition] + insertionLength, 0);
+                if (EDI_styleBuffer_count !== 0) {
+                    EDI_styleBuffer_insert(INTS[fEDI_cursor_editPosition] + insertionLength, 0);
+                }
                 insertionLength++;
                 break;
         }
@@ -4028,7 +4045,9 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
 
     EDI_textByteList_duplicateWithin(small, INTS[fEDI_cursor_editPosition], length);
     // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
-    EDI_styleBuffer_insertBytes(INTS[fEDI_cursor_editPosition], new Uint8Array(length), 0, length);
+    if (EDI_styleBuffer_count !== 0) {
+        EDI_styleBuffer_insertBytes(INTS[fEDI_cursor_editPosition], new Uint8Array(length), 0, length);
+    }
 
     // TODO: You should be able to do this much faster than looping over the selected bytes since you know the line end positions that exist and would know whether the selection will insert line endings.
 
@@ -4150,7 +4169,9 @@ function EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_
 
     EDI_textByteList_removeAt(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength]);
     // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
-    EDI_styleBuffer_removeAt(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength]);
+    if (EDI_styleBuffer_count !== 0) {
+        EDI_styleBuffer_removeAt(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength]);
+    }
 
     let text = '';
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;

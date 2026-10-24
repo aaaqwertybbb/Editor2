@@ -1349,3 +1349,6 @@ one of the things that was setting me off before I even left was I was seeing th
 dgtth trailers and bgtn trailers.
 and the entire time I was sitting there thinking they probably have no idea what I'm talking about.
 And are just gawking at me.
+
+I don't care about making an IDE.
+What I want is to demonstrate that I am stronger

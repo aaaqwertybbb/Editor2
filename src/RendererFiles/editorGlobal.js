@@ -3378,6 +3378,8 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     }
 
     EDI_textByteList_insertBytes(actualEditPosition, bytes, /*offset*/ 0, length);
+    // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
+    EDI_styleBuffer_insertBytes(actualEditPosition, new Uint8Array(bytes.length), 0, bytes.length);
 
     EDI_ret_getLineAndColumnIndices_raw(actualEditPosition);
     let lineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];

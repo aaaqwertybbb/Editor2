@@ -1345,14 +1345,18 @@ In the hiring world, falling a few days behind a promised timeline is incredibly
 
 When finalizing these edits you need to modify the 'EDI_styleBuffer'
 
+Positive
+========
 - [x] EditKind_InsertLtr
-- [ ] EditKind_Enter
+- [x] EditKind_Enter
 - [ ] EditKind_Tab
 - [ ] EditKind_IndentMore
-- [ ] EditKind_IndentLess
 - [ ] EditKind_Paste
 - [ ] EditKind_Duplicate
+
+Negative
+========
+- [ ] EditKind_IndentLess
 - [ ] EditKind_DeleteLtr
 - [ ] EditKind_BackspaceRtl
 - [ ] EditKind_RemoveTextNoBatching
-

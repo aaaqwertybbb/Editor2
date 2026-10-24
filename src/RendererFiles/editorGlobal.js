@@ -96,6 +96,8 @@ let EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = null;
 /**
  * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
  * EOF style
+ * 
+ * !!!! The first index of this has to be visual lengthed relative to the column index that you insert at as it cannot be known ahead of time, after the first tab or upon hitting a tab stop.
  */
 let EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = null;
 
@@ -3824,8 +3826,8 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
     INTS[fEDI_editret_cursor_EDI_duplicate_small] = 0;
     INTS[fEDI_editret_cursor_EDI_duplicate_length] = 0;
 
-    let linesInsertedCount = 0;
-    let insertionLength = 0;
+    let linesInsertedCount = EDI_cursor_EDI_duplication_totalLineEndCount;
+    let insertionLength = EDI_cursor_EDI_duplication_bytes.length;
 
     let editLengthVisual = 0;
 
@@ -3848,8 +3850,6 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
         switch (EDI_textByteList_bytes[small + offset]) {
             case CONST_EDI_ASCII_LINE_FEED:
                 EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine] + linesInsertedCount, INTS[fEDI_cursor_editPosition] + insertionLength, 0);
-                insertionLength++;
-                linesInsertedCount++;
                 break;
             case CONST_EDI_ASCII_TAB:
                 let tabLength = 4 - (columnVisual % 4);

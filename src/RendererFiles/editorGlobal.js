@@ -3782,7 +3782,7 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
         EDI_styleBuffer_insertBytes(INTS[fEDI_cursor_editPosition], EDI_cursor_EDI_paste_clipboardContent_bytes, 0, EDI_cursor_EDI_paste_clipboardContent_bytes.length);
     }
 
-    for (var i = INTS[fEDI_cursor_editIndexLine] + linesInsertedCount; i < INTS[fEDI_lineEndPositionList_count]; i++) {
+    for (var i = INTS[fEDI_cursor_editIndexLine] /*+ linesInsertedCount*/; i < INTS[fEDI_lineEndPositionList_count]; i++) {
         EDI_lineEndPositionList_data[i] += insertionLength;
     }
 
@@ -3803,16 +3803,23 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
         text: text
     });
 
-    if (linesInsertedCount === 0) {
-        indexLine_editOccurredOn = INTS[fEDI_cursor_editIndexLine];
-        // TODO: 'EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths[0]' is wrong
-        EDI_trackingUint32MaxHeap.updateLength_diff(indexLine_editOccurredOn, EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths[0]);
-        if (EDI_trackingUint32MaxHeap.tryPooledPeek() &&
-            (INTS[fEDI_longestLine_length] !== EDI_trackingUint32MaxHeap.unpack_pool_length || INTS[fEDI_longestLine_indexLine] !== EDI_trackingUint32MaxHeap.unpack_pool_lineIndex)) {
-                INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
-                INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
-                requestAnimationFrame(EDI_drawHorizontalScrollbar);
-        }
+    indexLine_editOccurredOn = INTS[fEDI_cursor_editIndexLine];
+    // TODO: 'EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths[0]' is wrong
+    EDI_trackingUint32MaxHeap.updateLength_diff(indexLine_editOccurredOn, EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths[0]);
+    if (EDI_trackingUint32MaxHeap.tryPooledPeek() &&
+        (INTS[fEDI_longestLine_length] !== EDI_trackingUint32MaxHeap.unpack_pool_length || INTS[fEDI_longestLine_indexLine] !== EDI_trackingUint32MaxHeap.unpack_pool_lineIndex)) {
+            INTS[fEDI_longestLine_indexLine] = EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
+            INTS[fEDI_longestLine_length] = EDI_trackingUint32MaxHeap.unpack_pool_length;
+            requestAnimationFrame(EDI_drawHorizontalScrollbar);
+    }
+
+    // it's the same logic as the enter key
+    // I need to get there in phases though
+    //
+    for (let i = 0; i < EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS.length - 1; i++) {
+        let linePosition = INTS[fEDI_cursor_editPosition] + EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS[i];
+        let lineVisualLength = EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths[i + 1]; // TODO: 'EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths[0]' is wrong
+        EDI_lineEndPositionList_insert(INTS[fEDI_cursor_editIndexLine] + i, linePosition, lineVisualLength);
     }
 
     EDI_finalizeEdit_ClearEditState();

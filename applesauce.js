@@ -2,7 +2,7 @@ function Aaa() {
     const apple = 2;
     return apple;
 }
-
+function
 function Bbb() {
     const apple = 3;
     return apple;

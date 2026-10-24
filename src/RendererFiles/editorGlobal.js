@@ -1319,7 +1319,7 @@ function EDI_render_do_DuplicateOrPaste() {
     let insert_character_count = 0;
     let positionIndex = 0;
 
-    if (INTS[fEDI_cursor_editKind] !== EditKind_Duplicate) {
+    if (INTS[fEDI_cursor_editKind] === EditKind_Duplicate) {
         if (INTS[fEDI_cursor_editRenderedDisplacement] < INTS[fEDI_cursor_editLength]) {
             needsToRender = true;
             INTS[fEDI_cursor_editRenderedDisplacement]++;
@@ -1329,7 +1329,7 @@ function EDI_render_do_DuplicateOrPaste() {
             positionIndex = large;
         }
     }
-    else if (INTS[fEDI_cursor_editKind] !== EditKind_Paste) {
+    else if (INTS[fEDI_cursor_editKind] === EditKind_Paste) {
         if (EDI_cursor_edit_eventCount_drawn < EDI_cursor_edit_eventCount_occurred) {
             needsToRender = true;
             EDI_cursor_edit_eventCount_drawn++;
@@ -1378,6 +1378,7 @@ function EDI_render_do_DuplicateOrPaste() {
     if (ringBufferIndex_last >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_last < 0) ringBufferIndex_last = -1;
     else ringBufferIndex_last = (ringBufferIndex_last + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
 
+    /** TODO: All this variable needs to be is a boolean for whether you're at the end of the line or not. */
     let last_valid_indexColumn_currentLine = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
 
     // TODO: An optimization to check whether you even need to redraw any lines perhaps is possible but it would add too much complexity at the moment and so it isn't being considered...

@@ -1360,3 +1360,8 @@ Negative
 - [x] EditKind_BackspaceRtl
 - [x] EditKind_RemoveTextNoBatching
 - [x] EditKind_IndentLess
+
+====
+
+- [ ] Paste needs to be greatly optimized. (today)
+I knew it wasn't that great but oh my it is worse than I thought the edit itself inserts character by character.

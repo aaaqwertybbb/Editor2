@@ -1359,4 +1359,4 @@ Negative
 - [x] EditKind_DeleteLtr
 - [x] EditKind_BackspaceRtl
 - [x] EditKind_RemoveTextNoBatching
-- [ ] EditKind_IndentLess
+- [x] EditKind_IndentLess

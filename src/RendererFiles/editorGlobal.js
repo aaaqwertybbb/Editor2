@@ -3870,6 +3870,8 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
         }
 
         EDI_textByteList_removeAt(line_start, innerRemoveCount);
+        // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
+        EDI_styleBuffer_removeAt(line_start, innerRemoveCount);
 
         lspObject.arrayOfEditInformation.push({
             startLine: lineI,

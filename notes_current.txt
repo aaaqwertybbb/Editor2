@@ -1665,3 +1665,5 @@ bbb = 61;
 The transpiled code says:
 INTS[0] = 51;
 INTS[1] = 61;
+
+That being said the UI modifications are the bulk of the performance issues. Just making a side observation here on readability.

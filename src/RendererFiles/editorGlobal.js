@@ -242,6 +242,8 @@ let EDI_ringBuffer_needsSyntaxHighlightingFlags = new Uint8Array(0);
  * EDI_init()
  * EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.length = 0;
  * needs to run before accessing
+ * 
+ * @type {Range[][]}
  */
 let EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine = [];
 

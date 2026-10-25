@@ -1506,10 +1506,46 @@ Positive
 ========
 - [x] EditKind_InsertLtr
 - [x] EditKind_Enter
+- [x] EditKind_Tab
+- [x] EditKind_Paste
+- [x] EditKind_Duplicate
+- [x] EditKind_IndentMore
+
+Negative
+========
+- [x] EditKind_DeleteLtr
+- [x] EditKind_BackspaceRtl
+- [x] EditKind_RemoveTextNoBatching
+- [x] EditKind_IndentLess
+
+
+
+
+
+
+
+TODO: check that every one of them works
+
+Positive
+========
+- [ ] EditKind_InsertLtr
+    - [ ] simple
+    - [ ] complex
+- [ ] EditKind_Enter
+    - [ ] simple
+    - [ ] complex
 - [ ] EditKind_Tab
+    - [ ] simple
+    - [ ] complex
 - [ ] EditKind_Paste
+    - [ ] simple
+    - [ ] complex
 - [ ] EditKind_Duplicate
+    - [ ] simple
+    - [ ] complex
 - [ ] EditKind_IndentMore
+    - [ ] simple
+    - [ ] complex
 
 Negative
 ========
@@ -1517,6 +1553,13 @@ Negative
 - [ ] EditKind_BackspaceRtl
 - [ ] EditKind_RemoveTextNoBatching
 - [ ] EditKind_IndentLess
+
+
+
+
+
+
+
 
 
 

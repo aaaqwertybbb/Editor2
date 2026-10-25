@@ -1860,3 +1860,11 @@ I can help optimize the caching mechanics based on your viewport limits.
 
 I didn't even mean to copy 'EDI_render_do_SyntaxHighlighting' into the prompt ugh I'm tired
 What I am looking for is the scroll into view logic that I wrote I wanted to reduce overhead I know it's heavy for what it is doing
+
+====
+
+Uncaught TypeError: Failed to execute 'removeChild' on 'Node': parameter 1 is not of type 'Node'.
+    at EDI_createStyleForSelection (__COMPILEDbundle__.js:6129:26)
+    at EDI_render_do_RedrawSelection (__COMPILEDbundle__.js:6217:3)
+    at EDI_render_do_SyntaxHighlighting (__COMPILEDbundle__.js:6395:5)
+    at EDI_render_do (__COMPILEDbundle__.js:2679:9)

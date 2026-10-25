@@ -1440,7 +1440,7 @@ Positive
 ========
 - [x] EditKind_InsertLtr
 - [x] EditKind_Enter
-- [ ] EditKind_Tab
+- [x] EditKind_Tab
 - [ ] EditKind_Paste
 - [ ] EditKind_Duplicate
 - [ ] EditKind_IndentMore
@@ -1463,4 +1463,7 @@ TODO: You need to change all variables that say something along the lines of "po
 
 TODO: avoid massively expensive and wasteful rendering of pastes that exceed a lineEndCount that is greater than the amount of lines of text that can fit on screen etc...
 
+All of the 'INTS[fEDI_cursor_indexColumn]' and etc... need to be done in the event handler immediately not the render function.
+And if that's the case maybe you want to capture the cursor indexLine, indexColumn, indexVisual upon starting the edit.
+For some edits that is the editPosition but for backspace for example it isn't.
 

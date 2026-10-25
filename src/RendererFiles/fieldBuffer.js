@@ -470,6 +470,9 @@ const fEDI_cursor_edit_eventCount_drawn = 46;
  * 
  * Specifically the idea that every edit's render function checks fEDI_cursor_edit_eventCount_drawn < fEDI_cursor_edit_eventCount_occurred
  * although this isn't even correct. It depends on the edit still.
+ * 
+ * Okay if you have a more optimized render function you set drawn to occurred.
+ * If you have an unoptimized render function that is just a while loop you increment.
  */
 const fEDI_cursor_edit_eventCount_drawingStateContinuationValue = 47;
 const fEDI_cursor_END_editIndexLine = 48;

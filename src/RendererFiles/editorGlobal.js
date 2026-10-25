@@ -1618,11 +1618,22 @@ function EDI_render_do_TabKey() {
     if (INTS[fEDI_cursor_editKind] !== EditKind_Tab) {
         return;
     }
-    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_editLength] || INTS[fEDI_cursor_editKind] === EditKind_Tab) {
 
-        // TODO: 'fEDI_cursor_edit_eventCount_drawn' here and check other render_do's
+    if (INTS[fEDI_cursor_edit_eventCount_drawn] >= INTS[fEDI_cursor_edit_eventCount_occurred]) {
+        return;
+    }
 
-        INTS[fEDI_cursor_indexColumn] -= EDI_on_tab_bytes.length; // awkward thing to have 'walkLineUntilIndexColumn' invocation work then at end of block I '+= EDI_on_tab_bytes.length'. (1 of 2)
+    // TODO: Consider having this string available rather than making it everytime this function is invoked.
+    // TODO: This is bad (there's many other ways to get this as a string: decoder, caching of a hardcoded string?, ???)
+    //
+    const EDI_on_tab_string = EDI_decoder.decode(EDI_on_tab_bytes);
+
+    while (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
+        INTS[fEDI_cursor_edit_eventCount_drawn]++;
+
+        // awkward thing to have 'walkLineUntilIndexColumn' work then at end of block. (1 of 2)
+        const remember_indexColumn = INTS[fEDI_cursor_indexColumn];
+        INTS[fEDI_cursor_indexColumn] = INTS[fEDI_cursor_editIndexColumn];
 
         walkLineUntilIndexColumn();
 
@@ -1631,17 +1642,11 @@ function EDI_render_do_TabKey() {
             return;
         }
 
-        // TODO: Consider having this string available rather than making it everytime this function is invoked.
-        // TODO: This is bad (there's many other ways to get this as a string: decoder, caching of a hardcoded string?, ???)
-        //
-        let EDI_on_tab_string = '';
-        for (let i = 0; i < EDI_on_tab_bytes.length; i++) {
-            EDI_on_tab_string += String.fromCharCode(EDI_on_tab_bytes[i]);
-        }
+        const offset_index_drawn = INTS[fEDI_cursor_edit_eventCount_drawn] - 1;
+        w_div.firstChild.insertData(INTS[fEDI_w_indexColumn_SpanTextContentRelative] + offset_index_drawn, EDI_on_tab_string);
 
-        w_div.firstChild.insertData(INTS[fEDI_w_indexColumn_SpanTextContentRelative], EDI_on_tab_string);
-
-        INTS[fEDI_cursor_indexColumn] += EDI_on_tab_bytes.length; // awkward thing to have 'walkLineUntilIndexColumn' invocation work then at end of block I '+= EDI_on_tab_bytes.length'. (2 of 2)
+        // awkward thing to have 'walkLineUntilIndexColumn' work then at end of block. (2 of 2)
+        INTS[fEDI_cursor_indexColumn] = remember_indexColumn;
     }
 }
 
@@ -1654,6 +1659,7 @@ function EDI_tabKey() {
     }
 
     INTS[fEDI_cursor_editLength]++;
+    INTS[fEDI_cursor_edit_eventCount_occurred]++;
 
     // TODO: I probably don't want these if else statements in here long term.
     if (EDI_on_tab_bytes.length === 4) {
@@ -2544,8 +2550,6 @@ function EDI_render_do_InsertLtr() {
         return;
     }
     if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
-        // Okay if you have a more optimized render function you set drawn to occurred.
-        // If you have an unoptimized render function that is just a while loop you increment.
         INTS[fEDI_cursor_edit_eventCount_drawn] = INTS[fEDI_cursor_edit_eventCount_occurred];
         if (EDI_cursor_textInsertionBufferWriteToSpanElement) {
             EDI_cursor_textInsertionBufferWriteToSpanElement.firstChild.insertData(

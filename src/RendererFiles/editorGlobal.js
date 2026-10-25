@@ -1391,8 +1391,6 @@ function EDI_render_do_DuplicateOrPaste() {
         // TODO: An optimization to check whether you even need to redraw any lines perhaps is possible but it would add too much complexity at the moment and so it isn't being considered...
         // ...i.e.: if you're inserting so many lines that you know you'll scroll or that only a small amount of lines need to be redrawn due to predicting a scroll event.
 
-        // idk I gotta go cook/eat a lb of 98% fat free ground chicken with sriracha
-
         let offset = 0;
 
         /**
@@ -3114,19 +3112,6 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
         actualIndexLine++;
     }
     else if (BYTES[byteEDI_cursor_enterKeyEventKind] === EnterKeyEventKind_EndOfFile) {
-        //actualEditPosition++; // Move past the current line's '\n'
-        //actualLineFeedPosition = actualEditPosition;
-        //actualLineFeedPosition += per_edit_insertionCount - 1;
-        //actualIndexLine++;
-        //actualNewLineVisualWidth;
-        //
-        // TODO: ...
-        // ...temporary variable holds EOF line visual length...
-        // ...0th index of inserted content is the linefeed (this is currently already true)...
-        // ...EOF line visual length is updated to be 'actualNewLineVisualWidth'...
-        // ...every line EXCEPT for the first one inserted will receive a visual length of 'actualNewLineVisualWidth'...
-        // ...and then when you're done you have the special case where the first line you inserted gets visual width of the "temporary variable holds EOF line visual length"
-        // 
         specialCase_firstLineIndexInserted = actualIndexLine;
         const lastLineIndex = INTS[fEDI_lineEndPositionList_count] - 1;
         specialCase_number = EDI_trackingUint32MaxHeap.getLength(lastLineIndex);
@@ -3441,18 +3426,12 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
         EDI_render_do_IndentLess();
     }
 
-    // Both indentMore and indentLess have logic in the initial event that needs to be moved here.
-    // Nevertheless there is a difference between indentLess and indentMore in that you cannot simply
-    // multiply by n to get the decrement because it deals with the existence of whitespace to be removed so you need to actually sum this as you handle each event
-    // so that when you get to the finalize you have it all sum'd up (although yes this logic probably doesn't even belong in the event but it is there and 1 thing at a time).
-
     let startingIndex = INTS[fEDI_indent_startingIndex];
     INTS[fEDI_indent_startingIndex] = 0;
     let SMALL_lineAndColumnIndices_indexLine = INTS[fEDI_indent_SMALL_lineAndColumnIndices_indexLine];
     INTS[fEDI_indent_SMALL_lineAndColumnIndices_indexLine] = 0;
 
     // !!!!!! watch out for the big breaks when hitting a tab presuming that_four is 4
-    // If I could go back in time I'd go back to the day I thought it a good idea to name this variable 'that_four'
     let maxVirtualColumnIndex = 4;
     maxVirtualColumnIndex *= INTS[fEDI_cursor_edit_eventCount_occurred];
     let largestRank = INTS[fEDI_cursor_edit_eventCount_occurred];

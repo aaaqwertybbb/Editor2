@@ -1450,7 +1450,7 @@ Negative
 - [/] EditKind_DeleteLtr
 - [/] EditKind_BackspaceRtl
 - [x] EditKind_RemoveTextNoBatching
-- [ ] EditKind_IndentLess
+- [/] EditKind_IndentLess
 
 
 ====
@@ -1491,3 +1491,5 @@ Negative
 delete key if cursor is opacity 0 doesn't pause at 1 but it does if any other key seemingly move the cursor is reason ???
 
 - [x] seleted text and inserted over it it didn't draw correctly.
+- [ ] selection exception (indent more scroll?)
+- [ ] indent more to indent less without resetting selection?

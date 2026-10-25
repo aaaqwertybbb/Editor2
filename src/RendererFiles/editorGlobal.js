@@ -982,7 +982,8 @@ function EDI_render_do_IndentMore() {
     // TODO: Consider having this string available rather than making it everytime this function is invoked.
     let EDI_on_tab_string = EDI_decoder.decode(EDI_on_tab_bytes);
     
-    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
+    // TODO: create 'EDI_on_tab_string' based on the amount of remaining eventCount to be drawn.
+    while (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
         INTS[fEDI_cursor_edit_eventCount_drawn]++;
         for (var lineI = startingIndex; lineI >= SMALL_lineAndColumnIndices_indexLine; lineI--) {
             // Draw the line to reflect the edit, if it is being currently shown on screen.
@@ -1122,8 +1123,8 @@ function EDI_render_do_IndentLess() {
     if (INTS[fEDI_cursor_editKind] !== EditKind_IndentLess) {
         return;
     }
-    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_editLength]) {
-        
+
+    while (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
         INTS[fEDI_cursor_edit_eventCount_drawn]++;
 
         /////////////////////// P_1
@@ -1282,6 +1283,7 @@ function EDI_indentLess() {
     //}
 
     INTS[fEDI_cursor_editLength]++;
+    INTS[fEDI_cursor_edit_eventCount_occurred]++;
     EDI_render_request(RenderKind_IndentLess);
 }
 

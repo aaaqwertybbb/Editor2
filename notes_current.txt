@@ -1426,7 +1426,8 @@ As we can see that is a plate of 98% fat free ground chicken.
 In either case we can see the amount of chicken on the plate is strictly decreasing.
 Which means that the chicken will eventually be entirely consumed.
 
-
+8:31
+- [ ] Clean up the variables you made yesterday
 
 
 

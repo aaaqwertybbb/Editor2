@@ -6446,6 +6446,8 @@ function EDI_syntaxHighlight_parallelArray(div, ringBufferIndexOfDiv, lineStart,
 
     let TRAILINGstyleByteTRAILING = 0;
 
+    const arrayOfRangeObjectsOnLine = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndexOfDiv];
+
     // TODO: optimize the loop
     outerWhile: while (true) {
         if (i >= lineEnd) {
@@ -6471,7 +6473,7 @@ function EDI_syntaxHighlight_parallelArray(div, ringBufferIndexOfDiv, lineStart,
                     let range = new Range();
                     range.setStart(textNode, start);
                     range.setEnd(textNode, start + length);
-                    EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndexOfDiv].push(range);
+                    arrayOfRangeObjectsOnLine.push(range);
                     if (originalStyleByte === 1) {
                         stringHighlight.add(range);
                     }
@@ -6503,11 +6505,11 @@ function EDI_syntaxHighlight_parallelArray(div, ringBufferIndexOfDiv, lineStart,
         i++;
     }
 
-    if (length > 0) {
+    if (length > 0 && TRAILINGstyleByteTRAILING !== 0) {
         let range = new Range();
         range.setStart(textNode, start);
         range.setEnd(textNode, start + length);
-        EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndexOfDiv].push(range);
+        arrayOfRangeObjectsOnLine.push(range);
         if (TRAILINGstyleByteTRAILING === 1) {
             stringHighlight.add(range);
         }

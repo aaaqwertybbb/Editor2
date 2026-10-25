@@ -2369,15 +2369,16 @@ function EDI_render_do_Backspace() {
         return;
     }
 
-    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_editLength]) {
+    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
+        INTS[fEDI_cursor_edit_eventCount_drawn] = INTS[fEDI_cursor_edit_eventCount_occurred];
         walkLineUntilIndexColumn();
 
         if (w_div === w_divNONE) {
             // TODO: this
         }
         else {
-            let remaining = INTS[fEDI_cursor_editLength] - INTS[fEDI_cursor_edit_eventCount_drawn];
-            INTS[fEDI_cursor_edit_eventCount_drawn] = INTS[fEDI_cursor_editLength];
+            let remaining = INTS[fEDI_cursor_editLength] - INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue];
+            INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue] = INTS[fEDI_cursor_editLength];
             while (remaining > 0) {
                 let available = w_div.textContent.length - INTS[fEDI_w_indexColumn_SpanTextContentRelative];
                 let count = remaining > available ? available : remaining;
@@ -2512,6 +2513,7 @@ function EDI_state_do_Backspace(event) {
         }
     }
 
+    INTS[fEDI_cursor_edit_eventCount_occurred]++;
     EDI_render_request(RenderKind_BackspaceRtl);
 }
 

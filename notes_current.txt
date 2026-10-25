@@ -1652,3 +1652,16 @@ Does both delete and backspace work then spanning more than one line?
 not every visual length is correct.
 
 I don't think I am angry today actually I think I'm anxious
+
+These arrays that I have
+you actually can use babel such that you write:
+const aaa = INTS[0];
+const bbb = INTS[1];
+
+The code says:
+aaa = 51;
+bbb = 61;
+
+The transpiled code says:
+INTS[0] = 51;
+INTS[1] = 61;

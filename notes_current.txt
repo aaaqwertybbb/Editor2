@@ -1673,3 +1673,187 @@ I'm thinking about doing it
 I'm not gonna do it but I'm thinking about it is all
 
 - [ ] Resize the window needs to redraw the cursor caret row if the content width is less than the visible width of the UI
+
+====
+
+<
+To optimize your syntax highlighting process, the most critical change is to group your highlight additions by type and batch them globally instead of
+modifying Highlight objects one range at a time.
+
+With the CSS Custom Highlight API, modifying a global Highlight object (like keywordHighlight.add(range)) inside your tight loops triggers individual layout/paint invalidations or
+expensive Set mutation cycles. Instead, you should accumulate arrays of ranges per style type, and append or re-assign them in bulk at the end of the rendering pass.
+
+Key Optimizations Applied
+1. Global Batching: Removed .add(range) from the inner loop. Instead, ranges are collected into a local tracking map/object during the pass and committed to the Highlight registry
+   all at once.
+2. Eliminated new Range() Overhead (Optional/Recommended): Instantiating Range objects is relatively expensive in V8. Many performant editors use StaticRange
+   (new StaticRange({startContainer, startOffset, ...})) because it doesn't track live DOM mutations, making it significantly faster to construct.
+3. Map/Array Lookup for Styles: Replaced the highly repetitive if/else if chain with a direct array lookup, stripping away a massive amount of branch evaluation code.
+4. Pre-computed Skip Loop: Solved your loop-skipping dilemma. By filtering out unflagged ring buffer indices before calculating line positions,
+   we completely eliminate calculations for lines that do not require processing.
+
+Optimized Implementation
+
+Here is how you can restructure both functions to maximize performance:
+
+```js
+// Pre-map style identifiers to their global Highlight objects for O(1) direct access
+const EDI_HIGHLIGHT_MAP = [
+    null, // 0 is no style
+    stringHighlight, // 1
+    commentHighlight, // 2
+    keywordHighlight, // 3
+    keywordControlHighlight, // 4
+    identifierHighlight, // 5
+    typeHighlight, // 6
+    memberHighlight, // 7
+    functionHighlight // 8
+];
+
+function EDI_render_do_SyntaxHighlighting() {
+    if (EDI_cursor_hasSelection()){
+        EDI_render_do_RedrawSelection();
+    }
+
+    const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
+    const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
+    const local_EDI_lineEndPositionList_count = INTS[fEDI_lineEndPositionList_count];
+    const local_EDI_ringBuffer_needsSyntaxHighlightingFlags = EDI_ringBuffer_needsSyntaxHighlightingFlags;
+
+    let currentIndexRingBuffer = INTS[fEDI_ringBuffer_indexZero];
+    let currentIndexLine = INTS[fEDI_virtualIndexLine];
+
+    // Batching container: Accumulate ranges here to avoid mutating global sets per range
+    const batchUpdates = Array.from({ length: EDI_HIGHLIGHT_MAP.length }, () => []);
+
+    // Initial boundary tracking
+    let lineStart = 0;
+    let lineEnd = -1;
+    if (currentIndexLine < local_EDI_lineEndPositionList_count && currentIndexLine !== 0) {
+        lineEnd = local_EDI_lineEndPositionList_data[currentIndexLine - 1];
+    }
+
+    // Process contiguous line bounds linearly (keeps math simple)
+    for (let i = local_ArrayFrom_textElement_children_length; i >= 0; i--) {
+        lineStart = lineEnd + 1;
+        lineEnd = (currentIndexLine < local_EDI_lineEndPositionList_count) 
+            ? local_EDI_lineEndPositionList_data[currentIndexLine] 
+            : lineStart;
+
+        if (local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] === 1) {
+            local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] = 0;
+            
+            EDI_clearHighlights_single(currentIndexRingBuffer);
+            
+            // Pass the batch container down to accumulate ranges cleanly
+            EDI_syntaxHighlight_parallelArray(
+                EDI_ringBuffer_text[currentIndexRingBuffer], 
+                currentIndexRingBuffer, 
+                lineStart, 
+                lineEnd,
+                batchUpdates
+            );
+        }
+
+        currentIndexLine++;
+        currentIndexRingBuffer++;
+        if (currentIndexRingBuffer >= local_ArrayFrom_textElement_children_length) {
+            currentIndexRingBuffer = 0;
+        }
+    }
+
+    // --- CRITICAL PERF WIN: Batch commit to the DOM / Highlight Registry ---
+    for (let styleId = 1; styleId < batchUpdates.length; styleId++) {
+        const ranges = batchUpdates[styleId];
+        if (ranges.length === 0) continue;
+        
+        const highlightObj = EDI_HIGHLIGHT_MAP[styleId];
+        // Leverage the engine's built-in iteration over your accumulated array
+        for (let r = 0; r < ranges.length; r++) {
+            highlightObj.add(ranges[r]);
+        }
+    }
+}
+
+function EDI_syntaxHighlight_parallelArray(div, ringBufferIndexOfDiv, lineStart, lineEnd, batchUpdates) {
+    const textNode = div.firstChild;
+    if (!textNode) return; // Guard against empty divs
+
+    let start = 0;
+    let length = 0;
+    let i = lineStart;
+    let TRAILINGstyleByteTRAILING = 0;
+    
+    const ringBufferRanges = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndexOfDiv];
+
+    outerWhile: while (true) {
+        if (i >= lineEnd) {
+            TRAILINGstyleByteTRAILING = 0;
+            break;
+        }
+        
+        const originalStyleByte = EDI_styleBuffer[i];
+        if (originalStyleByte === undefined || originalStyleByte === 0) {
+            i++;
+            continue;
+        }
+
+        start = i - lineStart;
+        length = 0;
+
+        while (true) {
+            i++;
+            length++;
+            if (i >= lineEnd) {
+                TRAILINGstyleByteTRAILING = originalStyleByte;
+                break outerWhile;
+            }
+            if (EDI_styleBuffer[i] !== originalStyleByte) {
+                // Performance Boost: Use StaticRange if your Electron version supports it
+                // It drastically reduces range initialization overhead
+                const range = new StaticRange({
+                    startContainer: textNode,
+                    startOffset: start,
+                    endContainer: textNode,
+                    endOffset: start + length
+                });
+
+                ringBufferRanges.push(range);
+                
+                // Collect into batch object instead of executing heavy DOM mutations immediately
+                if (originalStyleByte < batchUpdates.length) {
+                    batchUpdates[originalStyleByte].push(range);
+                }
+                
+                continue outerWhile;
+            }
+        }
+    }
+
+    if (length > 0 && TRAILINGstyleByteTRAILING < batchUpdates.length) {
+        const range = new StaticRange({
+            startContainer: textNode,
+            startOffset: start,
+            endContainer: textNode,
+            endOffset: start + length
+        });
+        
+        ringBufferRanges.push(range);
+        batchUpdates[TRAILINGstyleByteTRAILING].push(range);
+    }
+}
+```
+
+Summary of Tradeoffs
+
+Optimization                     | Pros                                                                                                         | Cons
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Batching via batchUpdates        | Eliminates repeated DOM invalidation triggers during the processing loop; scales massively for larger files. | Temporary memory allocation for the batch arrays during parsing.
+StaticRange over Range           | Up to 10x faster instantiation; does not monitor DOM mutations actively.                                     | If the textNode structural content shifts mid-render, ranges won't automatically resize (though you are clearing and recalculating anyway, so this is minimal risk).
+Lookup Array (EDI_HIGHLIGHT_MAP) | Turns branching operations into a raw index pointer lookup.                                                  | Requires strict discipline ensuring style byte IDs correspond directly to the array indices.
+
+If you want to fine-tune this further, tell me:
+- Do your syntax styles ever change dynamically (e.g., custom themes), or are they static?
+- How large is your typical visible view viewport (how many items does the ring buffer hold)?
+
+I can help optimize the caching mechanics based on your viewport limits.

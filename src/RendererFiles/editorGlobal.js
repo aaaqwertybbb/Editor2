@@ -240,10 +240,10 @@ let EDI_ringBuffer_needsSyntaxHighlightingFlags = new Uint8Array(0);
  * line below you on enter keystroke but that isn't currently a thing, and I'm trying to work out the details of how to do this.
  * 
  * EDI_init()
- * EDI_ringBuffer_mapHighlights.length = 0;
+ * EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.length = 0;
  * needs to run before accessing
  */
-let EDI_ringBuffer_mapHighlights = [];
+let EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine = [];
 
 let EDI_styleBuffer = new Uint8Array(0);
 let EDI_styleBuffer_count = 0;
@@ -273,7 +273,7 @@ CSS.highlights.set("js-string", stringHighlight);
 // let EDI_debug_optimization_run_count = 0;
 
 function EDI_init() {
-    //EDI_ringBuffer_mapHighlights.length = 0;
+    //EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.length = 0;
 
     EDI_measureLineHeightAndCharacterWidth();
     EDI_measureBaseElement();
@@ -392,10 +392,9 @@ function EDI_render_request(renderKind) {
  * TODO: This clearing highlights logic was thrown together as a first draft it needs to be optimized.
  */
 function EDI_clearHighlights_all() {
-    // ??? the 'ringBufferIndexOfDiv !== 0' part of  'if (!ringBufferIndexOfDiv && ringBufferIndexOfDiv !== 0) {'
-    for (let i = EDI_ringBuffer_mapHighlights.length - 1; i >= 0; i--) {
+    for (let i = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.length - 1; i >= 0; i--) {
         // TODO: length = 0?
-        let p = EDI_ringBuffer_mapHighlights[i];
+        let p = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[i];
         let k = p.pop();
         while (k) {
             k = p.pop();
@@ -416,7 +415,7 @@ function EDI_clearHighlights_all() {
  * TODO: This clearing highlights logic was thrown together as a first draft it needs to be optimized.
  */
 function EDI_clearHighlights_single(ringBufferIndexOfDiv) {
-    const p = EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv];
+    const p = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndexOfDiv];
     let k = p.pop();
     while (k) {
         if (identifierHighlight.delete(k) ||
@@ -488,11 +487,11 @@ function EDI_render_do_CreateViewport() {
 
     EDI_ringBuffer_needsSyntaxHighlightingFlags = new Uint8Array(local_ArrayFrom_textElement_children_length);
 
-    while (EDI_ringBuffer_mapHighlights.length > local_ArrayFrom_textElement_children_length) {
-        EDI_ringBuffer_mapHighlights.pop();
+    while (EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.length > local_ArrayFrom_textElement_children_length) {
+        EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.pop();
     }
-    while (EDI_ringBuffer_mapHighlights.length < local_ArrayFrom_textElement_children_length) {
-        EDI_ringBuffer_mapHighlights.push([]);
+    while (EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.length < local_ArrayFrom_textElement_children_length) {
+        EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.push([]);
     }
 
     EDI_drawHorizontalScrollbar();
@@ -6470,7 +6469,7 @@ function EDI_syntaxHighlight_parallelArray(div, ringBufferIndexOfDiv, lineStart,
                     let range = new Range();
                     range.setStart(textNode, start);
                     range.setEnd(textNode, start + length);
-                    EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
+                    EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndexOfDiv].push(range);
                     if (originalStyleByte === 1) {
                         stringHighlight.add(range);
                     }
@@ -6506,7 +6505,7 @@ function EDI_syntaxHighlight_parallelArray(div, ringBufferIndexOfDiv, lineStart,
         let range = new Range();
         range.setStart(textNode, start);
         range.setEnd(textNode, start + length);
-        EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv].push(range);
+        EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndexOfDiv].push(range);
         if (TRAILINGstyleByteTRAILING === 1) {
             stringHighlight.add(range);
         }

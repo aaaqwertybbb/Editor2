@@ -456,6 +456,7 @@ const fEDI_cursor_DRAWN_selectionEnd = 39;
 const fEDI_cursor_DRAWN_selection_virtualIndexLine = 40;
 const fEDI_cursor_DRAWN_selection_virtualCount = 41;
 
+/** Not every edit makes use of an editLength. Because some edits are more computationally expensive than others. These computationally expensive edits only know the editLength at time of finalization. */
 const fEDI_cursor_editLength = 42;
 const fEDI_cursor_editPosition = 43;
 const fEDI_cursor_editIndexLine = 44;

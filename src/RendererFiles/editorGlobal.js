@@ -415,19 +415,19 @@ function EDI_clearHighlights_all() {
  * TODO: This clearing highlights logic was thrown together as a first draft it needs to be optimized.
  */
 function EDI_clearHighlights_single(ringBufferIndexOfDiv) {
-    const p = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndexOfDiv];
-    let k = p.pop();
-    while (k) {
-        if (identifierHighlight.delete(k) ||
-            keywordHighlight.delete(k) ||
-            memberHighlight.delete(k) ||
-            keywordControlHighlight.delete(k) ||
-            functionHighlight.delete(k) ||
-            commentHighlight.delete(k) ||
-            stringHighlight.delete(k)) {
+    const arrayOfRangeObjectsOnLine = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndexOfDiv];
+    const range = arrayOfRangeObjectsOnLine.pop();
+    while (range) {
+        if (identifierHighlight.delete(range) ||
+            keywordHighlight.delete(range) ||
+            memberHighlight.delete(range) ||
+            keywordControlHighlight.delete(range) ||
+            functionHighlight.delete(range) ||
+            commentHighlight.delete(range) ||
+            stringHighlight.delete(range)) {
                 // literally do nothing
         }
-        k = p.pop();
+        range = arrayOfRangeObjectsOnLine.pop();
     }
 }
 

@@ -1471,6 +1471,59 @@ TODO: Go back over them all and check the finalizes
 
 Positive
 ========
+- [x] EditKind_InsertLtr
+- [x] EditKind_Enter
+- [x] EditKind_Tab
+- [x] EditKind_Paste
+- [x] EditKind_Duplicate
+- [x] EditKind_IndentMore
+
+Negative
+========
+- [x] EditKind_DeleteLtr
+- [x] EditKind_BackspaceRtl
+- [x] EditKind_RemoveTextNoBatching
+- [x] EditKind_IndentLess
+
+
+
+
+delete key if cursor is opacity 0 doesn't pause at 1 but it does if any other key seemingly move the cursor is reason ???
+
+- [x] seleted text and inserted over it it didn't draw correctly.
+- [ ] selection exception (indent more scroll?)
+- [ ] indent more to indent less without resetting selection?
+
+
+
+
+
+
+
+TODO: Go back over them all and check fEDI_cursor_editLength usage in all 3 functions
+
+Positive
+========
+- [x] EditKind_InsertLtr
+- [x] EditKind_Enter
+- [ ] EditKind_Tab
+- [ ] EditKind_Paste
+- [ ] EditKind_Duplicate
+- [ ] EditKind_IndentMore
+
+Negative
+========
+- [ ] EditKind_DeleteLtr
+- [ ] EditKind_BackspaceRtl
+- [ ] EditKind_RemoveTextNoBatching
+- [ ] EditKind_IndentLess
+
+
+
+TODO: Go back over them all and check for comments/deadcode/cleanup
+
+Positive
+========
 - [ ] EditKind_InsertLtr
 - [ ] EditKind_Enter
 - [ ] EditKind_Tab
@@ -1487,9 +1540,3 @@ Negative
 
 
 
-
-delete key if cursor is opacity 0 doesn't pause at 1 but it does if any other key seemingly move the cursor is reason ???
-
-- [x] seleted text and inserted over it it didn't draw correctly.
-- [ ] selection exception (indent more scroll?)
-- [ ] indent more to indent less without resetting selection?

@@ -3073,6 +3073,10 @@ function EDI_finalizeEdit() {
 }
 
 function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
+    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
+        EDI_render_do_InsertLtr();
+    }
+
     // given the current state of the following for loop, you do indeed need this set to 0 otherwise the 0th line will not track visual length properly cause it'll try to update a line index of '-1' in the heap.
     indexLine_editOccurredOn = 0;
     for (let i = INTS[fEDI_lineEndPositionList_count] - 1; i >= 0; i--) {
@@ -3125,21 +3129,8 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
     return indexLine_editOccurredOn;
 }
 
-/**
- * TODO: The state: 'fEDI_cursor_editLineFeedCount', 'fEDI_cursor_edit_eventCount_drawn', and 'fEDI_cursor_editLength'...
- * ...are used in "different" ways depending on the edit and it is quite confusing.
- * 
- * For the enter key events:
- * -------------------------
- * fEDI_cursor_editLineFeedCount        => the amount of 'enter key events' that make up the batch
- * fEDI_cursor_edit_eventCount_drawn => the amount of 'enter key events' that have been drawn
- *                                             (For example, 'INTS[fEDI_cursor_editLineFeedCount] === 3' and 'INTS[fEDI_cursor_edit_eventCount_drawn] === 1' is to say:
- *                                              "3 enter key events are in the current pending edit, and only 1 of them have been drawn on the UI")
- * fEDI_cursor_editLength               => the amount of bytes that will be inserted?
- * 
-*/
 function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
-    if (INTS[fEDI_cursor_edit_eventCount_drawn] !== INTS[fEDI_cursor_editLineFeedCount]) {
+    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
         EDI_render_do_EnterKey();
     }
 
@@ -3303,6 +3294,10 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
 }
 
 function EDI_finalizeEdit_Tab(indexLine_editOccurredOn) {
+    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
+        EDI_render_do_TabKey();
+    }
+
     let bytes = EDI_on_tab_bytes;
     const per_edit_length = bytes.length;
     let length = per_edit_length;
@@ -3369,6 +3364,10 @@ function EDI_finalizeEdit_Tab(indexLine_editOccurredOn) {
 }
 
 function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
+    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
+        EDI_render_do_IndentMore();
+    }
+
     let startingIndex = INTS[fEDI_indent_startingIndex];
     INTS[fEDI_indent_startingIndex] = 0;
     let SMALL_lineAndColumnIndices_indexLine = INTS[fEDI_indent_SMALL_lineAndColumnIndices_indexLine];
@@ -3479,6 +3478,10 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
 }
 
 function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
+    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
+        EDI_render_do_IndentLess();
+    }
+
     // Both indentMore and indentLess have logic in the initial event that needs to be moved here.
     // Nevertheless there is a difference between indentLess and indentMore in that you cannot simply
     // multiply by n to get the decrement because it deals with the existence of whitespace to be removed so you need to actually sum this as you handle each event
@@ -3770,6 +3773,10 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
 
 /** TODO: the finalize for paste is also very bad, not just the event/render */
 function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
+    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
+        EDI_render_do_DuplicateOrPaste();
+    }
+
     let content = EDI_cursor_EDI_paste_clipboardContent_string;
 
     let linesInsertedCount = EDI_cursor_EDI_paste_clipboardContent_totalLineEndCount;
@@ -3834,6 +3841,10 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
 }
 
 function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
+    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
+        EDI_render_do_DuplicateOrPaste();
+    }
+
     let small = INTS[fEDI_editret_cursor_EDI_duplicate_small];
     let length = INTS[fEDI_editret_cursor_EDI_duplicate_length];
 

@@ -1500,7 +1500,7 @@ delete key if cursor is opacity 0 doesn't pause at 1 but it does if any other ke
 
 
 
-TODO: Go back over them all and check fEDI_cursor_editLength usage in all 3 functions
+TODO: Go back over them all and check fEDI_cursor_editLength_characters usage in all 3 functions
 
 Positive
 ========

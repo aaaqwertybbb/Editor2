@@ -423,6 +423,8 @@ function EDI_clearHighlights_all() {
  * If 'ringBufferIndexOfDiv' is falsey clear everything, otherwise clear only what is related to the 'ringBufferIndexOfDiv'.
  * 
  * TODO: This clearing highlights logic was thrown together as a first draft it needs to be optimized.
+ * 
+ * This function is manually inlined(-ish) within 'EDI_syntaxHighlight_parallelArray' at the start of the function. (1 of 2)
  */
 function EDI_clearHighlights_single(ringBufferIndexOfDiv) {
     const arrayOfRangeObjectsOnLine = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndexOfDiv];
@@ -6446,6 +6448,26 @@ function EDI_render_do_SyntaxHighlighting() {
 }
 
 function EDI_syntaxHighlight_parallelArray(div, ringBufferIndexOfDiv, lineStart, lineEnd) {
+
+    const arrayOfRangeObjectsOnLine = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndexOfDiv];
+
+    /// This function is manually inlined(-ish) within 'EDI_syntaxHighlight_parallelArray' at the start of the function. (2 of 2)
+    let range = arrayOfRangeObjectsOnLine.pop();
+    while (range) {
+        if (identifierHighlight.delete(range) ||
+            keywordHighlight.delete(range) ||
+            memberHighlight.delete(range) ||
+            keywordControlHighlight.delete(range) ||
+            functionHighlight.delete(range) ||
+            commentHighlight.delete(range) ||
+            stringHighlight.delete(range) ||
+            typeHighlight.delete(range)) {
+                // literally do nothing
+        }
+        range = arrayOfRangeObjectsOnLine.pop();
+    }
+    ///
+
     const textNode = div.firstChild;
 
     EDI_rangeInit.startContainer = textNode;
@@ -6457,8 +6479,6 @@ function EDI_syntaxHighlight_parallelArray(div, ringBufferIndexOfDiv, lineStart,
     let i = lineStart;
 
     let TRAILINGstyleByteTRAILING = 0;
-
-    const arrayOfRangeObjectsOnLine = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndexOfDiv];
 
     // TODO: optimize the loop
     outerWhile: while (true) {

@@ -776,16 +776,13 @@ function EDI_state_clear(trackingUint32MaxHeap_initialCapacity) {
     set_EDI_fileStartsWithBom(false);
     EDI_lineEndString = null;
     // TODO: Maybe re-use the 'TrackingUint32MaxHeap' rather than making a new one everytime
-    // TODO: Maybe do an 'ensure capacity' check prior to the loop that inserts 1 by 1 into 'EDI_trackingUint32MaxHeap'.
     EDI_trackingUint32MaxHeap = new TrackingUint32MaxHeap(trackingUint32MaxHeap_initialCapacity);
     EDI_lineEndPositionList_clear();
     EDI_textByteList_clear();
     INTS[fEDI_longestLine_indexLine] = 0;
     INTS[fEDI_longestLine_length] = 0;
     
-    // This placement is very odd you await the async and... it works seemingly but happenstance kinda odd timing that just kinda works?
-    //EDI_txrxaxcxkxexdxSxyxnxtxaxxxLxixsxtx.clear();
-    // TODO: Consider clearing the 'EDI_styleBuffer'
+    // TODO: This placement is slightly odd because the styleBuffer is made asynchronously and whether there could be a race condition that clears the styleBuffer you just received is uncertain (I just have not checked recently maybe I did when I first wrote it, it just looks odd though, need to check this).
     EDI_styleBuffer_count = 0;
 }
 
@@ -829,28 +826,6 @@ function EDI_render_do_SetText() {
 }
 
 /**
- * Not using 'uint8Array' feels very wasteful.
- * Once you've ensured capacity for some length then you don't have to worry about allocating the 'EDI_textByteList_bytes', you'll just write over the data that currently exists.
- * But even still, you're doing the 'set' although perhaps that isn't all too cumbersome? My concern is: a user opens a file, just to immediately open a different file.
- * 
- * I remember what my worry was.
- * If you receive a byte array that is exactly the right size to fit the text.
- * And then you insert a character, you'll double the current capacity.
- * And you'll end up with this MASSIVE wasted space.
- *
- * Versus if you matched a power of 2 "on the way up"
- * I think you'd at the very least on average end up with a smaller amount of wasted space.
- * 
- * I think I can allocate the byte array to have some padding though and that'd fix it all.
- *
- * But again, once you finish the padding you now do a double of the entire length
- * like are you really gonna type out twice the existing characters each time you open a file?
- *
- * The "extremely large possibility edits" should do their own ensureCapacity check prior to the edit.
- * And then everything else can just kinda do (umm this is probably too small but like reallocate with another 1024 bytes)
- * Maybe you can get a differential equation to predict the next capacity.
- * ^I don't know what a differential equation is I'm just meme-ing.
- * 
  * TODO: assert that the function parameters fit the requirements as described in the respective param documentation.
  * @param {*} paddedUint8Array all line endings replaced by '\n' regardless of the desired line ending when saving the file (or copying text, etc...). 'paddedUint8Array.length' is not necessarily equal to 'textLength'. If you want to avoid reallocating when you type a single character. You can pad the uint8array, a padding of 1 gives a textLength of 'paddedUint8Array.length - 1'.
  * @param {*} lineEndString this is the desired line ending when saving the file (or copying text, etc...)
@@ -870,17 +845,6 @@ function EDI_state_setText_byteArray(paddedUint8Array, textByteLength, fileStart
     if (!EDI_lineEndString) {
         EDI_lineEndString = '\n';
     }
-
-    // TODO: You actually should measure things before changing them...
-    // ...at the moment I'm more or less trying to pass time and see if I can recognize patterns...
-    // ...but what I'm doing is a terrible idea, even I'd be a annoyed if someone did this to me: just start changing things with 0 measurements like
-    // "it worked and now you broke it and you didn't even have a reason for doing it...?"...
-    // ...but I'm just messing around at the moment / am confused as to how I'd measure some of these things.
-    // So I'm just trying to recognize the patterns.
-    //
-    // ^speaking of someone breaking the code doing "optimizations" that have 0 measurements behind them...
-    // everything is borked ima fix it.
-    // 
 
     EDI_textByteList_bytes = paddedUint8Array;
     INTS[fEDI_textByteList_capacity] = paddedUint8Array.length;

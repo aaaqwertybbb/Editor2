@@ -1891,6 +1891,224 @@ function EDI_EnterKey(ctrlKey, originalIndexLine, originalIndexColumn) {
     EDI_render_request(RenderKind_Enter);
 }
 
+function EDI_render_do_RemoveSelection() {
+    if (INTS[fEDI_cursor_editKind] !== EditKind_RemoveTextNoBatching) {
+        return;
+    }
+
+    if (INTS[fEDI_cursor_edit_eventCount_drawn] >= INTS[fEDI_cursor_edit_eventCount_occurred]) {
+        return;
+    }
+
+    // RemoveSelection doesn't batch at the moment thus the equals rather than incrementing.
+    // Although it doesn't "matter" cause they'd only ever be off by 1 but this way makes me feel less anxious nevertheless.
+    INTS[fEDI_cursor_edit_eventCount_drawn] = INTS[fEDI_cursor_edit_eventCount_occurred];
+    
+    let smallPosition = INTS[fEDI_editret_RemoveSelection_smallPosition];
+    let largePosition = INTS[fEDI_editret_RemoveSelection_largePosition];
+
+    let editLength = largePosition - smallPosition;
+
+    let smallLineAndColumnIndices_indexLine = INTS[fEDI_editret_RemoveSelection_smallLineAndColumnIndices_small_indexLine];
+    let smallLineAndColumnIndices_indexColumn = INTS[fEDI_editret_RemoveSelection_smallLineAndColumnIndices_small_indexColumn];
+
+    ///////////
+    ///////////
+
+    let original_edit_length = INTS[fEDI_cursor_editLength];
+    INTS[fEDI_cursor_editLength] = 0;
+
+    let linesRemovedCount = 0;
+    // -1 since you can't remove EOF
+    for (var iVarDependent = INTS[fEDI_cursor_indexLine]; iVarDependent < INTS[fEDI_lineEndPositionList_count] - 1; iVarDependent++) {
+        let lineEnding = EDI_lineEndPositionList_data[iVarDependent];
+        if (lineEnding >= INTS[fEDI_cursor_editPosition] && lineEnding < INTS[fEDI_cursor_editPosition] + editLength) {
+            linesRemovedCount++;
+            INTS[fEDI_cursor_editLineFeedCount]++;
+            EDI_lineEndPositionList_PENDING.insert(EDI_lineEndPositionList_PENDING.count, lineEnding);
+        }
+        else {
+            break;
+        }
+    }
+
+    // TODO: two tabs one after another you delete the first one the second one falls into the first one's position...
+    // ...and takes the tab-width of the first one which might not be equal to the second one.
+    // Count line width after the edit? Probably not?
+
+    if (linesRemovedCount === 0) {
+        //
+        // 'INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL]' is 0???
+        //
+        //INTS[fEDI_cursor_editLengthVisual] = Math.abs(INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] - INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL]);
+
+        EDI_ret_getLineAndColumnIndices_raw(largePosition);
+        let largeLineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
+        let largeLineAndColumnIndices_indexColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
+
+        EDI_ret_getLineBoundaryPositions_raw(smallLineAndColumnIndices_indexLine);
+        let lineStart = INTS[fEDI_ret_getLineBoundaryPositions_start];
+        let lineEnd = INTS[fEDI_ret_getLineBoundaryPositions_end];
+
+        EDI_ret_getIndexFromColumn_RESET(smallLineAndColumnIndices_indexColumn, lineStart, lineEnd);
+        let small_columnVisual = INTS[fEDI_ret_getIndexFromX_visualColumns];
+
+        // TODO: You don't have to RESET here but... this answer is ultimately going to be scrapped for something more correct so it isn't worth the time.
+        EDI_ret_getIndexFromColumn_RESET(largeLineAndColumnIndices_indexColumn, lineStart, lineEnd);
+        let large_columnVisual = INTS[fEDI_ret_getIndexFromX_visualColumns];
+
+        INTS[fEDI_cursor_editLengthVisual] += large_columnVisual - small_columnVisual;
+        //INTS[fEDI_cursorVisualColumnIndex] = small_columnVisual;
+
+        //EDI_ret_getIndexFromColumn_RESET();
+    }
+
+    let finalLineEndPosition = EDI_lineEndPositionList_data[INTS[fEDI_cursor_indexLine] + linesRemovedCount];
+    let largestDrawnIndexLine = INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1;
+    let visibleLinesRemovedCount = 0;
+
+    // 5 stages
+    // ========
+    // - Remove selection on large position line
+    // - Remove selection on small position line
+    // - Visually merge the small position line and large position line (if applicable)
+    // - Remove middle line(s)
+    // - 'Draw lines that came into view' / 'clear text for any lines > text length and use a '~' in the gutter'
+
+    // Remove selection on small position line
+    let smallLineDiv = null;
+    {
+        INTS[fEDI_cursor_indexLine] = smallLineAndColumnIndices_indexLine;
+        INTS[fEDI_cursor_indexColumn] = smallLineAndColumnIndices_indexColumn;
+        // TODO: this cursorVisualColumnIndex... logic here seems like it can be skipped here so long as you do it once by the end of the function to the correct indices.
+        INTS[fEDI_cursorVisualColumnIndex] = smallLineAndColumnIndices_indexColumn;
+
+        walkLineUntilIndexColumn();
+
+        EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+        const line_end = INTS[fEDI_ret_getLineBoundaryPositions_end];
+        let remaining;
+        if (largePosition > line_end) {
+            remaining = line_end - smallPosition;
+        }
+        else {
+            remaining = largePosition - smallPosition;
+        }
+
+        if (w_div !== w_divNONE && INTS[fEDI_w_indexColumn_SpanTextContentRelative] >= 0) {
+            smallLineDiv = w_div;
+            const textNode = w_div.firstChild;
+            while (remaining > 0) {
+                let available = w_div.textContent.length - INTS[fEDI_w_indexColumn_SpanTextContentRelative];
+                let count = remaining > available ? available : remaining;
+                remaining -= count;
+                
+                if (count > 0) {
+                    textNode.deleteData(INTS[fEDI_w_indexColumn_SpanTextContentRelative], count);
+                }
+                else {
+                    break; // silent error?
+                }
+            }
+        }
+    }
+
+    // Remove selection on large position line
+    let largeLineDiv = null;
+    if (linesRemovedCount > 0) {
+        INTS[fEDI_cursor_indexLine] = INTS[fEDI_cursor_indexLine] + linesRemovedCount;
+        INTS[fEDI_cursor_indexColumn] = 0;
+        // TODO: this cursorVisualColumnIndex... logic here seems like it can be skipped here so long as you do it once by the end of the function to the correct indices.
+        INTS[fEDI_cursorVisualColumnIndex] = 0;
+
+        EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+        let remaining = largePosition - INTS[fEDI_ret_getLineBoundaryPositions_start];
+
+        walkLineUntilIndexColumn();
+
+        if (w_div !== w_divNONE && INTS[fEDI_w_indexColumn_SpanTextContentRelative] >= 0) {
+            largeLineDiv = w_div;
+            const textNode = w_div.firstChild;
+            while (remaining > 0) {
+                let available = w_div.textContent.length - INTS[fEDI_w_indexColumn_SpanTextContentRelative];
+                let count = remaining > available ? available : remaining;
+                remaining -= count;
+
+                if (count > 0) {
+                    textNode.deleteData(INTS[fEDI_w_indexColumn_SpanTextContentRelative], count);
+                }
+                else {
+                    break; // silent error?
+                }
+            }
+        }
+    }
+
+    // Merge the first and last lines (if applicable)
+    //
+    // Four cases of existence (!... implies it does NOT exist, i.e.: it is not rendered on the UI)
+    // =======================
+    // - [ ] keeping, removing
+    // - [ ] keeping, !removing
+    // - [ ] !keeping, removing
+    // - [ ] !keeping, !removing
+    //
+    // - [ ] Ensure all 4 cases of existence handle 'EDI_stopTrackingIfTrackedSyntaxMadeToSpanSingleLine(cursor);'
+    //
+    if (linesRemovedCount > 0) {
+        INTS[fEDI_cursor_indexLine] = smallLineAndColumnIndices_indexLine;
+        INTS[fEDI_cursor_indexColumn] = smallLineAndColumnIndices_indexColumn;
+        // TODO: this cursorVisualColumnIndex... logic here seems like it can be skipped here so long as you do it once by the end of the function to the correct indices.
+        INTS[fEDI_cursorVisualColumnIndex] = smallLineAndColumnIndices_indexColumn;
+
+        if (smallLineDiv) {
+            if (largeLineDiv) { // - [x] keeping, removing
+                const smallLineTextNode = smallLineDiv.firstChild;
+                const largeLineTextNode = largeLineDiv.firstChild;
+                smallLineTextNode.insertData(smallLineTextNode.length, largeLineTextNode.data);
+                largeLineTextNode.deleteData(0, largeLineTextNode.length);
+                visibleLinesRemovedCount++;
+            }
+            else { // - [ ] keeping, !removing
+
+            }
+        }
+        else {
+            if (largeLineDiv) { // - [ ] !keeping, removing
+                
+            }
+            else { // - [ ] !keeping, !removing
+                
+            }
+        }
+    }
+
+    // Remove middle line(s)
+    if (linesRemovedCount > 0) {
+
+        // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
+        let ringBufferIndex_current = (smallLineAndColumnIndices_indexLine + 1) - INTS[fEDI_virtualIndexLine];
+        if (ringBufferIndex_current >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_current < 0) ringBufferIndex_current = -1;
+        else ringBufferIndex_current = (ringBufferIndex_current + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
+
+        // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
+        let ringBufferIndex_last = (INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1) - INTS[fEDI_virtualIndexLine];
+        if (ringBufferIndex_last >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_last < 0) ringBufferIndex_last = -1;
+        else ringBufferIndex_last = (ringBufferIndex_last + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
+
+        // TODO: This will be wrong because you'd need to explicitly redraw the large selection line index.
+        EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_last, ringBufferIndex_current, linesRemovedCount);
+
+        if (EDI_drawGutter_Width(INTS[fEDI_lineEndPositionList_count] - linesRemovedCount)) {
+            // If true then you need to also draw the dependent UI
+            EDI_render_request(RenderKind_Cursor_n);
+            EDI_drawHorizontalScrollbar();
+        }
+    }
+
+    INTS[fEDI_cursor_editLength] = original_edit_length;
+}
+
 /**
  * @returns 
  */
@@ -1946,221 +2164,11 @@ function EDI_removeSelection() {
     INTS[fEDI_cursorVisualColumnIndex] = smallLineAndColumnIndices_indexColumn;
 
     INTS[fEDI_cursor_editLength] = editLength;
+    INTS[fEDI_cursor_edit_eventCount_occurred]++;
     
     INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
 
     EDI_render_request(RenderKind_RemoveSelection);
-}
-
-function EDI_render_do_RemoveSelection() {
-    let smallPosition = INTS[fEDI_editret_RemoveSelection_smallPosition];
-    let largePosition = INTS[fEDI_editret_RemoveSelection_largePosition];
-
-    let editLength = largePosition - smallPosition;
-
-    let smallLineAndColumnIndices_indexLine = INTS[fEDI_editret_RemoveSelection_smallLineAndColumnIndices_small_indexLine];
-    let smallLineAndColumnIndices_indexColumn = INTS[fEDI_editret_RemoveSelection_smallLineAndColumnIndices_small_indexColumn];
-
-    ///////////
-    ///////////
-
-    if (INTS[fEDI_cursor_editKind] !== EditKind_RemoveTextNoBatching) {
-        return;
-    }
-    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_editLength]) {
-        let original_edit_length = INTS[fEDI_cursor_editLength];
-        INTS[fEDI_cursor_editLength] = 0;
-
-        let linesRemovedCount = 0;
-        // -1 since you can't remove EOF
-        for (var iVarDependent = INTS[fEDI_cursor_indexLine]; iVarDependent < INTS[fEDI_lineEndPositionList_count] - 1; iVarDependent++) {
-            let lineEnding = EDI_lineEndPositionList_data[iVarDependent];
-            if (lineEnding >= INTS[fEDI_cursor_editPosition] && lineEnding < INTS[fEDI_cursor_editPosition] + editLength) {
-                linesRemovedCount++;
-                INTS[fEDI_cursor_editLineFeedCount]++;
-                EDI_lineEndPositionList_PENDING.insert(EDI_lineEndPositionList_PENDING.count, lineEnding);
-            }
-            else {
-                break;
-            }
-        }
-
-        // TODO: two tabs one after another you delete the first one the second one falls into the first one's position...
-        // ...and takes the tab-width of the first one which might not be equal to the second one.
-        // Count line width after the edit? Probably not?
-
-        if (linesRemovedCount === 0) {
-            //
-            // 'INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL]' is 0???
-            //
-            //INTS[fEDI_cursor_editLengthVisual] = Math.abs(INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] - INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL]);
-
-            EDI_ret_getLineAndColumnIndices_raw(largePosition);
-            let largeLineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
-            let largeLineAndColumnIndices_indexColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
-
-            EDI_ret_getLineBoundaryPositions_raw(smallLineAndColumnIndices_indexLine);
-            let lineStart = INTS[fEDI_ret_getLineBoundaryPositions_start];
-            let lineEnd = INTS[fEDI_ret_getLineBoundaryPositions_end];
-
-            EDI_ret_getIndexFromColumn_RESET(smallLineAndColumnIndices_indexColumn, lineStart, lineEnd);
-            let small_columnVisual = INTS[fEDI_ret_getIndexFromX_visualColumns];
-
-            // TODO: You don't have to RESET here but... this answer is ultimately going to be scrapped for something more correct so it isn't worth the time.
-            EDI_ret_getIndexFromColumn_RESET(largeLineAndColumnIndices_indexColumn, lineStart, lineEnd);
-            let large_columnVisual = INTS[fEDI_ret_getIndexFromX_visualColumns];
-
-            INTS[fEDI_cursor_editLengthVisual] += large_columnVisual - small_columnVisual;
-            //INTS[fEDI_cursorVisualColumnIndex] = small_columnVisual;
-
-            //EDI_ret_getIndexFromColumn_RESET();
-        }
-
-        let finalLineEndPosition = EDI_lineEndPositionList_data[INTS[fEDI_cursor_indexLine] + linesRemovedCount];
-        let largestDrawnIndexLine = INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1;
-        let visibleLinesRemovedCount = 0;
-
-        // 5 stages
-        // ========
-        // - Remove selection on large position line
-        // - Remove selection on small position line
-        // - Visually merge the small position line and large position line (if applicable)
-        // - Remove middle line(s)
-        // - 'Draw lines that came into view' / 'clear text for any lines > text length and use a '~' in the gutter'
-
-        // Remove selection on small position line
-        let smallLineDiv = null;
-        {
-            INTS[fEDI_cursor_indexLine] = smallLineAndColumnIndices_indexLine;
-            INTS[fEDI_cursor_indexColumn] = smallLineAndColumnIndices_indexColumn;
-            // TODO: this cursorVisualColumnIndex... logic here seems like it can be skipped here so long as you do it once by the end of the function to the correct indices.
-            INTS[fEDI_cursorVisualColumnIndex] = smallLineAndColumnIndices_indexColumn;
-
-            walkLineUntilIndexColumn();
-
-            EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
-            const line_end = INTS[fEDI_ret_getLineBoundaryPositions_end];
-            let remaining;
-            if (largePosition > line_end) {
-                remaining = line_end - smallPosition;
-            }
-            else {
-                remaining = largePosition - smallPosition;
-            }
-
-            if (w_div !== w_divNONE && INTS[fEDI_w_indexColumn_SpanTextContentRelative] >= 0) {
-                smallLineDiv = w_div;
-                const textNode = w_div.firstChild;
-                while (remaining > 0) {
-                    let available = w_div.textContent.length - INTS[fEDI_w_indexColumn_SpanTextContentRelative];
-                    let count = remaining > available ? available : remaining;
-                    remaining -= count;
-                    
-                    if (count > 0) {
-                        textNode.deleteData(INTS[fEDI_w_indexColumn_SpanTextContentRelative], count);
-                    }
-                    else {
-                        break; // silent error?
-                    }
-                }
-            }
-        }
-
-        // Remove selection on large position line
-        let largeLineDiv = null;
-        if (linesRemovedCount > 0) {
-            INTS[fEDI_cursor_indexLine] = INTS[fEDI_cursor_indexLine] + linesRemovedCount;
-            INTS[fEDI_cursor_indexColumn] = 0;
-            // TODO: this cursorVisualColumnIndex... logic here seems like it can be skipped here so long as you do it once by the end of the function to the correct indices.
-            INTS[fEDI_cursorVisualColumnIndex] = 0;
-
-            EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
-            let remaining = largePosition - INTS[fEDI_ret_getLineBoundaryPositions_start];
-
-            walkLineUntilIndexColumn();
-
-            if (w_div !== w_divNONE && INTS[fEDI_w_indexColumn_SpanTextContentRelative] >= 0) {
-                largeLineDiv = w_div;
-                const textNode = w_div.firstChild;
-                while (remaining > 0) {
-                    let available = w_div.textContent.length - INTS[fEDI_w_indexColumn_SpanTextContentRelative];
-                    let count = remaining > available ? available : remaining;
-                    remaining -= count;
-
-                    if (count > 0) {
-                        textNode.deleteData(INTS[fEDI_w_indexColumn_SpanTextContentRelative], count);
-                    }
-                    else {
-                        break; // silent error?
-                    }
-                }
-            }
-        }
-
-        // Merge the first and last lines (if applicable)
-        //
-        // Four cases of existence (!... implies it does NOT exist, i.e.: it is not rendered on the UI)
-        // =======================
-        // - [ ] keeping, removing
-        // - [ ] keeping, !removing
-        // - [ ] !keeping, removing
-        // - [ ] !keeping, !removing
-        //
-        // - [ ] Ensure all 4 cases of existence handle 'EDI_stopTrackingIfTrackedSyntaxMadeToSpanSingleLine(cursor);'
-        //
-        if (linesRemovedCount > 0) {
-            INTS[fEDI_cursor_indexLine] = smallLineAndColumnIndices_indexLine;
-            INTS[fEDI_cursor_indexColumn] = smallLineAndColumnIndices_indexColumn;
-            // TODO: this cursorVisualColumnIndex... logic here seems like it can be skipped here so long as you do it once by the end of the function to the correct indices.
-            INTS[fEDI_cursorVisualColumnIndex] = smallLineAndColumnIndices_indexColumn;
-
-            if (smallLineDiv) {
-                if (largeLineDiv) { // - [x] keeping, removing
-                    const smallLineTextNode = smallLineDiv.firstChild;
-                    const largeLineTextNode = largeLineDiv.firstChild;
-                    smallLineTextNode.insertData(smallLineTextNode.length, largeLineTextNode.data);
-                    largeLineTextNode.deleteData(0, largeLineTextNode.length);
-                    visibleLinesRemovedCount++;
-                }
-                else { // - [ ] keeping, !removing
-
-                }
-            }
-            else {
-                if (largeLineDiv) { // - [ ] !keeping, removing
-                    
-                }
-                else { // - [ ] !keeping, !removing
-                    
-                }
-            }
-        }
-
-        // Remove middle line(s)
-        if (linesRemovedCount > 0) {
-
-            // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
-            let ringBufferIndex_current = (smallLineAndColumnIndices_indexLine + 1) - INTS[fEDI_virtualIndexLine];
-            if (ringBufferIndex_current >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_current < 0) ringBufferIndex_current = -1;
-            else ringBufferIndex_current = (ringBufferIndex_current + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
-
-            // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
-            let ringBufferIndex_last = (INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1) - INTS[fEDI_virtualIndexLine];
-            if (ringBufferIndex_last >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_last < 0) ringBufferIndex_last = -1;
-            else ringBufferIndex_last = (ringBufferIndex_last + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
-
-            // TODO: This will be wrong because you'd need to explicitly redraw the large selection line index.
-            EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_last, ringBufferIndex_current, linesRemovedCount);
-
-            if (EDI_drawGutter_Width(INTS[fEDI_lineEndPositionList_count] - linesRemovedCount)) {
-                // If true then you need to also draw the dependent UI
-                EDI_render_request(RenderKind_Cursor_n);
-                EDI_drawHorizontalScrollbar();
-            }
-        }
-
-        INTS[fEDI_cursor_editLength] = original_edit_length;
-    }
 }
 
 /** TODO: this is nearly identical to backspace, the difference is the check 'if (INTS[fEDI_cursor_editKind] !== EditKind_DeleteLtr)', thus dedupe the logic or no? */
@@ -3944,6 +3952,18 @@ duplicate "Aaa() {
 }
 
 function EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_editOccurredOn) {
+    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
+        if (INTS[fEDI_cursor_editKind] === EditKind_RemoveTextNoBatching) {
+            EDI_render_do_RemoveSelection();
+        }
+        else if (INTS[fEDI_cursor_editKind] === EditKind_DeleteLtr) {
+            EDI_render_do_Delete();
+        }
+        else if (INTS[fEDI_cursor_editKind] === EditKind_BackspaceRtl) {
+            EDI_render_do_Backspace();
+        }
+    }
+
     // TODO: surely u'd get this before doing the edit?
     let startLineAndColumnIndices_indexLine;
     let startLineAndColumnIndices_indexColumn;

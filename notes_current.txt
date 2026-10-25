@@ -1539,4 +1539,4 @@ Negative
 - [ ] EditKind_IndentLess
 
 
-
+changing tab kind from tab to spaces or vice versa needs to trigger a finalize

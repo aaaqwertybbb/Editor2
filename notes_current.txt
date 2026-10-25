@@ -1548,4 +1548,3 @@ TODO: I don't understand how 'let EDI_cursor_edit_flagLineChanged = -1;' works, 
 Does both delete and backspace work then spanning more than one line?
 - [ ] delete
 - [ ] backspace
-

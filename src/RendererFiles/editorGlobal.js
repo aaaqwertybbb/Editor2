@@ -681,7 +681,6 @@ function EDI_render_do_Scroll() {
 
         if (permitImmediateSyntaxHighlighting) {
             local_EDI_ringBuffer_needsSyntaxHighlightingFlags[ringBufferIndex] = 0;
-            EDI_clearHighlights_single(ringBufferIndex);
             EDI_syntaxHighlight_parallelArray(div, ringBufferIndex, lineStart, lineEnd);
         }
         else {
@@ -6435,7 +6434,6 @@ function EDI_render_do_SyntaxHighlighting() {
 
         if (local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] === 1) {
             local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] = 0;
-            EDI_clearHighlights_single(currentIndexRingBuffer);
             EDI_syntaxHighlight_parallelArray(EDI_ringBuffer_text[currentIndexRingBuffer], currentIndexRingBuffer, lineStart, lineEnd);
         }
 

@@ -1341,6 +1341,7 @@ async function EDI_duplicateSelection() {
     INTS[fEDI_cursor_editIndexLine] = large_lineAndColumnIndices_indexLine;
     INTS[fEDI_cursor_editIndexColumn] = large_lineAndColumnIndices_indexColumn;
     INTS[fEDI_cursor_editLength] = length;
+    INTS[fEDI_cursor_edit_eventCount_occurred]++;
 
     INTS[fEDI_cursor_indexLine] = large_lineAndColumnIndices_indexLine;
     INTS[fEDI_cursor_indexColumn] = large_lineAndColumnIndices_indexColumn;

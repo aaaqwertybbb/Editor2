@@ -1442,7 +1442,7 @@ Positive
 - [x] EditKind_Enter
 - [x] EditKind_Tab
 - [x] EditKind_Paste
-- [ ] EditKind_Duplicate
+- [x] EditKind_Duplicate
 - [ ] EditKind_IndentMore
 
 Negative

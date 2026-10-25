@@ -386,7 +386,11 @@ function EDI_render_request(renderKind) {
     }
 }
 
-/** If 'ringBufferIndexOfDiv' is falsey clear everything, otherwise clear only what is related to the 'ringBufferIndexOfDiv'. */
+/**
+ * If 'ringBufferIndexOfDiv' is falsey clear everything, otherwise clear only what is related to the 'ringBufferIndexOfDiv'.
+ * 
+ * TODO: This clearing highlights logic was thrown together as a first draft it needs to be optimized.
+ */
 function EDI_clearHighlights(ringBufferIndexOfDiv) {
     if (!ringBufferIndexOfDiv && ringBufferIndexOfDiv !== 0) {
         for (let i = EDI_ringBuffer_mapHighlights.length - 1; i >= 0; i--) {

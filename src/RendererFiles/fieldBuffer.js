@@ -460,13 +460,15 @@ const fEDI_cursor_editLength = 42;
 const fEDI_cursor_editPosition = 43;
 const fEDI_cursor_editIndexLine = 44;
 const fEDI_cursor_editIndexColumn = 45;
+//TODO: move 'const fEDI_cursor_edit_eventCount_occurred = 63;' closer (numerically and text position)
+const fEDI_cursor_edit_eventCount_drawn = 46;
 /**
  * the amount of characters that UI has changed with respect to the pending edit
  * per 'EDI_render_do', if the displacement is not the editLength then you know you need to "draw more of this edit" on the UI.
  * 
  * The awkward name is to avoid re-using similar words that already are used in other fields on this class.
  */
-const fEDI_cursor_editRenderedDisplacement = 46;
+//const fEDI_cursor_edit_eventCount_drawn = 46;
 /** TODO: perhaps you could determine this some other way, but tracking it for the moment is easiest and necessary if I'm to not give up on getting an initial solution to work, given my current mood and etc... */
 const fEDI_cursor_editRenderedDisplacement_INDEX_LINE_OFFSET = 47;
 const fEDI_cursor_END_editIndexLine = 48;
@@ -520,6 +522,8 @@ const fEDI_ArrayFrom_textElement_children_length = 60;
 const fEDI_EDI_mouseOver_event_clientY = 61;
 
 const fEDI_EDI_mouseOver_event_clientX = 62;
+
+const fEDI_cursor_edit_eventCount_occurred = 63;
 
 const fEXPLORER_render_do_ScrollTrailingEdgeCheckTimeoutId = 64;
 

@@ -249,9 +249,6 @@ let EDI_styleBuffer = new Uint8Array(0);
 let EDI_styleBuffer_count = 0;
 let EDI_styleBuffer_capacity = 0;
 
-let EDI_cursor_edit_eventCount_occurred = 0;
-let EDI_cursor_edit_eventCount_drawn = 0;
-
 const keywordHighlight = new Highlight();
 CSS.highlights.set("js-keywords", keywordHighlight);
 const keywordControlHighlight = new Highlight();
@@ -989,8 +986,8 @@ function EDI_render_do_IndentMore() {
     if (INTS[fEDI_cursor_editKind] !== EditKind_IndentMore) {
         return;
     }
-    if (INTS[fEDI_cursor_editRenderedDisplacement] < INTS[fEDI_cursor_editLength]) {
-        INTS[fEDI_cursor_editRenderedDisplacement]++;
+    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_editLength]) {
+        INTS[fEDI_cursor_edit_eventCount_drawn]++;
         for (var lineI = startingIndex; lineI >= SMALL_lineAndColumnIndices_indexLine; lineI--) {
             // Draw the line to reflect the edit, if it is being currently shown on screen.
             // TODO: Use NEXT if the lines are one after another?
@@ -1128,9 +1125,9 @@ function EDI_render_do_IndentLess() {
     if (INTS[fEDI_cursor_editKind] !== EditKind_IndentLess) {
         return;
     }
-    if (INTS[fEDI_cursor_editRenderedDisplacement] < INTS[fEDI_cursor_editLength]) {
+    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_editLength]) {
         
-        INTS[fEDI_cursor_editRenderedDisplacement]++;
+        INTS[fEDI_cursor_edit_eventCount_drawn]++;
 
         /////////////////////// P_1
         let textSelectionDiv;
@@ -1376,9 +1373,9 @@ function EDI_render_do_DuplicateOrPaste() {
     let linesInsertedCount = 0;
 
     if (INTS[fEDI_cursor_editKind] === EditKind_Duplicate) {
-        if (INTS[fEDI_cursor_editRenderedDisplacement] < INTS[fEDI_cursor_editLength]) {
+        if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_editLength]) {
             needsToRender = true;
-            INTS[fEDI_cursor_editRenderedDisplacement]++;
+            INTS[fEDI_cursor_edit_eventCount_drawn]++;
             const large = INTS[fEDI_editret_cursor_EDI_duplicate_small] + insert_character_count;
             byteArray = EDI_cursor_EDI_duplication_bytes;
             insert_character_count = byteArray.length;
@@ -1387,9 +1384,9 @@ function EDI_render_do_DuplicateOrPaste() {
         }
     }
     else if (INTS[fEDI_cursor_editKind] === EditKind_Paste) {
-        if (EDI_cursor_edit_eventCount_drawn < EDI_cursor_edit_eventCount_occurred) {
+        if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
             needsToRender = true;
-            EDI_cursor_edit_eventCount_drawn++;
+            INTS[fEDI_cursor_edit_eventCount_drawn]++;
             byteArray = EDI_cursor_EDI_paste_clipboardContent_bytes;
             INTS[fEDI_cursor_editLength] = byteArray.length;
             positionIndex = EDI_getPositionIndex_cursor_raw();
@@ -1610,7 +1607,7 @@ function EDI_paste() {
     INTS[fEDI_cursor_editPosition] = positionIndex;
     INTS[fEDI_cursor_editIndexLine] = INTS[fEDI_cursor_indexLine];
     INTS[fEDI_cursor_editIndexColumn] = INTS[fEDI_cursor_indexColumn];
-    EDI_cursor_edit_eventCount_occurred++;
+    INTS[fEDI_cursor_edit_eventCount_occurred]++;
 
     // TODO: The previous render logic was actually moving the cursor as well. Just something to keep in mind, you might see a bug related to this.
     // TODO: ^Moving the cursor would be done here.
@@ -1621,9 +1618,9 @@ function EDI_render_do_TabKey() {
     if (INTS[fEDI_cursor_editKind] !== EditKind_Tab) {
         return;
     }
-    if (INTS[fEDI_cursor_editRenderedDisplacement] < INTS[fEDI_cursor_editLength] || INTS[fEDI_cursor_editKind] === EditKind_Tab) {
+    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_editLength] || INTS[fEDI_cursor_editKind] === EditKind_Tab) {
 
-        // TODO: 'fEDI_cursor_editRenderedDisplacement' here and check other render_do's
+        // TODO: 'fEDI_cursor_edit_eventCount_drawn' here and check other render_do's
 
         INTS[fEDI_cursor_indexColumn] -= EDI_on_tab_bytes.length; // awkward thing to have 'walkLineUntilIndexColumn' invocation work then at end of block I '+= EDI_on_tab_bytes.length'. (1 of 2)
 
@@ -1706,11 +1703,11 @@ function EDI_render_do_EnterKey() {
         return;
     }
 
-    // TODO: instead of a loop, handle the rendering in a more optimized bulk operation that renders the remaining 'INTS[fEDI_cursor_editLineFeedCount] - INTS[fEDI_cursor_editRenderedDisplacement]'
-    while (INTS[fEDI_cursor_editRenderedDisplacement] < INTS[fEDI_cursor_editLineFeedCount]) {
-        INTS[fEDI_cursor_editRenderedDisplacement]++;
+    // TODO: instead of a loop, handle the rendering in a more optimized bulk operation that renders the remaining 'INTS[fEDI_cursor_editLineFeedCount] - INTS[fEDI_cursor_edit_eventCount_drawn]'
+    while (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_editLineFeedCount]) {
+        INTS[fEDI_cursor_edit_eventCount_drawn]++;
 
-        const local_EDI_lineEndPositionList_count = INTS[fEDI_lineEndPositionList_count] + INTS[fEDI_cursor_editRenderedDisplacement] - 1;
+        const local_EDI_lineEndPositionList_count = INTS[fEDI_lineEndPositionList_count] + INTS[fEDI_cursor_edit_eventCount_drawn] - 1;
         
         // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
         let ringBufferIndex_firstTilde = local_EDI_lineEndPositionList_count - INTS[fEDI_virtualIndexLine];
@@ -1978,7 +1975,7 @@ function EDI_render_do_RemoveSelection() {
     if (INTS[fEDI_cursor_editKind] !== EditKind_RemoveTextNoBatching) {
         return;
     }
-    if (INTS[fEDI_cursor_editRenderedDisplacement] < INTS[fEDI_cursor_editLength]) {
+    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_editLength]) {
         let original_edit_length = INTS[fEDI_cursor_editLength];
         INTS[fEDI_cursor_editLength] = 0;
 
@@ -2179,15 +2176,15 @@ function EDI_render_do_Delete() {
     if (INTS[fEDI_cursor_editKind] !== EditKind_DeleteLtr) {
         return;
     }
-    if (INTS[fEDI_cursor_editRenderedDisplacement] < INTS[fEDI_cursor_editLength]) {
+    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_editLength]) {
         walkLineUntilIndexColumn();
 
         if (w_div === w_divNONE) {
             // TODO: this
         }
         else {
-            let remaining = INTS[fEDI_cursor_editLength] - INTS[fEDI_cursor_editRenderedDisplacement];
-            INTS[fEDI_cursor_editRenderedDisplacement] = INTS[fEDI_cursor_editLength];
+            let remaining = INTS[fEDI_cursor_editLength] - INTS[fEDI_cursor_edit_eventCount_drawn];
+            INTS[fEDI_cursor_edit_eventCount_drawn] = INTS[fEDI_cursor_editLength];
             while (remaining > 0) {
                 // When the cursor is at the end of a span, there is no text to delete, because the text starts in the next span.
                 let available = w_div.textContent.length - INTS[fEDI_w_indexColumn_SpanTextContentRelative];
@@ -2379,15 +2376,15 @@ function EDI_render_do_Backspace() {
         return;
     }
 
-    if (INTS[fEDI_cursor_editRenderedDisplacement] < INTS[fEDI_cursor_editLength]) {
+    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_editLength]) {
         walkLineUntilIndexColumn();
 
         if (w_div === w_divNONE) {
             // TODO: this
         }
         else {
-            let remaining = INTS[fEDI_cursor_editLength] - INTS[fEDI_cursor_editRenderedDisplacement];
-            INTS[fEDI_cursor_editRenderedDisplacement] = INTS[fEDI_cursor_editLength];
+            let remaining = INTS[fEDI_cursor_editLength] - INTS[fEDI_cursor_edit_eventCount_drawn];
+            INTS[fEDI_cursor_edit_eventCount_drawn] = INTS[fEDI_cursor_editLength];
             while (remaining > 0) {
                 let available = w_div.textContent.length - INTS[fEDI_w_indexColumn_SpanTextContentRelative];
                 let count = remaining > available ? available : remaining;
@@ -2545,14 +2542,14 @@ function EDI_render_do_InsertLtr() {
     if (INTS[fEDI_cursor_editKind] !== EditKind_InsertLtr) {
         return;
     }
-    if (INTS[fEDI_cursor_editRenderedDisplacement] < INTS[fEDI_cursor_editLength]) {
+    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_editLength]) {
         if (EDI_cursor_textInsertionBufferWriteToSpanElement) {
 
             EDI_cursor_textInsertionBufferWriteToSpanElement.firstChild.insertData(
-                (INTS[fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex]) + INTS[fEDI_cursor_editRenderedDisplacement],
-                EDI_decoder.decode(EDI_cursor_textInsertionBuffer.subarray(INTS[fEDI_cursor_editRenderedDisplacement], INTS[fEDI_cursor_editLength])));
+                (INTS[fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex]) + INTS[fEDI_cursor_edit_eventCount_drawn],
+                EDI_decoder.decode(EDI_cursor_textInsertionBuffer.subarray(INTS[fEDI_cursor_edit_eventCount_drawn], INTS[fEDI_cursor_editLength])));
 
-            INTS[fEDI_cursor_editRenderedDisplacement] = INTS[fEDI_cursor_editLength];
+            INTS[fEDI_cursor_edit_eventCount_drawn] = INTS[fEDI_cursor_editLength];
         }
     }
 }
@@ -3123,20 +3120,20 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
 }
 
 /**
- * TODO: The state: 'fEDI_cursor_editLineFeedCount', 'fEDI_cursor_editRenderedDisplacement', and 'fEDI_cursor_editLength'...
+ * TODO: The state: 'fEDI_cursor_editLineFeedCount', 'fEDI_cursor_edit_eventCount_drawn', and 'fEDI_cursor_editLength'...
  * ...are used in "different" ways depending on the edit and it is quite confusing.
  * 
  * For the enter key events:
  * -------------------------
  * fEDI_cursor_editLineFeedCount        => the amount of 'enter key events' that make up the batch
- * fEDI_cursor_editRenderedDisplacement => the amount of 'enter key events' that have been drawn
- *                                             (For example, 'INTS[fEDI_cursor_editLineFeedCount] === 3' and 'INTS[fEDI_cursor_editRenderedDisplacement] === 1' is to say:
+ * fEDI_cursor_edit_eventCount_drawn => the amount of 'enter key events' that have been drawn
+ *                                             (For example, 'INTS[fEDI_cursor_editLineFeedCount] === 3' and 'INTS[fEDI_cursor_edit_eventCount_drawn] === 1' is to say:
  *                                              "3 enter key events are in the current pending edit, and only 1 of them have been drawn on the UI")
  * fEDI_cursor_editLength               => the amount of bytes that will be inserted?
  * 
 */
 function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
-    if (INTS[fEDI_cursor_editRenderedDisplacement] !== INTS[fEDI_cursor_editLineFeedCount]) {
+    if (INTS[fEDI_cursor_edit_eventCount_drawn] !== INTS[fEDI_cursor_editLineFeedCount]) {
         EDI_render_do_EnterKey();
     }
 
@@ -4072,9 +4069,8 @@ function EDI_finalizeEdit_ClearEditState() {
     INTS[fEDI_cursor_editIndexLine] = 0;
     INTS[fEDI_cursor_editIndexColumn] = 0;
 
-    INTS[fEDI_cursor_editRenderedDisplacement] = 0;
-    EDI_cursor_edit_eventCount_drawn = 0;
-    EDI_cursor_edit_eventCount_occurred = 0;
+    INTS[fEDI_cursor_edit_eventCount_drawn] = 0;
+    INTS[fEDI_cursor_edit_eventCount_occurred] = 0;
 
     INTS[fEDI_cursor_END_editIndexLine] = 0;
     INTS[fEDI_cursor_END_editIndexColumn] = 0;
@@ -5717,7 +5713,7 @@ function EDI_cursor_clear() {
     INTS[fEDI_cursor_editPosition] = 0;
     INTS[fEDI_cursor_editIndexLine] = 0;
     INTS[fEDI_cursor_editIndexColumn] = 0;
-    INTS[fEDI_cursor_editRenderedDisplacement] = 0;
+    INTS[fEDI_cursor_edit_eventCount_drawn] = 0;
     INTS[fEDI_cursor_editRenderedDisplacement_INDEX_LINE_OFFSET] = 0;
     INTS[fEDI_cursor_END_editIndexLine] = 0;
     INTS[fEDI_cursor_END_editIndexColumn] = 0;

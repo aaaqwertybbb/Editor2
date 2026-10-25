@@ -456,7 +456,11 @@ const fEDI_cursor_DRAWN_selectionEnd = 39;
 const fEDI_cursor_DRAWN_selection_virtualIndexLine = 40;
 const fEDI_cursor_DRAWN_selection_virtualCount = 41;
 
-/** Not every edit makes use of an editLength. Because some edits are more computationally expensive than others. These computationally expensive edits only know the editLength at time of finalization. */
+/**
+ * Not every edit makes use of an editLength. Because some edits are more computationally expensive than others.
+ * These computationally expensive edits only know the editLength at time of finalization.
+ * This only ever should be the count of characters inserted or 0 if not applicable for the EditKind.
+ */
 const fEDI_cursor_editLength_characters = 42;
 // TODO: move 'const fEDI_cursor_editLength_bytes = 104;' closer numerically and text position
 const fEDI_cursor_editPosition = 43;

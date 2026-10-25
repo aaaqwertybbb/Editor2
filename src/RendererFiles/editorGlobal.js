@@ -1084,7 +1084,7 @@ function EDI_indentMore() {
     INTS[fEDI_indent_SMALL_lineAndColumnIndices_indexLine] = SMALL_lineAndColumnIndices_indexLine;
     INTS[fEDI_indent_startingIndex] = startingIndex;
 
-    if (INTS[fEDI_cursor_editLength_characters] === 0) {
+    if (INTS[fEDI_cursor_edit_eventCount_occurred] === 0) {
         INTS[fEDI_editret_indentLess_startingLinePos_end] = startingLinePos_end;
     } 
 
@@ -1111,7 +1111,6 @@ function EDI_indentMore() {
     //    }
     //}
 
-    INTS[fEDI_cursor_editLength_characters]++;
     INTS[fEDI_cursor_edit_eventCount_occurred]++;
     EDI_render_request(RenderKind_IndentMore);
 }
@@ -1268,7 +1267,7 @@ function EDI_indentLess() {
     INTS[fEDI_indent_SMALL_lineAndColumnIndices_indexLine] = SMALL_lineAndColumnIndices_indexLine;
     INTS[fEDI_indent_startingIndex] = startingIndex;
 
-    if (INTS[fEDI_cursor_editLength_characters] === 0) {
+    if (INTS[fEDI_cursor_edit_eventCount_occurred] === 0) {
         INTS[fEDI_editret_indentLess_startingLinePos_end] = startingLinePos_end;
     }
 
@@ -1282,7 +1281,6 @@ function EDI_indentLess() {
     //    INTS[fEDI_cursor_selectionAnchor] -= ORIGINAL_decrementBy;
     //}
 
-    INTS[fEDI_cursor_editLength_characters]++;
     INTS[fEDI_cursor_edit_eventCount_occurred]++;
     EDI_render_request(RenderKind_IndentLess);
 }
@@ -1638,20 +1636,19 @@ function EDI_render_do_TabKey() {
 }
 
 function EDI_tabKey() {
-
-    if (INTS[fEDI_cursor_editLength_characters] === 0) {
+    if (INTS[fEDI_cursor_edit_eventCount_occurred] === 0) {
         INTS[fEDI_cursor_editPosition] = EDI_getPositionIndex_cursor_raw();
         INTS[fEDI_cursor_editIndexLine] = INTS[fEDI_cursor_indexLine];
         INTS[fEDI_cursor_editIndexColumn] = INTS[fEDI_cursor_indexColumn];
     }
 
-    INTS[fEDI_cursor_editLength_characters]++;
     INTS[fEDI_cursor_edit_eventCount_occurred]++;
 
     // TODO: I probably don't want these if else statements in here long term.
     if (EDI_on_tab_bytes.length === 4) {
         // 4 space characters are being inserted.
         INTS[fEDI_cursorVisualColumnIndex] += EDI_on_tab_bytes.length;
+        INTS[fEDI_cursor_editLength_characters] += EDI_on_tab_bytes.length;
     }
     else {
         // 1 tab character ('\t') is being inserted
@@ -1660,13 +1657,14 @@ function EDI_tabKey() {
         // Tab Length (L) = 4 - (col (mod 4));
         let tabLengthL = 4 - (INTS[fEDI_cursorVisualColumnIndex] % 4);
         INTS[fEDI_cursorVisualColumnIndex] += tabLengthL;
-        if (INTS[fEDI_cursor_editLength_characters] === 1) {
+        INTS[fEDI_cursor_editLength_characters] += EDI_on_tab_bytes.length;
+        if (INTS[fEDI_cursor_edit_eventCount_occurred] === 1) {
             //
             // TODO: Don't do this...
             // ...but the first tab might not be a tab-width of 4.
             // Since this code exists already that gets the tabLength,
-            // and INTS[fEDI_cursor_editLength_characters] was just incremented,
-            // then if 'INTS[fEDI_cursor_editLength_characters] === 1' then this is the tab being typed
+            // and INTS[fEDI_cursor_edit_eventCount_occurred] was just incremented,
+            // then if 'INTS[fEDI_cursor_edit_eventCount_occurred] === 1' then this is the tab being typed
             // of this edit batch.
             //
             // The 'INTS[fEDI_cursor_editLengthVisual]' isn't currently being used for
@@ -1834,20 +1832,11 @@ function EDI_render_do_EnterKey() {
 /**
  * @param {boolean} ctrlKey 
  * @param {boolean} shiftKey 
- * @returns 
- * 
- * The batching logic is a pattern of (for this function):
- *     if (INTS[fEDI_cursor_editLength_characters] === 0) {...}
- * 
- * 3 cases:
- * - "start of line":
- * - "end of line":
- * - "among a line":
  */
 function EDI_EnterKey(ctrlKey, originalIndexLine, originalIndexColumn) {
     const lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
 
-    if (INTS[fEDI_cursor_editLength_characters] === 0) {
+    if (INTS[fEDI_cursor_edit_eventCount_occurred] === 0) {
         BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_None;
         INTS[fEDI_cursor_editPosition] = EDI_getPositionIndex_cursor_raw();
         INTS[fEDI_cursor_editIndexLine] = INTS[fEDI_cursor_indexLine];
@@ -2873,7 +2862,7 @@ function EDI_editEvent_checkFor_NOTcanBatch_Tab(event) {
         else {
             if (INTS[fEDI_cursor_editKind] === EditKind_Tab &&
                 INTS[fEDI_cursor_editIndexLine] === INTS[fEDI_cursor_indexLine] &&
-                INTS[fEDI_cursor_editIndexColumn] + (EDI_on_tab_bytes.length * INTS[fEDI_cursor_editLength_characters]) === INTS[fEDI_cursor_indexColumn] &&
+                INTS[fEDI_cursor_editIndexColumn] + INTS[fEDI_cursor_editLength_characters] === INTS[fEDI_cursor_indexColumn] &&
                 INTS[fEDI_cursor_editLength_characters] < CONST_EDI_cursor_GAP_BUFFER_CAPACITY) {
                     return false;
             }
@@ -3197,7 +3186,6 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     }
 
     for (var i = actualIndexLine; i < INTS[fEDI_lineEndPositionList_count]; i++) {
-        // TODO: the loose meaning of 'fEDI_cursor_editLength_characters' is bothersome
         EDI_lineEndPositionList_data[i] += INTS[fEDI_cursor_editLength_characters];
     }
 
@@ -3302,8 +3290,8 @@ function EDI_finalizeEdit_Tab(indexLine_editOccurredOn) {
     const per_edit_length = bytes.length;
     let length = per_edit_length;
 
-    if (INTS[fEDI_cursor_editLength_characters] > 1) {
-        length *= INTS[fEDI_cursor_editLength_characters];
+    if (INTS[fEDI_cursor_edit_eventCount_occurred] > 1) {
+        length *= INTS[fEDI_cursor_edit_eventCount_occurred];
         const src_bytes = bytes;
         bytes = new Uint8Array(length);
         // TODO: typed array function usage
@@ -3381,10 +3369,10 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
     
     let bytesLength = per_edit_length;
 
-    if (INTS[fEDI_cursor_editLength_characters] > 1) {
-        ORIGINAL_incrementBy *= INTS[fEDI_cursor_editLength_characters];
-        incrementBy *= INTS[fEDI_cursor_editLength_characters];
-        bytesLength *= INTS[fEDI_cursor_editLength_characters];
+    if (INTS[fEDI_cursor_edit_eventCount_occurred] > 1) {
+        ORIGINAL_incrementBy *= INTS[fEDI_cursor_edit_eventCount_occurred];
+        incrementBy *= INTS[fEDI_cursor_edit_eventCount_occurred];
+        bytesLength *= INTS[fEDI_cursor_edit_eventCount_occurred];
         const src_bytes = bytes;
         bytes = new Uint8Array(bytesLength);
         // TODO: typed array function usage
@@ -3495,8 +3483,8 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
     // !!!!!! watch out for the big breaks when hitting a tab presuming that_four is 4
     // If I could go back in time I'd go back to the day I thought it a good idea to name this variable 'that_four'
     let maxVirtualColumnIndex = 4;
-    maxVirtualColumnIndex *= INTS[fEDI_cursor_editLength_characters];
-    let largestRank = INTS[fEDI_cursor_editLength_characters];
+    maxVirtualColumnIndex *= INTS[fEDI_cursor_edit_eventCount_occurred];
+    let largestRank = INTS[fEDI_cursor_edit_eventCount_occurred];
 
     // loop over the lines to sum the "amount" of whitespace being removed
     let DETERMINE_decrementBy = 0;
@@ -5655,6 +5643,7 @@ async function EDI_onKeyDown_keyLengthEqualsOne_ctrlKey(event) {
 function EDI_autocomplete_get_filter() {
     let wordToLeftOfCursor = '';
     if (INTS[fEDI_cursor_editKind] === EditKind_None || INTS[fEDI_cursor_editKind] === EditKind_InsertLtr) {
+        // TODO: this is just to say 'INTS[fEDI_cursor_editIndexColumn]'? (in the case of 'EditKind_InsertLtr')
         let columnNoEdit = INTS[fEDI_cursor_indexColumn] - INTS[fEDI_cursor_editLength_characters];
         if (columnNoEdit > 0) {
             let position = EDI_getPositionIndex_cursor_raw() - INTS[fEDI_cursor_editLength_characters];

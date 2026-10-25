@@ -1540,3 +1540,11 @@ Negative
 
 
 changing tab kind from tab to spaces or vice versa needs to trigger a finalize
+
+TODO: I don't understand how 'let EDI_cursor_edit_flagLineChanged = -1;' works, it gets the INTS[fEDI_cursor_editLength_characters] that isn't a column?...
+...I get it, you're doing the minus of it to get the column...
+...this can safely just start at 0 then instead of -1.
+
+Does both delete and backspace work then spanning more than one line?
+- [ ] delete
+- [ ] backspace

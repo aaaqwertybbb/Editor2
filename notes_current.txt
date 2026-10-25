@@ -1441,7 +1441,7 @@ Positive
 - [x] EditKind_InsertLtr
 - [x] EditKind_Enter
 - [x] EditKind_Tab
-- [ ] EditKind_Paste
+- [x] EditKind_Paste
 - [ ] EditKind_Duplicate
 - [ ] EditKind_IndentMore
 

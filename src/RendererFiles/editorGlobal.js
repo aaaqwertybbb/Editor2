@@ -1366,149 +1366,137 @@ function EDI_render_do_DuplicateOrPaste() {
         return;
     }
 
-    let needsToRender = false;
-    let byteArray = null;
-    let insert_character_count = 0;
-    let positionIndex = 0;
-    let linesInsertedCount = 0;
+    while (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
+        INTS[fEDI_cursor_edit_eventCount_drawn]++;
 
-    if (INTS[fEDI_cursor_editKind] === EditKind_Duplicate) {
-        if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_editLength]) {
-            needsToRender = true;
+        let byteArray = null;
+        let insert_character_count = 0;
+        let linesInsertedCount = 0;
+
+        if (INTS[fEDI_cursor_editKind] === EditKind_Duplicate) {
             INTS[fEDI_cursor_edit_eventCount_drawn]++;
-            const large = INTS[fEDI_editret_cursor_EDI_duplicate_small] + insert_character_count;
             byteArray = EDI_cursor_EDI_duplication_bytes;
             insert_character_count = byteArray.length;
-            positionIndex = large;
             linesInsertedCount = EDI_cursor_EDI_duplication_totalLineEndCount;
         }
-    }
-    else if (INTS[fEDI_cursor_editKind] === EditKind_Paste) {
-        if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
-            needsToRender = true;
+        else if (INTS[fEDI_cursor_editKind] === EditKind_Paste) {
             INTS[fEDI_cursor_edit_eventCount_drawn]++;
             byteArray = EDI_cursor_EDI_paste_clipboardContent_bytes;
-            INTS[fEDI_cursor_editLength] = byteArray.length;
-            positionIndex = EDI_getPositionIndex_cursor_raw();
             insert_character_count = EDI_cursor_EDI_paste_clipboardContent_string.length;
             linesInsertedCount = EDI_cursor_EDI_paste_clipboardContent_totalLineEndCount;
         }
-    }
 
-    if (!needsToRender) {
-        return;
-    }
-
-    walkLineUntilIndexColumn();
-    if (w_div === w_divNONE) {
-        // TODO: silent error bad
-        //alert('// EDI_paste TODO: silent error bad');
-        return;
-    }
-
-    let insertionLength = 0;
-
-    /** is a 0 based index, inclusive */
-    let wordStart = 0;
-    let wordLength = 0;
-
-    // No need to consider '\r\n' and etc... only '\n'
-    let linefeedLength = 0;
-
-    // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
-    let ringBufferIndex_current = INTS[fEDI_cursor_indexLine] - INTS[fEDI_virtualIndexLine];
-    if (ringBufferIndex_current >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_current < 0) ringBufferIndex_current = -1;
-    else ringBufferIndex_current = (ringBufferIndex_current + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
-
-    // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
-    let ringBufferIndex_first = INTS[fEDI_virtualIndexLine] - INTS[fEDI_virtualIndexLine]; // I found it 'INTS[fEDI_virtualIndexLine] - INTS[fEDI_virtualIndexLine]'
-    if (ringBufferIndex_first >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_first < 0) ringBufferIndex_first = -1;
-    else ringBufferIndex_first = (ringBufferIndex_first + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
-
-    // TODO: Use PREVIOUS here from 'ringBufferIndex_first'
-
-    // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
-    let ringBufferIndex_last = (INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1) - INTS[fEDI_virtualIndexLine];
-    if (ringBufferIndex_last >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_last < 0) ringBufferIndex_last = -1;
-    else ringBufferIndex_last = (ringBufferIndex_last + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
-
-    /** TODO: All this variable needs to be is a boolean for whether you're at the end of the line or not. */
-    let last_valid_indexColumn_currentLine_isAt = INTS[fEDI_cursor_indexColumn] === EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
-
-    // TODO: An optimization to check whether you even need to redraw any lines perhaps is possible but it would add too much complexity at the moment and so it isn't being considered...
-    // ...i.e.: if you're inserting so many lines that you know you'll scroll or that only a small amount of lines need to be redrawn due to predicting a scroll event.
-
-    // idk I gotta go cook/eat a lb of 98% fat free ground chicken with sriracha
-
-    let offset = 0;
-
-    /**
-     * 0 => None,
-     * 1 => '\n',
-     * 2 => wordLetterOrDigit
-     */
-    let characterKindNumber_NEEDS_WRITTEN = 0;
-
-    let functionState = {
-        ringBufferIndex_current: ringBufferIndex_current,
-        ringBufferIndex_first: ringBufferIndex_first,
-        ringBufferIndex_last: ringBufferIndex_last,
-        last_valid_indexColumn_currentLine_isAt: last_valid_indexColumn_currentLine_isAt,
-    };
-
-    while (true) {
-
-        characterKindNumber_NEEDS_WRITTEN = 0;
-
-        if (offset >= insert_character_count) {
-            if (wordLength > 0) characterKindNumber_NEEDS_WRITTEN = 2/*wordLetterOrDigit*/;
-            else if (linefeedLength > 0) characterKindNumber_NEEDS_WRITTEN = 1/*'\n'*/;
+        walkLineUntilIndexColumn();
+        if (w_div === w_divNONE) {
+            // TODO: silent error bad
+            //alert('// EDI_paste TODO: silent error bad');
+            return;
         }
-        else {
-            switch (byteArray[offset]) {
-                case 10:
-                    if (wordLength > 0) characterKindNumber_NEEDS_WRITTEN = 2/*wordLetterOrDigit*/;
+
+        let insertionLength = 0;
+
+        /** is a 0 based index, inclusive */
+        let wordStart = 0;
+        let wordLength = 0;
+
+        // No need to consider '\r\n' and etc... only '\n'
+        let linefeedLength = 0;
+
+        // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
+        let ringBufferIndex_current = INTS[fEDI_cursor_indexLine] - INTS[fEDI_virtualIndexLine];
+        if (ringBufferIndex_current >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_current < 0) ringBufferIndex_current = -1;
+        else ringBufferIndex_current = (ringBufferIndex_current + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
+
+        // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
+        let ringBufferIndex_first = INTS[fEDI_virtualIndexLine] - INTS[fEDI_virtualIndexLine]; // I found it 'INTS[fEDI_virtualIndexLine] - INTS[fEDI_virtualIndexLine]'
+        if (ringBufferIndex_first >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_first < 0) ringBufferIndex_first = -1;
+        else ringBufferIndex_first = (ringBufferIndex_first + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
+
+        // TODO: Use PREVIOUS here from 'ringBufferIndex_first'
+
+        // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
+        let ringBufferIndex_last = (INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1) - INTS[fEDI_virtualIndexLine];
+        if (ringBufferIndex_last >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_last < 0) ringBufferIndex_last = -1;
+        else ringBufferIndex_last = (ringBufferIndex_last + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
+
+        /** TODO: All this variable needs to be is a boolean for whether you're at the end of the line or not. */
+        let last_valid_indexColumn_currentLine_isAt = INTS[fEDI_cursor_indexColumn] === EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
+
+        // TODO: An optimization to check whether you even need to redraw any lines perhaps is possible but it would add too much complexity at the moment and so it isn't being considered...
+        // ...i.e.: if you're inserting so many lines that you know you'll scroll or that only a small amount of lines need to be redrawn due to predicting a scroll event.
+
+        // idk I gotta go cook/eat a lb of 98% fat free ground chicken with sriracha
+
+        let offset = 0;
+
+        /**
+         * 0 => None,
+         * 1 => '\n',
+         * 2 => wordLetterOrDigit
+         */
+        let characterKindNumber_NEEDS_WRITTEN = 0;
+
+        let functionState = {
+            ringBufferIndex_current: ringBufferIndex_current,
+            ringBufferIndex_first: ringBufferIndex_first,
+            ringBufferIndex_last: ringBufferIndex_last,
+            last_valid_indexColumn_currentLine_isAt: last_valid_indexColumn_currentLine_isAt,
+        };
+
+        while (true) {
+
+            characterKindNumber_NEEDS_WRITTEN = 0;
+
+            if (offset >= insert_character_count) {
+                if (wordLength > 0) characterKindNumber_NEEDS_WRITTEN = 2/*wordLetterOrDigit*/;
+                else if (linefeedLength > 0) characterKindNumber_NEEDS_WRITTEN = 1/*'\n'*/;
+            }
+            else {
+                switch (byteArray[offset]) {
+                    case 10:
+                        if (wordLength > 0) characterKindNumber_NEEDS_WRITTEN = 2/*wordLetterOrDigit*/;
+                        break;
+                    default:
+                        if (linefeedLength > 0) characterKindNumber_NEEDS_WRITTEN = 1/*'\n'*/;
+                        break;
+                }
+            }
+            switch (characterKindNumber_NEEDS_WRITTEN) {
+                case 1/*'\n'*/:
+                    DUPLICATE_writeLinefeed(functionState, linefeedLength);
+                    linefeedLength = 0;
                     break;
-                default:
-                    if (linefeedLength > 0) characterKindNumber_NEEDS_WRITTEN = 1/*'\n'*/;
+                case 2/*wordLetterOrDigit*/:
+                    EDI_duplicate_and_paste_writeWord(wordLength, EDI_decoder.decode(byteArray.subarray(wordStart, wordStart + wordLength)));
+                    wordStart = 0;
+                    wordLength = 0;
                     break;
             }
-        }
-        switch (characterKindNumber_NEEDS_WRITTEN) {
-            case 1/*'\n'*/:
-                DUPLICATE_writeLinefeed(functionState, linefeedLength);
-                linefeedLength = 0;
-                break;
-            case 2/*wordLetterOrDigit*/:
-                EDI_duplicate_and_paste_writeWord(wordLength, EDI_decoder.decode(byteArray.subarray(wordStart, wordStart + wordLength)));
-                wordStart = 0;
-                wordLength = 0;
-                break;
-        }
 
-        if (offset >= insert_character_count) {
-            break;
-        }
-        else {
-            switch (byteArray[offset]) {
-                case 10:
-                    insertionLength++;
-                    linefeedLength++;
-                    break;
-                default:
-                    insertionLength++;
-                    if (wordLength === 0) { wordStart = offset; }
-                    wordLength++;
-                    break;
+            if (offset >= insert_character_count) {
+                break;
             }
+            else {
+                switch (byteArray[offset]) {
+                    case 10:
+                        insertionLength++;
+                        linefeedLength++;
+                        break;
+                    default:
+                        insertionLength++;
+                        if (wordLength === 0) { wordStart = offset; }
+                        wordLength++;
+                        break;
+                }
+            }
+
+            ++offset;
         }
 
-        ++offset;
-    }
-
-    if (linesInsertedCount > 0) {
-        update_verticalVirtualizationBoundary(INTS[fEDI_lineEndPositionList_count] + linesInsertedCount);
-        EDI_lineWasInsertedValidateGutter(INTS[fEDI_lineEndPositionList_count] + linesInsertedCount);
+        if (linesInsertedCount > 0) {
+            update_verticalVirtualizationBoundary(INTS[fEDI_lineEndPositionList_count] + linesInsertedCount);
+            EDI_lineWasInsertedValidateGutter(INTS[fEDI_lineEndPositionList_count] + linesInsertedCount);
+        }
     }
 }
 
@@ -1602,12 +1590,11 @@ function EDI_duplicate_and_paste_writeWord(wordLength, word) {
 }
 
 function EDI_paste() {
-    let positionIndex = EDI_getPositionIndex_cursor_raw();
-
-    INTS[fEDI_cursor_editPosition] = positionIndex;
+    INTS[fEDI_cursor_editPosition] = EDI_getPositionIndex_cursor_raw();
     INTS[fEDI_cursor_editIndexLine] = INTS[fEDI_cursor_indexLine];
     INTS[fEDI_cursor_editIndexColumn] = INTS[fEDI_cursor_indexColumn];
     INTS[fEDI_cursor_edit_eventCount_occurred]++;
+    INTS[fEDI_cursor_editLength] = EDI_cursor_EDI_paste_clipboardContent_bytes.length;
 
     // TODO: The previous render logic was actually moving the cursor as well. Just something to keep in mind, you might see a bug related to this.
     // TODO: ^Moving the cursor would be done here.

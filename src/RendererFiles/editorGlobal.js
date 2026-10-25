@@ -394,10 +394,10 @@ function EDI_render_request(renderKind) {
 function EDI_clearHighlights_all() {
     for (let i = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.length - 1; i >= 0; i--) {
         // TODO: length = 0?
-        let p = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[i];
-        let k = p.pop();
-        while (k) {
-            k = p.pop();
+        let arrayOfRangeObjectsOnLine = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[i];
+        let range = arrayOfRangeObjectsOnLine.pop();
+        while (range) {
+            range = arrayOfRangeObjectsOnLine.pop();
         }
     }
     keywordHighlight.clear();

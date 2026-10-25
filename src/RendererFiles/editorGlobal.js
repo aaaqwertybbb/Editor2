@@ -967,26 +967,22 @@ function countNewlines(sourceString) {
 }
 
 function EDI_render_do_IndentMore() {
-    // When you're done with IndentLess batch editing correctly.
-    // You still need to come back to the render for
-    // - [ ] IndentMore and
-    // - [ ] IndentLess
-    //
-    // and ensure that they render properly. This currently if two edits get done in a single "rAF" the second is cancelled for redundancy yet each one only handles 1 editDisplacement so you missed 1 displacement.
+    
+    if (INTS[fEDI_cursor_editKind] !== EditKind_IndentMore) {
+        return;
+    }
+
+    if (INTS[fEDI_cursor_edit_eventCount_drawn] >= INTS[fEDI_cursor_edit_eventCount_occurred]) {
+        return;
+    }
 
     let startingIndex = INTS[fEDI_indent_startingIndex];
     let SMALL_lineAndColumnIndices_indexLine = INTS[fEDI_indent_SMALL_lineAndColumnIndices_indexLine];
 
     // TODO: Consider having this string available rather than making it everytime this function is invoked.
-    let EDI_on_tab_string = '';
-    for (let i = 0; i < EDI_on_tab_bytes.length; i++) {
-        EDI_on_tab_string += String.fromCharCode(EDI_on_tab_bytes[i]);
-    }
-
-    if (INTS[fEDI_cursor_editKind] !== EditKind_IndentMore) {
-        return;
-    }
-    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_editLength]) {
+    let EDI_on_tab_string = EDI_decoder.decode(EDI_on_tab_bytes);
+    
+    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
         INTS[fEDI_cursor_edit_eventCount_drawn]++;
         for (var lineI = startingIndex; lineI >= SMALL_lineAndColumnIndices_indexLine; lineI--) {
             // Draw the line to reflect the edit, if it is being currently shown on screen.
@@ -1115,6 +1111,7 @@ function EDI_indentMore() {
     //}
 
     INTS[fEDI_cursor_editLength]++;
+    INTS[fEDI_cursor_edit_eventCount_occurred]++;
     EDI_render_request(RenderKind_IndentMore);
 }
 

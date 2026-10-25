@@ -1704,7 +1704,7 @@ function EDI_render_do_EnterKey() {
     }
 
     // TODO: instead of a loop, handle the rendering in a more optimized bulk operation that renders the remaining 'INTS[fEDI_cursor_editLineFeedCount] - INTS[fEDI_cursor_edit_eventCount_drawn]'
-    while (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_editLineFeedCount]) {
+    while (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
         INTS[fEDI_cursor_edit_eventCount_drawn]++;
 
         const local_EDI_lineEndPositionList_count = INTS[fEDI_lineEndPositionList_count] + INTS[fEDI_cursor_edit_eventCount_drawn] - 1;
@@ -1892,6 +1892,7 @@ function EDI_EnterKey(ctrlKey, originalIndexLine, originalIndexColumn) {
     INTS[fEDI_cursorVisualColumnIndex] = INTS[fEDI_cursor_cached_indentation_string_visualWidth]; // the indentation_string doesn't include the newline
     INTS[fEDI_cursor_editLength] += insertionCount;
     INTS[fEDI_cursor_editLineFeedCount]++;
+    INTS[fEDI_cursor_edit_eventCount_occurred]++;
 
     INTS[fEDI_cursor_END_editIndexLine] = INTS[fEDI_cursor_indexLine];
     INTS[fEDI_cursor_END_editIndexColumn] = INTS[fEDI_cursor_indexColumn];

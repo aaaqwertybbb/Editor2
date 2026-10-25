@@ -1439,7 +1439,7 @@ are all being used in the wording that is intended.
 Positive
 ========
 - [x] EditKind_InsertLtr
-- [ ] EditKind_Enter
+- [x] EditKind_Enter
 - [ ] EditKind_Tab
 - [ ] EditKind_Paste
 - [ ] EditKind_Duplicate

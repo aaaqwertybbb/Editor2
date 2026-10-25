@@ -7690,20 +7690,6 @@ function EDI_btnNext_onclick() {
 
 //#region textByteList
 /**
- * TODO: ensure all the parameters are encoded, especially because I'm noticing myself forgetting.
- */
-function EDI_textByteList_insert(index, byte) {
-    EDI_textByteList_ensureCapacityForInsertion(index, 1);
-
-    if (index !== INTS[fEDI_textByteList_count]) {
-        EDI_textByteList_copyTo(EDI_textByteList_bytes, index, EDI_textByteList_bytes, index + 1, INTS[fEDI_textByteList_count] - index);
-    }
-
-    EDI_textByteList_bytes[index] = byte;
-
-    INTS[fEDI_textByteList_count]++;
-}
-/**
  * @param {number} index 
  * @param {Uint8Array} incomingBs the incoming bytes, name avoids confusion with EDI_textByteList_bytes
  * @param {number} offset the offset to begin reading from
@@ -7864,20 +7850,6 @@ function EDI_textByteList_copyTo(bytesSource, sourceStart, bytesDestination, des
 //#endregion
 
 //#region EDI_styleBuffer
-/**
- * TODO: ensure all the parameters are encoded, especially because I'm noticing myself forgetting.
- */
-function EDI_styleBuffer_insert(index, byte) {
-    EDI_styleBuffer_ensureCapacityForInsertion(index, 1);
-
-    if (index !== EDI_styleBuffer_count) {
-        EDI_styleBuffer_copyTo(EDI_styleBuffer, index, EDI_styleBuffer, index + 1, EDI_styleBuffer_count - index);
-    }
-
-    EDI_styleBuffer[index] = byte;
-
-    EDI_styleBuffer_count++;
-}
 /**
  * TODO: if you are just inserting 0's add a function for that or maybe a function for anything and then you're inserting it at each position for a length from an offset.
  * 

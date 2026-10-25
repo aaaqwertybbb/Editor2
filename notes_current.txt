@@ -1459,6 +1459,8 @@ TODO: You need to handle keyboard events differently at a level that permits the
 TODO: You need to change all variables that say something along the lines of "length" to be "byteLength/characterLength"
 TODO: You need to change all variables that say something along the lines of "position" to be "bytePosition/characterPosition"
 
+====
 
+TODO: avoid massively expensive and wasteful rendering of pastes that exceed a lineEndCount that is greater than the amount of lines of text that can fit on screen etc...
 
 

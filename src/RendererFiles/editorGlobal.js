@@ -416,6 +416,7 @@ function EDI_clearHighlights_all() {
     identifierHighlight.clear();
     commentHighlight.clear();
     stringHighlight.clear();
+    typeHighlight.clear();
 }
 
 /**
@@ -433,7 +434,8 @@ function EDI_clearHighlights_single(ringBufferIndexOfDiv) {
             keywordControlHighlight.delete(range) ||
             functionHighlight.delete(range) ||
             commentHighlight.delete(range) ||
-            stringHighlight.delete(range)) {
+            stringHighlight.delete(range) ||
+            typeHighlight.delete(range)) {
                 // literally do nothing
         }
         range = arrayOfRangeObjectsOnLine.pop();

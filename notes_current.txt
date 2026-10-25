@@ -1868,3 +1868,7 @@ Uncaught TypeError: Failed to execute 'removeChild' on 'Node': parameter 1 is no
     at EDI_render_do_RedrawSelection (__COMPILEDbundle__.js:6217:3)
     at EDI_render_do_SyntaxHighlighting (__COMPILEDbundle__.js:6395:5)
     at EDI_render_do (__COMPILEDbundle__.js:2679:9)
+
+======
+
+I gotta eat / exercise

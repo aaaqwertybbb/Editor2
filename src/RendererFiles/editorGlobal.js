@@ -251,6 +251,13 @@ let EDI_styleBuffer = new Uint8Array(0);
 let EDI_styleBuffer_count = 0;
 let EDI_styleBuffer_capacity = 0;
 
+const EDI_rangeInit = {
+    startContainer: null,
+    startOffset: 0,
+    endContainer: null,
+    endOffset: 0
+};
+
 const keywordHighlight = new Highlight();
 CSS.highlights.set("js-keywords", keywordHighlight);
 const keywordControlHighlight = new Highlight();
@@ -6439,6 +6446,9 @@ function EDI_render_do_SyntaxHighlighting() {
 function EDI_syntaxHighlight_parallelArray(div, ringBufferIndexOfDiv, lineStart, lineEnd) {
     const textNode = div.firstChild;
 
+    EDI_rangeInit.startContainer = textNode;
+    EDI_rangeInit.endContainer = textNode;
+
     let start = 0;
     let length = 0;
 
@@ -6470,9 +6480,9 @@ function EDI_syntaxHighlight_parallelArray(div, ringBufferIndexOfDiv, lineStart,
                     break outerWhile;
                 }
                 if (EDI_styleBuffer[i] !== originalStyleByte) {
-                    let range = new Range();
-                    range.setStart(textNode, start);
-                    range.setEnd(textNode, start + length);
+                    EDI_rangeInit.startOffset = start;
+                    EDI_rangeInit.endOffset = start + length;
+                    let range = new StaticRange(EDI_rangeInit);
                     arrayOfRangeObjectsOnLine.push(range);
                     if (originalStyleByte === 1) {
                         stringHighlight.add(range);
@@ -6506,9 +6516,9 @@ function EDI_syntaxHighlight_parallelArray(div, ringBufferIndexOfDiv, lineStart,
     }
 
     if (length > 0 && TRAILINGstyleByteTRAILING !== 0) {
-        let range = new Range();
-        range.setStart(textNode, start);
-        range.setEnd(textNode, start + length);
+        EDI_rangeInit.startOffset = start;
+        EDI_rangeInit.endOffset = start + length;
+        let range = new StaticRange(EDI_rangeInit);
         arrayOfRangeObjectsOnLine.push(range);
         if (TRAILINGstyleByteTRAILING === 1) {
             stringHighlight.add(range);
@@ -6535,6 +6545,9 @@ function EDI_syntaxHighlight_parallelArray(div, ringBufferIndexOfDiv, lineStart,
             functionHighlight.add(range);
         }
     }
+
+    EDI_rangeInit.startContainer = null;
+    EDI_rangeInit.endContainer = null;
 }
 
 /**

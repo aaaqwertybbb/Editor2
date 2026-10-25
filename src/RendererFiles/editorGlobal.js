@@ -777,8 +777,8 @@ function EDI_state_clear(trackingUint32MaxHeap_initialCapacity) {
     EDI_lineEndString = null;
     // TODO: Maybe re-use the 'TrackingUint32MaxHeap' rather than making a new one everytime
     EDI_trackingUint32MaxHeap = new TrackingUint32MaxHeap(trackingUint32MaxHeap_initialCapacity);
-    EDI_lineEndPositionList_clear();
-    EDI_textByteList_clear();
+    INTS[fEDI_lineEndPositionList_count] = 0;
+    INTS[fEDI_textByteList_count] = 0;
     INTS[fEDI_longestLine_indexLine] = 0;
     INTS[fEDI_longestLine_length] = 0;
     
@@ -7690,12 +7690,6 @@ function EDI_btnNext_onclick() {
 
 //#region textByteList
 /**
- * Does not clear the information, only sets 'INTS[fEDI_textByteList_count]' to '0'.
- */
-function EDI_textByteList_clear() {
-    INTS[fEDI_textByteList_count] = 0;
-}
-/**
  * TODO: ensure all the parameters are encoded, especially because I'm noticing myself forgetting.
  */
 function EDI_textByteList_insert(index, byte) {
@@ -7871,12 +7865,6 @@ function EDI_textByteList_copyTo(bytesSource, sourceStart, bytesDestination, des
 
 //#region EDI_styleBuffer
 /**
- * Does not clear the information, only sets 'EDI_styleBuffer_count' to '0'.
- */
-function EDI_styleBuffer_clear() {
-    EDI_styleBuffer_count = 0;
-}
-/**
  * TODO: ensure all the parameters are encoded, especially because I'm noticing myself forgetting.
  */
 function EDI_styleBuffer_insert(index, byte) {
@@ -8024,12 +8012,6 @@ function EDI_styleBuffer_copyTo(bytesSource, sourceStart, bytesDestination, dest
 //#endregion
 
 //#region lineEndPositionList
-/**
- * Does not clear the information, only sets 'INTS[fEDI_lineEndPositionList_count]' to '0'.
- */
-function EDI_lineEndPositionList_clear() {
-    INTS[fEDI_lineEndPositionList_count] = 0;
-}
 /**
  * 'EDI_lineEndPositionList_UNSAFEinsertUNSAFE' is a "function" that is explicitly inlined in the 'EDI_state_setText_byteArray' function.
  * If you modify this function you may need to find the comments with 'EDI_lineEndPositionList_UNSAFEinsertUNSAFE' and update the explicitly inlined logic.

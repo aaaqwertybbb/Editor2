@@ -1671,3 +1671,5 @@ That being said the UI modifications are the bulk of the performance issues. Jus
 should I private this repo but make another one so I have fresh git history?
 I'm thinking about doing it
 I'm not gonna do it but I'm thinking about it is all
+
+- [ ] Resize the window needs to redraw the cursor caret row if the content width is less than the visible width of the UI

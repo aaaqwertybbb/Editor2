@@ -1496,6 +1496,8 @@ function EDI_render_do_DuplicateOrPaste() {
             EDI_lineWasInsertedValidateGutter(INTS[fEDI_lineEndPositionList_count] + linesInsertedCount);
         }
     }
+
+    INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
 }
 
 /**

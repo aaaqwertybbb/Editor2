@@ -1538,7 +1538,7 @@ Positive
     - [x] simple
     - [ ] complex
 - [ ] EditKind_Paste
-    - [ ] simple
+    - [x] simple
     - [ ] complex
 - [ ] EditKind_Duplicate
     - [ ] simple
@@ -1556,7 +1556,43 @@ Negative
 
 
 
+TODO: do it again but save out each edit and make sure it happened correctly.
 
+Positive
+========
+- [ ] EditKind_InsertLtr
+    - [x] simple
+    - [ ] complex
+- [ ] EditKind_Enter
+    - [x] simple
+    - [ ] complex
+- [ ] EditKind_Tab
+    - [x] simple
+    - [ ] complex
+- [ ] EditKind_Paste
+    - [x] simple
+    - [ ] complex
+- [ ] EditKind_Duplicate
+    - [x] simple
+    - [ ] complex
+- [ ] EditKind_IndentMore
+    - [x] simple
+    - [ ] complex
+
+Negative
+========
+- [ ] EditKind_DeleteLtr
+    - [x] simple
+    - [ ] complex
+- [ ] EditKind_BackspaceRtl
+    - [x] simple
+    - [ ] complex
+- [ ] EditKind_RemoveTextNoBatching
+    - [x] simple
+    - [ ] complex
+- [ ] EditKind_IndentLess
+    - [x] simple
+    - [ ] complex
 
 
 

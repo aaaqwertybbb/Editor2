@@ -418,7 +418,7 @@ function EDI_clearHighlights_all() {
  */
 function EDI_clearHighlights_single(ringBufferIndexOfDiv) {
     const arrayOfRangeObjectsOnLine = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndexOfDiv];
-    const range = arrayOfRangeObjectsOnLine.pop();
+    let range = arrayOfRangeObjectsOnLine.pop();
     while (range) {
         if (identifierHighlight.delete(range) ||
             keywordHighlight.delete(range) ||

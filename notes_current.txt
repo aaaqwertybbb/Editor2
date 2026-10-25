@@ -1529,13 +1529,13 @@ TODO: check that every one of them works
 Positive
 ========
 - [ ] EditKind_InsertLtr
-    - [ ] simple
+    - [x] simple
     - [ ] complex
 - [ ] EditKind_Enter
-    - [ ] simple
+    - [x] simple
     - [ ] complex
 - [ ] EditKind_Tab
-    - [ ] simple
+    - [x] simple
     - [ ] complex
 - [ ] EditKind_Paste
     - [ ] simple

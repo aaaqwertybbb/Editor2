@@ -1683,6 +1683,7 @@ function EDI_tabKey() {
 
     INTS[fEDI_cursor_indexColumn] += EDI_on_tab_bytes.length;
 
+    INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
     EDI_render_request(RenderKind_TabKey);
 }
 

@@ -1486,3 +1486,8 @@ Negative
 - [ ] EditKind_IndentLess
 
 
+
+
+delete key if cursor is opacity 0 doesn't pause at 1 but it does if any other key seemingly move the cursor is reason ???
+
+

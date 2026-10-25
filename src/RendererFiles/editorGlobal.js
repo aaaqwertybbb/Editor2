@@ -2168,15 +2168,18 @@ function EDI_render_do_Delete() {
     if (INTS[fEDI_cursor_editKind] !== EditKind_DeleteLtr) {
         return;
     }
-    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_editLength]) {
+
+    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
+        INTS[fEDI_cursor_edit_eventCount_drawn] = INTS[fEDI_cursor_edit_eventCount_occurred];
+
         walkLineUntilIndexColumn();
 
         if (w_div === w_divNONE) {
             // TODO: this
         }
         else {
-            let remaining = INTS[fEDI_cursor_editLength] - INTS[fEDI_cursor_edit_eventCount_drawn];
-            INTS[fEDI_cursor_edit_eventCount_drawn] = INTS[fEDI_cursor_editLength];
+            let remaining = INTS[fEDI_cursor_editLength] - INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue];
+            INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue] = INTS[fEDI_cursor_editLength];
             while (remaining > 0) {
                 // When the cursor is at the end of a span, there is no text to delete, because the text starts in the next span.
                 let available = w_div.textContent.length - INTS[fEDI_w_indexColumn_SpanTextContentRelative];
@@ -2263,12 +2266,9 @@ function EDI_state_do_Delete(event) {
             EDI_lineEndPositionList_PENDING.insert(EDI_lineEndPositionList_PENDING.count, lineEnd);
 
             EDI_cursor_edit_flagLineChanged = INTS[fEDI_cursor_editLength];
-
-            EDI_render_request(RenderKind_DeleteLtr);
         }
-        else {
-            // Start of file
-            // nothing?
+        else { // End of file
+            return;
         }
     }
     else {
@@ -2350,9 +2350,10 @@ function EDI_state_do_Delete(event) {
                 INTS[fEDI_cursor_editLengthVisual] += (tabLength - 1);
             }
         }
-
-        EDI_render_request(RenderKind_DeleteLtr);
     }
+
+    INTS[fEDI_cursor_edit_eventCount_occurred]++;
+    EDI_render_request(RenderKind_DeleteLtr);
 }
 
 /**

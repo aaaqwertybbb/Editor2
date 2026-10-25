@@ -7296,44 +7296,6 @@ function EDI_toExtensionKind(extensionWithPeriod) {
     }
 }
 
-/**
- * TODO: this can be way faster all I did was take JS_line_lex and then strip away all the details...
- * ...I'm more concerned with tightening the difference between best and worst case...
- * ...by reducing worst case.
- * This makes line lexing JS faster so it is preferable even if I don't write this plaintext implementation perfectly.
- * "maybe" it's faster I didn't measure anything but I swear I know what I'm doing
- * not only did I not measure it but I went back and forth between vscode I actually have no idea if this faster I can't remember anything I'm super tired.
- * I'm tired and I still have to write more of the multicursor logic so I'm just vibing out the optimizations for a bit I'll get measurements later when the app works more.
- */
-function PLAINTEXT_line_lex(div, substart, lineEnd, childIndex) {
-    let length = 0;
-    let pos = substart;
-
-    const bytes = EDI_textByteList_bytes;
-
-    while (pos < lineEnd) {
-        length++;
-        pos++;
-    }
-
-    if (length > 0) {
-        let span;
-        if (childIndex < div.children.length) {
-            span = div.children[childIndex++];
-            span.className = '';
-        }
-        else {
-            span = document.createElement('span');
-            div.appendChild(span);
-            childIndex++;
-        }
-        // This function isn't actually used at the moment I'll deal with this tomorrow or etc...
-        span.textContent = EDI_decoder.decode(bytes.subarray(substart, substart + length));
-    }
-
-    return childIndex;
-}
-
 function EDI_registerHandlers() {
     EDI_baseElement.addEventListener('keydown', EDI_onKeyDown);
     EDI_baseElement.addEventListener('mousedown', EDI_onMouseDown);

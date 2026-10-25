@@ -462,6 +462,7 @@ function DIALOG_checkboxTrueTabsFalseSpaces_onchange() {
     let checkboxTrueTabsFalseSpaces = document.getElementById('SETTINGS_trueTabs_falseSpaces');
     if (!checkboxTrueTabsFalseSpaces) return;
 
+    EDI_finalizeEdit();
     BYTES[byteDIALOG_Settings_trueTabs_falseSpaces] = checkboxTrueTabsFalseSpaces.checked;
     if (BYTES[byteDIALOG_Settings_trueTabs_falseSpaces]) {
         EDI_on_tab_bytes = new Uint8Array(1);

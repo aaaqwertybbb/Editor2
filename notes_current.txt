@@ -1604,21 +1604,42 @@ TODO: Go back over them all and check for comments/deadcode/cleanup
 Positive
 ========
 - [ ] EditKind_InsertLtr
+    - [x] simple
+    - [ ] complex
 - [ ] EditKind_Enter
+    - [x] simple
+    - [ ] complex
 - [ ] EditKind_Tab
+    - [x] simple
+    - [ ] complex
+    - [ ] visual length?
 - [ ] EditKind_Paste
+    - [x] simple
+    - [ ] complex
 - [ ] EditKind_Duplicate
+    - [x] simple
+    - [ ] complex
 - [ ] EditKind_IndentMore
+    - [x] simple
+    - [ ] complex
 
 Negative
 ========
 - [ ] EditKind_DeleteLtr
+    - [x] simple
+    - [ ] complex
 - [ ] EditKind_BackspaceRtl
+    - [x] simple
+    - [ ] complex
 - [ ] EditKind_RemoveTextNoBatching
+    - [x] simple
+    - [ ] complex
 - [ ] EditKind_IndentLess
+    - [x] simple
+    - [ ] complex
 
 
-changing tab kind from tab to spaces or vice versa needs to trigger a finalize
+- [ ] changing tab kind from tab to spaces or vice versa needs to trigger a finalize
 
 TODO: I don't understand how 'let EDI_cursor_edit_flagLineChanged = -1;' works, it gets the INTS[fEDI_cursor_editLength_characters] that isn't a column?...
 ...I get it, you're doing the minus of it to get the column...
@@ -1627,3 +1648,7 @@ TODO: I don't understand how 'let EDI_cursor_edit_flagLineChanged = -1;' works, 
 Does both delete and backspace work then spanning more than one line?
 - [ ] delete
 - [ ] backspace
+
+not every visual length is correct.
+
+I don't think I am angry today actually I think I'm anxious

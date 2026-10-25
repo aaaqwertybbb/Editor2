@@ -1438,7 +1438,7 @@ are all being used in the wording that is intended.
 
 Positive
 ========
-- [ ] EditKind_InsertLtr
+- [x] EditKind_InsertLtr
 - [ ] EditKind_Enter
 - [ ] EditKind_Tab
 - [ ] EditKind_Paste

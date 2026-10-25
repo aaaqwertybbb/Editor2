@@ -2542,14 +2542,14 @@ function EDI_render_do_InsertLtr() {
     if (INTS[fEDI_cursor_editKind] !== EditKind_InsertLtr) {
         return;
     }
-    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_editLength]) {
+    if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
+        INTS[fEDI_cursor_edit_eventCount_drawn]++;
         if (EDI_cursor_textInsertionBufferWriteToSpanElement) {
-
             EDI_cursor_textInsertionBufferWriteToSpanElement.firstChild.insertData(
-                (INTS[fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex]) + INTS[fEDI_cursor_edit_eventCount_drawn],
-                EDI_decoder.decode(EDI_cursor_textInsertionBuffer.subarray(INTS[fEDI_cursor_edit_eventCount_drawn], INTS[fEDI_cursor_editLength])));
+                (INTS[fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex]) + INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue],
+                EDI_decoder.decode(EDI_cursor_textInsertionBuffer.subarray(INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue], INTS[fEDI_cursor_editLength])));
 
-            INTS[fEDI_cursor_edit_eventCount_drawn] = INTS[fEDI_cursor_editLength];
+            INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue] = INTS[fEDI_cursor_editLength];
         }
     }
 }
@@ -2561,6 +2561,7 @@ function EDI_insertDo(character) {
     EDI_cursor_textInsertionBuffer[INTS[fEDI_cursor_textInsertionBufferCount]] = character.charCodeAt(0);
     INTS[fEDI_cursor_textInsertionBufferCount]++;
 
+    INTS[fEDI_cursor_edit_eventCount_occurred]++;
     INTS[fEDI_cursor_editLength]++;
     INTS[fEDI_cursor_indexColumn]++;
     INTS[fEDI_cursorVisualColumnIndex]++;
@@ -4069,8 +4070,9 @@ function EDI_finalizeEdit_ClearEditState() {
     INTS[fEDI_cursor_editIndexLine] = 0;
     INTS[fEDI_cursor_editIndexColumn] = 0;
 
-    INTS[fEDI_cursor_edit_eventCount_drawn] = 0;
     INTS[fEDI_cursor_edit_eventCount_occurred] = 0;
+    INTS[fEDI_cursor_edit_eventCount_drawn] = 0;
+    INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue] = 0;
 
     INTS[fEDI_cursor_END_editIndexLine] = 0;
     INTS[fEDI_cursor_END_editIndexColumn] = 0;
@@ -5713,8 +5715,9 @@ function EDI_cursor_clear() {
     INTS[fEDI_cursor_editPosition] = 0;
     INTS[fEDI_cursor_editIndexLine] = 0;
     INTS[fEDI_cursor_editIndexColumn] = 0;
+    INTS[fEDI_cursor_edit_eventCount_occurred] = 0;
     INTS[fEDI_cursor_edit_eventCount_drawn] = 0;
-    INTS[fEDI_cursor_editRenderedDisplacement_INDEX_LINE_OFFSET] = 0;
+    INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue] = 0;
     INTS[fEDI_cursor_END_editIndexLine] = 0;
     INTS[fEDI_cursor_END_editIndexColumn] = 0;
 

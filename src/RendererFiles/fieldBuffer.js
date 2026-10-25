@@ -468,9 +468,7 @@ const fEDI_cursor_edit_eventCount_drawn = 46;
  * 
  * The awkward name is to avoid re-using similar words that already are used in other fields on this class.
  */
-//const fEDI_cursor_edit_eventCount_drawn = 46;
-/** TODO: perhaps you could determine this some other way, but tracking it for the moment is easiest and necessary if I'm to not give up on getting an initial solution to work, given my current mood and etc... */
-const fEDI_cursor_editRenderedDisplacement_INDEX_LINE_OFFSET = 47;
+const fEDI_cursor_edit_eventCount_drawingStateContinuationValue = 47;
 const fEDI_cursor_END_editIndexLine = 48;
 const fEDI_cursor_END_editIndexColumn = 49;
 const fEDI_cursor_textInsertionBufferCount = 50;

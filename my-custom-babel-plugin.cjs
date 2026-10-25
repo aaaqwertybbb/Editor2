@@ -26,7 +26,7 @@ module.exports = function (babel) {
   ];
 
   // List all the variable names you want to inline
-  const TARGET_VARIABLES = [
+  const TARGET_VARIABLES = []; /*[
 
     "fEDI_drawn_count_of_digits_longest_line_number",
     "fEDI_detailRank",
@@ -87,8 +87,7 @@ module.exports = function (babel) {
     "fEDI_cursor_editIndexColumn",
     "fEDI_cursor_edit_eventCount_drawn",
     "fEDI_cursor_edit_eventCount_occurred",
-    "fEDI_cursor_editRenderedDisplacement_INDEX_LINE_OFFSET",
-    //"fEDI_cursor_edit_eventCount_drawingStateContinuationValue",
+    "fEDI_cursor_edit_eventCount_drawingStateContinuationValue",
     "fEDI_cursor_END_editIndexLine",
     "fEDI_cursor_END_editIndexColumn",
     "fEDI_cursor_textInsertionBufferCount",
@@ -459,7 +458,7 @@ module.exports = function (babel) {
     "OFFSET_AUTOCOMPLETE",
     "OFFSET_WIDGET",
     "OFFSET_MENU",
-  ];
+  ];*/
 
   return {
     name: "inline-direct-substitution-safe",

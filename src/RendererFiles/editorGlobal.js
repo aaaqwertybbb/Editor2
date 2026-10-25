@@ -2544,7 +2544,9 @@ function EDI_render_do_InsertLtr() {
         return;
     }
     if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
-        INTS[fEDI_cursor_edit_eventCount_drawn]++;
+        // Okay if you have a more optimized render function you set drawn to occurred.
+        // If you have an unoptimized render function that is just a while loop you increment.
+        INTS[fEDI_cursor_edit_eventCount_drawn] = INTS[fEDI_cursor_edit_eventCount_occurred];
         if (EDI_cursor_textInsertionBufferWriteToSpanElement) {
             EDI_cursor_textInsertionBufferWriteToSpanElement.firstChild.insertData(
                 (INTS[fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex]) + INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue],

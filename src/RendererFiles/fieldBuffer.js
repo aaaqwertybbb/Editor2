@@ -464,10 +464,12 @@ const fEDI_cursor_editIndexColumn = 45;
 //TODO: move 'const fEDI_cursor_edit_eventCount_occurred = 63;' closer (numerically and text position)
 const fEDI_cursor_edit_eventCount_drawn = 46;
 /**
- * the amount of characters that UI has changed with respect to the pending edit
- * per 'EDI_render_do', if the displacement is not the editLength then you know you need to "draw more of this edit" on the UI.
+ * I'm changing the code in relation to this and some other variables but,
+ * I'm more concerned with 'fEDI_cursor_edit_eventCount_occurred' and 'fEDI_cursor_edit_eventCount_drawn'
+ * on the first go-around.
  * 
- * The awkward name is to avoid re-using similar words that already are used in other fields on this class.
+ * Specifically the idea that every edit's render function checks fEDI_cursor_edit_eventCount_drawn < fEDI_cursor_edit_eventCount_occurred
+ * although this isn't even correct. It depends on the edit still.
  */
 const fEDI_cursor_edit_eventCount_drawingStateContinuationValue = 47;
 const fEDI_cursor_END_editIndexLine = 48;

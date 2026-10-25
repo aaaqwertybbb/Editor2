@@ -391,46 +391,51 @@ function EDI_render_request(renderKind) {
  * 
  * TODO: This clearing highlights logic was thrown together as a first draft it needs to be optimized.
  */
-function EDI_clearHighlights(ringBufferIndexOfDiv) {
-    if (!ringBufferIndexOfDiv && ringBufferIndexOfDiv !== 0) {
-        for (let i = EDI_ringBuffer_mapHighlights.length - 1; i >= 0; i--) {
-            // TODO: length = 0?
-            let p = EDI_ringBuffer_mapHighlights[i];
-            let k = p.pop();
-            while (k) {
-                k = p.pop();
-            }
-        }
-        keywordHighlight.clear();
-        keywordControlHighlight.clear();
-        memberHighlight.clear();
-        functionHighlight.clear();
-        identifierHighlight.clear();
-        commentHighlight.clear();
-        stringHighlight.clear();
-    }
-    else {
-        const p = EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv];
+function EDI_clearHighlights_all() {
+    // ??? the 'ringBufferIndexOfDiv !== 0' part of  'if (!ringBufferIndexOfDiv && ringBufferIndexOfDiv !== 0) {'
+    for (let i = EDI_ringBuffer_mapHighlights.length - 1; i >= 0; i--) {
+        // TODO: length = 0?
+        let p = EDI_ringBuffer_mapHighlights[i];
         let k = p.pop();
         while (k) {
-            if (identifierHighlight.delete(k) ||
-                keywordHighlight.delete(k) ||
-                memberHighlight.delete(k) ||
-                keywordControlHighlight.delete(k) ||
-                functionHighlight.delete(k) ||
-                commentHighlight.delete(k) ||
-                stringHighlight.delete(k)) {
-                    // literally do nothing
-            }
             k = p.pop();
         }
+    }
+    keywordHighlight.clear();
+    keywordControlHighlight.clear();
+    memberHighlight.clear();
+    functionHighlight.clear();
+    identifierHighlight.clear();
+    commentHighlight.clear();
+    stringHighlight.clear();
+}
+
+/**
+ * If 'ringBufferIndexOfDiv' is falsey clear everything, otherwise clear only what is related to the 'ringBufferIndexOfDiv'.
+ * 
+ * TODO: This clearing highlights logic was thrown together as a first draft it needs to be optimized.
+ */
+function EDI_clearHighlights_single(ringBufferIndexOfDiv) {
+    const p = EDI_ringBuffer_mapHighlights[ringBufferIndexOfDiv];
+    let k = p.pop();
+    while (k) {
+        if (identifierHighlight.delete(k) ||
+            keywordHighlight.delete(k) ||
+            memberHighlight.delete(k) ||
+            keywordControlHighlight.delete(k) ||
+            functionHighlight.delete(k) ||
+            commentHighlight.delete(k) ||
+            stringHighlight.delete(k)) {
+                // literally do nothing
+        }
+        k = p.pop();
     }
 }
 
 /** TODO: This should grow or shrink when you resize, rather than the current behavior which recreates every single dom element. */
 function EDI_render_do_CreateViewport() {
 
-    EDI_clearHighlights();
+    EDI_clearHighlights_all();
 
     const virtualCount = INTS[fEDI_virtualCount];
 
@@ -664,7 +669,7 @@ function EDI_render_do_Scroll() {
 
         if (permitImmediateSyntaxHighlighting) {
             local_EDI_ringBuffer_needsSyntaxHighlightingFlags[ringBufferIndex] = 0;
-            EDI_clearHighlights(ringBufferIndex);
+            EDI_clearHighlights_single(ringBufferIndex);
             EDI_syntaxHighlight_parallelArray(div, ringBufferIndex, lineStart, lineEnd);
         }
         else {
@@ -750,7 +755,7 @@ function EDI_onScroll_TrailingEdge() {
 }
 
 function EDI_render_do_Clear() {
-    EDI_clearHighlights();
+    EDI_clearHighlights_all();
 
     EDI_drawCursor(/*NOTscrollCursorIntoView*/ false);
     EDI_clearSelectionStyle();
@@ -6418,7 +6423,7 @@ function EDI_render_do_SyntaxHighlighting() {
 
         if (local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] === 1) {
             local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] = 0;
-            EDI_clearHighlights(currentIndexRingBuffer);
+            EDI_clearHighlights_single(currentIndexRingBuffer);
             EDI_syntaxHighlight_parallelArray(EDI_ringBuffer_text[currentIndexRingBuffer], currentIndexRingBuffer, lineStart, lineEnd);
         }
 

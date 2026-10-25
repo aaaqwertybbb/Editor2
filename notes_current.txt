@@ -1429,6 +1429,35 @@ Which means that the chicken will eventually be entirely consumed.
 8:31
 - [ ] Clean up the variables you made yesterday
 
+Look through all the edits and ensure that
+- INTS[fEDI_cursor_edit_eventCount_occurred]
+- INTS[fEDI_cursor_edit_eventCount_drawn]
+- INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue]
+are all being used in the wording that is intended.
+
+
+Positive
+========
+- [ ] EditKind_InsertLtr
+- [ ] EditKind_Enter
+- [ ] EditKind_Tab
+- [ ] EditKind_Paste
+- [ ] EditKind_Duplicate
+- [ ] EditKind_IndentMore
+
+Negative
+========
+- [ ] EditKind_DeleteLtr
+- [ ] EditKind_BackspaceRtl
+- [ ] EditKind_RemoveTextNoBatching
+- [ ] EditKind_IndentLess
+
+
+====
+
+TODO: You need to handle keyboard events differently at a level that permits the user to type multibyte characters.
+TODO: You need to change all variables that say something along the lines of "length" to be "byteLength/characterLength"
+TODO: You need to change all variables that say something along the lines of "position" to be "bytePosition/characterPosition"
 
 
 

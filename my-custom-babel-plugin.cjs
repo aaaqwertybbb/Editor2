@@ -26,7 +26,7 @@ module.exports = function (babel) {
   ];
 
   // List all the variable names you want to inline
-  const TARGET_VARIABLES = []; /*[
+  const TARGET_VARIABLES = [
 
     "fEDI_drawn_count_of_digits_longest_line_number",
     "fEDI_detailRank",
@@ -458,7 +458,7 @@ module.exports = function (babel) {
     "OFFSET_AUTOCOMPLETE",
     "OFFSET_WIDGET",
     "OFFSET_MENU",
-  ];*/
+  ];
 
   return {
     name: "inline-direct-substitution-safe",

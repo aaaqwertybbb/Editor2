@@ -1906,3 +1906,5 @@ etc... before I start
     - [ ] at the moment I have a super simple use case so I can easily do it via a lexer alone.
 
 8:45
+
+- [ ] indentifiers should be compared via their hash not their string (no string at all)

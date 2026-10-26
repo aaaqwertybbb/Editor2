@@ -1882,6 +1882,7 @@ I'm gonna do the 10 lb dumbbells for lateral raises today instead of the 8 lb on
 TODO:
 
 - [ ] SyntaxNode gets per class boolean property that indicates safe to cast node as IScope
+    - [ ] this property will be defined in way that behind the scenes only "allocates the boolean once per type and all instances of the same type just share the same const boolean true or false" or etc...
 - [ ] Scope is a struct.
 - [ ] 
 - [ ] Maybe don't name the interface IScope cause it is more like IScopeProvider but then I don't know if I like the word "Provider" either.

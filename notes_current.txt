@@ -1900,3 +1900,7 @@ etc... before I start
 - [ ] Watch out for the phone call too
 
 - [ ] Write all the INTS[...] as the '...' and then the C# code will transpile it to INTS[...] in the compiled monolithic js module
+    - [ ] This may or may not have side effects syntactically so I need to beware of that.
+    - [ ] but off the top of my head postfix increments on the array entry should be safe.
+    - [ ] and etc... I'm gonna watch out and think about it
+    - [ ] at the moment I have a super simple use case so I can easily do it via a lexer alone.

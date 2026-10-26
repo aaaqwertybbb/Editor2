@@ -82,7 +82,7 @@ async function window_myAPI_onMessage(data) {
             break;
         case 'textDocument/definition':
             if (data.result) {
-                EDI_moveCursor_indexLine_indexColumn(data.result.range.start.line, /*indexColumn*/ 0)
+                EDI_moveCursor_indexLine_indexColumn(data.result.range.start.line, /*indexColumn*/ data.result.range.start.character)
             }
             break;
         case 'textDocument/completion':

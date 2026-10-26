@@ -4607,14 +4607,18 @@ function EDI_moveCursor_indexLine_indexColumn(indexLine, indexColumn) {
 
     if (indexColumn > lastValidIndexColumn) {
         INTS[fEDI_cursor_indexColumn] = lastValidIndexColumn;
-        INTS[fEDI_cursorVisualColumnIndex] = lastValidIndexColumn;
     }
     else {
         INTS[fEDI_cursor_indexColumn] = indexColumn;
-        INTS[fEDI_cursorVisualColumnIndex] = indexColumn;
     }
 
     INTS[fEDI_cursor_indexLine] = indexLine;
+
+    EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+    const lineStart = INTS[fEDI_ret_getLineBoundaryPositions_start];
+    const lineEnd = INTS[fEDI_ret_getLineBoundaryPositions_end];
+    EDI_ret_getIndexFromColumn_RESET(INTS[fEDI_cursor_indexColumn], lineStart, lineEnd);
+    INTS[fEDI_cursorVisualColumnIndex] = INTS[fEDI_ret_getIndexFromX_visualColumns];
     
     // TODO: selectionAnchor = selectionEnd; EDI_drawCursor(/*NOTscrollCursorIntoView*/ false); # being the way to clear a selection should be documented / wrapped by a method for ease of use / readability?
     INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_cursor_selectionEnd];

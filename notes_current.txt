@@ -1876,3 +1876,22 @@ I gotta eat / exercise
 I'm eating the 2nd lb of 98% fat free ground chicken right now.
 
 I'm gonna do the 10 lb dumbbells for lateral raises today instead of the 8 lb ones.
+
+=====
+
+TODO:
+
+- [ ] SyntaxNode gets per class boolean property that indicates safe to cast node as IScope
+- [ ] Scope is a struct.
+- [ ] 
+- [ ] Maybe don't name the interface IScope cause it is more like IScopeProvider but then I don't know if I like the word "Provider" either.
+
+- [ ] Add support for all scopes such as 'if' statements and etc...
+
+- [ ] Remove Babel and preprocessor.cjs and write a C# program that does both roles
+
+I need to
+do laundry
+take out recycling
+eat
+etc... before I start

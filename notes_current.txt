@@ -1898,3 +1898,5 @@ eat
 etc... before I start
 
 - [ ] Watch out for the phone call too
+
+- [ ] Write all the INTS[...] as the '...' and then the C# code will transpile it to INTS[...] in the compiled monolithic js module

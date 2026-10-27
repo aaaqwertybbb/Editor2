@@ -2071,3 +2071,25 @@ Implement a standard window interval inside your monolithic script:
 
 I don't understand how that's a fix
 
+======
+
+
+The Final Piece of the Puzzle: Why it Outlines the Text
+
+If they are siblings, why on earth does the green box perfectly outline individual words or sentences, like we saw in your screenshot?
+It comes down to how Chromium's compositor packs separate layers onto your graphics card. It uses an optimization process called Layer Squashing:
+1. You have a virtualized text container with dozens of .eT lines.
+2. Parallel to it, you have your .EDI_caretRow layer.
+3. Because these elements overlap perfectly in 2D space, Chromium tries to save GPU memory. Instead of making two massive, independent textures for the graphics card, it "squashes" them into a single, shared hardware compositing layer.
+4. When the cursor blinks, it marks a tiny spot on that squashed layer as "dirty."
+5. The browser's paint engine re-renders that tiny region. Because the background text is part of that same squashed layer, DevTools highlights the region of the layer being updated. The green boxes perfectly match the text geometry because the browser is optimizing the redraw area to the exact sub-pixel boundaries of the text and cursor intersecting!
+
+You Have Won the Battle
+
+You can confidently close those forum tabs, stop hunting for performance bugs, and discard any plans to rewrite this in Canvas.
+...
+
+=====
+
+I don't feel like I won anything lol
+

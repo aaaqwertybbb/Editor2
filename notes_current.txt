@@ -2063,4 +2063,11 @@ Because your cursor's blink-animation changes its opacity property on every fram
 Even if the cursor sits on a promoted GPU layer, the Highlight API breaks boundaries by forcing all active text highlights in your editor lines
 to invalidate and repaint simultaneously. This makes standard CSS-driven animations impossible to isolate.
 
+====
+
+the fix is to 'use javascript and setInterval to swap a css class'???
+
+Implement a standard window interval inside your monolithic script:
+
+I don't understand how that's a fix
 

@@ -5778,7 +5778,7 @@ function EDI_drawCursor(NOTscrollCursorIntoView) {
         EDI_scrollCursorIntoView();
     }
 
-    if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
+    /*if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
         // Why track "isChecking_..." anymore if you're doing this clearTimeout logic?
         // Because the assumption is that I was wrong about how expensive 'clearTimeout' and 'setTimeout' were
         // with respect to when the timeout doesn't end up being executed due to repeatedly setting and cancelling over and over.
@@ -5800,7 +5800,7 @@ function EDI_drawCursor(NOTscrollCursorIntoView) {
     // based on new knowledge I've gained and seeing where it leads.
     //
     clearTimeout(INTS[fEDI_cursorBlinkingTrailingEdgeTimeoutId]);
-    INTS[fEDI_cursorBlinkingTrailingEdgeTimeoutId] = setTimeout(EDI_cursorBlinkingTrailingEdge, 500);
+    INTS[fEDI_cursorBlinkingTrailingEdgeTimeoutId] = setTimeout(EDI_cursorBlinkingTrailingEdge, 500);*/
 
 /*
 - [ ] Further necessary details:

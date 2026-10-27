@@ -2044,5 +2044,11 @@ Let me know how you would like to proceed with modifying this function!
 I don't blindly listen to what the AI says I'm just typing it out cause I think it's interesting to see what it says.
 I gotta actually look through and figure out if anything is a good idea.
 
+====
+
+- [ ] consider keeping elements always on screen i.e.: a tooltip dom element.
+    - [ ] I'm not sure I'm looking at the paints.
+    - [ ] Just consider that maybe it is the difference in some scenarios between a tooltip being from not shown to shown having painted the entire app or just the tooltip
+
 
 

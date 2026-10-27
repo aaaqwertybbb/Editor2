@@ -6531,7 +6531,8 @@ function EDI_render_do_SyntaxHighlighting() {
     
     const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
     
-    for (let i = local_ArrayFrom_textElement_children_length; i >= 0; i--) {
+    // TODO: ??? -1 I changed it to be '>0' just so that the 'i' value doesn't change if intentional?
+    for (let i = local_ArrayFrom_textElement_children_length; i > 0; i--) {
 
         // TODO: I'm trying to leverage the lines being contiguous and in order;...
         // ...this allows me to simplify the calculations for lineStart and lineEnd...
@@ -6549,10 +6550,10 @@ function EDI_render_do_SyntaxHighlighting() {
             lineEnd = lineStart;
         }
 
-        if (local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] === 1) {
-            local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] = 0;
+        //if (local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] === 1) {
+        //    local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] = 0;
             EDI_syntaxHighlight_parallelArray(EDI_ringBuffer_text[currentIndexRingBuffer], currentIndexRingBuffer, lineStart, lineEnd);
-        }
+        //}
 
         currentIndexLine++;
         currentIndexRingBuffer++;

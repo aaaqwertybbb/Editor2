@@ -1942,3 +1942,13 @@ I got an exercise routine too but I Gotta go cook this chicken
 I got an exercise routine too but I Gotta go cook this chicken (if you know what I mean *wink*wink*)
 
 200mg of caffeine only btw I take it every morning
+
+====
+
+- [ ] scroll set timeout clear timeout
+    - [ ] move to the full screen branch
+- [ ] scroll non-full screen branch check if needs highlight if so then draw highlight
+- [ ] make sure that fullscreen timeout highlight doesn't highlight if already highlight
+    - [ ] make sure you fully optimize Highlight
+
+- [ ] cache walk line for edits clear finalize etc...

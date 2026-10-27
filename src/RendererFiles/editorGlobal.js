@@ -619,16 +619,13 @@ function EDI_render_do_Scroll() {
     if (diff === 0) return;
 
     const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
-    const virtualCount = INTS[fEDI_virtualCount];
 
     let lowerBound = 0;
     let ringBufferIndex = 0; // The 0th loop will immediately increment this variable, thus all the assignments to this have a '- 1' on them.
 
-    //let absDiff = diff < 0 ? -diff : diff;
-
-    if (diff >= virtualCount) {
+    if (diff >= local_ArrayFrom_textElement_children_length || diff <= local_ArrayFrom_textElement_children_length) {
         lowerBound = local_currVli;
-        diff = virtualCount; // Bound the loop run to the size of your screen viewport
+        diff = local_ArrayFrom_textElement_children_length; // Bound the loop run to the size of your screen viewport
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1;
     }
     else if (diff > 0) {

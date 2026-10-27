@@ -677,6 +677,10 @@ function EDI_render_do_Scroll() {
         textNode.replaceData(0, textNode.length, lineStart === lineEnd ? '' : local_EDI_decoder.decode(local_bytes.subarray(lineStart, lineEnd)));
 
         if (permitImmediateSyntaxHighlighting) {
+            // TODO: If you eat the cost of a full screen syntax highlight after the timeout you can completely remove the 'local_EDI_ringBuffer_needsSyntaxHighlightingFlags'...
+            // ...it actually might be less overhead to eat the cost than track this...
+            // ...because consecutive full screens will timeout one after another and you only eat it after the timeout actually finishes...
+            // ...and in the benefit you remove all this tracking logic.
             local_EDI_ringBuffer_needsSyntaxHighlightingFlags[ringBufferIndex] = 0;
             EDI_syntaxHighlight_parallelArray(div, ringBufferIndex, lineStart, lineEnd);
         }

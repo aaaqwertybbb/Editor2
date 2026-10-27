@@ -693,9 +693,9 @@ function EDI_render_do_Scroll() {
         while (range) {
             if (local_identifierHighlight.delete(range) ||
                 local_keywordHighlight.delete(range) ||
-                local_memberHighlight.delete(range) ||
-                local_keywordControlHighlight.delete(range) ||
                 local_functionHighlight.delete(range) ||
+                local_keywordControlHighlight.delete(range) ||
+                local_memberHighlight.delete(range) ||
                 local_commentHighlight.delete(range) ||
                 local_stringHighlight.delete(range) ||
                 local_typeHighlight.delete(range)) {
@@ -741,29 +741,29 @@ function EDI_render_do_Scroll() {
                         EDI_rangeInit.endOffset = start + length;
                         let range = new StaticRange(EDI_rangeInit);
                         arrayOfRangeObjectsOnLine.push(range);
-                        if (originalStyleByte === 1) {
-                            local_stringHighlight.add(range);
-                        }
-                        else if (originalStyleByte === 2) {
-                            local_commentHighlight.add(range);
+                        if (originalStyleByte === 5) {
+                            local_identifierHighlight.add(range);
                         }
                         else if (originalStyleByte === 3) {
                             local_keywordHighlight.add(range);
                         }
+                        else if (originalStyleByte === 8) {
+                            local_functionHighlight.add(range);
+                        }
                         else if (originalStyleByte === 4) {
                             local_keywordControlHighlight.add(range);
-                        }
-                        else if (originalStyleByte === 5) {
-                            local_identifierHighlight.add(range);
-                        }
-                        else if (originalStyleByte === 6) {
-                            local_typeHighlight.add(range);
                         }
                         else if (originalStyleByte === 7) {
                             local_memberHighlight.add(range);
                         }
-                        else if (originalStyleByte === 8) {
-                            local_functionHighlight.add(range);
+                        else if (originalStyleByte === 2) {
+                            local_commentHighlight.add(range);
+                        }
+                        else if (originalStyleByte === 1) {
+                            local_stringHighlight.add(range);
+                        }
+                        else if (originalStyleByte === 6) {
+                            local_typeHighlight.add(range);
                         }
                         continue outerWhile;
                     }
@@ -777,29 +777,29 @@ function EDI_render_do_Scroll() {
             EDI_rangeInit.endOffset = start + length;
             let range = new StaticRange(EDI_rangeInit);
             arrayOfRangeObjectsOnLine.push(range);
-            if (TRAILINGstyleByteTRAILING === 1) {
-                local_stringHighlight.add(range);
-            }
-            else if (TRAILINGstyleByteTRAILING === 2) {
-                local_commentHighlight.add(range);
+            if (TRAILINGstyleByteTRAILING === 5) {
+                local_identifierHighlight.add(range);
             }
             else if (TRAILINGstyleByteTRAILING === 3) {
                 local_keywordHighlight.add(range);
             }
+            else if (TRAILINGstyleByteTRAILING === 8) {
+                local_functionHighlight.add(range);
+            }
             else if (TRAILINGstyleByteTRAILING === 4) {
                 local_keywordControlHighlight.add(range);
-            }
-            else if (TRAILINGstyleByteTRAILING === 5) {
-                local_identifierHighlight.add(range);
-            }
-            else if (TRAILINGstyleByteTRAILING === 6) {
-                local_typeHighlight.add(range);
             }
             else if (TRAILINGstyleByteTRAILING === 7) {
                 local_memberHighlight.add(range);
             }
-            else if (TRAILINGstyleByteTRAILING === 8) {
-                local_functionHighlight.add(range);
+            else if (TRAILINGstyleByteTRAILING === 2) {
+                local_commentHighlight.add(range);
+            }
+            else if (TRAILINGstyleByteTRAILING === 1) {
+                local_stringHighlight.add(range);
+            }
+            else if (TRAILINGstyleByteTRAILING === 6) {
+                local_typeHighlight.add(range);
             }
         }
         /////

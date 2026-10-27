@@ -2099,3 +2099,14 @@ I don't feel like I won anything lol
 
 EDI_cursor_caretRow.style.setProperty('--cursor-y', newY);
 
+====
+
+I need measurements but
+all in all I'm glad to have gotten the scroll to happen through a different API because I'm not fully sitting here spinning my wheels
+I'm at least experimenting with things
+and there's decent reasoning behind it too it was about reducing string allocations but then there's overhead in other ways
+so just etc... feeling things.
+
+
+
+

@@ -446,7 +446,7 @@ TODO: maybe don't nearly-duplicate these classes.
 
   cursor: default;
 
-  will-change: transform;
+  /* will-change: transform; */
   /* Layer 1: The Gutter GPU Layer */
   /*background-color: #1e1e1e; */
   /* Gives the GPU a solid texture target */
@@ -492,6 +492,26 @@ TODO: maybe don't nearly-duplicate these classes.
   /* will-change: transform; */
 }
 
+@property --scroll-x {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --scroll-y {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
+#EDI_gutter_scroll_mover {
+  transform: translate3d(
+    calc(var(--scroll-x) * -1px), 
+    calc(var(--scroll-y) * -1px), 
+    0
+  );
+}
+
 #EDI_text {
   cursor: text;
   height: 100%;
@@ -502,6 +522,12 @@ TODO: maybe don't nearly-duplicate these classes.
   /*background-color: #1e1e1e; */
   /* Gives the GPU a solid texture target */
   flex: 1;
+
+  transform: translate3d(
+    calc(var(--scroll-x) * -1px), 
+    calc(var(--scroll-y) * -1px), 
+    0
+  );
 }
 
 #EDI_selection {

@@ -343,7 +343,10 @@ INTS[fEDI_lineHeight] = 20;
 /** The first line of text that you should see shown in the UI given the current scrollTop */
 const fEDI_virtualIndexLine = 1;
 
-/** The value of 'EDI_baseElement.scrollTop' at the most recent scroll event that occurred */
+/**
+ * TODO: Obsolete
+ * The value of 'EDI_baseElement.scrollTop' at the most recent scroll event that occurred
+ */
 const fEDI_lastReadNumber_scrollTop = 2;
 
 const fEDI_ONSCROLLvirtualIndexLine = 3;
@@ -517,7 +520,11 @@ const fEDI_w_ringBufferIndex = 55;
 // And this -1
 const fEDI_ringBuffer_indexZero = 56;
 
-/** The value of 'EDI_baseElement.scrollLeft' at the most recent scroll event that occurred */
+/**
+ * TODO: Obsolete
+ * 
+ * The value of 'EDI_baseElement.scrollLeft' at the most recent scroll event that occurred
+ */
 const fEDI_lastReadNumber_scrollLeft = 57;
 
 // just floor these on init / resize and set the style so if they want resize they have to explicit and it is non decimal?

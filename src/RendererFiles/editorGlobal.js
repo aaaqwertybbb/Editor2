@@ -253,6 +253,12 @@ let EDI_styleBuffer = new Uint8Array(0);
 let EDI_styleBuffer_count = 0;
 let EDI_styleBuffer_capacity = 0;
 
+let EDI_lastReadNumber_scrollLeft = 0;
+let EDI_lastReadNumber_scrollTop = 0;
+
+let EDI_lastReadNumber_scrollLeft_SCROLLSEEN = 0;
+let EDI_lastReadNumber_scrollTop_SCROLLSEEN = 0;
+
 const EDI_rangeInit = {
     startContainer: null,
     startOffset: 0,
@@ -571,8 +577,8 @@ function EDI_createViewport() {
  * to reflect the edit.
  */
 function EDI_scrollViewport_scroll() {
-    INTS[fEDI_lastReadNumber_scrollLeft] = EDI_scroll_viewport.scrollLeft;
-    INTS[fEDI_lastReadNumber_scrollTop] = EDI_scroll_viewport.scrollTop;
+    EDI_lastReadNumber_scrollLeft = EDI_scroll_viewport.scrollLeft;
+    EDI_lastReadNumber_scrollTop = EDI_scroll_viewport.scrollTop;
     EDI_render_request(RenderKind_Scroll);
 }
 
@@ -590,14 +596,23 @@ function EDI_render_do_Scroll() {
     //const lineRemainderY = scrollTop % 15;
 
     // Push the text canvas lightly to match the scrollbar position smoothly
-    EDI_text.style.transform = `translate3d(-${INTS[fEDI_lastReadNumber_scrollLeft]}px, -${INTS[fEDI_lastReadNumber_scrollTop]}px, 0)`;
-    
-    // If your gutter numbers move vertically too, shift them the same way!
-    EDI_gutter_scroll_mover.style.transform = `translate3d(0px, -${INTS[fEDI_lastReadNumber_scrollTop]}px, 0)`;
+    //EDI_text.style.transform = `translate3d(-${EDI_lastReadNumber_scrollLeft}px, -${EDI_lastReadNumber_scrollTop}px, 0)`;
+
+    if (EDI_lastReadNumber_scrollLeft_SCROLLSEEN !== EDI_lastReadNumber_scrollLeft) {
+        EDI_lastReadNumber_scrollLeft_SCROLLSEEN = EDI_lastReadNumber_scrollLeft;
+        EDI_text.style.setProperty('--scroll-x', EDI_lastReadNumber_scrollLeft);// what if u set 0 then + height? nonesense?
+    }
+    if (EDI_lastReadNumber_scrollTop_SCROLLSEEN !== EDI_lastReadNumber_scrollTop) {
+        EDI_lastReadNumber_scrollTop_SCROLLSEEN = EDI_lastReadNumber_scrollTop;
+        const stringVersion = '' + EDI_lastReadNumber_scrollTop;
+        EDI_text.style.setProperty('--scroll-y', stringVersion);
+        // If your gutter numbers move vertically too, shift them the same way!
+        EDI_gutter_scroll_mover.style.setProperty('--scroll-y', stringVersion);
+    }
 
     const local_lineHeight = INTS[fEDI_lineHeight];
     
-    INTS[fEDI_virtualIndexLine] = (INTS[fEDI_lastReadNumber_scrollTop] / local_lineHeight) | 0; // By bit operator or'ing with 0 you "cast" the number to a signed 32-bit integer (Int32).
+    INTS[fEDI_virtualIndexLine] = (EDI_lastReadNumber_scrollTop / local_lineHeight) | 0; // By bit operator or'ing with 0 you "cast" the number to a signed 32-bit integer (Int32).
     
     let local_prevVli = INTS[fEDI_ONSCROLLvirtualIndexLine];
     const local_currVli = INTS[fEDI_virtualIndexLine];
@@ -862,9 +877,9 @@ function EDI_render_do_SetText() {
  */
 function EDI_state_setText_byteArray(paddedUint8Array, textByteLength, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString, lineEndCount) {
     EDI_scroll_viewport.scrollTop = 0;
-    INTS[fEDI_lastReadNumber_scrollTop] = 0;
+    EDI_lastReadNumber_scrollTop = 0;
     EDI_scroll_viewport.scrollLeft = 0;
-    INTS[fEDI_lastReadNumber_scrollLeft] = 0;
+    EDI_lastReadNumber_scrollLeft = 0;
 
     EDI_state_clear(lineEndCount);
     set_EDI_fileStartsWithBom(fileStartsWithBom);
@@ -4585,10 +4600,10 @@ function update_VirtualIndexLine() {
     // and vice versa.
     // thus it is thought you might as well touch scrollLeft too here, if you're going down this path.
     //
-    INTS[fEDI_lastReadNumber_scrollLeft] = EDI_scroll_viewport.scrollLeft;
-    INTS[fEDI_lastReadNumber_scrollTop] = EDI_scroll_viewport.scrollTop;
+    EDI_lastReadNumber_scrollLeft = EDI_scroll_viewport.scrollLeft;
+    EDI_lastReadNumber_scrollTop = EDI_scroll_viewport.scrollTop;
     // TODO: This floor logic seems very odd. Because given the previous and the current you can determine it without dividing maybe I think?
-    INTS[fEDI_virtualIndexLine] = Math.floor(INTS[fEDI_lastReadNumber_scrollTop] / INTS[fEDI_lineHeight]);
+    INTS[fEDI_virtualIndexLine] = Math.floor(EDI_lastReadNumber_scrollTop / INTS[fEDI_lineHeight]);
 }
 
 function update_virtualCount() {
@@ -6076,8 +6091,8 @@ function EDI_scrollCursorIntoView() {
     let scrollX = 0;
     let scrollY = 0;
 
-    const local_lastReadNumber_scrollTop = INTS[fEDI_lastReadNumber_scrollTop];
-    const currentRight = INTS[fEDI_lastReadNumber_scrollLeft] + INTS[fEDI_lastReadNumber_offsetWidth];
+    const local_lastReadNumber_scrollTop = EDI_lastReadNumber_scrollTop;
+    const currentRight = EDI_lastReadNumber_scrollLeft + INTS[fEDI_lastReadNumber_offsetWidth];
 
     if (INTS[fEDI_cursor_cursorTranslateYValue] < local_lastReadNumber_scrollTop) {
         scrollY = INTS[fEDI_cursor_cursorTranslateYValue] - local_lastReadNumber_scrollTop;
@@ -6095,8 +6110,8 @@ function EDI_scrollCursorIntoView() {
     // Use a 1.5 or 2 pixel tolerance to absorb any browser subpixel rounding discrepancies
     const subpixelTolerance = 2;
 
-    if (EDI_cursor_cursorTranslateXValue < INTS[fEDI_lastReadNumber_scrollLeft]) {
-        scrollX = EDI_cursor_cursorTranslateXValue - INTS[fEDI_lastReadNumber_scrollLeft];
+    if (EDI_cursor_cursorTranslateXValue < EDI_lastReadNumber_scrollLeft) {
+        scrollX = EDI_cursor_cursorTranslateXValue - EDI_lastReadNumber_scrollLeft;
     }
     else if (EDI_cursor_cursorTranslateXValue >= (currentRight - subpixelTolerance)) {
         // I want to use clientWidth but I don't have any logic for no scrollbar thus single page fitting text might bug out and trigger
@@ -6328,8 +6343,8 @@ function EDI_requestLspHover() {
         set_EDI_recentBoundingClientRect_isNull_intFalsey(0);
     }
 
-    let rY = event_clientY - INTS[fEDI_recentBoundingClientRect_top] + INTS[fEDI_lastReadNumber_scrollTop];
-    let rX = event_clientX - INTS[fEDI_recentBoundingClientRect_left] - INTS[fEDI_gutterWidthTotal] + INTS[fEDI_lastReadNumber_scrollLeft];
+    let rY = event_clientY - INTS[fEDI_recentBoundingClientRect_top] + EDI_lastReadNumber_scrollTop;
+    let rX = event_clientX - INTS[fEDI_recentBoundingClientRect_left] - INTS[fEDI_gutterWidthTotal] + EDI_lastReadNumber_scrollLeft;
     
     let indexLine = Math.floor(rY / INTS[fEDI_lineHeight]);
     let indexColumn = Math.round(rX / EDI_characterWidth);
@@ -6719,8 +6734,8 @@ function EDI_onMouseDown(event) {
         EDI_baseElement.addEventListener('mousemove', EDI_onMouseMove_WRAPIT);
     }
 
-    let rY = event.clientY - INTS[fEDI_recentBoundingClientRect_top] + INTS[fEDI_lastReadNumber_scrollTop];
-    let rX = event.clientX - INTS[fEDI_recentBoundingClientRect_left] - INTS[fEDI_gutterWidthTotal] + INTS[fEDI_lastReadNumber_scrollLeft];
+    let rY = event.clientY - INTS[fEDI_recentBoundingClientRect_top] + EDI_lastReadNumber_scrollTop;
+    let rX = event.clientX - INTS[fEDI_recentBoundingClientRect_left] - INTS[fEDI_gutterWidthTotal] + EDI_lastReadNumber_scrollLeft;
     
     let indexLine = Math.floor(rY / INTS[fEDI_lineHeight]);
     let indexColumn = Math.round(rX / EDI_characterWidth);
@@ -6999,8 +7014,8 @@ function EDI_onMouseMove_WRAPIT(event) {
         // TODO: Consider short circuiting at via event.clientX and clientY by tracking the necessary thresholds for the cursor position to pass rather than the previous and current indices. (you can possibly thereby skip the calculation of the indices entirely for the redundant events).
         // TODO: Is it correct to use the cursor's indexLine and indexColumn directly as a means of determining redundancy? I worry about odd interactions, but I have no proof that such an odd interaction could exist.
 
-        let rX = Math.max(0, event.clientX - INTS[fEDI_recentBoundingClientRect_left] - INTS[fEDI_gutterWidthTotal] + INTS[fEDI_lastReadNumber_scrollLeft]);
-        let rY = Math.max(0, event.clientY - INTS[fEDI_recentBoundingClientRect_top] + INTS[fEDI_lastReadNumber_scrollTop]);
+        let rX = Math.max(0, event.clientX - INTS[fEDI_recentBoundingClientRect_left] - INTS[fEDI_gutterWidthTotal] + EDI_lastReadNumber_scrollLeft);
+        let rY = Math.max(0, event.clientY - INTS[fEDI_recentBoundingClientRect_top] + EDI_lastReadNumber_scrollTop);
 
         let indexColumn = Math.round(rX / EDI_characterWidth);
         let indexLine = Math.floor(rY / INTS[fEDI_lineHeight]);
@@ -7270,8 +7285,8 @@ function EDI_onContextMenu() {
         MENU_MenuOption_factory(CommandKind_Find, 'Find'),
     ];
 
-    let menuLeft = INTS[fEDI_recentBoundingClientRect_left] + INTS[fEDI_gutterWidthTotal] + EDI_cursor_cursorTranslateXValue - INTS[fEDI_lastReadNumber_scrollLeft];
-    let menuTop = INTS[fEDI_recentBoundingClientRect_top] + INTS[fEDI_cursor_cursorTranslateYValue] + INTS[fEDI_lineHeight] - INTS[fEDI_lastReadNumber_scrollTop];
+    let menuLeft = INTS[fEDI_recentBoundingClientRect_left] + INTS[fEDI_gutterWidthTotal] + EDI_cursor_cursorTranslateXValue - EDI_lastReadNumber_scrollLeft;
+    let menuTop = INTS[fEDI_recentBoundingClientRect_top] + INTS[fEDI_cursor_cursorTranslateYValue] + INTS[fEDI_lineHeight] - EDI_lastReadNumber_scrollTop;
 
     menuSet(optionList, menuLeft, menuTop, EDI_MenuOnClick, /*target*/ null, /*elementToFocusOnCompleted*/ null, /*disableFocusOnCompleted*/ false, /*index*/ 0);
 }

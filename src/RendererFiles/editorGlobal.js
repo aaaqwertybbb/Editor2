@@ -646,6 +646,17 @@ function EDI_render_do_Scroll() {
     const local_EDI_ringBuffer_text = EDI_ringBuffer_text;
     const local_EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine;
     const local_EDI_decoder = EDI_decoder;
+
+    const local_identifierHighlight = identifierHighlight;
+    const local_keywordHighlight = keywordHighlight;
+    const local_memberHighlight = memberHighlight;
+    const local_keywordControlHighlight = keywordControlHighlight;
+    const local_functionHighlight = functionHighlight;
+    const local_commentHighlight = commentHighlight;
+    const local_stringHighlight = stringHighlight;
+    const local_typeHighlight = typeHighlight;
+
+    const local_EDI_styleBuffer = EDI_styleBuffer;
     
     let vertical = lowerBound * local_lineHeight;
 
@@ -675,21 +686,7 @@ function EDI_render_do_Scroll() {
         textNode.replaceData(0, textNode.length, lineStart === lineEnd ? '' : local_EDI_decoder.decode(local_bytes.subarray(lineStart, lineEnd)));
 
         /////
-        /////
-        /////
         const arrayOfRangeObjectsOnLine = local_EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndex];
-
-
-        const local_identifierHighlight = identifierHighlight;
-        const local_keywordHighlight = keywordHighlight;
-        const local_memberHighlight = memberHighlight;
-        const local_keywordControlHighlight = keywordControlHighlight;
-        const local_functionHighlight = functionHighlight;
-        const local_commentHighlight = commentHighlight;
-        const local_stringHighlight = stringHighlight;
-        const local_typeHighlight = typeHighlight;
-
-        const local_EDI_styleBuffer = EDI_styleBuffer;
 
         /// This function is manually inlined(-ish) within 'EDI_syntaxHighlight_parallelArray' at the start of the function. (2 of 2)
         let range = arrayOfRangeObjectsOnLine.pop();
@@ -805,9 +802,6 @@ function EDI_render_do_Scroll() {
                 local_functionHighlight.add(range);
             }
         }
-        
-        /////
-        /////
         /////
 
         const translateY = 'translateY(' + vertical + 'px)';

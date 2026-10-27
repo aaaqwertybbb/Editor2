@@ -793,9 +793,7 @@ function EDI_render_do_Scroll() {
                 functionHighlight.add(range);
             }
         }
-
-        EDI_rangeInit.startContainer = null;
-        EDI_rangeInit.endContainer = null;
+        
         /////
         /////
         /////
@@ -806,6 +804,9 @@ function EDI_render_do_Scroll() {
 
         vertical += local_lineHeight;
     }
+
+    EDI_rangeInit.startContainer = null;
+    EDI_rangeInit.endContainer = null;
 }
 
 /**
@@ -6515,7 +6516,6 @@ function EDI_render_do_SyntaxHighlighting() {
         EDI_render_do_RedrawSelection();
     }
 
-    const local_EDI_ringBuffer_needsSyntaxHighlightingFlags = EDI_ringBuffer_needsSyntaxHighlightingFlags;
     let currentIndexRingBuffer = INTS[fEDI_ringBuffer_indexZero];
     let currentIndexLine = INTS[fEDI_virtualIndexLine];
 

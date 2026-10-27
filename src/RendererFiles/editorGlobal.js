@@ -679,17 +679,29 @@ function EDI_render_do_Scroll() {
         /////
         const arrayOfRangeObjectsOnLine = local_EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndex];
 
+
+        const local_identifierHighlight = identifierHighlight;
+        const local_keywordHighlight = keywordHighlight;
+        const local_memberHighlight = memberHighlight;
+        const local_keywordControlHighlight = keywordControlHighlight;
+        const local_functionHighlight = functionHighlight;
+        const local_commentHighlight = commentHighlight;
+        const local_stringHighlight = stringHighlight;
+        const local_typeHighlight = typeHighlight;
+
+        const local_EDI_styleBuffer = EDI_styleBuffer;
+
         /// This function is manually inlined(-ish) within 'EDI_syntaxHighlight_parallelArray' at the start of the function. (2 of 2)
         let range = arrayOfRangeObjectsOnLine.pop();
         while (range) {
-            if (identifierHighlight.delete(range) ||
-                keywordHighlight.delete(range) ||
-                memberHighlight.delete(range) ||
-                keywordControlHighlight.delete(range) ||
-                functionHighlight.delete(range) ||
-                commentHighlight.delete(range) ||
-                stringHighlight.delete(range) ||
-                typeHighlight.delete(range)) {
+            if (local_identifierHighlight.delete(range) ||
+                local_keywordHighlight.delete(range) ||
+                local_memberHighlight.delete(range) ||
+                local_keywordControlHighlight.delete(range) ||
+                local_functionHighlight.delete(range) ||
+                local_commentHighlight.delete(range) ||
+                local_stringHighlight.delete(range) ||
+                local_typeHighlight.delete(range)) {
                     // literally do nothing
             }
             range = arrayOfRangeObjectsOnLine.pop();
@@ -712,8 +724,8 @@ function EDI_render_do_Scroll() {
                 TRAILINGstyleByteTRAILING = 0;
                 break;
             }
-            if (EDI_styleBuffer[i] !== 0) {
-                const originalStyleByte = EDI_styleBuffer[i];
+            if (local_EDI_styleBuffer[i] !== 0) {
+                const originalStyleByte = local_EDI_styleBuffer[i];
                 if (originalStyleByte === undefined) { // out of bounds
                     TRAILINGstyleByteTRAILING = 0;
                     break;
@@ -727,34 +739,34 @@ function EDI_render_do_Scroll() {
                         TRAILINGstyleByteTRAILING = originalStyleByte;
                         break outerWhile;
                     }
-                    if (EDI_styleBuffer[i] !== originalStyleByte) {
+                    if (local_EDI_styleBuffer[i] !== originalStyleByte) {
                         EDI_rangeInit.startOffset = start;
                         EDI_rangeInit.endOffset = start + length;
                         let range = new StaticRange(EDI_rangeInit);
                         arrayOfRangeObjectsOnLine.push(range);
                         if (originalStyleByte === 1) {
-                            stringHighlight.add(range);
+                            local_stringHighlight.add(range);
                         }
                         else if (originalStyleByte === 2) {
-                            commentHighlight.add(range);
+                            local_commentHighlight.add(range);
                         }
                         else if (originalStyleByte === 3) {
-                            keywordHighlight.add(range);
+                            local_keywordHighlight.add(range);
                         }
                         else if (originalStyleByte === 4) {
-                            keywordControlHighlight.add(range);
+                            local_keywordControlHighlight.add(range);
                         }
                         else if (originalStyleByte === 5) {
-                            identifierHighlight.add(range);
+                            local_identifierHighlight.add(range);
                         }
                         else if (originalStyleByte === 6) {
-                            typeHighlight.add(range);
+                            local_typeHighlight.add(range);
                         }
                         else if (originalStyleByte === 7) {
-                            memberHighlight.add(range);
+                            local_memberHighlight.add(range);
                         }
                         else if (originalStyleByte === 8) {
-                            functionHighlight.add(range);
+                            local_functionHighlight.add(range);
                         }
                         continue outerWhile;
                     }
@@ -769,28 +781,28 @@ function EDI_render_do_Scroll() {
             let range = new StaticRange(EDI_rangeInit);
             arrayOfRangeObjectsOnLine.push(range);
             if (TRAILINGstyleByteTRAILING === 1) {
-                stringHighlight.add(range);
+                local_stringHighlight.add(range);
             }
             else if (TRAILINGstyleByteTRAILING === 2) {
-                commentHighlight.add(range);
+                local_commentHighlight.add(range);
             }
             else if (TRAILINGstyleByteTRAILING === 3) {
-                keywordHighlight.add(range);
+                local_keywordHighlight.add(range);
             }
             else if (TRAILINGstyleByteTRAILING === 4) {
-                keywordControlHighlight.add(range);
+                local_keywordControlHighlight.add(range);
             }
             else if (TRAILINGstyleByteTRAILING === 5) {
-                identifierHighlight.add(range);
+                local_identifierHighlight.add(range);
             }
             else if (TRAILINGstyleByteTRAILING === 6) {
-                typeHighlight.add(range);
+                local_typeHighlight.add(range);
             }
             else if (TRAILINGstyleByteTRAILING === 7) {
-                memberHighlight.add(range);
+                local_memberHighlight.add(range);
             }
             else if (TRAILINGstyleByteTRAILING === 8) {
-                functionHighlight.add(range);
+                local_functionHighlight.add(range);
             }
         }
         

@@ -586,15 +586,6 @@ function EDI_scrollViewport_scroll() {
  * - the second chunk is the latter
 */
 function EDI_render_do_Scroll() {
-    // --- 2. THE FINE-GRAINED MOVE (The GPU trick) ---
-    // Since your lines are virtualized, you only want to shift the text container 
-    // by the tiny "sub-pixel remainder" of the scroll so it feels perfectly smooth.
-    // Assuming a line height of 15px:
-    //const lineRemainderY = scrollTop % 15;
-
-    // Push the text canvas lightly to match the scrollbar position smoothly
-    //EDI_text.style.transform = `translate3d(-${EDI_lastReadNumber_scrollLeft}px, -${EDI_lastReadNumber_scrollTop}px, 0)`;
-
     const yAndZ = 'px, -' + EDI_lastReadNumber_scrollTop + 'px, 0)';
 
     EDI_text.style.transform = 'translate3d(-' + EDI_lastReadNumber_scrollLeft + yAndZ;
@@ -623,7 +614,7 @@ function EDI_render_do_Scroll() {
     let lowerBound = 0;
     let ringBufferIndex = 0; // The 0th loop will immediately increment this variable, thus all the assignments to this have a '- 1' on them.
 
-    if (diff >= local_ArrayFrom_textElement_children_length || diff <= local_ArrayFrom_textElement_children_length) {
+    if (diff >= local_ArrayFrom_textElement_children_length || diff <= 0) {
         lowerBound = local_currVli;
         diff = local_ArrayFrom_textElement_children_length; // Bound the loop run to the size of your screen viewport
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1;

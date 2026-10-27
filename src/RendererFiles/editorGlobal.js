@@ -5764,12 +5764,12 @@ function EDI_drawCursor(NOTscrollCursorIntoView) {
 
     if (newY !== INTS[fEDI_cursor_cursorTranslateYValue]) {
         INTS[fEDI_cursor_cursorTranslateYValue] = newY;
-        EDI_cursor_caretRow.style.transform = `translateY(${newY}px)`;
+        EDI_cursor_caretRow.style.setProperty('--edi-cursor-y', newY);
     }
 
     if (newX !== EDI_cursor_cursorTranslateXValue) {
         EDI_cursor_cursorTranslateXValue = newX;
-        EDI_cursor_cursorElement.style.transform = `translateX(${newX}px)`;
+        EDI_cursor_cursorElement.style.setProperty('--edi-cursor-x', newX);
     }
 
     EDI_createStyleForSelection();

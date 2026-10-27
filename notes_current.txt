@@ -2093,3 +2093,9 @@ You can confidently close those forum tabs, stop hunting for performance bugs, a
 
 I don't feel like I won anything lol
 
+=====
+
+.cursor { transform: translateY(calc(var(--cursor-y) * 1px)); }
+
+EDI_cursor_caretRow.style.setProperty('--cursor-y', newY);
+

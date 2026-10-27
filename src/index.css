@@ -508,6 +508,18 @@ TODO: maybe don't nearly-duplicate these classes.
   display: contents;
 }
 
+@property --edi-cursor-x {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --edi-cursor-y {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
 .EDI_caretRow {
   width: 100%;
   outline: 1px solid var(--light-border-color);
@@ -516,6 +528,7 @@ TODO: maybe don't nearly-duplicate these classes.
   top: 0;
   contain: strict;
   will-change: transform;
+  transform: translateY(calc(var(--edi-cursor-y) * 1px));
 }
 
 .EDI_cursor {
@@ -526,6 +539,7 @@ TODO: maybe don't nearly-duplicate these classes.
   top: 0;
   will-change: transform/*, opacity*/;
   contain: strict;
+  transform: translateX(calc(var(--edi-cursor-x) * 1px));
   /* Use step-end to natively handle discrete on/off states */
   /* animation: blink-animation 1s step-end infinite; */
 }

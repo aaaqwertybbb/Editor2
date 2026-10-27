@@ -326,7 +326,7 @@ function DIALOG_FindAll_Create() {
     // TODO: Remove 'searchResultsDiv'? It is pointlessly wrapping.
     let searchResultsDiv = document.createElement('div');
     searchResultsDiv.id = 'DIALOG_FindAll_searchResultsDiv';
-    const searchResultsDivHeightString = `calc(100% - ${2 * fAPP_lineHeight}px - 2px)`;
+    const searchResultsDivHeightString = `calc(100% - ${2 * INTS[fAPP_lineHeight]}px - 2px)`;
     searchResultsDiv.style.height = searchResultsDivHeightString;
     searchResultsDiv.style.lineHeight = searchResultsDivHeightString;
     dialogBody.appendChild(searchResultsDiv);

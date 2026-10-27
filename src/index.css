@@ -546,6 +546,8 @@ TODO: maybe don't nearly-duplicate these classes.
   width: 100%;
   position: absolute;
   background-color: var(--primary-active-with-focus-background-color);
+  left: 0;
+  top: 0;
 }
 
 ::highlight(js-keywords) {

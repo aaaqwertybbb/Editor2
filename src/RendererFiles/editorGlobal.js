@@ -256,9 +256,6 @@ let EDI_styleBuffer_capacity = 0;
 let EDI_lastReadNumber_scrollLeft = 0;
 let EDI_lastReadNumber_scrollTop = 0;
 
-let EDI_lastReadNumber_scrollLeft_SCROLLSEEN = 0;
-let EDI_lastReadNumber_scrollTop_SCROLLSEEN = 0;
-
 const EDI_rangeInit = {
     startContainer: null,
     startOffset: 0,
@@ -598,17 +595,10 @@ function EDI_render_do_Scroll() {
     // Push the text canvas lightly to match the scrollbar position smoothly
     //EDI_text.style.transform = `translate3d(-${EDI_lastReadNumber_scrollLeft}px, -${EDI_lastReadNumber_scrollTop}px, 0)`;
 
-    if (EDI_lastReadNumber_scrollLeft_SCROLLSEEN !== EDI_lastReadNumber_scrollLeft) {
-        EDI_lastReadNumber_scrollLeft_SCROLLSEEN = EDI_lastReadNumber_scrollLeft;
-        EDI_text.style.setProperty('--scroll-x', EDI_lastReadNumber_scrollLeft);// what if u set 0 then + height? nonesense?
-    }
-    if (EDI_lastReadNumber_scrollTop_SCROLLSEEN !== EDI_lastReadNumber_scrollTop) {
-        EDI_lastReadNumber_scrollTop_SCROLLSEEN = EDI_lastReadNumber_scrollTop;
-        const stringVersion = '' + EDI_lastReadNumber_scrollTop;
-        EDI_text.style.setProperty('--scroll-y', stringVersion);
-        // If your gutter numbers move vertically too, shift them the same way!
-        EDI_gutter_scroll_mover.style.setProperty('--scroll-y', stringVersion);
-    }
+    const yAndZ = 'px, -' + EDI_lastReadNumber_scrollTop + 'px, 0)';
+
+    EDI_text.style.transform = `translate3d(-${EDI_lastReadNumber_scrollLeft}${yAndZ}`;
+    EDI_gutter_scroll_mover.style.transform = `translate3d(0${yAndZ}`;
 
     const local_lineHeight = INTS[fEDI_lineHeight];
     
@@ -5779,12 +5769,12 @@ function EDI_drawCursor(NOTscrollCursorIntoView) {
 
     if (newY !== INTS[fEDI_cursor_cursorTranslateYValue]) {
         INTS[fEDI_cursor_cursorTranslateYValue] = newY;
-        EDI_cursor_caretRow.style.setProperty('--edi-cursor-y', newY);
+        EDI_cursor_caretRow.style.transform = `translateY(${newY}px)`;
     }
 
     if (newX !== EDI_cursor_cursorTranslateXValue) {
         EDI_cursor_cursorTranslateXValue = newX;
-        EDI_cursor_cursorElement.style.setProperty('--edi-cursor-x', newX);
+        EDI_cursor_cursorElement.style.transform = `translateX(${newX}px)`;
     }
 
     EDI_createStyleForSelection();

@@ -492,24 +492,8 @@ TODO: maybe don't nearly-duplicate these classes.
   /* will-change: transform; */
 }
 
-@property --scroll-x {
-  syntax: '<number>';
-  inherits: false;
-  initial-value: 0;
-}
-
-@property --scroll-y {
-  syntax: '<number>';
-  inherits: false;
-  initial-value: 0;
-}
-
 #EDI_gutter_scroll_mover {
-  transform: translate3d(
-    calc(var(--scroll-x) * -1px), 
-    calc(var(--scroll-y) * -1px), 
-    0
-  );
+  will-change: transform;
 }
 
 #EDI_text {
@@ -522,28 +506,11 @@ TODO: maybe don't nearly-duplicate these classes.
   /*background-color: #1e1e1e; */
   /* Gives the GPU a solid texture target */
   flex: 1;
-
-  transform: translate3d(
-    calc(var(--scroll-x) * -1px), 
-    calc(var(--scroll-y) * -1px), 
-    0
-  );
+  will-change: transform;
 }
 
 #EDI_selection {
   display: contents;
-}
-
-@property --edi-cursor-x {
-  syntax: '<number>';
-  inherits: false;
-  initial-value: 0;
-}
-
-@property --edi-cursor-y {
-  syntax: '<number>';
-  inherits: false;
-  initial-value: 0;
 }
 
 .EDI_caretRow {
@@ -554,7 +521,6 @@ TODO: maybe don't nearly-duplicate these classes.
   top: 0;
   contain: strict;
   will-change: transform;
-  transform: translateY(calc(var(--edi-cursor-y) * 1px));
 }
 
 .EDI_cursor {
@@ -565,7 +531,6 @@ TODO: maybe don't nearly-duplicate these classes.
   top: 0;
   will-change: transform/*, opacity*/;
   contain: strict;
-  transform: translateX(calc(var(--edi-cursor-x) * 1px));
   /* Use step-end to natively handle discrete on/off states */
   /* animation: blink-animation 1s step-end infinite; */
 }

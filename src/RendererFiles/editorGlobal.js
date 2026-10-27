@@ -182,6 +182,8 @@ let EDI_listComponent = null;
 const w_divNONE = document.createElement('div');
 let w_div = w_divNONE;
 
+let EDI_lineHeightStringWithPx = '';
+
 /**
  * This queueing is currently a complete copy and paste of what Google AI generated.
  * I looked it over and it appears correct.
@@ -285,6 +287,13 @@ function EDI_init() {
     //EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.length = 0;
 
     EDI_measureLineHeightAndCharacterWidth();
+
+    EDI_cursor_caretRow.style.height = EDI_lineHeightStringWithPx;
+    EDI_cursor_caretRow.style.lineHeight = EDI_lineHeightStringWithPx;
+
+    EDI_cursor_cursorElement.style.height = EDI_lineHeightStringWithPx;
+    EDI_cursor_cursorElement.style.lineHeight = EDI_lineHeightStringWithPx;
+
     EDI_measureBaseElement();
 
     const gutterPaddingLeft = CONST_EDI_gutterPaddingLeft + 'px';
@@ -477,12 +486,16 @@ function EDI_render_do_CreateViewport() {
         const gutterLineElement = document.createElement('div');
         gutterLineElement.className = 'eG';
         gutterLineElement.style.width = gutterWidth;
+        gutterLineElement.style.height = EDI_lineHeightStringWithPx;
+        gutterLineElement.style.lineHeight = EDI_lineHeightStringWithPx;
         gutterLineElement.appendChild(document.createTextNode(''));
         gutterFragment.appendChild(gutterLineElement);
 
         const textLineElement = document.createElement('div');
         textLineElement.className = 'eT';
         textLineElement.style.width = virtualization_horizontal_style_width_attribute;
+        textLineElement.style.height = EDI_lineHeightStringWithPx;
+        textLineElement.style.lineHeight = EDI_lineHeightStringWithPx;
         textLineElement.appendChild(document.createTextNode(''));
         textFragment.appendChild(textLineElement);
         EDI_ringBuffer_text[loopIndex] = textLineElement;
@@ -5966,7 +5979,11 @@ function EDI_createStyleForSelection() {
         let selectedLineCount = INCLUSIVEendLine - startLine + 1;
         if (textSelectionDiv.children.length < selectedLineCount) {
             for (let i = textSelectionDiv.children.length; i < selectedLineCount; i++) {
-                textSelectionDiv.appendChild(document.createElement('div'));
+                const div = document.createElement('div');
+                div.className = 'EDI_selection';
+                div.style.height = EDI_lineHeightStringWithPx;
+                div.style.lineHeight = EDI_lineHeightStringWithPx;
+                textSelectionDiv.appendChild(div);
             }
         }
         else if (textSelectionDiv.children.length > selectedLineCount) {
@@ -5988,14 +6005,12 @@ function EDI_createStyleForSelection() {
 
         if (startLine === INCLUSIVEendLine) {
             lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
-            lineSelectionDiv.className = 'EDI_selection';
             lineSelectionDiv.style.transform = `translate(${start_visualColumnStart * EDI_characterWidth}px, ${INTS[fEDI_lineHeight] * startLine}px)`;
             lineSelectionDiv.style.width = (end_visualColumnStart - start_visualColumnStart) * EDI_characterWidth + 'px';
         }
         else {
             // start line
             lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
-            lineSelectionDiv.className = 'EDI_selection';
             lineSelectionDiv.style.transform = `translate(${start_visualColumnStart * EDI_characterWidth}px, ${INTS[fEDI_lineHeight] * startLine}px)`;
             EDI_ret_getLineBoundaryPositions_raw(startLine);
             let lineVisualWidth = EDI_getEntireLineVisualWidth(INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end]);
@@ -6004,7 +6019,6 @@ function EDI_createStyleForSelection() {
             // between lines
             for (var lineI = startLine + 1; lineI < INCLUSIVEendLine; lineI++) {
                 lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
-                lineSelectionDiv.className = 'EDI_selection';
                 lineSelectionDiv.style.transform = `translate(0px, ${INTS[fEDI_lineHeight] * lineI}px)`;
                 EDI_ret_getLineBoundaryPositions_raw(lineI);
                 let lineVisualWidth = EDI_getEntireLineVisualWidth(INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end]);
@@ -6013,7 +6027,6 @@ function EDI_createStyleForSelection() {
 
             // end line
             lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
-            lineSelectionDiv.className = 'EDI_selection';
             lineSelectionDiv.style.transform = `translate(0px, ${INTS[fEDI_lineHeight] * INCLUSIVEendLine}px)`;
             lineSelectionDiv.style.width = end_visualColumnStart * EDI_characterWidth + 'px';
         }
@@ -7285,10 +7298,7 @@ function EDI_measureLineHeightAndCharacterWidth() {
     wrapper.removeChild(measureElement);
     EDI_text.removeChild(wrapper);
 
-    const root = document.documentElement;
-    let teLineHeight = INTS[fEDI_lineHeight] + 'px';
-    let propertyName = '--EDITOR-line-height';
-    root.style.setProperty(propertyName, teLineHeight); // Apply the property directly. At startup, forcing getComputedStyle is slower than a direct write.
+    EDI_lineHeightStringWithPx = INTS[fEDI_lineHeight] + 'px';
 }
 
 function EDI_toExtensionKind(extensionWithPeriod) {

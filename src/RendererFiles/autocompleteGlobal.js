@@ -221,6 +221,8 @@ function AUTOCOMPLETE_render_do_show() {
 
         let AUTOCOMPLETE_cursor = document.createElement('div');
         AUTOCOMPLETE_cursor.id = 'AUTOCOMPLETE_cursor';
+        AUTOCOMPLETE_cursor.style.height = APP_lineHeightStringWithPx;
+        AUTOCOMPLETE_cursor.style.lineHeight = APP_lineHeightStringWithPx;
         AUTOCOMPLETE_text.appendChild(AUTOCOMPLETE_cursor);
 
         AUTOCOMPLETE_itemList = document.createElement('div');

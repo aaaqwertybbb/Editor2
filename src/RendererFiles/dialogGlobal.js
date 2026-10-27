@@ -687,8 +687,17 @@ function DIALOG_createWindow() {
 
     let toolbar = document.createElement('div');
     toolbar.id = 'DIALOG_toolbar';
+    let toolbarHeightStringWithPx = `${2 * INTS[fEDI_lineHeight]}px`;
+    toolbar.style.height = toolbarHeightStringWithPx;
+    toolbar.style.lineHeight = toolbarHeightStringWithPx;
+
     let body = document.createElement('div');
     body.id = 'DIALOG_body';
+    /* TODO: -9px is somewhat not understood I think it has to do with the borders but I'm not overly interested in looking into this right now. */
+    const bodyHeightString = `calc(100% - ${toolbarHeightStringWithPx} - 9px)`;
+    body.style.height = bodyHeightString;
+    body.style.lineHeight = bodyHeightString;
+
     let resize = document.createElement('div');
     resize.id = 'DIALOG_resize';
 

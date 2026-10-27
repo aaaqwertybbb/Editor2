@@ -1,5 +1,7 @@
 init();
 
+let APP_lineHeightStringWithPx = '';
+
 function init() {
     document
         .getElementById('HEADER_buttonSettings')
@@ -52,10 +54,7 @@ function APP_measureLineHeightAndCharacterWidth() {
     wrapper.removeChild(measureElement);
     document.body.removeChild(wrapper);
 
-    const root = document.documentElement;
-    const appLineHeight = INTS[fAPP_lineHeight] + 'px';
-    const propertyName = '--APP-line-height';
-    root.style.setProperty(propertyName, appLineHeight);
+    APP_lineHeightStringWithPx = INTS[fAPP_lineHeight] + 'px';
 }
 
 async function window_myAPI_onMessage(data) {

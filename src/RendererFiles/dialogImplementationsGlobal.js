@@ -294,13 +294,15 @@ function DIALOG_FindAll_Create() {
     searchTextInput.id = 'DIALOG_FindAll_searchTextInput';
     searchTextInput.style.marginLeft = '5px';
     searchTextInput.style.marginTop = '5px';
-    searchTextInput.style.height = 'var(--APP-line-height)';
+    searchTextInput.style.height = APP_lineHeightStringWithPx;
+    searchTextInput.style.lineHeight = APP_lineHeightStringWithPx;
     searchTextInput.addEventListener('keydown', DIALOG_FindAll_searchTextInput_onkeydown);
     dialogBody.appendChild(searchTextInput);
     searchTextInput.focus();
     
     let divOptions = document.createElement('div');
-    divOptions.style.height = 'var(--APP-line-height)';
+    divOptions.style.height = APP_lineHeightStringWithPx;
+    divOptions.style.lineHeight = APP_lineHeightStringWithPx;
     divOptions.style.whiteSpace = 'nowrap';
     let checkboxMatchWord = document.createElement('input');
     checkboxMatchWord.type = 'checkbox';
@@ -324,6 +326,9 @@ function DIALOG_FindAll_Create() {
     // TODO: Remove 'searchResultsDiv'? It is pointlessly wrapping.
     let searchResultsDiv = document.createElement('div');
     searchResultsDiv.id = 'DIALOG_FindAll_searchResultsDiv';
+    const searchResultsDivHeightString = `calc(100% - ${2 * fAPP_lineHeight}px - 2px)`;
+    searchResultsDiv.style.height = searchResultsDivHeightString;
+    searchResultsDiv.style.lineHeight = searchResultsDivHeightString;
     dialogBody.appendChild(searchResultsDiv);
 }
 

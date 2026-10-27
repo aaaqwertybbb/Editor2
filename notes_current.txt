@@ -2049,6 +2049,6 @@ I gotta actually look through and figure out if anything is a good idea.
 - [ ] consider keeping elements always on screen i.e.: a tooltip dom element.
     - [ ] I'm not sure I'm looking at the paints.
     - [ ] Just consider that maybe it is the difference in some scenarios between a tooltip being from not shown to shown having painted the entire app or just the tooltip
-
-
+    - [ ] also maybe put them after body
+- [ ] --EDITOR-line-height: 15px; --APP-line-height: 22px; causes dependencies?
 

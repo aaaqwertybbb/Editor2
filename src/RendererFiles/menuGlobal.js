@@ -107,6 +107,8 @@ function MENU_render_do_Set() {
 
     let cursor = document.createElement('div');
     cursor.id = "MENU_cursor";
+    cursor.style.height = APP_lineHeightStringWithPx;
+    cursor.style.lineHeight = APP_lineHeightStringWithPx;
     let optionListElement = document.createElement('div');
     optionListElement.id = "MENU_optionList";
     menuElement.appendChild(cursor);
@@ -116,6 +118,8 @@ function MENU_render_do_Set() {
         const entry = MENU_request.optionList[i];
         const optionElement = document.createElement('div');
         optionElement.className = 'menuOption';
+        optionElement.style.height = APP_lineHeightStringWithPx;
+        optionElement.style.lineHeight = APP_lineHeightStringWithPx;
         optionElement.textContent = entry.text;
 
         if (entry.submenu) {

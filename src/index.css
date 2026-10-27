@@ -22,22 +22,23 @@ body {
   background-color: var(--secondary-background-color);
   color: var(--secondary-foreground-color);
   border-bottom: 1px solid var(--primary-border-color);
-  height: var(--header-height);
+  height: 25px;
+  contain: layout paint style;
 }
 
 #BODY {
   display: flex;
   /* -1 for header border bottom */
-  height: calc(100% - var(--header-height) - 1px);
+  height: calc(100% - 25px - 1px);
 }
 
 #EXPLORER {
   width: 200px;
   height: 100%;
+  contain: layout paint style;
 }
 
 .treeView_node {
-  height: var(--APP-line-height);
   white-space: nowrap;
 }
 
@@ -61,7 +62,6 @@ body {
 
 #MENU_cursor {
   background-color: var(--primary-active-no-focus-background-color);
-  height: var(--APP-line-height);
   position: absolute;
   /* -8px is the sum of the padding left and padding right of the menu */
   width: calc(100% - 8px);
@@ -73,7 +73,6 @@ body {
 }
 
 .menuOption {
-  height: var(--APP-line-height);
   white-space: nowrap;
   position: relative;
 }
@@ -206,7 +205,6 @@ body {
   background-color: var(--primary-active-no-focus-background-color);
   position: absolute;
   width: 100%;
-  height: var(--APP-line-height);
 }
 
 #AUTOCOMPLETE_itemList {
@@ -373,6 +371,7 @@ TODO: maybe don't nearly-duplicate these classes.
 #EDI_hack {
   width: calc(100% - 200px);
   position: relative;
+  contain: layout paint style;
 }
 
 #EDI_debug {
@@ -455,7 +454,7 @@ TODO: maybe don't nearly-duplicate these classes.
 
 /* .EDI_gutterLine is being renamed to .eG (i.e.: Editor Gutter line) */
 .eG {
-  height: var(--EDITOR-line-height);
+  
   position: absolute;
 
   left: 0;
@@ -468,8 +467,6 @@ TODO: maybe don't nearly-duplicate these classes.
 /* .EDI_line is being renamed to .eT (i.e.: Editor Text line) */
 .eT {
   width: 100%;
-  height: var(--EDITOR-line-height);
-  line-height: var(--EDITOR-line-height);
   position: absolute;
 
   white-space: pre !important;
@@ -513,7 +510,6 @@ TODO: maybe don't nearly-duplicate these classes.
 
 .EDI_caretRow {
   width: 100%;
-  height: var(--EDITOR-line-height);
   outline: 1px solid var(--light-border-color);
   position: absolute;
   left: 0;
@@ -524,7 +520,6 @@ TODO: maybe don't nearly-duplicate these classes.
 
 .EDI_cursor {
   width: 2.5px;
-  height: var(--EDITOR-line-height);
   background-color: var(--primary-foreground-color);
   position: absolute;
   left: 0;
@@ -549,7 +544,6 @@ TODO: maybe don't nearly-duplicate these classes.
 
 .EDI_selection {
   width: 100%;
-  height: var(--EDITOR-line-height);
   position: absolute;
   background-color: var(--primary-active-with-focus-background-color);
 }
@@ -600,15 +594,12 @@ TODO: maybe don't nearly-duplicate these classes.
 #DIALOG_toolbar {
   display: flex;
   justify-content: space-between;
-  height: calc(2 * var(--EDITOR-line-height));
   border-bottom: 1px solid var(--primary-border-color);
   background-color: var(--secondary-background-color);
   position: relative;
 }
 
 #DIALOG_body {
-  /* TODO: -9px is somewhat not understood I think it has to do with the borders but I'm not overly interested in looking into this right now. */
-  height: calc(100% - (2 * var(--EDITOR-line-height)) - 9px);
   background-color: var(--secondary-background-color);
   position: relative;
 }
@@ -619,10 +610,6 @@ TODO: maybe don't nearly-duplicate these classes.
   top: -8px;
   width: calc(100% + 16px);
   height: calc(100% + 16px);
-}
-
-#DIALOG_FindAll_searchResultsDiv {
-  height: calc(100% - (2 * var(--APP-line-height)) - 2px);
 }
 
 .APP_MEASURE_ELEMENT {
@@ -644,12 +631,6 @@ TODO: maybe don't nearly-duplicate these classes.
   height: '0';       /* Forces a tiny container footprint */
   overflow: 'hidden'; /* Prevents any layout leaking out or causing scrollbars */
   visibility: 'hidden'; /* Keeps it completely invisible to the user */
-}
-
-:root {
-  --header-height: 25px;
-  --EDITOR-line-height: 20px;
-  --APP-line-height: 20px;
 }
 
 button:focus {

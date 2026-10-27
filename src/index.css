@@ -524,12 +524,13 @@ TODO: maybe don't nearly-duplicate these classes.
   position: absolute;
   left: 0;
   top: 0;
-  will-change: transform, opacity;
+  will-change: transform/*, opacity*/;
   contain: strict;
-  animation: blink-animation 1s linear infinite;
+  /* Use step-end to natively handle discrete on/off states */
+  /* animation: blink-animation 1s step-end infinite; */
 }
 
-@keyframes blink-animation {
+/*@keyframes blink-animation {
 
   0%,
   49.9% {
@@ -540,7 +541,12 @@ TODO: maybe don't nearly-duplicate these classes.
   100% {
     opacity: 0;
   }
-}
+}*/
+
+/*@keyframes blink-animation {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}*/
 
 .EDI_selection {
   width: 100%;

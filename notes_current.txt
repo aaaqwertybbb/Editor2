@@ -2052,3 +2052,15 @@ I gotta actually look through and figure out if anything is a good idea.
     - [ ] also maybe put them after body
 - [ ] --EDITOR-line-height: 15px; --APP-line-height: 22px; causes dependencies?
 
+
+=========
+
+
+According to the official Chromium issue tracker, Custom highlights repaint on any style change in the document.
+When text ranges are registered via CSS.highlights, every style change anywhere in the document causes all highlighted text nodes to be completely repainted.
+
+Because your cursor's blink-animation changes its opacity property on every frame, Chromium flags it as a style change.
+Even if the cursor sits on a promoted GPU layer, the Highlight API breaks boundaries by forcing all active text highlights in your editor lines
+to invalidate and repaint simultaneously. This makes standard CSS-driven animations impossible to isolate.
+
+

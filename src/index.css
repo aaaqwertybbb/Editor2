@@ -472,7 +472,7 @@ TODO: maybe don't nearly-duplicate these classes.
   white-space: pre !important;
 
   top: 0;
-  /*left: 0;*/
+  left: 0;
 
   overflow: hidden;
 

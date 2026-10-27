@@ -597,8 +597,8 @@ function EDI_render_do_Scroll() {
 
     const yAndZ = 'px, -' + EDI_lastReadNumber_scrollTop + 'px, 0)';
 
-    EDI_text.style.transform = `translate3d(-${EDI_lastReadNumber_scrollLeft}${yAndZ}`;
-    EDI_gutter_scroll_mover.style.transform = `translate3d(0${yAndZ}`;
+    EDI_text.style.transform = 'translate3d(-' + EDI_lastReadNumber_scrollLeft + yAndZ;
+    EDI_gutter_scroll_mover.style.transform = 'translate3d(0' + yAndZ;
 
     const local_lineHeight = INTS[fEDI_lineHeight];
     

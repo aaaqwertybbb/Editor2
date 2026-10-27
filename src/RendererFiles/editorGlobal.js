@@ -631,8 +631,6 @@ function EDI_render_do_Scroll() {
         lowerBound = local_currVli;
         absDiff = virtualCount; // Bound the loop run to the size of your screen viewport
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1;
-        clearTimeout(INTS[fEDI_render_do_ScrollTrailingEdgeCheckTimeoutId]);
-        INTS[fEDI_render_do_ScrollTrailingEdgeCheckTimeoutId] = setTimeout(EDI_onScroll_TrailingEdge, 200);
     }
     else if (diff > 0) {
         lowerBound = local_prevVli + INTS[fEDI_ONSCROLLvirtualCount];

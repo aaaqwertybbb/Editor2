@@ -622,14 +622,13 @@ function EDI_render_do_Scroll() {
     const virtualCount = INTS[fEDI_virtualCount];
 
     let lowerBound = 0;
-    let upperBound = 0;
     let ringBufferIndex = 0; // The 0th loop will immediately increment this variable, thus all the assignments to this have a '- 1' on them.
 
-    let absDiff = diff < 0 ? -diff : diff;
+    //let absDiff = diff < 0 ? -diff : diff;
 
-    if (absDiff >= virtualCount) {
+    if (diff >= virtualCount) {
         lowerBound = local_currVli;
-        absDiff = virtualCount; // Bound the loop run to the size of your screen viewport
+        diff = virtualCount; // Bound the loop run to the size of your screen viewport
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1;
     }
     else if (diff > 0) {
@@ -639,11 +638,10 @@ function EDI_render_do_Scroll() {
     }
     else {
         lowerBound = local_currVli;
-        INTS[fEDI_ringBuffer_indexZero] = (INTS[fEDI_ringBuffer_indexZero] - absDiff + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
+        diff *= -1;
+        INTS[fEDI_ringBuffer_indexZero] = (INTS[fEDI_ringBuffer_indexZero] - diff + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1; // Moving up: Capture index AFTER updating indexZero
     }
-
-    upperBound = lowerBound + absDiff;
 
     const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
     const local_EDI_lineEndPositionList_count = INTS[fEDI_lineEndPositionList_count];
@@ -663,7 +661,7 @@ function EDI_render_do_Scroll() {
     
     let vertical = lowerBound * local_lineHeight;
 
-    const local_loopLimit = upperBound;
+    const local_loopLimit = lowerBound + diff;
     for (let indexLine = lowerBound; indexLine < local_loopLimit; ++indexLine) {
         // (faster than modulo given this context)
         ringBufferIndex++;

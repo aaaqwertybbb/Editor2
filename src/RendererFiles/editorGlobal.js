@@ -627,8 +627,6 @@ function EDI_render_do_Scroll() {
 
     let absDiff = diff < 0 ? -diff : diff;
 
-    let permitImmediateSyntaxHighlighting = false;
-
     if (absDiff >= virtualCount) {
         lowerBound = local_currVli;
         absDiff = virtualCount; // Bound the loop run to the size of your screen viewport
@@ -640,13 +638,11 @@ function EDI_render_do_Scroll() {
         lowerBound = local_prevVli + INTS[fEDI_ONSCROLLvirtualCount];
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1; // Moving down: Capture index BEFORE updating indexZero
         INTS[fEDI_ringBuffer_indexZero] = (INTS[fEDI_ringBuffer_indexZero] + diff) % local_ArrayFrom_textElement_children_length;
-        permitImmediateSyntaxHighlighting = true;
     }
     else {
         lowerBound = local_currVli;
         INTS[fEDI_ringBuffer_indexZero] = (INTS[fEDI_ringBuffer_indexZero] - absDiff + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1; // Moving up: Capture index AFTER updating indexZero
-        permitImmediateSyntaxHighlighting = true;
     }
 
     upperBound = lowerBound + absDiff;
@@ -664,7 +660,7 @@ function EDI_render_do_Scroll() {
     const local_bytes = EDI_textByteList_bytes;
     const local_EDI_ringBuffer_gutter = EDI_ringBuffer_gutter;
     const local_EDI_ringBuffer_text = EDI_ringBuffer_text;
-    const local_EDI_ringBuffer_needsSyntaxHighlightingFlags = EDI_ringBuffer_needsSyntaxHighlightingFlags;
+    const local_EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine;
     const local_EDI_decoder = EDI_decoder;
     
     let vertical = lowerBound * local_lineHeight;
@@ -694,17 +690,131 @@ function EDI_render_do_Scroll() {
         textNode = div.firstChild;
         textNode.replaceData(0, textNode.length, lineStart === lineEnd ? '' : local_EDI_decoder.decode(local_bytes.subarray(lineStart, lineEnd)));
 
-        if (permitImmediateSyntaxHighlighting) {
-            // TODO: If you eat the cost of a full screen syntax highlight after the timeout you can completely remove the 'local_EDI_ringBuffer_needsSyntaxHighlightingFlags'...
-            // ...it actually might be less overhead to eat the cost than track this...
-            // ...because consecutive full screens will timeout one after another and you only eat it after the timeout actually finishes...
-            // ...and in the benefit you remove all this tracking logic.
-            local_EDI_ringBuffer_needsSyntaxHighlightingFlags[ringBufferIndex] = 0;
-            EDI_syntaxHighlight_parallelArray(div, ringBufferIndex, lineStart, lineEnd);
+        /////
+        /////
+        /////
+        const arrayOfRangeObjectsOnLine = local_EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndex];
+
+        /// This function is manually inlined(-ish) within 'EDI_syntaxHighlight_parallelArray' at the start of the function. (2 of 2)
+        let range = arrayOfRangeObjectsOnLine.pop();
+        while (range) {
+            if (identifierHighlight.delete(range) ||
+                keywordHighlight.delete(range) ||
+                memberHighlight.delete(range) ||
+                keywordControlHighlight.delete(range) ||
+                functionHighlight.delete(range) ||
+                commentHighlight.delete(range) ||
+                stringHighlight.delete(range) ||
+                typeHighlight.delete(range)) {
+                    // literally do nothing
+            }
+            range = arrayOfRangeObjectsOnLine.pop();
         }
-        else {
-            local_EDI_ringBuffer_needsSyntaxHighlightingFlags[ringBufferIndex] = 1;
+        ///
+
+        EDI_rangeInit.startContainer = textNode;
+        EDI_rangeInit.endContainer = textNode;
+
+        let start = 0;
+        let length = 0;
+
+        let i = lineStart;
+
+        let TRAILINGstyleByteTRAILING = 0;
+
+        // TODO: optimize the loop
+        outerWhile: while (true) {
+            if (i >= lineEnd) {
+                TRAILINGstyleByteTRAILING = 0;
+                break;
+            }
+            if (EDI_styleBuffer[i] !== 0) {
+                const originalStyleByte = EDI_styleBuffer[i];
+                if (originalStyleByte === undefined) { // out of bounds
+                    TRAILINGstyleByteTRAILING = 0;
+                    break;
+                }
+                start = i - lineStart;
+                length = 0;
+                while (true) {
+                    i++;
+                    length++;
+                    if (i >= lineEnd) {
+                        TRAILINGstyleByteTRAILING = originalStyleByte;
+                        break outerWhile;
+                    }
+                    if (EDI_styleBuffer[i] !== originalStyleByte) {
+                        EDI_rangeInit.startOffset = start;
+                        EDI_rangeInit.endOffset = start + length;
+                        let range = new StaticRange(EDI_rangeInit);
+                        arrayOfRangeObjectsOnLine.push(range);
+                        if (originalStyleByte === 1) {
+                            stringHighlight.add(range);
+                        }
+                        else if (originalStyleByte === 2) {
+                            commentHighlight.add(range);
+                        }
+                        else if (originalStyleByte === 3) {
+                            keywordHighlight.add(range);
+                        }
+                        else if (originalStyleByte === 4) {
+                            keywordControlHighlight.add(range);
+                        }
+                        else if (originalStyleByte === 5) {
+                            identifierHighlight.add(range);
+                        }
+                        else if (originalStyleByte === 6) {
+                            typeHighlight.add(range);
+                        }
+                        else if (originalStyleByte === 7) {
+                            memberHighlight.add(range);
+                        }
+                        else if (originalStyleByte === 8) {
+                            functionHighlight.add(range);
+                        }
+                        continue outerWhile;
+                    }
+                }
+            }
+            i++;
         }
+
+        if (length > 0 && TRAILINGstyleByteTRAILING !== 0) {
+            EDI_rangeInit.startOffset = start;
+            EDI_rangeInit.endOffset = start + length;
+            let range = new StaticRange(EDI_rangeInit);
+            arrayOfRangeObjectsOnLine.push(range);
+            if (TRAILINGstyleByteTRAILING === 1) {
+                stringHighlight.add(range);
+            }
+            else if (TRAILINGstyleByteTRAILING === 2) {
+                commentHighlight.add(range);
+            }
+            else if (TRAILINGstyleByteTRAILING === 3) {
+                keywordHighlight.add(range);
+            }
+            else if (TRAILINGstyleByteTRAILING === 4) {
+                keywordControlHighlight.add(range);
+            }
+            else if (TRAILINGstyleByteTRAILING === 5) {
+                identifierHighlight.add(range);
+            }
+            else if (TRAILINGstyleByteTRAILING === 6) {
+                typeHighlight.add(range);
+            }
+            else if (TRAILINGstyleByteTRAILING === 7) {
+                memberHighlight.add(range);
+            }
+            else if (TRAILINGstyleByteTRAILING === 8) {
+                functionHighlight.add(range);
+            }
+        }
+
+        EDI_rangeInit.startContainer = null;
+        EDI_rangeInit.endContainer = null;
+        /////
+        /////
+        /////
 
         const translateY = 'translateY(' + vertical + 'px)';
         gutter.style.transform = translateY;

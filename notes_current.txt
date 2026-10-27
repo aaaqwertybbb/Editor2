@@ -1910,3 +1910,23 @@ etc... before I start
 - [ ] indentifiers should be compared via their hash not their string (no string at all)
 
 227.2 lbs this morning
+
+7:00 AM:
+    - [ ] eat 1 lb of 98% fat free ground chicken with sriracha
+
+7:30 AM drive 5-10 minutes to the supermarket
+    - [ ] 1x single serving of plain cheerios (60% daily iron in these single serving versions specifically (non heme iron though to keep in mind)) (1 dollar)
+    - [ ] 2x 1 lbs of 98% fat free ground chicken (6 dollars each 12 dollars total)
+    - [ ] 4 plain bagels from the bakery (1 dollar each 4 dollars total)
+
+7:55 AM eat
+    - [ ] 1x single serving of plain cheerios (60% daily iron in these single serving versions specifically (non heme iron though to keep in mind))
+    - [ ] 2x plain bagels from the bakery (I eat them plain and don't cut them I just use my hands to rip it piece by piece)
+
+9:00 AM to 11:00 AM
+    - [ ] I've actually been eating the other 2x at this point 2x plain bagels from the bakery (I eat them plain and don't cut them I just use my hands to rip it piece by piece)
+
+Then like 5 PM I eat 
+    - [ ] eat 1 lb of 98% fat free ground chicken with sriracha
+
+

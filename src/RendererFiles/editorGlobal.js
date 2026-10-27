@@ -5898,7 +5898,7 @@ function EDI_drawCursor(NOTscrollCursorIntoView) {
         if (animations.length > 0) {
             animations[0].currentTime = 0; // Instantly snaps the blink track back to 0%, making it 100% visible
         }
-    }
+    }*/
     // The question comes down to what each stage of a setTimeout costs.
     // Previously I assumed 'setTimeout' allocated an object somewhere in the JavaScript heap and that it'd trigger JS GC in some way and cause visual jank.
     // Now I know it only allocates an object in C++, and the JavaScript to C++ (or vice versa) interactions are just done via the 'id'.
@@ -5906,7 +5906,7 @@ function EDI_drawCursor(NOTscrollCursorIntoView) {
     // based on new knowledge I've gained and seeing where it leads.
     //
     clearTimeout(INTS[fEDI_cursorBlinkingTrailingEdgeTimeoutId]);
-    INTS[fEDI_cursorBlinkingTrailingEdgeTimeoutId] = setTimeout(EDI_cursorBlinkingTrailingEdge, 500);*/
+    INTS[fEDI_cursorBlinkingTrailingEdgeTimeoutId] = setTimeout(EDI_cursorBlinkingTrailingEdge, 500);
 
 /*
 - [ ] Further necessary details:
@@ -6170,9 +6170,9 @@ function EDI_createStyleForSelection_indentMore() {
 function EDI_cursorBlinkingTrailingEdge() {
     BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] = 0;
     // TODO: does modifying animationPlayState benefit from rAF?
-    if (BYTES[byteEDI_editorHasFocus]) {
-        EDI_cursor_cursorElement.style.animationPlayState = 'running';
-    }
+    //if (BYTES[byteEDI_editorHasFocus]) {
+    //    EDI_cursor_cursorElement.style.animationPlayState = 'running';
+    //}
     // TODO: (rAF) / it is possible that you paint more than the debug text due to combining that text modification with the same rAF frame...
     // ...that updates something more directly related to the text editor itself (i.e.: if you group this text modification with modifying the 'animationPlayState').
     EDI_draw_cursor_debug();

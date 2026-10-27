@@ -614,7 +614,7 @@ function EDI_render_do_Scroll() {
     let lowerBound = 0;
     let ringBufferIndex = 0; // The 0th loop will immediately increment this variable, thus all the assignments to this have a '- 1' on them.
 
-    if (diff >= local_ArrayFrom_textElement_children_length || diff <= 0) {
+    if (diff >= local_ArrayFrom_textElement_children_length || diff <= -local_ArrayFrom_textElement_children_length) {
         lowerBound = local_currVli;
         diff = local_ArrayFrom_textElement_children_length; // Bound the loop run to the size of your screen viewport
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1;

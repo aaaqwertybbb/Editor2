@@ -1954,3 +1954,5 @@ I got an exercise routine too but I Gotta go cook this chicken (if you know what
 - [ ] cache walk line for edits clear finalize etc...
 
 8:31
+
+no phone call yet

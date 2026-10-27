@@ -683,7 +683,7 @@ function EDI_render_do_Scroll() {
         let textNode = gutter.firstChild;
         lineStart = lineEnd + 1;
         if (indexLine < local_EDI_lineEndPositionList_count) {
-            textNode.replaceData(0, textNode.length, `${indexLine + 1}`);
+            textNode.replaceData(0, textNode.length, '' + (indexLine + 1));
             lineEnd = local_EDI_lineEndPositionList_data[indexLine];
         }
         else {
@@ -706,7 +706,7 @@ function EDI_render_do_Scroll() {
             local_EDI_ringBuffer_needsSyntaxHighlightingFlags[ringBufferIndex] = 1;
         }
 
-        const translateY = `translateY(${vertical}px)`;
+        const translateY = 'translateY(' + vertical + 'px)';
         gutter.style.transform = translateY;
         div.style.transform = translateY;
 

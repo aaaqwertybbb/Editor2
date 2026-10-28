@@ -2162,4 +2162,12 @@ Depending on how this data is structured and used, here are the industry-standar
 
 3. Zipped AST (or Zipper Pattern)
 - What it means: A functional programming pattern used to represent a data structure along with a pointer to a specific location inside it, allowing for efficient local updates.
-- • Why it fits: If your "partial replica" maintains a way to walk back up to the root or modify the tree locally at the cursor, it is structurally a Zipper.
+- Why it fits: If your "partial replica" maintains a way to walk back up to the root or modify the tree locally at the cursor, it is structurally a Zipper.
+
+====
+
+I'm thinking about making relative positions:
+- either the scopes are absolute positions
+- and the nodes are relative to their encompassing scope
+
+Or, every position is relative.

@@ -2107,6 +2107,12 @@ I'm at least experimenting with things
 and there's decent reasoning behind it too it was about reducing string allocations but then there's overhead in other ways
 so just etc... feeling things.
 
+====
 
+I got my 1 lb of 98% fat free ground chicken with sriracha on a plate next to me rn
+
+I gotta eat so I'm not gonna maybe I won't type well.
+
+But I have some good insight
 
 

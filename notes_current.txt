@@ -2133,3 +2133,33 @@ Some mental illness can be exempt.
 
 I just gotta eat a singular plain bagel then I'm gonna write the quote unquote AST facade
 So as the cursor moves you generate a "partial replica" of the AST that describes the cursor position or something
+
+====
+
+<
+No, "AST Facade" is not the most accurate name for this specific feature.
+While it conveys the idea of a simplified or high-level view, it doesn't capture the dynamic, position-dependent nature of what you are building.
+
+In the context of editor clients and Language Server Protocol (LSP) architectures, the pattern you are describing—where a structural path or contextual subset of the syntax tree is
+extracted based on the cursor's location—is widely recognized.
+
+Why "Facade" Falls Short
+
+In software engineering, a Facade hides a complex subsystem behind a single, static interface. Your feature is highly dynamic, context-aware,
+and bound to a changing coordinate (the cursor).
+
+More Accurate Architectural Names
+
+Depending on how this data is structured and used, here are the industry-standard terms for your feature, ranked from most accurate to least:
+
+1. Cursor Context / Node Path
+- What it means: The exact ancestral chain of AST nodes from the root down to the specific token under the cursor.
+- Why it fits: Editors frequently use this to display the current "breadcrumbs" at the top of the window (e.g., Class -> Method -> IfStatement).
+
+2. Focused AST / Structural Viewport
+- What it means: A scoped-down projection of the full AST that only includes nodes relevant to the user's current edit focus.
+- Why it fits: It emphasizes that you are filtering the massive full tree into a manageable, local "window" centered on the cursor.
+
+3. Zipped AST (or Zipper Pattern)
+- What it means: A functional programming pattern used to represent a data structure along with a pointer to a specific location inside it, allowing for efficient local updates.
+- • Why it fits: If your "partial replica" maintains a way to walk back up to the root or modify the tree locally at the cursor, it is structurally a Zipper.

@@ -2129,3 +2129,7 @@ Some mental illness can be exempt.
     But it is ultimately a good thing for not just the economy
     but your own quality of life
 
+====
+
+I just gotta eat a singular plain bagel then I'm gonna write the quote unquote AST facade
+So as the cursor moves you generate a "partial replica" of the AST that describes the cursor position or something

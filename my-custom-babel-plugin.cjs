@@ -63,6 +63,8 @@ module.exports = function (babel) {
     "fEDI_longestLine_indexLine",
     "fEDI_longestLine_length",
     "fEDI_cursor_edit_flagLineChanged",
+    "fEDI_priorToLastJump_indexLine",
+    "fEDI_priorToLastJump_indexColumn",
     "fEDI_cursor_editKind",
     "fEDI_cursor_indexLine",
     "fEDI_cursor_indexColumn",

@@ -82,8 +82,8 @@ async function window_myAPI_onMessage(data) {
         case 'textDocument/definition':
             if (data.result) {
                 if (INTS[fEDI_cursor_indexLine] !== data.result.range.start.line && INTS[fEDI_cursor_indexColumn] !== data.result.range.start.character) {
-                    EDI_priorToLastJump_indexLine = INTS[fEDI_cursor_indexLine];
-                    EDI_priorToLastJump_indexColumn = INTS[fEDI_cursor_indexColumn];
+                    INTS[fEDI_priorToLastJump_indexLine] = INTS[fEDI_cursor_indexLine];
+                    INTS[fEDI_priorToLastJump_indexColumn] = INTS[fEDI_cursor_indexColumn];
                     EDI_moveCursor_indexLine_indexColumn(data.result.range.start.line, /*indexColumn*/ data.result.range.start.character);
                 }
             }

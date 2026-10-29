@@ -67,6 +67,8 @@ module.exports = function (babel) {
     "fEDI_priorToLastJump_indexColumn",
     "fEDI_styleBuffer_count",
     "fEDI_styleBuffer_capacity",
+    "fEDI_cursor_EDI_duplication_totalLineEndCount",
+    "fEDI_cursor_EDI_paste_clipboardContent_totalLineEndCount",
     "fEDI_cursor_editKind",
     "fEDI_cursor_indexLine",
     "fEDI_cursor_indexColumn",
@@ -143,6 +145,9 @@ module.exports = function (babel) {
     "fEXPLORER_render_do_ScrollTrailingEdgeCheckTimeoutId",
 
     "byteEDI_editorHasFocus",
+
+    "byteEDI_duplication_may_have_changed",
+    "byteEDI_clipboard_may_have_changed",
 
     "byteEDI_queueHead",
     "byteEDI_queueTail",

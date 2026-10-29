@@ -71,7 +71,7 @@ it is as if I typed the expression body everywhere I typed the fat arrow functio
  *         - 'true' with '!0'
  *     - i.e.: such an expression is known to be rather performant.
  */
-const BYTES = new Uint8Array(53);
+const BYTES = new Uint8Array(55);
 
 /** returns a number, beware '===' */
 const get_EDI_detailRank = () => BYTES[0];
@@ -199,6 +199,20 @@ const byteMENU_queueTail = 50;
 
 const byteWIDGET_queueHead = 51;
 const byteWIDGET_queueTail = 52;
+
+/**
+ * 'await window.myAPI.editorSetClipboard(...);' needs to be followed up with 'BYTES[byteEDI_clipboard_may_have_changed] = 0'
+ * When reading the clipboard use 'await EDI_read_clipboard();'
+ */
+const byteEDI_duplication_may_have_changed = 53;
+BYTES[byteEDI_duplication_may_have_changed] = 1;
+
+/**
+ * 'await window.myAPI.editorSetClipboard(...);' needs to be followed up with 'BYTES[byteEDI_clipboard_may_have_changed] = 0'
+ * When reading the clipboard use 'await EDI_read_clipboard();'
+ */
+const byteEDI_clipboard_may_have_changed = 54;
+BYTES[byteEDI_clipboard_may_have_changed] = 1;
 
 // BYTES[byteEXPLORER_boundingClientRect_isValid]
 
@@ -335,7 +349,7 @@ const CONST_EDI_cursor_htmlId = "EDI_cursor-1";
  * because ES6 modules are expected (and thus module scopes remove the usefulness of making a local variable):
  *     index.html the script tag: 'type="module" src="..."'
  */
-const INTS = new Uint32Array(150);
+const INTS = new Uint32Array(152);
 
 const fEDI_lineHeight = 0;
 INTS[fEDI_lineHeight] = 20;
@@ -762,6 +776,19 @@ const fEDI_priorToLastJump_indexColumn = 147;
 
 const fEDI_styleBuffer_count = 148;
 const fEDI_styleBuffer_capacity = 149;
+
+/**
+ * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
+ * 
+ * editPosition + this[i]
+ */
+const fEDI_cursor_EDI_duplication_totalLineEndCount = 150;
+
+/**
+ * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
+ * editPosition + this[i]
+ */
+const fEDI_cursor_EDI_paste_clipboardContent_totalLineEndCount = 151;
 
 
 

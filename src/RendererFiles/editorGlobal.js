@@ -60,11 +60,7 @@ let EDI_cursor_enterKey_newLinePlusIndentation_byteList = null;
 /** Depending on 'BYTES[byteEDI_cursor_enterKeyEventKind]' this may either start OR end with '\n'. */
 let EDI_cursor_cached_indentation_string = null;
 
-/**
- * 'await window.myAPI.editorSetClipboard(...);' needs to be followed up with 'EDI_clipboard_may_have_changed = false'
- * When reading the clipboard use 'await EDI_read_clipboard();'
- */
-let EDI_clipboard_may_have_changed = true;
+// see: 'const byteEDI_clipboard_may_have_changed' in fieldBuffer.js
 /**
  * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
  */
@@ -73,11 +69,7 @@ let EDI_cursor_EDI_paste_clipboardContent_string = null;
  * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
  */
 let EDI_cursor_EDI_paste_clipboardContent_bytes = null;
-/**
- * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
- * editPosition + this[i]
- */
-let EDI_cursor_EDI_paste_clipboardContent_totalLineEndCount = 0;
+// see: 'const fEDI_cursor_EDI_paste_clipboardContent_totalLineEndCount' in fieldBuffer.js
 /**
  * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
  * editPosition + this[i]
@@ -100,11 +92,7 @@ let EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = null;
 
 
 
-/**
- * 'await window.myAPI.editorSetClipboard(...);' needs to be followed up with 'EDI_clipboard_may_have_changed = false'
- * When reading the clipboard use 'await EDI_read_clipboard();'
- */
-let EDI_duplication_may_have_changed = true;
+// see: 'const byteEDI_duplication_may_have_changed' in fieldBuffer.js
 /**
  * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
  */
@@ -113,12 +101,7 @@ let EDI_duplication_may_have_changed = true;
  * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
  */
 let EDI_cursor_EDI_duplication_bytes = null;
-/**
- * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
- * 
- * editPosition + this[i]
- */
-let EDI_cursor_EDI_duplication_totalLineEndCount = 0;
+// see: 'const fEDI_cursor_EDI_duplication_totalLineEndCount' in fieldBuffer.js
 /**
  * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
  * 
@@ -1400,7 +1383,7 @@ async function EDI_copySelection() {
         large = selectionAnchor;
     }
     await window.myAPI.editorSetClipboard(EDI_textByteList_bytes, small, large - small, EDI_lineEndString);
-    EDI_clipboard_may_have_changed = true;
+    BYTES[byteEDI_clipboard_may_have_changed] = 1;
 }
 
 /**
@@ -1470,13 +1453,13 @@ function EDI_render_do_DuplicateOrPaste() {
             INTS[fEDI_cursor_edit_eventCount_drawn]++;
             byteArray = EDI_cursor_EDI_duplication_bytes;
             insert_character_count = byteArray.length;
-            linesInsertedCount = EDI_cursor_EDI_duplication_totalLineEndCount;
+            linesInsertedCount = INTS[fEDI_cursor_EDI_duplication_totalLineEndCount];
         }
         else if (INTS[fEDI_cursor_editKind] === EditKind_Paste) {
             INTS[fEDI_cursor_edit_eventCount_drawn]++;
             byteArray = EDI_cursor_EDI_paste_clipboardContent_bytes;
             insert_character_count = EDI_cursor_EDI_paste_clipboardContent_string.length;
-            linesInsertedCount = EDI_cursor_EDI_paste_clipboardContent_totalLineEndCount;
+            linesInsertedCount = INTS[fEDI_cursor_EDI_paste_clipboardContent_totalLineEndCount];
         }
 
         walkLineUntilIndexColumn();
@@ -3838,7 +3821,7 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
 
     let content = EDI_cursor_EDI_paste_clipboardContent_string;
 
-    let linesInsertedCount = EDI_cursor_EDI_paste_clipboardContent_totalLineEndCount;
+    let linesInsertedCount = INTS[fEDI_cursor_EDI_paste_clipboardContent_totalLineEndCount];
     let insertionLength = EDI_cursor_EDI_paste_clipboardContent_string.length;
 
     let editLengthVisual = 0;
@@ -3910,7 +3893,7 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
     INTS[fEDI_editret_cursor_EDI_duplicate_small] = 0;
     INTS[fEDI_editret_cursor_EDI_duplicate_length] = 0;
 
-    let linesInsertedCount = EDI_cursor_EDI_duplication_totalLineEndCount;
+    let linesInsertedCount = INTS[fEDI_cursor_EDI_duplication_totalLineEndCount];
     let insertionLength = EDI_cursor_EDI_duplication_bytes.length;
 
     let editLengthVisual = 0;
@@ -4138,14 +4121,14 @@ function EDI_finalizeEdit_ClearEditState() {
         EDI_cursor_EDI_paste_clipboardContent_bytes = null;
         EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = null;
         EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = null;
-        EDI_clipboard_may_have_changed = true;
+        BYTES[byteEDI_clipboard_may_have_changed] = 1;
     }
 
     if (true) { // if true to explicitly point out the pattern matching of the above and that this one intentionally will always clear.
-        EDI_duplication_may_have_changed = true;
+        BYTES[byteEDI_duplication_may_have_changed] = 1;
         //EDI_cursor_EDI_duplication_string = null;
         EDI_cursor_EDI_duplication_bytes = null;
-        EDI_cursor_EDI_duplication_totalLineEndCount = 0;
+        INTS[fEDI_cursor_EDI_duplication_totalLineEndCount] = 0;
         EDI_cursor_EDI_duplication_arrayLinePositions_OFFSETS = null;
         EDI_cursor_EDI_duplication_arrayLineVisualLengths = null;
     }
@@ -5833,12 +5816,12 @@ function EDI_cursor_clear() {
     EDI_cursor_EDI_paste_clipboardContent_bytes = null;
     EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = null;
     EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = null;
-    EDI_clipboard_may_have_changed = true;
+    BYTES[byteEDI_clipboard_may_have_changed] = 1;
 
-    EDI_duplication_may_have_changed = true;
+    BYTES[byteEDI_duplication_may_have_changed] = 1;
     //EDI_cursor_EDI_duplication_string = null;
     EDI_cursor_EDI_duplication_bytes = null;
-    EDI_cursor_EDI_duplication_totalLineEndCount = 0;
+    INTS[fEDI_cursor_EDI_duplication_totalLineEndCount] = 0;
     EDI_cursor_EDI_duplication_arrayLinePositions_OFFSETS = null;
     EDI_cursor_EDI_duplication_arrayLineVisualLengths = null;
 
@@ -6285,16 +6268,16 @@ async function EDI_MenuOnClick(isCancelled, menuOption, request) {
 }
 
 async function EDI_read_clipboard() {
-    if (EDI_clipboard_may_have_changed) {
-        EDI_clipboard_may_have_changed = false;
+    if (BYTES[byteEDI_clipboard_may_have_changed] === 1) {
+        BYTES[byteEDI_clipboard_may_have_changed] = 0;
         EDI_finalizeEdit();
         EDI_cursor_EDI_paste_clipboardContent_string = await window.myAPI.readClipboard();
         // TODO: what are the possible returned values of 'await window.myAPI.readClipboard();'? Is it nullable?
         EDI_cursor_EDI_paste_clipboardContent_string = EDI_cursor_EDI_paste_clipboardContent_string.replaceAll('\r\n', '\n');
         EDI_cursor_EDI_paste_clipboardContent_bytes = EDI_encoder.encode(EDI_cursor_EDI_paste_clipboardContent_string);
-        EDI_cursor_EDI_paste_clipboardContent_totalLineEndCount = countNewlines(EDI_cursor_EDI_paste_clipboardContent_string);
-        EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = new Array(1 + EDI_cursor_EDI_paste_clipboardContent_totalLineEndCount);
-        EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = new Array(1 + EDI_cursor_EDI_paste_clipboardContent_totalLineEndCount);
+        INTS[fEDI_cursor_EDI_paste_clipboardContent_totalLineEndCount] = countNewlines(EDI_cursor_EDI_paste_clipboardContent_string);
+        EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = new Array(1 + INTS[fEDI_cursor_EDI_paste_clipboardContent_totalLineEndCount]);
+        EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = new Array(1 + INTS[fEDI_cursor_EDI_paste_clipboardContent_totalLineEndCount]);
 
         let lineEndIndex = 0;
         let visualLength = 0;
@@ -6325,8 +6308,8 @@ async function EDI_read_clipboard() {
 }
 
 function EDI_read_duplication() {
-    if (EDI_duplication_may_have_changed) {
-        EDI_duplication_may_have_changed = false;
+    if (BYTES[byteEDI_duplication_may_have_changed] === 1) {
+        BYTES[byteEDI_duplication_may_have_changed] = 0;
         
         // Timing don't do this like u did in the other
         //EDI_finalizeEdit();
@@ -6341,9 +6324,9 @@ function EDI_read_duplication() {
         EDI_cursor_EDI_duplication_bytes = EDI_textByteList_bytes.subarray(INTS[fEDI_editret_cursor_EDI_duplicate_small], large);
         //positionIndex = large;
 
-        EDI_cursor_EDI_duplication_totalLineEndCount = countNewlines(EDI_decoder.decode(EDI_cursor_EDI_duplication_bytes));
-        EDI_cursor_EDI_duplication_arrayLinePositions_OFFSETS = new Array(1 + EDI_cursor_EDI_duplication_totalLineEndCount);
-        EDI_cursor_EDI_duplication_arrayLineVisualLengths = new Array(1 + EDI_cursor_EDI_duplication_totalLineEndCount);
+        INTS[fEDI_cursor_EDI_duplication_totalLineEndCount] = countNewlines(EDI_decoder.decode(EDI_cursor_EDI_duplication_bytes));
+        EDI_cursor_EDI_duplication_arrayLinePositions_OFFSETS = new Array(1 + INTS[fEDI_cursor_EDI_duplication_totalLineEndCount]);
+        EDI_cursor_EDI_duplication_arrayLineVisualLengths = new Array(1 + INTS[fEDI_cursor_EDI_duplication_totalLineEndCount]);
 
         let lineEndIndex = 0;
         let visualLength = 0;
@@ -6457,12 +6440,12 @@ function EDI_hideTooltip() {
 
 function EDI_onfocus() {
     BYTES[byteEDI_editorHasFocus] = 1;
-    EDI_clipboard_may_have_changed = true;
+    BYTES[byteEDI_clipboard_may_have_changed] = 1;
 }
 
 function EDI_onblur() {
     BYTES[byteEDI_editorHasFocus] = 0;
-    EDI_clipboard_may_have_changed = true;
+    BYTES[byteEDI_clipboard_may_have_changed] = 1;
 }
 
 //// Find-All for "EDI_debug_optimization" to find all the commented out logic that was related to this.

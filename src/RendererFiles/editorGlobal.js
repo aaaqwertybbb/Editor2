@@ -256,6 +256,9 @@ let EDI_styleBuffer_capacity = 0;
 let EDI_lastReadNumber_scrollLeft = 0;
 let EDI_lastReadNumber_scrollTop = 0;
 
+let EDI_priorToLastJump_indexLine = 0;
+let EDI_priorToLastJump_indexColumn = 0;
+
 const EDI_rangeInit = {
     startContainer: null,
     startOffset: 0,
@@ -5727,6 +5730,11 @@ async function EDI_onKeyDown_keyLengthEqualsOne_ctrlKey(event) {
             event.stopPropagation();
             EDI_requestLspComplete();
             break;
+        case '-':
+            event.preventDefault();
+            event.stopPropagation();
+            EDI_moveCursor_indexLine_indexColumn(EDI_priorToLastJump_indexLine, EDI_priorToLastJump_indexColumn);
+            break;
     }
 }
 
@@ -6823,6 +6831,10 @@ function EDI_onMouseDown(event) {
     if (event.button === 0) {
         BYTES[byteEDI_mousemove_eventListener_isActive] = 1;
         EDI_baseElement.addEventListener('mousemove', EDI_onMouseMove_WRAPIT);
+    }
+    else if (event.button === 3) {
+        EDI_moveCursor_indexLine_indexColumn(EDI_priorToLastJump_indexLine, EDI_priorToLastJump_indexColumn);
+        return;
     }
 
     let rY = event.clientY - INTS[fEDI_recentBoundingClientRect_top] + EDI_lastReadNumber_scrollTop;

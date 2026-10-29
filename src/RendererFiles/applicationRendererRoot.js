@@ -71,8 +71,8 @@ async function window_myAPI_onMessage(data) {
             DIALOG_show(DialogKind_DocumentSymbol, dialog_documentSymbol_onResizeAction, null);
         case 'textDocument/CustomFullFileLexRequest':
             EDI_styleBuffer = Uint8Array.fromBase64(data.result);
-            EDI_styleBuffer_count = EDI_styleBuffer.length;
-            EDI_styleBuffer_capacity = EDI_styleBuffer.length;
+            INTS[fEDI_styleBuffer_count] = EDI_styleBuffer.length;
+            INTS[fEDI_styleBuffer_capacity] = EDI_styleBuffer.length;
             break;
         case 'textDocument/hover':
             if (BYTES[byteEDI_mousemove_eventListener_isActive] === 0) {

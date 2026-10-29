@@ -241,8 +241,6 @@ let EDI_ringBuffer_needsSyntaxHighlightingFlags = new Uint8Array(0);
 let EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine = [];
 
 let EDI_styleBuffer = new Uint8Array(0);
-let EDI_styleBuffer_count = 0;
-let EDI_styleBuffer_capacity = 0;
 
 /** decimal */
 let EDI_lastReadNumber_scrollLeft = 0;
@@ -912,7 +910,7 @@ function EDI_state_clear(trackingUint32MaxHeap_initialCapacity) {
     INTS[fEDI_longestLine_length] = 0;
     
     // TODO: This placement is slightly odd because the styleBuffer is made asynchronously and whether there could be a race condition that clears the styleBuffer you just received is uncertain (I just have not checked recently maybe I did when I first wrote it, it just looks odd though, need to check this).
-    EDI_styleBuffer_count = 0;
+    INTS[fEDI_styleBuffer_count] = 0;
 }
 
 function EDI_clear() {
@@ -3176,7 +3174,7 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
     }
     EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition], EDI_cursor_textInsertionBuffer, /*offset*/ 0, /*length*/ INTS[fEDI_cursor_textInsertionBufferCount]);
     // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
-    if (EDI_styleBuffer_count !== 0) {
+    if (INTS[fEDI_styleBuffer_count] !== 0) {
         EDI_styleBuffer_insertBytes(INTS[fEDI_cursor_editPosition], new Uint8Array(INTS[fEDI_cursor_textInsertionBufferCount]), 0, INTS[fEDI_cursor_textInsertionBufferCount]);
     }
 
@@ -3287,7 +3285,7 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
 
     EDI_textByteList_insertBytes(actualEditPosition, bytes, /*offset*/ 0, length);
     // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
-    if (EDI_styleBuffer_count !== 0) {
+    if (INTS[fEDI_styleBuffer_count] !== 0) {
         EDI_styleBuffer_insertBytes(actualEditPosition, new Uint8Array(bytes.length), 0, bytes.length);
     }
 
@@ -3383,7 +3381,7 @@ function EDI_finalizeEdit_Tab(indexLine_editOccurredOn) {
 
     EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition], bytes, /*offset*/ 0, /*length*/ length);
     // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
-    if (EDI_styleBuffer_count !== 0) {
+    if (INTS[fEDI_styleBuffer_count] !== 0) {
         EDI_styleBuffer_insertBytes(INTS[fEDI_cursor_editPosition], new Uint8Array(bytes.length), 0, bytes.length);
     }
 
@@ -3498,7 +3496,7 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
         // # Insert the text on the respective line.
         EDI_textByteList_insertBytes(line_start, bytes, 0 /*offset*/, bytesLength /*length*/);
         // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
-        if (EDI_styleBuffer_count !== 0) {
+        if (INTS[fEDI_styleBuffer_count] !== 0) {
             EDI_styleBuffer_insertBytes(line_start, perEdit_styleBuffer_changes, 0, bytesLength);
         }
 
@@ -3791,7 +3789,7 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
 
         EDI_textByteList_removeAt(line_start, innerRemoveCount);
         // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
-        if (EDI_styleBuffer_count !== 0) {
+        if (INTS[fEDI_styleBuffer_count] !== 0) {
             EDI_styleBuffer_removeAt(line_start, innerRemoveCount);
         }
 
@@ -3852,7 +3850,7 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
 
     EDI_textByteList_insertBytes(INTS[fEDI_cursor_editPosition], EDI_cursor_EDI_paste_clipboardContent_bytes, 0, EDI_cursor_EDI_paste_clipboardContent_bytes.length);
     // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
-    if (EDI_styleBuffer_count !== 0) {
+    if (INTS[fEDI_styleBuffer_count] !== 0) {
         EDI_styleBuffer_insertBytes(INTS[fEDI_cursor_editPosition], EDI_cursor_EDI_paste_clipboardContent_bytes, 0, EDI_cursor_EDI_paste_clipboardContent_bytes.length);
     }
 
@@ -3927,7 +3925,7 @@ function EDI_finalizeEdit_Duplicate(indexLine_editOccurredOn) {
 
     EDI_textByteList_duplicateWithin(small, INTS[fEDI_cursor_editPosition], length);
     // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
-    if (EDI_styleBuffer_count !== 0) {
+    if (INTS[fEDI_styleBuffer_count] !== 0) {
         EDI_styleBuffer_insertBytes(INTS[fEDI_cursor_editPosition], new Uint8Array(length), 0, length);
     }
 
@@ -4098,7 +4096,7 @@ function EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_
 
     EDI_textByteList_removeAt(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength_characters]);
     // TODO: ensure 'EDI_styleBuffer' count has 'INTS[fEDI_cursor_editPosition]' in range / ensure it is equal with 'EDI_textByteList' count/capacity?
-    if (EDI_styleBuffer_count !== 0) {
+    if (INTS[fEDI_styleBuffer_count] !== 0) {
         EDI_styleBuffer_removeAt(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength_characters]);
     }
 
@@ -7989,16 +7987,16 @@ function EDI_styleBuffer_insertBytes(index, incomingBs, offset, length) {
     }
 
     // 2. Validate that the target insertion index makes sense
-    if (index < 0 || index > EDI_styleBuffer_count) {
+    if (index < 0 || index > INTS[fEDI_styleBuffer_count]) {
         throw new RangeError(
-            //`Invalid insertion index: index ${index} must be between 0 and current count ${EDI_styleBuffer_count}.`
+            //`Invalid insertion index: index ${index} must be between 0 and current count ${INTS[fEDI_styleBuffer_count]}.`
         );
     }
 
     EDI_styleBuffer_ensureCapacityForInsertion(index, length);
 
-    if (index !== EDI_styleBuffer_count) {
-        EDI_styleBuffer_copyTo(EDI_styleBuffer, index, EDI_styleBuffer, index + length, EDI_styleBuffer_count - index);
+    if (index !== INTS[fEDI_styleBuffer_count]) {
+        EDI_styleBuffer_copyTo(EDI_styleBuffer, index, EDI_styleBuffer, index + length, INTS[fEDI_styleBuffer_count] - index);
     }
 
     // TODO: Google AI is telling me:
@@ -8013,7 +8011,7 @@ function EDI_styleBuffer_insertBytes(index, incomingBs, offset, length) {
         : incomingBs.subarray(offset, offset + length);
     EDI_styleBuffer.set(segmentToInsert, index);
 
-    EDI_styleBuffer_count += length;
+    INTS[fEDI_styleBuffer_count] += length;
 }
 /**
  * Does not clear trailing information.
@@ -8021,12 +8019,12 @@ function EDI_styleBuffer_insertBytes(index, incomingBs, offset, length) {
  * count === 0 immediately returns
  */
 function EDI_styleBuffer_removeAt(index, count) {
-    if (index > EDI_styleBuffer_count) { throw new Error('removeAt(...): index > EDI_styleBuffer_count'); }
-    if (index + count > EDI_styleBuffer_count) { throw new Error('removeAt(...): index + count > EDI_styleBuffer_count'); }
+    if (index > INTS[fEDI_styleBuffer_count]) { throw new Error('removeAt(...): index > INTS[fEDI_styleBuffer_count]'); }
+    if (index + count > INTS[fEDI_styleBuffer_count]) { throw new Error('removeAt(...): index + count > INTS[fEDI_styleBuffer_count]'); }
     if (count === 0) { return; }
 
-    if (index + count === EDI_styleBuffer_count) {
-        let shiftableCount = EDI_styleBuffer_count - (index + count);
+    if (index + count === INTS[fEDI_styleBuffer_count]) {
+        let shiftableCount = INTS[fEDI_styleBuffer_count] - (index + count);
         if (shiftableCount > 0) {
             EDI_styleBuffer_copyTo(
                 EDI_styleBuffer,
@@ -8042,28 +8040,28 @@ function EDI_styleBuffer_removeAt(index, count) {
             index + count,
             EDI_styleBuffer,
             index,
-            EDI_styleBuffer_count - (index + count));
+            INTS[fEDI_styleBuffer_count] - (index + count));
     }
 
-    EDI_styleBuffer_count -= count;
+    INTS[fEDI_styleBuffer_count] -= count;
 }
 function EDI_styleBuffer_ensureCapacityForInsertion(index, count) {
     // TODO: sparse insertions?
-    const requiredCapacity = Math.max(EDI_styleBuffer_count + count, index);
+    const requiredCapacity = Math.max(INTS[fEDI_styleBuffer_count] + count, index);
     
     // If we already have enough capacity, do absolutely nothing
-    if (requiredCapacity <= EDI_styleBuffer_capacity) {
+    if (requiredCapacity <= INTS[fEDI_styleBuffer_capacity]) {
         return;
     }
 
-    let capacityNew = EDI_styleBuffer_capacity;
+    let capacityNew = INTS[fEDI_styleBuffer_capacity];
 
     // 1. Scale geometrically by 1.125x (current + current / 8)
     capacityNew = capacityNew + (capacityNew >> 3);
 
     // 2. Minimum growth step: Ensure it grows by at least 1024 bytes 
     //    so small files don't reallocate on every single keystroke.
-    const minGrowth = EDI_styleBuffer_capacity + 1024;
+    const minGrowth = INTS[fEDI_styleBuffer_capacity] + 1024;
     if (capacityNew < minGrowth) {
         capacityNew = minGrowth;
     }
@@ -8076,17 +8074,17 @@ function EDI_styleBuffer_ensureCapacityForInsertion(index, count) {
     }
 
     // Safety check against integer overflow / negative bounds
-    if (capacityNew < EDI_styleBuffer_capacity) {
+    if (capacityNew < INTS[fEDI_styleBuffer_capacity]) {
         throw new Error('ensureCapacityForInsertion(...): Capacity overflowed or went negative');
     }
 
     // Allocate and copy EXACTLY ONCE
     let bytesNew = new Uint8Array(capacityNew);
-    EDI_styleBuffer_copyTo(EDI_styleBuffer, 0, bytesNew, 0, EDI_styleBuffer_count);
+    EDI_styleBuffer_copyTo(EDI_styleBuffer, 0, bytesNew, 0, INTS[fEDI_styleBuffer_count]);
     
     // Commit the changes to your global/module state
     EDI_styleBuffer = bytesNew;
-    EDI_styleBuffer_capacity = capacityNew;
+    INTS[fEDI_styleBuffer_capacity] = capacityNew;
 }
 /**
  * inclusive/exclusive

@@ -65,6 +65,8 @@ module.exports = function (babel) {
     "fEDI_cursor_edit_flagLineChanged",
     "fEDI_priorToLastJump_indexLine",
     "fEDI_priorToLastJump_indexColumn",
+    "fEDI_styleBuffer_count",
+    "fEDI_styleBuffer_capacity",
     "fEDI_cursor_editKind",
     "fEDI_cursor_indexLine",
     "fEDI_cursor_indexColumn",

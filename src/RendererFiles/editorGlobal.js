@@ -4196,6 +4196,8 @@ function EDI_finalizeEdit_ClearEditState() {
     // ...than duplicating the logic?
     EDI_cursor_enterKey_newLinePlusIndentation_byteList = null;
     EDI_cursor_cached_indentation_string = null;
+
+    EDI_cursor_edit_flagLineChanged = -1;
 }
 //#endregion
 

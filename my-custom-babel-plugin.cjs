@@ -62,7 +62,7 @@ module.exports = function (babel) {
     "fEDI_ONSCROLLvirtualCount",
     "fEDI_longestLine_indexLine",
     "fEDI_longestLine_length",
-    "fEDI_lastReadNumber_scrollTop",
+    "fEDI_cursor_edit_flagLineChanged",
     "fEDI_cursor_editKind",
     "fEDI_cursor_indexLine",
     "fEDI_cursor_indexColumn",

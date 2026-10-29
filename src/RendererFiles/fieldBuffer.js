@@ -344,10 +344,13 @@ INTS[fEDI_lineHeight] = 20;
 const fEDI_virtualIndexLine = 1;
 
 /**
- * TODO: Obsolete
- * The value of 'EDI_baseElement.scrollTop' at the most recent scroll event that occurred
+ * This purposefully avoids the wording "edit length" in order to avoid accident / confusing / hard to read code
+ * but in simplest terms this variable is the resulting 'editLength' that existed after a delete or backspace removed a line end.
+ * 
+ * This way you can always just check whether the "sub length" which is relative to the edit_flagLineChanged has removed all the
+ * text that other line that you landed on without having yet finalized.
  */
-const fEDI_lastReadNumber_scrollTop = 2;
+const fEDI_cursor_edit_flagLineChanged = 2;
 
 const fEDI_ONSCROLLvirtualIndexLine = 3;
 //throw new Error('-1');

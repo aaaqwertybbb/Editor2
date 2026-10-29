@@ -61,15 +61,6 @@ let EDI_cursor_enterKey_newLinePlusIndentation_byteList = null;
 let EDI_cursor_cached_indentation_string = null;
 
 /**
- * This purposefully avoids the wording "edit length" in order to avoid accident / confusing / hard to read code
- * but in simplest terms this variable is the resulting 'editLength' that existed after a delete or backspace removed a line end.
- * 
- * This way you can always just check whether the "sub length" which is relative to the edit_flagLineChanged has removed all the
- * text that other line that you landed on without having yet finalized.
- */
-let EDI_cursor_edit_flagLineChanged = -1;
-
-/**
  * 'await window.myAPI.editorSetClipboard(...);' needs to be followed up with 'EDI_clipboard_may_have_changed = false'
  * When reading the clipboard use 'await EDI_read_clipboard();'
  */
@@ -2348,13 +2339,7 @@ function EDI_state_do_Delete(event) {
 
     let virtual_cursorIndexLine = INTS[fEDI_cursor_indexLine] + INTS[fEDI_cursor_editLineFeedCount];
 
-    let virtual_cursorIndexColumn;
-    if (EDI_cursor_edit_flagLineChanged === -1) {
-        virtual_cursorIndexColumn = INTS[fEDI_cursor_indexColumn];
-    }
-    else {
-        virtual_cursorIndexColumn = INTS[fEDI_cursor_editLength_characters] - EDI_cursor_edit_flagLineChanged;
-    }
+    let virtual_cursorIndexColumn = INTS[fEDI_cursor_editLength_characters] - INTS[fEDI_cursor_edit_flagLineChanged];
 
     let lineEnd = EDI_getLineEnd_pos_raw(virtual_cursorIndexLine);
     let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(virtual_cursorIndexLine);
@@ -2372,7 +2357,7 @@ function EDI_state_do_Delete(event) {
             INTS[fEDI_cursor_editLineFeedCount]++;
             EDI_lineEndPositionList_PENDING.insert(EDI_lineEndPositionList_PENDING.count, lineEnd);
 
-            EDI_cursor_edit_flagLineChanged = INTS[fEDI_cursor_editLength_characters];
+            INTS[fEDI_cursor_edit_flagLineChanged] = INTS[fEDI_cursor_editLength_characters];
         }
         else { // End of file
             return;
@@ -4197,7 +4182,7 @@ function EDI_finalizeEdit_ClearEditState() {
     EDI_cursor_enterKey_newLinePlusIndentation_byteList = null;
     EDI_cursor_cached_indentation_string = null;
 
-    EDI_cursor_edit_flagLineChanged = -1;
+    INTS[fEDI_cursor_edit_flagLineChanged] = 0;
 }
 //#endregion
 
@@ -5845,7 +5830,7 @@ function EDI_cursor_clear() {
     BYTES[byteEDI_cursor_enterKeyEventKind] = EnterKeyEventKind_None;
 
     INTS[fEDI_cursor_editLineFeedCount] = 0;
-    EDI_cursor_edit_flagLineChanged = -1;
+    INTS[fEDI_cursor_edit_flagLineChanged] = 0;
 
     EDI_cursor_EDI_paste_clipboardContent_string = null;
     EDI_cursor_EDI_paste_clipboardContent_bytes = null;

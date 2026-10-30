@@ -74,6 +74,9 @@ async function window_myAPI_onMessage(data) {
             INTS[fEDI_styleBuffer_count] = EDI_styleBuffer.length;
             INTS[fEDI_styleBuffer_capacity] = EDI_styleBuffer.length;
             break;
+        case 'textDocument/CustomEditorGetNodesAdjacentToCursorFromLspRequest':
+            let aaa = 2;
+            break;
         case 'textDocument/hover':
             if (BYTES[byteEDI_mousemove_eventListener_isActive] === 0) {
                 TOOLTIP_show(data.result);

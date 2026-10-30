@@ -146,6 +146,17 @@ export function MAIN_message_construct_CustomEditorVerifyLspTextAgainstEditorTex
     };
 }
 
+export function MAIN_message_construct_CustomEditorGetNodesAdjacentToCursorFromLspRequest(textDocumentIdentifier, position) {
+    return {
+        id: messageId++,
+        method: 'textDocument/CustomEditorGetNodesAdjacentToCursorFromLspRequest',
+        params: {
+            textDocument: textDocumentIdentifier,
+            position: position,
+        },
+    };
+}
+
 export function MAIN_message_construct_CustomFullFileLexRequest(textDocumentIdentifier) {
     return {
         id: messageId++,

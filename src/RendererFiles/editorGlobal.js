@@ -6151,6 +6151,10 @@ function EDI_cursorBlinkingTrailingEdge() {
     // TODO: (rAF) / it is possible that you paint more than the debug text due to combining that text modification with the same rAF frame...
     // ...that updates something more directly related to the text editor itself (i.e.: if you group this text modification with modifying the 'animationPlayState').
     EDI_draw_cursor_debug();
+
+    if (BYTES[byteDIALOG_currentDialogKind] === DialogKind_Debug) {
+        window.myAPI.editorGetNodesAdjacentToCursorFromLsp(INTS[fEDI_cursor_indexLine], INTS[fEDI_cursor_indexColumn]);
+    }
 }
 
 function EDI_scrollCursorIntoView() {

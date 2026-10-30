@@ -520,71 +520,47 @@ function DIALOG_DocumentSymbol_Delete() {
     EDI_documentSymbolResult = null;
 }
 
-//let DEBUG_listData = null;
-//let DEBUG_listComponent = null;
-
 function DIALOG_Debug_Create() {
-//    let dialogBody = document.getElementById('DIALOG_body');
-//    if (!dialogBody) return;
-//    
-//    DEBUG_listData = new Uint16Array(65_536);
-//    for (let i = 0; i < 65_536; i++) {
-//        DEBUG_listData[i] = i;
-//    }
-//
-//    if (!DEBUG_listComponent) {
-//        DEBUG_listComponent = new ListComponent();
-//    }
-//    DEBUG_listComponent.setItems(INTS[fAPP_lineHeight], INTS[fAPP_lineHeight] + 'px',
-//        /*drawItemAction*/ (div, index) => {
-//            if (index === -1) {
-//                div.textContent = '';
-//                div.title = '';
-//                div.style.display = 'none';
-//            }
-//            else {
-//                let item = DEBUG_listData[index];
-//                div.textContent = item;
-//                div.style.display = '';
-//            }
-//        },
-//        /*onkeydownAction*/ (div, index) => {
-//            //if (index === -1) {
-//            //    // TODO: if (index === -1)
-//            //}
-//            //else {
-//            //    // TODO: Ensure that json parsing the title like this is a safe way of doing things
-//            //    const startPosition = JSON.parse(div.title);
-//            //    EDI_moveCursor_indexLine_indexColumn(startPosition.line, startPosition.character);
-//            //}
-//        },
-//        /*getItemsCountFunc*/ () => {
-//            if (DEBUG_listData) {
-//                return DEBUG_listData.length;
-//            }
-//            else {
-//                return 0;
-//            }
-//        });
-//    
-//    if (DEBUG_listData) {
-//        let div = document.createElement('div');
-//        div.textContent = 'DEBUG_listData.length: ' + DEBUG_listData.length;
-//        div.style.height = INTS[fAPP_lineHeight] + 'px';
-//        div.style.whiteSpace = 'nowrap';
-//        dialogBody.appendChild(div);
-//        DEBUG_listComponent.rootElement.style.height = `calc(100% - ${div.style.height})`;
-//        DEBUG_listComponent.draw_create(dialogBody, null);
-//    }
-//    else {
-//        dialogBody.textContent = 'DEBUG_listData is falsey';
-//    }
+    let dialogBody = document.getElementById('DIALOG_body');
+    if (!dialogBody) return;
+
+    const beforeDiv = document.createElement('div');
+    beforeDiv.id = 'DEBUG_DIALOG_beforeDiv';
+    beforeDiv.style.marginTop = APP_lineHeightStringWithPx; // Dialog looks jank at the moment I'm gonna just do this so I can read the text
+    beforeDiv.style.height = APP_lineHeightStringWithPx;
+    beforeDiv.appendChild(document.createTextNode('LISTENING'));
+
+    const amongDiv = document.createElement('div');
+    amongDiv.id = 'DEBUG_DIALOG_amongDiv';
+    amongDiv.style.height = APP_lineHeightStringWithPx;
+    amongDiv.appendChild(document.createTextNode('LISTENING'));
+
+    const afterDiv = document.createElement('div');
+    afterDiv.id = 'DEBUG_DIALOG_afterDiv';
+    afterDiv.style.height = APP_lineHeightStringWithPx;
+    afterDiv.appendChild(document.createTextNode('LISTENING'));
+
+    dialogBody.appendChild(beforeDiv);
+    dialogBody.appendChild(amongDiv);
+    dialogBody.appendChild(afterDiv);
 }
 
 function DIALOG_Debug_Delete() {
-//    let dialogBody = document.getElementById('DIALOG_body');
-//    if (!dialogBody) return;
-//
-//    DEBUG_listData = null;
-//    DEBUG_listComponent = null;
+}
+
+function DIALOG_Debug_Refresh(customEditorGetNodesAdjacentToCursorFromLspRequestResponse) {
+    const beforeDiv = document.getElementById('DEBUG_DIALOG_beforeDiv');
+    const amongDiv = document.getElementById('DEBUG_DIALOG_amongDiv');
+    const afterDiv = document.getElementById('DEBUG_DIALOG_afterDiv');
+
+    let textNode = null;
+
+    textNode = beforeDiv.firstChild;
+    textNode.replaceData(0, textNode.length, "beforeDiv");
+
+    textNode = amongDiv.firstChild;
+    textNode.replaceData(0, textNode.length, "amongDiv");
+
+    textNode = afterDiv.firstChild;
+    textNode.replaceData(0, textNode.length, "afterDiv");
 }

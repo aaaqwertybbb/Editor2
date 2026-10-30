@@ -5229,7 +5229,7 @@ function EDI_onKeyDown(event) {
             EDI_editEvent(EditKind_Enter, event);
             break;
         case 'F12':
-            EDI_doEditorGoToDefinitionRequest();
+            EDI_doEditorGoToDefinitionRequest(event.ctrlKey);
             break;
         default:
             // TODO: Checking for a length of 1 is probably wrong but it'll let me start writing some code
@@ -6385,12 +6385,21 @@ function EDI_requestLspComplete() {
     window.myAPI.editorCompletionRequest(INTS[fEDI_cursor_indexLine], INTS[fEDI_cursor_indexColumn]);
 }
 
-function EDI_doEditorGoToDefinitionRequest() {
-    // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
-    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
-        EDI_finalizeEdit();
+/**
+ * TODO: You have 'EDI_onKeyDown_keyLengthEqualsOne_ctrlKey' this completely breaks that pattern to pass ctrlKey here so you can do this debug dialog
+ * Also the F12 just does 'EDI_doEditorGoToDefinitionRequest' so having this internally do some entirely separate thing is confusing and the process feels hidden cause you threw it all in this function
+ */
+function EDI_doEditorGoToDefinitionRequest(ctrlKey) {
+    if (!ctrlKey) {
+        // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
+        if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+            EDI_finalizeEdit();
+        }
+        window.myAPI.editorGoToDefinitionRequest(INTS[fEDI_cursor_indexLine], INTS[fEDI_cursor_indexColumn]);
     }
-    window.myAPI.editorGoToDefinitionRequest(INTS[fEDI_cursor_indexLine], INTS[fEDI_cursor_indexColumn]);
+    else {
+        DIALOG_show(DialogKind_Debug, /*onResizeAction*/ null, /*elementToFocusOnDialogHideInitiated*/ null);
+    }
 }
 
 function EDI_requestLspHover() {

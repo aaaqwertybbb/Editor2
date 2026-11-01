@@ -177,7 +177,8 @@ app.on('window-all-closed', () => {
  * TODO: capital 'c' or lowercase, encoded ':' and etc... or not?
  */
 function formatAbsolutePath(absolutePath) {
-	return 'file:///' + absolutePath.replaceAll('\\', '/');
+	return absolutePath;
+	//return 'file:///' + absolutePath.replaceAll('\\', '/');
 }
 
 // In this file you can include the rest of your app's specific main process

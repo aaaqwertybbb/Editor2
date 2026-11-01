@@ -2171,3 +2171,5 @@ I'm thinking about making relative positions:
 - and the nodes are relative to their encompassing scope
 
 Or, every position is relative.
+
+227.0 lbs exactly this morning

@@ -2173,3 +2173,16 @@ I'm thinking about making relative positions:
 Or, every position is relative.
 
 227.0 lbs exactly this morning
+
+I gotta eat but I wanna:
+at all times the language server should track the editor's cursor
+And each time the cursor moves you send the "request" that the cursor moved
+and the request is for the node to the left, among, right of the cursor.
+start a 500 ms throttle
+repeat
+|
+The KEY detail between what is happening and the above^
+is that the language server needs to look at the "diff in cursor position"
+and determine the 3 nodes from the prior known cursor position / 3 nodes.
+You use the previous answer to determine the next one.
+Rather than starting from Global node with a search each time.

@@ -66,6 +66,41 @@ function sendTransaction_MessageKind_string(messageString) {
     socket.send(viewToSend); // Sends raw binary data
 }
 
+/** TODO: This is likely to have a race condition issue because Anything other than sending the exact same bytes that the editor read from the OS is likely to have a race condition issue */
+function sendTransaction_MessageKind_textDocument_didOpen(filePath) {
+    if (socket.readyState !== WebSocket.OPEN) { throw new Exception('socket.readyState !== WebSocket.OPEN'); }
+
+    if (filePath.length > send_buffer.length) { throw new Exception('filePath.length > send_buffer.length'); }
+
+    let index = 0;
+
+    send_buffer[0] = '2'.charCodeAt(0);
+    send_buffer[1] = '_'.charCodeAt(0);
+
+    index += 2;
+
+    // TODO: measure byte length of a string without encode
+    const aaa = EDI_encoder.encode(filePath);
+    const byteLengthString = aaa.length + '';
+
+    const writtenAaa = EDI_encoder.encodeInto(byteLengthString, send_buffer.subarray(index, send_buffer.length));
+
+    index += writtenAaa.written;
+
+    send_buffer[index] = '_'.charCodeAt(0);
+    index += 1;
+
+    const writtenBbb = EDI_encoder.encodeInto(filePath, send_buffer.subarray(index, send_buffer.length));
+
+    index += writtenBbb.written;
+
+    // High Performance Slice: Create a zero-allocation window/view over just the written bytes
+    // .subarray() does NOT copy memory; it just shifts the byte pointer window
+    const viewToSend = send_buffer.subarray(0, index);
+
+    socket.send(viewToSend); // Sends raw binary data
+}
+
 // Goal is to use the same wording as LSP where possible for clarity of communication.
 const MessageKind_string = 1;
 const MessageKind_textDocument_didOpen = 2;

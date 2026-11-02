@@ -1506,7 +1506,7 @@ async function EXPLORER_openInEditor(absolutePath, shouldFocus) {
         }
     }
 
-    sendTransaction(1, messageString);
+    sendTransaction_MessageKind_textDocument_didOpen(itHasBom.formattedAbsolutePath);
 }
 
 /**

@@ -422,7 +422,6 @@ function documentBody_onKeyDown(event) {
             if (rawData.uint8arrayTextBytes) {
                 event.preventDefault();
                 event.stopPropagation();
-                EDI_finalizeEdit();
                 if (unvalidatedAbsolutePath === null) {
                     documentBody_onKeyDown_saveFileAs(rawData);
                 }

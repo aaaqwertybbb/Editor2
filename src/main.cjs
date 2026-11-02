@@ -8,9 +8,6 @@ const { app, BrowserWindow, dialog, ipcMain, clipboard } = require('electron');
 const path = require('node:path');
 const fs = require('fs');
 const AppDatabase = require('./Database/database').default;
-const { spawn } = require('node:child_process');
-const os = require('os');
-const lspTypes = require('./lspTypes');
 
 //// Find-All for "EDI_debug_optimization" to find all the commented out logic that was related to this.
 //// I used `$env:ELECTRON_ENABLE_LOGGING=1; npm run start` to start the app, I have not confirmed whether this was necessary or not yet.
@@ -29,26 +26,6 @@ let openedDirectory = null;
 /** openedDirectory | openedWorkspace; TODO: consider making single object with bool 'isWorkspace'  */
 let openedWorkspace = null;
 let workspaceDirectories = null;
-
-/** Relates to LSP, simple and naive implementation for "open text document" this tracks most recent */
-let openedDocumentUri = null;
-/**
- * @type {ChildProcessWithoutNullStreams}
- */
-let languageServer;
-let languageServerHandshakeSuccess = false;
-
-/** You probably ought to do something more optimal than holding each chunk in memory until you get the entirety. */
-let stdoutChunkObjects = [];
-/** The first entry is partially unread so you at minimum will need to store the index that starts the unread content or some such index */
-let stdoutChunkFirstEntryMetadata = { substringIndexStart: 0, contentLengthNumber: 0 };
-
-let remainingStdoutFromPartiallyReadEvent = null;
-
-// I probably need something like this eventually:
-//let pendingRequests = [];
-
-let mostRecentRequest = null;
 
 /**
  * TODO: What are these two lines of code doing in an example that I'm looking at?
@@ -164,9 +141,6 @@ app.whenReady().then(() => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
-	if (languageServer) {
-		languageServer.kill();
-	}
 	if (process.platform !== 'darwin') {
 		app.quit();
 	}
@@ -188,228 +162,6 @@ function MAIN_encodeMessageObject(messageObject) {
 	let content = JSON.stringify(messageObject);
 	let spacing = '\r\n\r\n';
 	return `Content-Length: ${content.length}${spacing}${content}\n`;
-}
-
-/**
- * @param {string} json 
- * @returns {object | null}
- * 
- * // So the seemingly non-deterministic nature of what gets read from stdout is something to note.
- * 
- * // TODO: Preferably neither of these would allocate a "substring" But they both will for the time being because I'm using JSON.parse and at the moment I know not of any other way than providing this a string.
- * // TODO: Don't toString() this, work with the bytes directly until the end (does JSON.parse take bytes as input? If so never have to do a toString()?).
- * // TODO: You could determine the necessary length of the NEXT chunk that will cause the necessary length requirement to be met then avoid an 'n complexity' and just have 'constant'.
- * // TODO: Further commenting about determining the necessary length of the NEXT chunk, that is what the original 'if' block is doing on the first message. Perhaps these two conditional branches are equivalent when following a "necessary length" implementation.
- * // TODO: Don't return here, the header/content separating token is likely in the next to come chunk... TODO: look at all the return statements not just this one
- * // TODO: Don't create strings for JSON.parse, is there an API that would stream spans of the strings rather than allocating a string to represent the 'content itself'?
-*/
-function MAIN_decodeMessage(jsonBytes) {
-	let json;
-
-	if (remainingStdoutFromPartiallyReadEvent) {
-		json = remainingStdoutFromPartiallyReadEvent;
-		remainingStdoutFromPartiallyReadEvent = null;
-		jsonBytes = null;
-	}
-	else {
-		json = jsonBytes.toString();
-	}
-
-	if (stdoutChunkObjects.length === 0) {
-		// # Get content length
-		let indexOfContentLengthToken = json.indexOf('Content-Length: ');
-		if (indexOfContentLengthToken === -1) return null;
-		let substringIndexStart = indexOfContentLengthToken + 16; /* 16 === 'Content-Length: '.length */
-		let substringIndexEnd = substringIndexStart;
-		outerForLoop: for (; substringIndexEnd < json.length; substringIndexEnd++) {
-			switch (json[substringIndexEnd]) {
-				case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-					break;
-				default:
-					break outerForLoop;
-			}
-		}
-		if (substringIndexEnd === substringIndexStart) return null;
-		let contentLengthString = json.substring(substringIndexStart, substringIndexEnd);
-		let contentLengthNumber = parseInt(contentLengthString, 10);
-		if (!contentLengthNumber) return null;
-		// # Find where the content itself begins
-		let indexOfSearchTerm = json.indexOf("\r\n\r\n");
-		if (indexOfSearchTerm === -1) return null;
-		substringIndexStart = indexOfSearchTerm + 4; /* 4 === "\r\n\r\n".length */
-		// # JSON parse the 'content itself', or delay reading stdout if you don't yet have the entire 'content itself' as was stated by the 'content length'.
-		if (substringIndexStart + contentLengthNumber <= json.length) {
-			if (substringIndexStart + contentLengthNumber < json.length) {
-				// TODO: Need to handle where '<', there is more stdout that needs to be read so make 'remainingStdoutFromPartiallyReadEvent'?
-				return JSON.parse(json.substring(substringIndexStart, substringIndexStart + contentLengthNumber));
-			}
-			else {
-				// TODO: This is when the length is equal so you don't need to even substring?
-				return JSON.parse(json.substring(substringIndexStart, substringIndexStart + contentLengthNumber));
-			}
-		}
-		else {
-			stdoutChunkObjects.push({ bytesRaw: jsonBytes, bytesDecoded: json });
-			stdoutChunkFirstEntryMetadata.substringIndexStart = substringIndexStart;
-			stdoutChunkFirstEntryMetadata.contentLengthNumber = contentLengthNumber;
-			return null;
-		}
-	}
-	else {
-		// # Determine if you now have all of the 'content itself' as was stated by the 'content length'
-		let sumUnreadStdout = stdoutChunkObjects[0].bytesDecoded.length - stdoutChunkFirstEntryMetadata.substringIndexStart; // # stdoutChunkObjects[0]
-		for (let i = 1; i < stdoutChunkObjects.length; i++) { // # stdoutChunkObjects[1] ... stdoutChunkObjects[length - 1]
-			sumUnreadStdout += stdoutChunkObjects[i].bytesDecoded.length;
-		}
-		sumUnreadStdout += json.length; // # the current stdout chunk was never pushed into 'stdoutChunkObjects' so you need to handle it here
-
-		if (stdoutChunkFirstEntryMetadata.contentLengthNumber <= sumUnreadStdout) {
-			// # If you now have the entire 'content itself', create a string that contains the entirety of the 'content itself' and then JSON.parse it.
-			// # If there is any remaining stdout you need to set 'remainingStdoutFromPartiallyReadEvent'
-			let builder = [];
-			let len = 0;
-			
-			let lenZeroth = stdoutChunkObjects[0].bytesDecoded.length - stdoutChunkFirstEntryMetadata.substringIndexStart; // # stdoutChunkObjects[0]
-			if (lenZeroth) {
-				let zerothSubstring = stdoutChunkObjects[0].bytesDecoded.slice(stdoutChunkFirstEntryMetadata.substringIndexStart, stdoutChunkObjects[0].bytesDecoded.length);
-				builder.push(zerothSubstring);
-				len += zerothSubstring.length;
-			}
-			
-			for (let i = 1; i < stdoutChunkObjects.length; i++) { // # stdoutChunkObjects[1] ... stdoutChunkObjects[length - 1]
-				builder.push(stdoutChunkObjects[i].bytesDecoded);
-				len += stdoutChunkObjects[i].bytesDecoded.length;
-			}
-			
-			// # the current stdout chunk was never pushed into 'stdoutChunkObjects' so you need to handle it here
-			if (len + json.length === stdoutChunkFirstEntryMetadata.contentLengthNumber) {
-				builder.push(json);
-			}
-			else { // # If there is any remaining stdout from the 'current stdout chunk' you need to set 'remainingStdoutFromPartiallyReadEvent'
-				let fromCurrent = stdoutChunkFirstEntryMetadata.contentLengthNumber - len;
-				builder.push(json.substring(0, fromCurrent));
-				remainingStdoutFromPartiallyReadEvent = json.substring(fromCurrent);
-			}
-
-			stdoutChunkObjects.length = 0; // TODO: clear the array entries to permit garbage collection (since stdoutChunkObjects is always in the app's scope any entries would as well never be collected)
-			return JSON.parse(builder.join(''));
-		}
-		else {
-			stdoutChunkObjects.push({ bytesRaw: jsonBytes, bytesDecoded: json }); 
-		}
-	}
-}
-
-function MAIN_initializeLanguageServer() {
-
-	let initializeMessageObject = lspTypes.MAIN_constructMessageObject(
-		'initialize',
-		lspTypes.MAIN_message_construct_initializeParams(openedDirectory/*formatAbsolutePath(openedDirectory)*/, workspaceDirectories));
-// "file:///C:/Users/hunte/Repos/JavaScript" file:///C%3A/project/readme.md
-	let InitializeMessageEncoded = MAIN_encodeMessageObject(initializeMessageObject);
-
-	//languageServer = spawn('node', [
-	//	'C:\\Users\\hunte\\AppData\\Roaming\\npm\\node_modules\\typescript-language-server\\lib\\cli.mjs',
-	//	'--stdio']);
-	//
-	// adding UI to change some field in a json file in AppData sounds like a remote code execution nightmare that I don't wanna deal with right now.
-	// theoretically this also is one but it feels sensible to do something like hardcoding this and the git history and etc...
-	// making it a setting makes it feel too official and safe when it isn't.
-	//
-	languageServer = spawn('C:\\Users\\hunte\\Repos\\New folder (7)\\LanguageServer2\\JSLSApp\\bin\\Release\\net10.0\\publish\\JSLSApp.exe');
-
-	/*
-	interface RequestMessage extends Message {
-		id: integer | string; // The request id.
-		method: string; // The method to be invoked.
-		params?: array | object; // The method's params.
-	}
-	*/
-
-	/*
-	interface ResponseMessage extends Message {		
-		id: integer | string | null; // The request id.		
-		result?: LSPAny; // The result of a request. This member is REQUIRED on success.* This member MUST NOT exist if there was an error invoking the method.		
-		error?: ResponseError; // The error object in case a request fails.
-	}
-	*/
-
-	// typescript-language-server is the command you would run in the terminal
-	// windows search bar finds something if you type 'typescript-language-server'
-	// right click > 'open file location'
-	// 'C:\\Users\\hunte\\AppData\\Roaming\\npm\\typescript-language-server'
-	//
-	// Open the file itself in a text editor
-	// It is a script that in the end essentially runs 'node ... ...'
-	// hence the spawn arguments above replicate the "end essentially runs" step of the script that gets ran from the terminal command
-	
-	languageServer.stdout.on('data', (data) => {
-		while (data || remainingStdoutFromPartiallyReadEvent) {
-			let messageObject;
-			if (!remainingStdoutFromPartiallyReadEvent) {
-				messageObject = MAIN_decodeMessage(data);
-				data = null;
-			}
-			else {
-				messageObject = MAIN_decodeMessage(null);
-			}
-			
-			if (!messageObject) return;
-
-			if (messageObject.method === 'window/showMessage') {
-				mainWindowCapture.webContents.send('from-main', { method:messageObject.method, result:messageObject.params });
-			}
-			else if (messageObject.id && mostRecentRequest && messageObject.id === mostRecentRequest.id && mostRecentRequest.method) {
-				switch (mostRecentRequest.method) {
-					case 'textDocument/documentSymbol':
-						mainWindowCapture.webContents.send('from-main', { method:mostRecentRequest.method, result:messageObject.result });
-						break;
-					case 'textDocument/CustomFullFileLexRequest':
-						mainWindowCapture.webContents.send('from-main', { method:mostRecentRequest.method, result:messageObject.result });
-						break;
-				case 'textDocument/CustomEditorGetNodesAdjacentToCursorFromLspRequest':
-						mainWindowCapture.webContents.send('from-main', { method:mostRecentRequest.method, result:messageObject.result });
-						break;
-					case 'textDocument/hover':
-						mainWindowCapture.webContents.send('from-main', { method:mostRecentRequest.method, result:messageObject.result });
-						break;
-					case 'textDocument/definition':
-						mainWindowCapture.webContents.send('from-main', { method:mostRecentRequest.method, result:messageObject.result });
-					case 'textDocument/completion':
-						mainWindowCapture.webContents.send('from-main', { method:mostRecentRequest.method, result:messageObject.result });
-						break;
-					case 'textDocument/completion_slice':
-						// I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
-						mainWindowCapture.webContents.send('from-main', { method:mostRecentRequest.method, result:messageObject.result });
-						break;
-					case 'textDocument/CustomEditorVerifyLspTextAgainstEditorTextRequest':
-						// TODO: Make a text area dialog and put the text inside it?
-						// TODO: This is only async so timing issue more than likely is possible
-						setClipboard(null, messageObject.result);
-						mainWindowCapture.webContents.send('from-main', { method:mostRecentRequest.method });
-						break;
-				}
-			}
-	
-			if (messageObject.result) {
-				if (messageObject.result.capabilities) {   // initialize response
-					languageServerHandshakeSuccess = true;
-				}
-				else {
-					let aaaDebugBreakpoint = 2;
-				}
-			}
-			else {
-				let bbbDebugBreakpoint = 2;
-			}
-		}
-	});
-
-	languageServer.on('close', (code) => {
-		console.log(`Child exited with code ${code}`);
-	});
-
-	languageServer.stdin.write(InitializeMessageEncoded);
 }
 
 /**
@@ -622,10 +374,6 @@ async function chooseDirectory (event) {
 	let filename = path.basename(openedDirectory);
 	let id = database.addAbsolutePath(openedDirectory, filename);
 
-	if (!languageServer) {
-		MAIN_initializeLanguageServer();
-	}
-
 	return { basename: filename, openedDirectory: openedDirectory, id: id, canceled: result.canceled };
 }
 
@@ -670,10 +418,6 @@ async function chooseWorkspace(event) {
 	}
 
 	workspaceDirectories = directories;
-
-	if (!languageServer) {
-		MAIN_initializeLanguageServer();
-	}
 
 	return {
 		workspaceFileAbsolutePath: openedWorkspace,
@@ -878,7 +622,7 @@ async function editorReadAllText(event, absolutePath) {
 
 		let pathId = database.addAbsolutePath(itHasBom.formattedAbsolutePath, basename);
 
-		if (openedDocumentUri) {
+		if (false && openedDocumentUri) {
 			let tdIdentifier = lspTypes.MAIN_message_construct_textDocumentIdentifier(absolutePath);
 			if (languageServerHandshakeSuccess && languageServer) {
 				languageServer.stdin.write(
@@ -894,7 +638,7 @@ async function editorReadAllText(event, absolutePath) {
 			itHasBom.text); // text
 		let messageObject = lspTypes.MAIN_message_construct_didOpenTextDocumentNotification(tdi);
 		let messageJson = MAIN_encodeMessageObject(messageObject);
-		if (languageServerHandshakeSuccess && languageServer) {
+		if (false) {
 			languageServer.stdin.write(messageJson);
 			openedDocumentUri = absolutePath;
 

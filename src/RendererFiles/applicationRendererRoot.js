@@ -16,13 +16,18 @@ socket.onmessage = (event) => {
     let view;
   
     if (typeof event.data === 'string' && event.data.length > 0) {
-        // If the server sent it as text, convert text to a Uint8Array
-        view = Uint8Array.fromBase64(event.data);
-        EDI_styleBuffer = view;
-        INTS[fEDI_styleBuffer_count] = EDI_styleBuffer.length;
-        INTS[fEDI_styleBuffer_capacity] = EDI_styleBuffer.length;
-        //view = new TextEncoder().encode(event.data);
-        //EDI_styleBuffer = view;
+        if (mostRecent_kind === 3) {
+            EDI_moveCursor_position(Number(event.data));
+        }
+        else {
+            // If the server sent it as text, convert text to a Uint8Array
+            view = Uint8Array.fromBase64(event.data);
+            EDI_styleBuffer = view;
+            INTS[fEDI_styleBuffer_count] = EDI_styleBuffer.length;
+            INTS[fEDI_styleBuffer_capacity] = EDI_styleBuffer.length;
+            //view = new TextEncoder().encode(event.data);
+            //EDI_styleBuffer = view;
+        }
     } else if (event.data instanceof ArrayBuffer) {
         // If it's a true binary buffer
         view = new Uint8Array(event.data);
@@ -33,11 +38,15 @@ let send_buffer = new Uint8Array(256);
 
 let send_id = 0;
 
+let mostRecent_kind = 0;
+
 // Example function to send your transaction buffer
 function sendTransaction_MessageKind_string(messageString) {
     if (socket.readyState !== WebSocket.OPEN) { throw new Exception('socket.readyState !== WebSocket.OPEN'); }
 
     if (messageString.length > send_buffer.length) { throw new Exception('messageString.length > send_buffer.length'); }
+
+    mostRecent_kind = 1;
 
     let index = 0;
 
@@ -74,6 +83,8 @@ function sendTransaction_MessageKind_textDocument_didOpen(filePath) {
 
     if (filePath.length > send_buffer.length) { throw new Exception('filePath.length > send_buffer.length'); }
 
+    mostRecent_kind = 2;
+
     let index = 0;
 
     send_buffer[0] = '2'.charCodeAt(0);
@@ -93,6 +104,44 @@ function sendTransaction_MessageKind_textDocument_didOpen(filePath) {
     index += 1;
 
     const writtenBbb = EDI_encoder.encodeInto(filePath, send_buffer.subarray(index, send_buffer.length));
+
+    index += writtenBbb.written;
+
+    // High Performance Slice: Create a zero-allocation window/view over just the written bytes
+    // .subarray() does NOT copy memory; it just shifts the byte pointer window
+    const viewToSend = send_buffer.subarray(0, index);
+
+    socket.send(viewToSend); // Sends raw binary data
+}
+
+function sendTransaction_MessageKind_textDocument_definition(positionIndex) {
+    if (socket.readyState !== WebSocket.OPEN) { throw new Exception('socket.readyState !== WebSocket.OPEN'); }
+
+    if (false && filePath.length > send_buffer.length) { throw new Exception('filePath.length > send_buffer.length'); }
+
+    mostRecent_kind = 3;
+
+    let index = 0;
+
+    send_buffer[0] = '3'.charCodeAt(0);
+    send_buffer[1] = '_'.charCodeAt(0);
+
+    index += 2;
+
+    var positionIndexString = positionIndex + '';
+
+    // TODO: measure bytes that represent number digits without string
+    const aaa = EDI_encoder.encode(positionIndexString);
+    const byteLengthString = aaa.length + '';
+
+    const writtenAaa = EDI_encoder.encodeInto(byteLengthString, send_buffer.subarray(index, send_buffer.length));
+
+    index += writtenAaa.written;
+
+    send_buffer[index] = '_'.charCodeAt(0);
+    index += 1;
+
+    const writtenBbb = EDI_encoder.encodeInto(positionIndexString, send_buffer.subarray(index, send_buffer.length));
 
     index += writtenBbb.written;
 

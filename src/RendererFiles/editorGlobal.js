@@ -6395,7 +6395,7 @@ function EDI_doEditorGoToDefinitionRequest(ctrlKey) {
         if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
             EDI_finalizeEdit();
         }
-        sendTransaction_MessageKind_string("hi3");
+        sendTransaction_MessageKind_textDocument_definition(EDI_getPositionIndex_cursor_raw());
         //let x = new Uint8Array(2);
         //x[0] = 'h'.charCodeAt(0);
         //x[1] = 'i'.charCodeAt(0);

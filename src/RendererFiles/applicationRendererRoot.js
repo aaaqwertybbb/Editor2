@@ -2,6 +2,48 @@ init();
 
 let APP_lineHeightStringWithPx = '';
 
+// Connect to the C# console app
+const socket = new WebSocket('ws://127.0.0.1:8080');
+
+// Crucial for performance and byte-array replication
+socket.binaryType = 'arraybuffer'; 
+
+socket.onopen = () => {
+    console.log('Connected to C# backend');
+};
+
+socket.onmessage = (event) => {
+    // Receive byte array from C#
+    const buffer = event.data;
+
+
+// 104 => 'h'
+// 101 => 'e'
+// 108 => 'l'
+// 108 => 'l'
+// 111 => 'o'
+
+    const view = new Uint8Array(buffer);
+    // Apply transaction to vanilla JS DOM/state here
+};
+
+let send_buffer = new Uint8Array(256);
+
+// Example function to send your transaction buffer
+function sendTransaction(messageString) {
+    if (socket.readyState !== WebSocket.OPEN) { throw new Exception('socket.readyState !== WebSocket.OPEN'); }
+
+    if (messageString.length > send_buffer.length) { throw new Exception('messageString.length > send_buffer.length'); }
+
+    const { written } = EDI_encoder.encodeInto(messageString, send_buffer);
+
+    // High Performance Slice: Create a zero-allocation window/view over just the written bytes
+    // .subarray() does NOT copy memory; it just shifts the byte pointer window
+    const viewToSend = send_buffer.subarray(0, written);
+
+    socket.send(viewToSend); // Sends raw binary data
+}
+
 function init() {
     document
         .getElementById('HEADER_buttonSettings')

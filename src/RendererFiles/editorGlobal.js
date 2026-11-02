@@ -260,38 +260,6 @@ CSS.highlights.set("js-string", stringHighlight);
 // let EDI_debug_optimization_delay_heavy_logging = 4;
 // let EDI_debug_optimization_run_count = 0;
 
-// Connect to the C# console app
-const socket = new WebSocket('ws://127.0.0.1:8080');
-
-// Crucial for performance and byte-array replication
-socket.binaryType = 'arraybuffer'; 
-
-socket.onopen = () => {
-    console.log('Connected to C# backend');
-};
-
-socket.onmessage = (event) => {
-    // Receive byte array from C#
-    const buffer = event.data; 
-
-
-// 104 => 'h'
-// 101 => 'e'
-// 108 => 'l'
-// 108 => 'l'
-// 111 => 'o'
-
-    const view = new Uint8Array(buffer);
-    // Apply transaction to vanilla JS DOM/state here
-};
-
-// Example function to send your transaction buffer
-function sendTransaction(uint8ArrayData) {
-    if (socket.readyState === WebSocket.OPEN) {
-        socket.send(uint8ArrayData.buffer); // Sends raw binary data
-    }
-}
-
 function EDI_init() {
     //EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.length = 0;
 
@@ -6427,10 +6395,11 @@ function EDI_doEditorGoToDefinitionRequest(ctrlKey) {
         if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
             EDI_finalizeEdit();
         }
-        let x = new Uint8Array(2);
-        x[0] = 'h'.charCodeAt(0);
-        x[1] = 'i'.charCodeAt(0);
-        sendTransaction(x);
+        sendTransaction("hi3");
+        //let x = new Uint8Array(2);
+        //x[0] = 'h'.charCodeAt(0);
+        //x[1] = 'i'.charCodeAt(0);
+        //sendTransaction(x);
         //window.myAPI.editorGoToDefinitionRequest(INTS[fEDI_cursor_indexLine], INTS[fEDI_cursor_indexColumn]);
     }
     else {

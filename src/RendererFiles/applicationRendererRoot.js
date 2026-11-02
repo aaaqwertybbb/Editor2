@@ -13,8 +13,28 @@ socket.onopen = () => {
 };
 
 socket.onmessage = (event) => {
+
+    let view;
+  
+    if (typeof event.data === 'string') {
+        // If the server sent it as text, convert text to a Uint8Array
+        view = Uint8Array.fromBase64(event.data);
+        EDI_styleBuffer = view;
+        INTS[fEDI_styleBuffer_count] = EDI_styleBuffer.length;
+        INTS[fEDI_styleBuffer_capacity] = EDI_styleBuffer.length;
+        //view = new TextEncoder().encode(event.data);
+        //EDI_styleBuffer = view;
+    } else if (event.data instanceof ArrayBuffer) {
+        // If it's a true binary buffer
+        view = new Uint8Array(event.data);
+    }
+
+    
+    //console.log("Buffer length:", EDI_styleBuffer.length); 
+
+
     // Receive byte array from C#
-    const buffer = event.data;
+    //const buffer = event.data;
 
 
 // 104 => 'h'
@@ -23,7 +43,8 @@ socket.onmessage = (event) => {
 // 108 => 'l'
 // 111 => 'o'
 
-    const view = new Uint8Array(buffer);
+    //const view = new Uint8Array(buffer);
+    //EDI_styleBuffer = view;
     // Apply transaction to vanilla JS DOM/state here
 };
 

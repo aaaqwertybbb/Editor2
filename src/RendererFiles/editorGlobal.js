@@ -260,7 +260,33 @@ CSS.highlights.set("js-string", stringHighlight);
 // let EDI_debug_optimization_delay_heavy_logging = 4;
 // let EDI_debug_optimization_run_count = 0;
 
+// Connect to the C# console app
+const socket = new WebSocket('ws://127.0.0.1:8080');
+
+// Crucial for performance and byte-array replication
+socket.binaryType = 'arraybuffer'; 
+
+socket.onopen = () => {
+    console.log('Connected to C# backend');
+};
+
+socket.onmessage = (event) => {
+    // Receive byte array from C#
+    const buffer = event.data; 
+    const view = new Uint8Array(buffer);
+    // Apply transaction to vanilla JS DOM/state here
+};
+
 function EDI_init() {
+    
+
+    //// Example function to send your transaction buffer
+    //function sendTransaction(uint8ArrayData) {
+    //    if (socket.readyState === WebSocket.OPEN) {
+    //        socket.send(uint8ArrayData.buffer); // Sends raw binary data
+    //    }
+    //}
+
     //EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.length = 0;
 
     EDI_measureLineHeightAndCharacterWidth();

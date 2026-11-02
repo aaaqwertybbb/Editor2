@@ -13,10 +13,9 @@ socket.onopen = () => {
 };
 
 socket.onmessage = (event) => {
-
     let view;
   
-    if (typeof event.data === 'string') {
+    if (typeof event.data === 'string' && event.data.length > 0) {
         // If the server sent it as text, convert text to a Uint8Array
         view = Uint8Array.fromBase64(event.data);
         EDI_styleBuffer = view;
@@ -28,24 +27,6 @@ socket.onmessage = (event) => {
         // If it's a true binary buffer
         view = new Uint8Array(event.data);
     }
-
-    
-    //console.log("Buffer length:", EDI_styleBuffer.length); 
-
-
-    // Receive byte array from C#
-    //const buffer = event.data;
-
-
-// 104 => 'h'
-// 101 => 'e'
-// 108 => 'l'
-// 108 => 'l'
-// 111 => 'o'
-
-    //const view = new Uint8Array(buffer);
-    //EDI_styleBuffer = view;
-    // Apply transaction to vanilla JS DOM/state here
 };
 
 let send_buffer = new Uint8Array(256);
@@ -125,6 +106,11 @@ function sendTransaction_MessageKind_textDocument_didOpen(filePath) {
 // Goal is to use the same wording as LSP where possible for clarity of communication.
 const MessageKind_string = 1;
 const MessageKind_textDocument_didOpen = 2;
+const MessageKind_textDocument_definition = 3;
+
+// The save can actually be done from the C# code.
+// (from whichever it is more sensible to do from I mean)
+// (cause I presume the UI would have the most overhead and that C# would recover from the GC overhead of a save much faster.)
 
 function MAIN_encodeMessageObject(messageKind, messageObject) {
 	let content = JSON.stringify(messageObject);

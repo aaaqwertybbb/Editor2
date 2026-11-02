@@ -37,21 +37,31 @@ function sendTransaction_MessageKind_string(messageString) {
 
     if (messageString.length > send_buffer.length) { throw new Exception('messageString.length > send_buffer.length'); }
 
+    let index = 0;
 
     send_buffer[0] = '1'.charCodeAt(0);
     send_buffer[1] = '_'.charCodeAt(0);
+
+    index += 2;
 
     // TODO: measure byte length of a string without encode
     const aaa = EDI_encoder.encode(send_buffer.length);
     const byteLengthString = aaa.length + '';
 
-    const writtenAaa = EDI_encoder.encodeInto(byteLengthString, send_buffer.subarray(2, send_buffer.length));
+    const writtenAaa = EDI_encoder.encodeInto(byteLengthString, send_buffer.subarray(index, send_buffer.length));
 
-    const writtenBbb = EDI_encoder.encodeInto(messageString, send_buffer.subarray(2 + writtenAaa.written, send_buffer.length));
+    index += writtenAaa.written;
+
+    send_buffer[index] = '_'.charCodeAt(0);
+    index += 1;
+
+    const writtenBbb = EDI_encoder.encodeInto(messageString, send_buffer.subarray(index, send_buffer.length));
+
+    index += writtenBbb.written;
 
     // High Performance Slice: Create a zero-allocation window/view over just the written bytes
     // .subarray() does NOT copy memory; it just shifts the byte pointer window
-    const viewToSend = send_buffer.subarray(0, 2 + writtenAaa.written + writtenBbb.written);
+    const viewToSend = send_buffer.subarray(0, index);
 
     socket.send(viewToSend); // Sends raw binary data
 }

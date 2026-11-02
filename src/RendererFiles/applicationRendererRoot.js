@@ -2,6 +2,8 @@ init();
 
 let APP_lineHeightStringWithPx = '';
 
+//let shouldUseCSharpToSaveFileWhenPossible = true;
+
 // Connect to the C# console app
 const socket = new WebSocket('ws://127.0.0.1:8080');
 
@@ -193,11 +195,50 @@ function sendTransaction_MessageKind_custom_editorGetNodesAdjacentToCursor(posit
     socket.send(viewToSend); // Sends raw binary data
 }
 
+function sendTransaction_MessageKind_custom_saveFile() {
+    if (socket.readyState !== WebSocket.OPEN) { throw new Exception('socket.readyState !== WebSocket.OPEN'); }
+
+    if (false && filePath.length > send_buffer.length) { throw new Exception('filePath.length > send_buffer.length'); }
+
+    mostRecent_kind = 5;
+
+    let index = 0;
+
+    send_buffer[0] = '5'.charCodeAt(0);
+    send_buffer[1] = '_'.charCodeAt(0);
+
+    index += 2;
+
+    //var positionIndexString = positionIndex + '';
+//
+    //// TODO: measure bytes that represent number digits without string
+    //const aaa = EDI_encoder.encode(positionIndexString);
+    //const byteLengthString = aaa.length + '';
+//
+    //const writtenAaa = EDI_encoder.encodeInto(byteLengthString, send_buffer.subarray(index, send_buffer.length));
+//
+    //index += writtenAaa.written;
+//
+    //send_buffer[index] = '_'.charCodeAt(0);
+    //index += 1;
+//
+    //const writtenBbb = EDI_encoder.encodeInto(positionIndexString, send_buffer.subarray(index, send_buffer.length));
+//
+    //index += writtenBbb.written;
+
+    // High Performance Slice: Create a zero-allocation window/view over just the written bytes
+    // .subarray() does NOT copy memory; it just shifts the byte pointer window
+    const viewToSend = send_buffer.subarray(0, index);
+
+    socket.send(viewToSend); // Sends raw binary data
+}
+
 // Goal is to use the same wording as LSP where possible for clarity of communication.
 const MessageKind_string = 1;
 const MessageKind_textDocument_didOpen = 2;
 const MessageKind_textDocument_definition = 3;
 const MessageKind_custom_editorGetNodesAdjacentToCursor = 4;
+const MessageKind_custom_saveFile = 5;
 
 // The save can actually be done from the C# code.
 // (from whichever it is more sensible to do from I mean)
@@ -381,9 +422,13 @@ function documentBody_onKeyDown(event) {
             if (rawData.uint8arrayTextBytes) {
                 event.preventDefault();
                 event.stopPropagation();
+                EDI_finalizeEdit();
                 if (unvalidatedAbsolutePath === null) {
                     documentBody_onKeyDown_saveFileAs(rawData);
                 }
+                //else if (shouldUseCSharpToSaveFileWhenPossible) {
+                //    sendTransaction_MessageKind_custom_saveFile();
+                //}
                 else {
                     window.myAPI.editorSaveFile(unvalidatedAbsolutePath, rawData.uint8arrayTextBytes, rawData.countOfBytesInUse, rawData.lineEndString, rawData.fileStartsWithBom);
                 }

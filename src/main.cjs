@@ -698,19 +698,6 @@ async function editorReadAllText_byteArray(event, absolutePath) {
 		itHasBom.extension = extension;
 
 		let pathId = database.addAbsolutePath(itHasBom.formattedAbsolutePath, basename);
-
-		if (openedDocumentUri) {
-			let tdIdentifier = lspTypes.MAIN_message_construct_textDocumentIdentifier(absolutePath);
-			if (languageServerHandshakeSuccess && languageServer) {
-				languageServer.stdin.write(
-					MAIN_encodeMessageObject(lspTypes.MAIN_message_construct_didCloseTextDocumentNotification(tdIdentifier)));
-			}
-			openedDocumentUri = null; // Should be set null regardless of language server existence to ensure it gets cleared if language server was running then stopped
-		}
-		if (languageServerHandshakeSuccess && languageServer) {
-			lsp_write_didOpenTextDocumentNotification(absolutePath, itHasBom.text, paddingLength);
-			lsp_write_customFullFileLexRequest();
-		}
 		
 		return {
 			paddedUint8Array: uint8Array,

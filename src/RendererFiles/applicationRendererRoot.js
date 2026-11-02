@@ -29,19 +29,41 @@ socket.onmessage = (event) => {
 
 let send_buffer = new Uint8Array(256);
 
+let send_id = 0;
+
 // Example function to send your transaction buffer
-function sendTransaction(messageString) {
+function sendTransaction_MessageKind_string(messageString) {
     if (socket.readyState !== WebSocket.OPEN) { throw new Exception('socket.readyState !== WebSocket.OPEN'); }
 
     if (messageString.length > send_buffer.length) { throw new Exception('messageString.length > send_buffer.length'); }
 
-    const { written } = EDI_encoder.encodeInto(messageString, send_buffer);
+
+    send_buffer[0] = '1'.charCodeAt(0);
+    send_buffer[1] = '_'.charCodeAt(0);
+
+    // TODO: measure byte length of a string without encode
+    const aaa = EDI_encoder.encode(send_buffer.length);
+    const byteLengthString = aaa.length + '';
+
+    const writtenAaa = EDI_encoder.encodeInto(byteLengthString, send_buffer.subarray(2, send_buffer.length));
+
+    const writtenBbb = EDI_encoder.encodeInto(messageString, send_buffer.subarray(2 + writtenAaa.written, send_buffer.length));
 
     // High Performance Slice: Create a zero-allocation window/view over just the written bytes
     // .subarray() does NOT copy memory; it just shifts the byte pointer window
-    const viewToSend = send_buffer.subarray(0, written);
+    const viewToSend = send_buffer.subarray(0, 2 + writtenAaa.written + writtenBbb.written);
 
     socket.send(viewToSend); // Sends raw binary data
+}
+
+// Goal is to use the same wording as LSP where possible for clarity of communication.
+const MessageKind_string = 1;
+const MessageKind_textDocument_didOpen = 2;
+
+function MAIN_encodeMessageObject(messageKind, messageObject) {
+	let content = JSON.stringify(messageObject);
+	let spacing = '\r\n\r\n';
+	return `Content-Length: ${content.length}${spacing}${content}\n`;
 }
 
 function init() {

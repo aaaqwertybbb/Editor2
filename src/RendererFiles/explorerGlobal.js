@@ -1498,12 +1498,15 @@ async function EXPLORER_openInEditor(absolutePath, shouldFocus) {
         /*extensionKind*/ EDI_toExtensionKind(itHasBom.extension),
         itHasBom.lineEndString,
         itHasBom.lineEndCount);
+
     if (shouldFocus) {
         let editor = document.getElementById('EDITOR_inner_container');
         if (editor) {
             editor.focus();
         }
     }
+
+    sendTransaction(1, messageString);
 }
 
 /**

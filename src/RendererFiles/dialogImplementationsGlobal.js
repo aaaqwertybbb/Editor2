@@ -556,11 +556,11 @@ function DIALOG_Debug_Refresh(customEditorGetNodesAdjacentToCursorFromLspRequest
     let textNode = null;
 
     textNode = beforeDiv.firstChild;
-    textNode.replaceData(0, textNode.length, `${customEditorGetNodesAdjacentToCursorFromLspRequestResponse.Before.SyntaxKindString}\n\t${customEditorGetNodesAdjacentToCursorFromLspRequestResponse.Before.Identifier}\n\t(${customEditorGetNodesAdjacentToCursorFromLspRequestResponse.Before.Start.line}, ${customEditorGetNodesAdjacentToCursorFromLspRequestResponse.Before.Start.character})`);
+    textNode.replaceData(0, textNode.length, `${customEditorGetNodesAdjacentToCursorFromLspRequestResponse.Before.SyntaxKindString}\n\t${customEditorGetNodesAdjacentToCursorFromLspRequestResponse.Before.Identifier}\n\t(${customEditorGetNodesAdjacentToCursorFromLspRequestResponse.Before.PositionIndex})`);
 
     textNode = amongDiv.firstChild;
-    textNode.replaceData(0, textNode.length, `${customEditorGetNodesAdjacentToCursorFromLspRequestResponse.Among.SyntaxKindString}\n\t${customEditorGetNodesAdjacentToCursorFromLspRequestResponse.Among.Identifier}\n\t(${customEditorGetNodesAdjacentToCursorFromLspRequestResponse.Among.Start.line}, ${customEditorGetNodesAdjacentToCursorFromLspRequestResponse.Among.Start.character})`);
+    textNode.replaceData(0, textNode.length, `${customEditorGetNodesAdjacentToCursorFromLspRequestResponse.Among.SyntaxKindString}\n\t${customEditorGetNodesAdjacentToCursorFromLspRequestResponse.Among.Identifier}\n\t(${customEditorGetNodesAdjacentToCursorFromLspRequestResponse.Among.PositionIndex})`);
 
     textNode = afterDiv.firstChild;
-    textNode.replaceData(0, textNode.length, `${customEditorGetNodesAdjacentToCursorFromLspRequestResponse.After.SyntaxKindString}\n\t${customEditorGetNodesAdjacentToCursorFromLspRequestResponse.After.Identifier}\n\t(${customEditorGetNodesAdjacentToCursorFromLspRequestResponse.After.Start.line}, ${customEditorGetNodesAdjacentToCursorFromLspRequestResponse.After.Start.character})`);
+    textNode.replaceData(0, textNode.length, `${customEditorGetNodesAdjacentToCursorFromLspRequestResponse.After.SyntaxKindString}\n\t${customEditorGetNodesAdjacentToCursorFromLspRequestResponse.After.Identifier}\n\t(${customEditorGetNodesAdjacentToCursorFromLspRequestResponse.After.PositionIndex})`);
 }

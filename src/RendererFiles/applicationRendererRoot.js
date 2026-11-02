@@ -20,7 +20,7 @@ socket.onmessage = (event) => {
             EDI_moveCursor_position(Number(event.data));
         }
         else if (mostRecent_kind === 4) {
-            let aaa = 2;
+            DIALOG_Debug_Refresh(JSON.parse(event.data));
         }
         else {
             // If the server sent it as text, convert text to a Uint8Array

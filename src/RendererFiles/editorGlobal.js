@@ -207,9 +207,7 @@ const EDI_renderKindBuffer = new Uint8Array(BUFFER_SIZE);
 let EDI_ringBuffer_gutter = [];
 let EDI_ringBuffer_text = EDI_ringBuffer_gutter;
 // These empty arrays in javascript are an allocation per, and the editor immediately overwrites them with new arrays anyways. Not using null to avoid JS ever thinking these are null.
-// V8 creates an internal JavaScript object header, but it does not allocate any heap memory for data elements yet. 
-
-let EDI_ringBuffer_needsSyntaxHighlightingFlags = new Uint8Array(0);
+// V8 creates an internal JavaScript object header, but it does not allocate any heap memory for data elements yet.
 
 /**
  * TODO: Long term you'd want to permit shifting nodes in the ringBuffer to avoid literally replacing child nodes foreach visible
@@ -499,8 +497,6 @@ function EDI_render_do_CreateViewport() {
 
     const local_ArrayFrom_textElement_children_length = EDI_ringBuffer_text.length;
     INTS[fEDI_ArrayFrom_textElement_children_length] = local_ArrayFrom_textElement_children_length;
-
-    EDI_ringBuffer_needsSyntaxHighlightingFlags = new Uint8Array(local_ArrayFrom_textElement_children_length);
 
     while (EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.length > local_ArrayFrom_textElement_children_length) {
         EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.pop();

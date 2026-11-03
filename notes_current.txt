@@ -2186,3 +2186,5 @@ is that the language server needs to look at the "diff in cursor position"
 and determine the 3 nodes from the prior known cursor position / 3 nodes.
 You use the previous answer to determine the next one.
 Rather than starting from Global node with a search each time.
+
+editorMaxHeap.js why is line 631 white and etc... it is in a multiline comment.

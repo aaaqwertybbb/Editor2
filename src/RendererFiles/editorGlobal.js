@@ -6037,7 +6037,8 @@ function EDI_createStyleForSelection() {
             }
         }
         else if (textSelectionDiv.children.length > selectedLineCount) {
-            for (let i = selectedLineCount; i < textSelectionDiv.children.length; i++) {
+            // Loop backwards from the last index down to selectedLineCount
+            for (let i = textSelectionDiv.children.length - 1; i >= selectedLineCount; i--) {
                 textSelectionDiv.removeChild(textSelectionDiv.children[i]);
             }
         }

@@ -631,6 +631,8 @@ function EDI_render_do_Scroll() {
     const local_typeHighlight = typeHighlight;
 
     const local_EDI_styleBuffer = EDI_styleBuffer;
+
+    const local_EDI_rangeInit = EDI_rangeInit;
     
     let vertical = lowerBound * local_lineHeight;
 
@@ -679,8 +681,8 @@ function EDI_render_do_Scroll() {
         }
         ///
 
-        EDI_rangeInit.startContainer = textNode;
-        EDI_rangeInit.endContainer = textNode;
+        local_EDI_rangeInit.startContainer = textNode;
+        local_EDI_rangeInit.endContainer = textNode;
 
         let start = 0;
         let length = 0;
@@ -711,9 +713,9 @@ function EDI_render_do_Scroll() {
                         break outerWhile;
                     }
                     if (local_EDI_styleBuffer[i] !== originalStyleByte) {
-                        EDI_rangeInit.startOffset = start;
-                        EDI_rangeInit.endOffset = start + length;
-                        let range = new StaticRange(EDI_rangeInit);
+                        local_EDI_rangeInit.startOffset = start;
+                        local_EDI_rangeInit.endOffset = start + length;
+                        let range = new StaticRange(local_EDI_rangeInit);
                         arrayOfRangeObjectsOnLine.push(range);
                         if (originalStyleByte === 5) {
                             local_identifierHighlight.add(range);
@@ -747,9 +749,9 @@ function EDI_render_do_Scroll() {
         }
 
         if (length > 0 && TRAILINGstyleByteTRAILING !== 0) {
-            EDI_rangeInit.startOffset = start;
-            EDI_rangeInit.endOffset = start + length;
-            let range = new StaticRange(EDI_rangeInit);
+            local_EDI_rangeInit.startOffset = start;
+            local_EDI_rangeInit.endOffset = start + length;
+            let range = new StaticRange(local_EDI_rangeInit);
             arrayOfRangeObjectsOnLine.push(range);
             if (TRAILINGstyleByteTRAILING === 5) {
                 local_identifierHighlight.add(range);
@@ -785,8 +787,8 @@ function EDI_render_do_Scroll() {
         vertical += local_lineHeight;
     }
 
-    EDI_rangeInit.startContainer = null;
-    EDI_rangeInit.endContainer = null;
+    local_EDI_rangeInit.startContainer = null;
+    local_EDI_rangeInit.endContainer = null;
 }
 
 /**

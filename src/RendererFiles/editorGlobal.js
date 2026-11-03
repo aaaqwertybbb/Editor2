@@ -692,9 +692,9 @@ function EDI_render_do_Scroll() {
         // Start iterating from the SECOND character of the line
         for (let i = lineStart + 1; i <= local_lineEnd; i++) {
             // Safe out-of-bounds read at i === local_lineEnd returns undefined, forcing the final flush
-            const currentByte = i === local_lineEnd ? 9 : local_EDI_styleBuffer[i];
+            const currentByte = i === local_lineEnd ? 9 : local_EDI_styleBuffer[i]; // This one though the jump is assumed to be conditional jump due to the extremely small amount of code being executed in either branch and that the CPU will figure it out.
 
-            if (currentByte === originalStyleByte) {
+            if (currentByte === originalStyleByte) { // These if/else were inverted. An assumption that you'd get a jump due to the large 'else' block. It was moved from what it originally was an if block to the else. So the higher frequency case is it. More likely is that you have more than 1 character in a row of the same syntax highlighting. So you can avoid the jump during those.
                 length++;
             }
             else {

@@ -679,106 +679,50 @@ function EDI_render_do_Scroll() {
             }
             range = arrayOfRangeObjectsOnLine.pop();
         }
-        ///
 
         local_EDI_rangeInit.startContainer = textNode;
         local_EDI_rangeInit.endContainer = textNode;
 
-        let start = 0;
-        let length = 0;
+        let originalStyleByte = local_EDI_styleBuffer[lineStart];
+        let start = 0; // Relative to the line start (always 0 initially)
+        let length = 1; // We have already consumed the first character at lineStart
 
-        let i = lineStart;
+        const local_lineEnd = lineEnd;
 
-        let TRAILINGstyleByteTRAILING = 0;
+        // Start iterating from the SECOND character of the line
+        for (let i = lineStart + 1; i <= local_lineEnd; i++) {
+            // Safe out-of-bounds read at i === local_lineEnd returns undefined, forcing the final flush
+            const currentByte = i === local_lineEnd ? 9 : local_EDI_styleBuffer[i];
 
-        // TODO: optimize the loop
-        outerWhile: while (true) {
-            if (i >= lineEnd) {
-                TRAILINGstyleByteTRAILING = 0;
-                break;
+            if (currentByte === originalStyleByte) {
+                length++;
             }
-            if (local_EDI_styleBuffer[i] !== 0) {
-                const originalStyleByte = local_EDI_styleBuffer[i];
-                if (originalStyleByte === undefined) { // out of bounds
-                    TRAILINGstyleByteTRAILING = 0;
-                    break;
-                }
-                start = i - lineStart;
-                length = 0;
-                while (true) {
-                    i++;
-                    length++;
-                    if (i >= lineEnd) {
-                        TRAILINGstyleByteTRAILING = originalStyleByte;
-                        break outerWhile;
-                    }
-                    if (local_EDI_styleBuffer[i] !== originalStyleByte) {
-                        local_EDI_rangeInit.startOffset = start;
-                        local_EDI_rangeInit.endOffset = start + length;
-                        let range = new StaticRange(local_EDI_rangeInit);
-                        arrayOfRangeObjectsOnLine.push(range);
-                        if (originalStyleByte === 5) {
-                            local_identifierHighlight.add(range);
-                        }
-                        else if (originalStyleByte === 3) {
-                            local_keywordHighlight.add(range);
-                        }
-                        else if (originalStyleByte === 8) {
-                            local_functionHighlight.add(range);
-                        }
-                        else if (originalStyleByte === 4) {
-                            local_keywordControlHighlight.add(range);
-                        }
-                        else if (originalStyleByte === 7) {
-                            local_memberHighlight.add(range);
-                        }
-                        else if (originalStyleByte === 2) {
-                            local_commentHighlight.add(range);
-                        }
-                        else if (originalStyleByte === 1) {
-                            local_stringHighlight.add(range);
-                        }
-                        else if (originalStyleByte === 6) {
-                            local_typeHighlight.add(range);
-                        }
-                        continue outerWhile;
+            else {
+                // Flush the completed range if it maps to a valid syntax token
+                if (originalStyleByte > 0 && originalStyleByte < 9) {
+                    local_EDI_rangeInit.startOffset = start;
+                    local_EDI_rangeInit.endOffset = start + length;
+                    let range = new StaticRange(local_EDI_rangeInit);
+                    arrayOfRangeObjectsOnLine.push(range);
+                    
+                    switch (originalStyleByte) {
+                        case 5: local_identifierHighlight.add(range); break;
+                        case 3: local_keywordHighlight.add(range); break;
+                        case 8: local_functionHighlight.add(range); break;
+                        case 4: local_keywordControlHighlight.add(range); break;
+                        case 7: local_memberHighlight.add(range); break;
+                        case 2: local_commentHighlight.add(range); break;
+                        case 1: local_stringHighlight.add(range); break;
+                        case 6: local_typeHighlight.add(range); break;
                     }
                 }
-            }
-            i++;
-        }
-
-        if (length > 0 && TRAILINGstyleByteTRAILING !== 0) {
-            local_EDI_rangeInit.startOffset = start;
-            local_EDI_rangeInit.endOffset = start + length;
-            let range = new StaticRange(local_EDI_rangeInit);
-            arrayOfRangeObjectsOnLine.push(range);
-            if (TRAILINGstyleByteTRAILING === 5) {
-                local_identifierHighlight.add(range);
-            }
-            else if (TRAILINGstyleByteTRAILING === 3) {
-                local_keywordHighlight.add(range);
-            }
-            else if (TRAILINGstyleByteTRAILING === 8) {
-                local_functionHighlight.add(range);
-            }
-            else if (TRAILINGstyleByteTRAILING === 4) {
-                local_keywordControlHighlight.add(range);
-            }
-            else if (TRAILINGstyleByteTRAILING === 7) {
-                local_memberHighlight.add(range);
-            }
-            else if (TRAILINGstyleByteTRAILING === 2) {
-                local_commentHighlight.add(range);
-            }
-            else if (TRAILINGstyleByteTRAILING === 1) {
-                local_stringHighlight.add(range);
-            }
-            else if (TRAILINGstyleByteTRAILING === 6) {
-                local_typeHighlight.add(range);
+                
+                // Switch tracking context to the new block
+                originalStyleByte = currentByte;
+                start = i - lineStart; // Anchor the new start relative to the textNode string boundary
+                length = 1; // Reset length for the new token
             }
         }
-        /////
 
         const translateY = 'translateY(' + vertical + 'px)';
         gutter.style.transform = translateY;

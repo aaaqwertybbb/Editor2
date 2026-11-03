@@ -461,10 +461,13 @@ function EDI_render_do_CreateViewport() {
     const upper = lower + virtualCount;
 
     const local_EDI_ringBuffer_text = EDI_ringBuffer_text;
-    let line = w_divNONE;
-    while (line = local_EDI_ringBuffer_text.pop()) {
-        line.remove();
+    const len = local_EDI_ringBuffer_text.length;
+    // 1. Remove the elements from the DOM without mutating the array length mid-loop
+    for (let i = 0; i < len; i++) {
+        local_EDI_ringBuffer_text[i].remove();
     }
+    // 2. Instantly drop all references for Garbage Collection
+    EDI_ringBuffer_text.length = 0; // local_EDI_ringBuffer_text exists for the sake of optimization heuristics relating to the for loop 'EDI_ringBuffer_text' is 'local_EDI_ringBuffer_text'.
     EDI_ringBuffer_text = new Array(upper - lower);
 
     let loopIndex = 0;

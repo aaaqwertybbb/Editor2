@@ -385,14 +385,15 @@ function EDI_render_request(renderKind) {
  * TODO: This clearing highlights logic was thrown together as a first draft it needs to be optimized.
  */
 function EDI_clearHighlights_all() {
-    for (let i = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.length - 1; i >= 0; i--) {
-        // TODO: length = 0?
-        let arrayOfRangeObjectsOnLine = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[i];
-        let range = arrayOfRangeObjectsOnLine.pop();
-        while (range) {
-            range = arrayOfRangeObjectsOnLine.pop();
-        }
+    const local_EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine;
+    const len = local_EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.length;
+
+    // 1. Instantly truncate all sub-arrays in a flat, linear scan
+    for (let i = 0; i < len; i++) {
+        local_EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[i].length = 0; 
     }
+
+    // 2. Clear the highlight engines en masse (hyper-fast native execution)
     keywordHighlight.clear();
     keywordControlHighlight.clear();
     memberHighlight.clear();

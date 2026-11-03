@@ -665,8 +665,11 @@ function EDI_render_do_Scroll() {
         const arrayOfRangeObjectsOnLine = local_EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndex];
 
         /// This function is manually inlined(-ish) within 'EDI_syntaxHighlight_parallelArray' at the start of the function. (2 of 2)
-        let range = arrayOfRangeObjectsOnLine.pop();
-        while (range) {
+
+        const local_arrayOfRangeObjects_length = arrayOfRangeObjectsOnLine.length;
+        for (let j = 0; j < local_arrayOfRangeObjects_length; ++j) {
+            const range = arrayOfRangeObjectsOnLine[j];
+            // Keep the short-circuiting logic but execute it over a completely flat index read
             if (local_identifierHighlight.delete(range) ||
                 local_keywordHighlight.delete(range) ||
                 local_functionHighlight.delete(range) ||
@@ -677,8 +680,9 @@ function EDI_render_do_Scroll() {
                 local_typeHighlight.delete(range)) {
                     // literally do nothing
             }
-            range = arrayOfRangeObjectsOnLine.pop();
         }
+        // Single instruction to clear the array instantly after the loop
+        arrayOfRangeObjectsOnLine.length = 0;
 
         local_EDI_rangeInit.startContainer = textNode;
         local_EDI_rangeInit.endContainer = textNode;

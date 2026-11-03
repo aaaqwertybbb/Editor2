@@ -499,11 +499,18 @@ function EDI_render_do_CreateViewport() {
     const local_ArrayFrom_textElement_children_length = EDI_ringBuffer_text.length;
     INTS[fEDI_ArrayFrom_textElement_children_length] = local_ArrayFrom_textElement_children_length;
 
-    while (EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.length > local_ArrayFrom_textElement_children_length) {
-        EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.pop();
+    const targetLength = local_ArrayFrom_textElement_children_length;
+    const currentLength = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.length;
+
+    if (currentLength > targetLength) {
+        // Truncate instantly. V8 unlinks trailing elements cleanly.
+        EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.length = targetLength;
     }
-    while (EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.length < local_ArrayFrom_textElement_children_length) {
-        EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.push([]);
+    else if (currentLength < targetLength) {
+        // Fill the missing slots cleanly using a fast native loop
+        for (let i = currentLength; i < targetLength; i++) {
+            EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.push([]);
+        }
     }
 
     EDI_drawHorizontalScrollbar();

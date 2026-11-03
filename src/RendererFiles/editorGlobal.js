@@ -413,21 +413,33 @@ function EDI_clearHighlights_all() {
  * This function is manually inlined(-ish) within 'EDI_syntaxHighlight_parallelArray' at the start of the function. (1 of 2)
  */
 function EDI_clearHighlights_single(ringBufferIndexOfDiv) {
+    const local_identifierHighlight = identifierHighlight;
+    const local_keywordHighlight = keywordHighlight;
+    const local_memberHighlight = memberHighlight;
+    const local_keywordControlHighlight = keywordControlHighlight;
+    const local_functionHighlight = functionHighlight;
+    const local_commentHighlight = commentHighlight;
+    const local_stringHighlight = stringHighlight;
+    const local_typeHighlight = typeHighlight;
+
     const arrayOfRangeObjectsOnLine = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndexOfDiv];
-    let range = arrayOfRangeObjectsOnLine.pop();
-    while (range) {
-        if (identifierHighlight.delete(range) ||
-            keywordHighlight.delete(range) ||
-            memberHighlight.delete(range) ||
-            keywordControlHighlight.delete(range) ||
-            functionHighlight.delete(range) ||
-            commentHighlight.delete(range) ||
-            stringHighlight.delete(range) ||
-            typeHighlight.delete(range)) {
+    const local_arrayOfRangeObjects_length = arrayOfRangeObjectsOnLine.length;
+    for (let j = 0; j < local_arrayOfRangeObjects_length; ++j) {
+        const range = arrayOfRangeObjectsOnLine[j];
+        // Keep the short-circuiting logic but execute it over a completely flat index read
+        if (local_identifierHighlight.delete(range) ||
+            local_keywordHighlight.delete(range) ||
+            local_functionHighlight.delete(range) ||
+            local_keywordControlHighlight.delete(range) ||
+            local_memberHighlight.delete(range) ||
+            local_commentHighlight.delete(range) ||
+            local_stringHighlight.delete(range) ||
+            local_typeHighlight.delete(range)) {
                 // literally do nothing
         }
-        range = arrayOfRangeObjectsOnLine.pop();
     }
+    // Single instruction to clear the array instantly after the loop
+    arrayOfRangeObjectsOnLine.length = 0;
 }
 
 /** TODO: This should grow or shrink when you resize, rather than the current behavior which recreates every single dom element. */
@@ -6480,6 +6492,14 @@ function EDI_render_do_SyntaxHighlighting() {
     }
     
     const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
+    const local_identifierHighlight = identifierHighlight;
+    const local_keywordHighlight = keywordHighlight;
+    const local_memberHighlight = memberHighlight;
+    const local_keywordControlHighlight = keywordControlHighlight;
+    const local_functionHighlight = functionHighlight;
+    const local_commentHighlight = commentHighlight;
+    const local_stringHighlight = stringHighlight;
+    const local_typeHighlight = typeHighlight;
     
     // TODO: ??? -1 I changed it to be '>0' just so that the 'i' value doesn't change if intentional?
     for (let i = local_ArrayFrom_textElement_children_length; i > 0; i--) {
@@ -6502,7 +6522,27 @@ function EDI_render_do_SyntaxHighlighting() {
 
         //if (local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] === 1) {
         //    local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] = 0;
-            EDI_syntaxHighlight_parallelArray(EDI_ringBuffer_text[currentIndexRingBuffer], currentIndexRingBuffer, lineStart, lineEnd);
+        const arrayOfRangeObjectsOnLine = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[currentIndexRingBuffer];
+        /// This function is manually inlined(-ish) within 'EDI_syntaxHighlight_parallelArray' at the start of the function. (2 of 2)
+        const local_arrayOfRangeObjects_length = arrayOfRangeObjectsOnLine.length;
+        for (let j = 0; j < local_arrayOfRangeObjects_length; ++j) {
+            const range = arrayOfRangeObjectsOnLine[j];
+            // Keep the short-circuiting logic but execute it over a completely flat index read
+            if (local_identifierHighlight.delete(range) ||
+                local_keywordHighlight.delete(range) ||
+                local_functionHighlight.delete(range) ||
+                local_keywordControlHighlight.delete(range) ||
+                local_memberHighlight.delete(range) ||
+                local_commentHighlight.delete(range) ||
+                local_stringHighlight.delete(range) ||
+                local_typeHighlight.delete(range)) {
+                    // literally do nothing
+            }
+        }
+        // Single instruction to clear the array instantly after the loop
+        arrayOfRangeObjectsOnLine.length = 0;
+        ///
+        EDI_syntaxHighlight_parallelArray(EDI_ringBuffer_text[currentIndexRingBuffer], currentIndexRingBuffer, lineStart, lineEnd);
         //}
 
         currentIndexLine++;
@@ -6513,26 +6553,10 @@ function EDI_render_do_SyntaxHighlighting() {
     }
 }
 
+/** Editor scroll has this function more or less manually inlined by hand. */
 function EDI_syntaxHighlight_parallelArray(div, ringBufferIndexOfDiv, lineStart, lineEnd) {
 
     const arrayOfRangeObjectsOnLine = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndexOfDiv];
-
-    /// This function is manually inlined(-ish) within 'EDI_syntaxHighlight_parallelArray' at the start of the function. (2 of 2)
-    let range = arrayOfRangeObjectsOnLine.pop();
-    while (range) {
-        if (identifierHighlight.delete(range) ||
-            keywordHighlight.delete(range) ||
-            memberHighlight.delete(range) ||
-            keywordControlHighlight.delete(range) ||
-            functionHighlight.delete(range) ||
-            commentHighlight.delete(range) ||
-            stringHighlight.delete(range) ||
-            typeHighlight.delete(range)) {
-                // literally do nothing
-        }
-        range = arrayOfRangeObjectsOnLine.pop();
-    }
-    ///
 
     const textNode = div.firstChild;
 

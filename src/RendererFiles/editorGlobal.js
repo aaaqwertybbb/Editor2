@@ -6492,14 +6492,6 @@ function EDI_render_do_SyntaxHighlighting() {
     }
     
     const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
-    const local_identifierHighlight = identifierHighlight;
-    const local_keywordHighlight = keywordHighlight;
-    const local_memberHighlight = memberHighlight;
-    const local_keywordControlHighlight = keywordControlHighlight;
-    const local_functionHighlight = functionHighlight;
-    const local_commentHighlight = commentHighlight;
-    const local_stringHighlight = stringHighlight;
-    const local_typeHighlight = typeHighlight;
     
     // TODO: ??? -1 I changed it to be '>0' just so that the 'i' value doesn't change if intentional?
     for (let i = local_ArrayFrom_textElement_children_length; i > 0; i--) {
@@ -6522,26 +6514,6 @@ function EDI_render_do_SyntaxHighlighting() {
 
         //if (local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] === 1) {
         //    local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] = 0;
-        const arrayOfRangeObjectsOnLine = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[currentIndexRingBuffer];
-        /// This function is manually inlined(-ish) within 'EDI_syntaxHighlight_parallelArray' at the start of the function. (2 of 2)
-        const local_arrayOfRangeObjects_length = arrayOfRangeObjectsOnLine.length;
-        for (let j = 0; j < local_arrayOfRangeObjects_length; ++j) {
-            const range = arrayOfRangeObjectsOnLine[j];
-            // Keep the short-circuiting logic but execute it over a completely flat index read
-            if (local_identifierHighlight.delete(range) ||
-                local_keywordHighlight.delete(range) ||
-                local_functionHighlight.delete(range) ||
-                local_keywordControlHighlight.delete(range) ||
-                local_memberHighlight.delete(range) ||
-                local_commentHighlight.delete(range) ||
-                local_stringHighlight.delete(range) ||
-                local_typeHighlight.delete(range)) {
-                    // literally do nothing
-            }
-        }
-        // Single instruction to clear the array instantly after the loop
-        arrayOfRangeObjectsOnLine.length = 0;
-        ///
         EDI_syntaxHighlight_parallelArray(EDI_ringBuffer_text[currentIndexRingBuffer], currentIndexRingBuffer, lineStart, lineEnd);
         //}
 
@@ -6551,115 +6523,99 @@ function EDI_render_do_SyntaxHighlighting() {
             currentIndexRingBuffer = 0;
         }
     }
-}
-
-/** Editor scroll has this function more or less manually inlined by hand. */
-function EDI_syntaxHighlight_parallelArray(div, ringBufferIndexOfDiv, lineStart, lineEnd) {
-
-    const arrayOfRangeObjectsOnLine = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndexOfDiv];
-
-    const textNode = div.firstChild;
-
-    EDI_rangeInit.startContainer = textNode;
-    EDI_rangeInit.endContainer = textNode;
-
-    let start = 0;
-    let length = 0;
-
-    let i = lineStart;
-
-    let TRAILINGstyleByteTRAILING = 0;
-
-    // TODO: optimize the loop
-    outerWhile: while (true) {
-        if (i >= lineEnd) {
-            TRAILINGstyleByteTRAILING = 0;
-            break;
-        }
-        if (EDI_styleBuffer[i] !== 0) {
-            const originalStyleByte = EDI_styleBuffer[i];
-            if (originalStyleByte === undefined) { // out of bounds
-                TRAILINGstyleByteTRAILING = 0;
-                break;
-            }
-            start = i - lineStart;
-            length = 0;
-            while (true) {
-                i++;
-                length++;
-                if (i >= lineEnd) {
-                    TRAILINGstyleByteTRAILING = originalStyleByte;
-                    break outerWhile;
-                }
-                if (EDI_styleBuffer[i] !== originalStyleByte) {
-                    EDI_rangeInit.startOffset = start;
-                    EDI_rangeInit.endOffset = start + length;
-                    let range = new StaticRange(EDI_rangeInit);
-                    arrayOfRangeObjectsOnLine.push(range);
-                    if (originalStyleByte === 1) {
-                        stringHighlight.add(range);
-                    }
-                    else if (originalStyleByte === 2) {
-                        commentHighlight.add(range);
-                    }
-                    else if (originalStyleByte === 3) {
-                        keywordHighlight.add(range);
-                    }
-                    else if (originalStyleByte === 4) {
-                        keywordControlHighlight.add(range);
-                    }
-                    else if (originalStyleByte === 5) {
-                        identifierHighlight.add(range);
-                    }
-                    else if (originalStyleByte === 6) {
-                        typeHighlight.add(range);
-                    }
-                    else if (originalStyleByte === 7) {
-                        memberHighlight.add(range);
-                    }
-                    else if (originalStyleByte === 8) {
-                        functionHighlight.add(range);
-                    }
-                    continue outerWhile;
-                }
-            }
-        }
-        i++;
-    }
-
-    if (length > 0 && TRAILINGstyleByteTRAILING !== 0) {
-        EDI_rangeInit.startOffset = start;
-        EDI_rangeInit.endOffset = start + length;
-        let range = new StaticRange(EDI_rangeInit);
-        arrayOfRangeObjectsOnLine.push(range);
-        if (TRAILINGstyleByteTRAILING === 1) {
-            stringHighlight.add(range);
-        }
-        else if (TRAILINGstyleByteTRAILING === 2) {
-            commentHighlight.add(range);
-        }
-        else if (TRAILINGstyleByteTRAILING === 3) {
-            keywordHighlight.add(range);
-        }
-        else if (TRAILINGstyleByteTRAILING === 4) {
-            keywordControlHighlight.add(range);
-        }
-        else if (TRAILINGstyleByteTRAILING === 5) {
-            identifierHighlight.add(range);
-        }
-        else if (TRAILINGstyleByteTRAILING === 6) {
-            typeHighlight.add(range);
-        }
-        else if (TRAILINGstyleByteTRAILING === 7) {
-            memberHighlight.add(range);
-        }
-        else if (TRAILINGstyleByteTRAILING === 8) {
-            functionHighlight.add(range);
-        }
-    }
 
     EDI_rangeInit.startContainer = null;
     EDI_rangeInit.endContainer = null;
+}
+
+/**
+ * Editor scroll has this function more or less manually inlined by hand.
+ * 
+ * Invoker needs to run these two statements to clear the pooled object after their loop 'EDI_rangeInit.startContainer = null; EDI_rangeInit.endContainer = null;'
+ * You can consider changing this function so that it is done internally but currently only 1 reference to this function even exists.
+ * And that 1 reference invokes this within a loop so I'd rather move that nulling out of the pooled object's fields to after the 1 reference's loop is finished.
+ */
+function EDI_syntaxHighlight_parallelArray(div, ringBufferIndexOfDiv, lineStart, lineEnd) {
+
+    const local_identifierHighlight = identifierHighlight;
+    const local_keywordHighlight = keywordHighlight;
+    const local_memberHighlight = memberHighlight;
+    const local_keywordControlHighlight = keywordControlHighlight;
+    const local_functionHighlight = functionHighlight;
+    const local_commentHighlight = commentHighlight;
+    const local_stringHighlight = stringHighlight;
+    const local_typeHighlight = typeHighlight;
+
+    const arrayOfRangeObjectsOnLine = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndexOfDiv];
+    
+    /// This function is manually inlined(-ish) within 'EDI_syntaxHighlight_parallelArray' at the start of the function. (2 of 2)
+    const local_arrayOfRangeObjects_length = arrayOfRangeObjectsOnLine.length;
+    for (let j = 0; j < local_arrayOfRangeObjects_length; ++j) {
+        const range = arrayOfRangeObjectsOnLine[j];
+        // Keep the short-circuiting logic but execute it over a completely flat index read
+        if (local_identifierHighlight.delete(range) ||
+            local_keywordHighlight.delete(range) ||
+            local_functionHighlight.delete(range) ||
+            local_keywordControlHighlight.delete(range) ||
+            local_memberHighlight.delete(range) ||
+            local_commentHighlight.delete(range) ||
+            local_stringHighlight.delete(range) ||
+            local_typeHighlight.delete(range)) {
+                // literally do nothing
+        }
+    }
+    // Single instruction to clear the array instantly after the loop
+    arrayOfRangeObjectsOnLine.length = 0;
+    ///
+
+    const local_EDI_rangeInit = EDI_rangeInit;
+    const local_EDI_styleBuffer = EDI_styleBuffer;
+
+    const textNode = div.firstChild;
+
+    local_EDI_rangeInit.startContainer = textNode;
+    local_EDI_rangeInit.endContainer = textNode;
+
+    let originalStyleByte = local_EDI_styleBuffer[lineStart];
+    let start = 0; // Relative to the line start (always 0 initially)
+    let length = 1; // We have already consumed the first character at lineStart
+
+    const local_lineEnd = lineEnd;
+
+    // Start iterating from the SECOND character of the line
+    for (let i = lineStart + 1; i <= local_lineEnd; i++) {
+        // Safe out-of-bounds read at i === local_lineEnd returns undefined, forcing the final flush
+        const currentByte = i === local_lineEnd ? 9 : local_EDI_styleBuffer[i]; // This one though the jump is assumed to be conditional jump due to the extremely small amount of code being executed in either branch and that the CPU will figure it out.
+
+        if (currentByte === originalStyleByte) { // These if/else were inverted. An assumption that you'd get a jump due to the large 'else' block. It was moved from what it originally was an if block to the else. So the higher frequency case is it. More likely is that you have more than 1 character in a row of the same syntax highlighting. So you can avoid the jump during those.
+            length++;
+        }
+        else {
+            // Flush the completed range if it maps to a valid syntax token
+            if (originalStyleByte > 0 && originalStyleByte < 9) {
+                local_EDI_rangeInit.startOffset = start;
+                local_EDI_rangeInit.endOffset = start + length;
+                let range = new StaticRange(local_EDI_rangeInit);
+                arrayOfRangeObjectsOnLine.push(range);
+                
+                switch (originalStyleByte) {
+                    case 5: local_identifierHighlight.add(range); break;
+                    case 3: local_keywordHighlight.add(range); break;
+                    case 8: local_functionHighlight.add(range); break;
+                    case 4: local_keywordControlHighlight.add(range); break;
+                    case 7: local_memberHighlight.add(range); break;
+                    case 2: local_commentHighlight.add(range); break;
+                    case 1: local_stringHighlight.add(range); break;
+                    case 6: local_typeHighlight.add(range); break;
+                }
+            }
+            
+            // Switch tracking context to the new block
+            originalStyleByte = currentByte;
+            start = i - lineStart; // Anchor the new start relative to the textNode string boundary
+            length = 1; // Reset length for the new token
+        }
+    }
 }
 
 /**

@@ -385,6 +385,11 @@ function EDI_render_request(renderKind) {
  * TODO: This clearing highlights logic was thrown together as a first draft it needs to be optimized.
  */
 function EDI_clearHighlights_all() {
+    // I'm not gonna check style buffer count. The worry is:
+    // 1. Clear style buffer
+    // 2. ClearHighlights_all
+    // -->2.1. Now the clearing of the highlights never occurs cause it sees the style buffer count is 0 and assumes nothing needs clearing.
+
     const local_EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine;
     const len = local_EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.length;
 
@@ -687,6 +692,7 @@ function EDI_render_do_Scroll() {
         // but it feels like rather flimsy protection.
         // If you read an undefined from the style buffer you probably will cause a deoptimization of this function is the main concern.
         if (INTS[fEDI_styleBuffer_count] !== 0) {
+            // Syntax highlighting gets the non-jump branch because it has to execute more code the jump is more noticeable in the case where you'd also have to do the syntax highlighting.
             /////
             const arrayOfRangeObjectsOnLine = local_EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndex];
 
@@ -6321,54 +6327,66 @@ function EDI_render_do_SyntaxHighlighting() {
         EDI_render_do_RedrawSelection();
     }
 
-    let currentIndexRingBuffer = INTS[fEDI_ringBuffer_indexZero];
-    let currentIndexLine = INTS[fEDI_virtualIndexLine];
+    // NOTE: this still is incomplete protection from reading an undefined byte from the style buffer...
+    // ...the assumption is either your INTS[fEDI_styleBuffer_count] is perfectly in sync with the text count
+    // OR the INTS[fEDI_styleBuffer_count] is 0.
+    // As of writing this comment, if everything goes as planned this technically is true "the assumption is either your INTS[fEDI_styleBuffer_count] is perfectly in sync with the text count"
+    // but it feels like rather flimsy protection.
+    // If you read an undefined from the style buffer you probably will cause a deoptimization of this function is the main concern.
+    if (INTS[fEDI_styleBuffer_count] !== 0) {
+        // Syntax highlighting gets the non-jump branch because it has to execute more code the jump is more noticeable in the case where you'd also have to do the syntax highlighting.
+        let currentIndexRingBuffer = INTS[fEDI_ringBuffer_indexZero];
+        let currentIndexLine = INTS[fEDI_virtualIndexLine];
 
-    const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
-    const local_EDI_lineEndPositionList_count = INTS[fEDI_lineEndPositionList_count];
+        const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
+        const local_EDI_lineEndPositionList_count = INTS[fEDI_lineEndPositionList_count];
 
-    // If you intend to use the variables 'lineStart' or 'lineEnd': Important detail to consider: the lines that are >= INTS[fEDI_lineEndPositionList_count] will continually increment lineStart by 1 So if you expect this to accurately represent the EOF position when it is in view, it probably does NOT.
-    let lineStart = 0;
-    let lineEnd = -1;
-    if (currentIndexLine < local_EDI_lineEndPositionList_count && currentIndexLine !== 0) {
-        lineEnd = local_EDI_lineEndPositionList_data[currentIndexLine - 1];
+        // If you intend to use the variables 'lineStart' or 'lineEnd': Important detail to consider: the lines that are >= INTS[fEDI_lineEndPositionList_count] will continually increment lineStart by 1 So if you expect this to accurately represent the EOF position when it is in view, it probably does NOT.
+        let lineStart = 0;
+        let lineEnd = -1;
+        if (currentIndexLine < local_EDI_lineEndPositionList_count && currentIndexLine !== 0) {
+            lineEnd = local_EDI_lineEndPositionList_data[currentIndexLine - 1];
+        }
+        
+        const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
+        
+        // TODO: ??? -1 I changed it to be '>0' just so that the 'i' value doesn't change if intentional?
+        for (let i = local_ArrayFrom_textElement_children_length; i > 0; i--) {
+
+            // TODO: I'm trying to leverage the lines being contiguous and in order;...
+            // ...this allows me to simplify the calculations for lineStart and lineEnd...
+            // ...but perhaps it would be better just to find the cases of 'local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] === 1'...
+            // ...and calculate the lineStart and lineEnd the "long way" due to possible skipping?...
+            // ...trying to find the first case that is '1' means you cannot just calculate the initial lineStart and lineEnd...
+            // ...because a loop is needed now to find the first '1' case...
+            // ...thus you'd either have two loops, or add complexity to this loop...
+            // ...and neither case seems like a good idea.
+            lineStart = lineEnd + 1;
+            if (currentIndexLine < local_EDI_lineEndPositionList_count) {
+                lineEnd = local_EDI_lineEndPositionList_data[currentIndexLine];
+            }
+            else {
+                lineEnd = lineStart;
+            }
+
+            //if (local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] === 1) {
+            //    local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] = 0;
+            EDI_syntaxHighlight_parallelArray(EDI_ringBuffer_text[currentIndexRingBuffer], currentIndexRingBuffer, lineStart, lineEnd);
+            //}
+
+            currentIndexLine++;
+            currentIndexRingBuffer++;
+            if (currentIndexRingBuffer >= local_ArrayFrom_textElement_children_length) {
+                currentIndexRingBuffer = 0;
+            }
+        }
+
+        EDI_rangeInit.startContainer = null;
+        EDI_rangeInit.endContainer = null;
     }
-    
-    const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
-    
-    // TODO: ??? -1 I changed it to be '>0' just so that the 'i' value doesn't change if intentional?
-    for (let i = local_ArrayFrom_textElement_children_length; i > 0; i--) {
-
-        // TODO: I'm trying to leverage the lines being contiguous and in order;...
-        // ...this allows me to simplify the calculations for lineStart and lineEnd...
-        // ...but perhaps it would be better just to find the cases of 'local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] === 1'...
-        // ...and calculate the lineStart and lineEnd the "long way" due to possible skipping?...
-        // ...trying to find the first case that is '1' means you cannot just calculate the initial lineStart and lineEnd...
-        // ...because a loop is needed now to find the first '1' case...
-        // ...thus you'd either have two loops, or add complexity to this loop...
-        // ...and neither case seems like a good idea.
-        lineStart = lineEnd + 1;
-        if (currentIndexLine < local_EDI_lineEndPositionList_count) {
-            lineEnd = local_EDI_lineEndPositionList_data[currentIndexLine];
-        }
-        else {
-            lineEnd = lineStart;
-        }
-
-        //if (local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] === 1) {
-        //    local_EDI_ringBuffer_needsSyntaxHighlightingFlags[currentIndexRingBuffer] = 0;
-        EDI_syntaxHighlight_parallelArray(EDI_ringBuffer_text[currentIndexRingBuffer], currentIndexRingBuffer, lineStart, lineEnd);
-        //}
-
-        currentIndexLine++;
-        currentIndexRingBuffer++;
-        if (currentIndexRingBuffer >= local_ArrayFrom_textElement_children_length) {
-            currentIndexRingBuffer = 0;
-        }
+    else {
+        EDI_clearHighlights_all();
     }
-
-    EDI_rangeInit.startContainer = null;
-    EDI_rangeInit.endContainer = null;
 }
 
 /**

@@ -86,24 +86,23 @@ const createWindow = () => {
 	mainWindow.isMenuBarVisible(false);
 
 	// Handle the request from the renderer process
+	ipcMain.handle('editor-save-file', editorSaveFile);
+	ipcMain.handle('editor-save-file-as', editorSaveFileAs);
+	ipcMain.handle('editor-read-all-text-byteArray', editorReadAllText_byteArray);
+	ipcMain.handle('editor-set-clipboard', editorSetClipboard);
 	ipcMain.handle('choose-directory', chooseDirectory);
 	ipcMain.handle('choose-workspace', chooseWorkspace);
 	ipcMain.handle('get-filesystem-entries', getFilesystemEntries);
 	ipcMain.handle('get-filesystem-entry-by-id', getFilesystemEntryById);
 	ipcMain.handle('get-filesystem-entry-by-id-array', getFilesystemEntryById_ARRAY);
-	ipcMain.handle('editor-read-all-text-byteArray', editorReadAllText_byteArray);
 	// LSP specification might have something defined for this I'll check later I just don't feel like it right now I'm pushing to force myself to get this typed out rather than procrastinate.
 	ipcMain.handle('set-clipboard', setClipboard);
-	ipcMain.handle('editor-set-clipboard', editorSetClipboard);
 	ipcMain.handle('read-clipboard', readClipboard);
 	ipcMain.handle('find-all', findAll);
 	ipcMain.handle('find-all-getPositions', findAllGetPositions);
 	ipcMain.handle('new-file', newFile);
 	ipcMain.handle('delete-file', deleteFile);
 	ipcMain.handle('rename-file', renameFile);
-	ipcMain.handle('save-file', saveFile);
-	ipcMain.handle('editor-save-file', editorSaveFile);
-	ipcMain.handle('editor-save-file-as', editorSaveFileAs);
 	ipcMain.handle('paste-clipboard-absolute-path-to-directory', pasteClipboardAbsolutePathToDirectory);
 
 	mainWindowCapture = mainWindow;
@@ -1105,24 +1104,6 @@ async function renameFile(event, absolutePath, filename, isDirectory) {
 			success: false,
 			pathId: pathId
 		};
-	}
-}
-
-async function saveFile(event, absolutePath, text) {
-	if (!isValidAbsolutePath(absolutePath)) return;
-
-	try {
-		// TODO: verify that 'fs.writeFile' won't already throw an exception if file is directory (i.e.: verify that this check is necessary).
-		const stats = fs.statSync(absolutePath);
-		if (stats.isDirectory()) {
-			throw new Error('The destination path is a directory');
-		}
-
-		fs.writeFileSync(absolutePath, text);
-	}
-	catch (err) {
-		console.error("Error saving file:", err);
-		return [];
 	}
 }
 

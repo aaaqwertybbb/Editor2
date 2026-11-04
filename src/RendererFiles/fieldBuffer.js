@@ -16,6 +16,9 @@ that it (negatively) skyrockets code complexity, and destroys readability.
 You could get into "well file IO etc..." but the theme of this file's optimization is sort of garbage collection, and language related.
 So it isn't the same category of optimization, and thus I'm not gonna say anything about other categories of optimization.
 
+Not only that, but this entire file is speculative and based on intuition. The goofball that has been maintaining these numbers
+all this time never once measured the performance impact, if it were positive, negative, maybe it just makes the computer happier but I haven't measured that either.
+
 ====
 
 

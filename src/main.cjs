@@ -91,8 +91,6 @@ const createWindow = () => {
 	ipcMain.handle('get-filesystem-entries', getFilesystemEntries);
 	ipcMain.handle('get-filesystem-entry-by-id', getFilesystemEntryById);
 	ipcMain.handle('get-filesystem-entry-by-id-array', getFilesystemEntryById_ARRAY);
-	ipcMain.handle('read-all-text', readAllText);
-	ipcMain.handle('editor-read-all-text', editorReadAllText);
 	ipcMain.handle('editor-read-all-text-byteArray', editorReadAllText_byteArray);
 	ipcMain.handle('editor-completion-request', editorCompletionRequest);
 	// I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
@@ -513,73 +511,6 @@ async function getFilesystemEntryById_ARRAY(event, arrayKeys) {
 	catch (err) {
 		console.error("Error during get-filesystem-entry-by-id:", err);
 		return [];
-	}
-}
-
-async function readAllText(event, absolutePath) {
-	if(!isValidAbsolutePath(absolutePath)) return;
-
-	try {
-		return fs.readFileSync(absolutePath, 'utf8');
-	}
-	catch (err) {
-		//console.error("Error reading file:", err);
-		return null;
-	}
-}
-
-async function editorReadAllText(event, absolutePath) {
-	if(!isValidAbsolutePath(absolutePath)) return;
-
-	try {
-		let basename = path.basename(absolutePath);
-		let extension = path.extname(absolutePath);
-
-		let itHasBom = hasBOM(absolutePath);
-
-		absolutePath = formatAbsolutePath(absolutePath);
-		itHasBom.formattedAbsolutePath = absolutePath;
-		itHasBom.extension = extension;
-
-		let pathId = database.addAbsolutePath(itHasBom.formattedAbsolutePath, basename);
-
-		if (false && openedDocumentUri) {
-			let tdIdentifier = lspTypes.MAIN_message_construct_textDocumentIdentifier(absolutePath);
-			if (languageServerHandshakeSuccess && languageServer) {
-				languageServer.stdin.write(
-					MAIN_encodeMessageObject(lspTypes.MAIN_message_construct_didCloseTextDocumentNotification(tdIdentifier)));
-			}
-			openedDocumentUri = null; // Should be set null regardless of language server existence to ensure it gets cleared if language server was running then stopped
-		}
-
-		let tdi = lspTypes.MAIN_message_construct_textDocumentItem(
-			absolutePath,   // uri
-			'javascript',   // languageId
-			0,              // version
-			itHasBom.text); // text
-		let messageObject = lspTypes.MAIN_message_construct_didOpenTextDocumentNotification(tdi);
-		let messageJson = MAIN_encodeMessageObject(messageObject);
-		if (false) {
-			languageServer.stdin.write(messageJson);
-			openedDocumentUri = absolutePath;
-
-			// TODO: Somewhat nonsensical to check 'openedDocumentUri' but I'm not sure if it was ever validated and I don't wanna deal with it right now...
-			// ...
-			// More so, I don't want this new logic to ever have a possibility of crashing the old logic (which simply wanted to read the text.)
-			// So until I guarantee that 'openedDocumentUri' is validated, I don't want to take any risks with it. (and maybe it is validated I just don't know either which way)
-			//
-			if (openedDocumentUri) {
-				let tdIdentifier = lspTypes.MAIN_message_construct_textDocumentIdentifier(openedDocumentUri);
-				let customFullFileLexRequest = lspTypes.MAIN_message_construct_CustomFullFileLexRequest(tdIdentifier);
-				mostRecentRequest = customFullFileLexRequest;
-				languageServer.stdin.write(MAIN_encodeMessageObject(customFullFileLexRequest));
-			}
-		}
-		
-		return itHasBom;
-	}
-	catch (err) {
-		return null;
 	}
 }
 

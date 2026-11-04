@@ -24,19 +24,6 @@ contextBridge.exposeInMainWorld('myAPI', {
   getFilesystemEntries_argumentIsId: id => ipcRenderer.invoke('get-filesystem-entries', id, /*argumentIsId*/ true),
   getFilesystemEntryById: id => ipcRenderer.invoke('get-filesystem-entry-by-id', id),
   getFilesystemEntryById_ARRAY: arrayKeys => ipcRenderer.invoke('get-filesystem-entry-by-id-array', arrayKeys),
-  /**
-   * See also 'editorReadAllText'
-   */
-  readAllText: absoluteFilePath => ipcRenderer.invoke('read-all-text', absoluteFilePath),
-  /**
-   * This carries LSP "intent" of opening the file in the editor and will result in
-   * in a method: 'textDocument/didOpen' notification being sent to the LSP.
-   * 
-   * TODO: Decide on the naming between 'readAllText', and 'editorReadAllText', and whether they both need to exist.
-   * 
-   * You can't store tabs as '\t\0\0\0' because the LSP interactions will be horrible to deal with?
-  */
-  editorReadAllText: absoluteFilePath => ipcRenderer.invoke('editor-read-all-text', absoluteFilePath),
   editorReadAllText_byteArray: absoluteFilePath => ipcRenderer.invoke('editor-read-all-text-byteArray', absoluteFilePath),
   editorCompletionRequest: (indexLine, indexColumn) => ipcRenderer.invoke('editor-completion-request', indexLine, indexColumn),
   // I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".

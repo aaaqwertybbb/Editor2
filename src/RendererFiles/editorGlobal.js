@@ -293,6 +293,7 @@ function EDI_init() {
  * I have no source for this to be completely honest.
  * I just have always wanted to do it based on intuition alone to see how it feels.
  * I need to actually measure it.
+ * For all I know maybe you can read a byte so by forcing it into a uint32 you're making the CPU read more data overall. I have no idea.
  */
 function EDI_render_do() {
     // Process everything in the queue until head catches up to tail

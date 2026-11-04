@@ -681,9 +681,9 @@ function EDI_render_do_Scroll() {
         textNode.replaceData(0, textNode.length, lineStart === lineEnd ? '' : local_EDI_decoder.decode(local_bytes.subarray(lineStart, lineEnd)));
 
         // NOTE: this still is incomplete protection from reading an undefined byte from the style buffer...
-        // ...the assumption is either your fEDI_styleBuffer_count is perfectly in sync with the text count
-        // OR the fEDI_styleBuffer_count is 0.
-        // As of writing this comment, if everything goes as planned this technically is true "the assumption is either your fEDI_styleBuffer_count is perfectly in sync with the text count"
+        // ...the assumption is either your INTS[fEDI_styleBuffer_count] is perfectly in sync with the text count
+        // OR the INTS[fEDI_styleBuffer_count] is 0.
+        // As of writing this comment, if everything goes as planned this technically is true "the assumption is either your INTS[fEDI_styleBuffer_count] is perfectly in sync with the text count"
         // but it feels like rather flimsy protection.
         if (INTS[fEDI_styleBuffer_count] !== 0) {
             /////

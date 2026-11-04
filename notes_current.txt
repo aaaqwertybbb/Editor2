@@ -2234,3 +2234,5 @@ editorMaxHeap.js why is line 631 white and etc... it is in a multiline comment.
     - [ ] TODO: That being said the length for the if statements and various other scope-ish things is wrong they're like the entirety of the identifier + arguments + open brace as length when it needs to just be identifier.
     - [ ] TODO: it doesn't "just work" wtf are you talking about lol
         - [ ] like if you had an if statement and you insert text at the word "if" it makes it no longer an if statement
+- [ ] TODO: the edits are very iffy when it comes to showing the edited text after you scroll out of view and back into view? Idk what's going on there I probably touched something this morning I might stand up first though I've been sitting for a long time.
+

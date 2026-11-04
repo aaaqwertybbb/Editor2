@@ -2204,7 +2204,9 @@ editorMaxHeap.js why is line 631 white and etc... it is in a multiline comment.
         - [x] Leave the invocations to the now removed 'enqueueLSPNotification' as comments so you have a marker of where you probably need to write the new code.
     - [ ] Positive
         - [x] EditKind_InsertLtr
-        - [ ] EditKind_Tab
+        - [x] EditKind_Tab
+            - [x] tabs as tab
+            - [x] tabs as 4 spaces
         - [ ] EditKind_Enter
         - [ ] EditKind_Paste
         - [ ] EditKind_Duplicate

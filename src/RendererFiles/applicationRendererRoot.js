@@ -2,7 +2,7 @@ init();
 
 let APP_lineHeightStringWithPx = '';
 
-//let shouldUseCSharpToSaveFileWhenPossible = true;
+let shouldUseCSharpToSaveFileWhenPossible = false;
 
 /**
  * Connect to the single threaded C# console app (custom language server)

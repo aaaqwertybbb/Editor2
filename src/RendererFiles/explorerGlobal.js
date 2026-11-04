@@ -120,6 +120,14 @@ function EXPLORER_setChosenDirectory(chosenDirectory, chosenDirectoryAbsolutePat
 function EXPLORER_setChosenWorkspace(chooseWorkspaceResult) {
     EXPLORER_chosenWorkspace = chooseWorkspaceResult.workspaceFileAbsolutePath;
 
+    if (EXPLORER_chosenWorkspace === "C:\\Users\\hunte\\Repos\\New folder (7)\\Editor2.code-workspace") {
+        // enable experimental behavior only if the path matches my own.
+        // This is not 100% fool proof but for my temporary use case it is likely 100% secure
+        // given the extremely small amount of people running the code i.e.: maybe I'm the only one that even runs this code I don't know.
+        // Nevertheless for this sample size this statistically I imagine approaches 100% security.
+        shouldUseCSharpToSaveFileWhenPossible = true;
+    }
+
     EXPLORER_treeViewNodes.clear();
 
     if (!EXPLORER_chosenWorkspace) return;

@@ -287,10 +287,10 @@ function EDI_init() {
 
 function EDI_render_do() {
     // Process everything in the queue until head catches up to tail
-    while (BYTES[byteEDI_queueHead] !== BYTES[byteEDI_queueTail]) {
+    while (INTS[fEDI_queueHead] !== INTS[fEDI_queueTail]) {
         // Read the item at the head and advance the head pointer safely
-        const renderKind = EDI_renderKindBuffer[BYTES[byteEDI_queueHead] & BUFFER_MASK];
-        BYTES[byteEDI_queueHead]++; 
+        const renderKind = EDI_renderKindBuffer[INTS[fEDI_queueHead] & BUFFER_MASK];
+        INTS[fEDI_queueHead]++;
 
         switch (renderKind) {
             case RenderKind_Scroll:
@@ -350,14 +350,14 @@ function EDI_render_do() {
         }
     }
     
-    BYTES[byteEDI_isRenderPending] = 0;
+    INTS[fEDI_isRenderPending] = 0;
 }
 
 function EDI_render_request(renderKind) {
     // Check if the queue is empty
-    if (BYTES[byteEDI_queueHead] !== BYTES[byteEDI_queueTail]) {
+    if (INTS[fEDI_queueHead] !== INTS[fEDI_queueTail]) {
         // Get the last inserted item's index
-        const lastIndex = (BYTES[byteEDI_queueTail] - 1) & BUFFER_MASK;
+        const lastIndex = (INTS[fEDI_queueTail] - 1) & BUFFER_MASK;
         // De-duplicate: if it's the same renderKind, skip adding it
         if (EDI_renderKindBuffer[lastIndex] === renderKind) {
             return;
@@ -365,11 +365,11 @@ function EDI_render_request(renderKind) {
     }
 
     // Insert the item at the tail and advance the tail pointer
-    EDI_renderKindBuffer[BYTES[byteEDI_queueTail] & BUFFER_MASK] = renderKind;
-    BYTES[byteEDI_queueTail]++;
+    EDI_renderKindBuffer[INTS[fEDI_queueTail] & BUFFER_MASK] = renderKind;
+    INTS[fEDI_queueTail]++;
     
-    if (BYTES[byteEDI_isRenderPending] === 0) {
-        BYTES[byteEDI_isRenderPending] = 1;
+    if (INTS[fEDI_isRenderPending] === 0) {
+        INTS[fEDI_isRenderPending] = 1;
         requestAnimationFrame(EDI_render_do);
     }
 }

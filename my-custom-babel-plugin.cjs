@@ -144,8 +144,8 @@ module.exports = function (babel) {
     "byteEDI_duplication_may_have_changed",
     "byteEDI_clipboard_may_have_changed",
 
-    "byteEDI_queueHead",
-    "byteEDI_queueTail",
+    "fEDI_queueHead",
+    "fEDI_queueTail",
     "BUFFER_SIZE",
     "BUFFER_MASK",
 
@@ -390,7 +390,7 @@ module.exports = function (babel) {
     "byteEDI_isChecking_cursorBlinkTrailingEdge",
     "byteEDI_cursor_selectionDivExists",
     "byteEDI_onResize_hasTrailingCall",
-    "byteEDI_isRenderPending",
+    "fEDI_isRenderPending",
     "byteEDI_mousemove_eventListener_isActive",
 
     "CONST_EDI_cursor_htmlId",

@@ -500,33 +500,6 @@ async function editorReadAllText_byteArray(event, absolutePath) {
 	}
 }
 
-function lsp_write_didOpenTextDocumentNotification(absolutePath, text, paddingLength) {
-	let tdi = lspTypes.MAIN_message_construct_textDocumentItem(
-		absolutePath,   // uri
-		'javascript',   // languageId
-		0,              // version
-		text); // text
-	let messageObject = lspTypes.MAIN_message_construct_didOpenTextDocumentNotification(tdi);
-	let messageJson = MAIN_encodeMessageObject(messageObject);
-
-	languageServer.stdin.write(messageJson);
-	openedDocumentUri = absolutePath;
-}
-
-function lsp_write_customFullFileLexRequest() {
-	// TODO: Somewhat nonsensical to check 'openedDocumentUri' but I'm not sure if it was ever validated and I don't wanna deal with it right now...
-	// ...
-	// More so, I don't want this new logic to ever have a possibility of crashing the old logic (which simply wanted to read the text.)
-	// So until I guarantee that 'openedDocumentUri' is validated, I don't want to take any risks with it. (and maybe it is validated I just don't know either which way)
-	//
-	if (openedDocumentUri) {
-		let tdIdentifier = lspTypes.MAIN_message_construct_textDocumentIdentifier(openedDocumentUri);
-		let customFullFileLexRequest = lspTypes.MAIN_message_construct_CustomFullFileLexRequest(tdIdentifier);
-		mostRecentRequest = customFullFileLexRequest;
-		languageServer.stdin.write(MAIN_encodeMessageObject(customFullFileLexRequest));
-	}
-}
-
 async function setClipboard(event, text) {
 	try {
 		clipboard.writeText(text);
@@ -1086,10 +1059,6 @@ async function editorSaveFileAs(event, uint8Array, count, EDI_lineEndString, EDI
 		fs.writeFileSync(filePath, text);
 		let pathId = database.addAbsolutePath(filePath, basename);
 		pathId = database.addAbsolutePath(formattedAbsolutePath, basename);
-		//if (languageServerHandshakeSuccess && languageServer) {
-		//	lsp_write_didOpenTextDocumentNotification(formattedAbsolutePath, text);
-		//	lsp_write_customFullFileLexRequest();
-		//}
 		return { success: true, absolutePath:filePath, formattedAbsolutePath:formattedAbsolutePath };
 	} catch (error) {
 		return { success: false, error: error.message };

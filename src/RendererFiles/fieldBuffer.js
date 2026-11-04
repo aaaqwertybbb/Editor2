@@ -7,7 +7,7 @@
 I don't know what the previous version of this comment says I put some "====" after this update so you can see the old comment I haven't bothered to read it.
 
 Instead of doing this stupid idea I thought I'd leave some better ideas to check to really emphasize that this is probably a waste of your time, and
-that it (negatively) skyrockets code complexity, and destroys readability.
+that it (negatively) skyrockets code complexity, and destroys readability. List is in no particular order and by no means complete.
 - loops
 - high frequency code paths
 - frequent allocations

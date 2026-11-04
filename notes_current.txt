@@ -2202,6 +2202,8 @@ editorMaxHeap.js why is line 631 white and etc... it is in a multiline comment.
 - [ ] Support every EditKind such that it propagates the edits to the C# server
     - [x] Remove the previous LSP queue (it was only being used by the EditKind finalizations anyhow, of which they're all being replaced in this same task)
         - [x] Leave the invocations to the now removed 'enqueueLSPNotification' as comments so you have a marker of where you probably need to write the new code.
+    - [ ] indent more and indent less can be their own
+        - [ ] indent more you do the bytes to insert once then one or more positionIndices that are separated by '_' apply them in reverse to keep ordering (or maybe just send them in reverse).
     - [ ] Positive
         - [x] EditKind_InsertLtr
         - [x] EditKind_Tab

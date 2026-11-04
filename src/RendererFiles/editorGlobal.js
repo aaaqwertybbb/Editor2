@@ -5957,8 +5957,10 @@ function EDI_render_do_Resize() {
     let remember_virtualCount = INTS[fEDI_virtualCount]; // for the first render this is 0 and thus it hits
     INTS[fEDI_virtualCount] = Math.ceil(INTS[fEDI_lastReadNumber_offsetHeight] / INTS[fEDI_lineHeight]);
     if (INTS[fEDI_virtualCount] !== remember_virtualCount) {
+        // TODO: This only needs to grow or shrink (NOT recreate entirely)
         EDI_render_do_CreateViewport();
         // TODO: This gets ran twice when starting the app redundantly. (here and the setText for the empty null filename)
+        // TODO: This only needs to draw the newly came into view lines (a prior necessity is 'EDI_render_do_CreateViewport' to grow / shrink first)
         EDI_render_force_fullscreen_redraw();
     }
 }

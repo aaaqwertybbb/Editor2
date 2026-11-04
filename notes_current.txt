@@ -2216,6 +2216,7 @@ editorMaxHeap.js why is line 631 white and etc... it is in a multiline comment.
         - [x] EditKind_Duplicate
         - [/] EditKind_IndentMore
             - [ ] TODO: revisit this
+            - [ ] Maybe you could do a message to start transaction with the bytes then multiple one off messages of just position index then a message to end transaction.
     - [ ] Negative
         - [x] EditKind_DeleteLtr
         - [x] EditKind_BackspaceRtl
@@ -2228,3 +2229,7 @@ editorMaxHeap.js why is line 631 white and etc... it is in a multiline comment.
 - [ ] TODO: fix the 256 byte limit of the messages
 - [ ] TODO: fix 'if (socket.readyState !== WebSocket.OPEN) { throw new Exception('socket.readyState !== WebSocket.OPEN'); }' meaning the editor is unusable without the server
 - [ ] TODO: 'EDI_finalizeEdit_Enter' '\t|' hit enter is erroneously '\t\t\n|' when it should be '\t\n\t|'
+- [ ] TODO: if it falls among then you need to update length thats all I think cause you do the start only so it all just works I think
+    - [ ] TODO: That being said the length for the if statements and various other scope-ish things is wrong they're like the entirety of the identifier + arguments + open brace as length when it needs to just be identifier.
+    - [ ] TODO: it doesn't "just work" wtf are you talking about lol
+        - [ ] like if you had an if statement and you insert text at the word "if" it makes it no longer an if statement

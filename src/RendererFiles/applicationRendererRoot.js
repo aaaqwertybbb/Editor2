@@ -4,7 +4,15 @@ let APP_lineHeightStringWithPx = '';
 
 //let shouldUseCSharpToSaveFileWhenPossible = true;
 
-// Connect to the C# console app
+/**
+ * Connect to the single threaded C# console app (custom language server)
+ * 
+ * TODO: You need to be careful about a congested websocket buffer...
+ * ...you say you want to remove the async logic because TCP will...
+ * ...guarantee byte delivery in order...
+ * ...and single threaded server means each message is only ever handled in order...
+ * ...you perhaps need to coallesce or flush or etc... just keep this in mind.
+ */
 const socket = new WebSocket('ws://127.0.0.1:8080');
 
 // Crucial for performance and byte-array replication

@@ -100,7 +100,6 @@ const createWindow = () => {
 	// I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
 	ipcMain.handle('editor-completion-request-slice', editorCompletionRequest_slice);
 	// LSP specification might have something defined for this I'll check later I just don't feel like it right now I'm pushing to force myself to get this typed out rather than procrastinate.
-	ipcMain.handle('editor-verify-lsp-text-against-editor-text', editorVerifyLspTextAgainstEditorText);
 	ipcMain.handle('set-clipboard', setClipboard);
 	ipcMain.handle('editor-set-clipboard', editorSetClipboard);
 	ipcMain.handle('read-clipboard', readClipboard);
@@ -771,22 +770,6 @@ async function editorCompletionRequest_slice(event, indexStart, indexEnd, filter
 		let completionRequest_slice = lspTypes.MAIN_message_construct_CompletionRequest_slice(tdIdentifier, indexStart, indexEnd, filter);
 		mostRecentRequest = completionRequest_slice;
 		languageServer.stdin.write(MAIN_encodeMessageObject(completionRequest_slice));
-	}
-	catch (err) {
-		console.error("Error during editor-document-symbols-request:", err);
-		return [];
-	}
-}
-
-// LSP specification might have something defined for this I'll check later I just don't feel like it right now I'm pushing to force myself to get this typed out rather than procrastinate.
-async function editorVerifyLspTextAgainstEditorText(event, apple, sauce) {
-	try {
-		if (!languageServerHandshakeSuccess || !languageServer || !openedDocumentUri) return;
-
-		let tdIdentifier = lspTypes.MAIN_message_construct_textDocumentIdentifier(openedDocumentUri);
-		let editorVerifyLspTextAgainstEditorTextRequest = lspTypes.MAIN_message_construct_CustomEditorVerifyLspTextAgainstEditorTextRequest(tdIdentifier);
-		mostRecentRequest = editorVerifyLspTextAgainstEditorTextRequest;
-		languageServer.stdin.write(MAIN_encodeMessageObject(editorVerifyLspTextAgainstEditorTextRequest));
 	}
 	catch (err) {
 		console.error("Error during editor-document-symbols-request:", err);

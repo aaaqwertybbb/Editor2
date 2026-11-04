@@ -395,11 +395,11 @@ function DIALOG_Settings_Create() {
     buttonTheme.addEventListener('click', DIALOG_buttonTheme_onclick);
     dialogBody.appendChild(buttonTheme);
     
-    const buttonVerifyLspTextAgainstEditorText = document.createElement('button');
-    buttonVerifyLspTextAgainstEditorText.id = 'SETTINGS_verifyLspTextAgainstEditorText';
-    buttonVerifyLspTextAgainstEditorText.textContent = 'VerifyLspTextAgainstEditorText';
-    buttonVerifyLspTextAgainstEditorText.addEventListener('click', DIALOG_buttonVerifyLspTextAgainstEditorText_onclick);
-    dialogBody.appendChild(buttonVerifyLspTextAgainstEditorText);
+    //const buttonVerifyLspTextAgainstEditorText = document.createElement('button');
+    //buttonVerifyLspTextAgainstEditorText.id = 'SETTINGS_verifyLspTextAgainstEditorText';
+    //buttonVerifyLspTextAgainstEditorText.textContent = 'VerifyLspTextAgainstEditorText';
+    //buttonVerifyLspTextAgainstEditorText.addEventListener('click', DIALOG_buttonVerifyLspTextAgainstEditorText_onclick);
+    //dialogBody.appendChild(buttonVerifyLspTextAgainstEditorText);
 
     let checkboxTrueTabsFalseSpaces = document.createElement('input');
     checkboxTrueTabsFalseSpaces.type = 'checkbox';
@@ -460,7 +460,7 @@ function DIALOG_buttonTheme_onclick() {
 }
 
 function DIALOG_buttonVerifyLspTextAgainstEditorText_onclick() {
-    window.myAPI.editorVerifyLspTextAgainstEditorText();
+    //window.myAPI.editorVerifyLspTextAgainstEditorText();
 }
 
 function DIALOG_checkboxTrueTabsFalseSpaces_onchange() {

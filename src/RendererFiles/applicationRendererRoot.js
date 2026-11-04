@@ -449,9 +449,6 @@ async function window_myAPI_onMessage(data) {
             //}
             AUTOCOMPLETE_slice(data.result);
             break;
-        case 'textDocument/CustomEditorVerifyLspTextAgainstEditorTextRequest':
-            alert('copied to clipboard the text that the language server thinks it is');
-            break;
         case 'window/showMessage':
             alert(`${data.result.type}: ${data.result.message}`);
             break;

@@ -680,70 +680,77 @@ function EDI_render_do_Scroll() {
         textNode = div.firstChild;
         textNode.replaceData(0, textNode.length, lineStart === lineEnd ? '' : local_EDI_decoder.decode(local_bytes.subarray(lineStart, lineEnd)));
 
-        /////
-        const arrayOfRangeObjectsOnLine = local_EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndex];
+        // NOTE: this still is incomplete protection from reading an undefined byte from the style buffer...
+        // ...the assumption is either your fEDI_styleBuffer_count is perfectly in sync with the text count
+        // OR the fEDI_styleBuffer_count is 0.
+        // As of writing this comment, if everything goes as planned this technically is true "the assumption is either your fEDI_styleBuffer_count is perfectly in sync with the text count"
+        // but it feels like rather flimsy protection.
+        if (INTS[fEDI_styleBuffer_count] !== 0) {
+            /////
+            const arrayOfRangeObjectsOnLine = local_EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndex];
 
-        /// This function is manually inlined(-ish) within 'EDI_syntaxHighlight_parallelArray' at the start of the function. (2 of 2)
+            /// This function is manually inlined(-ish) within 'EDI_syntaxHighlight_parallelArray' at the start of the function. (2 of 2)
 
-        const local_arrayOfRangeObjects_length = arrayOfRangeObjectsOnLine.length;
-        for (let j = 0; j < local_arrayOfRangeObjects_length; ++j) {
-            const range = arrayOfRangeObjectsOnLine[j];
-            // Keep the short-circuiting logic but execute it over a completely flat index read
-            if (local_identifierHighlight.delete(range) ||
-                local_keywordHighlight.delete(range) ||
-                local_functionHighlight.delete(range) ||
-                local_keywordControlHighlight.delete(range) ||
-                local_memberHighlight.delete(range) ||
-                local_commentHighlight.delete(range) ||
-                local_stringHighlight.delete(range) ||
-                local_typeHighlight.delete(range)) {
-                    // literally do nothing
-            }
-        }
-        // Single instruction to clear the array instantly after the loop
-        arrayOfRangeObjectsOnLine.length = 0;
-
-        local_EDI_rangeInit.startContainer = textNode;
-        local_EDI_rangeInit.endContainer = textNode;
-
-        let originalStyleByte = local_EDI_styleBuffer[lineStart];
-        let start = 0; // Relative to the line start (always 0 initially)
-        let length = 1; // We have already consumed the first character at lineStart
-
-        const local_lineEnd = lineEnd;
-
-        // Start iterating from the SECOND character of the line
-        for (let i = lineStart + 1; i <= local_lineEnd; i++) {
-            // Safe out-of-bounds read at i === local_lineEnd returns undefined, forcing the final flush
-            const currentByte = i === local_lineEnd ? 9 : local_EDI_styleBuffer[i]; // This one though the jump is assumed to be conditional jump due to the extremely small amount of code being executed in either branch and that the CPU will figure it out.
-
-            if (currentByte === originalStyleByte) { // These if/else were inverted. An assumption that you'd get a jump due to the large 'else' block. It was moved from what it originally was an if block to the else. So the higher frequency case is it. More likely is that you have more than 1 character in a row of the same syntax highlighting. So you can avoid the jump during those.
-                length++;
-            }
-            else {
-                // Flush the completed range if it maps to a valid syntax token
-                if (originalStyleByte > 0 && originalStyleByte < 9) {
-                    local_EDI_rangeInit.startOffset = start;
-                    local_EDI_rangeInit.endOffset = start + length;
-                    let range = new StaticRange(local_EDI_rangeInit);
-                    arrayOfRangeObjectsOnLine.push(range);
-                    
-                    switch (originalStyleByte) {
-                        case 5: local_identifierHighlight.add(range); break;
-                        case 3: local_keywordHighlight.add(range); break;
-                        case 8: local_functionHighlight.add(range); break;
-                        case 4: local_keywordControlHighlight.add(range); break;
-                        case 7: local_memberHighlight.add(range); break;
-                        case 2: local_commentHighlight.add(range); break;
-                        case 1: local_stringHighlight.add(range); break;
-                        case 6: local_typeHighlight.add(range); break;
-                    }
+            const local_arrayOfRangeObjects_length = arrayOfRangeObjectsOnLine.length;
+            for (let j = 0; j < local_arrayOfRangeObjects_length; ++j) {
+                const range = arrayOfRangeObjectsOnLine[j];
+                // Keep the short-circuiting logic but execute it over a completely flat index read
+                if (local_identifierHighlight.delete(range) ||
+                    local_keywordHighlight.delete(range) ||
+                    local_functionHighlight.delete(range) ||
+                    local_keywordControlHighlight.delete(range) ||
+                    local_memberHighlight.delete(range) ||
+                    local_commentHighlight.delete(range) ||
+                    local_stringHighlight.delete(range) ||
+                    local_typeHighlight.delete(range)) {
+                        // literally do nothing
                 }
-                
-                // Switch tracking context to the new block
-                originalStyleByte = currentByte;
-                start = i - lineStart; // Anchor the new start relative to the textNode string boundary
-                length = 1; // Reset length for the new token
+            }
+            // Single instruction to clear the array instantly after the loop
+            arrayOfRangeObjectsOnLine.length = 0;
+
+            local_EDI_rangeInit.startContainer = textNode;
+            local_EDI_rangeInit.endContainer = textNode;
+
+            let originalStyleByte = local_EDI_styleBuffer[lineStart];
+            let start = 0; // Relative to the line start (always 0 initially)
+            let length = 1; // We have already consumed the first character at lineStart
+
+            const local_lineEnd = lineEnd;
+
+            // Start iterating from the SECOND character of the line
+            for (let i = lineStart + 1; i <= local_lineEnd; i++) {
+                // Safe out-of-bounds read at i === local_lineEnd returns undefined, forcing the final flush
+                const currentByte = i === local_lineEnd ? 9 : local_EDI_styleBuffer[i]; // This one though the jump is assumed to be conditional jump due to the extremely small amount of code being executed in either branch and that the CPU will figure it out.
+
+                if (currentByte === originalStyleByte) { // These if/else were inverted. An assumption that you'd get a jump due to the large 'else' block. It was moved from what it originally was an if block to the else. So the higher frequency case is it. More likely is that you have more than 1 character in a row of the same syntax highlighting. So you can avoid the jump during those.
+                    length++;
+                }
+                else {
+                    // Flush the completed range if it maps to a valid syntax token
+                    if (originalStyleByte > 0 && originalStyleByte < 9) {
+                        local_EDI_rangeInit.startOffset = start;
+                        local_EDI_rangeInit.endOffset = start + length;
+                        let range = new StaticRange(local_EDI_rangeInit);
+                        arrayOfRangeObjectsOnLine.push(range);
+                        
+                        switch (originalStyleByte) {
+                            case 5: local_identifierHighlight.add(range); break;
+                            case 3: local_keywordHighlight.add(range); break;
+                            case 8: local_functionHighlight.add(range); break;
+                            case 4: local_keywordControlHighlight.add(range); break;
+                            case 7: local_memberHighlight.add(range); break;
+                            case 2: local_commentHighlight.add(range); break;
+                            case 1: local_stringHighlight.add(range); break;
+                            case 6: local_typeHighlight.add(range); break;
+                        }
+                    }
+                    
+                    // Switch tracking context to the new block
+                    originalStyleByte = currentByte;
+                    start = i - lineStart; // Anchor the new start relative to the textNode string boundary
+                    length = 1; // Reset length for the new token
+                }
             }
         }
 

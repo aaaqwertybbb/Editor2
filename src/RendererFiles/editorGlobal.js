@@ -3245,9 +3245,10 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     EDI_ret_getLineAndColumnIndices_raw(actualEditPosition);
     let lineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
     let lineAndColumnIndices_indexColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
-    let text = EDI_decoder.decode(bytes); // EDI_cursor_cached_indentation_string does not include the linefeed
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
     let version = INTS[fEDI_didChangeTextDocument_version];
+
+    sendTransaction_MessageKind_custom_edit_InsertLtr(INTS[fEDI_cursor_editPosition], bytes);
     //enqueueLSPNotification({
     //    absolutePath: EDI_FORMATTED_textSourceIdentifier,
     //    version: version,
@@ -3345,7 +3346,6 @@ function EDI_finalizeEdit_Tab(indexLine_editOccurredOn) {
     EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
     let lineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
     let lineAndColumnIndices_indexColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
-    let text = EDI_decoder.decode(bytes);
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
     let version = INTS[fEDI_didChangeTextDocument_version];
 

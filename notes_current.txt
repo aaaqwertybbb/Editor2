@@ -2207,7 +2207,7 @@ editorMaxHeap.js why is line 631 white and etc... it is in a multiline comment.
         - [x] EditKind_Tab
             - [x] tabs as tab
             - [x] tabs as 4 spaces
-        - [ ] EditKind_Enter
+        - [x] EditKind_Enter
         - [ ] EditKind_Paste
         - [ ] EditKind_Duplicate
         - [ ] EditKind_IndentMore
@@ -2221,6 +2221,5 @@ editorMaxHeap.js why is line 631 white and etc... it is in a multiline comment.
     - [ ] because being wrong about this being useful and proceeding to attempt implementing this is a massive rabbit hole
         - [ ] and even if you were to succeed if it were a bad idea overall you now might have this self made treadmill overhead and complexity attached to every feature in the future.
 - [ ] TODO: fix the 256 byte limit of the messages
-
-
-
+- [ ] TODO: fix 'if (socket.readyState !== WebSocket.OPEN) { throw new Exception('socket.readyState !== WebSocket.OPEN'); }' meaning the editor is unusable without the server
+- [ ] TODO: 'EDI_finalizeEdit_Enter' '\t|' hit enter is erroneously '\t\t\n|' when it should be '\t\n\t|'

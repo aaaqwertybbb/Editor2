@@ -779,10 +779,7 @@ function EDI_render_do_Clear() {
     EDI_drawCursor(/*NOTscrollCursorIntoView*/ false);
     EDI_clearSelectionStyle();
     // TODO: Clear the ring buffer state?
-
-    //// Force case 3
-    //INTS[fEDI_prevVli] = 0;
-    //INTS[fEDI_currVli] = INTS[fEDI_virtualCount];
+    // TODO: What does the above todo mean? "TODO: Clear the ring buffer state?"
 }
 
 function EDI_state_clear(trackingUint32MaxHeap_initialCapacity) {
@@ -823,11 +820,6 @@ function EDI_render_do_SetText() {
     //EDI_drawCursor(/*NOTscrollCursorIntoView*/ false);
     EDI_drawHorizontalScrollbar();
     EDI_render_force_fullscreen_redraw();
-
-    //// TODO: what is paragraph this doing?
-    //INTS[fEDI_prevVli] = INTS[fEDI_ONSCROLLvirtualIndexLine];
-    //INTS[fEDI_currVli] = INTS[fEDI_virtualIndexLine];
-    //INTS[fEDI_ONSCROLLvirtualIndexLine] = INTS[fEDI_virtualIndexLine];
 
     clearTimeout(INTS[fEDI_render_do_ScrollTrailingEdgeCheckTimeoutId]);
     // when you force this without the timeout ensure the finalized edit case they type before language server gives you the syntax highlighting.

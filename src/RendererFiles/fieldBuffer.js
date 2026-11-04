@@ -3,6 +3,24 @@
 # Goal of file: #
 #################
 
+
+I don't know what the previous version of this comment says I put some "====" after this update so you can see the old comment I haven't bothered to read it.
+
+Instead of doing this stupid idea I thought I'd leave some better ideas to check to really emphasize that this is probably a waste of your time, and
+that it (negatively) skyrockets code complexity, and destroys readability.
+- loops
+- high frequency code paths
+- frequent allocations
+- allocations that are never cleared by GC for one reason or another
+
+You could get into "well file IO etc..." but the theme of this file's optimization is sort of garbage collection, and language related.
+So it isn't the same category of optimization, and thus I'm not gonna say anything about other categories of optimization.
+
+====
+
+
+
+
 !!!!
 99.9% of code should NEVER be doing what I'm doing here. I thought the idea sounded interesting so I went playing around with it.
 !!!!

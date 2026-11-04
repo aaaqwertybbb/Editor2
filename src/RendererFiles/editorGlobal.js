@@ -3666,11 +3666,11 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
     let version = INTS[fEDI_didChangeTextDocument_version];
 
-    let lspObject = {
-        absolutePath: textSourceIdentifier,
-        version: version,
-        arrayOfEditInformation: []
-    };
+    //let lspObject = {
+    //    absolutePath: textSourceIdentifier,
+    //    version: version,
+    //    arrayOfEditInformation: []
+    //};
 
     let mostRecent_decrementedVisualWidthAbsolute = 0;
 
@@ -3748,13 +3748,14 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
             EDI_styleBuffer_removeAt(line_start, innerRemoveCount);
         }
 
-        lspObject.arrayOfEditInformation.push({
-            startLine: lineI,
-            startCharacter: 0,
-            endLine: lineI,
-            endCharacter: innerRemoveCount,
-            text: ''
-        });
+        sendTransaction_MessageKind_custom_edit_Remove(line_start, innerRemoveCount);
+        //lspObject.arrayOfEditInformation.push({
+        //    startLine: lineI,
+        //    startCharacter: 0,
+        //    endLine: lineI,
+        //    endCharacter: innerRemoveCount,
+        //    text: ''
+        //});
 
 	    EDI_lineEndPositionList_data[lineI] -= decrementBy;
 
@@ -4058,7 +4059,7 @@ function EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
     let version = INTS[fEDI_didChangeTextDocument_version];
 
-    sendTransaction_MessageKind_custom_edit_Remove(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength_characters])
+    sendTransaction_MessageKind_custom_edit_Remove(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength_characters]);
     //enqueueLSPNotification({
     //    absolutePath: EDI_FORMATTED_textSourceIdentifier,
     //    version: version,

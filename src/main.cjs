@@ -278,50 +278,6 @@ function hasBOM(filePath) {
 	*/
 }
 
-/**
- * started off with code snippet from Google AI Overview for "node fs determine if file has bom":
- */
-function hasBOM_withPadding(filePath, paddingLength) {
-	// Use a small buffer to read just the first 3-4 bytes
-	const buffer = Buffer.alloc(4);
-	const fd = fs.openSync(filePath, 'r');
-	fs.readSync(fd, buffer, 0, 4, 0);
-
-	let stat = fs.statSync(filePath);
-
-	// Check for common BOM signatures
-	// UTF-8: EF BB BF
-	if (buffer[0] === 0xEF && buffer[1] === 0xBB && buffer[2] === 0xBF) {
-		const bufferaaa = Buffer.alloc(stat.size - 4 + paddingLength);
-		fs.readSync(fd, bufferaaa, 0, bufferaaa.length, 3);
-		fs.closeSync(fd);
-		return {
-			text: bufferaaa.toString(0, stat.size - 4),
-			fileStartsWithBom: true
-		};
-	}
-	else {
-		const bufferaaa = Buffer.alloc(stat.size + paddingLength);
-		fs.readSync(fd, bufferaaa, 0, bufferaaa.length, 0);
-		fs.closeSync(fd);
-		return {
-			text: bufferaaa.toString(0, bufferaaa.length),
-			fileStartsWithBom: false
-		};
-	}
-
-	/*
-	// UTF-16 Little Endian: FF FE
-	if (buffer[0] === 0xFF && buffer[1] === 0xFE) {
-		return 'UTF-16LE';
-	}
-	// UTF-16 Big Endian: FE FF
-	if (buffer[0] === 0xFE && buffer[1] === 0xFF) {
-		return 'UTF-16BE';
-	}
-	*/
-}
-
 async function chooseDirectory (event) {
 	const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
 	if (result.canceled) {

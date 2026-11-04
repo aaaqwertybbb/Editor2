@@ -356,7 +356,7 @@ function init() {
         .getElementById('HEADER_buttonSettings')
         .addEventListener('click', HEADER_buttonSettings_onClick);
 
-    window.myAPI.onMessage(window_myAPI_onMessage);
+    //window.myAPI.onMessage(window_myAPI_onMessage);
 
     //const EDI_gotoF_button = document.getElementById('EDI_gotoF');
     //EDI_gotoF_button.addEventListener('click', window.myAPI.editorDocumentSymbolsRequest);
@@ -406,54 +406,13 @@ function APP_measureLineHeightAndCharacterWidth() {
     APP_lineHeightStringWithPx = INTS[fAPP_lineHeight] + 'px';
 }
 
-async function window_myAPI_onMessage(data) {
-    switch (data.method) {
-        case 'textDocument/documentSymbol':
-            EDI_documentSymbolResult = data.result;
-            if (!EDI_listComponent) {
-                EDI_listComponent = new ListComponent();
-            }
-            EDI_listComponent.setItems(INTS[fAPP_lineHeight], INTS[fAPP_lineHeight] + 'px',
-                EDI_listComponent_drawItemAction,
-                EDI_listComponent_onkeydownAction,
-                EDI_listComponent_getItemsCountFunc);
-            DIALOG_show(DialogKind_DocumentSymbol, dialog_documentSymbol_onResizeAction, null);
-        case 'textDocument/CustomFullFileLexRequest':
-            EDI_styleBuffer = Uint8Array.fromBase64(data.result);
-            INTS[fEDI_styleBuffer_count] = EDI_styleBuffer.length;
-            INTS[fEDI_styleBuffer_capacity] = EDI_styleBuffer.length;
-            break;
-        case 'textDocument/hover':
-            if (BYTES[byteEDI_mousemove_eventListener_isActive] === 0) {
-                TOOLTIP_show(data.result);
-            }
-            break;
-        case 'textDocument/definition':
-            if (data.result) {
-                if (INTS[fEDI_cursor_indexLine] !== data.result.range.start.line && INTS[fEDI_cursor_indexColumn] !== data.result.range.start.character) {
-                    INTS[fEDI_priorToLastJump_indexLine] = INTS[fEDI_cursor_indexLine];
-                    INTS[fEDI_priorToLastJump_indexColumn] = INTS[fEDI_cursor_indexColumn];
-                    EDI_moveCursor_indexLine_indexColumn(data.result.range.start.line, /*indexColumn*/ data.result.range.start.character);
-                }
-            }
-            break;
-        case 'textDocument/completion':
-            if (data.result.items) {
-                AUTOCOMPLETE_show(data.result);
-            }
-            break;
-        case 'textDocument/completion_slice':
-            // I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
-            //if (data.result.items) {
-            //    AUTOCOMPLETE_show(data.result);
-            //}
-            AUTOCOMPLETE_slice(data.result);
-            break;
-        case 'window/showMessage':
-            alert(`${data.result.type}: ${data.result.message}`);
-            break;
-    }
-}
+//async function window_myAPI_onMessage(data) {
+//    switch (data.method) {
+//        case 'window/showMessage':
+//            alert(`${data.result.type}: ${data.result.message}`);
+//            break;
+//    }
+//}
 
 function EDI_listComponent_getItemsCountFunc() {
     if (EDI_documentSymbolResult) {

@@ -277,10 +277,6 @@ function EDI_init() {
     EDI_gutter.style.paddingRight = gutterPaddingRight;
     
     INTS[fEDI_gutterWidthStyleValue] = EDI_characterWidth;
-    
-    //EDI_drawGutter_Width(INTS[fEDI_lineEndPositionList_count]);
-
-    //EDI_drawCursor();
 
     EDI_render_do_Resize();
 
@@ -766,11 +762,6 @@ function EDI_render_do_Scroll() {
 
     local_EDI_rangeInit.startContainer = null;
     local_EDI_rangeInit.endContainer = null;
-}
-
-function EDI_onScroll_TrailingEdge() {
-    INTS[fEDI_intFalsey_isScrolling] = 0;
-    EDI_render_request(RenderKind_SyntaxHighlighting);
 }
 
 function EDI_render_do_Clear() {

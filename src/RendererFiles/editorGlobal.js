@@ -4054,10 +4054,10 @@ function EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_
         EDI_styleBuffer_removeAt(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength_characters]);
     }
 
-    let text = '';
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
     let version = INTS[fEDI_didChangeTextDocument_version];
 
+    sendTransaction_MessageKind_custom_edit_Remove(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength_characters])
     //enqueueLSPNotification({
     //    absolutePath: EDI_FORMATTED_textSourceIdentifier,
     //    version: version,

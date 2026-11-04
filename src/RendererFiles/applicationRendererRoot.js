@@ -308,7 +308,7 @@ function sendTransaction_MessageKind_custom_edit_Remove(positionIndex, length) {
     // TODO: byte length of the bytes without encoding.
     // TODO: send the bytes themselves 0 allocation either side for the message itself
     const bbb = EDI_encoder.encode(lengthString);
-    const byteLengthString = (aaa.length + bbb + 1 /*the '_' intra message that separates position from length*/) + '';
+    const byteLengthString = (aaa.length + bbb.length + 1 /*the '_' intra message that separates position from length*/) + '';
 
     const writtenAaa = EDI_encoder.encodeInto(byteLengthString, send_buffer.subarray(index, send_buffer.length));
     index += writtenAaa.written;

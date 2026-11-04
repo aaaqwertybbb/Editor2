@@ -542,7 +542,7 @@ function AUTOCOMPLETE_events_scroll_render_trailingEdgeDo(filter) {
             filter = AUTOCOMPLETE_lastSeenFilter;
         }
 
-        window.myAPI.editorCompletionRequest_slice(INTS[fAUTOCOMPLETE_virtualIndex], INTS[fAUTOCOMPLETE_virtualIndex] + INTS[fAUTOCOMPLETE_virtualCount], filter);
+        //window.myAPI.editorCompletionRequest_slice(INTS[fAUTOCOMPLETE_virtualIndex], INTS[fAUTOCOMPLETE_virtualIndex] + INTS[fAUTOCOMPLETE_virtualCount], filter);
     }
 }
 

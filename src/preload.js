@@ -25,9 +25,6 @@ contextBridge.exposeInMainWorld('myAPI', {
   getFilesystemEntryById: id => ipcRenderer.invoke('get-filesystem-entry-by-id', id),
   getFilesystemEntryById_ARRAY: arrayKeys => ipcRenderer.invoke('get-filesystem-entry-by-id-array', arrayKeys),
   editorReadAllText_byteArray: absoluteFilePath => ipcRenderer.invoke('editor-read-all-text-byteArray', absoluteFilePath),
-  editorCompletionRequest: (indexLine, indexColumn) => ipcRenderer.invoke('editor-completion-request', indexLine, indexColumn),
-  // I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
-  editorCompletionRequest_slice: (indexStart, indexEnd, filter) => ipcRenderer.invoke('editor-completion-request-slice', indexStart, indexEnd, filter),
   // I've seen people saying you can access the clipboard the same way as the main process from renderer process
   // but I'm not touching that at the moment.
   setClipboard: text => ipcRenderer.invoke('set-clipboard', text),

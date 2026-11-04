@@ -92,9 +92,6 @@ const createWindow = () => {
 	ipcMain.handle('get-filesystem-entry-by-id', getFilesystemEntryById);
 	ipcMain.handle('get-filesystem-entry-by-id-array', getFilesystemEntryById_ARRAY);
 	ipcMain.handle('editor-read-all-text-byteArray', editorReadAllText_byteArray);
-	ipcMain.handle('editor-completion-request', editorCompletionRequest);
-	// I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
-	ipcMain.handle('editor-completion-request-slice', editorCompletionRequest_slice);
 	// LSP specification might have something defined for this I'll check later I just don't feel like it right now I'm pushing to force myself to get this typed out rather than procrastinate.
 	ipcMain.handle('set-clipboard', setClipboard);
 	ipcMain.handle('editor-set-clipboard', editorSetClipboard);
@@ -598,39 +595,6 @@ function lsp_write_customFullFileLexRequest() {
 		let customFullFileLexRequest = lspTypes.MAIN_message_construct_CustomFullFileLexRequest(tdIdentifier);
 		mostRecentRequest = customFullFileLexRequest;
 		languageServer.stdin.write(MAIN_encodeMessageObject(customFullFileLexRequest));
-	}
-}
-
-async function editorCompletionRequest(event, indexLine, indexColumn) {
-	try {
-		if (!languageServerHandshakeSuccess || !languageServer || !openedDocumentUri) return;
-
-		let tdIdentifier = lspTypes.MAIN_message_construct_textDocumentIdentifier(openedDocumentUri);
-		let position = lspTypes.MAIN_message_construct_position(indexLine, indexColumn);
-		let completionRequest = lspTypes.MAIN_message_construct_CompletionRequest(tdIdentifier, position);
-		mostRecentRequest = completionRequest;
-		languageServer.stdin.write(MAIN_encodeMessageObject(completionRequest));
-	}
-	catch (err) {
-		console.error("Error during editor-document-symbols-request:", err);
-		return [];
-	}
-}
-
-// I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
-async function editorCompletionRequest_slice(event, indexStart, indexEnd, filter) {
-	try {
-		if (!languageServerHandshakeSuccess || !languageServer || !openedDocumentUri) return;
-
-		let tdIdentifier = lspTypes.MAIN_message_construct_textDocumentIdentifier(openedDocumentUri);
-		//let position = lspTypes.MAIN_message_construct_position(indexLine, indexColumn);
-		let completionRequest_slice = lspTypes.MAIN_message_construct_CompletionRequest_slice(tdIdentifier, indexStart, indexEnd, filter);
-		mostRecentRequest = completionRequest_slice;
-		languageServer.stdin.write(MAIN_encodeMessageObject(completionRequest_slice));
-	}
-	catch (err) {
-		console.error("Error during editor-document-symbols-request:", err);
-		return [];
 	}
 }
 

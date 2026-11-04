@@ -6185,7 +6185,7 @@ function EDI_requestLspComplete() {
     if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
         EDI_finalizeEdit();
     }
-    window.myAPI.editorCompletionRequest(INTS[fEDI_cursor_indexLine], INTS[fEDI_cursor_indexColumn]);
+    //window.myAPI.editorCompletionRequest(INTS[fEDI_cursor_indexLine], INTS[fEDI_cursor_indexColumn]);
 }
 
 /**

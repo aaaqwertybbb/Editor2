@@ -158,45 +158,45 @@ let w_div = w_divNONE;
 
 let EDI_lineHeightStringWithPx = '';
 
-/**
- * This queueing is currently a complete copy and paste of what Google AI generated.
- * I looked it over and it appears correct.
- * 
- * TODO: re-use the same hidden class somehow for the objects being put into this instead of having two separate ones.
- * 
- * ----
- * 
- * Type is either this: {
- *       absolutePath: textSourceIdentifier,
- *       version: version,
- *       startLine: lineAndColumnIndices_indexLine,
- *       startCharacter: lineAndColumnIndices_indexColumn,
- *       endLine: lineAndColumnIndices_indexLine,
- *       endCharacter: lineAndColumnIndices_indexColumn,
- *       text: text
- *   }
- * 
- * ---
- * OR
- * ---
- * 
- * this: {
- *       absolutePath: textSourceIdentifier,
- *       version: version,
- *       arrayOfEditInformation: [
- * 	         {
- * 	         	startLine,
- * 	         	startCharacter,
- * 	         	endLine,
- * 	         	endCharacter,
- *              text: text
- * 	         },
- *           // perhaps more than one in the array...
- *       ]
- * }
- * 
- */
-const lspQueue = [];
+/*
+ This queueing is currently a complete copy and paste of what Google AI generated.
+ I looked it over and it appears correct.
+ 
+ TODO: re-use the same hidden class somehow for the objects being put into this instead of having two separate ones.
+ 
+ ----
+ 
+ Type is either this: {
+       absolutePath: textSourceIdentifier,
+       version: version,
+       startLine: lineAndColumnIndices_indexLine,
+       startCharacter: lineAndColumnIndices_indexColumn,
+       endLine: lineAndColumnIndices_indexLine,
+       endCharacter: lineAndColumnIndices_indexColumn,
+       text: text
+   }
+ 
+ ---
+ OR
+ ---
+ 
+ this: {
+       absolutePath: textSourceIdentifier,
+       version: version,
+       arrayOfEditInformation: [
+ 	         {
+ 	         	startLine,
+ 	         	startCharacter,
+ 	         	endLine,
+ 	         	endCharacter,
+              text: text
+ 	         },
+           // perhaps more than one in the array...
+       ]
+ }
+ 
+*/
+//const lspQueue = [];
 
 // Pre-allocate a typed array to prevent memory allocation during runtime
 /**
@@ -3137,15 +3137,15 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
     let version = INTS[fEDI_didChangeTextDocument_version];
 
-    enqueueLSPNotification({
-        absolutePath: EDI_FORMATTED_textSourceIdentifier,
-        version: version,
-        startLine: lineAndColumnIndices_indexLine,
-        startCharacter: lineAndColumnIndices_indexColumn,
-        endLine: lineAndColumnIndices_indexLine,
-        endCharacter: lineAndColumnIndices_indexColumn,
-        text: text
-    });
+    //enqueueLSPNotification({
+    //    absolutePath: EDI_FORMATTED_textSourceIdentifier,
+    //    version: version,
+    //    startLine: lineAndColumnIndices_indexLine,
+    //    startCharacter: lineAndColumnIndices_indexColumn,
+    //    endLine: lineAndColumnIndices_indexLine,
+    //    endCharacter: lineAndColumnIndices_indexColumn,
+    //    text: text
+    //});
 
     EDI_trackingUint32MaxHeap.updateLength_diff(indexLine_editOccurredOn, INTS[fEDI_cursor_editLength_characters]);
     if (EDI_trackingUint32MaxHeap.tryPooledPeek() &&
@@ -3247,15 +3247,15 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
     let text = EDI_decoder.decode(bytes); // EDI_cursor_cached_indentation_string does not include the linefeed
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
     let version = INTS[fEDI_didChangeTextDocument_version];
-    enqueueLSPNotification({
-        absolutePath: EDI_FORMATTED_textSourceIdentifier,
-        version: version,
-        startLine: lineAndColumnIndices_indexLine,
-        startCharacter: lineAndColumnIndices_indexColumn,
-        endLine: lineAndColumnIndices_indexLine,
-        endCharacter: lineAndColumnIndices_indexColumn,
-        text: text
-    });
+    //enqueueLSPNotification({
+    //    absolutePath: EDI_FORMATTED_textSourceIdentifier,
+    //    version: version,
+    //    startLine: lineAndColumnIndices_indexLine,
+    //    startCharacter: lineAndColumnIndices_indexColumn,
+    //    endLine: lineAndColumnIndices_indexLine,
+    //    endCharacter: lineAndColumnIndices_indexColumn,
+    //    text: text
+    //});
 
     // TODO: bulk insertion of lines
     for (let i = 0; i < INTS[fEDI_cursor_editLineFeedCount]; i++) {
@@ -3348,15 +3348,15 @@ function EDI_finalizeEdit_Tab(indexLine_editOccurredOn) {
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
     let version = INTS[fEDI_didChangeTextDocument_version];
 
-    enqueueLSPNotification({
-        absolutePath: EDI_FORMATTED_textSourceIdentifier,
-        version: version,
-        startLine: lineAndColumnIndices_indexLine,
-        startCharacter: lineAndColumnIndices_indexColumn,
-        endLine: lineAndColumnIndices_indexLine,
-        endCharacter: lineAndColumnIndices_indexColumn,
-        text: text
-    });
+    //enqueueLSPNotification({
+    //    absolutePath: EDI_FORMATTED_textSourceIdentifier,
+    //    version: version,
+    //    startLine: lineAndColumnIndices_indexLine,
+    //    startCharacter: lineAndColumnIndices_indexColumn,
+    //    endLine: lineAndColumnIndices_indexLine,
+    //    endCharacter: lineAndColumnIndices_indexColumn,
+    //    text: text
+    //});
 
     let editLengthVisual = length * INTS[fEDI_ontab_visualWidth_perCharacter];
     if (INTS[fEDI_ontab_visualWidth_perCharacter] === 4) {
@@ -3474,7 +3474,7 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
         EDI_lineEndPositionList_data[lineI] += ORIGINAL_incrementBy;
     }
 
-    enqueueLSPNotification(lspObject);
+    //enqueueLSPNotification(lspObject);
 
     // 'startingIndex' is the larger index, the loop that this variable comes from goes in reverse.
     // This information doesn't matter much here but I'm ensuring an understanding incase the future necessitates it.
@@ -3762,7 +3762,7 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
         EDI_lineEndPositionList_data[lineI] -= ORIGINAL_decrementBy;
     }
 
-    enqueueLSPNotification(lspObject);
+    //enqueueLSPNotification(lspObject);
 
     // 'startingIndex' is the larger index, the loop that this variable comes from goes in reverse.
     // This information doesn't matter much here but I'm ensuring an understanding incase the future necessitates it.
@@ -3817,15 +3817,15 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
     let version = INTS[fEDI_didChangeTextDocument_version];
 
-    enqueueLSPNotification({
-        absolutePath: EDI_FORMATTED_textSourceIdentifier,
-        version: version,
-        startLine: lineAndColumnIndices_indexLine,
-        startCharacter: lineAndColumnIndices_indexColumn,
-        endLine: lineAndColumnIndices_indexLine,
-        endCharacter: lineAndColumnIndices_indexColumn,
-        text: text
-    });
+    //enqueueLSPNotification({
+    //    absolutePath: EDI_FORMATTED_textSourceIdentifier,
+    //    version: version,
+    //    startLine: lineAndColumnIndices_indexLine,
+    //    startCharacter: lineAndColumnIndices_indexColumn,
+    //    endLine: lineAndColumnIndices_indexLine,
+    //    endCharacter: lineAndColumnIndices_indexColumn,
+    //    text: text
+    //});
 
     indexLine_editOccurredOn = INTS[fEDI_cursor_editIndexLine];
     // TODO: 'EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths[0]' is wrong
@@ -3941,15 +3941,15 @@ duplicate "Aaa() {
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
     let version = INTS[fEDI_didChangeTextDocument_version];
 
-    enqueueLSPNotification({
-        absolutePath: EDI_FORMATTED_textSourceIdentifier,
-        version: version,
-        startLine: lineAndColumnIndices_indexLine,
-        startCharacter: lineAndColumnIndices_indexColumn,
-        endLine: lineAndColumnIndices_indexLine,
-        endCharacter: lineAndColumnIndices_indexColumn,
-        text: text
-    });
+    //enqueueLSPNotification({
+    //    absolutePath: EDI_FORMATTED_textSourceIdentifier,
+    //    version: version,
+    //    startLine: lineAndColumnIndices_indexLine,
+    //    startCharacter: lineAndColumnIndices_indexColumn,
+    //    endLine: lineAndColumnIndices_indexLine,
+    //    endCharacter: lineAndColumnIndices_indexColumn,
+    //    text: text
+    //});
 
     indexLine_editOccurredOn = INTS[fEDI_cursor_editIndexLine];
     // TODO: 'EDI_cursor_EDI_duplication_arrayLineVisualLengths[0]' is wrong
@@ -4056,15 +4056,15 @@ function EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
     let version = INTS[fEDI_didChangeTextDocument_version];
 
-    enqueueLSPNotification({
-        absolutePath: EDI_FORMATTED_textSourceIdentifier,
-        version: version,
-        startLine: startLineAndColumnIndices_indexLine,
-        startCharacter: startLineAndColumnIndices_indexColumn,
-        endLine: endLineAndColumnIndices_indexLine,
-        endCharacter: endLineAndColumnIndices_indexColumn,
-        text: text
-    });
+    //enqueueLSPNotification({
+    //    absolutePath: EDI_FORMATTED_textSourceIdentifier,
+    //    version: version,
+    //    startLine: startLineAndColumnIndices_indexLine,
+    //    startCharacter: startLineAndColumnIndices_indexColumn,
+    //    endLine: endLineAndColumnIndices_indexLine,
+    //    endCharacter: endLineAndColumnIndices_indexColumn,
+    //    text: text
+    //});
 
     if (startLineAndColumnIndices_indexLine === endLineAndColumnIndices_indexLine) {
         EDI_trackingUint32MaxHeap.updateLength_diff(INTS[fEDI_cursor_editIndexLine], -1 * INTS[fEDI_cursor_editLengthVisual]);
@@ -4136,45 +4136,6 @@ function EDI_finalizeEdit_ClearEditState() {
 //#endregion
 
 //#region ancillary
-function enqueueLSPNotification(payload) {
-    lspQueue.push(payload);
-    processLspQueue(); // Fire-and-forget processing loop
-}
-
-async function processLspQueue() {
-    if (BYTES[byteisProcessingLspQueue] === 1) return;
-    BYTES[byteisProcessingLspQueue] = 1;
-
-    while (lspQueue.length > 0) {
-        const item = lspQueue.shift(); // Guarantees strict FIFO order
-        
-        try {
-            if (item.arrayOfEditInformation) {
-                await window.myAPI.didChangeTextDocumentNotification_array(
-                    item.absolutePath,
-                    item.version,
-                    item.arrayOfEditInformation
-                );
-            }
-            else {
-                await window.myAPI.didChangeTextDocumentNotification(
-                    item.absolutePath,
-                    item.version,
-                    item.startLine,
-                    item.startCharacter,
-                    item.endLine,
-                    item.endCharacter,
-                    item.text
-                );
-            }
-        } catch (error) {
-            console.error("LSP IPC notification failed:", error);
-        }
-    }
-
-    BYTES[byteisProcessingLspQueue] = 0;
-}
-
 /** modification of Google AI Overview "javascript count of digits" */
 function positiveNumbersOnly_countDigitsLoop(number) {
   if (number <= 0) return 1;

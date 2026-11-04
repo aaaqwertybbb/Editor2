@@ -165,6 +165,7 @@ const byteEDI_cursor_selectionDivExists = 30;
 
 const byteEDI_onResize_hasTrailingCall = 31;
 
+/** TODO: obsolete */
 const byteisProcessingLspQueue = 33;
 
 const byteEDI_isRenderPending = 34;

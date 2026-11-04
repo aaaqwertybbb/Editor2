@@ -442,6 +442,8 @@ const fEDI_poolret_pooledTrackedSyntax_length = 24;
  * Also is used from 'EDI_render_do_SetText()', and 'EDI_render_do_Resize()', not just 'EDI_render_do_Scroll()'
  * 
  * I'm gonna store this in the int32 array so that the editor scroll render function can access it from the already existing local reference of INTS.
+ * 
+ * (very unsure TODO: is this obsolete?)
  */
 const fEDI_intFalsey_isScrolling = 25;
 
@@ -562,9 +564,9 @@ const fEDI_cursor_edit_eventCount_occurred = 63;
 
 const fEXPLORER_render_do_ScrollTrailingEdgeCheckTimeoutId = 64;
 
-/** TODO: What happens when you overflow 'INTS[fEDI_prevVli]' does it overflow such that you're the correct diff? */
+/** TODO: What happens when you overflow 'INTS[fEDI_prevVli]' does it overflow such that you're the correct diff? (very unsure TODO: is this obsolete?) */
 const fEDI_prevVli = 65;
-/** TODO: What happens when you overflow 'INTS[fEDI_prevVli]' does it overflow such that you're the correct diff? */
+/** TODO: What happens when you overflow 'INTS[fEDI_prevVli]' does it overflow such that you're the correct diff? (very unsure TODO: is this obsolete?) */
 const fEDI_currVli = 66;
 
 const fEDI_onResize_timer = 67;

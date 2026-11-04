@@ -258,6 +258,7 @@ CSS.highlights.set("js-string", stringHighlight);
 // let EDI_debug_optimization_delay_heavy_logging = 4;
 // let EDI_debug_optimization_run_count = 0;
 
+/** invoked from requestAnimationFrame */
 function EDI_init() {
     //EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.length = 0;
 
@@ -269,21 +270,19 @@ function EDI_init() {
     EDI_cursor_cursorElement.style.height = EDI_lineHeightStringWithPx;
     EDI_cursor_cursorElement.style.lineHeight = EDI_lineHeightStringWithPx;
 
-    EDI_measureBaseElement();
-
     const gutterPaddingLeft = CONST_EDI_gutterPaddingLeft + 'px';
     const gutterPaddingRight = CONST_EDI_gutterPaddingRight + 'px';
-
+    
     EDI_gutter.style.paddingLeft = gutterPaddingLeft;
     EDI_gutter.style.paddingRight = gutterPaddingRight;
-
+    
     INTS[fEDI_gutterWidthStyleValue] = EDI_characterWidth;
+    
+    //EDI_drawGutter_Width(INTS[fEDI_lineEndPositionList_count]);
 
-    EDI_drawGutter_Width(INTS[fEDI_lineEndPositionList_count]);
+    //EDI_drawCursor();
 
-    INTS[fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar] = 1; // necessary for the first render, otherwise the if statement sees 0 !== 0.
-    EDI_drawHorizontalScrollbar();
-    EDI_drawCursor();
+    EDI_render_do_Resize();
 
     EDI_state_setText_byteArray(new Uint8Array(16), /*textByteLength*/ 0, /*fileStartsWithBom*/ false, /*textSourceIdentifier*/ null, /*FORMATTED_textSourceIdentifier*/ null, /*extensionKind*/ 0, /*lineEndString*/ '\n', /*lineEndCount*/ 0);
 
@@ -593,15 +592,12 @@ function EDI_render_do_Scroll() {
     
     INTS[fEDI_virtualIndexLine] = (EDI_lastReadNumber_scrollTop / local_lineHeight) | 0; // By bit operator or'ing with 0 you "cast" the number to a signed 32-bit integer (Int32).
     
-    let local_prevVli = INTS[fEDI_ONSCROLLvirtualIndexLine];
+    const local_prevVli = INTS[fEDI_ONSCROLLvirtualIndexLine];
     const local_currVli = INTS[fEDI_virtualIndexLine];
     INTS[fEDI_ONSCROLLvirtualIndexLine] = local_currVli;
 
-    if (INTS[fEDI_intFalsey_isScrolling] === 0) {
-        // (Comment group ID: 'do_Scroll/LeadingEdge')...and here the locals are passed to the LeadingEdge because only when performing the LeadingEdge do you need to use the global versions. (part 1 of 3)
-        if (EDI_onScroll_LeadingEdge(local_prevVli, local_currVli)) return; // This if statement reads poorly. You return for a reason that isn't gleaned by reading the function name alone.
-        // (Comment group ID: 'do_Scroll/LeadingEdge')...and here the locals assigned the same value as the "globals" in case 'EDI_onScroll_LeadingEdge' modified the globals. (part 3 of 3)
-        local_prevVli = INTS[fEDI_prevVli];
+    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+        EDI_finalizeEdit();
     }
 
     let diff = local_currVli - local_prevVli; // you cannot move this 'diff === 0' case prior to the leading edge.
@@ -772,71 +768,6 @@ function EDI_render_do_Scroll() {
     local_EDI_rangeInit.endContainer = null;
 }
 
-/**
- * @returns true if scrollTop (and a few other details) have not changed, thus indicating the invoker should immediately return from their own rather than continuing with scroll logic.
- */
-function EDI_onScroll_LeadingEdge(local_prevVli, local_currVli) {
-
-    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
-        // TODO: Timing issue, someone typing while they scroll
-        EDI_finalizeEdit();
-    }
-    
-    // (Comment group ID: 'do_Scroll/LeadingEdge')...and here the locals are moved to the global scope. (part 2 of 3)
-    INTS[fEDI_prevVli] = local_prevVli;
-    INTS[fEDI_currVli] = local_currVli;
-
-    INTS[fEDI_intFalsey_isScrolling] = 1;
-
-    // TODO: I'm fairly certain that this needs to go above 'INTS[fEDI_intFalsey_isScrolling] = 1;' at a minimum. (this is the only horizontal scroll short circuit to avoid vertical scroll logic from running)
-    if (INTS[fEDI_prevVli] === INTS[fEDI_virtualIndexLine] && INTS[fEDI_ONSCROLLvirtualCount] === INTS[fEDI_virtualCount]) {
-        return true;
-    }
-
-    if (INTS[fEDI_ONSCROLLvirtualCount] !== INTS[fEDI_virtualCount]) {
-            // Force case 3
-            //
-            // An overflow will wrap around and still give you a diff of 'INTS[fEDI_virtualCount]'.
-            // You cannot modify 'INTS[fEDI_currVli]' because the value is used by case '3' itself.
-            //
-            // This is very awkward because all other UI that has this sliding window logic just uses 'INTS[fEDI_currVli]'.
-            //
-            // The reason is because they're also re-evaluating their equivalent of 'INTS[fEDI_virtualIndexLine]'.
-            //
-            // The editor has a local variable 'let local_currVli = INTS[fEDI_virtualIndexLine];'
-            // 
-            // If you scroll enough to get a case 3 (full screen "draw") rather than doing some hacky forcing of case 3
-            // you'll find that 'INTS[fEDI_virtualIndexLine]' within case 3 is
-            // equal to 'local_currVli'.
-            //
-            // But 'INTS[fEDI_virtualIndexLine]' was being used within case 3
-            // due to this awkward setting of the 'INTS[fEDI_currVli]' when doing a hack to force case 3.
-            //
-            // This meant case 3 was incurring an extra global variable lookup (global variable lookup of 'INTS')
-            // - (or with 'ints' you are incurring a read of the array only, but still this is presumed to be more than just using the local variable).
-            //
-            // Wait I'm wrong with that explanation...
-            // 'EDI_render_do_Clear()' does the hack too.
-            // But it works maybe?
-            //
-            // If it does work for 'EDI_render_do_Clear()' it probably has to do with having set the state
-            // prior to invoking the scroll function. Versus this leading edge case which changes the values out from under the scroll function.
-            //
-            // I don't know I'm tired and confused.
-            //
-            // TODO: Look into all the usages of 'INTS[fEDI_prevVli] and INTS[fEDI_currVli]' or like hacks to force cases
-            //
-            // TODO: What happens when you overflow 'INTS[fEDI_prevVli]' does it overflow such that you're the correct diff?
-            //
-            INTS[fEDI_prevVli] = INTS[fEDI_currVli] + INTS[fEDI_virtualCount];
-
-            EDI_render_do_CreateViewport();
-            return false;
-    }
-
-    return false;
-}
-
 function EDI_onScroll_TrailingEdge() {
     INTS[fEDI_intFalsey_isScrolling] = 0;
     EDI_render_request(RenderKind_SyntaxHighlighting);
@@ -849,9 +780,9 @@ function EDI_render_do_Clear() {
     EDI_clearSelectionStyle();
     // TODO: Clear the ring buffer state?
 
-    // Force case 3
-    INTS[fEDI_prevVli] = 0;
-    INTS[fEDI_currVli] = INTS[fEDI_virtualCount];
+    //// Force case 3
+    //INTS[fEDI_prevVli] = 0;
+    //INTS[fEDI_currVli] = INTS[fEDI_virtualCount];
 }
 
 function EDI_state_clear(trackingUint32MaxHeap_initialCapacity) {
@@ -887,34 +818,19 @@ function EDI_clear() {
 function EDI_render_do_SetText() {
     EDI_render_do_Clear();
 
-    update_VirtualIndexLine();
-    update_virtualCount();
-
     update_verticalVirtualizationBoundary();
-
     EDI_drawGutter_Width(INTS[fEDI_lineEndPositionList_count]);
-    EDI_drawCursor(/*NOTscrollCursorIntoView*/ false);
+    //EDI_drawCursor(/*NOTscrollCursorIntoView*/ false);
     EDI_drawHorizontalScrollbar();
-    // Force 'case 3' within 'EDI_render_do_Scroll' downstream
-    // TODO: (this comment is being made sometime after this solution was written but from memory...)...
-    // ...I believe this works because when you change the text you guarantee a virtual index line of '0' because the scrollTop gets moved to 0...
-    // ...the partial solution is to set it to anything other than '0' so the editor detects that a line of text needs to be drawn...
-    // ...but this isn't enough because you want the editor to draw every line, thus you make the difference...
-    // ...in the virtual index line equal to the count of lines being displayed, i.e.: set virtual index line to 'INTS[fEDI_virtualCount]'...
-    // ...then it sees the new value for virtual index line is 0...
-    // ...the difference between the previous and new value is 'INTS[fEDI_virtualCount]'...
-    // ...thus 'INTS[fEDI_virtualCount]' amount of lines get redrawn...
-    // ...i.e.: the entire viewport is redrawn with the new file's text.
-    INTS[fEDI_ONSCROLLvirtualIndexLine] = INTS[fEDI_virtualCount];
+    EDI_render_force_fullscreen_redraw();
 
-    EDI_render_do_Scroll();
-
-    // TODO: what is paragraph this doing?
-    INTS[fEDI_prevVli] = INTS[fEDI_ONSCROLLvirtualIndexLine];
-    INTS[fEDI_currVli] = INTS[fEDI_virtualIndexLine];
-    INTS[fEDI_ONSCROLLvirtualIndexLine] = INTS[fEDI_virtualIndexLine];
+    //// TODO: what is paragraph this doing?
+    //INTS[fEDI_prevVli] = INTS[fEDI_ONSCROLLvirtualIndexLine];
+    //INTS[fEDI_currVli] = INTS[fEDI_virtualIndexLine];
+    //INTS[fEDI_ONSCROLLvirtualIndexLine] = INTS[fEDI_virtualIndexLine];
 
     clearTimeout(INTS[fEDI_render_do_ScrollTrailingEdgeCheckTimeoutId]);
+    // when you force this without the timeout ensure the finalized edit case they type before language server gives you the syntax highlighting.
     INTS[fEDI_render_do_ScrollTrailingEdgeCheckTimeoutId] = setTimeout(EDI_onScroll_TrailingEdge, 200);
 }
 
@@ -4471,20 +4387,15 @@ function update_verticalVirtualizationBoundary(lineCount) {
 
 /**
  * EDI_render_do_Scroll() has this function explicitly inlined (duplicated) within the source code.
+ * 
+ * This function is sketchy but if you invoke EDI_render_do_Scroll immediately-soon after you'll probably be fine.
+ * Cause this would mean you changed the virtual index but you never redrew the UI yet. But if you draw the UI in the same frame/etc... you're probably good.
+ * This function is good for the sake of forcing a full screen redraw.
  */
-function update_VirtualIndexLine() {
-    // If scrollTop were to cause synchronous layout calculation, then scrollLeft wouldn't have one because it'd already be calculated.
-    // and vice versa.
-    // thus it is thought you might as well touch scrollLeft too here, if you're going down this path.
-    //
-    EDI_lastReadNumber_scrollLeft = EDI_scroll_viewport.scrollLeft;
-    EDI_lastReadNumber_scrollTop = EDI_scroll_viewport.scrollTop;
-    // TODO: This floor logic seems very odd. Because given the previous and the current you can determine it without dividing maybe I think?
-    INTS[fEDI_virtualIndexLine] = Math.floor(EDI_lastReadNumber_scrollTop / INTS[fEDI_lineHeight]);
-}
-
-function update_virtualCount() {
-    INTS[fEDI_virtualCount] = Math.ceil(INTS[fEDI_lastReadNumber_offsetHeight] / INTS[fEDI_lineHeight]);
+function EDI_render_force_fullscreen_redraw() {
+    INTS[fEDI_virtualIndexLine] = (EDI_lastReadNumber_scrollTop / INTS[fEDI_lineHeight]) | 0; // By bit operator or'ing with 0 you "cast" the number to a signed 32-bit integer (Int32).
+    INTS[fEDI_ONSCROLLvirtualIndexLine] = INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount];
+    EDI_render_do_Scroll();
 }
 
 /**
@@ -4879,6 +4790,8 @@ function EDI_drawGutter_Width(lineCount) {
  * You need to change this logic to know the longest line.
  * Then when the longest line changes or some such likely related to finalization of an edit (not pending edits).
  * then at that point you redraw this.
+ * 
+ * This is not dependent on the gutter width?
  */
 function EDI_drawHorizontalScrollbar() {
     if (INTS[fEDI_longestLine_length] !== INTS[fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar]) {
@@ -5653,6 +5566,8 @@ function EDI_cursor_clear() {
  * If the 'cursor' is not EDI_primaryCursor, then the 'NOTscrollCursorIntoView' parameter has no effect.
  * i.e.: only the EDI_primaryCursor will ever be scrolled into view via this method.
  * 
+ * This is not dependent on the gutter width?
+ * 
  * @param {boolean} NOTscrollCursorIntoView 
  */
 function EDI_drawCursor(NOTscrollCursorIntoView) {
@@ -6034,16 +5949,18 @@ function EDI_render_do_RedrawSelection() {
 
 function EDI_render_do_Resize() {
     EDI_measureBaseElement();
-
-    let remember_virtualCount = INTS[fEDI_virtualCount];
-    update_virtualCount();
-    if (INTS[fEDI_virtualCount] !== remember_virtualCount) {
-        INTS[fEDI_intFalsey_isScrolling] = 0; // Trigger scroll leading edge downstream
-        EDI_render_do_Scroll();
-    }
-
     set_EDI_recentBoundingClientRect_isNull_intFalsey(1);
+
+    INTS[fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar] = 1; // necessary for the first render, otherwise the if statement sees 0 !== 0.
     EDI_drawHorizontalScrollbar();
+
+    let remember_virtualCount = INTS[fEDI_virtualCount]; // for the first render this is 0 and thus it hits
+    INTS[fEDI_virtualCount] = Math.ceil(INTS[fEDI_lastReadNumber_offsetHeight] / INTS[fEDI_lineHeight]);
+    if (INTS[fEDI_virtualCount] !== remember_virtualCount) {
+        EDI_render_do_CreateViewport();
+        // TODO: This gets ran twice when starting the app redundantly. (here and the setText for the empty null filename)
+        EDI_render_force_fullscreen_redraw();
+    }
 }
 
 function EDI_onResize() {

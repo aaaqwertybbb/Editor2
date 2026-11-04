@@ -3130,23 +3130,7 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
         EDI_styleBuffer_insertBytes(INTS[fEDI_cursor_editPosition], new Uint8Array(INTS[fEDI_cursor_textInsertionBufferCount]), 0, INTS[fEDI_cursor_textInsertionBufferCount]);
     }
 
-    EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
-    let lineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
-    let lineAndColumnIndices_indexColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
-    //let text = EDI_decoder.decode(EDI_cursor_textInsertionBuffer.subarray(0, INTS[fEDI_cursor_textInsertionBufferCount]));
-    INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
-    let version = INTS[fEDI_didChangeTextDocument_version];
-
     sendTransaction_MessageKind_custom_edit_InsertLtr(INTS[fEDI_cursor_editPosition], EDI_cursor_textInsertionBuffer.subarray(0, INTS[fEDI_cursor_textInsertionBufferCount]));
-    //enqueueLSPNotification({
-    //    absolutePath: EDI_FORMATTED_textSourceIdentifier,
-    //    version: version,
-    //    startLine: lineAndColumnIndices_indexLine,
-    //    startCharacter: lineAndColumnIndices_indexColumn,
-    //    endLine: lineAndColumnIndices_indexLine,
-    //    endCharacter: lineAndColumnIndices_indexColumn,
-    //    text: text
-    //});
 
     EDI_trackingUint32MaxHeap.updateLength_diff(indexLine_editOccurredOn, INTS[fEDI_cursor_editLength_characters]);
     if (EDI_trackingUint32MaxHeap.tryPooledPeek() &&
@@ -3242,22 +3226,7 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
         EDI_styleBuffer_insertBytes(actualEditPosition, new Uint8Array(bytes.length), 0, bytes.length);
     }
 
-    EDI_ret_getLineAndColumnIndices_raw(actualEditPosition);
-    let lineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
-    let lineAndColumnIndices_indexColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
-    INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
-    let version = INTS[fEDI_didChangeTextDocument_version];
-
     sendTransaction_MessageKind_custom_edit_InsertLtr(INTS[fEDI_cursor_editPosition], bytes);
-    //enqueueLSPNotification({
-    //    absolutePath: EDI_FORMATTED_textSourceIdentifier,
-    //    version: version,
-    //    startLine: lineAndColumnIndices_indexLine,
-    //    startCharacter: lineAndColumnIndices_indexColumn,
-    //    endLine: lineAndColumnIndices_indexLine,
-    //    endCharacter: lineAndColumnIndices_indexColumn,
-    //    text: text
-    //});
 
     // TODO: bulk insertion of lines
     for (let i = 0; i < INTS[fEDI_cursor_editLineFeedCount]; i++) {
@@ -3343,22 +3312,7 @@ function EDI_finalizeEdit_Tab(indexLine_editOccurredOn) {
         EDI_lineEndPositionList_data[i] += length;
     }
 
-    EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
-    let lineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
-    let lineAndColumnIndices_indexColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
-    INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
-    let version = INTS[fEDI_didChangeTextDocument_version];
-
     sendTransaction_MessageKind_custom_edit_InsertLtr(INTS[fEDI_cursor_editPosition], bytes);
-    //enqueueLSPNotification({
-    //    absolutePath: EDI_FORMATTED_textSourceIdentifier,
-    //    version: version,
-    //    startLine: lineAndColumnIndices_indexLine,
-    //    startCharacter: lineAndColumnIndices_indexColumn,
-    //    endLine: lineAndColumnIndices_indexLine,
-    //    endCharacter: lineAndColumnIndices_indexColumn,
-    //    text: text
-    //});
 
     let editLengthVisual = length * INTS[fEDI_ontab_visualWidth_perCharacter];
     if (INTS[fEDI_ontab_visualWidth_perCharacter] === 4) {
@@ -3420,19 +3374,6 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
     // # Determine the total count of text that will be inserted, prior to actually beginning the edit.
     // ...
 
-    let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
-    EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]); // TODO: dead code?
-    INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
-    let version = INTS[fEDI_didChangeTextDocument_version];
-
-    //let lspObject = {
-    //    absolutePath: textSourceIdentifier,
-    //    version: version,
-    //    arrayOfEditInformation: [] // TODO: the capacity should already be known
-    //};
-
-    //let perEdit_text = EDI_decoder.decode(bytes);
-
     const perEdit_styleBuffer_changes = new Uint8Array(bytesLength);
 
     // # Descending indexLine loop:
@@ -3455,13 +3396,6 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
         }
 
         sendTransaction_MessageKind_custom_edit_InsertLtr(line_start, bytes);
-        //lspObject.arrayOfEditInformation.push({
-        //    startLine: lineI,
-        //    startCharacter: 0,
-        //    endLine: lineI,
-        //    endCharacter: 0,
-        //    text: perEdit_text
-        //});
         
         // # Increment the entry in 'EDI_lineEndPositionList' for the respective line
         EDI_lineEndPositionList_data[lineI] += incrementBy;
@@ -3476,8 +3410,6 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
     for (var lineI = startingIndex + 1; lineI < INTS[fEDI_lineEndPositionList_count]; lineI++) {
         EDI_lineEndPositionList_data[lineI] += ORIGINAL_incrementBy;
     }
-
-    //enqueueLSPNotification(lspObject);
 
     // 'startingIndex' is the larger index, the loop that this variable comes from goes in reverse.
     // This information doesn't matter much here but I'm ensuring an understanding incase the future necessitates it.
@@ -3535,6 +3467,7 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
             // rank is just a means of short circuiting any weird combinations of spaces and tabs.
             // (TODO: maybe I should believe in tab stops.)
 
+            // TODO: Why are you getting the text from the bytes here rather than using the bytes?
             let c = String.fromCharCode(EDI_textByteList_bytes[line_start + i]);
             switch (c) {
                 case ' ':
@@ -3661,17 +3594,6 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
     //    //}
     //}
 
-    let textSourceIdentifier = EDI_FORMATTED_textSourceIdentifier;
-    EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]); // TODO: dead code?
-    INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
-    let version = INTS[fEDI_didChangeTextDocument_version];
-
-    //let lspObject = {
-    //    absolutePath: textSourceIdentifier,
-    //    version: version,
-    //    arrayOfEditInformation: []
-    //};
-
     let mostRecent_decrementedVisualWidthAbsolute = 0;
 
     for (var lineI = startingIndex; lineI >= SMALL_lineAndColumnIndices_indexLine; lineI--) {
@@ -3679,7 +3601,6 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
         let innerRemoveCount = 0;
         EDI_ret_getLineBoundaryPositions_raw(lineI);
         const line_start = INTS[fEDI_ret_getLineBoundaryPositions_start];
-        const line_end = INTS[fEDI_ret_getLineBoundaryPositions_end];
         let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(lineI);
         let upperLimitIndexColumn;
         if (lastValidIndexColumn > maxVirtualColumnIndex) {
@@ -3749,13 +3670,6 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
         }
 
         sendTransaction_MessageKind_custom_edit_Remove(line_start, innerRemoveCount);
-        //lspObject.arrayOfEditInformation.push({
-        //    startLine: lineI,
-        //    startCharacter: 0,
-        //    endLine: lineI,
-        //    endCharacter: innerRemoveCount,
-        //    text: ''
-        //});
 
 	    EDI_lineEndPositionList_data[lineI] -= decrementBy;
 
@@ -3765,8 +3679,6 @@ function EDI_finalizeEdit_IndentLess(indexLine_editOccurredOn) {
     for (var lineI = startingIndex + 1; lineI < INTS[fEDI_lineEndPositionList_count]; lineI++) {
         EDI_lineEndPositionList_data[lineI] -= ORIGINAL_decrementBy;
     }
-
-    //enqueueLSPNotification(lspObject);
 
     // 'startingIndex' is the larger index, the loop that this variable comes from goes in reverse.
     // This information doesn't matter much here but I'm ensuring an understanding incase the future necessitates it.
@@ -3814,22 +3726,7 @@ function EDI_finalizeEdit_Paste(indexLine_editOccurredOn) {
         EDI_lineEndPositionList_data[i] += insertionLength;
     }
 
-    EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
-    let lineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
-    let lineAndColumnIndices_indexColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
-    INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
-    let version = INTS[fEDI_didChangeTextDocument_version];
-
     sendTransaction_MessageKind_custom_edit_InsertLtr(INTS[fEDI_cursor_editPosition], EDI_cursor_EDI_paste_clipboardContent_bytes);
-    //enqueueLSPNotification({
-    //    absolutePath: EDI_FORMATTED_textSourceIdentifier,
-    //    version: version,
-    //    startLine: lineAndColumnIndices_indexLine,
-    //    startCharacter: lineAndColumnIndices_indexColumn,
-    //    endLine: lineAndColumnIndices_indexLine,
-    //    endCharacter: lineAndColumnIndices_indexColumn,
-    //    text: text
-    //});
 
     indexLine_editOccurredOn = INTS[fEDI_cursor_editIndexLine];
     // TODO: 'EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths[0]' is wrong
@@ -3936,24 +3833,7 @@ duplicate "Aaa() {
 
 */
 
-    
-
-    EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
-    let lineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
-    let lineAndColumnIndices_indexColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
-    INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
-    let version = INTS[fEDI_didChangeTextDocument_version];
-
     sendTransaction_MessageKind_custom_edit_InsertLtr(INTS[fEDI_cursor_editPosition], EDI_cursor_EDI_duplication_bytes);
-    //enqueueLSPNotification({
-    //    absolutePath: EDI_FORMATTED_textSourceIdentifier,
-    //    version: version,
-    //    startLine: lineAndColumnIndices_indexLine,
-    //    startCharacter: lineAndColumnIndices_indexColumn,
-    //    endLine: lineAndColumnIndices_indexLine,
-    //    endCharacter: lineAndColumnIndices_indexColumn,
-    //    text: text
-    //});
 
     indexLine_editOccurredOn = INTS[fEDI_cursor_editIndexLine];
     // TODO: 'EDI_cursor_EDI_duplication_arrayLineVisualLengths[0]' is wrong
@@ -4056,19 +3936,7 @@ function EDI_finalizeEdit_DeleteLtr_BackspaceRtl_RemoveTextNoBatching(indexLine_
         EDI_styleBuffer_removeAt(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength_characters]);
     }
 
-    INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
-    let version = INTS[fEDI_didChangeTextDocument_version];
-
     sendTransaction_MessageKind_custom_edit_Remove(INTS[fEDI_cursor_editPosition], INTS[fEDI_cursor_editLength_characters]);
-    //enqueueLSPNotification({
-    //    absolutePath: EDI_FORMATTED_textSourceIdentifier,
-    //    version: version,
-    //    startLine: startLineAndColumnIndices_indexLine,
-    //    startCharacter: startLineAndColumnIndices_indexColumn,
-    //    endLine: endLineAndColumnIndices_indexLine,
-    //    endCharacter: endLineAndColumnIndices_indexColumn,
-    //    text: text
-    //});
 
     if (startLineAndColumnIndices_indexLine === endLineAndColumnIndices_indexLine) {
         EDI_trackingUint32MaxHeap.updateLength_diff(INTS[fEDI_cursor_editIndexLine], -1 * INTS[fEDI_cursor_editLengthVisual]);

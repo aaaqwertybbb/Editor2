@@ -406,6 +406,7 @@ const fEDI_gutterWidthTotal = 13;
 /** WARNING: This will not set 'gutterWidthTotal_withPxUnits' and thus is somewhat prone to a mistake at some point. */
 INTS[fEDI_gutterWidthTotal] = 32;
 
+/** TODO: obsolete? */
 const fEDI_didChangeTextDocument_version = 14;
 
 const fEDI_longestLine_indexLine = 15;

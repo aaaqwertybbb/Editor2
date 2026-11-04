@@ -27,30 +27,6 @@ let openedDirectory = null;
 let openedWorkspace = null;
 let workspaceDirectories = null;
 
-/**
- * TODO: What are these two lines of code doing in an example that I'm looking at?
- * const webContents = event.sender;
- * const win = BrowserWindow.fromWebContents(webContents);
- * 
- * ====
- * 
- * TODO: Is it problematic to bring mainWindow into this scope? It is created within `const createWindow`...
- * ...and until now has only been accessible from that arrow function.
- * ...
- * The change is desirable because upon a stdout event from an lsp,
- * the BrowserWindow needs to be accessible in order to send a message
- * from the main-process to the renderer-process in this scenario.
- * ...
- * I specifically put the assignment that brings a reference to mainWindow into this scope
- * as the final line within `const createWindow`.
- * ...
- * It is expected that if an issue were possible, that electron's "initialization code"
- * can run in its entirety prior to this reference being exposed in the global scope.
- * 
- * @type {BrowserWindow}
- */
-let mainWindowCapture = null;
-
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
 	app.quit();
@@ -104,8 +80,6 @@ const createWindow = () => {
 	ipcMain.handle('delete-file', deleteFile);
 	ipcMain.handle('rename-file', renameFile);
 	ipcMain.handle('paste-clipboard-absolute-path-to-directory', pasteClipboardAbsolutePathToDirectory);
-
-	mainWindowCapture = mainWindow;
 };
 
 // This method will be called when Electron has finished

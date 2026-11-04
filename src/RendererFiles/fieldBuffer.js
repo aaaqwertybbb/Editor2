@@ -24,6 +24,10 @@ And then ctrl+shift+p and type "Fold Level 1"
 I think it's quite interesting.
 You'll see that all the constants are compiled away with babel.
 Interesting is not a measurement on whether spending your time doing this is worth it though.
+^
+I think doing it once for fun was but... at what point do you stop and think is this actually an improvement that
+I should keep in my toolbox of extremely rare performance improvement techniques.
+Instead of just blindly keeping these ints up to date.
 
 ====
 

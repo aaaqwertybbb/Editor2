@@ -433,7 +433,7 @@ function documentBody_onKeyDown(event) {
                 if (unvalidatedAbsolutePath === null) {
                     documentBody_onKeyDown_saveFileAs(rawData);
                 }
-                else if (shouldUseCSharpToSaveFileWhenPossible) {
+                else if (shouldUseCSharpToSaveFileWhenPossible && socket.readyState === WebSocket.OPEN) {
                     sendTransaction_MessageKind_custom_saveFile();
                 }
                 else {

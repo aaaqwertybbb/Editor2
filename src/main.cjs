@@ -1128,38 +1128,3 @@ async function pasteClipboardAbsolutePathToDirectory(event, directory, menuOptio
 		};
 	}
 }
-
-/*
-- [ ] classes, if an instance will "always exist" compile two versions:
-    - [ ] The baseline always existing will use fieldBuffer.js
-	- [ ] Any instance created beyond that as necessary will use fields themselves.
-- [ ] all strings can be moved to a fieldBuffer to be stored as the byte representation
-    - [ ] If you do this you'd want to from the get-go never introduce the string to begin with unless necessary
-
-
-TODO: DefinitionClientCapabilities
-
-*/
-
-/* sec0
-//========
-/*
-	TODO: Every IPC from renderer to main should return a result type
-	{
-		Result: ...,
-		State: { cancelled, completed, failed },
-		Note: "some string",
-	}
-
-	if (aaa.failed) { showNotification(aaa.Note); }
-
-	if (aaa.Result === undefined) {
-		// void
-	}
-
-	if (aaa.Result === null) {
-		// lack of a Result / nullable result
-	}
-*//*
-//========
-sec0*/

@@ -12,7 +12,7 @@ const { contextBridge, ipcRenderer } = require('electron')
 // the contextBridge and exposeInMainWorld is a means of creating
 // a readonly API on the 'window' object for the renderer.
 contextBridge.exposeInMainWorld('myAPI', {
-  // I'm keeping 'onMessage' here as a comment incase I need it very soon I'm not certain.
+  // I'm keeping 'onMessage' here as a comment in case I need it very soon I'm not certain.
   //onMessage: (callback) => ipcRenderer.on('from-main', (_event, value) => callback(value)),
   editorSaveFile: (unvalidatedAbsolutePath, uint8Array, count, EDI_lineEndString, EDI_fileStartsWithBom) => ipcRenderer.invoke('editor-save-file', unvalidatedAbsolutePath, uint8Array, count, EDI_lineEndString, EDI_fileStartsWithBom),
   editorSaveFileAs: (uint8Array, count, EDI_lineEndString, EDI_fileStartsWithBom) => ipcRenderer.invoke('editor-save-file-as', uint8Array, count, EDI_lineEndString, EDI_fileStartsWithBom),

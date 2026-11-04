@@ -19,6 +19,12 @@ So it isn't the same category of optimization, and thus I'm not gonna say anythi
 Not only that, but this entire file is speculative and based on intuition. The goofball that has been maintaining these numbers
 all this time never once measured the performance impact, if it were positive, negative, maybe it just makes the computer happier but I haven't measured that either.
 
+In Visual Studio Code you can open "build\__COMPILEDbundle__.js" after running 'npm run build' (npm install I think is the first one if you just cloned the repo for the first time)
+And then ctrl+shift+p and type "Fold Level 1"
+I think it's quite interesting.
+You'll see that all the constants are compiled away with babel.
+Interesting is not a measurement on whether spending your time doing this is worth it though.
+
 ====
 
 

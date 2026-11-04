@@ -1,5 +1,3 @@
-init();
-
 let APP_lineHeightStringWithPx = '';
 
 let shouldUseCSharpToSaveFileWhenPossible = false;
@@ -13,39 +11,7 @@ let shouldUseCSharpToSaveFileWhenPossible = false;
  * ...and single threaded server means each message is only ever handled in order...
  * ...you perhaps need to coallesce or flush or etc... just keep this in mind.
  */
-const socket = new WebSocket('ws://127.0.0.1:8080');
-
-// Crucial for performance and byte-array replication
-socket.binaryType = 'arraybuffer'; 
-
-//socket.onopen = () => {
-//    console.log('Connected to C# backend');
-//};
-
-socket.onmessage = (event) => {
-    let view;
-  
-    if (typeof event.data === 'string' && event.data.length > 0) {
-        if (mostRecent_kind === 3) {
-            EDI_moveCursor_position(Number(event.data));
-        }
-        else if (mostRecent_kind === 4) {
-            DIALOG_Debug_Refresh(JSON.parse(event.data));
-        }
-        else {
-            // If the server sent it as text, convert text to a Uint8Array
-            view = Uint8Array.fromBase64(event.data);
-            EDI_styleBuffer = view;
-            INTS[fEDI_styleBuffer_count] = EDI_styleBuffer.length;
-            INTS[fEDI_styleBuffer_capacity] = EDI_styleBuffer.length;
-            //view = new TextEncoder().encode(event.data);
-            //EDI_styleBuffer = view;
-        }
-    } else if (event.data instanceof ArrayBuffer) {
-        // If it's a true binary buffer
-        view = new Uint8Array(event.data);
-    }
-};
+let socket = null;
 
 let send_buffer = new Uint8Array(256);
 
@@ -53,9 +19,11 @@ let send_id = 0;
 
 let mostRecent_kind = 0;
 
+init();
+
 // Example function to send your transaction buffer
 function sendTransaction_MessageKind_string(messageString) {
-    if (socket.readyState !== WebSocket.OPEN) { throw new Exception('socket.readyState !== WebSocket.OPEN'); }
+    if (!socket || socket.readyState !== WebSocket.OPEN) { return; }
 
     if (messageString.length > send_buffer.length) { throw new Exception('messageString.length > send_buffer.length'); }
 
@@ -92,7 +60,7 @@ function sendTransaction_MessageKind_string(messageString) {
 
 /** TODO: This is likely to have a race condition issue because Anything other than sending the exact same bytes that the editor read from the OS is likely to have a race condition issue */
 function sendTransaction_MessageKind_textDocument_didOpen(filePath) {
-    if (socket.readyState !== WebSocket.OPEN) { throw new Exception('socket.readyState !== WebSocket.OPEN'); }
+    if (!socket || socket.readyState !== WebSocket.OPEN) { return; }
 
     if (filePath.length > send_buffer.length) { throw new Exception('filePath.length > send_buffer.length'); }
 
@@ -128,7 +96,7 @@ function sendTransaction_MessageKind_textDocument_didOpen(filePath) {
 }
 
 function sendTransaction_MessageKind_textDocument_definition(positionIndex) {
-    if (socket.readyState !== WebSocket.OPEN) { throw new Exception('socket.readyState !== WebSocket.OPEN'); }
+    if (!socket || socket.readyState !== WebSocket.OPEN) { return; }
 
     if (false && filePath.length > send_buffer.length) { throw new Exception('filePath.length > send_buffer.length'); }
 
@@ -166,7 +134,7 @@ function sendTransaction_MessageKind_textDocument_definition(positionIndex) {
 }
 
 function sendTransaction_MessageKind_custom_editorGetNodesAdjacentToCursor(positionIndex) {
-    if (socket.readyState !== WebSocket.OPEN) { throw new Exception('socket.readyState !== WebSocket.OPEN'); }
+    if (!socket || socket.readyState !== WebSocket.OPEN) { return; }
 
     if (false && filePath.length > send_buffer.length) { throw new Exception('filePath.length > send_buffer.length'); }
 
@@ -204,7 +172,7 @@ function sendTransaction_MessageKind_custom_editorGetNodesAdjacentToCursor(posit
 }
 
 function sendTransaction_MessageKind_custom_saveFile() {
-    if (socket.readyState !== WebSocket.OPEN) { throw new Exception('socket.readyState !== WebSocket.OPEN'); }
+    if (!socket || socket.readyState !== WebSocket.OPEN) { return; }
 
     if (false && filePath.length > send_buffer.length) { throw new Exception('filePath.length > send_buffer.length'); }
 
@@ -242,7 +210,7 @@ function sendTransaction_MessageKind_custom_saveFile() {
 }
 
 function sendTransaction_MessageKind_custom_edit_InsertLtr(positionIndex, bytes) {
-    if (socket.readyState !== WebSocket.OPEN) { throw new Exception('socket.readyState !== WebSocket.OPEN'); }
+    if (!socket || socket.readyState !== WebSocket.OPEN) { return; }
 
     if (false && filePath.length > send_buffer.length) { throw new Exception('filePath.length > send_buffer.length'); }
 
@@ -287,7 +255,7 @@ function sendTransaction_MessageKind_custom_edit_InsertLtr(positionIndex, bytes)
 }
 
 function sendTransaction_MessageKind_custom_edit_Remove(positionIndex, length) {
-    if (socket.readyState !== WebSocket.OPEN) { throw new Exception('socket.readyState !== WebSocket.OPEN'); }
+    if (!socket || socket.readyState !== WebSocket.OPEN) { return; }
 
     if (false && filePath.length > send_buffer.length) { throw new Exception('filePath.length > send_buffer.length'); }
 
@@ -362,7 +330,70 @@ function init() {
     //EDI_gotoF_button.addEventListener('click', window.myAPI.editorDocumentSymbolsRequest);
     document.body.addEventListener('keydown', documentBody_onKeyDown);
 
+    try {
+        // 2. Assign without re-declaring 'let' or 'const' inside the block
+        const tempSocket = new WebSocket('ws://127.0.0.1:8080');
+        tempSocket.binaryType = 'arraybuffer';
+        tempSocket.onmessage = APP_socket_onmessage; // Standard message handler
+
+        // 3. Handle asynchronous connection drops / offline states
+        tempSocket.onerror = cleanupSocket;
+        tempSocket.onclose = cleanupSocket;
+
+        // Commit to the scoped variable only if creation didn't throw synchronously
+        socket = tempSocket; 
+    }
+    catch (error) {
+        // Catches synchronous errors like malformed URLs
+        socket = null;
+    }
+
     requestAnimationFrame(APP_render_init);
+}
+
+function cleanupSocket() {
+    if (socket) {
+        socket.onmessage = null;
+        socket.onerror = null;
+        socket.onclose = null;
+        socket = null; // Now it is safely null for the rest of your app
+    }
+}
+
+//function APP_socket_onerror(error) {
+//    // Gracefully handle the offline state
+//    //alert("Language server is offline. Running in standalone mode.");
+//    cleanupSocket();
+//}
+//
+//function APP_socket_onclose() {
+//    cleanupSocket();
+//}
+
+function APP_socket_onmessage(event) {
+    let view;
+        
+    if (typeof event.data === 'string' && event.data.length > 0) {
+        if (mostRecent_kind === 3) {
+            EDI_moveCursor_position(Number(event.data));
+        }
+        else if (mostRecent_kind === 4) {
+            DIALOG_Debug_Refresh(JSON.parse(event.data));
+        }
+        else {
+            // If the server sent it as text, convert text to a Uint8Array
+            view = Uint8Array.fromBase64(event.data);
+            EDI_styleBuffer = view;
+            INTS[fEDI_styleBuffer_count] = EDI_styleBuffer.length;
+            INTS[fEDI_styleBuffer_capacity] = EDI_styleBuffer.length;
+            //view = new TextEncoder().encode(event.data);
+            //EDI_styleBuffer = view;
+        }
+    }
+    else if (event.data instanceof ArrayBuffer) {
+        // If it's a true binary buffer
+        view = new Uint8Array(event.data);
+    }
 }
 
 /**

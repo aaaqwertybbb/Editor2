@@ -3425,13 +3425,13 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
     let version = INTS[fEDI_didChangeTextDocument_version];
 
-    let lspObject = {
-        absolutePath: textSourceIdentifier,
-        version: version,
-        arrayOfEditInformation: [] // TODO: the capacity should already be known
-    };
+    //let lspObject = {
+    //    absolutePath: textSourceIdentifier,
+    //    version: version,
+    //    arrayOfEditInformation: [] // TODO: the capacity should already be known
+    //};
 
-    let perEdit_text = EDI_decoder.decode(bytes);
+    //let perEdit_text = EDI_decoder.decode(bytes);
 
     const perEdit_styleBuffer_changes = new Uint8Array(bytesLength);
 
@@ -3454,13 +3454,14 @@ function EDI_finalizeEdit_IndentMore(indexLine_editOccurredOn) {
             EDI_styleBuffer_insertBytes(line_start, perEdit_styleBuffer_changes, 0, bytesLength);
         }
 
-        lspObject.arrayOfEditInformation.push({
-            startLine: lineI,
-            startCharacter: 0,
-            endLine: lineI,
-            endCharacter: 0,
-            text: perEdit_text
-        });
+        sendTransaction_MessageKind_custom_edit_InsertLtr(line_start, bytes);
+        //lspObject.arrayOfEditInformation.push({
+        //    startLine: lineI,
+        //    startCharacter: 0,
+        //    endLine: lineI,
+        //    endCharacter: 0,
+        //    text: perEdit_text
+        //});
         
         // # Increment the entry in 'EDI_lineEndPositionList' for the respective line
         EDI_lineEndPositionList_data[lineI] += incrementBy;

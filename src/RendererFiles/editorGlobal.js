@@ -685,6 +685,7 @@ function EDI_render_do_Scroll() {
         // OR the INTS[fEDI_styleBuffer_count] is 0.
         // As of writing this comment, if everything goes as planned this technically is true "the assumption is either your INTS[fEDI_styleBuffer_count] is perfectly in sync with the text count"
         // but it feels like rather flimsy protection.
+        // If you read an undefined from the style buffer you probably will cause a deoptimization of this function is the main concern.
         if (INTS[fEDI_styleBuffer_count] !== 0) {
             /////
             const arrayOfRangeObjectsOnLine = local_EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine[ringBufferIndex];

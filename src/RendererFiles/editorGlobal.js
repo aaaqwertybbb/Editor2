@@ -285,6 +285,15 @@ function EDI_init() {
     EDI_registerHandlers();
 }
 
+/**
+ * The scroll for the editor is extremely high overhead relative to the other scrolling UI in the app.
+ * I've moved all the EDI_render_do and EDI_render_do_Scroll bytes to the INTS array
+ * so there's one less array to look at.
+ * And I've moved the related fEDI constants so that they're all the first entries in the INTS array itself.
+ * I have no source for this to be completely honest.
+ * I just have always wanted to do it based on intuition alone to see how it feels.
+ * I need to actually measure it.
+ */
 function EDI_render_do() {
     // Process everything in the queue until head catches up to tail
     while (INTS[fEDI_queueHead] !== INTS[fEDI_queueTail]) {

@@ -6200,11 +6200,6 @@ function EDI_doEditorGoToDefinitionRequest(ctrlKey) {
             EDI_finalizeEdit();
         }
         sendTransaction_MessageKind_textDocument_definition(EDI_getPositionIndex_cursor_raw());
-        //let x = new Uint8Array(2);
-        //x[0] = 'h'.charCodeAt(0);
-        //x[1] = 'i'.charCodeAt(0);
-        //sendTransaction(x);
-        //window.myAPI.editorGoToDefinitionRequest(INTS[fEDI_cursor_indexLine], INTS[fEDI_cursor_indexColumn]);
     }
     else {
         DIALOG_show(DialogKind_Debug, /*onResizeAction*/ null, /*elementToFocusOnDialogHideInitiated*/ null);

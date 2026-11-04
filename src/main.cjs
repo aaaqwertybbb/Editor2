@@ -96,7 +96,6 @@ const createWindow = () => {
 	ipcMain.handle('read-all-text', readAllText);
 	ipcMain.handle('editor-read-all-text', editorReadAllText);
 	ipcMain.handle('editor-read-all-text-byteArray', editorReadAllText_byteArray);
-	ipcMain.handle('editor-go-to-definition-request', editorGoToDefinitionRequest);
 	ipcMain.handle('editor-completion-request', editorCompletionRequest);
 	// I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
 	ipcMain.handle('editor-completion-request-slice', editorCompletionRequest_slice);
@@ -744,22 +743,6 @@ function lsp_write_customFullFileLexRequest() {
 		let customFullFileLexRequest = lspTypes.MAIN_message_construct_CustomFullFileLexRequest(tdIdentifier);
 		mostRecentRequest = customFullFileLexRequest;
 		languageServer.stdin.write(MAIN_encodeMessageObject(customFullFileLexRequest));
-	}
-}
-
-async function editorGoToDefinitionRequest(event, indexLine, indexColumn) {
-	try {
-		if (!languageServerHandshakeSuccess || !languageServer || !openedDocumentUri) return;
-
-		let tdIdentifier = lspTypes.MAIN_message_construct_textDocumentIdentifier(openedDocumentUri);
-		let position = lspTypes.MAIN_message_construct_position(indexLine, indexColumn);
-		let goToDefinitionRequest = lspTypes.MAIN_message_construct_GoToDefinitionRequest(tdIdentifier, position);
-		mostRecentRequest = goToDefinitionRequest;
-		languageServer.stdin.write(MAIN_encodeMessageObject(goToDefinitionRequest));
-	}
-	catch (err) {
-		console.error("Error during editor-document-symbols-request:", err);
-		return [];
 	}
 }
 

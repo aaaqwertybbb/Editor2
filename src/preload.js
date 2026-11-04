@@ -40,7 +40,6 @@ contextBridge.exposeInMainWorld('myAPI', {
   */
   editorReadAllText: absoluteFilePath => ipcRenderer.invoke('editor-read-all-text', absoluteFilePath),
   editorReadAllText_byteArray: absoluteFilePath => ipcRenderer.invoke('editor-read-all-text-byteArray', absoluteFilePath),
-  editorGoToDefinitionRequest: (indexLine, indexColumn) => ipcRenderer.invoke('editor-go-to-definition-request', indexLine, indexColumn),
   editorCompletionRequest: (indexLine, indexColumn) => ipcRenderer.invoke('editor-completion-request', indexLine, indexColumn),
   // I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
   editorCompletionRequest_slice: (indexStart, indexEnd, filter) => ipcRenderer.invoke('editor-completion-request-slice', indexStart, indexEnd, filter),

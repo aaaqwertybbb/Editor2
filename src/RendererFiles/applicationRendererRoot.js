@@ -358,8 +358,8 @@ function init() {
 
     window.myAPI.onMessage(window_myAPI_onMessage);
 
-    const EDI_gotoF_button = document.getElementById('EDI_gotoF');
-    EDI_gotoF_button.addEventListener('click', window.myAPI.editorDocumentSymbolsRequest);
+    //const EDI_gotoF_button = document.getElementById('EDI_gotoF');
+    //EDI_gotoF_button.addEventListener('click', window.myAPI.editorDocumentSymbolsRequest);
     document.body.addEventListener('keydown', documentBody_onKeyDown);
 
     requestAnimationFrame(APP_render_init);

@@ -96,7 +96,6 @@ const createWindow = () => {
 	ipcMain.handle('read-all-text', readAllText);
 	ipcMain.handle('editor-read-all-text', editorReadAllText);
 	ipcMain.handle('editor-read-all-text-byteArray', editorReadAllText_byteArray);
-	ipcMain.handle('editor-document-symbols-request', editorDocumentSymbolsRequest);
 	ipcMain.handle('editor-go-to-definition-request', editorGoToDefinitionRequest);
 	ipcMain.handle('editor-completion-request', editorCompletionRequest);
 	// I don't think 'slice' is in LSP specification but I need to start like this cause it is only way I'll get something "initially working".
@@ -745,21 +744,6 @@ function lsp_write_customFullFileLexRequest() {
 		let customFullFileLexRequest = lspTypes.MAIN_message_construct_CustomFullFileLexRequest(tdIdentifier);
 		mostRecentRequest = customFullFileLexRequest;
 		languageServer.stdin.write(MAIN_encodeMessageObject(customFullFileLexRequest));
-	}
-}
-
-async function editorDocumentSymbolsRequest(event) {
-	try {
-		if (!languageServerHandshakeSuccess || !languageServer || !openedDocumentUri) return;
-
-		let tdIdentifier = lspTypes.MAIN_message_construct_textDocumentIdentifier(openedDocumentUri);
-		let documentSymbolsRequest = lspTypes.MAIN_message_construct_DocumentSymbolsRequest(tdIdentifier);
-		mostRecentRequest = documentSymbolsRequest;
-		languageServer.stdin.write(MAIN_encodeMessageObject(documentSymbolsRequest));
-	}
-	catch (err) {
-		console.error("Error during editor-document-symbols-request:", err);
-		return [];
 	}
 }
 

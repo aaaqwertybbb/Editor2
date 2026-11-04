@@ -2209,7 +2209,10 @@ editorMaxHeap.js why is line 631 white and etc... it is in a multiline comment.
     - [ ] Whether you do this conditionally
     - [ ] Or not at all / etc...
     - [ ] Just get a working version of it so you can compare the overhead of saving from the UI vs the C# server
-- [ ] 
+- [ ] You say you want to duplicate the transaction buffer in the C#
+    - [ ] At the very least, do not start off with this. Get everything else working and then revisit the idea
+    - [ ] because being wrong about this being useful and proceeding to attempt implementing this is a massive rabbit hole
+        - [ ] and even if you were to succeed if it were a bad idea overall you now might have this self made treadmill overhead and complexity attached to every feature in the future.
 
 
 

@@ -241,7 +241,7 @@ function sendTransaction_MessageKind_custom_saveFile() {
     socket.send(viewToSend); // Sends raw binary data
 }
 
-function sendTransaction_MessageKind_custom_edit_InsertLtr(positionIndex, text) {
+function sendTransaction_MessageKind_custom_edit_InsertLtr(positionIndex, bytes) {
     if (socket.readyState !== WebSocket.OPEN) { throw new Exception('socket.readyState !== WebSocket.OPEN'); }
 
     if (false && filePath.length > send_buffer.length) { throw new Exception('filePath.length > send_buffer.length'); }
@@ -259,10 +259,10 @@ function sendTransaction_MessageKind_custom_edit_InsertLtr(positionIndex, text) 
 
     // TODO: measure bytes that represent number digits without string
     const aaa = EDI_encoder.encode(positionIndexString);
-    // TODO: byte length of the text without encoding.
+    // TODO: byte length of the bytes without encoding.
     // TODO: send the bytes themselves 0 allocation either side for the message itself
-    const bbb = EDI_encoder.encode(text);
-    const byteLengthString = (aaa.length + bbb.length + 1 /*the '_' intra message that separates position from text*/) + '';
+    //const bbb = EDI_encoder.encode(bytes);
+    const byteLengthString = (aaa.length + bytes.length + 1 /*the '_' intra message that separates position from bytes*/) + '';
 
     const writtenAaa = EDI_encoder.encodeInto(byteLengthString, send_buffer.subarray(index, send_buffer.length));
     index += writtenAaa.written;
@@ -276,8 +276,8 @@ function sendTransaction_MessageKind_custom_edit_InsertLtr(positionIndex, text) 
     send_buffer[index] = '_'.charCodeAt(0);
     index += 1;
 
-    const writtenCcc = EDI_encoder.encodeInto(text, send_buffer.subarray(index, send_buffer.length));
-    index += writtenCcc.written;
+    send_buffer.set(bytes, index);
+    index += bytes.length;
 
     // High Performance Slice: Create a zero-allocation window/view over just the written bytes
     // .subarray() does NOT copy memory; it just shifts the byte pointer window

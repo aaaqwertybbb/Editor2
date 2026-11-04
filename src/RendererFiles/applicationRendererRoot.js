@@ -262,7 +262,7 @@ function sendTransaction_MessageKind_custom_edit_InsertLtr(positionIndex, text) 
     // TODO: byte length of the text without encoding.
     // TODO: send the bytes themselves 0 allocation either side for the message itself
     const bbb = EDI_encoder.encode(text);
-    const byteLengthString = (aaa.length + bbb.length) + '';
+    const byteLengthString = (aaa.length + bbb.length + 1 /*the '_' intra message that separates position from text*/) + '';
 
     const writtenAaa = EDI_encoder.encodeInto(byteLengthString, send_buffer.subarray(index, send_buffer.length));
     index += writtenAaa.written;
@@ -272,6 +272,9 @@ function sendTransaction_MessageKind_custom_edit_InsertLtr(positionIndex, text) 
 
     const writtenBbb = EDI_encoder.encodeInto(positionIndexString, send_buffer.subarray(index, send_buffer.length));
     index += writtenBbb.written;
+
+    send_buffer[index] = '_'.charCodeAt(0);
+    index += 1;
 
     const writtenCcc = EDI_encoder.encodeInto(text, send_buffer.subarray(index, send_buffer.length));
     index += writtenCcc.written;

@@ -5957,7 +5957,6 @@ function EDI_cursorBlinkingTrailingEdge() {
 
     if (BYTES[byteDIALOG_currentDialogKind] === DialogKind_Debug) {
         sendTransaction_MessageKind_custom_editorGetNodesAdjacentToCursor(EDI_getPositionIndex_cursor_raw());
-        //window.myAPI.editorGetNodesAdjacentToCursorFromLsp(INTS[fEDI_cursor_indexLine], INTS[fEDI_cursor_indexColumn]);
     }
 }
 

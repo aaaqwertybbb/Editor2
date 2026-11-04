@@ -433,9 +433,9 @@ function documentBody_onKeyDown(event) {
                 if (unvalidatedAbsolutePath === null) {
                     documentBody_onKeyDown_saveFileAs(rawData);
                 }
-                //else if (shouldUseCSharpToSaveFileWhenPossible) {
-                //    sendTransaction_MessageKind_custom_saveFile();
-                //}
+                else if (shouldUseCSharpToSaveFileWhenPossible) {
+                    sendTransaction_MessageKind_custom_saveFile();
+                }
                 else {
                     window.myAPI.editorSaveFile(unvalidatedAbsolutePath, rawData.uint8arrayTextBytes, rawData.countOfBytesInUse, rawData.lineEndString, rawData.fileStartsWithBom);
                 }

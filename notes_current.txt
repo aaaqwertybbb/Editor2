@@ -2209,7 +2209,7 @@ editorMaxHeap.js why is line 631 white and etc... it is in a multiline comment.
             - [x] tabs as 4 spaces
         - [x] EditKind_Enter
         - [x] EditKind_Paste
-        - [ ] EditKind_Duplicate
+        - [x] EditKind_Duplicate
         - [ ] EditKind_IndentMore
     - [ ] Negative
         - [ ] EditKind_DeleteLtr

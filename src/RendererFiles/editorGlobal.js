@@ -3939,10 +3939,10 @@ duplicate "Aaa() {
     EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_cursor_editPosition]);
     let lineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
     let lineAndColumnIndices_indexColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
-    let text = EDI_decoder.decode(EDI_textByteList_bytes.subarray(small, small + length));
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
     let version = INTS[fEDI_didChangeTextDocument_version];
 
+    sendTransaction_MessageKind_custom_edit_InsertLtr(INTS[fEDI_cursor_editPosition], EDI_cursor_EDI_duplication_bytes);
     //enqueueLSPNotification({
     //    absolutePath: EDI_FORMATTED_textSourceIdentifier,
     //    version: version,

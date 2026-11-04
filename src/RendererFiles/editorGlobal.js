@@ -3137,6 +3137,8 @@ function EDI_finalizeEdit_InsertLtr(indexLine_editOccurredOn) {
     INTS[fEDI_didChangeTextDocument_version] = INTS[fEDI_didChangeTextDocument_version] + 1;
     let version = INTS[fEDI_didChangeTextDocument_version];
 
+    
+    sendTransaction_MessageKind_custom_edit_InsertLtr(INTS[fEDI_cursor_editPosition], text);
     //enqueueLSPNotification({
     //    absolutePath: EDI_FORMATTED_textSourceIdentifier,
     //    version: version,

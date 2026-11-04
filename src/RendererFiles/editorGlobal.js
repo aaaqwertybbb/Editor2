@@ -6252,7 +6252,7 @@ function EDI_requestLspHover() {
 
     // Indices are wrong... they're likely outdated
     if (BYTES[byteEDI_mousemove_eventListener_isActive] === 0) {
-        window.myAPI.editorHoverRequest(indexLine, indexColumn);
+        //window.myAPI.editorHoverRequest(indexLine, indexColumn);
     }
 }
 

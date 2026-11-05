@@ -412,7 +412,6 @@ async function editorReadAllText_byteArray(event, absolutePath) {
     const extension = path.extname(absolutePath);
     const paddingLength = 1024;
 
-    // 1. Read the entire file asynchronously into a Node Buffer
     let fileBuffer = fs.readFileSync(absolutePath);
     let fileStartsWithBom = false;
     let byteOffset = 0;

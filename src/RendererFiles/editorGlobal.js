@@ -441,16 +441,14 @@ function EDI_clearHighlights_single(ringBufferIndexOfDiv) {
     for (let j = 0; j < local_arrayOfRangeObjects_length; ++j) {
         const range = arrayOfRangeObjectsOnLine[j];
         // Keep the short-circuiting logic but execute it over a completely flat index read
-        if (local_identifierHighlight.delete(range) ||
+        local_identifierHighlight.delete(range) ||
             local_keywordHighlight.delete(range) ||
             local_functionHighlight.delete(range) ||
             local_keywordControlHighlight.delete(range) ||
             local_memberHighlight.delete(range) ||
             local_commentHighlight.delete(range) ||
             local_stringHighlight.delete(range) ||
-            local_typeHighlight.delete(range)) {
-                // literally do nothing
-        }
+            local_typeHighlight.delete(range);
     }
     // Single instruction to clear the array instantly after the loop
     arrayOfRangeObjectsOnLine.length = 0;
@@ -6329,16 +6327,14 @@ function EDI_syntaxHighlight_parallelArray(div, ringBufferIndexOfDiv, lineStart,
     for (let j = 0; j < local_arrayOfRangeObjects_length; ++j) {
         const range = arrayOfRangeObjectsOnLine[j];
         // Keep the short-circuiting logic but execute it over a completely flat index read
-        if (local_identifierHighlight.delete(range) ||
+        local_identifierHighlight.delete(range) ||
             local_keywordHighlight.delete(range) ||
             local_functionHighlight.delete(range) ||
             local_keywordControlHighlight.delete(range) ||
             local_memberHighlight.delete(range) ||
             local_commentHighlight.delete(range) ||
             local_stringHighlight.delete(range) ||
-            local_typeHighlight.delete(range)) {
-                // literally do nothing
-        }
+            local_typeHighlight.delete(range);
     }
     // Single instruction to clear the array instantly after the loop
     arrayOfRangeObjectsOnLine.length = 0;

@@ -297,3 +297,7 @@ So I called and said I'd come in at 12 cuz I had the appointment it was too clos
 - [ ] paint flashing with proper containment
 - [ ] Do multiline spanning edits correctly update the longest line heap? (I don't think they do)
 - [ ] Some variables are named wrong ('EDI_virtualization_horizontal' no longer is an accurate variable name, this points to something different.)
+- [ ] remove dead code
+- [ ] remove dead comments
+- [ ] optimize main.cjs reading of the byteArray for the editor (and the other things in that file. The reading 'byteArray' just specifically comes to mind is all)
+- [ ] Ring buffer Editor: move the DOM elements around in the ring buffer array instead of "shifting lines one by one" for example during an enter key event.

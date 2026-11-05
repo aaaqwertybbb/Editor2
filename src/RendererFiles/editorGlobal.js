@@ -782,7 +782,17 @@ function EDI_render_do_Scroll() {
             // Start iterating from the SECOND character of the line
             for (let i = lineStart + 1; i <= local_lineEnd; i++) {
                 // Safe out-of-bounds read at i === local_lineEnd returns undefined, forcing the final flush
-                const currentByte = i === local_lineEnd ? 9 : local_EDI_styleBuffer[i]; // This one though the jump is assumed to be conditional jump due to the extremely small amount of code being executed in either branch and that the CPU will figure it out.
+                const currentByte = i === local_lineEnd ? 9 : local_EDI_styleBuffer[i];
+
+                /*
+                The underlying assembly instructions for both versions look fundamentally identical to the CPU:
+                1. Compare i with local_lineEnd.
+                2. Load local_EDI_styleBuffer[i] into a CPU register.
+                3. Use a CMOV instruction to overwrite that register with 9 only if the comparison was equal.
+
+                Because CMOV is a branchless instruction, there is no jump instruction executed.
+                The CPU processes the instruction down the pipeline in a fixed number of clock cycles regardless of which branch was taken.
+                */
 
                 if (currentByte === originalStyleByte) {
                     continue;
@@ -6401,7 +6411,7 @@ function EDI_syntaxHighlight_parallelArray(div, ringBufferIndexOfDiv, lineStart,
     // Start iterating from the SECOND character of the line
     for (let i = lineStart + 1; i <= local_lineEnd; i++) {
         // Safe out-of-bounds read at i === local_lineEnd returns undefined, forcing the final flush
-        const currentByte = i === local_lineEnd ? 9 : local_EDI_styleBuffer[i]; // This one though the jump is assumed to be conditional jump due to the extremely small amount of code being executed in either branch and that the CPU will figure it out.
+        const currentByte = i === local_lineEnd ? 9 : local_EDI_styleBuffer[i];
 
         if (currentByte === originalStyleByte) {
             continue;

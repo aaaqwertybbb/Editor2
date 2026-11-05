@@ -835,8 +835,8 @@ function EDI_render_do_SetText() {
  */
 function EDI_state_setText_byteArray(paddedUint8Array, textByteLength, fileStartsWithBom, textSourceIdentifier, FORMATTED_textSourceIdentifier, extensionKind, lineEndString, lineEndCount) {
     EDI_scroll_viewport.scrollTop = 0;
-    EDI_lastReadNumber_scrollTop = 0;
     EDI_scroll_viewport.scrollLeft = 0;
+    EDI_lastReadNumber_scrollTop = 0;
     EDI_lastReadNumber_scrollLeft = 0;
 
     EDI_state_clear(lineEndCount);

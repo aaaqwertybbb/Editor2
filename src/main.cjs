@@ -529,6 +529,9 @@ function editorReadAllText_byteArray(event, absolutePath) {
     const textByteLength = targetIndex;
     const paddedLength = textByteLength + paddingLength;
 
+    // Zero out just the 1024 bytes of padding room to prevent memory leaks
+    rawBuffer.fill(0, textByteLength, paddedLength);
+
     // 8. Create a windowed browser view of the padded region with ZERO copying
     const finalUint8Array = new Uint8Array(
       rawBuffer.buffer, 

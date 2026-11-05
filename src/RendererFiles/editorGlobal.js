@@ -836,13 +836,8 @@ function EDI_render_do_SetText() {
 
     update_verticalVirtualizationBoundary();
     EDI_drawGutter_Width(INTS[fEDI_lineEndPositionList_count]);
-    //EDI_drawCursor(/*NOTscrollCursorIntoView*/ false);
     EDI_drawHorizontalScrollbar();
     EDI_render_force_fullscreen_redraw();
-
-    //clearTimeout(INTS[fEDI_render_do_ScrollTrailingEdgeCheckTimeoutId]);
-    // when you force this without the timeout ensure the finalized edit case they type before language server gives you the syntax highlighting.
-    //INTS[fEDI_render_do_ScrollTrailingEdgeCheckTimeoutId] = setTimeout(EDI_onScroll_TrailingEdge, 200);
 }
 
 /**

@@ -863,6 +863,8 @@ function EDI_state_setText_byteArray(paddedUint8Array, textByteLength, fileStart
     const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
 
     const local_EDI_trackingUint32MaxHeap = EDI_trackingUint32MaxHeap;
+    const local_EDI_trackingUint32MaxHeap_heap = local_EDI_trackingUint32MaxHeap.heap;
+    const local_EDI_trackingUint32MaxHeap_lineIndexToHeapIndex = local_EDI_trackingUint32MaxHeap.lineIndexToHeapIndex;
 
     let lineLengthVisual = 0; /** TODO: Track the linePosition last seen when making a line or something you don't have to increment this per character, you just need the difference of the last line drawn to the current or something. */
     let local_EDI_lineEndPositionList_count = INTS[fEDI_lineEndPositionList_count];
@@ -874,22 +876,60 @@ function EDI_state_setText_byteArray(paddedUint8Array, textByteLength, fileStart
         }
         else if (local_EDI_textByteList_bytes[sourceI] === CONST_EDI_ASCII_LINE_FEED) {
             // (they are not exactly the same) (1 of 2) EDI_lineEndPositionList_UNSAFEinsertUNSAFE(local_EDI_lineEndPositionList_count++, sourceI, lineLengthVisual - 1)
-            local_EDI_trackingUint32MaxHeap.insert(local_EDI_lineEndPositionList_count, lineLengthVisual - 1);
+            //local_EDI_trackingUint32MaxHeap.insert(local_EDI_lineEndPositionList_count, lineLengthVisual - 1);
+            //local_EDI_lineEndPositionList_data[local_EDI_lineEndPositionList_count] = sourceI;
+            //++local_EDI_lineEndPositionList_count;
+            //lineLengthVisual = 0;
+
+
+
             local_EDI_lineEndPositionList_data[local_EDI_lineEndPositionList_count] = sourceI;
+  
+            // Directly stream data sequentially into the heap buffer without sorting yet
+            const bufferIndex = local_EDI_lineEndPositionList_count * 2;
+            local_EDI_trackingUint32MaxHeap_heap[bufferIndex] = lineLengthVisual - 1;     // length
+            local_EDI_trackingUint32MaxHeap_heap[bufferIndex + 1] = local_EDI_lineEndPositionList_count; // lineIndex
+            local_EDI_trackingUint32MaxHeap_lineIndexToHeapIndex[local_EDI_lineEndPositionList_count] = local_EDI_lineEndPositionList_count;
+
             ++local_EDI_lineEndPositionList_count;
             lineLengthVisual = 0;
+
+
+
+
         }
     }
 
     // (they are not exactly the same) (2 of 2) EDI_lineEndPositionList_UNSAFEinsertUNSAFE(local_EDI_lineEndPositionList_count++, local_EDI_textByteList_count, lineLengthVisual)
-    local_EDI_trackingUint32MaxHeap.insert(local_EDI_lineEndPositionList_count, lineLengthVisual);
+    //local_EDI_trackingUint32MaxHeap.insert(local_EDI_lineEndPositionList_count, lineLengthVisual);
+    //local_EDI_lineEndPositionList_data[local_EDI_lineEndPositionList_count] = local_EDI_textByteList_count;
+
+
     local_EDI_lineEndPositionList_data[local_EDI_lineEndPositionList_count] = local_EDI_textByteList_count;
+  
+    // Directly stream data sequentially into the heap buffer without sorting yet
+    const bufferIndex = local_EDI_lineEndPositionList_count * 2;
+    local_EDI_trackingUint32MaxHeap_heap[bufferIndex] = lineLengthVisual;     // length
+    local_EDI_trackingUint32MaxHeap_heap[bufferIndex + 1] = local_EDI_lineEndPositionList_count; // lineIndex
+    local_EDI_trackingUint32MaxHeap_lineIndexToHeapIndex[local_EDI_lineEndPositionList_count] = local_EDI_lineEndPositionList_count;
+
+    ++local_EDI_lineEndPositionList_count;
+    //lineLengthVisual = 0;
+
+    local_EDI_trackingUint32MaxHeap.heapify(local_EDI_lineEndPositionList_count);
+
+
+
+
+
+
+
     // Note to self:
     // you didn't increment 'local_EDI_lineEndPositionList_count' and just assigned 'INTS[fEDI_lineEndPositionList_count]' to 'local_EDI_lineEndPositionList_count + 1'
     // then put a comment warning about usage of 'local_EDI_lineEndPositionList_count' beyond that line.
     // MEANWHILE you're invoking 'insert' 8,000 times?
 
-    INTS[fEDI_lineEndPositionList_count] = local_EDI_lineEndPositionList_count + 1; // local_EDI_lineEndPositionList_count is off by '1' if used beyond this line
+    INTS[fEDI_lineEndPositionList_count] = local_EDI_lineEndPositionList_count;
 
     local_EDI_trackingUint32MaxHeap.tryPooledPeek();
     INTS[fEDI_longestLine_indexLine] = local_EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;

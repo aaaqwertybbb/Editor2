@@ -981,26 +981,77 @@ class TrackingUint32MaxHeap {
     }
   }
 
+  /**
+   * related to function EDI_state_setText_byteArray setting the initial heap data i.e.: 8k lines or etc... immediately after opening the file.
+   * the allocated data is already correct to fit those 8k lines or etc... due to initialCapacity in the constructor.
+   * But, you're still invoking this insert 8k times.
+   * 
+   * The "Critical Bug" I believe is to say: the code works if you assume correctness of the heap,
+   * but if you wanted to en masse populate the underlying heap typed array and then apply a heapify algorithm to get the initial heap,
+   * you'd have an issue.
+   * 
+   * Below this is Google AI response:
+   * =================================
+   * Instead of calling insert() 8,000 times, you simply write to the heap sequentially inside the loop, and then structure it once at the end:
+   * 
+   * ...
+   * 
+   * The Critical Bug in rightChild Lookup
+   * Take a close look at this line:
+   * ```js
+   * if (rightChild < this.size && this.heap[rightChild * 2] > this.heap[largest * 2]) {
+   * ```
+   * 
+   * The conditional check evaluates this.heap[rightChild * 2] against this.heap[largest * 2].
+   * 
+   * If the leftChild was already chosen as the largest in the step immediately above it, then largest is now equal to leftChild.
+   * Your condition then compares the rightChild against the leftChild. This is correct for a max-heap (you want the absolute largest of the three).
+   * 
+   * However, if leftChild was NOT larger than logicalIndex, then largest still points to logicalIndex.
+   * In that scenario, your statement compares rightChild against logicalIndex.
+   * If the rightChild is larger than logicalIndex but smaller than leftChild, the rightChild will be incorrectly selected as the largest.
+   * A max-heap requires you to swap with the absolute maximum of both children.
+   * =================================
+   */
   _sinkDown(logicalIndex) {
-
-    const halfSize = this.size >> 1;
+    const size = this.size;
+    const halfSize = size >> 1;
+    const heap = this.heap;
 
     while (logicalIndex < halfSize) {
-      let leftChild = (logicalIndex << 1) + 1;
-      let rightChild = leftChild + 1;
+      const leftChild = (logicalIndex << 1) + 1;
+      const rightChild = leftChild + 1;
+      
       let largest = logicalIndex;
-
-      if (this.heap[leftChild * 2] > this.heap[largest * 2]) {
+      let largestVal = heap[logicalIndex * 2];
+      
+      // Check left child
+      const leftVal = heap[leftChild * 2];
+      if (leftVal > largestVal) {
         largest = leftChild;
+        largestVal = leftVal;
       }
-      if (rightChild < this.size && this.heap[rightChild * 2] > this.heap[largest * 2]) {
-        largest = rightChild;
+      
+      // Check right child (ensuring it compares against the true current maximum)
+      if (rightChild < size) {
+        const rightVal = heap[rightChild * 2];
+        if (rightVal > largestVal) {
+          largest = rightChild;
+        }
       }
 
       if (largest === logicalIndex) break;
 
       this._swap(logicalIndex, largest);
       logicalIndex = largest;
+    }
+  }
+
+  heapify(finalSize) {
+    this.size = finalSize;
+    // Start at the parent of the last element and sink down to the top
+    for (let i = (finalSize >> 1) - 1; i >= 0; i--) {
+      this._sinkDown(i);
     }
   }
 

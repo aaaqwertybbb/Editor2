@@ -4,6 +4,11 @@ import "./fieldBuffer"
 import "./javascriptFeatures"
 //__#__
 
+/**
+ * TODO: long term 'EDI_getEntireLineVisualWidth' should be replaced by a lookup within 'EDI_trackingUint32MaxHeap'...
+ * ...but currently there are some cases that are inaccurately updating this map.
+ * As of writing this comment this is used to draw the horizontal width of the content relative to the longest line.
+ */
 let EDI_trackingUint32MaxHeap = new TrackingUint32MaxHeap();
 
 /**

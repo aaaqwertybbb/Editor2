@@ -368,6 +368,23 @@ function EDI_render_do() {
     INTS[fEDI_isRenderPending] = 0;
 }
 
+/**
+ * Google AI:
+ * ==========
+ * This works beautifully if you get Scroll -> Scroll -> Scroll. The second and third scroll requests are skipped.
+ * 
+ * However, in a real text editor, browsers fire alternate event streams during continuous scrolling or mouse dragging. For example, you will frequently get a stream of events like this:
+ * 
+ * Because RenderKind_Cursor breaks the consecutive chain of RenderKind_Scroll items, your check fails to catch the duplicate.
+ * Your ring buffer will rapidly fill up with alternating requests (Scroll -> Cursor -> Scroll -> Cursor).
+ * When requestAnimationFrame(EDI_render_do) finally executes, it will process a bloated queue containing redundant operations,
+ * completely defeating your optimization.
+ * 
+ * How to achieve absolute optimization
+ * 
+ * The Bitmask Implementation
+ * ==========
+ */
 function EDI_render_request(renderKind) {
     // Check if the queue is empty
     if (INTS[fEDI_queueHead] !== INTS[fEDI_queueTail]) {

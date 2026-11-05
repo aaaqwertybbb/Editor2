@@ -875,35 +875,17 @@ function EDI_state_setText_byteArray(paddedUint8Array, textByteLength, fileStart
             lineLengthVisual += ((4 - ((lineLengthVisual - 1) % 4)) - 1); // (tab logic): avoid branching by eager counting... 'lineLengthVisual - 1... % 4)) - 1)'
         }
         else if (local_EDI_textByteList_bytes[sourceI] === CONST_EDI_ASCII_LINE_FEED) {
-            // (they are not exactly the same) (1 of 2) EDI_lineEndPositionList_UNSAFEinsertUNSAFE(local_EDI_lineEndPositionList_count++, sourceI, lineLengthVisual - 1)
-            //local_EDI_trackingUint32MaxHeap.insert(local_EDI_lineEndPositionList_count, lineLengthVisual - 1);
-            //local_EDI_lineEndPositionList_data[local_EDI_lineEndPositionList_count] = sourceI;
-            //++local_EDI_lineEndPositionList_count;
-            //lineLengthVisual = 0;
-
-
-
             local_EDI_lineEndPositionList_data[local_EDI_lineEndPositionList_count] = sourceI;
-  
             // Directly stream data sequentially into the heap buffer without sorting yet
             const bufferIndex = local_EDI_lineEndPositionList_count * 2;
             local_EDI_trackingUint32MaxHeap_heap[bufferIndex] = lineLengthVisual - 1;     // length
             local_EDI_trackingUint32MaxHeap_heap[bufferIndex + 1] = local_EDI_lineEndPositionList_count; // lineIndex
             local_EDI_trackingUint32MaxHeap_lineIndexToHeapIndex[local_EDI_lineEndPositionList_count] = local_EDI_lineEndPositionList_count;
-
+            //
             ++local_EDI_lineEndPositionList_count;
             lineLengthVisual = 0;
-
-
-
-
         }
     }
-
-    // (they are not exactly the same) (2 of 2) EDI_lineEndPositionList_UNSAFEinsertUNSAFE(local_EDI_lineEndPositionList_count++, local_EDI_textByteList_count, lineLengthVisual)
-    //local_EDI_trackingUint32MaxHeap.insert(local_EDI_lineEndPositionList_count, lineLengthVisual);
-    //local_EDI_lineEndPositionList_data[local_EDI_lineEndPositionList_count] = local_EDI_textByteList_count;
-
 
     local_EDI_lineEndPositionList_data[local_EDI_lineEndPositionList_count] = local_EDI_textByteList_count;
   
@@ -914,23 +896,9 @@ function EDI_state_setText_byteArray(paddedUint8Array, textByteLength, fileStart
     local_EDI_trackingUint32MaxHeap_lineIndexToHeapIndex[local_EDI_lineEndPositionList_count] = local_EDI_lineEndPositionList_count;
 
     ++local_EDI_lineEndPositionList_count;
-    //lineLengthVisual = 0;
-
-    local_EDI_trackingUint32MaxHeap.heapify(local_EDI_lineEndPositionList_count);
-
-
-
-
-
-
-
-    // Note to self:
-    // you didn't increment 'local_EDI_lineEndPositionList_count' and just assigned 'INTS[fEDI_lineEndPositionList_count]' to 'local_EDI_lineEndPositionList_count + 1'
-    // then put a comment warning about usage of 'local_EDI_lineEndPositionList_count' beyond that line.
-    // MEANWHILE you're invoking 'insert' 8,000 times?
-
     INTS[fEDI_lineEndPositionList_count] = local_EDI_lineEndPositionList_count;
 
+    local_EDI_trackingUint32MaxHeap.heapify(local_EDI_lineEndPositionList_count);
     local_EDI_trackingUint32MaxHeap.tryPooledPeek();
     INTS[fEDI_longestLine_indexLine] = local_EDI_trackingUint32MaxHeap.unpack_pool_lineIndex;
     INTS[fEDI_longestLine_length] = local_EDI_trackingUint32MaxHeap.unpack_pool_length;
@@ -7853,10 +7821,9 @@ function EDI_styleBuffer_copyTo(bytesSource, sourceStart, bytesDestination, dest
 
 //#region lineEndPositionList
 /**
- * 'EDI_lineEndPositionList_UNSAFEinsertUNSAFE' is a "function" that is explicitly inlined in the 'EDI_state_setText_byteArray' function.
- * If you modify this function you may need to find the comments with 'EDI_lineEndPositionList_UNSAFEinsertUNSAFE' and update the explicitly inlined logic.
- * 
- * TODO: ensure all the parameters are encoded, especially because I'm noticing myself forgetting.
+ * This function is manually inlined and modified for performance within 'EDI_state_setText_byteArray'.
+ * Within the for loop, and immediately after the for loop to handle EOF.
+ * Neither the for loop nor the EOF handling is 1 to 1 at the moment. They differ slightly.
  */
 function EDI_lineEndPositionList_insert(lineIndex, position, lineLengthVisual) {
     EDI_lineEndPositionList_ensureCapacityForInsertion(lineIndex, 1);

@@ -439,79 +439,79 @@ async function port_editorReadAllText_byteArray(event, message) {
 		port.close();
 	}
 }
-async function editorReadAllText_byteArray(event, absolutePath) {
+
+function editorReadAllText_byteArray(event, absolutePath) {
   if (!isValidAbsolutePath(absolutePath)) return createEmptyResponse();
 
+  let fd = null;
   try {
     const basename = path.basename(absolutePath);
     const extension = path.extname(absolutePath);
+    const paddingLength = 1024;
 
-    // 1. Read entire file into raw binary buffer
-    const fileBytes = fs.readFileSync(absolutePath);
-    
+    // 1. Get file stats and open a file descriptor
+    const stat = fs.statSync(absolutePath);
+    const fileSize = stat.size;
+    fd = fs.openSync(absolutePath, 'r');
+
+    // 2. Allocate ONE single buffer with the exact tail padding built in
+    const totalCapacity = fileSize + paddingLength;
+    const rawBuffer = Buffer.allocUnsafe(totalCapacity);
+
+    // 3. Read the file bytes directly into the beginning of our padded buffer
+    fs.readSync(fd, rawBuffer, 0, fileSize, 0);
+
     let hadBomMark = false;
     let dataStartIndex = 0;
 
     const CR = 13; // '\r'
     const LF = 10; // '\n'
-
-    // Match your C# logic for line endings: 1 = CR, 2 = LF, 3 = CRLF
     let lineEndingKind = 2; 
 
-    // 2. Detect and strip the BOM
-    if (fileBytes.length >= 3 &&
-        fileBytes[0] === 0xEF &&
-        fileBytes[1] === 0xBB &&
-        fileBytes[2] === 0xBF) {
-
-    		hadBomMark = true;
-    		dataStartIndex = 3;
+    // 4. Detect the BOM
+    if (fileSize >= 3 &&
+        rawBuffer[0] === 0xEF &&
+        rawBuffer[1] === 0xBB &&
+        rawBuffer[2] === 0xBF) {
+      hadBomMark = true;
+      dataStartIndex = 3;
     }
 
-    // Slice past BOM (O(1) operation pointing to the same memory segment)
-    const textSpan = fileBytes.subarray(dataStartIndex);
-
-    // 3. Make our judgment based on the first encountered line ending
+    // 5. Scan ahead to judge the first line break
     let firstLineBreakIndex = -1;
-    for (let i = 0; i < textSpan.length; i++) {
-      if (textSpan[i] === CR || textSpan[i] === LF) {
+    for (let i = dataStartIndex; i < fileSize; i++) {
+      if (rawBuffer[i] === CR || rawBuffer[i] === LF) {
         firstLineBreakIndex = i;
         break;
       }
     }
 
     if (firstLineBreakIndex !== -1) {
-      if (textSpan[firstLineBreakIndex] === CR &&
-          firstLineBreakIndex + 1 < textSpan.length &&
-          textSpan[firstLineBreakIndex + 1] === LF) {
+      if (rawBuffer[firstLineBreakIndex] === CR &&
+          firstLineBreakIndex + 1 < fileSize &&
+          rawBuffer[firstLineBreakIndex + 1] === LF) {
         lineEndingKind = 3;
-      } else if (textSpan[firstLineBreakIndex] === LF) {
+      } else if (rawBuffer[firstLineBreakIndex] === LF) {
         lineEndingKind = 2;
-      } else if (textSpan[firstLineBreakIndex] === CR) {
+      } else if (rawBuffer[firstLineBreakIndex] === CR) {
         lineEndingKind = 1;
       }
-    } else {
-      lineEndingKind = 2;
     }
 
-    // 4. Allocate target buffer with your 20% overhead padding
-    const capacity = Math.max(256, Math.floor(textSpan.length * 1.2));
-    const buffer = new Uint8Array(capacity);
-
-    // 5. Zero-string-allocation normalization pass & Line Counting
+    // 6. In-place normalization loop
     let targetIndex = 0;
     let lineEndCount = 0;
 
-    for (let i = 0; i < textSpan.length; i++) {
-      const b = textSpan[i];
+    for (let i = dataStartIndex; i < fileSize; i++) {
+      const b = rawBuffer[i];
 
       if (b === CR) {
-        if (i + 1 < textSpan.length && textSpan[i + 1] === LF) {
-          // CRLF pair: skip writing CR, next step writes the LF and increments lineEndCount
+        if (i + 1 < fileSize && rawBuffer[i + 1] === LF) {
+          // CRLF pair: skip the CR
           continue;
         } else {
-          // Isolated CR: Normalize into an LF
-          buffer[targetIndex++] = LF;
+          // Isolated CR: Normalize it into an LF in-place
+          rawBuffer[targetIndex++] = LF;
           lineEndCount++;
           continue;
         }
@@ -521,21 +521,29 @@ async function editorReadAllText_byteArray(event, absolutePath) {
         lineEndCount++;
       }
 
-      buffer[targetIndex++] = b;
+      rawBuffer[targetIndex++] = b;
     }
 
-    const length = targetIndex; // Total valid bytes written
+    // 7. Calculate total array size including the trailing padding room
+    // targetIndex holds the exact length of the clean text data.
+    const textByteLength = targetIndex;
+    const paddedLength = textByteLength + paddingLength;
 
-    // Format pathing and database handling matching your main block
+    // 8. Create a windowed browser view of the padded region with ZERO copying
+    const finalUint8Array = new Uint8Array(
+      rawBuffer.buffer, 
+      rawBuffer.byteOffset, 
+      paddedLength
+    );
+
     const formattedPath = formatAbsolutePath(absolutePath);
     database.addAbsolutePath(formattedPath, basename);
 
-    // Translate kind ID to your string required by your older structure
     const lineEndString = lineEndingKind === 3 ? '\r\n' : (lineEndingKind === 1 ? '\r' : '\n');
 
     return {
-      paddedUint8Array: buffer,
-      textByteLength: length,
+      paddedUint8Array: finalUint8Array, // Pure standard browser type with 1024 trailing bytes
+      textByteLength: textByteLength,    // Tells the Renderer exactly where the text text ends
       fileStartsWithBom: hadBomMark,
       formattedAbsolutePath: formattedPath,
       extension: extension,
@@ -546,6 +554,11 @@ async function editorReadAllText_byteArray(event, absolutePath) {
   catch (err) {
     console.error(err);
     return createEmptyResponse();
+  }
+  finally {
+    if (fd !== null) {
+      try { fs.closeSync(fd); } catch (_) {}
+    }
   }
 }
 

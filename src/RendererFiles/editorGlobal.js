@@ -776,7 +776,6 @@ function EDI_render_do_Scroll() {
 
             let originalStyleByte = local_EDI_styleBuffer[lineStart];
             let start = 0; // Relative to the line start (always 0 initially)
-            let length = 1; // We have already consumed the first character at lineStart
 
             const local_lineEnd = lineEnd;
 
@@ -785,34 +784,32 @@ function EDI_render_do_Scroll() {
                 // Safe out-of-bounds read at i === local_lineEnd returns undefined, forcing the final flush
                 const currentByte = i === local_lineEnd ? 9 : local_EDI_styleBuffer[i]; // This one though the jump is assumed to be conditional jump due to the extremely small amount of code being executed in either branch and that the CPU will figure it out.
 
-                if (currentByte === originalStyleByte) { // These if/else were inverted. An assumption that you'd get a jump due to the large 'else' block. It was moved from what it originally was an if block to the else. So the higher frequency case is it. More likely is that you have more than 1 character in a row of the same syntax highlighting. So you can avoid the jump during those.
-                    length++;
+                if (currentByte === originalStyleByte) {
+                    continue;
                 }
-                else {
-                    // Flush the completed range if it maps to a valid syntax token
-                    if (originalStyleByte > 0 && originalStyleByte < 9) {
-                        local_EDI_rangeInit.startOffset = start;
-                        local_EDI_rangeInit.endOffset = start + length;
-                        let range = new StaticRange(local_EDI_rangeInit);
-                        arrayOfRangeObjectsOnLine.push(range);
-                        
-                        switch (originalStyleByte) {
-                            case 5: local_identifierHighlight.add(range); break;
-                            case 3: local_keywordHighlight.add(range); break;
-                            case 8: local_functionHighlight.add(range); break;
-                            case 4: local_keywordControlHighlight.add(range); break;
-                            case 7: local_memberHighlight.add(range); break;
-                            case 2: local_commentHighlight.add(range); break;
-                            case 1: local_stringHighlight.add(range); break;
-                            case 6: local_typeHighlight.add(range); break;
-                        }
-                    }
+
+                // Flush the completed range if it maps to a valid syntax token
+                if (originalStyleByte > 0 && originalStyleByte < 9) {
+                    local_EDI_rangeInit.startOffset = start;
+                    local_EDI_rangeInit.endOffset = i - lineStart;
+                    let range = new StaticRange(local_EDI_rangeInit);
+                    arrayOfRangeObjectsOnLine.push(range);
                     
-                    // Switch tracking context to the new block
-                    originalStyleByte = currentByte;
-                    start = i - lineStart; // Anchor the new start relative to the textNode string boundary
-                    length = 1; // Reset length for the new token
+                    switch (originalStyleByte) {
+                        case 5: local_identifierHighlight.add(range); break;
+                        case 3: local_keywordHighlight.add(range); break;
+                        case 8: local_functionHighlight.add(range); break;
+                        case 4: local_keywordControlHighlight.add(range); break;
+                        case 7: local_memberHighlight.add(range); break;
+                        case 2: local_commentHighlight.add(range); break;
+                        case 1: local_stringHighlight.add(range); break;
+                        case 6: local_typeHighlight.add(range); break;
+                    }
                 }
+                
+                // Switch tracking context to the new block
+                originalStyleByte = currentByte;
+                start = i - lineStart; // Anchor the new start relative to the textNode string boundary
             }
         }
 

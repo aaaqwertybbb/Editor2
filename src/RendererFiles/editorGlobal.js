@@ -291,6 +291,41 @@ function EDI_init() {
 }
 
 /**
+ * 
+ * Google AI:
+ * ==========
+ * Seeing your full EDI_render_do structure changes the landscape completely.
+ * Because your queue handles structural document mutations (InsertLtr, BackspaceRtl, Enter, SetText) alongside purely visual updates (Scroll, Cursor_n),
+ * you cannot use a simplistic bitmask flag approach. A bitmask would destroy the chronological execution sequence required to keep your text state accurate
+ * (e.g., you cannot accidentally process a cursor update before processing the character insertion that created its new position).
+ * 
+ * However, looking directly at your architecture reveals a major layout thrashing and compounding performance problem lurking within this while loop.
+ * 
+ * ...
+ * 
+ * If a user pastes text or hits a hotkey that queues up multiple events (e.g., [RemoveSelection, InsertLtr, Cursor_n, Scroll]),
+ * your loop executes them sequentially inside a single frame.
+ * 
+ * If EDI_render_do_InsertLtr() modifies the DOM (adds or alters text div elements), and then the loop immediately moves to the next item EDI_render_do_Scroll() or EDI_drawCursor() and
+ * reads viewport/element dimensions (getBoundingClientRect, offsetTop, scrollLeft), you will cause a massive Layout Thrash.
+ * The browser is forced to halt JavaScript execution, calculate the fresh layout for the mutation, and repeat this cycle multiple times inside a single while loop pass.
+ * 
+ * ...
+ * 
+ * To keep your sequential integrity but achieve peak V8 execution speed, you should separate your state processing from your visual rendering.
+ * 
+ * Instead of letting the queue trigger heavy DOM layout mutations and reads interchangeably, split the execution into two localized passes:
+ * 
+ * 1. Pass 1 (The Loop): Drain the queue to mutate the text model, virtual state buffers, and flag what structural components need visual updates.
+ * 2. Pass 2 (The Flush): Apply the concrete layout changes, draw the cursor once, and execute the scroll viewport updates in a strictly controlled, batch-optimized order.
+ * 
+ * We can use a localized bitmask internally just for the scope of a single frame update. This avoids duplicate visual paints and forces layout-reading actions to wait until layout-mutating actions have settled completely.
+ * 
+ * ...
+ * ==========
+ * 
+ * ----
+ * 
  * The scroll for the editor is extremely high overhead relative to the other scrolling UI in the app.
  * I've moved all the EDI_render_do and EDI_render_do_Scroll bytes to the INTS array
  * so there's one less array to look at.

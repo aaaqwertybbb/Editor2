@@ -2191,53 +2191,7 @@ editorMaxHeap.js why is line 631 white and etc... it is in a multiline comment.
 
 =======
 
-- [ ] 11:45 you have telemedicine appointment do not miss it
-    - [ ] TODO: Your appointment is actually scheduled for TOMORROW
-    - [ ] I'm gonna eat these 2 plain bagels plain without cutting them in half then real quick
-- [ ] Successfully save the file by sending the save message from the editor to the C# server.
-    - [ ] Whether you do this conditionally
-    - [ ] Or not at all / etc...
-    - [ ] Just get a working version of it so you can compare the overhead of saving from the UI vs the C# server
-    - [ ] You actually ought to do this before supporting the EditKind propagation because it trivializes manual validation of whether the edit propagation worked correctly.
-        - [ ] (i.e. 1: manually test the edit propagation in a file that has no active git changes so you can completely undo the changes if necessary via github desktop)
-        - [ ] (i.e. 2: github desktop will provide you the diff of what has changed so you can clearly see whether things worked)
-- [ ] Support every EditKind such that it propagates the edits to the C# server
-    - [x] Remove the previous LSP queue (it was only being used by the EditKind finalizations anyhow, of which they're all being replaced in this same task)
-        - [x] Leave the invocations to the now removed 'enqueueLSPNotification' as comments so you have a marker of where you probably need to write the new code.
-    - [ ] indent more and indent less can be their own
-        - [ ] indent more you do the bytes to insert once then one or more positionIndices that are separated by '_' apply them in reverse to keep ordering (or maybe just send them in reverse).
-    - [ ] Positive
-        - [x] EditKind_InsertLtr
-        - [x] EditKind_Tab
-            - [x] tabs as tab
-            - [x] tabs as 4 spaces
-        - [x] EditKind_Enter
-        - [x] EditKind_Paste
-        - [x] EditKind_Duplicate
-        - [/] EditKind_IndentMore
-            - [ ] TODO: revisit this
-            - [ ] Maybe you could do a message to start transaction with the bytes then multiple one off messages of just position index then a message to end transaction.
-    - [ ] Negative
-        - [x] EditKind_DeleteLtr
-        - [x] EditKind_BackspaceRtl
-        - [x] EditKind_RemoveTextNoBatching
-        - [/] EditKind_IndentLess
-            - [ ] TODO: revisit this
-- [ ] You say you want to duplicate the transaction buffer in the C#
-    - [ ] At the very least, do not start off with this. Get everything else working and then revisit the idea
-    - [ ] because being wrong about this being useful and proceeding to attempt implementing this is a massive rabbit hole
-        - [ ] and even if you were to succeed if it were a bad idea overall you now might have this self made treadmill overhead and complexity attached to every feature in the future.
-- [ ] TODO: fix the 256 byte limit of the messages
-- [ ] TODO: fix 'if (socket.readyState !== WebSocket.OPEN) { throw new Exception('socket.readyState !== WebSocket.OPEN'); }' meaning the editor is unusable without the server
-- [x] TODO: 'EDI_finalizeEdit_Enter' '\t|' hit enter is erroneously '\t\t\n|' when it should be '\t\n\t|'
-- [ ] TODO: if it falls among then you need to update length thats all I think cause you do the start only so it all just works I think
-    - [ ] TODO: That being said the length for the if statements and various other scope-ish things is wrong they're like the entirety of the identifier + arguments + open brace as length when it needs to just be identifier.
-    - [ ] TODO: it doesn't "just work" wtf are you talking about lol
-        - [ ] like if you had an if statement and you insert text at the word "if" it makes it no longer an if statement
-- [ ] TODO: the edits are very iffy when it comes to showing the edited text after you scroll out of view and back into view? Idk what's going on there I probably touched something this morning I might stand up first though I've been sitting for a long time.
-- [ ] I cooked and ate the 2nd lb of 98% fat free ground chicken with sriracha I'll look now.
-- [ ] when you close file in editor close it in the server probably it is so annoying (can optimize the actual "closing" later but I keep re-opening a file to it being old state that doesn't exist cause I undid something in git then re-opened the file but the server remembered prior to undoing git etc...)
-    - [ ] file watchers?
+
 
 ====
 
@@ -2290,3 +2244,20 @@ But some forms of choline supplements can uhh "metabolize" into other things so 
 
 My appointment is actually today at 11:45
 So I called and said I'd come in at 12 cuz I had the appointment it was too close to when I'd be done so I didn't wanna risk anything in terms of missing it.
+
+====
+
+- [ ] 11:45 you have telemedicine appointment do not miss it
+    - [ ] TODO: Your appointment is actually scheduled for TOMORROW
+    - [ ] I'm gonna eat these 2 plain bagels plain without cutting them in half then real quick
+- [ ] You say you want to duplicate the transaction buffer in the C#
+    - [ ] At the very least, do not start off with this. Get everything else working and then revisit the idea
+    - [ ] because being wrong about this being useful and proceeding to attempt implementing this is a massive rabbit hole
+        - [ ] and even if you were to succeed if it were a bad idea overall you now might have this self made treadmill overhead and complexity attached to every feature in the future.
+- [ ] TODO: fix the 256 byte limit of the messages
+- [ ] TODO: if it falls among then you need to update length thats all I think cause you do the start only so it all just works I think
+    - [ ] TODO: That being said the length for the if statements and various other scope-ish things is wrong they're like the entirety of the identifier + arguments + open brace as length when it needs to just be identifier.
+    - [ ] TODO: it doesn't "just work" wtf are you talking about lol
+        - [ ] like if you had an if statement and you insert text at the word "if" it makes it no longer an if statement
+- [ ] when you close file in editor close it in the server probably it is so annoying (can optimize the actual "closing" later but I keep re-opening a file to it being old state that doesn't exist cause I undid something in git then re-opened the file but the server remembered prior to undoing git etc...)
+    - [ ] file watchers?

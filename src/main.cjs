@@ -232,52 +232,6 @@ function wrap_readdirSync_indexOf(parentAbsolutePath, childFilename, childIsDire
 	return -1;
 }
 
-/**
- * started off with code snippet from Google AI Overview for "node fs determine if file has bom":
- */
-function hasBOM(filePath) {
-	// Use a small buffer to read just the first 3-4 bytes
-	const buffer = Buffer.alloc(4);
-	const fd = fs.openSync(filePath, 'r');
-	fs.readSync(fd, buffer, 0, 4, 0);
-
-	let stat = fs.statSync(filePath);
-
-	// Check for common BOM signatures
-	// UTF-8: EF BB BF
-	if (buffer[0] === 0xEF && buffer[1] === 0xBB && buffer[2] === 0xBF) {
-		const bufferaaa = Buffer.alloc(stat.size - 4);
-		fs.readSync(fd, bufferaaa, 0, bufferaaa.length, 3);
-		fs.closeSync(fd);
-		return {
-			text: bufferaaa.toString(),
-			fileStartsWithBom: true,
-			byteLength: bufferaaa.length
-		};
-	}
-	else {
-		const bufferaaa = Buffer.alloc(stat.size);
-		fs.readSync(fd, bufferaaa, 0, bufferaaa.length, 0);
-		fs.closeSync(fd);
-		return {
-			text: bufferaaa.toString(),
-			fileStartsWithBom: false,
-			byteLength: bufferaaa.length
-		};
-	}
-
-	/*
-	// UTF-16 Little Endian: FF FE
-	if (buffer[0] === 0xFF && buffer[1] === 0xFE) {
-		return 'UTF-16LE';
-	}
-	// UTF-16 Big Endian: FE FF
-	if (buffer[0] === 0xFE && buffer[1] === 0xFF) {
-		return 'UTF-16BE';
-	}
-	*/
-}
-
 async function chooseDirectory (event) {
 	const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
 	if (result.canceled) {
@@ -451,54 +405,85 @@ function countNewlines(sourceString) {
 }
 
 async function editorReadAllText_byteArray(event, absolutePath) {
-	if(!isValidAbsolutePath(absolutePath)) return;
+  if (!isValidAbsolutePath(absolutePath)) return createEmptyResponse();
 
-	try {
-		let basename = path.basename(absolutePath);
-		let extension = path.extname(absolutePath);
+  try {
+    const basename = path.basename(absolutePath);
+    const extension = path.extname(absolutePath);
+    const paddingLength = 1024;
 
-		const paddingLength = 1024;
+    // 1. Read the entire file asynchronously into a Node Buffer
+    let fileBuffer = fs.readFileSync(absolutePath);
+    let fileStartsWithBom = false;
+    let byteOffset = 0;
 
-		let itHasBom = hasBOM(absolutePath, paddingLength);
+    // 2. Check for UTF-8 BOM instantly at the byte level
+    if (
+      fileBuffer.length >= 3 &&
+      fileBuffer[0] === 0xEF &&
+      fileBuffer[1] === 0xBB &&
+      fileBuffer[2] === 0xBF
+    ) {
+      fileStartsWithBom = true;
+      byteOffset = 3; // Skip the 3 BOM bytes
+    }
 
-		const firstNewlineMatch = itHasBom.text.match(/\r?\n/);
-		let lineEndString = firstNewlineMatch ? firstNewlineMatch[0] : '\n';
+    // 3. Slice the buffer (O(1) memory operation, no copying)
+    const contentBuffer = byteOffset > 0 ? fileBuffer.subarray(byteOffset) : fileBuffer;
 
-		itHasBom.text = itHasBom.text.replaceAll('\r\n', '\n');
-		const processedByteLength = new TextEncoder().encode(itHasBom.text).length;
-		const uint8Array = new Uint8Array(processedByteLength + paddingLength);
-		(new TextEncoder()).encodeInto(itHasBom.text, uint8Array);
+    // 4. Convert to string ONCE to inspect newlines and normalize
+    // (If you want ultimate performance, do this directly on the buffer, 
+    // but a single toString() is highly optimized in V8)
+    let text = contentBuffer.toString('utf8');
+    
+    // Find line ending style before normalizing
+    const firstNewlineMatch = text.match(/\r?\n/);
+    const lineEndString = firstNewlineMatch ? firstNewlineMatch[0] : '\n';
 
-		let lineEndCount = countNewlines(itHasBom.text);
+    // Normalize newlines
+    text = text.replaceAll('\r\n', '\n');
 
-		absolutePath = formatAbsolutePath(absolutePath);
-		itHasBom.formattedAbsolutePath = absolutePath;
-		itHasBom.extension = extension;
+    // 5. Instead of TextEncoder, use Node's native Buffer allocation
+    const processedByteLength = Buffer.byteLength(text, 'utf8');
+    const uint8Array = new Uint8Array(processedByteLength + paddingLength);
+    
+    // Write directly into our padded Uint8Array
+    Buffer.from(uint8Array.buffer).write(text, 0, processedByteLength, 'utf8');
 
-		let pathId = database.addAbsolutePath(itHasBom.formattedAbsolutePath, basename);
-		
-		return {
-			paddedUint8Array: uint8Array,
-			textByteLength: processedByteLength,
-			fileStartsWithBom: itHasBom.fileStartsWithBom,
-			formattedAbsolutePath: itHasBom.formattedAbsolutePath,
-			extension: itHasBom.extension,
-			lineEndString: lineEndString,
-			lineEndCount: lineEndCount
-		};
-	}
-	catch (err) {
-		return {
-			paddedUint8Array: null,
-			textByteLength: 0,
-			fileStartsWithBom: null,
-			formattedAbsolutePath: null,
-			extension: null,
-			lineEndString: null,
-			lineEndCount: null
-		};
-	}
+    // 6. Count newlines efficiently
+    let lineEndCount = countNewlines(text);
+
+    const formattedPath = formatAbsolutePath(absolutePath);
+    const pathId = database.addAbsolutePath(formattedPath, basename);
+
+    return {
+      paddedUint8Array: uint8Array,
+      textByteLength: processedByteLength,
+      fileStartsWithBom,
+      formattedAbsolutePath: formattedPath,
+      extension,
+      lineEndString,
+      lineEndCount
+    };
+  }
+  catch (err) {
+    console.error(err);
+    return createEmptyResponse();
+  }
 }
+
+function createEmptyResponse() {
+  return {
+    paddedUint8Array: null,
+    textByteLength: 0,
+    fileStartsWithBom: null,
+    formattedAbsolutePath: null,
+    extension: null,
+    lineEndString: null,
+    lineEndCount: null
+  };
+}
+
 
 async function setClipboard(event, text) {
 	try {

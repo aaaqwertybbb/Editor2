@@ -302,3 +302,110 @@ So I called and said I'd come in at 12 cuz I had the appointment it was too clos
 - [ ] optimize main.cjs reading of the byteArray for the editor (and the other things in that file. The reading 'byteArray' just specifically comes to mind is all)
 - [ ] Ring buffer Editor: move the DOM elements around in the ring buffer array instead of "shifting lines one by one" for example during an enter key event.
 - [ ] Many UI are lacking a batch insertion function. They're just loop inserting 1 at a time.
+
+=====
+
+
+
+The front side of the store is parallel to the roads.
+
+And between the front side of the store and the roads, is a fuel island I think they call it.
+
+When you get to the store, there are two main entrances.
+Either entrance is facing the roads.
+
+The companies that sell product, one way they get their product into the store is by
+parking their trucks parallel to the back side of the store.
+
+The back side of the store has a door that can be left open temporarily so that the companies can pack their product onto
+one of the many U-boats that we have. These U-boats are stored parallel to the back side of the store, and there are
+separate poles that make sure the U-boats don't just roll away.
+
+So, the trucks when they park parallel to the back of the store, they are parallel still, but after the "parallel row of U-boats".
+
+And, we have this moderately large "garbage can on wheels".
+The "garbage can on wheels" is part of the "parallel row of U-boats", so that the same poles that stop the U-boats from rolling away
+also stop the garbage container from rolling away.
+
+But the garbage container is angle so that you immediately can reach it if you from the inside of the store
+open the back door.
+
+So if you have garbage bags or other trash. You don't put it in the dumpster you use this middle man garbage container on wheels instead.
+You just open the back door and immediately you can put the garbage into the garbage container on wheels.
+
+There is a little bit of distance between the "parallel row of U-boats" and where the trucks park.
+And sometimes this distance is large enough that you can fit between them while rolling the garbage container on wheels to the big dumpsters.
+
+If I go out the back door and then start wheeling the garbage container on wheels to my immediate left side.
+That means I'd be taking the garbage container on wheels from the "halfway" point between either side of the back side of the store.
+The front of the store is parallel to, and faces, the roads.
+So that "immediate left side" for me is to say: I'm taking the garbage container on wheels by the back-right-side of the store.
+
+The big dumpsters are on the front-right-side of the store with a parking lot separating them from being immediately beside the store.
+
+When traveling along the back-right-side of the store, depending on wind direction you're not gonna get hit much.
+
+That parking lot that I mentioned, there are spots that go perpendicularly to the (when facing the road) right side of the store.
+Someone was parked in the final parking spot, where the back side of the store ends and you can turn onto the sidewalk that
+lines the right side of the store, between the store and the parking lot.
+
+If nobody is on that sidewalk it is better for me to roll the garbage container on wheels using that sidewalk so I'm not just walking
+in the middle of the parking lot while cars are moving around. (albeit, yes I'm talking about the right side of the store and there isn't as much
+traffic there versus say the front of the store).
+
+And, if I back up a second. As I was rolling the garbage container on wheels along the back side of the store.
+There was a big school bus that was coming from the left side of the store they turned so that they started
+traveling down the back side of the store the same direction I was headed.
+
+And so I felt super awkward because I didn't want to get in their way.
+There is space (as I said a truck parks parallel to the back side, and even then you can fit another car traveling along the back side of the store),
+but I am an awkward person generally and I just was uneasy about this.
+
+But, if I go back to talking about the transition from taveling alongside the back of the store and turning onto the sidewalk
+that lines the right side of the store.
+
+Immediately as I did that I got smacked by hard wind.
+And there was nasy coffee garbage bags that had liquid on them, and just generally boxes.
+
+So I got smacked by all that nasty fluid that flung off the garbage bags, it got on my face and my mouth.
+And ontop of that two boxes flew away from the back side of the store.
+
+At that moment I heard from the guy who was parked in that last spot.
+His window was down and he just starts cracking up laughing while looking at me.
+
+I just slightly look towards and start laughing too and I just kinda say "yeah"
+then I turn and go run after the boxes that were still flying away so I could go retrieve them.
+
+Anyways, I didn't care in the slightest that a customer laughed at me like that.
+I got the boxes, I held them the entire time and pulled the garbage container with my other hand. I was standing in front
+of the garbage container and pulling it now (opposed to pushing it) so the wind wouldn't continue blowing the liquid on my face/lips.
+
+I got the garbage container to the big dumpsters and I just couldn't get it out of my head that the guy laughed at me.
+Not cause I was mad, I was just kinda like "I feel like that isn't a normal thing for a customer to do" like just start dying laughing
+at something like that while staring at you.
+
+I brought the garbage container back from the big dumpsters to its place behind the store.
+And as I traveled that right side sidewalk back to the place behind the store, I had to walk by him again.
+So I just didn't look his direction at all, (again it didn't bother me but I just didn't know what to do I don't want any trouble lol).
+
+So I get the garbage container back to its position. By this point the exit from the back of the stoor, that door had closed.
+So I needed to walk along either side of the store to go back inside from the front.
+
+I usually go back inside from the right side but I didn't wanna encounter that guy again just to be safe.
+So I went the left side for a change.
+I then got from the entrance of the store to the "team only" door, then went through the door and saw the
+back door exit from the stoor again (I was standing on the inside now).
+
+And there was more garbage that needed to be taken out.
+I thought "I'm not that much of a scaredy cat that I'd take the garbage out but this time roll the garbage container towards the left side of the store,
+and take an entirely round about path the dumpsters.
+
+So I loaded up the garbage container again, but I knew there would be wind so I didn't overflow it like it was when I first got there that shift.
+I go down the back right side and I see someone standing outside of their car.
+And they're standing just outside of the car from where the person was inside laughing at me.
+
+And I realized, "that's the other cooler guy".
+Cause I had a doctors appointment this morning, I didn't go in during my usual time.
+And I just started talking to him like laughing about how confused I was that some random customer was dying laughing at me.
+
+

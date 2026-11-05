@@ -884,6 +884,10 @@ function EDI_state_setText_byteArray(paddedUint8Array, textByteLength, fileStart
     // (they are not exactly the same) (2 of 2) EDI_lineEndPositionList_UNSAFEinsertUNSAFE(local_EDI_lineEndPositionList_count++, local_EDI_textByteList_count, lineLengthVisual)
     local_EDI_trackingUint32MaxHeap.insert(local_EDI_lineEndPositionList_count, lineLengthVisual);
     local_EDI_lineEndPositionList_data[local_EDI_lineEndPositionList_count] = local_EDI_textByteList_count;
+    // Note to self:
+    // you didn't increment 'local_EDI_lineEndPositionList_count' and just assigned 'INTS[fEDI_lineEndPositionList_count]' to 'local_EDI_lineEndPositionList_count + 1'
+    // then put a comment warning about usage of 'local_EDI_lineEndPositionList_count' beyond that line.
+    // MEANWHILE you're invoking 'insert' 8,000 times?
 
     INTS[fEDI_lineEndPositionList_count] = local_EDI_lineEndPositionList_count + 1; // local_EDI_lineEndPositionList_count is off by '1' if used beyond this line
 

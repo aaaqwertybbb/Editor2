@@ -909,17 +909,6 @@ function EDI_state_setText_byteArray(paddedUint8Array, textByteLength, fileStart
     EDI_render_request(RenderKind_SetText);
 }
 
-// When a file is opened you, without this function, end up invoking END_lineEndPositionList_insert(...) many times.
-// That function has various checks, resizing, and shifting logic.
-// None of this logic needs to be ran when opening the file for the first time because the resizing is done prior to inserting the individual lines.
-// And all the inserts are done where 'lineIndex === list.count'
-//
-// function EDI_lineEndPositionList_UNSAFEinsertUNSAFE(lineIndex, position, lineLengthVisual) {
-//     EDI_trackingUint32MaxHeap.insert(lineIndex, lineLengthVisual);
-//     EDI_lineEndPositionList_data[lineIndex] = position;
-//     INTS[fEDI_lineEndPositionList_count]++;
-// }
-
 /**
  * @param {string} text 
  * @param {string} textSourceIdentifier I intend to have this be an absolute path. Then when the app saves a file, it can verify against the database that this absolute path is "safe" and then write to the file.

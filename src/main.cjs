@@ -64,7 +64,12 @@ const createWindow = () => {
 	// Handle the request from the renderer process
 	ipcMain.handle('editor-save-file', editorSaveFile);
 	ipcMain.handle('editor-save-file-as', editorSaveFileAs);
-	ipcMain.handle('editor-read-all-text-byteArray', editorReadAllText_byteArray);
+
+
+	ipcMain.on('editor-read-all-text-byteArray', port_editorReadAllText_byteArray);
+	//ipcMain.handle('editor-read-all-text-byteArray', editorReadAllText_byteArray);
+
+
 	ipcMain.handle('editor-set-clipboard', editorSetClipboard);
 	ipcMain.handle('choose-directory', chooseDirectory);
 	ipcMain.handle('choose-workspace', chooseWorkspace);
@@ -404,6 +409,36 @@ function countNewlines(sourceString) {
     return count;
 }
 
+async function port_editorReadAllText_byteArray(event, message) {
+	// Grab the port shipped from the Renderer safely
+	const port = event.ports[0];
+
+	if (!port) {
+		console.error("No valid communication port received from Renderer!");
+		return;
+	}
+
+	try {
+		const { absolutePath } = message;
+
+		// Process the file using your C#-style byte normalization logic
+		const result = await editorReadAllText_byteArray(null, absolutePath);
+
+		if (!result || !result.paddedUint8Array) {
+			port.postMessage(result);
+			port.close();
+			return;
+		}
+
+		// Direct object serialization across MessagePortMain is fully optimized in modern Electron.
+		// This ships your padded Uint8Array directly over the IPC port without V8 main-thread locking.
+		port.postMessage(result);
+	} catch (err) {
+		console.error("Failed to post message over channel port:", err);
+	} finally {
+		port.close();
+	}
+}
 async function editorReadAllText_byteArray(event, absolutePath) {
   if (!isValidAbsolutePath(absolutePath)) return createEmptyResponse();
 

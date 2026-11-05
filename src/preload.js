@@ -16,7 +16,26 @@ contextBridge.exposeInMainWorld('myAPI', {
   //onMessage: (callback) => ipcRenderer.on('from-main', (_event, value) => callback(value)),
   editorSaveFile: (unvalidatedAbsolutePath, uint8Array, count, EDI_lineEndString, EDI_fileStartsWithBom) => ipcRenderer.invoke('editor-save-file', unvalidatedAbsolutePath, uint8Array, count, EDI_lineEndString, EDI_fileStartsWithBom),
   editorSaveFileAs: (uint8Array, count, EDI_lineEndString, EDI_fileStartsWithBom) => ipcRenderer.invoke('editor-save-file-as', uint8Array, count, EDI_lineEndString, EDI_fileStartsWithBom),
-  editorReadAllText_byteArray: absoluteFilePath => ipcRenderer.invoke('editor-read-all-text-byteArray', absoluteFilePath),
+  
+  
+  editorReadAllText_byteArray: (absolutePath) => {
+    return new Promise((resolve) => {
+      const channel = new MessageChannel();
+      
+      channel.port1.onmessage = (event) => {
+        channel.port1.close();
+        resolve(event.data);
+      };
+
+      // Ship the raw absolute path string down to Main along with our channel port
+      ipcRenderer.postMessage('editor-read-all-text-byteArray', { absolutePath }, [channel.port2]);
+    });
+  },
+  
+  //editorReadAllText_byteArray: absoluteFilePath => ipcRenderer.invoke('editor-read-all-text-byteArray', absoluteFilePath),
+  
+  
+  
   editorSetClipboard: (uint8Array, offset, length, EDI_lineEndString) => ipcRenderer.invoke('editor-set-clipboard', uint8Array, offset, length, EDI_lineEndString),
   chooseDirectory: () => ipcRenderer.invoke('choose-directory'),
   chooseWorkspace: () => ipcRenderer.invoke('choose-workspace'),

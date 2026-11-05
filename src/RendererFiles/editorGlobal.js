@@ -3149,7 +3149,7 @@ function EDI_finalizeEdit_Enter(indexLine_editOccurredOn) {
         EDI_styleBuffer_insertBytes(actualEditPosition, new Uint8Array(bytes.length), 0, bytes.length);
     }
 
-    sendTransaction_MessageKind_custom_edit_InsertLtr(INTS[fEDI_cursor_editPosition], bytes);
+    sendTransaction_MessageKind_custom_edit_InsertLtr(actualEditPosition, bytes);
 
     // TODO: bulk insertion of lines
     for (let i = 0; i < INTS[fEDI_cursor_editLineFeedCount]; i++) {

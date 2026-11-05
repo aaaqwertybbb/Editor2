@@ -410,59 +410,102 @@ async function editorReadAllText_byteArray(event, absolutePath) {
   try {
     const basename = path.basename(absolutePath);
     const extension = path.extname(absolutePath);
-    const paddingLength = 1024;
 
-    let fileBuffer = fs.readFileSync(absolutePath);
-    let fileStartsWithBom = false;
-    let byteOffset = 0;
+    // 1. Read entire file into raw binary buffer
+    const fileBytes = fs.readFileSync(absolutePath);
+    
+    let hadBomMark = false;
+    let dataStartIndex = 0;
 
-    // 2. Check for UTF-8 BOM instantly at the byte level
-    if (
-      fileBuffer.length >= 3 &&
-      fileBuffer[0] === 0xEF &&
-      fileBuffer[1] === 0xBB &&
-      fileBuffer[2] === 0xBF
-    ) {
-      fileStartsWithBom = true;
-      byteOffset = 3; // Skip the 3 BOM bytes
+    const CR = 13; // '\r'
+    const LF = 10; // '\n'
+
+    // Match your C# logic for line endings: 1 = CR, 2 = LF, 3 = CRLF
+    let lineEndingKind = 2; 
+
+    // 2. Detect and strip the BOM
+    if (fileBytes.length >= 3 &&
+        fileBytes[0] === 0xEF &&
+        fileBytes[1] === 0xBB &&
+        fileBytes[2] === 0xBF) {
+
+    		hadBomMark = true;
+    		dataStartIndex = 3;
     }
 
-    // 3. Slice the buffer (O(1) memory operation, no copying)
-    const contentBuffer = byteOffset > 0 ? fileBuffer.subarray(byteOffset) : fileBuffer;
+    // Slice past BOM (O(1) operation pointing to the same memory segment)
+    const textSpan = fileBytes.subarray(dataStartIndex);
 
-    // 4. Convert to string ONCE to inspect newlines and normalize
-    // (If you want ultimate performance, do this directly on the buffer, 
-    // but a single toString() is highly optimized in V8)
-    let text = contentBuffer.toString('utf8');
-    
-    // Find line ending style before normalizing
-    const firstNewlineMatch = text.match(/\r?\n/);
-    const lineEndString = firstNewlineMatch ? firstNewlineMatch[0] : '\n';
+    // 3. Make our judgment based on the first encountered line ending
+    let firstLineBreakIndex = -1;
+    for (let i = 0; i < textSpan.length; i++) {
+      if (textSpan[i] === CR || textSpan[i] === LF) {
+        firstLineBreakIndex = i;
+        break;
+      }
+    }
 
-    // Normalize newlines
-    text = text.replaceAll('\r\n', '\n');
+    if (firstLineBreakIndex !== -1) {
+      if (textSpan[firstLineBreakIndex] === CR &&
+          firstLineBreakIndex + 1 < textSpan.length &&
+          textSpan[firstLineBreakIndex + 1] === LF) {
+        lineEndingKind = 3;
+      } else if (textSpan[firstLineBreakIndex] === LF) {
+        lineEndingKind = 2;
+      } else if (textSpan[firstLineBreakIndex] === CR) {
+        lineEndingKind = 1;
+      }
+    } else {
+      lineEndingKind = 2;
+    }
 
-    // 5. Instead of TextEncoder, use Node's native Buffer allocation
-    const processedByteLength = Buffer.byteLength(text, 'utf8');
-    const uint8Array = new Uint8Array(processedByteLength + paddingLength);
-    
-    // Write directly into our padded Uint8Array
-    Buffer.from(uint8Array.buffer).write(text, 0, processedByteLength, 'utf8');
+    // 4. Allocate target buffer with your 20% overhead padding
+    const capacity = Math.max(256, Math.floor(textSpan.length * 1.2));
+    const buffer = new Uint8Array(capacity);
 
-    // 6. Count newlines efficiently
-    let lineEndCount = countNewlines(text);
+    // 5. Zero-string-allocation normalization pass & Line Counting
+    let targetIndex = 0;
+    let lineEndCount = 0;
 
+    for (let i = 0; i < textSpan.length; i++) {
+      const b = textSpan[i];
+
+      if (b === CR) {
+        if (i + 1 < textSpan.length && textSpan[i + 1] === LF) {
+          // CRLF pair: skip writing CR, next step writes the LF and increments lineEndCount
+          continue;
+        } else {
+          // Isolated CR: Normalize into an LF
+          buffer[targetIndex++] = LF;
+          lineEndCount++;
+          continue;
+        }
+      }
+
+      if (b === LF) {
+        lineEndCount++;
+      }
+
+      buffer[targetIndex++] = b;
+    }
+
+    const length = targetIndex; // Total valid bytes written
+
+    // Format pathing and database handling matching your main block
     const formattedPath = formatAbsolutePath(absolutePath);
-    const pathId = database.addAbsolutePath(formattedPath, basename);
+    database.addAbsolutePath(formattedPath, basename);
+
+    // Translate kind ID to your string required by your older structure
+    const lineEndString = lineEndingKind === 3 ? '\r\n' : (lineEndingKind === 1 ? '\r' : '\n');
 
     return {
-      paddedUint8Array: uint8Array,
-      textByteLength: processedByteLength,
-      fileStartsWithBom,
+      paddedUint8Array: buffer,
+      textByteLength: length,
+      fileStartsWithBom: hadBomMark,
       formattedAbsolutePath: formattedPath,
-      extension,
-      lineEndString,
-      lineEndCount
+      extension: extension,
+      lineEndString: lineEndString,
+      lineEndCount: lineEndCount
     };
   }
   catch (err) {
@@ -482,7 +525,6 @@ function createEmptyResponse() {
     lineEndCount: null
   };
 }
-
 
 async function setClipboard(event, text) {
 	try {

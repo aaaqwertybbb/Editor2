@@ -210,6 +210,7 @@ function EDI_render_do_Scroll() {
     const yAndZ = 'px, -' + EDI_lastReadNumber_scrollTop + 'px, 0)';
 
     EDI_text.style.transform = 'translate3d(-' + EDI_lastReadNumber_scrollLeft + yAndZ;
+    EDI_canvas.style.transform = 'translateY(' + EDI_lastReadNumber_scrollTop + 'px)';
 
     const local_lineHeight = INTS[fEDI_lineHeight];
     

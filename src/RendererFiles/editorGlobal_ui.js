@@ -245,8 +245,60 @@ function EDI_render_do_Scroll() {
         ctxGutter.fillText('~', 0, vertical);
         vertical += local_lineHeight;
     }
+
+    EDI_render_TextContent();
 }
 
+function EDI_render_TextContent() {
+    const ctxText = EDI_text_canvas.getContext('2d');
+    
+    // Clear the visible viewport space
+    ctxText.clearRect(0, 0, EDI_text_canvas.width, EDI_text_canvas.height);
+
+    const local_lineHeight = INTS[fEDI_lineHeight];
+    const lineCount = INTS[fEDI_lineEndPositionList_count];
+    
+    // Determine your visible line window boundaries
+    const startLineIndex = INTS[fEDI_virtualIndexLine];
+    const upperLineIndexExclusive = Math.min(startLineIndex + INTS[fEDI_virtualCount], lineCount);
+
+    // Track your absolute document Y position
+    let absoluteY = startLineIndex * local_lineHeight;
+
+    const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
+    const local_EDI_decoder = EDI_decoder;
+    const local_bytes = EDI_textByteList_bytes;
+
+    // If you intend to use the variables 'lineStart' or 'lineEnd': Important detail to consider: the lines that are >= INTS[fEDI_lineEndPositionList_count] will continually increment lineStart by 1 So if you expect this to accurately represent the EOF position when it is in view, it probably does NOT.
+    let lineStart = 0;
+    let lineEnd = -1;
+    if (startLineIndex < lineCount && startLineIndex !== 0) {
+        lineEnd = local_EDI_lineEndPositionList_data[startLineIndex - 1];
+    }
+
+    for (let i = startLineIndex; i < upperLineIndexExclusive; i++) {
+
+        lineStart = lineEnd + 1;
+        if (i < lineCount) {
+            lineEnd = local_EDI_lineEndPositionList_data[i];
+        }
+        else {
+            lineEnd = lineStart;
+        }
+
+        // 1. Get the string data for this specific row from your file storage engine
+        // (Replace this line with your actual file data layer function)
+        const lineText = lineStart === lineEnd ? '' : local_EDI_decoder.decode(local_bytes.subarray(lineStart, lineEnd));
+
+        // 2. Draw the entire line at once. 
+        // X = 0 (because EDI_text handles horizontal shifting natively via CSS)
+        // Y = absoluteY (because EDI_text handles vertical shifting natively via CSS)
+        ctxText.fillText(lineText, 0, absoluteY);
+
+        // 3. Step forward to the next vertical line row position
+        absoluteY += local_lineHeight;
+    }
+}
 
 function EDI_render_do_Clear() {
     //EDI_drawCursor(/*NOTscrollCursorIntoView*/ false);

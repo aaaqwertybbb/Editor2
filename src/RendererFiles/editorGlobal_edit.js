@@ -177,6 +177,14 @@ const lineHeight = fontHeight + linePadding;
 
 
 
+    // Run this once inside your setup/resize function
+    const ctxText = EDI_text_canvas.getContext('2d');
+    //ctxText.font = '16px monospace'; // Make sure your font matches exactly
+
+    // The exact pixel width of every single character in a monospace font
+    const charWidth = ctxText.measureText('M').width; 
+    EDI_characterWidth = charWidth;
+
     //// 3. Draw the string '1' at coordinates X=0, Y=0
     //ctx.fillText('1', 0, 0);
 //

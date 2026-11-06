@@ -200,12 +200,6 @@ function EDI_scrollViewport_scroll() {
     EDI_render_request(RenderKind_Scroll);
 }
 
-/**
- * TODO: synchronous syntax highlighting for multiline syntax that spans multiple lines?
- * TODO: manually unroll the loop to be two chunks:
- * - the first chunk is up to the wrap around
- * - the second chunk is the latter
-*/
 function EDI_render_do_Scroll() {
     const yAndZ = 'px, -' + EDI_lastReadNumber_scrollTop + 'px, 0)';
     EDI_text.style.transform = 'translate3d(-' + EDI_lastReadNumber_scrollLeft + yAndZ;
@@ -230,24 +224,21 @@ function EDI_render_do_Scroll() {
     let vertical = -(EDI_lastReadNumber_scrollTop % local_lineHeight);
 
     const lineCount = INTS[fEDI_lineEndPositionList_count];
-    // FIX 2: Clamp bounds to total line count to prevent out-of-bounds rendering
-    //const upperLineIndexExclusive = Math.min(lineIndex + INTS[fEDI_virtualCount], lineCount);
 
     const upperLineIndexExclusive = lineIndex + INTS[fEDI_virtualCount];
+    
+    // Determine exactly where your real content ends within the visible range
+    const splitIndex = Math.min(upperLineIndexExclusive, lineCount);
 
-    //// Make sure your text alignment styles are set somewhere (or here)
-    //ctx.font = '16px monospace';
-    //ctx.textBaseline = 'top';
-    //ctx.textAlign = 'left';
-    //ctx.fillStyle = '#858585';
+    // LOOP 1: Strictly for valid line numbers (No string conditionals, pure numerical execution)
+    for (let i = lineIndex; i < splitIndex; i++) {
+        ctx.fillText(i + 1, 0, vertical);
+        vertical += local_lineHeight;
+    }
 
-    for (let i = lineIndex; i < upperLineIndexExclusive; i++) {
-        if (i < lineCount) {
-            ctx.fillText(i + 1, 0, vertical);
-        }
-        else {
-            ctx.fillText('~', 0, vertical);
-        }
+    // LOOP 2: Strictly for empty buffer space (Zero string allocation, reuses a static string)
+    for (let i = splitIndex; i < upperLineIndexExclusive; i++) {
+        ctx.fillText('~', 0, vertical);
         vertical += local_lineHeight;
     }
 }

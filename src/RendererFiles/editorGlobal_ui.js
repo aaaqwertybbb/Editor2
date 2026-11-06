@@ -293,23 +293,19 @@ function EDI_render_TextContent() {
         if (lineSpans === undefined) {
             lineSpans = [];
             
+            // IF THE LINE CONTAINS CHARACTERS
             if (lineStart !== lineEnd) {
                 let currentTokenStart = lineStart;
                 let currentTokenId = local_styles[lineStart];
-                
-                // Track your horizontal cell column location inside the parsing line
                 let currentLineColumn = 0; 
-                const tabSize = 4; // Pull this configuration directly from your INTS array
+                const tabSize = 4;
 
-                // Helper block to handle string expansion during token transitions
                 const pushExpandedToken = (startByte, endByte, tokenId) => {
                     const rawStr = local_EDI_decoder.decode(local_bytes.subarray(startByte, endByte));
                     let expandedStr = '';
-
                     for (let charIndex = 0; charIndex < rawStr.length; charIndex++) {
                         const char = rawStr[charIndex];
                         if (char === '\t') {
-                            // High-speed monospace alignment calculation
                             const spacesNeeded = tabSize - (currentLineColumn % tabSize);
                             expandedStr += ' '.repeat(spacesNeeded);
                             currentLineColumn += spacesNeeded;
@@ -318,27 +314,28 @@ function EDI_render_TextContent() {
                             currentLineColumn++;
                         }
                     }
-
-                    lineSpans.push({
-                        text: expandedStr,
-                        color: EDI_tokenColors[tokenId]
-                    });
+                    lineSpans.push({ text: expandedStr, color: EDI_tokenColors[tokenId] });
                 };
 
-                // Linear execution pass: group continuous identical styles into slice blocks
                 for (let byteIndex = lineStart + 1; byteIndex < lineEnd; byteIndex++) {
                     const styleId = local_styles[byteIndex];
                     if (styleId !== currentTokenId) {
                         pushExpandedToken(currentTokenStart, byteIndex, currentTokenId);
-                        
                         currentTokenStart = byteIndex;
                         currentTokenId = styleId;
                     }
                 }
-                // Push the remaining leftover tail slice of the line
                 pushExpandedToken(currentTokenStart, lineEnd, currentTokenId);
+            } 
+            // FIXED BOUNDARY: IF THE LINE IS COMPLETELY EMPTY (0 Bytes)
+            else {
+                lineSpans.push({
+                    text: '',
+                    color: EDI_tokenColors[0] || '#ffffff' // Fallback to standard color
+                });
             }
-            cache[i] = lineSpans; // Tokenized structure cached permanently
+            
+            cache[i] = lineSpans; // Properly cached structure!
         }
 
         // --- 2. DRAW SPANS CONSECUTIVELY USING THE MONOSPACE GRID ---

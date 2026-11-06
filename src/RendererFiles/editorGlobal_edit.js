@@ -2151,7 +2151,6 @@ function EDI_finalizeEdit_ClearEditState() {
     INTS[fEDI_cursor_END_editIndexLine] = 0;
     INTS[fEDI_cursor_END_editIndexColumn] = 0;
     INTS[fEDI_cursor_textInsertionBufferCount] = 0;
-    EDI_cursor_textInsertionBufferWriteToSpanElement = null;
     INTS[fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex] = 0;
     INTS[fEDI_cursor_editLineFeedCount] = 0;
     EDI_lineEndPositionList_PENDING.clear();
@@ -2815,11 +2814,11 @@ function EDI_startEdit(editKind, editPosition, editLength) {
     INTS[fEDI_cursor_editIndexColumn] = INTS[fEDI_cursor_indexColumn];
     INTS[fEDI_cursor_editLength_characters] = editLength;
 
-    switch (editKind) {
-        case EditKind_InsertLtr:
-            EDI_insertGapBufferSpan();
-            break;
-    }
+    //switch (editKind) {
+    //    case EditKind_InsertLtr:
+    //        EDI_insertGapBufferSpan();
+    //        break;
+    //}
 }
 //#endregion
 

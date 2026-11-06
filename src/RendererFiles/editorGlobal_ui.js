@@ -1289,14 +1289,79 @@ function EDI_render_do_InsertLtr() {
     }
     if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
         INTS[fEDI_cursor_edit_eventCount_drawn] = INTS[fEDI_cursor_edit_eventCount_occurred];
-        if (EDI_cursor_textInsertionBufferWriteToSpanElement) {
-            EDI_cursor_textInsertionBufferWriteToSpanElement.firstChild.insertData(
-                (INTS[fEDI_editret_cursor_gapBufferWriteToSpanElement_SpanTextContentRelativeIndex]) + INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue],
-                EDI_decoder.decode(EDI_cursor_textInsertionBuffer.subarray(INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue], INTS[fEDI_cursor_editLength_characters])));
 
-            INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue] = INTS[fEDI_cursor_editLength_characters];
+        // 1. Target the specific line row index where the typing is taking place
+        const activeLine = INTS[fEDI_cursor_indexLine];
+        let lineSpans = EDI_lineStringCache[activeLine];
+        
+        if (lineSpans === undefined) {
+            return;
         }
+
+        // 2. Determine the column position where the *first character of this edit burst* began
+        // We use indexColumn minus the absolute total length of characters typed in this current edit session
+        const editStartColumn = INTS[fEDI_cursor_indexColumn] - INTS[fEDI_cursor_editLength_characters];
+        
+        // Find the precise column location of the characters we are about to insert right now
+        const currentEditColumn = editStartColumn + INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue];
+
+        let runningColumnIdx = 0;
+        let targetedSpan = null;
+        let relativeInsertIndex = 0;
+
+        // 3. Scan the cached spans to find where currentEditColumn lands
+        for (let i = 0; i < lineSpans.length; i++) {
+            const span = lineSpans[i];
+            const spanLength = span.text.length;
+
+            // If the cursor lands completely inside this span, or exactly on its trailing right edge
+            if (currentEditColumn >= runningColumnIdx && currentEditColumn <= runningColumnIdx + spanLength) {
+                targetedSpan = span;
+                relativeInsertIndex = currentEditColumn - runningColumnIdx;
+                
+                // If the cursor hits exactly between two spans, your rule dictates targeting 
+                // the left span at its trailing length index. We break early to lock onto it.
+                break;
+            }
+            runningColumnIdx += spanLength;
+        }
+
+        // 4. If we successfully isolated the text slice segment inside the cache, modify it
+        if (targetedSpan !== null) {
+            // Decode only the new slice of un-drawn keys typed during this frame frame burst
+            const freshlyTypedString = EDI_decoder.decode(
+                EDI_cursor_textInsertionBuffer.subarray(
+                    INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue], 
+                    INTS[fEDI_cursor_editLength_characters]
+                )
+            );
+
+            // Splice the text inline directly into the string reference inside the cache array frame
+            targetedSpan.text = 
+                targetedSpan.text.slice(0, relativeInsertIndex) + 
+                freshlyTypedString + 
+                targetedSpan.text.slice(relativeInsertIndex);
+        }
+
+        // 5. Commit the continuation value forward so the next frame knows where to pick up
+        INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue] = INTS[fEDI_cursor_editLength_characters];
+
+        //// 6. Request a canvas redraw layout frame pass to force the changes onto the screen
+        EDI_render_request(RenderKind_Scroll);
+        //EDI_render_TextContent();
+        //EDI_render_Cursor();
     }
+}
+
+
+function theNew_walkLineUntilIndexColumn() {
+    let lineSpans = EDI_lineStringCache[i];
+    if (lineSpans === undefined) {
+
+    }
+    //if () {
+//
+    //}
 }
 
 /**

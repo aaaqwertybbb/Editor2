@@ -763,7 +763,14 @@ function EDI_render_do_TabKey() {
     // TODO: Consider having this string available rather than making it everytime this function is invoked.
     // TODO: This is bad (there's many other ways to get this as a string: decoder, caching of a hardcoded string?, ???)
     //
-    const EDI_on_tab_string = EDI_decoder.decode(EDI_on_tab_bytes);
+    //const EDI_on_tab_string = EDI_decoder.decode(EDI_on_tab_bytes);
+
+    // You need spaces when updating the cache otherwise they won't render correctly.
+    //let aaa = INTS[fEDI_cursor_editLengthVisual];
+    //if () {
+//
+    //}
+    const EDI_on_tab_string = '    ';
 
     while (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
         INTS[fEDI_cursor_edit_eventCount_drawn]++;
@@ -823,7 +830,9 @@ function EDI_render_do_TabKey() {
         // 4. If we successfully isolated the text slice segment inside the cache, modify it
         if (targetedSpan !== null) {
             // Decode only the new slice of un-drawn keys typed during this frame frame burst
-            const freshlyTypedString = EDI_on_tab_string;
+            const freshlyTypedString = INTS[fEDI_cursor_edit_eventCount_drawn] === 1
+                ? (INTS[fEDI_cursor_editLengthVisual] === 4 ? EDI_on_tab_string : ' '.repeat(INTS[fEDI_cursor_editLengthVisual]))
+                : EDI_on_tab_string;
 
             // Splice the text inline directly into the string reference inside the cache array frame
             targetedSpan.text = 

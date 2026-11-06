@@ -1482,21 +1482,7 @@ function EDI_render_SelectionAndCursor() {
     ctx.fillStyle = 'rgba(82, 139, 255, 0.25)'; // Highlight tint color
 
     if (EDI_cursor_hasSelection()) {
-        //for (let i = startLineIndex; i < upperLineIndexExclusive; i++) {
-        //    // Replace this check with your active selection range state logic
-        //    if (EDI_isLinePartiallySelected(i)) { 
-        //        const selStartCol = EDI_getSelectionStartColumnForLine(i);
-        //        const selEndCol = EDI_getSelectionEndColumnForLine(i);
-    //
-        //        // Fast Monospace Layout Math: Multiply columns directly by character width!
-        //        const x = selStartCol * EDI_characterWidth;
-        //        const width = (selEndCol - selStartCol) * EDI_characterWidth;
-    //
-        //        // Draw a background highlighting block behind the text positions
-        //        ctx.fillRect(x, viewportY, width, local_lineHeight);
-        //    }
-        //    viewportY += local_lineHeight;
-        //}
+        EDI_createStyleForSelection(ctx, viewportY, local_lineHeight);
     }
 
     // --- STEP 2: RENDER ACTIVE SOLID CURSOR LINE ---
@@ -1507,6 +1493,144 @@ function EDI_render_SelectionAndCursor() {
         const cursorY = -(EDI_lastReadNumber_scrollTop % local_lineHeight) + ((cursorLine - startLineIndex) * local_lineHeight);
         
         ctx.fillRect(cursorX, cursorY, 2, local_lineHeight);
+    }
+}
+
+function EDI_createStyleForSelection(ctx, viewportY, local_lineHeight) {
+    let start = INTS[fEDI_cursor_selectionAnchor];
+    EDI_ret_getLineAndColumnIndices_raw(start);
+    let startLineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
+    let startLineAndColumnIndices_indexColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
+    let startLine = startLineAndColumnIndices_indexLine;
+    let startColumn = startLineAndColumnIndices_indexColumn;
+    let start_visualColumnStart = INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL];
+
+    let end = INTS[fEDI_cursor_selectionEnd];
+    EDI_ret_getLineAndColumnIndices_raw(end);
+    let endLineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
+    let endLineAndColumnIndices_indexColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
+    let INCLUSIVEendLine = endLineAndColumnIndices_indexLine;
+    let INCLUSIVEendColumn = endLineAndColumnIndices_indexColumn;
+    let end_visualColumnStart = INTS[fEDI_cursor_selectionIndexEndColumnVISUAL];
+
+    // # Virtualization
+    if (startLine < INTS[fEDI_virtualIndexLine]) {
+        startLine = INTS[fEDI_virtualIndexLine];
+        startColumn = 0;
+    }
+    let lastIndexLineBeingShown = INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1;
+    if (INCLUSIVEendLine > lastIndexLineBeingShown) {
+        INCLUSIVEendLine = lastIndexLineBeingShown;
+        INCLUSIVEendColumn = EDI_getLastValidIndexColumn_raw(INCLUSIVEendLine);
+    }
+
+    if (start > end) {
+        let temp = end;
+        let tempLine = INCLUSIVEendLine;
+        let tempColumn = INCLUSIVEendColumn;
+        let tempVisualColumn;
+        end = start;
+        INCLUSIVEendLine = startLine;
+        INCLUSIVEendColumn = startColumn;
+        start = temp;
+        startLine = tempLine;
+        startColumn = tempColumn;
+
+        tempVisualColumn = start_visualColumnStart;
+        start_visualColumnStart = end_visualColumnStart;
+        end_visualColumnStart = tempVisualColumn;
+    }
+
+    /*
+    But it just means you have a startLineSelectionWidth of 'startLineEntireVisualWidth - (startColumnVisualOfSelection * charWidth)'
+    and the endLineSelectionWidth is 'endColumnVisualOfSelection'.
+    */
+
+
+
+
+
+    if (startLine === INCLUSIVEendLine) {
+        //lineSelectionDiv.style.transform = `translate(${start_visualColumnStart * EDI_characterWidth}px, ${INTS[fEDI_lineHeight] * startLine}px)`;
+        //lineSelectionDiv.style.width = (end_visualColumnStart - start_visualColumnStart) * EDI_characterWidth + 'px';
+
+
+        const selStartCol = start_visualColumnStart;
+        const selEndCol = end_visualColumnStart;
+        //
+        // Fast Monospace Layout Math: Multiply columns directly by character width!
+        const x = selStartCol * EDI_characterWidth;
+        const width = (selEndCol - selStartCol) * EDI_characterWidth;
+        //
+        // Draw a background highlighting block behind the text positions
+        ctx.fillRect(x, viewportY, width, local_lineHeight);
+
+
+        viewportY += local_lineHeight;
+    }
+    else {
+        {
+        // start line
+        //lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
+        //lineSelectionDiv.style.transform = `translate(${start_visualColumnStart * EDI_characterWidth}px, ${INTS[fEDI_lineHeight] * startLine}px)`;
+        EDI_ret_getLineBoundaryPositions_raw(startLine);
+        let lineVisualWidth = EDI_getEntireLineVisualWidth(INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end]);
+        
+        const selStartCol = start_visualColumnStart;
+        const selEndCol = lineVisualWidth;
+        //
+        // Fast Monospace Layout Math: Multiply columns directly by character width!
+        const x = selStartCol * EDI_characterWidth;
+        const width = (selEndCol - selStartCol) * EDI_characterWidth;
+        //
+        // Draw a background highlighting block behind the text positions
+        ctx.fillRect(x, viewportY, width, local_lineHeight);
+
+        //lineSelectionDiv.style.width = (lineVisualWidth + 1 - start_visualColumnStart) * EDI_characterWidth + 'px';
+        viewportY += local_lineHeight;
+        }
+
+        // between lines
+        for (var lineI = startLine + 1; lineI < INCLUSIVEendLine; lineI++) {
+            //lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
+            //lineSelectionDiv.style.transform = `translate(0px, ${INTS[fEDI_lineHeight] * lineI}px)`;
+            EDI_ret_getLineBoundaryPositions_raw(lineI);
+            let lineVisualWidth = EDI_getEntireLineVisualWidth(INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end]);
+            //lineSelectionDiv.style.width = (lineVisualWidth + 1) * EDI_characterWidth + 'px';
+
+            const selStartCol = 0;
+            const selEndCol = lineVisualWidth;
+            //
+            // Fast Monospace Layout Math: Multiply columns directly by character width!
+            const x = selStartCol * EDI_characterWidth;
+            const width = (selEndCol - selStartCol) * EDI_characterWidth;
+            //
+            // Draw a background highlighting block behind the text positions
+            ctx.fillRect(x, viewportY, width, local_lineHeight);
+
+            viewportY += local_lineHeight;
+        }
+
+        {
+        // end line
+        //lineSelectionDiv = textSelectionDiv.children[childDivIndex++];
+        //lineSelectionDiv.style.transform = `translate(0px, ${INTS[fEDI_lineHeight] * INCLUSIVEendLine}px)`;
+        //lineSelectionDiv.style.width = end_visualColumnStart * EDI_characterWidth + 'px';
+
+
+        const selStartCol = 0;
+        const selEndCol = end_visualColumnStart;
+        //
+        // Fast Monospace Layout Math: Multiply columns directly by character width!
+        const x = selStartCol * EDI_characterWidth;
+        const width = (selEndCol - selStartCol) * EDI_characterWidth;
+        //
+        // Draw a background highlighting block behind the text positions
+        ctx.fillRect(x, viewportY, width, local_lineHeight);
+
+
+        viewportY += local_lineHeight;
+        }
     }
 }
 

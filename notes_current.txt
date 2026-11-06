@@ -344,3 +344,21 @@ Step TODO: The GPU layering is probably not set up but I'll get to that.
 ====
 
 cooked chicken eating
+
+=====
+
+Positive
+========
+- [ ] EditKind_InsertLtr
+- [ ] EditKind_Enter
+- [ ] EditKind_Tab
+- [ ] EditKind_Paste
+- [ ] EditKind_Duplicate
+- [ ] EditKind_IndentMore
+
+Negative
+========
+- [ ] EditKind_DeleteLtr
+- [ ] EditKind_BackspaceRtl
+- [ ] EditKind_RemoveTextNoBatching
+- [ ] EditKind_IndentLess

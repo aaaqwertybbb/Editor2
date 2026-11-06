@@ -161,6 +161,26 @@ function EDI_resizeCanvases() {
 
     INTS[fEDI_virtualCount] = Math.ceil(INTS[fEDI_lastReadNumber_offsetHeight] / INTS[fEDI_lineHeight]);
 
+
+
+
+
+
+
+
+    // --- CONFIG DIGEST FOR CURSOR CANVAS ---
+    const cursorCanvas = document.getElementById('EDI_cursor_canvas');
+    cursorCanvas.style.width = textLayoutWidth + 'px';
+    cursorCanvas.style.height = viewHeight + 'px';
+    cursorCanvas.width = textLayoutWidth * dpr;
+    cursorCanvas.height = viewHeight * dpr;
+
+    const ctxCursor = cursorCanvas.getContext('2d');
+    ctxCursor.scale(dpr, dpr);
+    
+    // Set your editor's cursor color profile
+    ctxCursor.fillStyle = '#528bff'; // A nice modern blue cursor, or white (#ffffff)
+
 }
 
 function EDI_createViewport() {

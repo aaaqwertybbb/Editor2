@@ -249,6 +249,8 @@ function EDI_render_do_Scroll() {
     }
 
     EDI_render_TextContent();
+
+    EDI_render_Cursor();
 }
 
 function EDI_render_TextContent() {
@@ -1439,6 +1441,39 @@ function EDI_insertGapBufferSpan() {
     }
 }
 
+function EDI_render_Cursor() {
+    const canvas = EDI_cursor_canvas;
+    const ctx = canvas.getContext('2d');
+    
+    // Clear only the cursor overlay
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Read your current cursor state (represented by global indices or INTS slots)
+    const cursorLine = INTS[fEDI_cursor_indexLine];   // e.g., line 42
+    const cursorCol = INTS[fEDI_cursor_indexColumn];  // e.g., column 8
+
+    const startLineIndex = INTS[fEDI_virtualIndexLine];
+    const upperLineIndexExclusive = startLineIndex + INTS[fEDI_virtualCount];
+
+    // 1. Check if the cursor is even inside the visible screen window
+    if (cursorLine >= startLineIndex && cursorLine < upperLineIndexExclusive) {
+        const local_lineHeight = INTS[fEDI_lineHeight];
+        
+        // 2. Calculate coordinates using pure grid cell math
+        // Horizontal: Column index multiplied by your fixed character width
+        const x = cursorCol * EDI_characterWidth; 
+        
+        // Vertical: Find where the row starts in viewport space
+        const rowTopY = -(EDI_lastReadNumber_scrollTop % local_lineHeight) + ((cursorLine - startLineIndex) * local_lineHeight);
+
+        // 3. Define cursor geometry
+        const cursorWidth = 2; // Modern thin line cursor footprint
+        const cursorHeight = local_lineHeight; // Matches row height perfectly
+
+        // 4. Render the cursor rectangle
+        ctx.fillRect(x, rowTopY, cursorWidth, cursorHeight);
+    }
+}
 
 /**
  * This method will NOT "put a cursor on screen". You need to ensure
@@ -1455,6 +1490,8 @@ function EDI_insertGapBufferSpan() {
 function EDI_drawCursor(NOTscrollCursorIntoView) {
     const newY = INTS[fEDI_cursor_indexLine] * INTS[fEDI_lineHeight];
     const newX = INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth;
+
+    EDI_render_Cursor();
 
     //if (newY !== INTS[fEDI_cursor_cursorTranslateYValue]) {
     //    INTS[fEDI_cursor_cursorTranslateYValue] = newY;

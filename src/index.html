@@ -47,7 +47,13 @@
               <!-- SUB-LAYER 2B: The Moving Text Wrapper (Moves on X and Y axes during scroll) -->
               <!-- Added left: 60px to offset it cleanly past the gutter width -->
               <div id="EDI_text" style="position: absolute; left: 60px; top: 0; right: 0; height: 100%; z-index: 1;">
+
+                <!-- The Text Canvas Layer -->
                 <canvas id="EDI_text_canvas"></canvas>
+
+                <!-- NEW: The Cursor & Selection Canvas Layer -->
+                <canvas id="EDI_cursor_canvas" style="position: absolute; inset: 0; z-index: 2; pointer-events: none;"></canvas>
+                
               </div>
 
             </div>

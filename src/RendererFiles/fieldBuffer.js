@@ -828,6 +828,7 @@ const EDI_gutter = EDI_baseElement.children[1].children[0];
 const EDI_gutter_canvas = EDI_baseElement.children[1].children[0].children[0];
 const EDI_text = EDI_baseElement.children[1].children[1];
 const EDI_text_canvas = EDI_baseElement.children[1].children[1].children[0];
+const EDI_cursor_canvas = EDI_baseElement.children[1].children[1].children[1];
 
 /**
  * If you have an extension listed here, it is expected that the "function to invoke" exists.

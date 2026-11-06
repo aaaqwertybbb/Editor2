@@ -386,7 +386,12 @@ function APP_socket_onmessage(event) {
             EDI_styleBuffer = view;
             INTS[fEDI_styleBuffer_count] = EDI_styleBuffer.length;
             INTS[fEDI_styleBuffer_capacity] = EDI_styleBuffer.length;
-            requestAnimationFrame(EDI_render_do_SyntaxHighlighting);
+            
+            const EDI_lineStringCache_length = EDI_lineStringCache.length;
+            for (let i = 0; i < EDI_lineStringCache_length; i++) {
+                EDI_lineStringCache[i] = undefined;
+            }
+            EDI_render_request(RenderKind_Scroll);
             //view = new TextEncoder().encode(event.data);
             //EDI_styleBuffer = view;
         }

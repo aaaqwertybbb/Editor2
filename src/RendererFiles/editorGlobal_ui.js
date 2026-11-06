@@ -1,5 +1,8 @@
 let EDI_characterWidth = 8;
 
+//let EDI_verticalCenterPadding = 0;
+let EDI_textTopPadding = 3;
+
 /**
  * 
  * Google AI:
@@ -201,13 +204,11 @@ function EDI_scrollViewport_scroll() {
 }
 
 function EDI_render_do_Scroll() {
-    // 1. Slide the text wrapper physically UP and LEFT (Normal scroll behavior)
-    const text_yAndZ = 'px, -' + EDI_lastReadNumber_scrollTop + 'px, 0)';
-    EDI_text.style.transform = 'translate3d(-' + EDI_lastReadNumber_scrollLeft + text_yAndZ;
-
-    // 2. STOP transforming the gutter container! Keep it locked at 0.
-    // Remove the translateY(scrollTop) line completely, or lock it to 0:
-    EDI_gutter.style.transform = 'translateY(0px)';
+    // ONLY shift horizontally on the X-axis. Leave Y and Z locked to 0!
+    EDI_text.style.transform = 'translate3d(-' + EDI_lastReadNumber_scrollLeft + 'px, 0px, 0px)';
+    
+    // Gutter stays completely locked in place
+    EDI_gutter.style.transform = 'translate3d(0px, 0px, 0px)';
 
     const local_lineHeight = INTS[fEDI_lineHeight];
     INTS[fEDI_virtualIndexLine] = EDI_lastReadNumber_scrollTop / local_lineHeight | 0;
@@ -233,16 +234,17 @@ function EDI_render_do_Scroll() {
     const lineCount = INTS[fEDI_lineEndPositionList_count];
     const upperLineIndexExclusive = lineIndex + INTS[fEDI_virtualCount];
     const splitIndex = Math.min(upperLineIndexExclusive, lineCount);
+    const local_EDI_textTopPadding = EDI_textTopPadding;
 
     // Render pure line numbers
     for (let i = lineIndex; i < splitIndex; i++) {
-        ctxGutter.fillText(i + 1, 0, vertical);
+        ctxGutter.fillText(i + 1, 0, vertical + local_EDI_textTopPadding);
         vertical += local_lineHeight;
     }
 
     // Render buffer tildes
     for (let i = splitIndex; i < upperLineIndexExclusive; i++) {
-        ctxGutter.fillText('~', 0, vertical);
+        ctxGutter.fillText('~', 0, vertical + local_EDI_textTopPadding);
         vertical += local_lineHeight;
     }
 
@@ -258,18 +260,17 @@ function EDI_render_TextContent() {
     const local_lineHeight = INTS[fEDI_lineHeight];
     const lineCount = INTS[fEDI_lineEndPositionList_count];
     
-    // Determine your visible line window boundaries
     const startLineIndex = INTS[fEDI_virtualIndexLine];
     const upperLineIndexExclusive = Math.min(startLineIndex + INTS[fEDI_virtualCount], lineCount);
 
-    // Track your absolute document Y position
     let absoluteY = startLineIndex * local_lineHeight;
 
     const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
     const local_EDI_decoder = EDI_decoder;
     const local_bytes = EDI_textByteList_bytes;
+    const cache = EDI_lineStringCache; // Reference your string cache
+    const local_EDI_textTopPadding = EDI_textTopPadding;
 
-    // If you intend to use the variables 'lineStart' or 'lineEnd': Important detail to consider: the lines that are >= INTS[fEDI_lineEndPositionList_count] will continually increment lineStart by 1 So if you expect this to accurately represent the EOF position when it is in view, it probably does NOT.
     let lineStart = 0;
     let lineEnd = -1;
     if (startLineIndex < lineCount && startLineIndex !== 0) {
@@ -277,31 +278,22 @@ function EDI_render_TextContent() {
     }
 
     for (let i = startLineIndex; i < upperLineIndexExclusive; i++) {
-
         lineStart = lineEnd + 1;
         if (i < lineCount) {
             lineEnd = local_EDI_lineEndPositionList_data[i];
-        }
-        else {
+        } else {
             lineEnd = lineStart;
         }
 
-        // 1. Get the string data for this specific row from your file storage engine
-        // (Replace this line with your actual file data layer function)
-        // TODO: cache the lines of text since you probably aren't gonna do a ring buffer for the ctx but instead just keep clearing?...
-        // ...so your ringe buffer is swapping in and out the lines of text.
-        // so I guess you are doing a ring buffer but it contains the text itself.
-        //
-        // a third canvas for the cursor?
-        // 
-        const lineText = lineStart === lineEnd ? '' : local_EDI_decoder.decode(local_bytes.subarray(lineStart, lineEnd));
+        // --- CACHE-OPTIMIZED STRING EXTRACTION ---
+        let lineText = cache[i];
+        if (lineText === undefined) {
+            lineText = lineStart === lineEnd ? '' : local_EDI_decoder.decode(local_bytes.subarray(lineStart, lineEnd));
+            cache[i] = lineText; // Cached forever until that line is edited! ("cached forever" sounds a bit intense but I'll roll with it for now (i.e.: if you scroll all 8k lines of text you now have 8k lines of text cached maybe GC overhead is so incredibly simplified that it is worth it? I doubt you'd wanna go that far even still though but yeah I'll see where things go))
+        }
 
-        // 2. Draw the entire line at once. 
-        // X = 0 (because EDI_text handles horizontal shifting natively via CSS)
-        // Y = absoluteY (because EDI_text handles vertical shifting natively via CSS)
-        ctxText.fillText(lineText, 0, absoluteY);
-
-        // 3. Step forward to the next vertical line row position
+        // Shift the text down by exactly half of a single row block height
+        ctxText.fillText(lineText, 0, absoluteY + local_EDI_textTopPadding);
         absoluteY += local_lineHeight;
     }
 }

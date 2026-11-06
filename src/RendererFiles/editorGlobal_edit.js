@@ -17,6 +17,8 @@ let EDI_findOverlay_searchResultPositionList = null;
 
 let EDI_textByteList_bytes = new Uint8Array(INTS[fEDI_textByteList_capacity]);
 
+let EDI_lineStringCache = [];
+
 const EDI_encoder = new TextEncoder();
 const EDI_decoder = new TextDecoder();
 
@@ -77,7 +79,6 @@ function EDI_init() {
     EDI_state_setText_byteArray(new Uint8Array(16), /*textByteLength*/ 0, /*fileStartsWithBom*/ false, /*textSourceIdentifier*/ null, /*FORMATTED_textSourceIdentifier*/ null, /*extensionKind*/ 0, /*lineEndString*/ '\n', /*lineEndCount*/ 0);
     EDI_registerHandlers();
     EDI_resizeCanvases();
-    EDI_throwaway_for_testing();
 }
 
 function EDI_resizeCanvases() {
@@ -123,50 +124,16 @@ function EDI_resizeCanvases() {
     ctxText.font = '16px monospace';
     ctxText.textBaseline = 'top';
     ctxText.fillStyle = '#ffffff';
-}
-
-function EDI_throwaway_for_testing() {
-
-/*
-Google AI:
-==========
-
-The Text Editor Reality: Font Height vs. Line Height
-
-While measureText() gives you the exact pixel height of the drawn characters, you almost never want your line height to be identical to your text height in a text editor. Characters would touch each other vertically, making code impossible to read.
-
-In a canvas-based text editor, you generally choose one of two approaches:
-1. The Hardcoded Approach (Recommended for starting): Define a fixed line height manually (e.g., if your font size is 16px, make your line height 22px or 24px). This automatically gives you 3px or 4px of padding (leading) above and below the text.
-2. The Dynamic Approach: Measure the text height using the code above, and then explicitly add a padding variable to it to calculate your final lineHeight:
-
-```javascript
-const fontHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
-const linePadding = 6; // Total padding between lines
-const lineHeight = fontHeight + linePadding; 
-```
-*/
-
-    INTS[fEXPLORER_lastReadNumber_offsetWidth] = Math.floor(EDI_text.offsetWidth);
-    INTS[fEDI_lastReadNumber_offsetHeight] = Math.floor(EDI_text.offsetHeight);
-
-    INTS[fEDI_virtualCount] = Math.ceil(INTS[fEDI_lastReadNumber_offsetHeight] / INTS[fEDI_lineHeight]);
-
-    // 1. Get the canvas element and its 2D drawing context
-    const ctx = EDI_gutter_canvas.getContext('2d');
-
-    // 2. Configure text styling (optional but highly recommended)
-    //ctx.font = '16px monospace';      // Matches code editor aesthetics
-    //ctx.fillStyle = '#858585';        // A standard gutter text color (gray)
-    //ctx.textBaseline = 'top';         // Crucial: aligns the top of the text to your Y coordinate
-    //ctx.textAlign = 'left';           // Aligns the left side of the text to your X coordinate
 
 
 
 
+    
 
-    //ctx.font = '16px monospace'; // Ensure your font is set first
 
-    const metrics = ctx.measureText('M'); // 'M' or '1' are great standard height references
+
+
+    const metrics = ctxGutter.measureText('M'); // 'M' or '1' are great standard height references
     const textHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
 
     //console.log('The exact height of the text is:', textHeight);
@@ -177,24 +144,23 @@ const lineHeight = fontHeight + linePadding;
 
 
 
-    // Run this once inside your setup/resize function
-    const ctxText = EDI_text_canvas.getContext('2d');
-    //ctxText.font = '16px monospace'; // Make sure your font matches exactly
-
     // The exact pixel width of every single character in a monospace font
     const charWidth = ctxText.measureText('M').width; 
     EDI_characterWidth = charWidth;
 
-    //// 3. Draw the string '1' at coordinates X=0, Y=0
-    //ctx.fillText('1', 0, 0);
-//
-    //const lineCount = INTS[fEDI_lineEndPositionList_count];
-    //let vertical = 0;
-    //for (let i = 1; i <= lineCount; i++) {
-    //    // 3. Draw the string '1' at coordinates X=0, Y=0
-    //    ctx.fillText(i, 0, vertical);
-    //    vertical += INTS[fEDI_lineHeight];
-    //}
+    // Run once during setup / font configuration
+    //ctx.font = '16px monospace';
+
+    //const metrics = ctx.measureText('M');
+    const fontActualHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+
+    // If local_lineHeight is 24px and fontActualHeight is 14px, your vertical midpoint padding is 12px
+
+    INTS[fEXPLORER_lastReadNumber_offsetWidth] = Math.floor(EDI_text.offsetWidth);
+    INTS[fEDI_lastReadNumber_offsetHeight] = Math.floor(EDI_text.offsetHeight);
+
+    INTS[fEDI_virtualCount] = Math.ceil(INTS[fEDI_lastReadNumber_offsetHeight] / INTS[fEDI_lineHeight]);
+
 }
 
 function EDI_createViewport() {
@@ -224,6 +190,8 @@ function EDI_state_clear(trackingUint32MaxHeap_initialCapacity) {
     
     // TODO: This placement is slightly odd because the styleBuffer is made asynchronously and whether there could be a race condition that clears the styleBuffer you just received is uncertain (I just have not checked recently maybe I did when I first wrote it, it just looks odd though, need to check this).
     INTS[fEDI_styleBuffer_count] = 0;
+
+    EDI_lineStringCache = new Array(trackingUint32MaxHeap_initialCapacity);
 }
 
 function EDI_clear() {

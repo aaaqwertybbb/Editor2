@@ -294,28 +294,47 @@ function EDI_render_TextContent() {
             if (lineStart !== lineEnd) {
                 let currentTokenStart = lineStart;
                 let currentTokenId = local_styles[lineStart];
+                
+                // Track your horizontal cell column location inside the parsing line
+                let currentLineColumn = 0; 
+                const tabSize = 4; // Pull this configuration directly from your INTS array
+
+                // Helper block to handle string expansion during token transitions
+                const pushExpandedToken = (startByte, endByte, tokenId) => {
+                    const rawStr = local_EDI_decoder.decode(local_bytes.subarray(startByte, endByte));
+                    let expandedStr = '';
+
+                    for (let charIndex = 0; charIndex < rawStr.length; charIndex++) {
+                        const char = rawStr[charIndex];
+                        if (char === '\t') {
+                            // High-speed monospace alignment calculation
+                            const spacesNeeded = tabSize - (currentLineColumn % tabSize);
+                            expandedStr += ' '.repeat(spacesNeeded);
+                            currentLineColumn += spacesNeeded;
+                        } else {
+                            expandedStr += char;
+                            currentLineColumn++;
+                        }
+                    }
+
+                    lineSpans.push({
+                        text: expandedStr,
+                        color: EDI_tokenColors[tokenId]
+                    });
+                };
 
                 // Linear execution pass: group continuous identical styles into slice blocks
                 for (let byteIndex = lineStart + 1; byteIndex < lineEnd; byteIndex++) {
                     const styleId = local_styles[byteIndex];
                     if (styleId !== currentTokenId) {
-                        // Decode the chunk string up to the style change
-                        const tokenText = local_EDI_decoder.decode(local_bytes.subarray(currentTokenStart, byteIndex));
-                        lineSpans.push({
-                            text: tokenText,
-                            color: EDI_tokenColors[currentTokenId]
-                        });
-                        // Track the new style boundary position
+                        pushExpandedToken(currentTokenStart, byteIndex, currentTokenId);
+                        
                         currentTokenStart = byteIndex;
                         currentTokenId = styleId;
                     }
                 }
                 // Push the remaining leftover tail slice of the line
-                const trailingText = local_EDI_decoder.decode(local_bytes.subarray(currentTokenStart, lineEnd));
-                lineSpans.push({
-                    text: trailingText,
-                    color: EDI_tokenColors[currentTokenId]
-                });
+                pushExpandedToken(currentTokenStart, lineEnd, currentTokenId);
             }
             cache[i] = lineSpans; // Tokenized structure cached permanently
         }

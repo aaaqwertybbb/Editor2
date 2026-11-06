@@ -91,6 +91,14 @@ function EDI_throwaway_for_testing() {
 
     // 3. Draw the string '1' at coordinates X=0, Y=0
     ctx.fillText('1', 0, 0);
+
+    const lineCount = INTS[fEDI_lineEndPositionList_count];
+    let vertical = 0;
+    for (let i = 1; i <= lineCount; i++) {
+        // 3. Draw the string '1' at coordinates X=0, Y=0
+        ctx.fillText(i, 0, vertical);
+        vertical += INTS[fEDI_lineHeight];
+    }
 }
 
 function EDI_createViewport() {

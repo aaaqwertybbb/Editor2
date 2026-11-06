@@ -1507,6 +1507,8 @@ async function EXPLORER_openInEditor(absolutePath, shouldFocus) {
         itHasBom.lineEndString,
         itHasBom.lineEndCount);
 
+    EDI_throwaway_for_testing();
+
     if (shouldFocus) {
         let editor = document.getElementById('EDITOR_inner_container');
         if (editor) {

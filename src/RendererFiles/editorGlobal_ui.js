@@ -255,8 +255,6 @@ function EDI_render_do_Scroll() {
 
 function EDI_render_TextContent() {
     const ctxText = EDI_text_canvas.getContext('2d');
-    
-    // Clear the visible viewport space
     ctxText.clearRect(0, 0, EDI_text_canvas.width, EDI_text_canvas.height);
 
     const local_lineHeight = INTS[fEDI_lineHeight];
@@ -266,12 +264,13 @@ function EDI_render_TextContent() {
     const upperLineIndexExclusive = Math.min(startLineIndex + INTS[fEDI_virtualCount], lineCount);
 
     let viewportY = -(EDI_lastReadNumber_scrollTop % local_lineHeight);
+    const topPadding = EDI_textTopPadding;
 
     const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
     const local_EDI_decoder = EDI_decoder;
     const local_bytes = EDI_textByteList_bytes;
-    const cache = EDI_lineStringCache; // Reference your string cache
-    const local_EDI_textTopPadding = EDI_textTopPadding;
+    const local_styles = EDI_styleBuffer; // Your matching parallel array
+    const cache = EDI_lineStringCache;
 
     let lineStart = 0;
     let lineEnd = -1;
@@ -287,40 +286,53 @@ function EDI_render_TextContent() {
             lineEnd = lineStart;
         }
 
-        // --- CACHE-OPTIMIZED STRING EXTRACTION ---
-        let lineText = cache[i];
-        if (lineText === undefined) {
-            // 1. Decode raw bytes to a standard string
-            let rawStr = lineStart === lineEnd ? '' : local_EDI_decoder.decode(local_bytes.subarray(lineStart, lineEnd));
+        // --- 1. RESOLVE TOKEN SLICES FROM THE CACHE ---
+        let lineSpans = cache[i];
+        if (lineSpans === undefined) {
+            lineSpans = [];
+            
+            if (lineStart !== lineEnd) {
+                let currentTokenStart = lineStart;
+                let currentTokenId = local_styles[lineStart];
 
-            // 2. High-speed custom tab-stop expansion loop
-            const tabSize = 4; // Or pull from an INTS config slot
-            let expandedStr = '';
-            let columnCounter = 0;
-
-            // TODO: Draft 1: This looks like its gonna blow up my computer
-            for (let charIndex = 0; charIndex < rawStr.length; charIndex++) {
-                const char = rawStr[charIndex];
-                if (char === '\t') {
-                    // Calculate exactly how many spaces are needed to hit the next tab stop boundary
-                    const spacesNeeded = tabSize - (columnCounter % tabSize);
-                    expandedStr += ' '.repeat(spacesNeeded);
-                    columnCounter += spacesNeeded;
-                } else {
-                    expandedStr += char;
-                    columnCounter++;
+                // Linear execution pass: group continuous identical styles into slice blocks
+                for (let byteIndex = lineStart + 1; byteIndex < lineEnd; byteIndex++) {
+                    const styleId = local_styles[byteIndex];
+                    if (styleId !== currentTokenId) {
+                        // Decode the chunk string up to the style change
+                        const tokenText = local_EDI_decoder.decode(local_bytes.subarray(currentTokenStart, byteIndex));
+                        lineSpans.push({
+                            text: tokenText,
+                            color: EDI_tokenColors[currentTokenId]
+                        });
+                        // Track the new style boundary position
+                        currentTokenStart = byteIndex;
+                        currentTokenId = styleId;
+                    }
                 }
+                // Push the remaining leftover tail slice of the line
+                const trailingText = local_EDI_decoder.decode(local_bytes.subarray(currentTokenStart, lineEnd));
+                lineSpans.push({
+                    text: trailingText,
+                    color: EDI_tokenColors[currentTokenId]
+                });
             }
-
-            lineText = expandedStr;
-            cache[i] = lineText; // Cached with perfect space alignments!
+            cache[i] = lineSpans; // Tokenized structure cached permanently
         }
 
-        // Option 1: Convert Tabs to Spaces Before Caching (Recommended)
-        // Option 2: Use the Modern letterSpacing CSS Canvas Property
+        // --- 2. DRAW SPANS CONSECUTIVELY USING THE MONOSPACE GRID ---
+        let currentX = 0; // Track the running horizontal offset for the line row
+        const yCoord = viewportY + topPadding;
 
-        // Shift the text down by exactly half of a single row block height
-        ctxText.fillText(lineText, 0, viewportY + local_EDI_textTopPadding);
+        for (let j = 0; j < lineSpans.length; j++) {
+            const span = lineSpans[j];
+            ctxText.fillStyle = span.color;
+            ctxText.fillText(span.text, currentX, yCoord);
+            
+            // Fast cell tracking: add characters multiplied by character width
+            currentX += span.text.length * EDI_characterWidth;
+        }
+
         viewportY += local_lineHeight;
     }
 }

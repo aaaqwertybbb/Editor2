@@ -63,6 +63,14 @@ const EDI_renderKindBuffer = new Uint8Array(BUFFER_SIZE);
 
 let EDI_styleBuffer = new Uint8Array(0);
 
+// Quick index token to color assignment map
+const EDI_tokenColors = [
+    '#6a9955', // Token 0: Comment (Green)
+    '#ce9178', // Token 1: String (Orange/Brown)
+    '#569cd6', // Token 2: Keyword (Blue)
+    '#ffffff', // Token 3: Standard Text / Identifiers (White)
+];
+
 /** decimal */
 let EDI_lastReadNumber_scrollLeft = 0;
 /** decimal */

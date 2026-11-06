@@ -1515,7 +1515,7 @@ function EDI_render_SelectionAndCursor() {
     ctx.fillStyle = 'rgba(82, 139, 255, 0.25)'; // Highlight tint color
 
     if (EDI_cursor_hasSelection()) {
-        EDI_createStyleForSelection(ctx, viewportY, local_lineHeight);
+        EDI_createStyleForSelection(ctx, viewportY, local_lineHeight, startLineIndex);
     }
 
     // --- STEP 2: RENDER ACTIVE SOLID CURSOR LINE ---
@@ -1530,7 +1530,7 @@ function EDI_render_SelectionAndCursor() {
     }
 }
 
-function EDI_createStyleForSelection(ctx, viewportY, local_lineHeight) {
+function EDI_createStyleForSelection(ctx, viewportY, local_lineHeight, firstVirtualIndexLine) {
     let start = INTS[fEDI_cursor_selectionAnchor];
     EDI_ret_getLineAndColumnIndices_raw(start);
     let startLineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
@@ -1581,7 +1581,9 @@ function EDI_createStyleForSelection(ctx, viewportY, local_lineHeight) {
     */
 
 
-
+    if (startLine > firstVirtualIndexLine) {
+        viewportY += (local_lineHeight * (startLine - firstVirtualIndexLine));
+    }
 
 
     if (startLine === INCLUSIVEendLine) {

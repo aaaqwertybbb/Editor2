@@ -1475,7 +1475,7 @@ function EDI_render_Cursor() {
 
     // Read your current cursor state (represented by global indices or INTS slots)
     const cursorLine = INTS[fEDI_cursor_indexLine];   // e.g., line 42
-    const cursorCol = INTS[fEDI_cursor_indexColumn];  // e.g., column 8
+    const cursorColVisual = INTS[fEDI_cursorVisualColumnIndex];  // e.g., column 8
 
     const startLineIndex = INTS[fEDI_virtualIndexLine];
     const upperLineIndexExclusive = startLineIndex + INTS[fEDI_virtualCount];
@@ -1486,7 +1486,7 @@ function EDI_render_Cursor() {
         
         // 2. Calculate coordinates using pure grid cell math
         // Horizontal: Column index multiplied by your fixed character width
-        const x = cursorCol * EDI_characterWidth; 
+        const x = cursorColVisual * EDI_characterWidth; 
         
         // Vertical: Find where the row starts in viewport space
         const rowTopY = -(EDI_lastReadNumber_scrollTop % local_lineHeight) + ((cursorLine - startLineIndex) * local_lineHeight);

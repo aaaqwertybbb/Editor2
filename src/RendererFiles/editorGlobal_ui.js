@@ -223,6 +223,22 @@ function EDI_render_do_Scroll() {
     if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
         EDI_finalizeEdit();
     }
+
+    // 1. Get the canvas element and its 2D drawing context
+    const ctx = EDI_canvas.getContext('2d');
+    ctx.clearRect(0, 0, EDI_canvas.width, EDI_canvas.height);
+
+    let lineIndex = INTS[fEDI_virtualIndexLine];
+    let vertical = lineIndex * INTS[fEDI_lineHeight];
+    
+    const lineCount = INTS[fEDI_lineEndPositionList_count];
+    
+    const upperLineIndexExclusive = lineIndex + INTS[fEDI_virtualCount];
+    for (let i = lineIndex; i < upperLineIndexExclusive; i++) {
+        // 3. Draw the string '1' at coordinates X=0, Y=0
+        ctx.fillText(i + 1, 0, vertical);
+        vertical += INTS[fEDI_lineHeight];
+    }
 }
 
 function EDI_render_do_Clear() {

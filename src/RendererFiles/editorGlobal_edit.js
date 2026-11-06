@@ -80,6 +80,12 @@ function EDI_init() {
 }
 
 function EDI_throwaway_for_testing() {
+
+    INTS[fEXPLORER_lastReadNumber_offsetWidth] = Math.floor(EDI_text.offsetWidth);
+    INTS[fEDI_lastReadNumber_offsetHeight] = Math.floor(EDI_text.offsetHeight);
+
+    INTS[fEDI_virtualCount] = Math.ceil(INTS[fEDI_lastReadNumber_offsetHeight] / INTS[fEDI_lineHeight]);
+
     // 1. Get the canvas element and its 2D drawing context
     const ctx = EDI_canvas.getContext('2d');
 
@@ -89,16 +95,16 @@ function EDI_throwaway_for_testing() {
     ctx.textBaseline = 'top';         // Crucial: aligns the top of the text to your Y coordinate
     ctx.textAlign = 'left';           // Aligns the left side of the text to your X coordinate
 
-    // 3. Draw the string '1' at coordinates X=0, Y=0
-    ctx.fillText('1', 0, 0);
-
-    const lineCount = INTS[fEDI_lineEndPositionList_count];
-    let vertical = 0;
-    for (let i = 1; i <= lineCount; i++) {
-        // 3. Draw the string '1' at coordinates X=0, Y=0
-        ctx.fillText(i, 0, vertical);
-        vertical += INTS[fEDI_lineHeight];
-    }
+    //// 3. Draw the string '1' at coordinates X=0, Y=0
+    //ctx.fillText('1', 0, 0);
+//
+    //const lineCount = INTS[fEDI_lineEndPositionList_count];
+    //let vertical = 0;
+    //for (let i = 1; i <= lineCount; i++) {
+    //    // 3. Draw the string '1' at coordinates X=0, Y=0
+    //    ctx.fillText(i, 0, vertical);
+    //    vertical += INTS[fEDI_lineHeight];
+    //}
 }
 
 function EDI_createViewport() {

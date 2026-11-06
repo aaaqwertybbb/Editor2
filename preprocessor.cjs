@@ -777,7 +777,9 @@ function readyFileState() {
         "listComponent.js",
         "listTypes.js",
         "editorMaxHeap.js",
-        "editorGlobal.js",
+        "editorGlobal_edit.js",
+        "editorGlobal_event.js",
+        "editorGlobal_ui.js",
         "javascriptFeatures.js",
         "explorerGlobal.js",
         "applicationRendererRoot.js"

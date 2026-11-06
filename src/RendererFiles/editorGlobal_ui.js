@@ -1769,3 +1769,36 @@ function EDI_draw_cursor_debug() {
     const textNode = EDI_debug.firstChild;
     textNode.replaceData(0, textNode.length, text);
 }
+
+function EDI_render_do_Resize() {
+    EDI_resizeCanvases();
+    EDI_render_do_Scroll();
+    //set_EDI_recentBoundingClientRect_isNull_intFalsey(1);
+
+    //INTS[fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar] = 1; // necessary for the first render, otherwise the if statement sees 0 !== 0.
+    //EDI_drawHorizontalScrollbar();
+
+    //let remember_virtualCount = INTS[fEDI_virtualCount]; // for the first render this is 0 and thus it hits
+    //INTS[fEDI_virtualCount] = Math.ceil(INTS[fEDI_lastReadNumber_offsetHeight] / INTS[fEDI_lineHeight]);
+    //if (INTS[fEDI_virtualCount] !== remember_virtualCount) {
+    //    // TODO: This only needs to grow or shrink (NOT recreate entirely)
+    //    EDI_render_do_CreateViewport();
+    //    // TODO: This gets ran twice when starting the app redundantly. (here and the setText for the empty null filename)
+    //    // TODO: This only needs to draw the newly came into view lines (a prior necessity is 'EDI_render_do_CreateViewport' to grow / shrink first)
+    //    EDI_render_force_fullscreen_redraw();
+    //}
+}
+
+function EDI_onResize() {
+    if (INTS[fEDI_onResize_timer] === 0) {
+        // TODO: '109' has no meaning behind it...
+        // ...TODO: Figure out how to get this to always trigger faster than the 200ms timeout of the scroll trailing edge...
+        // ...lest thou receiveth many object allocation from scroll trailing edge. You see cause you see the syntax highlight happening while resizing.
+        INTS[fEDI_onResize_timer] = setTimeout(EDI_onResize_startThrottleTimeout_aaa, 109);
+    }
+}
+
+function EDI_onResize_startThrottleTimeout_aaa() {
+    EDI_render_request(RenderKind_Resize);
+    INTS[fEDI_onResize_timer] = 0;
+}

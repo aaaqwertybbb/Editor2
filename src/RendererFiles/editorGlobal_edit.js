@@ -91,7 +91,7 @@ let EDI_lastReadNumber_scrollTop = 0;
 function EDI_init() {
     EDI_state_setText_byteArray(new Uint8Array(16), /*textByteLength*/ 0, /*fileStartsWithBom*/ false, /*textSourceIdentifier*/ null, /*FORMATTED_textSourceIdentifier*/ null, /*extensionKind*/ 0, /*lineEndString*/ '\n', /*lineEndCount*/ 0);
     EDI_registerHandlers();
-    EDI_resizeCanvases();
+    EDI_render_do_Resize();
 }
 
 function EDI_resizeCanvases() {
@@ -3193,6 +3193,26 @@ function EDI_registerHandlers() {
     EDI_scroll_viewport.addEventListener('scroll', EDI_scrollViewport_scroll, { passive: true });
     // TODO: text area to capture all the languages
     EDI_baseElement.addEventListener('keydown', EDI_onKeyDown);
+
+
+
+
+    ////EDI_baseElement.addEventListener('keydown', EDI_onKeyDown);
+    //EDI_baseElement.addEventListener('mousedown', EDI_onMouseDown);
+
+    //EDI_baseElement.addEventListener('contextmenu', EDI_onContextMenu);
+    window.addEventListener('resize', EDI_onResize);
+
+    // Attach a single listener to your text container (Event Delegation)
+    //EDI_baseElement.addEventListener('mouseover', EDI_mouseOver);
+    //EDI_baseElement.addEventListener('mouseleave', EDI_mouseLeave);
+    
+    //EDI_baseElement.addEventListener('focus', EDI_onfocus);
+    //EDI_baseElement.addEventListener('blur', EDI_onblur);
+
+    ////EDI_scroll_viewport.addEventListener('scroll', EDI_scrollViewport_scroll, { passive: true });
+
+    //EDI_gutter.addEventListener('wheel', EDI_onWheelGutter, { passive: false /* 'e.preventDefault();' is used*/ });
 }
 //#endregion
 

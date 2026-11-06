@@ -1,3 +1,5 @@
+let EDI_characterWidth = 8;
+
 /**
  * 
  * Google AI:

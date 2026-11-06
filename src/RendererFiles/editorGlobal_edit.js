@@ -3070,7 +3070,6 @@ function EDI_toExtensionKind(extensionWithPeriod) {
 }
 
 function EDI_registerHandlers() {
-    window.addEventListener('resize', EDI_onResize);
     EDI_scroll_viewport.addEventListener('scroll', EDI_scrollViewport_scroll, { passive: true });
 }
 //#endregion

@@ -291,6 +291,9 @@ function EDI_render_TextContent() {
         // TODO: cache the lines of text since you probably aren't gonna do a ring buffer for the ctx but instead just keep clearing?...
         // ...so your ringe buffer is swapping in and out the lines of text.
         // so I guess you are doing a ring buffer but it contains the text itself.
+        //
+        // a third canvas for the cursor?
+        // 
         const lineText = lineStart === lineEnd ? '' : local_EDI_decoder.decode(local_bytes.subarray(lineStart, lineEnd));
 
         // 2. Draw the entire line at once. 

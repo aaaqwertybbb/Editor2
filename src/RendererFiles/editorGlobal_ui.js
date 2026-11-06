@@ -231,7 +231,9 @@ function EDI_render_do_Scroll() {
 
     const lineCount = INTS[fEDI_lineEndPositionList_count];
     // FIX 2: Clamp bounds to total line count to prevent out-of-bounds rendering
-    const upperLineIndexExclusive = Math.min(lineIndex + INTS[fEDI_virtualCount], lineCount);
+    //const upperLineIndexExclusive = Math.min(lineIndex + INTS[fEDI_virtualCount], lineCount);
+
+    const upperLineIndexExclusive = lineIndex + INTS[fEDI_virtualCount];
 
     //// Make sure your text alignment styles are set somewhere (or here)
     //ctx.font = '16px monospace';
@@ -240,7 +242,12 @@ function EDI_render_do_Scroll() {
     //ctx.fillStyle = '#858585';
 
     for (let i = lineIndex; i < upperLineIndexExclusive; i++) {
-        ctx.fillText(i + 1, 0, vertical);
+        if (i < lineCount) {
+            ctx.fillText(i + 1, 0, vertical);
+        }
+        else {
+            ctx.fillText('~', 0, vertical);
+        }
         vertical += local_lineHeight;
     }
 }

@@ -340,3 +340,7 @@ You draw onto the canvas element in accordance to a scroll event attached to the
 Step TODO: The GPU layering is probably not set up but I'll get to that.
 
 - [ ] Step 2: I want line numbers that fill the entire scrollable area and are virtualized (I have no idea what this means in terms of the canvas API but I'm just figure it out)
+
+====
+
+cooked chicken eating

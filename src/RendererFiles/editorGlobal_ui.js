@@ -201,10 +201,13 @@ function EDI_scrollViewport_scroll() {
 }
 
 function EDI_render_do_Scroll() {
-    const yAndZ = 'px, -' + EDI_lastReadNumber_scrollTop + 'px, 0)';
-    EDI_text.style.transform = 'translate3d(-' + EDI_lastReadNumber_scrollLeft + yAndZ;
-    EDI_gutter_canvas.style.transform = 'translateY(' + EDI_lastReadNumber_scrollTop + 'px)';
-    //EDI_gutter_canvas.style.transform = 'translateY(' + EDI_lastReadNumber_scrollTop + 'px)';
+    // 1. Slide the text wrapper physically UP and LEFT (Normal scroll behavior)
+    const text_yAndZ = 'px, -' + EDI_lastReadNumber_scrollTop + 'px, 0)';
+    EDI_text.style.transform = 'translate3d(-' + EDI_lastReadNumber_scrollLeft + text_yAndZ;
+
+    // 2. STOP transforming the gutter container! Keep it locked at 0.
+    // Remove the translateY(scrollTop) line completely, or lock it to 0:
+    EDI_gutter.style.transform = 'translateY(0px)';
 
     const local_lineHeight = INTS[fEDI_lineHeight];
     INTS[fEDI_virtualIndexLine] = EDI_lastReadNumber_scrollTop / local_lineHeight | 0;
@@ -217,32 +220,33 @@ function EDI_render_do_Scroll() {
         EDI_finalizeEdit();
     }
 
-    const ctx = EDI_gutter_canvas.getContext('2d');
-    ctx.clearRect(0, 0, EDI_gutter_canvas.width, EDI_gutter_canvas.height);
+    // 3. Let your context handle the scroll natively inside the static window
+    const ctxGutter = EDI_gutter_canvas.getContext('2d');
+    ctxGutter.clearRect(0, 0, EDI_gutter_canvas.width, EDI_gutter_canvas.height);
 
-    // FIX 1: Draw relative to viewport using the smooth scroll remainder
     let lineIndex = INTS[fEDI_virtualIndexLine];
+    
+    // This remainder calculation handles the smooth pixel-by-pixel shift 
+    // without moving the physical HTML canvas element!
     let vertical = -(EDI_lastReadNumber_scrollTop % local_lineHeight);
 
     const lineCount = INTS[fEDI_lineEndPositionList_count];
-
     const upperLineIndexExclusive = lineIndex + INTS[fEDI_virtualCount];
-    
-    // Determine exactly where your real content ends within the visible range
     const splitIndex = Math.min(upperLineIndexExclusive, lineCount);
 
-    // LOOP 1: Strictly for valid line numbers (No string conditionals, pure numerical execution)
+    // Render pure line numbers
     for (let i = lineIndex; i < splitIndex; i++) {
-        ctx.fillText(i + 1, 0, vertical);
+        ctxGutter.fillText(i + 1, 0, vertical);
         vertical += local_lineHeight;
     }
 
-    // LOOP 2: Strictly for empty buffer space (Zero string allocation, reuses a static string)
+    // Render buffer tildes
     for (let i = splitIndex; i < upperLineIndexExclusive; i++) {
-        ctx.fillText('~', 0, vertical);
+        ctxGutter.fillText('~', 0, vertical);
         vertical += local_lineHeight;
     }
 }
+
 
 function EDI_render_do_Clear() {
     //EDI_drawCursor(/*NOTscrollCursorIntoView*/ false);

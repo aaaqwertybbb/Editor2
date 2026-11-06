@@ -1681,7 +1681,9 @@ function EDI_drawCursor(NOTscrollCursorIntoView) {
     const newY = INTS[fEDI_cursor_indexLine] * INTS[fEDI_lineHeight];
     const newX = INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth;
 
+    EDI_scrollCursorIntoView();
     EDI_render_SelectionAndCursor();
+    
 
     //if (newY !== INTS[fEDI_cursor_cursorTranslateYValue]) {
     //    INTS[fEDI_cursor_cursorTranslateYValue] = newY;
@@ -1741,6 +1743,59 @@ function EDI_drawCursor(NOTscrollCursorIntoView) {
         - [ ] Thus you get the simple batching of edits 100% correct first
         - [ ] And do the other complex batching later.
 */
+}
+
+function EDI_scrollCursorIntoView() {
+    const scrollContainer = EDI_scroll_viewport;
+    
+    // 1. Get the viewport's current physical layout dimensions
+    const viewportWidth = scrollContainer.clientWidth;
+    const viewportHeight = scrollContainer.clientHeight;
+    
+    // Account for your gutter spacing layout allocation
+    const gutterWidth = 60; 
+    const usableWidth = viewportWidth - gutterWidth;
+
+    // 2. Fetch your current cursor structural position data
+    const cursorLine = INTS[fEDI_cursor_indexLine];
+    const cursorCol = INTS[fEDI_cursor_indexColumn];
+    const local_lineHeight = INTS[fEDI_lineHeight];
+
+    // 3. Compute the cursor's absolute layout coordinates inside the full document space
+    const absoluteX = cursorCol * EDI_characterWidth;
+    const absoluteY = cursorLine * local_lineHeight;
+
+    // Fetch where the scroll window is currently positioned
+    let newScrollTop = scrollContainer.scrollTop;
+    let newScrollLeft = scrollContainer.scrollLeft;
+
+    // --- VERTICAL BOUNDS EVALUATION (Y-Axis) ---
+    // If the cursor is above the top visible edge, scroll up to snap it to the top
+    if (absoluteY < newScrollTop) {
+        newScrollTop = absoluteY;
+    } 
+    // If the cursor is below the bottom visible edge, scroll down to bring it into view
+    else if (absoluteY + local_lineHeight > newScrollTop + viewportHeight) {
+        newScrollTop = absoluteY + local_lineHeight - viewportHeight;
+    }
+
+    // --- HORIZONTAL BOUNDS EVALUATION (X-Axis) ---
+    // If the cursor is hidden behind the left gutter line, shift view left
+    if (absoluteX < newScrollLeft) {
+        newScrollLeft = absoluteX;
+    } 
+    // If the cursor is past the right screen border edge, shift view right
+    else if (absoluteX + EDI_characterWidth > newScrollLeft + usableWidth) {
+        newScrollLeft = absoluteX + EDI_characterWidth - usableWidth;
+    }
+
+    // 4. Update the native DOM properties only if a change actually occurred
+    if (scrollContainer.scrollTop !== newScrollTop) {
+        scrollContainer.scrollTop = newScrollTop;
+    }
+    if (scrollContainer.scrollLeft !== newScrollLeft) {
+        scrollContainer.scrollLeft = newScrollLeft;
+    }
 }
 
 function EDI_draw_cursor_debug() {

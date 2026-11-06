@@ -76,6 +76,21 @@ let EDI_lastReadNumber_scrollTop = 0;
 function EDI_init() {
     EDI_state_setText_byteArray(new Uint8Array(16), /*textByteLength*/ 0, /*fileStartsWithBom*/ false, /*textSourceIdentifier*/ null, /*FORMATTED_textSourceIdentifier*/ null, /*extensionKind*/ 0, /*lineEndString*/ '\n', /*lineEndCount*/ 0);
     EDI_registerHandlers();
+    EDI_throwaway_for_testing();
+}
+
+function EDI_throwaway_for_testing() {
+    // 1. Get the canvas element and its 2D drawing context
+    const ctx = EDI_canvas.getContext('2d');
+
+    // 2. Configure text styling (optional but highly recommended)
+    ctx.font = '16px monospace';      // Matches code editor aesthetics
+    ctx.fillStyle = '#858585';        // A standard gutter text color (gray)
+    ctx.textBaseline = 'top';         // Crucial: aligns the top of the text to your Y coordinate
+    ctx.textAlign = 'left';           // Aligns the left side of the text to your X coordinate
+
+    // 3. Draw the string '1' at coordinates X=0, Y=0
+    ctx.fillText('1', 0, 0);
 }
 
 function EDI_createViewport() {

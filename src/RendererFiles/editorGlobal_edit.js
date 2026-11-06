@@ -3178,6 +3178,8 @@ function EDI_toExtensionKind(extensionWithPeriod) {
 
 function EDI_registerHandlers() {
     EDI_scroll_viewport.addEventListener('scroll', EDI_scrollViewport_scroll, { passive: true });
+    // TODO: text area to capture all the languages
+    EDI_baseElement.addEventListener('keydown', EDI_onKeyDown);
 }
 //#endregion
 

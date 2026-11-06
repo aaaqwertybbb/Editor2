@@ -208,14 +208,12 @@ function EDI_scrollViewport_scroll() {
 */
 function EDI_render_do_Scroll() {
     const yAndZ = 'px, -' + EDI_lastReadNumber_scrollTop + 'px, 0)';
-
     EDI_text.style.transform = 'translate3d(-' + EDI_lastReadNumber_scrollLeft + yAndZ;
     EDI_canvas.style.transform = 'translateY(' + EDI_lastReadNumber_scrollTop + 'px)';
 
     const local_lineHeight = INTS[fEDI_lineHeight];
-    
-    INTS[fEDI_virtualIndexLine] = (EDI_lastReadNumber_scrollTop / local_lineHeight) | 0; // By bit operator or'ing with 0 you "cast" the number to a signed 32-bit integer (Int32).
-    
+    INTS[fEDI_virtualIndexLine] = EDI_lastReadNumber_scrollTop / local_lineHeight | 0;
+
     const local_prevVli = INTS[fEDI_ONSCROLLvirtualIndexLine];
     const local_currVli = INTS[fEDI_virtualIndexLine];
     INTS[fEDI_ONSCROLLvirtualIndexLine] = local_currVli;
@@ -224,20 +222,26 @@ function EDI_render_do_Scroll() {
         EDI_finalizeEdit();
     }
 
-    // 1. Get the canvas element and its 2D drawing context
     const ctx = EDI_canvas.getContext('2d');
     ctx.clearRect(0, 0, EDI_canvas.width, EDI_canvas.height);
 
+    // FIX 1: Draw relative to viewport using the smooth scroll remainder
     let lineIndex = INTS[fEDI_virtualIndexLine];
-    let vertical = lineIndex * INTS[fEDI_lineHeight];
-    
+    let vertical = -(EDI_lastReadNumber_scrollTop % local_lineHeight);
+
     const lineCount = INTS[fEDI_lineEndPositionList_count];
-    
-    const upperLineIndexExclusive = lineIndex + INTS[fEDI_virtualCount];
+    // FIX 2: Clamp bounds to total line count to prevent out-of-bounds rendering
+    const upperLineIndexExclusive = Math.min(lineIndex + INTS[fEDI_virtualCount], lineCount);
+
+    //// Make sure your text alignment styles are set somewhere (or here)
+    //ctx.font = '16px monospace';
+    //ctx.textBaseline = 'top';
+    //ctx.textAlign = 'left';
+    //ctx.fillStyle = '#858585';
+
     for (let i = lineIndex; i < upperLineIndexExclusive; i++) {
-        // 3. Draw the string '1' at coordinates X=0, Y=0
         ctx.fillText(i + 1, 0, vertical);
-        vertical += INTS[fEDI_lineHeight];
+        vertical += local_lineHeight;
     }
 }
 

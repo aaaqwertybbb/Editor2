@@ -210,7 +210,6 @@ function EDI_render_do_Scroll() {
     const yAndZ = 'px, -' + EDI_lastReadNumber_scrollTop + 'px, 0)';
 
     EDI_text.style.transform = 'translate3d(-' + EDI_lastReadNumber_scrollLeft + yAndZ;
-    EDI_gutter_scroll_mover.style.transform = 'translate3d(0' + yAndZ;
 
     const local_lineHeight = INTS[fEDI_lineHeight];
     
@@ -226,8 +225,8 @@ function EDI_render_do_Scroll() {
 }
 
 function EDI_render_do_Clear() {
-    EDI_drawCursor(/*NOTscrollCursorIntoView*/ false);
-    EDI_clearSelectionStyle();
+    //EDI_drawCursor(/*NOTscrollCursorIntoView*/ false);
+    //EDI_clearSelectionStyle();
     // TODO: Clear the ring buffer state?
     // TODO: What does the above todo mean? "TODO: Clear the ring buffer state?"
 }
@@ -1286,26 +1285,26 @@ function EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_la
  * The confusion, if there is any, comes from the dependent UI in some scenarios being required independently of whether drawGutter changes. And at other times they're solely dependent on whether drawGutter changes.
  */
 function EDI_drawGutter_Width(lineCount) {
-    let digitCountOfLargestLineNumber = positiveNumbersOnly_countDigitsLoop(lineCount);
-    if (INTS[fEDI_drawn_count_of_digits_longest_line_number] === digitCountOfLargestLineNumber) return false;
-
-    INTS[fEDI_drawn_count_of_digits_longest_line_number] = digitCountOfLargestLineNumber;
-
-    INTS[fEDI_gutterWidthStyleValue] = Math.ceil(digitCountOfLargestLineNumber * EDI_characterWidth);
-    INTS[fEDI_gutterWidthTotal] = INTS[fEDI_gutterWidthStyleValue] + CONST_EDI_gutterPaddingLeft + CONST_EDI_gutterPaddingRight;
-    gutterWidthTotal_withPxUnits = `${INTS[fEDI_gutterWidthTotal]}px`;
-
-    let gutterWidth = INTS[fEDI_gutterWidthStyleValue] + 'px';
-    EDI_gutter.style.width = gutterWidth;
-
-    EDI_text.style.left = gutterWidthTotal_withPxUnits;
-    EDI_scroll_viewport.style.left = gutterWidthTotal_withPxUnits;
-
-    for (let i = 0; i < INTS[fEDI_ArrayFrom_textElement_children_length]/*a 'ArrayFrom_gutter_children_length' would always be equal to the textElement equivalent*/; i++) {
-        EDI_ringBuffer_gutter[i].style.width = gutterWidth;
-    }
-
-    return true;
+    //let digitCountOfLargestLineNumber = positiveNumbersOnly_countDigitsLoop(lineCount);
+    //if (INTS[fEDI_drawn_count_of_digits_longest_line_number] === digitCountOfLargestLineNumber) return false;
+//
+    //INTS[fEDI_drawn_count_of_digits_longest_line_number] = digitCountOfLargestLineNumber;
+//
+    //INTS[fEDI_gutterWidthStyleValue] = Math.ceil(digitCountOfLargestLineNumber * EDI_characterWidth);
+    //INTS[fEDI_gutterWidthTotal] = INTS[fEDI_gutterWidthStyleValue] + CONST_EDI_gutterPaddingLeft + CONST_EDI_gutterPaddingRight;
+    //gutterWidthTotal_withPxUnits = `${INTS[fEDI_gutterWidthTotal]}px`;
+//
+    //let gutterWidth = INTS[fEDI_gutterWidthStyleValue] + 'px';
+    //EDI_gutter.style.width = gutterWidth;
+//
+    //EDI_text.style.left = gutterWidthTotal_withPxUnits;
+    //EDI_scroll_viewport.style.left = gutterWidthTotal_withPxUnits;
+//
+    //for (let i = 0; i < INTS[fEDI_ArrayFrom_textElement_children_length]/*a 'ArrayFrom_gutter_children_length' would always be equal to the textElement equivalent*/; i++) {
+    //    EDI_ringBuffer_gutter[i].style.width = gutterWidth;
+    //}
+//
+    //return true;
 }
 
 /**
@@ -1335,7 +1334,7 @@ function EDI_drawHorizontalScrollbar() {
             EDI_ringBuffer_text[i].style.width = virtualization_horizontal_style_width_attribute;
         }
 
-        EDI_cursor_caretRow.style.width = virtualization_horizontal_style_width_attribute;
+        //EDI_cursor_caretRow.style.width = virtualization_horizontal_style_width_attribute;
     }
 }
 
@@ -1383,21 +1382,21 @@ function EDI_drawCursor(NOTscrollCursorIntoView) {
     const newY = INTS[fEDI_cursor_indexLine] * INTS[fEDI_lineHeight];
     const newX = INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth;
 
-    if (newY !== INTS[fEDI_cursor_cursorTranslateYValue]) {
-        INTS[fEDI_cursor_cursorTranslateYValue] = newY;
-        EDI_cursor_caretRow.style.transform = `translateY(${newY}px)`;
-    }
+    //if (newY !== INTS[fEDI_cursor_cursorTranslateYValue]) {
+    //    INTS[fEDI_cursor_cursorTranslateYValue] = newY;
+    //    EDI_cursor_caretRow.style.transform = `translateY(${newY}px)`;
+    //}
 
-    if (newX !== EDI_cursor_cursorTranslateXValue) {
-        EDI_cursor_cursorTranslateXValue = newX;
-        EDI_cursor_cursorElement.style.transform = `translateX(${newX}px)`;
-    }
+    //if (newX !== EDI_cursor_cursorTranslateXValue) {
+    //    EDI_cursor_cursorTranslateXValue = newX;
+    //    EDI_cursor_cursorElement.style.transform = `translateX(${newX}px)`;
+    //}
 
-    EDI_createStyleForSelection();
+    //EDI_createStyleForSelection();
 
-    if (!NOTscrollCursorIntoView) {
-        EDI_scrollCursorIntoView();
-    }
+    //if (!NOTscrollCursorIntoView) {
+    //    EDI_scrollCursorIntoView();
+    //}
 
     /*if (BYTES[byteEDI_isChecking_cursorBlinkTrailingEdge] === 0) {
         // Why track "isChecking_..." anymore if you're doing this clearTimeout logic?
@@ -1420,8 +1419,8 @@ function EDI_drawCursor(NOTscrollCursorIntoView) {
     // And maybe there is more to it than just an 'id' on the JavaScript side of things but I'm just modifying my assumptions a bit
     // based on new knowledge I've gained and seeing where it leads.
     //
-    clearTimeout(INTS[fEDI_cursorBlinkingTrailingEdgeTimeoutId]);
-    INTS[fEDI_cursorBlinkingTrailingEdgeTimeoutId] = setTimeout(EDI_cursorBlinkingTrailingEdge, 500);
+    //clearTimeout(INTS[fEDI_cursorBlinkingTrailingEdgeTimeoutId]);
+    //INTS[fEDI_cursorBlinkingTrailingEdgeTimeoutId] = setTimeout(EDI_cursorBlinkingTrailingEdge, 500);
 
 /*
 - [ ] Further necessary details:

@@ -816,10 +816,13 @@ const fEXPLORER_boundingClientRect_top = 147;
 // Although it might "just work" because you're using locals which would become negative?
 // TODO: figure it out
 
+
 const EDI_baseElement = document.getElementById('EDITOR_inner_container');
 
 const EDI_scroll_viewport = EDI_baseElement.children[0];
 const EDI_virtualization_horizontal = EDI_baseElement.children[0].children[0];
+
+const EDI_text = EDI_baseElement.children[1].children[0];
 
 /**
  * If you have an extension listed here, it is expected that the "function to invoke" exists.

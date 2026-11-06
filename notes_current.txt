@@ -321,7 +321,7 @@ Cause that'd be the second time I messed up just before the 226 weight in
 
 Canvas API rewrite of the text editor starts now
 
-Step 1:
+- [x] Step 1:
 use canvas element to "create a scrollable" UI that is height of 8,000 lines of text (or whatever it might be).
 Then show you can scroll down and up that entire 8,000 empty lines of text space.
 

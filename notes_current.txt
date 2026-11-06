@@ -320,3 +320,17 @@ Cause that'd be the second time I messed up just before the 226 weight in
 ====
 
 Canvas API rewrite of the text editor starts now
+
+Step 1:
+use canvas element to "create a scrollable" UI that is height of 8,000 lines of text (or whatever it might be).
+Then show you can scroll down and up that entire 8,000 empty lines of text space.
+
+Process:
+use native scrollbar that displays 0 content.
+
+Then a separate div that isn't a child of that native scrollbar
+You hardware accelerate this separate div.
+Of which is solely the width/height of the visible content.
+
+Inside of that separate div is a canvas element.
+You draw onto the canvas element in accordance to a scroll event attached to the separate but overlayed native scrollable area.

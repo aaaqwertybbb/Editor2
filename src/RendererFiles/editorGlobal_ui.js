@@ -3,6 +3,8 @@ let EDI_characterWidth = 8;
 //let EDI_verticalCenterPadding = 0;
 let EDI_textTopPadding = 3;
 
+let EDI_cursor_cursorTranslateXValue = 0;
+
 /**
  * 
  * Google AI:
@@ -1523,6 +1525,7 @@ function EDI_render_SelectionAndCursor() {
         const cursorX = INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth;
         const cursorY = -(EDI_lastReadNumber_scrollTop % local_lineHeight) + ((cursorLine - startLineIndex) * local_lineHeight);
         
+        EDI_cursor_cursorTranslateXValue = cursorX;
         ctx.fillRect(cursorX, cursorY, 2, local_lineHeight);
     }
 }
@@ -1856,4 +1859,194 @@ function EDI_onResize() {
 function EDI_onResize_startThrottleTimeout_aaa() {
     EDI_render_request(RenderKind_Resize);
     INTS[fEDI_onResize_timer] = 0;
+}
+
+function EDI_onMouseDown(event) {
+    // TODO: long term continue reducing the frequency of 'finalizeEdit' for now though you want things to work and not be confusing
+    if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
+        EDI_finalizeEdit();
+    }
+
+    if (BYTES[byteTOOLTIP_exists] === 1) {
+        TOOLTIP_hide();
+    }
+
+    if (get_EDI_recentBoundingClientRect_isNull_intFalsey() === 1) {
+        let boundingClientRect = EDI_baseElement.getBoundingClientRect();
+        INTS[fEDI_recentBoundingClientRect_left] = boundingClientRect.left;
+        INTS[fEDI_recentBoundingClientRect_top] = boundingClientRect.top;
+        set_EDI_recentBoundingClientRect_isNull_intFalsey(0);
+    }
+
+    if (event.button === 0) {
+        BYTES[byteEDI_mousemove_eventListener_isActive] = 1;
+        EDI_baseElement.addEventListener('mousemove', EDI_onMouseMove_WRAPIT);
+    }
+    else if (event.button === 3) {
+        EDI_moveCursor_indexLine_indexColumn(INTS[fEDI_priorToLastJump_indexLine], INTS[fEDI_priorToLastJump_indexColumn]);
+        return;
+    }
+
+    let rY = event.clientY - INTS[fEDI_recentBoundingClientRect_top] + EDI_lastReadNumber_scrollTop;
+    let rX = event.clientX - INTS[fEDI_recentBoundingClientRect_left] - INTS[fEDI_gutterWidthTotal] + EDI_lastReadNumber_scrollLeft;
+    
+    let indexLine = Math.floor(rY / INTS[fEDI_lineHeight]);
+    let indexColumn = Math.round(rX / EDI_characterWidth);
+    let indexColumnVisual = indexColumn;
+
+    if (indexLine < 0) {
+        indexLine = 0;
+    }
+
+    if (indexColumn < 0) {
+        indexColumn = 0;
+        indexColumnVisual = indexColumn;
+    }
+
+    if (indexLine >= INTS[fEDI_lineEndPositionList_count]) {
+        indexLine = INTS[fEDI_lineEndPositionList_count] - 1;
+    }
+
+    EDI_ret_getLineBoundaryPositions_raw(indexLine);
+
+    if (INTS[fEDI_cursor_indexLine] === indexLine) {
+        if (rX >= EDI_cursor_cursorTranslateXValue) {
+            EDI_ret_getIndexFromX_sameLine_newRxIsLarger(rX, INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
+        }
+        else {
+            EDI_ret_getIndexFromX_sameLine_newRxIsSmaller(rX, INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
+        }
+    }
+    else {
+        EDI_ret_getIndexFromX_RESET(rX, INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end]);
+    }
+    indexColumn = INTS[fEDI_ret_getIndexFromX_indexColumn];
+    indexColumnVisual = INTS[fEDI_ret_getIndexFromX_visualColumns];
+
+    let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(indexLine);
+    if (indexColumn > lastValidIndexColumn) {
+        indexColumn = lastValidIndexColumn;
+        indexColumnVisual = indexColumn;
+    }
+
+    if (rX < -1 * CONST_EDI_gutterPaddingRight) {
+        set_EDI_detailRank(3);
+        EDI_onMouseDownDetailRankThree(event.button, event.shiftKey, indexLine, indexColumn);
+        return;
+    }
+
+    if (event.detail % 3 === 0) {
+        set_EDI_detailRank(3);
+        EDI_onMouseDownDetailRankThree(event.button, event.shiftKey, indexLine, indexColumn);
+    }
+    else if (event.detail % 2 === 0) {
+        set_EDI_detailRank(2);
+        EDI_onMouseDownDetailRankTwo(event.button, event.shiftKey, indexLine, indexColumn, indexColumnVisual);
+    }
+    else {
+        set_EDI_detailRank(1);
+        EDI_onMouseDownDetailRankOne(event.button, event.shiftKey, indexLine, indexColumn, indexColumnVisual);
+    }
+}
+
+function EDI_onMouseDownDetailRankOne(event_button, event_shiftKey, indexLineClicked, indexColumnClicked, indexColumnVisual) {
+
+    let selectionPlusContextMenuCase = event_button === 2 && EDI_cursor_hasSelection();
+
+    if (event_shiftKey && !selectionPlusContextMenuCase) {
+        if (!EDI_cursor_hasSelection()) {
+            INTS[fEDI_cursor_selectionAnchor] = EDI_getPositionIndex_cursor_raw();
+            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = indexColumnVisual;
+        }
+    }
+
+    if (!selectionPlusContextMenuCase) {
+        INTS[fEDI_cursor_indexLine] = indexLineClicked;
+        INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
+        INTS[fEDI_cursorVisualColumnIndex] = indexColumnVisual;
+        INTS[fEDI_cursor_STORED_visualWidth] = indexColumnVisual;
+    
+        INTS[fEDI_cursor_selectionEnd] = EDI_getPositionIndex_cursor_raw();
+        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+
+        if (!event_shiftKey) {
+            INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_cursor_selectionEnd];
+            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+        }
+    }
+
+    EDI_render_request(RenderKind_Cursor_n);
+}
+
+function EDI_onMouseMove_WRAPIT(event) {
+    if ((event.buttons & 1) && get_EDI_recentBoundingClientRect_isNull_intFalsey() === 0) {
+        // TODO: Consider short circuiting at via event.clientX and clientY by tracking the necessary thresholds for the cursor position to pass rather than the previous and current indices. (you can possibly thereby skip the calculation of the indices entirely for the redundant events).
+        // TODO: Is it correct to use the cursor's indexLine and indexColumn directly as a means of determining redundancy? I worry about odd interactions, but I have no proof that such an odd interaction could exist.
+
+        let rX = Math.max(0, event.clientX - INTS[fEDI_recentBoundingClientRect_left] - INTS[fEDI_gutterWidthTotal] + EDI_lastReadNumber_scrollLeft);
+        let rY = Math.max(0, event.clientY - INTS[fEDI_recentBoundingClientRect_top] + EDI_lastReadNumber_scrollTop);
+
+        let indexColumn = Math.round(rX / EDI_characterWidth);
+        let indexLine = Math.floor(rY / INTS[fEDI_lineHeight]);
+        let indexColumnVisual = indexColumn;
+
+        if (indexLine >= INTS[fEDI_lineEndPositionList_count]) {
+            indexLine = INTS[fEDI_lineEndPositionList_count] - 1;
+        }
+
+        EDI_ret_getLineBoundaryPositions_raw(indexLine);
+
+        if (INTS[fEDI_cursor_indexLine] === indexLine) {
+            if (rX >= EDI_cursor_cursorTranslateXValue) {
+                EDI_ret_getIndexFromX_sameLine_newRxIsLarger(rX, INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
+            }
+            else {
+                EDI_ret_getIndexFromX_sameLine_newRxIsSmaller(rX, INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_cursor_indexColumn], INTS[fEDI_cursorVisualColumnIndex]);
+            }
+        }
+        else {
+            EDI_ret_getIndexFromX_RESET(rX, INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end]);
+        }
+        indexColumn = INTS[fEDI_ret_getIndexFromX_indexColumn];
+        indexColumnVisual = INTS[fEDI_ret_getIndexFromX_visualColumns];
+
+        let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(indexLine);
+        if (indexColumn > lastValidIndexColumn) {
+            indexColumn = lastValidIndexColumn;
+        }
+
+        if (INTS[fEDI_cursor_indexLine] === indexLine && INTS[fEDI_cursor_indexColumn] === indexColumn) {
+            return;
+        }
+        
+        INTS[fEDI_cursor_indexLine] = indexLine;
+        INTS[fEDI_cursor_indexColumn] = indexColumn;
+        INTS[fEDI_cursorVisualColumnIndex] = indexColumnVisual;
+
+        if (get_EDI_detailRank() === 3) {
+            EDI_onMouseMoveDetailRankThree(indexLine, indexColumn);
+        }
+        else if (get_EDI_detailRank() === 2) {
+            EDI_onMouseMoveDetailRankTwo(indexLine, indexColumn, indexColumnVisual);
+        }
+        else if (get_EDI_detailRank() === 1) {
+            EDI_onMouseMoveDetailRankOne(indexLine, indexColumn, indexColumnVisual);
+        }
+    }
+    else {
+        BYTES[byteEDI_mousemove_eventListener_isActive] = 0;
+        EDI_baseElement.removeEventListener('mousemove', EDI_onMouseMove_WRAPIT);
+    }
+}
+
+function EDI_onMouseMoveDetailRankOne(indexLineClicked, indexColumnClicked, indexColumnVisual) {
+    // TODO: These two sets the ones to line and column seem redundant weren't these just done by the original EDI_onMouseMove_WRAPIT?
+    INTS[fEDI_cursor_indexLine] = indexLineClicked;
+    INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
+    INTS[fEDI_cursorVisualColumnIndex] = indexColumnVisual;
+
+    INTS[fEDI_cursor_selectionEnd] = EDI_getPositionIndex_cursor_raw();
+    INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+
+    EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
 }

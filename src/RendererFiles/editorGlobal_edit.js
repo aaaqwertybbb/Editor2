@@ -89,6 +89,9 @@ let EDI_lastReadNumber_scrollTop = 0;
 
 /** invoked from requestAnimationFrame */
 function EDI_init() {
+
+    INTS[fEDI_gutterWidthTotal] = 60;
+
     EDI_state_setText_byteArray(new Uint8Array(16), /*textByteLength*/ 0, /*fileStartsWithBom*/ false, /*textSourceIdentifier*/ null, /*FORMATTED_textSourceIdentifier*/ null, /*extensionKind*/ 0, /*lineEndString*/ '\n', /*lineEndCount*/ 0);
     EDI_registerHandlers();
     EDI_render_do_Resize();
@@ -3198,7 +3201,7 @@ function EDI_registerHandlers() {
 
 
     ////EDI_baseElement.addEventListener('keydown', EDI_onKeyDown);
-    //EDI_baseElement.addEventListener('mousedown', EDI_onMouseDown);
+    EDI_baseElement.addEventListener('mousedown', EDI_onMouseDown);
 
     //EDI_baseElement.addEventListener('contextmenu', EDI_onContextMenu);
     window.addEventListener('resize', EDI_onResize);

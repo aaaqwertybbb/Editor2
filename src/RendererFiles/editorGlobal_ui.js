@@ -250,7 +250,7 @@ function EDI_render_do_Scroll() {
 
     EDI_render_TextContent();
 
-    EDI_render_Cursor();
+    EDI_render_SelectionAndCursor();
 }
 
 function EDI_render_TextContent() {
@@ -1466,37 +1466,47 @@ function EDI_insertGapBufferSpan() {
     }
 }
 
-function EDI_render_Cursor() {
+function EDI_render_SelectionAndCursor() {
     const canvas = EDI_cursor_canvas;
     const ctx = canvas.getContext('2d');
-    
-    // Clear only the cursor overlay
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Read your current cursor state (represented by global indices or INTS slots)
-    const cursorLine = INTS[fEDI_cursor_indexLine];   // e.g., line 42
-    const cursorColVisual = INTS[fEDI_cursorVisualColumnIndex];  // e.g., column 8
-
+    const local_lineHeight = INTS[fEDI_lineHeight];
     const startLineIndex = INTS[fEDI_virtualIndexLine];
     const upperLineIndexExclusive = startLineIndex + INTS[fEDI_virtualCount];
+    
+    let viewportY = -(EDI_lastReadNumber_scrollTop % local_lineHeight);
 
-    // 1. Check if the cursor is even inside the visible screen window
+    // --- STEP 1: RENDER SELECTION BOX BACKGROUND SPANS ---
+    // (Assuming you track a selection range from anchorLine/Col to focusLine/Col)
+    ctx.fillStyle = 'rgba(82, 139, 255, 0.25)'; // Highlight tint color
+
+    if (EDI_cursor_hasSelection()) {
+        //for (let i = startLineIndex; i < upperLineIndexExclusive; i++) {
+        //    // Replace this check with your active selection range state logic
+        //    if (EDI_isLinePartiallySelected(i)) { 
+        //        const selStartCol = EDI_getSelectionStartColumnForLine(i);
+        //        const selEndCol = EDI_getSelectionEndColumnForLine(i);
+    //
+        //        // Fast Monospace Layout Math: Multiply columns directly by character width!
+        //        const x = selStartCol * EDI_characterWidth;
+        //        const width = (selEndCol - selStartCol) * EDI_characterWidth;
+    //
+        //        // Draw a background highlighting block behind the text positions
+        //        ctx.fillRect(x, viewportY, width, local_lineHeight);
+        //    }
+        //    viewportY += local_lineHeight;
+        //}
+    }
+
+    // --- STEP 2: RENDER ACTIVE SOLID CURSOR LINE ---
+    ctx.fillStyle = '#528bff'; // Solid cursor accent color
+    const cursorLine = INTS[fEDI_cursor_indexLine];
     if (cursorLine >= startLineIndex && cursorLine < upperLineIndexExclusive) {
-        const local_lineHeight = INTS[fEDI_lineHeight];
+        const cursorX = INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth;
+        const cursorY = -(EDI_lastReadNumber_scrollTop % local_lineHeight) + ((cursorLine - startLineIndex) * local_lineHeight);
         
-        // 2. Calculate coordinates using pure grid cell math
-        // Horizontal: Column index multiplied by your fixed character width
-        const x = cursorColVisual * EDI_characterWidth; 
-        
-        // Vertical: Find where the row starts in viewport space
-        const rowTopY = -(EDI_lastReadNumber_scrollTop % local_lineHeight) + ((cursorLine - startLineIndex) * local_lineHeight);
-
-        // 3. Define cursor geometry
-        const cursorWidth = 2; // Modern thin line cursor footprint
-        const cursorHeight = local_lineHeight; // Matches row height perfectly
-
-        // 4. Render the cursor rectangle
-        ctx.fillRect(x, rowTopY, cursorWidth, cursorHeight);
+        ctx.fillRect(cursorX, cursorY, 2, local_lineHeight);
     }
 }
 
@@ -1516,7 +1526,7 @@ function EDI_drawCursor(NOTscrollCursorIntoView) {
     const newY = INTS[fEDI_cursor_indexLine] * INTS[fEDI_lineHeight];
     const newX = INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth;
 
-    EDI_render_Cursor();
+    EDI_render_SelectionAndCursor();
 
     //if (newY !== INTS[fEDI_cursor_cursorTranslateYValue]) {
     //    INTS[fEDI_cursor_cursorTranslateYValue] = newY;

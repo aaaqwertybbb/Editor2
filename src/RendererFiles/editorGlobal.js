@@ -264,28 +264,7 @@ CSS.highlights.set("js-string", stringHighlight);
 
 /** invoked from requestAnimationFrame */
 function EDI_init() {
-    //EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine.length = 0;
-
-    EDI_measureLineHeightAndCharacterWidth();
-
-    EDI_cursor_caretRow.style.height = EDI_lineHeightStringWithPx;
-    EDI_cursor_caretRow.style.lineHeight = EDI_lineHeightStringWithPx;
-
-    EDI_cursor_cursorElement.style.height = EDI_lineHeightStringWithPx;
-    EDI_cursor_cursorElement.style.lineHeight = EDI_lineHeightStringWithPx;
-
-    const gutterPaddingLeft = CONST_EDI_gutterPaddingLeft + 'px';
-    const gutterPaddingRight = CONST_EDI_gutterPaddingRight + 'px';
-    
-    EDI_gutter.style.paddingLeft = gutterPaddingLeft;
-    EDI_gutter.style.paddingRight = gutterPaddingRight;
-    
-    INTS[fEDI_gutterWidthStyleValue] = EDI_characterWidth;
-
-    EDI_render_do_Resize();
-
     EDI_state_setText_byteArray(new Uint8Array(16), /*textByteLength*/ 0, /*fileStartsWithBom*/ false, /*textSourceIdentifier*/ null, /*FORMATTED_textSourceIdentifier*/ null, /*extensionKind*/ 0, /*lineEndString*/ '\n', /*lineEndCount*/ 0);
-
     EDI_registerHandlers();
 }
 
@@ -6014,12 +5993,6 @@ function EDI_render_do_Resize() {
 }
 
 function EDI_onResize() {
-    if (INTS[fEDI_onResize_timer] === 0) {
-        // TODO: '109' has no meaning behind it...
-        // ...TODO: Figure out how to get this to always trigger faster than the 200ms timeout of the scroll trailing edge...
-        // ...lest thou receiveth many object allocation from scroll trailing edge. You see cause you see the syntax highlight happening while resizing.
-        INTS[fEDI_onResize_timer] = setTimeout(EDI_onResize_startThrottleTimeout_aaa, 109);
-    }
 }
 
 function EDI_onResize_startThrottleTimeout_aaa() {
@@ -7169,22 +7142,8 @@ function EDI_toExtensionKind(extensionWithPeriod) {
 }
 
 function EDI_registerHandlers() {
-    EDI_baseElement.addEventListener('keydown', EDI_onKeyDown);
-    EDI_baseElement.addEventListener('mousedown', EDI_onMouseDown);
-
-    EDI_baseElement.addEventListener('contextmenu', EDI_onContextMenu);
     window.addEventListener('resize', EDI_onResize);
-
-    // Attach a single listener to your text container (Event Delegation)
-    EDI_baseElement.addEventListener('mouseover', EDI_mouseOver);
-    EDI_baseElement.addEventListener('mouseleave', EDI_mouseLeave);
-    
-    EDI_baseElement.addEventListener('focus', EDI_onfocus);
-    EDI_baseElement.addEventListener('blur', EDI_onblur);
-
     EDI_scroll_viewport.addEventListener('scroll', EDI_scrollViewport_scroll, { passive: true });
-
-    EDI_gutter.addEventListener('wheel', EDI_onWheelGutter, { passive: false /* 'e.preventDefault();' is used*/ });
 }
 
 /**

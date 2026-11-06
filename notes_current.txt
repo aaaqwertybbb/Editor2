@@ -304,7 +304,3 @@ So I called and said I'd come in at 12 cuz I had the appointment it was too clos
 - [ ] Many UI are lacking a batch insertion function. They're just loop inserting 1 at a time.
 
 =====
-
-
-
-

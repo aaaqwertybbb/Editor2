@@ -294,6 +294,9 @@ function EDI_render_TextContent() {
             cache[i] = lineText; // Cached forever until that line is edited! ("cached forever" sounds a bit intense but I'll roll with it for now (i.e.: if you scroll all 8k lines of text you now have 8k lines of text cached maybe GC overhead is so incredibly simplified that it is worth it? I doubt you'd wanna go that far even still though but yeah I'll see where things go))
         }
 
+        // Option 1: Convert Tabs to Spaces Before Caching (Recommended)
+        // Option 2: Use the Modern letterSpacing CSS Canvas Property
+
         // Shift the text down by exactly half of a single row block height
         ctxText.fillText(lineText, 0, viewportY + local_EDI_textTopPadding);
         viewportY += local_lineHeight;

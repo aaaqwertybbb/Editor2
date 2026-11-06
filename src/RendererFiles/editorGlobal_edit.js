@@ -84,7 +84,7 @@ function EDI_resizeCanvases() {
     const dpr = window.devicePixelRatio || 1;
 
     // 1. Get the real bounding dimensions of your visible viewport frame
-    const viewportRect = document.getElementById('EDI_visual_canvas').getBoundingClientRect();
+    const viewportRect = EDI_viewport.getBoundingClientRect();
     const viewWidth = viewportRect.width;
     const viewHeight = viewportRect.height;
 
@@ -92,7 +92,7 @@ function EDI_resizeCanvases() {
     const gutterLayoutWidth = 60;
 
     // --- 2. CONFIG DIGEST FOR GUTTER CANVAS ---
-    const gutterCanvas = document.getElementById('EDI_gutter_canvas');
+    const gutterCanvas = EDI_gutter_canvas;
     // Set the CSS display size (how much room it occupies on screen)
     gutterCanvas.style.width = gutterLayoutWidth + 'px';
     gutterCanvas.style.height = viewHeight + 'px';

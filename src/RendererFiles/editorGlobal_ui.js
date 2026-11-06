@@ -290,8 +290,30 @@ function EDI_render_TextContent() {
         // --- CACHE-OPTIMIZED STRING EXTRACTION ---
         let lineText = cache[i];
         if (lineText === undefined) {
-            lineText = lineStart === lineEnd ? '' : local_EDI_decoder.decode(local_bytes.subarray(lineStart, lineEnd));
-            cache[i] = lineText; // Cached forever until that line is edited! ("cached forever" sounds a bit intense but I'll roll with it for now (i.e.: if you scroll all 8k lines of text you now have 8k lines of text cached maybe GC overhead is so incredibly simplified that it is worth it? I doubt you'd wanna go that far even still though but yeah I'll see where things go))
+            // 1. Decode raw bytes to a standard string
+            let rawStr = lineStart === lineEnd ? '' : local_EDI_decoder.decode(local_bytes.subarray(lineStart, lineEnd));
+
+            // 2. High-speed custom tab-stop expansion loop
+            const tabSize = 4; // Or pull from an INTS config slot
+            let expandedStr = '';
+            let columnCounter = 0;
+
+            // TODO: Draft 1: This looks like its gonna blow up my computer
+            for (let charIndex = 0; charIndex < rawStr.length; charIndex++) {
+                const char = rawStr[charIndex];
+                if (char === '\t') {
+                    // Calculate exactly how many spaces are needed to hit the next tab stop boundary
+                    const spacesNeeded = tabSize - (columnCounter % tabSize);
+                    expandedStr += ' '.repeat(spacesNeeded);
+                    columnCounter += spacesNeeded;
+                } else {
+                    expandedStr += char;
+                    columnCounter++;
+                }
+            }
+
+            lineText = expandedStr;
+            cache[i] = lineText; // Cached with perfect space alignments!
         }
 
         // Option 1: Convert Tabs to Spaces Before Caching (Recommended)

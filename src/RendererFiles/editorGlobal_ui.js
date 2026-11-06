@@ -288,6 +288,9 @@ function EDI_render_TextContent() {
 
         // 1. Get the string data for this specific row from your file storage engine
         // (Replace this line with your actual file data layer function)
+        // TODO: cache the lines of text since you probably aren't gonna do a ring buffer for the ctx but instead just keep clearing?...
+        // ...so your ringe buffer is swapping in and out the lines of text.
+        // so I guess you are doing a ring buffer but it contains the text itself.
         const lineText = lineStart === lineEnd ? '' : local_EDI_decoder.decode(local_bytes.subarray(lineStart, lineEnd));
 
         // 2. Draw the entire line at once. 

@@ -203,7 +203,8 @@ function EDI_scrollViewport_scroll() {
 function EDI_render_do_Scroll() {
     const yAndZ = 'px, -' + EDI_lastReadNumber_scrollTop + 'px, 0)';
     EDI_text.style.transform = 'translate3d(-' + EDI_lastReadNumber_scrollLeft + yAndZ;
-    EDI_canvas.style.transform = 'translateY(' + EDI_lastReadNumber_scrollTop + 'px)';
+    EDI_gutter_canvas.style.transform = 'translateY(' + EDI_lastReadNumber_scrollTop + 'px)';
+    //EDI_gutter_canvas.style.transform = 'translateY(' + EDI_lastReadNumber_scrollTop + 'px)';
 
     const local_lineHeight = INTS[fEDI_lineHeight];
     INTS[fEDI_virtualIndexLine] = EDI_lastReadNumber_scrollTop / local_lineHeight | 0;
@@ -216,8 +217,8 @@ function EDI_render_do_Scroll() {
         EDI_finalizeEdit();
     }
 
-    const ctx = EDI_canvas.getContext('2d');
-    ctx.clearRect(0, 0, EDI_canvas.width, EDI_canvas.height);
+    const ctx = EDI_gutter_canvas.getContext('2d');
+    ctx.clearRect(0, 0, EDI_gutter_canvas.width, EDI_gutter_canvas.height);
 
     // FIX 1: Draw relative to viewport using the smooth scroll remainder
     let lineIndex = INTS[fEDI_virtualIndexLine];

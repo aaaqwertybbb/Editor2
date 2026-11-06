@@ -76,7 +76,53 @@ let EDI_lastReadNumber_scrollTop = 0;
 function EDI_init() {
     EDI_state_setText_byteArray(new Uint8Array(16), /*textByteLength*/ 0, /*fileStartsWithBom*/ false, /*textSourceIdentifier*/ null, /*FORMATTED_textSourceIdentifier*/ null, /*extensionKind*/ 0, /*lineEndString*/ '\n', /*lineEndCount*/ 0);
     EDI_registerHandlers();
+    EDI_resizeCanvases();
     EDI_throwaway_for_testing();
+}
+
+function EDI_resizeCanvases() {
+    const dpr = window.devicePixelRatio || 1;
+
+    // 1. Get the real bounding dimensions of your visible viewport frame
+    const viewportRect = document.getElementById('EDI_visual_canvas').getBoundingClientRect();
+    const viewWidth = viewportRect.width;
+    const viewHeight = viewportRect.height;
+
+    // Define a fixed layout width for your gutter
+    const gutterLayoutWidth = 60;
+
+    // --- 2. CONFIG DIGEST FOR GUTTER CANVAS ---
+    const gutterCanvas = document.getElementById('EDI_gutter_canvas');
+    // Set the CSS display size (how much room it occupies on screen)
+    gutterCanvas.style.width = gutterLayoutWidth + 'px';
+    gutterCanvas.style.height = viewHeight + 'px';
+    // Set the internal hardware drawing resolution (multiplied by DPR)
+    gutterCanvas.width = gutterLayoutWidth * dpr;
+    gutterCanvas.height = viewHeight * dpr;
+
+    // --- 3. CONFIG DIGEST FOR TEXT CANVAS ---
+    const textCanvas = document.getElementById('EDI_text_canvas');
+    const textLayoutWidth = viewWidth - gutterLayoutWidth;
+    textCanvas.style.width = textLayoutWidth + 'px';
+    textCanvas.style.height = viewHeight + 'px';
+    textCanvas.width = textLayoutWidth * dpr;
+    textCanvas.height = viewHeight * dpr;
+
+    // --- 4. SCALE THE DRAWING CONTEXTS ---
+    // This step ensures your drawing coordinates (like fillText X/Y) 
+    // remain working in standard layout pixels, while the engine handles the high-DPI pixel math
+    const ctxGutter = gutterCanvas.getContext('2d');
+    ctxGutter.scale(dpr, dpr);
+    // Re-apply your styles here since changing width/height resets canvas states!
+    ctxGutter.font = '16px monospace';
+    ctxGutter.textBaseline = 'top';
+    ctxGutter.fillStyle = '#858585';
+
+    const ctxText = textCanvas.getContext('2d');
+    ctxText.scale(dpr, dpr);
+    ctxText.font = '16px monospace';
+    ctxText.textBaseline = 'top';
+    ctxText.fillStyle = '#ffffff';
 }
 
 function EDI_throwaway_for_testing() {
@@ -106,19 +152,19 @@ const lineHeight = fontHeight + linePadding;
     INTS[fEDI_virtualCount] = Math.ceil(INTS[fEDI_lastReadNumber_offsetHeight] / INTS[fEDI_lineHeight]);
 
     // 1. Get the canvas element and its 2D drawing context
-    const ctx = EDI_canvas.getContext('2d');
+    const ctx = EDI_gutter_canvas.getContext('2d');
 
     // 2. Configure text styling (optional but highly recommended)
-    ctx.font = '16px monospace';      // Matches code editor aesthetics
-    ctx.fillStyle = '#858585';        // A standard gutter text color (gray)
-    ctx.textBaseline = 'top';         // Crucial: aligns the top of the text to your Y coordinate
-    ctx.textAlign = 'left';           // Aligns the left side of the text to your X coordinate
+    //ctx.font = '16px monospace';      // Matches code editor aesthetics
+    //ctx.fillStyle = '#858585';        // A standard gutter text color (gray)
+    //ctx.textBaseline = 'top';         // Crucial: aligns the top of the text to your Y coordinate
+    //ctx.textAlign = 'left';           // Aligns the left side of the text to your X coordinate
 
 
 
 
 
-    ctx.font = '16px monospace'; // Ensure your font is set first
+    //ctx.font = '16px monospace'; // Ensure your font is set first
 
     const metrics = ctx.measureText('M'); // 'M' or '1' are great standard height references
     const textHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;

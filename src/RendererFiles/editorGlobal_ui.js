@@ -769,21 +769,90 @@ function EDI_render_do_TabKey() {
         INTS[fEDI_cursor_edit_eventCount_drawn]++;
 
         // awkward thing to have 'walkLineUntilIndexColumn' work then at end of block. (1 of 2)
-        const remember_indexColumn = INTS[fEDI_cursor_indexColumn];
-        INTS[fEDI_cursor_indexColumn] = INTS[fEDI_cursor_editIndexColumn];
+        //const remember_indexColumn = INTS[fEDI_cursor_indexColumn];
+        //INTS[fEDI_cursor_indexColumn] = INTS[fEDI_cursor_editIndexColumn];
 
-        walkLineUntilIndexColumn();
+        //walkLineUntilIndexColumn();
+//
+        //if (w_div === w_divNONE) {
+        //    // TODO: silent error bad
+        //    return;
+        //}
 
-        if (w_div === w_divNONE) {
-            // TODO: silent error bad
+
+
+
+
+
+        // 1. Target the specific line row index where the typing is taking place
+        const activeLine = INTS[fEDI_cursor_indexLine];
+        let lineSpans = EDI_lineStringCache[activeLine];
+        
+        if (lineSpans === undefined) {
             return;
         }
 
-        const offset_index_drawn = INTS[fEDI_cursor_edit_eventCount_drawn] - 1;
-        w_div.firstChild.insertData(INTS[fEDI_w_indexColumn_SpanTextContentRelative] + offset_index_drawn, EDI_on_tab_string);
+        // 2. Determine the column position where the *first character of this edit burst* began
+        // We use indexColumn minus the absolute total length of characters typed in this current edit session
+        const editStartColumn = INTS[fEDI_cursor_indexColumn] - INTS[fEDI_cursor_editLength_characters];
+        
+        // Find the precise column location of the characters we are about to insert right now
+        const currentEditColumn = editStartColumn + INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue];
+
+        let runningColumnIdx = 0;
+        let targetedSpan = null;
+        let relativeInsertIndex = 0;
+
+        // 3. Scan the cached spans to find where currentEditColumn lands
+        for (let i = 0; i < lineSpans.length; i++) {
+            const span = lineSpans[i];
+            const spanLength = span.text.length;
+
+            // If the cursor lands completely inside this span, or exactly on its trailing right edge
+            if (currentEditColumn >= runningColumnIdx && currentEditColumn <= runningColumnIdx + spanLength) {
+                targetedSpan = span;
+                relativeInsertIndex = currentEditColumn - runningColumnIdx;
+                
+                // If the cursor hits exactly between two spans, your rule dictates targeting 
+                // the left span at its trailing length index. We break early to lock onto it.
+                break;
+            }
+            runningColumnIdx += spanLength;
+        }
+
+        // 4. If we successfully isolated the text slice segment inside the cache, modify it
+        if (targetedSpan !== null) {
+            // Decode only the new slice of un-drawn keys typed during this frame frame burst
+            const freshlyTypedString = EDI_on_tab_string;
+
+            // Splice the text inline directly into the string reference inside the cache array frame
+            targetedSpan.text = 
+                targetedSpan.text.slice(0, relativeInsertIndex) + 
+                freshlyTypedString + 
+                targetedSpan.text.slice(relativeInsertIndex);
+        }
+
+        // 5. Commit the continuation value forward so the next frame knows where to pick up
+        INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue] = INTS[fEDI_cursor_editLength_characters];
+
+        // 6. Request a canvas redraw layout frame pass to force the changes onto the screen
+
+        EDI_render_request(RenderKind_Scroll);
+        //EDI_render_TextContent();
+        //EDI_render_Cursor();
+
+
+
+
+
+
+
+
+        //const offset_index_drawn = INTS[fEDI_cursor_edit_eventCount_drawn] - 1;
+        //w_div.firstChild.insertData(INTS[fEDI_w_indexColumn_SpanTextContentRelative] + offset_index_drawn, EDI_on_tab_string);
 
         // awkward thing to have 'walkLineUntilIndexColumn' work then at end of block. (2 of 2)
-        INTS[fEDI_cursor_indexColumn] = remember_indexColumn;
+        //INTS[fEDI_cursor_indexColumn] = remember_indexColumn;
     }
 }
 

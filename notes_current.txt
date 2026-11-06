@@ -349,9 +349,9 @@ cooked chicken eating
 
 Positive
 ========
-- [ ] EditKind_InsertLtr
+- [x] EditKind_InsertLtr
 - [ ] EditKind_Enter
-- [ ] EditKind_Tab
+- [x] EditKind_Tab
 - [ ] EditKind_Paste
 - [ ] EditKind_Duplicate
 - [ ] EditKind_IndentMore

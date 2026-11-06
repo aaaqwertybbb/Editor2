@@ -263,7 +263,7 @@ function EDI_render_TextContent() {
     const startLineIndex = INTS[fEDI_virtualIndexLine];
     const upperLineIndexExclusive = Math.min(startLineIndex + INTS[fEDI_virtualCount], lineCount);
 
-    let absoluteY = startLineIndex * local_lineHeight;
+    let viewportY = -(EDI_lastReadNumber_scrollTop % local_lineHeight);
 
     const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
     const local_EDI_decoder = EDI_decoder;
@@ -293,8 +293,8 @@ function EDI_render_TextContent() {
         }
 
         // Shift the text down by exactly half of a single row block height
-        ctxText.fillText(lineText, 0, absoluteY + local_EDI_textTopPadding);
-        absoluteY += local_lineHeight;
+        ctxText.fillText(lineText, 0, viewportY + local_EDI_textTopPadding);
+        viewportY += local_lineHeight;
     }
 }
 

@@ -1237,16 +1237,18 @@ function EDI_render_do_Delete() {
         }
     }
 
-    if (targetSpan === null && !isAtEndOfLine) {
-        throw new Error();
-    }
-    else {
-        targetSpanIndex = lineSpans.length;
+    if (targetSpan === null) {
+        if (!isAtEndOfLine) {
+            throw new Error();
+        }
+        else {
+            targetSpanIndex = lineSpans.length;
 
-        // NOTE: is undefined until 'if (isAtEndOfLine)' block runs
-        //targetSpan = lineSpans[targetSpanIndex];
+            // NOTE: is undefined until 'if (isAtEndOfLine)' block runs
+            //targetSpan = lineSpans[targetSpanIndex];
 
-        relativeIndex = 0;
+            relativeIndex = 0;
+        }
     }
 
     while (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
@@ -1273,7 +1275,7 @@ function EDI_render_do_Delete() {
                         lineSpans.length = 0; // Remove the empty string from the current
                         EDI_lineStringCache[activeLine] = NEXT_lineSpans; // current receives entirety of next's spans.
                         lineSpans = NEXT_lineSpans // update the local variable
-                        targetSpanIndex = 0; // why is targetSpanIndex 1?
+                        targetSpanIndex = 0;
                     }
                     else {
                         for (let i = 0; i < NEXT_lineSpans_length; i++) {

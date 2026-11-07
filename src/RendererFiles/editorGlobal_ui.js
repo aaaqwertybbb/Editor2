@@ -1054,45 +1054,117 @@ function EDI_render_do_RemoveSelection() {
     // - 'Draw lines that came into view' / 'clear text for any lines > text length and use a '~' in the gutter'
 
     // Remove selection on small position line
-    let smallLineDiv = null;
+    let smallLineSpans = null;
     {
         INTS[fEDI_cursor_indexLine] = smallLineAndColumnIndices_indexLine;
         INTS[fEDI_cursor_indexColumn] = smallLineAndColumnIndices_indexColumn;
         // TODO: this cursorVisualColumnIndex... logic here seems like it can be skipped here so long as you do it once by the end of the function to the correct indices.
         INTS[fEDI_cursorVisualColumnIndex] = smallLineAndColumnIndices_indexColumn;
 
-        walkLineUntilIndexColumn();
-
         EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
         const line_end = INTS[fEDI_ret_getLineBoundaryPositions_end];
-        let remaining;
+
+        let targetSpanIndex = 0;
+        let runningColumnIdx = 0;
+        let targetSpan = null;
+        let relativeIndex = 0;
+        let remainingCharacterRemovals;
         if (largePosition > line_end) {
-            remaining = line_end - smallPosition;
+            remainingCharacterRemovals = line_end - smallPosition;
         }
         else {
-            remaining = largePosition - smallPosition;
+            remainingCharacterRemovals = largePosition - smallPosition;
         }
 
-        if (w_div !== w_divNONE && INTS[fEDI_w_indexColumn_SpanTextContentRelative] >= 0) {
-            smallLineDiv = w_div;
-            const textNode = w_div.firstChild;
-            while (remaining > 0) {
-                let available = w_div.textContent.length - INTS[fEDI_w_indexColumn_SpanTextContentRelative];
-                let count = remaining > available ? available : remaining;
-                remaining -= count;
-                
-                if (count > 0) {
-                    textNode.deleteData(INTS[fEDI_w_indexColumn_SpanTextContentRelative], count);
+        // 1. Target the specific line row index where the typing is taking place
+        const activeLine = INTS[fEDI_cursor_indexLine];
+        let lineSpans = EDI_lineStringCache[activeLine];
+        if (lineSpans !== undefined) {
+
+            smallLineSpans = lineSpans;
+
+            // 2. Determine the column position where the *first character of this edit burst* began
+            const editStartColumn = INTS[fEDI_cursor_indexColumn];
+
+            // Find the precise column location of the characters we are about to remove right now
+            const currentEditColumn = editStartColumn;
+            let isAtEndOfLine = false;
+
+            // 3. Scan the cached spans to find where currentEditColumn lands
+            for (let i = 0; i < lineSpans.length; i++) {
+                const span = lineSpans[i];
+                const spanLength = span.text.length;
+
+                if (currentEditColumn >= runningColumnIdx && currentEditColumn < runningColumnIdx + spanLength) {
+                    targetSpanIndex = i;
+                    targetSpan = span;
+                    relativeIndex = currentEditColumn - runningColumnIdx;
+                    
+                    // If the cursor hits exactly between two spans, your rule dictates targeting 
+                    // the left span at its trailing length index. We break early to lock onto it.
+                    break;
+                }
+                runningColumnIdx += spanLength;
+                if (currentEditColumn === runningColumnIdx && i === lineSpans.length - 1) { // TODO: This if statement isn't well understood. I had 'currentEditColumn === runningColumnIdx' alone until I had a case that needed 'i === lineSpans.length - 1'... TODO: look into this (I just don't have the energy right now).
+                    isAtEndOfLine = true;
+                }
+            }
+
+            if (targetSpan === null) {
+                if (!isAtEndOfLine) {
+                    throw new Error();
                 }
                 else {
-                    break; // silent error?
+                    targetSpanIndex = lineSpans.length;
+
+                    // NOTE: is undefined until 'if (isAtEndOfLine)' block runs
+                    //targetSpan = lineSpans[targetSpanIndex];
+
+                    relativeIndex = 0;
+                }
+            }
+
+            while (remainingCharacterRemovals > 0) {
+                //INTS[fEDI_cursor_edit_eventCount_drawn] = INTS[fEDI_cursor_edit_eventCount_occurred];
+                // you can't do the INTS[fEDI_cursor_edit_eventCount_drawn] immediately cause you need to determine how much of the current span can actually be deleted then move to the next span etc...
+                
+                if (isAtEndOfLine) {
+                    throw new Error('TODO: hit EOF');
+                }
+
+                // 4. If we successfully isolated the text slice segment inside the cache, modify it
+                const possibleCharacterRemovals = targetSpan.text.length - relativeIndex;
+                const actualCharacterRemovals = remainingCharacterRemovals <= possibleCharacterRemovals ? remainingCharacterRemovals : possibleCharacterRemovals;
+
+                // ...the text inline directly into the string reference inside the cache array frame
+                if (actualCharacterRemovals === targetSpan.text.length && lineSpans.length > 1) {
+                    lineSpans.splice(targetSpanIndex, 1);
+                }
+                else {
+                    targetSpan.text = targetSpan.text.slice(0, relativeIndex) + targetSpan.text.slice(relativeIndex + actualCharacterRemovals);
+                }
+                
+                // 5. Commit the continuation value forward so the next frame knows where to pick up
+                // (this step has a copy in the 'if (isAtEndOfLine)' block, the text is not completely equivalent)
+                INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue] += actualCharacterRemovals;
+                INTS[fEDI_cursor_edit_eventCount_drawn] += actualCharacterRemovals;
+                remainingCharacterRemovals -= actualCharacterRemovals;
+
+                if (remainingCharacterRemovals > 0) {
+                    if (targetSpanIndex < lineSpans.length) {
+                        targetSpan = lineSpans[targetSpanIndex];
+                        relativeIndex = 0;
+                    }
+                    else {
+                        isAtEndOfLine = true;
+                    }
                 }
             }
         }
     }
 
     // Remove selection on large position line
-    let largeLineDiv = null;
+    let largeLineSpans = null;
     if (linesRemovedCount > 0) {
         INTS[fEDI_cursor_indexLine] = INTS[fEDI_cursor_indexLine] + linesRemovedCount;
         INTS[fEDI_cursor_indexColumn] = 0;
@@ -1100,23 +1172,96 @@ function EDI_render_do_RemoveSelection() {
         INTS[fEDI_cursorVisualColumnIndex] = 0;
 
         EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
-        let remaining = largePosition - INTS[fEDI_ret_getLineBoundaryPositions_start];
+        const line_end = INTS[fEDI_ret_getLineBoundaryPositions_end];
 
-        walkLineUntilIndexColumn();
+        let targetSpanIndex = 0;
+        let runningColumnIdx = 0;
+        let targetSpan = null;
+        let relativeIndex = 0;
+        let remainingCharacterRemovals = largePosition - INTS[fEDI_ret_getLineBoundaryPositions_start];
 
-        if (w_div !== w_divNONE && INTS[fEDI_w_indexColumn_SpanTextContentRelative] >= 0) {
-            largeLineDiv = w_div;
-            const textNode = w_div.firstChild;
-            while (remaining > 0) {
-                let available = w_div.textContent.length - INTS[fEDI_w_indexColumn_SpanTextContentRelative];
-                let count = remaining > available ? available : remaining;
-                remaining -= count;
+        // 1. Target the specific line row index where the typing is taking place
+        const activeLine = INTS[fEDI_cursor_indexLine];
+        let lineSpans = EDI_lineStringCache[activeLine];
+        if (lineSpans !== undefined) {
+            
+            largeLineSpans = lineSpans;
 
-                if (count > 0) {
-                    textNode.deleteData(INTS[fEDI_w_indexColumn_SpanTextContentRelative], count);
+            // 2. Determine the column position where the *first character of this edit burst* began
+            const editStartColumn = INTS[fEDI_cursor_indexColumn];
+
+            // Find the precise column location of the characters we are about to remove right now
+            const currentEditColumn = editStartColumn;
+            let isAtEndOfLine = false;
+
+            // 3. Scan the cached spans to find where currentEditColumn lands
+            for (let i = 0; i < lineSpans.length; i++) {
+                const span = lineSpans[i];
+                const spanLength = span.text.length;
+
+                if (currentEditColumn >= runningColumnIdx && currentEditColumn < runningColumnIdx + spanLength) {
+                    targetSpanIndex = i;
+                    targetSpan = span;
+                    relativeIndex = currentEditColumn - runningColumnIdx;
+                    
+                    // If the cursor hits exactly between two spans, your rule dictates targeting 
+                    // the left span at its trailing length index. We break early to lock onto it.
+                    break;
+                }
+                runningColumnIdx += spanLength;
+                if (currentEditColumn === runningColumnIdx && i === lineSpans.length - 1) { // TODO: This if statement isn't well understood. I had 'currentEditColumn === runningColumnIdx' alone until I had a case that needed 'i === lineSpans.length - 1'... TODO: look into this (I just don't have the energy right now).
+                    isAtEndOfLine = true;
+                }
+            }
+
+            if (targetSpan === null) {
+                if (!isAtEndOfLine) {
+                    throw new Error();
                 }
                 else {
-                    break; // silent error?
+                    targetSpanIndex = lineSpans.length;
+
+                    // NOTE: is undefined until 'if (isAtEndOfLine)' block runs
+                    //targetSpan = lineSpans[targetSpanIndex];
+
+                    relativeIndex = 0;
+                }
+            }
+
+            while (remainingCharacterRemovals > 0) {
+                //INTS[fEDI_cursor_edit_eventCount_drawn] = INTS[fEDI_cursor_edit_eventCount_occurred];
+                // you can't do the INTS[fEDI_cursor_edit_eventCount_drawn] immediately cause you need to determine how much of the current span can actually be deleted then move to the next span etc...
+                
+                if (isAtEndOfLine) {
+                    throw new Error('TODO: hit EOF');
+                }
+
+                // 4. If we successfully isolated the text slice segment inside the cache, modify it
+                const possibleCharacterRemovals = targetSpan.text.length - relativeIndex;
+                const actualCharacterRemovals = remainingCharacterRemovals <= possibleCharacterRemovals ? remainingCharacterRemovals : possibleCharacterRemovals;
+
+                // ...the text inline directly into the string reference inside the cache array frame
+                if (actualCharacterRemovals === targetSpan.text.length && lineSpans.length > 1) {
+                    lineSpans.splice(targetSpanIndex, 1);
+                }
+                else {
+                    targetSpan.text = targetSpan.text.slice(0, relativeIndex) + targetSpan.text.slice(relativeIndex + actualCharacterRemovals);
+                }
+                
+                // 5. Commit the continuation value forward so the next frame knows where to pick up
+                // (this step has a copy in the 'if (isAtEndOfLine)' block, the text is not completely equivalent)
+                INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue] += actualCharacterRemovals;
+                INTS[fEDI_cursor_edit_eventCount_drawn] += actualCharacterRemovals;
+                remainingCharacterRemovals -= actualCharacterRemovals;
+
+                if (remainingCharacterRemovals > 0) {
+                    if (targetSpanIndex < lineSpans.length) {
+                        targetSpan = lineSpans[targetSpanIndex];
+                        relativeIndex = 0;
+                    }
+                    else {
+                        isAtEndOfLine = true;
+                    }
                 }
             }
         }
@@ -1139,12 +1284,46 @@ function EDI_render_do_RemoveSelection() {
         // TODO: this cursorVisualColumnIndex... logic here seems like it can be skipped here so long as you do it once by the end of the function to the correct indices.
         INTS[fEDI_cursorVisualColumnIndex] = smallLineAndColumnIndices_indexColumn;
 
-        if (smallLineDiv) {
-            if (largeLineDiv) { // - [x] keeping, removing
-                const smallLineTextNode = smallLineDiv.firstChild;
-                const largeLineTextNode = largeLineDiv.firstChild;
-                smallLineTextNode.insertData(smallLineTextNode.length, largeLineTextNode.data);
-                largeLineTextNode.deleteData(0, largeLineTextNode.length);
+        if (smallLineSpans) {
+            if (largeLineSpans) { // - [x] keeping, removing
+
+                // append 'largeLineSpans' to 'smallLineSpans'
+
+                const largeLineSpans_length = largeLineSpans.length;
+                const smallLineSpans_length = smallLineSpans.length;
+
+                let isAtEndOfLine = false;
+                
+                if (largeLineSpans_length === 1 && largeLineSpans[0].text.length === 0) { // (do not append if large line is just an empty string)
+                    isAtEndOfLine = true;
+                }
+                else {
+                    
+                    if (smallLineSpans.length === 1 && smallLineSpans[0].text.length === 0) {
+                        smallLineSpans.length = 0; // Remove the empty string from the small
+                        EDI_lineStringCache[smallLineAndColumnIndices_indexLine] = largeLineSpans; // current receives entirety of next's spans.
+                        smallLineSpans = largeLineSpans // update the local variable
+                        targetSpanIndex = 0;
+                    }
+                    else {
+                        for (let i = 0; i < largeLineSpans_length; i++) {
+                            smallLineSpans.push(largeLineSpans[i]);
+                        }
+                    }
+                }
+
+                // shift existing cache
+                const upperLimit = INTS[fEDI_lineEndPositionList_count] - 1;
+                for (let i = activeLine + 1; i < upperLimit; i++) {
+                    EDI_lineStringCache[i] = EDI_lineStringCache[i + 1];
+                }
+                EDI_lineStringCache[INTS[fEDI_lineEndPositionList_count]] = undefined;
+
+                // (copy of 5.) Commit the continuation value forward so the next frame knows where to pick up
+                INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue] += 1;
+                INTS[fEDI_cursor_edit_eventCount_drawn] += 1;
+                remainingCharacterRemovals -= 1;
+                
                 visibleLinesRemovedCount++;
             }
             else { // - [ ] keeping, !removing
@@ -1152,7 +1331,7 @@ function EDI_render_do_RemoveSelection() {
             }
         }
         else {
-            if (largeLineDiv) { // - [ ] !keeping, removing
+            if (largeLineSpans) { // - [ ] !keeping, removing
                 
             }
             else { // - [ ] !keeping, !removing
@@ -1164,18 +1343,18 @@ function EDI_render_do_RemoveSelection() {
     // Remove middle line(s)
     if (linesRemovedCount > 0) {
 
-        // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
-        let ringBufferIndex_current = (smallLineAndColumnIndices_indexLine + 1) - INTS[fEDI_virtualIndexLine];
-        if (ringBufferIndex_current >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_current < 0) ringBufferIndex_current = -1;
-        else ringBufferIndex_current = (ringBufferIndex_current + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
+        //// See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
+        //let ringBufferIndex_current = (smallLineAndColumnIndices_indexLine + 1) - INTS[fEDI_virtualIndexLine];
+        //if (ringBufferIndex_current >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_current < 0) ringBufferIndex_current = -1;
+        //else ringBufferIndex_current = (ringBufferIndex_current + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
+//
+        //// See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
+        //let ringBufferIndex_last = (INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1) - INTS[fEDI_virtualIndexLine];
+        //if (ringBufferIndex_last >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_last < 0) ringBufferIndex_last = -1;
+        //else ringBufferIndex_last = (ringBufferIndex_last + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
 
-        // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
-        let ringBufferIndex_last = (INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1) - INTS[fEDI_virtualIndexLine];
-        if (ringBufferIndex_last >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_last < 0) ringBufferIndex_last = -1;
-        else ringBufferIndex_last = (ringBufferIndex_last + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
-
-        // TODO: This will be wrong because you'd need to explicitly redraw the large selection line index.
-        EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_last, ringBufferIndex_current, linesRemovedCount);
+        //// TODO: This will be wrong because you'd need to explicitly redraw the large selection line index.
+        //EDI_shiftLinesOfText_ToASmaller_IndexLine_byDistance(ringBufferIndex_last, ringBufferIndex_current, linesRemovedCount);
 
         if (EDI_drawGutter_Width(INTS[fEDI_lineEndPositionList_count] - linesRemovedCount)) {
             // If true then you need to also draw the dependent UI
@@ -1185,6 +1364,11 @@ function EDI_render_do_RemoveSelection() {
     }
 
     INTS[fEDI_cursor_editLength_characters] = original_edit_length;
+
+    // 6. Request a canvas redraw layout frame pass to force the changes onto the screen
+    EDI_render_request(RenderKind_Scroll);
+    //EDI_render_TextContent();
+    //EDI_render_Cursor();
 }
 
 /** TODO: this is nearly identical to backspace, the difference is the check 'if (INTS[fEDI_cursor_editKind] !== EditKind_DeleteLtr)', thus dedupe the logic or no? */

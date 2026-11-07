@@ -1268,10 +1268,12 @@ function EDI_render_do_Delete() {
                     isAtEndOfLine = true;
                 }
                 else {
+                    
                     if (lineSpans.length === 1 && lineSpans[0].text.length === 0) {
                         lineSpans.length = 0; // Remove the empty string from the current
                         EDI_lineStringCache[activeLine] = NEXT_lineSpans; // current receives entirety of next's spans.
                         lineSpans = NEXT_lineSpans // update the local variable
+                        targetSpanIndex = 0; // why is targetSpanIndex 1?
                     }
                     else {
                         for (let i = 0; i < NEXT_lineSpans_length; i++) {

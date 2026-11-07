@@ -1313,16 +1313,12 @@ function EDI_render_do_RemoveSelection() {
                 }
 
                 // shift existing cache
+                const activeLine = smallLineAndColumnIndices_indexLine;
                 const upperLimit = INTS[fEDI_lineEndPositionList_count] - 1;
                 for (let i = activeLine + 1; i < upperLimit; i++) {
                     EDI_lineStringCache[i] = EDI_lineStringCache[i + 1];
                 }
                 EDI_lineStringCache[INTS[fEDI_lineEndPositionList_count]] = undefined;
-
-                // (copy of 5.) Commit the continuation value forward so the next frame knows where to pick up
-                INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue] += 1;
-                INTS[fEDI_cursor_edit_eventCount_drawn] += 1;
-                remainingCharacterRemovals -= 1;
                 
                 visibleLinesRemovedCount++;
             }

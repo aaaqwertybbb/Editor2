@@ -881,7 +881,7 @@ function EDI_render_do_EnterKey() {
                 for (let i = INTS[fEDI_lineEndPositionList_count]; i >= INTS[fEDI_cursor_editIndexLine] + 1; i--) {
                     EDI_lineStringCache[i + 1] = EDI_lineStringCache[i];
                 }
-                EDI_lineStringCache[INTS[fEDI_cursor_editIndexLine] + 1] = { text: '', color: EDI_tokenColors[0] };
+                EDI_lineStringCache[INTS[fEDI_cursor_editIndexLine] + 1] = [{ text: '', color: EDI_tokenColors[0] }];
             }
             else { // among a line
 
@@ -950,6 +950,12 @@ function EDI_render_do_EnterKey() {
                 //if (w_div === w_divNONE) {
                 //    throw new Error();
                 //}
+
+                EDI_lineStringCache.push(undefined); // TODO: don't do this (allocate a newly sized one if necessary in one go than inside this loop (push probably is amortized in and of itself but idk).)
+                for (let i = EDI_lineStringCache.length - 2; i >= INTS[fEDI_cursor_editIndexLine] + 1; i--) {
+                    EDI_lineStringCache[i + 1] = EDI_lineStringCache[i];
+                }
+                EDI_lineStringCache[INTS[fEDI_cursor_editIndexLine] + 1] = [{ text: '', color: EDI_tokenColors[0] }];
                 
                 //if (INTS[fEDI_w_indexColumn_Goal] > 0) {
                     //if (INTS[fEDI_w_indexColumn_Goal] !== INTS[fEDI_w_indexColumn_Sum] + w_div.textContent.length) {
@@ -960,7 +966,7 @@ function EDI_render_do_EnterKey() {
                         let lastText = data.substring(relativeInsertIndex);
 
                         lineSpans[targetedSpanIndex].text = firstText;
-                        let nextLineSpans = EDI_lineStringCache[targetedSpanIndex + 1];
+                        let nextLineSpans = EDI_lineStringCache[INTS[fEDI_cursor_editIndexLine] + 1];
 
                         for (let i = targetedSpanIndex; i < lineSpans.length; i++) {
                             nextLineSpans.unshift(lineSpans.pop());
@@ -972,11 +978,7 @@ function EDI_render_do_EnterKey() {
                     //}
                 //}
 
-                EDI_lineStringCache.push(undefined); // TODO: don't do this (allocate a newly sized one if necessary in one go than inside this loop (push probably is amortized in and of itself but idk).)
-                for (let i = INTS[fEDI_lineEndPositionList_count]; i >= INTS[fEDI_cursor_editIndexLine] + 1; i--) {
-                    EDI_lineStringCache[i + 1] = EDI_lineStringCache[i];
-                }
-                EDI_lineStringCache[INTS[fEDI_cursor_editIndexLine] + 1] = { text: '', color: EDI_tokenColors[0] };
+                
 
                 // Prior to returning from this function restore the original 'indexLine', and 'indexColumn'. (2 of 2)
                 INTS[fEDI_cursor_indexLine] = remember_cursorIndexLine;

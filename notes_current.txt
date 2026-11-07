@@ -413,3 +413,7 @@ sometimes only.
  Cause nothing is ever certain this means you're typing without really knowing what's happening
  and then maybe u got the thing to happen and maybe you don't understand anything
  etc... that's like spaghetti code-ish etc... it is give and take
+
+you gotta feel out what the right thing to do is on a moment to moment basis
+right now I know that the right thing to do is to just grind out something anything and just keep going
+I don't always do that though it is bad for its own reasons it is a toolbox

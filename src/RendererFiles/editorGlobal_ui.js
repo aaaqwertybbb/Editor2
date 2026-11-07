@@ -1264,14 +1264,14 @@ function EDI_render_do_Delete() {
                 }
                 const NEXT_lineSpans_length = NEXT_lineSpans.length;
                 // (do not append if next line is just an empty string)
-                if (NEXT_lineSpans_length !== 1 && NEXT_lineSpans[0].text.length !== 0) {
+                if (NEXT_lineSpans_length === 1 && NEXT_lineSpans[0].text.length === 0) {
+                    isAtEndOfLine = true;
+                }
+                else {
                     for (let i = 0; i < NEXT_lineSpans_length; i++) {
                         lineSpans.push(NEXT_lineSpans[i]);
                     }
                     targetSpan = lineSpans[targetSpanIndex];
-                }
-                else {
-                    isAtEndOfLine = true;
                 }
 
                 // shift existing cache

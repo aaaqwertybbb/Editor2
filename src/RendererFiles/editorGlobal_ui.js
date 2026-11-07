@@ -1263,8 +1263,15 @@ function EDI_render_do_Delete() {
                     throw new Error('TODO: finalize edit?');
                 }
                 const NEXT_lineSpans_length = NEXT_lineSpans.length;
-                for (let i = 0; i < NEXT_lineSpans_length; i++) {
-                    lineSpans.push(NEXT_lineSpans[i]);
+                // (do not append if next line is just an empty string)
+                if (NEXT_lineSpans_length !== 1 && NEXT_lineSpans[0].text.length !== 0) {
+                    for (let i = 0; i < NEXT_lineSpans_length; i++) {
+                        lineSpans.push(NEXT_lineSpans[i]);
+                    }
+                    targetSpan = lineSpans[targetSpanIndex];
+                }
+                else {
+                    isAtEndOfLine = true;
                 }
 
                 // shift existing cache
@@ -1274,14 +1281,14 @@ function EDI_render_do_Delete() {
                 }
                 EDI_lineStringCache[INTS[fEDI_lineEndPositionList_count]] = undefined;
 
-                // TODO: If final is just empty string don't
-
-                targetSpan = lineSpans[targetSpanIndex];
-
-                // (repeat of 5.) Commit the continuation value forward so the next frame knows where to pick up
+                // (copy of 5.) Commit the continuation value forward so the next frame knows where to pick up
                 INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue] += 1;
                 INTS[fEDI_cursor_edit_eventCount_drawn] += 1;
                 remainingCharacterRemovals -= 1;
+                
+                if (isAtEndOfLine) {
+                    continue;
+                }
             }
             else {
                 throw new Error('TODO: hit EOF');
@@ -1301,6 +1308,7 @@ function EDI_render_do_Delete() {
         }
         
         // 5. Commit the continuation value forward so the next frame knows where to pick up
+        // (this step has a copy in the 'if (isAtEndOfLine)' block, the text is not completely equivalent)
         INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue] += actualCharacterRemovals;
         INTS[fEDI_cursor_edit_eventCount_drawn] += actualCharacterRemovals;
         remainingCharacterRemovals -= actualCharacterRemovals;

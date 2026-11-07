@@ -1246,8 +1246,8 @@ function EDI_render_do_Delete() {
         const actualCharacterRemovals = remainingCharacterRemovals <= possibleCharacterRemovals ? remainingCharacterRemovals : possibleCharacterRemovals;
 
         // ...the text inline directly into the string reference inside the cache array frame
-        if (actualCharacterRemovals === targetSpan.text.length) {
-            lineSpans.splice(targetSpanIndex, 1); 
+        if (actualCharacterRemovals === targetSpan.text.length && lineSpans.length > 1) {
+            lineSpans.splice(targetSpanIndex, 1);
         }
         else {
             targetSpan.text = targetSpan.text.slice(0, relativeIndex) + targetSpan.text.slice(relativeIndex + actualCharacterRemovals);

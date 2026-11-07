@@ -1357,14 +1357,14 @@ function EDI_render_do_Backspace() {
     let remainingCharacterRemovals = INTS[fEDI_cursor_editLength_characters] - INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue];
 
     // 1. Target the specific line row index where the typing is taking place
-    const activeLine = INTS[fEDI_cursor_editIndexLine];
+    const activeLine = INTS[fEDI_cursor_indexLine];
     let lineSpans = EDI_lineStringCache[activeLine];
     if (lineSpans === undefined) {
         return;
     }
 
     // 2. Determine the column position where the *first character of this edit burst* began
-    const editStartColumn = INTS[fEDI_cursor_editIndexColumn] + remainingCharacterRemovals;
+    const editStartColumn = INTS[fEDI_cursor_indexColumn];
 
     // Find the precise column location of the characters we are about to remove right now
     const currentEditColumn = editStartColumn;
@@ -1375,7 +1375,7 @@ function EDI_render_do_Backspace() {
         const span = lineSpans[i];
         const spanLength = span.text.length;
 
-        if (currentEditColumn > runningColumnIdx && currentEditColumn <= runningColumnIdx + spanLength) {
+        if (currentEditColumn >= runningColumnIdx && currentEditColumn < runningColumnIdx + spanLength) {
             targetSpanIndex = i;
             targetSpan = span;
             relativeIndex = currentEditColumn - runningColumnIdx;
@@ -1385,10 +1385,9 @@ function EDI_render_do_Backspace() {
             break;
         }
         runningColumnIdx += spanLength;
-    }
-
-    if (currentEditColumn === 0) {
-        isAtEndOfLine = true;
+        if (currentEditColumn === runningColumnIdx && i === lineSpans.length - 1) { // TODO: This if statement isn't well understood. I had 'currentEditColumn === runningColumnIdx' alone until I had a case that needed 'i === lineSpans.length - 1'... TODO: look into this (I just don't have the energy right now).
+            isAtEndOfLine = true;
+        }
     }
 
     if (targetSpan === null) {
@@ -1396,9 +1395,10 @@ function EDI_render_do_Backspace() {
             throw new Error();
         }
         else {
-            targetSpanIndex = 0;
+            targetSpanIndex = lineSpans.length;
 
-            //targetSpan = lineSpans[targetSpanIndex]; // This doesn't matter it will be overwritten
+            // NOTE: is undefined until 'if (isAtEndOfLine)' block runs
+            //targetSpan = lineSpans[targetSpanIndex];
 
             relativeIndex = 0;
         }
@@ -1406,40 +1406,41 @@ function EDI_render_do_Backspace() {
 
     while (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
         //INTS[fEDI_cursor_edit_eventCount_drawn] = INTS[fEDI_cursor_edit_eventCount_occurred];
-        // you can't do the INTS[fEDI_cursor_edit_eventCount_drawn] immediately cause you need to determine how much of the current span can actually be removed then move to the next span etc...
+        // you can't do the INTS[fEDI_cursor_edit_eventCount_drawn] immediately cause you need to determine how much of the current span can actually be deleted then move to the next span etc...
         
         if (isAtEndOfLine) {
             isAtEndOfLine = false;
-            if (activeLine > 0) {
-                // append 'current line' to 'previous line'
-                const PREVIOUS_lineSpans = EDI_lineStringCache[activeLine - 1];
-                if (PREVIOUS_lineSpans === undefined) {
+            if (activeLine < INTS[fEDI_lineEndPositionList_count]) {
+                // append 'next line' to 'current line'
+                const NEXT_lineSpans = EDI_lineStringCache[activeLine + 1];
+                if (NEXT_lineSpans === undefined) {
                     EDI_lineStringCache[activeLine] = undefined;
                     throw new Error('TODO: finalize edit?');
                 }
-                const PREVIOUS_lineSpans_length = PREVIOUS_lineSpans.length;
+                const NEXT_lineSpans_length = NEXT_lineSpans.length;
                 
-                if (lineSpans.length === 1 && lineSpans[0].text.length === 0) { // (do not append if current line is just an empty string)
+                if (NEXT_lineSpans_length === 1 && NEXT_lineSpans[0].text.length === 0) { // (do not append if next line is just an empty string)
                     isAtEndOfLine = true;
                 }
                 else {
-                    if (PREVIOUS_lineSpans_length === 1 && PREVIOUS_lineSpans[0].text.length === 0) {
-                        PREVIOUS_lineSpans.length = 0; // Remove the empty string from the previous
-                        EDI_lineStringCache[activeLine - 1] = lineSpans; // previous receives entirety of current's spans.
+                    
+                    if (lineSpans.length === 1 && lineSpans[0].text.length === 0) {
+                        lineSpans.length = 0; // Remove the empty string from the current
+                        EDI_lineStringCache[activeLine] = NEXT_lineSpans; // current receives entirety of next's spans.
+                        lineSpans = NEXT_lineSpans // update the local variable
                         targetSpanIndex = 0; // if initial 'if (targetSpan === null)' then 'targetSpanIndex = lineSpans.length;' so you need to set to 0 here.
                     }
                     else {
-                        for (let i = 0; i < lineSpans.length; i++) {
-                            PREVIOUS_lineSpans.push(lineSpans[i]);
+                        for (let i = 0; i < NEXT_lineSpans_length; i++) {
+                            lineSpans.push(NEXT_lineSpans[i]);
                         }
-                        lineSpans = PREVIOUS_lineSpans // update the local variable
                     }
                     targetSpan = lineSpans[targetSpanIndex];
                 }
 
                 // shift existing cache
                 const upperLimit = INTS[fEDI_lineEndPositionList_count] - 1;
-                for (let i = activeLine; i < upperLimit; i++) {
+                for (let i = activeLine + 1; i < upperLimit; i++) {
                     EDI_lineStringCache[i] = EDI_lineStringCache[i + 1];
                 }
                 EDI_lineStringCache[INTS[fEDI_lineEndPositionList_count]] = undefined;
@@ -1454,12 +1455,12 @@ function EDI_render_do_Backspace() {
                 }
             }
             else {
-                throw new Error('TODO: hit StartOF');
+                throw new Error('TODO: hit EOF');
             }
         }
 
         // 4. If we successfully isolated the text slice segment inside the cache, modify it
-        const possibleCharacterRemovals = relativeIndex;
+        const possibleCharacterRemovals = targetSpan.text.length - relativeIndex;
         const actualCharacterRemovals = remainingCharacterRemovals <= possibleCharacterRemovals ? remainingCharacterRemovals : possibleCharacterRemovals;
 
         // ...the text inline directly into the string reference inside the cache array frame
@@ -1467,19 +1468,19 @@ function EDI_render_do_Backspace() {
             lineSpans.splice(targetSpanIndex, 1);
         }
         else {
-            targetSpan.text = targetSpan.text.slice(0, relativeIndex - actualCharacterRemovals) + targetSpan.text.slice(relativeIndex);
+            targetSpan.text = targetSpan.text.slice(0, relativeIndex) + targetSpan.text.slice(relativeIndex + actualCharacterRemovals);
         }
         
         // 5. Commit the continuation value forward so the next frame knows where to pick up
+        // (this step has a copy in the 'if (isAtEndOfLine)' block, the text is not completely equivalent)
         INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue] += actualCharacterRemovals;
         INTS[fEDI_cursor_edit_eventCount_drawn] += actualCharacterRemovals;
         remainingCharacterRemovals -= actualCharacterRemovals;
 
         if (remainingCharacterRemovals > 0) {
-            if (targetSpanIndex > 0) {
-                targetSpanIndex--;
+            if (targetSpanIndex < lineSpans.length) {
                 targetSpan = lineSpans[targetSpanIndex];
-                relativeIndex = targetSpan.text.length;
+                relativeIndex = 0;
             }
             else {
                 isAtEndOfLine = true;

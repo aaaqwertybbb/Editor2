@@ -1241,13 +1241,48 @@ function EDI_render_do_Delete() {
         throw new Error();
     }
     else {
-        throw new Error('aaa');
+        targetSpanIndex = lineSpans.length;
+
+        // NOTE: is undefined until 'if (isAtEndOfLine)' block runs
+        //targetSpan = lineSpans[targetSpanIndex];
+
+        relativeIndex = 0;
     }
 
     while (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
         //INTS[fEDI_cursor_edit_eventCount_drawn] = INTS[fEDI_cursor_edit_eventCount_occurred];
         // you can't do the INTS[fEDI_cursor_edit_eventCount_drawn] immediately cause you need to determine how much of the current span can actually be deleted then move to the next span etc...
         
+        if (isAtEndOfLine) {
+            isAtEndOfLine = false;
+            if (activeLine < INTS[fEDI_lineEndPositionList_count]) {
+                // append 'next line' to 'current line'
+                const NEXT_lineSpans = EDI_lineStringCache[activeLine + 1];
+                if (NEXT_lineSpans === undefined) {
+                    EDI_lineStringCache[activeLine] = undefined;
+                    throw new Error('TODO: finalize edit?');
+                }
+                const NEXT_lineSpans_length = NEXT_lineSpans.length;
+                for (let i = 0; i < NEXT_lineSpans_length; i++) {
+                    lineSpans.push(NEXT_lineSpans[i]);
+                }
+
+                // shift existing cache
+                const upperLimit = INTS[fEDI_lineEndPositionList_count] - 1;
+                for (let i = activeLine + 1; i < upperLimit; i++) {
+                    EDI_lineStringCache[i] = EDI_lineStringCache[i + 1];
+                }
+                EDI_lineStringCache[INTS[fEDI_lineEndPositionList_count]] = undefined;
+
+                // TODO: If final is just empty string don't
+
+                targetSpan = lineSpans[targetSpanIndex];
+            }
+            else {
+                throw new Error('TODO: hit EOF');
+            }
+        }
+
         // 4. If we successfully isolated the text slice segment inside the cache, modify it
         const possibleCharacterRemovals = targetSpan.text.length - relativeIndex;
         const actualCharacterRemovals = remainingCharacterRemovals <= possibleCharacterRemovals ? remainingCharacterRemovals : possibleCharacterRemovals;
@@ -1271,28 +1306,7 @@ function EDI_render_do_Delete() {
                 relativeIndex = 0;
             }
             else {
-                if (activeLine < INTS[fEDI_lineEndPositionList_count]) {
-                    // append 'next line' to 'current line'
-                    const NEXT_lineSpans = EDI_lineStringCache[activeLine + 1];
-                    if (NEXT_lineSpans === undefined) {
-                        EDI_lineStringCache[activeLine] = undefined;
-                        throw new Error('TODO: finalize edit?');
-                    }
-                    const NEXT_lineSpans_length = NEXT_lineSpans.length;
-                    for (let i = 0; i < NEXT_lineSpans_length; i++) {
-                        lineSpans.push(NEXT_lineSpans[i]);
-                    }
-
-                    // shift existing cache
-                    const upperLimit = INTS[fEDI_lineEndPositionList_count] - 1;
-                    for (let i = activeLine + 1; i < upperLimit; i++) {
-                        EDI_lineStringCache[i] = EDI_lineStringCache[i + 1];
-                    }
-                    EDI_lineStringCache[INTS[fEDI_lineEndPositionList_count]] = undefined;
-                }
-                else {
-                    throw new Error('TODO: hit EOF');
-                }
+                isAtEndOfLine = true;
             }
         }
     }

@@ -1307,7 +1307,6 @@ function EDI_render_do_RemoveSelection() {
                         smallLineSpans.length = 0; // Remove the empty string from the small
                         EDI_lineStringCache[smallLineAndColumnIndices_indexLine] = largeLineSpans; // current receives entirety of next's spans.
                         smallLineSpans = largeLineSpans // update the local variable
-                        targetSpanIndex = 0;
                     }
                     else {
                         for (let i = 0; i < largeLineSpans_length; i++) {

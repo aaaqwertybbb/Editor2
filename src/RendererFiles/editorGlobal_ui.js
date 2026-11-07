@@ -877,11 +877,11 @@ function EDI_render_do_EnterKey() {
             let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_editIndexLine]);
 
             if (lastValidIndexColumn === INTS[fEDI_cursor_editIndexColumn]) { // end of line
-                let next_ringBufferIndex = (ringBufferIndex_current + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
-                EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, next_ringBufferIndex);
-                const textNode = EDI_ringBuffer_text[next_ringBufferIndex].firstChild;
-                textNode.replaceData(0, textNode.length, EDI_cursor_cached_indentation_string);
-                EDI_lineWasInsertedValidateGutter(INTS[fEDI_lineEndPositionList_count] + INTS[fEDI_cursor_editLineFeedCount]);
+                EDI_lineStringCache.push(undefined); // TODO: don't do this (allocate a newly sized one if necessary in one go than inside this loop (push probably is amortized in and of itself but idk).)
+                for (let i = INTS[fEDI_lineEndPositionList_count]; i >= INTS[fEDI_cursor_editIndexLine] + 1; i--) {
+                    EDI_lineStringCache[i + 1] = EDI_lineStringCache[i];
+                }
+                EDI_lineStringCache[INTS[fEDI_cursor_editIndexLine] + 1] = { text: '', color: EDI_tokenColors[0] };
             }
             else { // among a line
 
@@ -903,11 +903,17 @@ function EDI_render_do_EnterKey() {
                 // ...cache 'spanText'.
                 //
                 let spanText = EDI_cursor_cached_indentation_string;
+                let relativeInsertIndex = 0;
+
+                let targetedSpan = null;
+                let targetedSpanIndex = 0;
+
+                // 1. Target the specific line row index where the typing is taking place
+                const activeLine = INTS[fEDI_cursor_indexLine];
+                let lineSpans = EDI_lineStringCache[activeLine];
 
                 {
-                    // 1. Target the specific line row index where the typing is taking place
-                    const activeLine = INTS[fEDI_cursor_indexLine];
-                    let lineSpans = EDI_lineStringCache[activeLine];
+                    
                     
                     if (lineSpans === undefined) {
                         return;
@@ -915,14 +921,12 @@ function EDI_render_do_EnterKey() {
 
                     // 2. Determine the column position where the *first character of this edit burst* began
                     // We use indexColumn minus the absolute total length of characters typed in this current edit session
-                    const editStartColumn = INTS[fEDI_cursor_indexColumn] - INTS[fEDI_cursor_editLength_characters];
+                    const editStartColumn = INTS[fEDI_cursor_indexColumn];// - INTS[fEDI_cursor_editLength_characters];
                     
                     // Find the precise column location of the characters we are about to insert right now
-                    const currentEditColumn = editStartColumn + INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue];
+                    const currentEditColumn = editStartColumn;// + INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue];
 
                     let runningColumnIdx = 0;
-                    let targetedSpan = null;
-                    let relativeInsertIndex = 0;
 
                     // 3. Scan the cached spans to find where currentEditColumn lands
                     for (let i = 0; i < lineSpans.length; i++) {
@@ -932,6 +936,7 @@ function EDI_render_do_EnterKey() {
                         // If the cursor lands completely inside this span, or exactly on its trailing right edge
                         if (currentEditColumn >= runningColumnIdx && currentEditColumn <= runningColumnIdx + spanLength) {
                             targetedSpan = span;
+                            targetedSpanIndex = i;
                             relativeInsertIndex = currentEditColumn - runningColumnIdx;
                             
                             // If the cursor hits exactly between two spans, your rule dictates targeting 
@@ -940,51 +945,33 @@ function EDI_render_do_EnterKey() {
                         }
                         runningColumnIdx += spanLength;
                     }
-
-                    // 4. If we successfully isolated the text slice segment inside the cache, modify it
-                    if (targetedSpan !== null) {
-                        // Decode only the new slice of un-drawn keys typed during this frame frame burst
-                        const freshlyTypedString = EDI_decoder.decode(
-                            EDI_cursor_textInsertionBuffer.subarray(
-                                INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue], 
-                                INTS[fEDI_cursor_editLength_characters]
-                            )
-                        );
-
-                        // Splice the text inline directly into the string reference inside the cache array frame
-                        targetedSpan.text = 
-                            targetedSpan.text.slice(0, relativeInsertIndex) + 
-                            freshlyTypedString + 
-                            targetedSpan.text.slice(relativeInsertIndex);
-                    }
-
-                    // 5. Commit the continuation value forward so the next frame knows where to pick up
-                    INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue] = INTS[fEDI_cursor_editLength_characters];
-
-                    //// 6. Request a canvas redraw layout frame pass to force the changes onto the screen
-                    EDI_render_request(RenderKind_Scroll);
                 }
-                if (w_div === w_divNONE) {
-                    throw new Error();
-                }
+
+                //if (w_div === w_divNONE) {
+                //    throw new Error();
+                //}
                 
-                if (INTS[fEDI_w_indexColumn_Goal] > 0) {
-                    if (INTS[fEDI_w_indexColumn_Goal] !== INTS[fEDI_w_indexColumn_Sum] + w_div.textContent.length) {
-                        const textNode = w_div.firstChild;
-                        const data = textNode.data;
+                //if (INTS[fEDI_w_indexColumn_Goal] > 0) {
+                    //if (INTS[fEDI_w_indexColumn_Goal] !== INTS[fEDI_w_indexColumn_Sum] + w_div.textContent.length) {
+                        //const textNode = w_div.firstChild;
+                        const data = targetedSpan.text;
 
-                        let firstText = data.substring(0, INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
-                        let lastText = data.substring(INTS[fEDI_w_indexColumn_SpanTextContentRelative]);
-                        textNode.replaceData(0, textNode.length, firstText);
-                        spanText += lastText; // += due to the possibility of indentation
-                    }
+                        let firstText = data.substring(0, relativeInsertIndex);
+                        let lastText = data.substring(relativeInsertIndex);
+
+                        lineSpans[targetedSpanIndex].text = firstText;
+                        let nextLineSpans = EDI_lineStringCache[targetedSpanIndex + 1];
+                        nextLineSpans.unshift({ text: lastText, color: EDI_tokenColors[0] });
+                        //textNode.replaceData(0, textNode.length, firstText);
+                        //spanText += lastText; // += due to the possibility of indentation
+                    //}
+                //}
+
+                EDI_lineStringCache.push(undefined); // TODO: don't do this (allocate a newly sized one if necessary in one go than inside this loop (push probably is amortized in and of itself but idk).)
+                for (let i = INTS[fEDI_lineEndPositionList_count]; i >= INTS[fEDI_cursor_editIndexLine] + 1; i--) {
+                    EDI_lineStringCache[i + 1] = EDI_lineStringCache[i];
                 }
-
-                let next_ringBufferIndex = (INTS[fEDI_w_ringBufferIndex] + 1) % INTS[fEDI_ArrayFrom_textElement_children_length];
-                EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, next_ringBufferIndex);
-                const textNode = EDI_ringBuffer_text[next_ringBufferIndex].firstChild;
-                textNode.replaceData(0, textNode.length, spanText);
-                EDI_lineWasInsertedValidateGutter(INTS[fEDI_lineEndPositionList_count] + INTS[fEDI_cursor_editLineFeedCount]);
+                EDI_lineStringCache[INTS[fEDI_cursor_editIndexLine] + 1] = { text: '', color: EDI_tokenColors[0] };
 
                 // Prior to returning from this function restore the original 'indexLine', and 'indexColumn'. (2 of 2)
                 INTS[fEDI_cursor_indexLine] = remember_cursorIndexLine;

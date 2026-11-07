@@ -361,7 +361,8 @@ k I need to take a break I'm gonna exercise
 Positive
 ========
 - [x] EditKind_InsertLtr
-- [ ] EditKind_Enter
+- [/] EditKind_Enter
+    - [ ] I looked at it
 - [x] EditKind_Tab
 - [ ] EditKind_Paste
 - [ ] EditKind_Duplicate

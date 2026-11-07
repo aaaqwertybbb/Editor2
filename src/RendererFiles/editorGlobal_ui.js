@@ -968,7 +968,7 @@ function EDI_render_do_EnterKey() {
                         lineSpans[targetedSpanIndex].text = firstText;
                         let nextLineSpans = EDI_lineStringCache[INTS[fEDI_cursor_editIndexLine] + 1];
 
-                        for (let i = targetedSpanIndex; i < lineSpans.length; i++) {
+                        for (let i = targetedSpanIndex + 1; i < lineSpans.length; i++) {
                             nextLineSpans.unshift(lineSpans.pop());
                         }
 

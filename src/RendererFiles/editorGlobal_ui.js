@@ -1265,7 +1265,23 @@ function EDI_render_do_Delete() {
             }
             else {
                 if (activeLine < INTS[fEDI_lineEndPositionList_count]) {
-                    throw new Error('TODO: remove line ending');
+                    // append 'next line' to 'current line'
+                    const NEXT_lineSpans = EDI_lineStringCache[activeLine + 1];
+                    if (NEXT_lineSpans === undefined) {
+                        EDI_lineStringCache[activeLine] = undefined;
+                        throw new Error('TODO: finalize edit?');
+                    }
+                    const NEXT_lineSpans_length = NEXT_lineSpans.length;
+                    for (let i = 0; i < NEXT_lineSpans_length; i++) {
+                        lineSpans.push(NEXT_lineSpans[i]);
+                    }
+
+                    // shift existing cache
+                    const upperLimit = INTS[fEDI_lineEndPositionList_count] - 1;
+                    for (let i = activeLine + 1; i < upperLimit; i++) {
+                        EDI_lineStringCache[i] = EDI_lineStringCache[i + 1];
+                    }
+                    EDI_lineStringCache[INTS[fEDI_lineEndPositionList_count]] = undefined;
                 }
                 else {
                     throw new Error('TODO: hit EOF');

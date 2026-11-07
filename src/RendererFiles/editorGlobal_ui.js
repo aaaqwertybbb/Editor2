@@ -1263,13 +1263,20 @@ function EDI_render_do_Delete() {
                     throw new Error('TODO: finalize edit?');
                 }
                 const NEXT_lineSpans_length = NEXT_lineSpans.length;
-                // (do not append if next line is just an empty string)
-                if (NEXT_lineSpans_length === 1 && NEXT_lineSpans[0].text.length === 0) {
+                
+                if (NEXT_lineSpans_length === 1 && NEXT_lineSpans[0].text.length === 0) { // (do not append if next line is just an empty string)
                     isAtEndOfLine = true;
                 }
                 else {
-                    for (let i = 0; i < NEXT_lineSpans_length; i++) {
-                        lineSpans.push(NEXT_lineSpans[i]);
+                    if (lineSpans.length === 1 && lineSpans[0].text.length === 0) {
+                        lineSpans.length = 0; // Remove the empty string from the current
+                        EDI_lineStringCache[activeLine] = NEXT_lineSpans; // current receives entirety of next's spans.
+                        lineSpans = NEXT_lineSpans // update the local variable
+                    }
+                    else {
+                        for (let i = 0; i < NEXT_lineSpans_length; i++) {
+                            lineSpans.push(NEXT_lineSpans[i]);
+                        }
                     }
                     targetSpan = lineSpans[targetSpanIndex];
                 }

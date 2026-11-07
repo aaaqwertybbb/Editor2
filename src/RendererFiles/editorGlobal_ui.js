@@ -1232,7 +1232,7 @@ function EDI_render_do_Delete() {
             break;
         }
         runningColumnIdx += spanLength;
-        if (currentEditColumn === runningColumnIdx) {
+        if (currentEditColumn === runningColumnIdx && i === lineSpans.length - 1) {
             isAtEndOfLine = true;
         }
     }

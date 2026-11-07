@@ -1222,7 +1222,7 @@ function EDI_render_do_Delete() {
         const spanLength = span.text.length;
 
         // If the cursor lands completely inside this span, or exactly on its trailing right edge
-        if (currentEditColumn >= runningColumnIdx && currentEditColumn <= runningColumnIdx + spanLength) {
+        if (currentEditColumn >= runningColumnIdx && currentEditColumn < runningColumnIdx + spanLength) {
             targetSpanIndex = i;
             targetSpan = span;
             relativeIndex = currentEditColumn - runningColumnIdx;

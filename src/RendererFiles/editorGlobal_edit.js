@@ -18,6 +18,8 @@ let EDI_findOverlay_searchResultPositionList = null;
 let EDI_textByteList_bytes = new Uint8Array(INTS[fEDI_textByteList_capacity]);
 
 let EDI_lineStringCache = [];
+//let EDI_lineStringCache_capacity = [];
+//let EDI_lineStringCache_count = [];
 
 const EDI_encoder = new TextEncoder();
 const EDI_decoder = new TextDecoder();
@@ -3623,6 +3625,110 @@ function EDI_lineEndPositionList_copyTo(bytesSource, sourceStart, bytesDestinati
         bytesDestination.set(bytesSource.subarray(sourceStart, sourceStart + length), destinationStart);
     }
 }
+//#endregion
+
+////#region lineStringCache
+//
+////let EDI_lineStringCache = [];
+////let EDI_lineStringCache_capacity = [];
+////let EDI_lineStringCache_count = [];
+//
+///**
+// * This function is manually inlined and modified for performance within 'EDI_state_setText_byteArray'.
+// * Within the for loop, and immediately after the for loop to handle EOF.
+// * Neither the for loop nor the EOF handling is 1 to 1 at the moment. They differ slightly.
+// */
+//function EDI_lineStringCache_insert(lineIndex, position, lineLengthVisual) {
+//    EDI_lineStringCache_ensureCapacityForInsertion(lineIndex, 1);
+//
+//    // 1. First, tell the heap to increment the indices of all lines *at or after* lineIndex.
+//    // This makes a logical "hole" in the heap's index mapping.
+//    EDI_trackingUint32MaxHeap.batchInsertLines(lineIndex, 1);
+//
+//    // 2. Shift your linear text data arrays down to open a hole in your document structure
+//    if (lineIndex !== EDI_lineStringCache_count) {
+//        EDI_lineStringCache_copyTo(EDI_lineStringCache, lineIndex, EDI_lineStringCache, lineIndex + 1, EDI_lineStringCache_count - lineIndex);
+//    }
+//
+//    // 3. Now it is safe to insert the new line into the heap.
+//    // It will take the newly vacated lineIndex.
+//    EDI_trackingUint32MaxHeap.insert(lineIndex, lineLengthVisual);
+//    
+//    // 4. Update the linear data metrics
+//    EDI_lineStringCache[lineIndex] = position;
+//    EDI_lineStringCache_count++;
+//}
+//
+///**
+// * Does not clear trailing information.
+// * 
+// * count === 0 immediately returns
+// */
+//function EDI_lineStringCache_removeAt(index, count) {
+//    if (index > EDI_lineStringCache_count) { throw new Error('removeAt(...): index > EDI_lineStringCache_count'); }
+//    if (index + count > EDI_lineStringCache_count) { throw new Error('removeAt(...): index + count > EDI_lineStringCache_count'); }
+//    if (count === 0) { return; }
+//
+//    const endDeletedRange = index + count;
+//
+//    // 1. Process the heap internally (it compacts, re-heapifies, and re-syncs its own map)
+//    EDI_trackingUint32MaxHeap.batchRemoveLines(index, count);
+//
+//    let shiftableCount = EDI_lineStringCache_count - endDeletedRange;
+//    if (shiftableCount > 0) {
+//        EDI_lineStringCache_copyTo(
+//            EDI_lineStringCache,
+//            endDeletedRange,
+//            EDI_lineStringCache,
+//            index,
+//            shiftableCount
+//        );
+//    }
+//
+//    EDI_lineStringCache_count -= count;
+//}
+//function EDI_lineStringCache_ensureCapacityForInsertion(index, count) {
+//    // TODO: sparse insertions?
+//    const requiredCapacity = Math.max(EDI_lineStringCache_count + count, index);
+//    
+//    // If we already have enough capacity, do absolutely nothing
+//    if (requiredCapacity <= EDI_lineStringCache_capacity) {
+//        return;
+//    }
+//
+//    // Calculate the new capacity by doubling until it fits
+//    let capacityNew = EDI_lineStringCache_capacity || 1; // Prevent infinite loops if capacity is 0
+//    while (capacityNew < requiredCapacity) {
+//        capacityNew *= 2;
+//    }
+//
+//    // Safety check against integer overflow / negative bounds
+//    if (capacityNew < EDI_lineStringCache_capacity) {
+//        throw new Error('ensureCapacityForInsertion(...): Capacity overflowed or went negative');
+//    }
+//
+//    // Allocate and copy EXACTLY ONCE
+//    let dataNew = new Uint32Array(capacityNew);
+//    EDI_lineStringCache_copyTo(EDI_lineStringCache, 0, dataNew, 0, EDI_lineStringCache_count);
+//    // Commit the changes to your global/module state
+//    EDI_lineStringCache = dataNew;
+//    EDI_lineStringCache_capacity = capacityNew;
+//}
+///**
+// * inclusive/exclusive
+// */
+//function EDI_lineStringCache_copyTo(bytesSource, sourceStart, bytesDestination, destinationStart, length) {
+//    if (bytesSource === bytesDestination) {
+//        if (bytesSource !== EDI_lineStringCache) {
+//            throw new Error('bytesSource === bytesDestination ; but bytesSource !== EDI_lineStringCache');
+//        }
+//
+//        EDI_lineStringCache.copyWithin(destinationStart, sourceStart, sourceStart + length);
+//    }
+//    else {
+//        bytesDestination.set(bytesSource.subarray(sourceStart, sourceStart + length), destinationStart);
+//    }
+//}
 //#endregion
 
 // Extremely important softlock possibility: see documentation comment for 'EDI_finalizeEdit()'.

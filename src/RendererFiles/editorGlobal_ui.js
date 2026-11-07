@@ -840,48 +840,6 @@ function EDI_render_do_EnterKey() {
 
         const local_EDI_lineEndPositionList_count = INTS[fEDI_lineEndPositionList_count] + INTS[fEDI_cursor_edit_eventCount_drawn] - 1;
         
-        // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
-        let ringBufferIndex_firstTilde = local_EDI_lineEndPositionList_count - INTS[fEDI_virtualIndexLine];
-        if (ringBufferIndex_firstTilde >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_firstTilde < 0) ringBufferIndex_firstTilde = -1;
-        else ringBufferIndex_firstTilde = (ringBufferIndex_firstTilde + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
-        if (ringBufferIndex_firstTilde >= 0) {
-            const gutterTextNode = EDI_gutter_scroll_mover.children[ringBufferIndex_firstTilde].firstChild;
-            gutterTextNode.replaceData(0, gutterTextNode.length, `${local_EDI_lineEndPositionList_count + 1}`);
-        }
-        
-        let isASingledOutCase = false;
-
-        // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
-        let ringBufferIndex_current = INTS[fEDI_cursor_editIndexLine] - INTS[fEDI_virtualIndexLine];
-        if (ringBufferIndex_current >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_current < 0) ringBufferIndex_current = -1;
-        else ringBufferIndex_current = (ringBufferIndex_current + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
-        const lineIsPartOfTheCurrentVirtualizedContent = ringBufferIndex_current < 0
-            ? false
-            : true;
-
-        // There are some cases that I don't feel like thinking about at the moment, this if statement singles them out.
-        if (INTS[fEDI_virtualCount] <= 1 || EDI_ringBuffer_text.length !== INTS[fEDI_virtualCount])
-            isASingledOutCase = true;
-
-        // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
-        let ringBufferIndex_first = INTS[fEDI_virtualIndexLine] - INTS[fEDI_virtualIndexLine]; // I found it 'INTS[fEDI_virtualIndexLine] - INTS[fEDI_virtualIndexLine]'
-        if (ringBufferIndex_first >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_first < 0) ringBufferIndex_first = -1;
-        else ringBufferIndex_first = (ringBufferIndex_first + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
-
-        // TODO: Use PREVIOUS here from 'ringBufferIndex_first'
-        //
-        // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
-        let ringBufferIndex_last = (INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1) - INTS[fEDI_virtualIndexLine];
-        if (ringBufferIndex_last >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_last < 0) ringBufferIndex_last = -1;
-        else ringBufferIndex_last = (ringBufferIndex_last + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
-
-        // 5 cases:
-        // - "isASingledOutCase case": throws an exception
-        // - "!lineIsPartOfTheCurrentVirtualizedContent" case
-        // - "start of line":
-        // - "end of line":
-        // - "among a line":
-
         // TODO: Rewrite this comment in a way that isn't rambling:
         //
         // Currently this is written in a way that ignores 'BYTES[byteEDI_cursor_enterKeyEventKind]' for the 'render'.
@@ -894,18 +852,26 @@ function EDI_render_do_EnterKey() {
         // Thus, your cursor on the second enter key event is among a line.
         // But if there wasn't indentation, your cursor is actually at the start of the newly added line.
 
-        if (!lineIsPartOfTheCurrentVirtualizedContent) { // "!lineIsPartOfTheCurrentVirtualizedContent"
-            // hmm is incorrect "nothing to draw", you need to actually draw maybe if the next index is in view
-            // because you've split the line above it that was out of view?
-            // TODO: I'm not sure.
-            return;
-        }
+        
 
-        if (isASingledOutCase) { throw new Error(); } // "isASingledOutCase case"
+        //if (!lineIsPartOfTheCurrentVirtualizedContent) { // "!lineIsPartOfTheCurrentVirtualizedContent"
+        //    // hmm is incorrect "nothing to draw", you need to actually draw maybe if the next index is in view
+        //    // because you've split the line above it that was out of view?
+        //    // TODO: I'm not sure.
+        //    return;
+        //}
+
+        //if (isASingledOutCase) { throw new Error(); } // "isASingledOutCase case"
 
         if (INTS[fEDI_cursor_editIndexColumn] === 0) { // start of line
-            EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, ringBufferIndex_current);
-            EDI_lineWasInsertedValidateGutter(INTS[fEDI_lineEndPositionList_count] + INTS[fEDI_cursor_editLineFeedCount]);
+            // pending line feeds use them for the line numbers eventually
+            EDI_lineStringCache.push(undefined); // TODO: don't do this (allocate a newly sized one if necessary in one go than inside this loop (push probably is amortized in and of itself but idk).)
+            for (let i = INTS[fEDI_lineEndPositionList_count]; i >= INTS[fEDI_cursor_editIndexLine]; i--) {
+                EDI_lineStringCache[i + 1] = EDI_lineStringCache[i];
+            }
+            EDI_lineStringCache[INTS[fEDI_cursor_editIndexLine]] = { text: '', color: EDI_tokenColors[0] };
+            //EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, ringBufferIndex_current);
+            //EDI_lineWasInsertedValidateGutter(INTS[fEDI_lineEndPositionList_count] + INTS[fEDI_cursor_editLineFeedCount]);
         }
         else {
             let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_editIndexLine]);
@@ -938,7 +904,66 @@ function EDI_render_do_EnterKey() {
                 //
                 let spanText = EDI_cursor_cached_indentation_string;
 
-                walkLineUntilIndexColumn();
+                {
+                    // 1. Target the specific line row index where the typing is taking place
+                    const activeLine = INTS[fEDI_cursor_indexLine];
+                    let lineSpans = EDI_lineStringCache[activeLine];
+                    
+                    if (lineSpans === undefined) {
+                        return;
+                    }
+
+                    // 2. Determine the column position where the *first character of this edit burst* began
+                    // We use indexColumn minus the absolute total length of characters typed in this current edit session
+                    const editStartColumn = INTS[fEDI_cursor_indexColumn] - INTS[fEDI_cursor_editLength_characters];
+                    
+                    // Find the precise column location of the characters we are about to insert right now
+                    const currentEditColumn = editStartColumn + INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue];
+
+                    let runningColumnIdx = 0;
+                    let targetedSpan = null;
+                    let relativeInsertIndex = 0;
+
+                    // 3. Scan the cached spans to find where currentEditColumn lands
+                    for (let i = 0; i < lineSpans.length; i++) {
+                        const span = lineSpans[i];
+                        const spanLength = span.text.length;
+
+                        // If the cursor lands completely inside this span, or exactly on its trailing right edge
+                        if (currentEditColumn >= runningColumnIdx && currentEditColumn <= runningColumnIdx + spanLength) {
+                            targetedSpan = span;
+                            relativeInsertIndex = currentEditColumn - runningColumnIdx;
+                            
+                            // If the cursor hits exactly between two spans, your rule dictates targeting 
+                            // the left span at its trailing length index. We break early to lock onto it.
+                            break;
+                        }
+                        runningColumnIdx += spanLength;
+                    }
+
+                    // 4. If we successfully isolated the text slice segment inside the cache, modify it
+                    if (targetedSpan !== null) {
+                        // Decode only the new slice of un-drawn keys typed during this frame frame burst
+                        const freshlyTypedString = EDI_decoder.decode(
+                            EDI_cursor_textInsertionBuffer.subarray(
+                                INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue], 
+                                INTS[fEDI_cursor_editLength_characters]
+                            )
+                        );
+
+                        // Splice the text inline directly into the string reference inside the cache array frame
+                        targetedSpan.text = 
+                            targetedSpan.text.slice(0, relativeInsertIndex) + 
+                            freshlyTypedString + 
+                            targetedSpan.text.slice(relativeInsertIndex);
+                    }
+
+                    // 5. Commit the continuation value forward so the next frame knows where to pick up
+                    INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue] = INTS[fEDI_cursor_editLength_characters];
+
+                    //// 6. Request a canvas redraw layout frame pass to force the changes onto the screen
+                    EDI_render_request(RenderKind_Scroll);
+                }
                 if (w_div === w_divNONE) {
                     throw new Error();
                 }
@@ -967,6 +992,11 @@ function EDI_render_do_EnterKey() {
             }
         }
     }
+
+    // 6. Request a canvas redraw layout frame pass to force the changes onto the screen
+    EDI_render_request(RenderKind_Scroll);
+    //EDI_render_TextContent();
+    //EDI_render_Cursor();
 }
 
 function EDI_render_do_RemoveSelection() {

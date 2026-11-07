@@ -1357,14 +1357,14 @@ function EDI_render_do_Backspace() {
     let remainingCharacterRemovals = INTS[fEDI_cursor_editLength_characters] - INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue];
 
     // 1. Target the specific line row index where the typing is taking place
-    const activeLine = INTS[fEDI_cursor_indexLine];
+    const activeLine = INTS[fEDI_cursor_editIndexLine];
     let lineSpans = EDI_lineStringCache[activeLine];
     if (lineSpans === undefined) {
         return;
     }
 
     // 2. Determine the column position where the *first character of this edit burst* began
-    const editStartColumn = INTS[fEDI_cursor_indexColumn] + remainingCharacterRemovals;
+    const editStartColumn = INTS[fEDI_cursor_editIndexColumn] + remainingCharacterRemovals;
 
     // Find the precise column location of the characters we are about to remove right now
     const currentEditColumn = editStartColumn;
@@ -1391,9 +1391,6 @@ function EDI_render_do_Backspace() {
         isAtEndOfLine = true;
     }
 
-    if (targetSpan === null) {
-        throw new Error();
-    }
     if (targetSpan === null) {
         if (!isAtEndOfLine) {
             throw new Error();

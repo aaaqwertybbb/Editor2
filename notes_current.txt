@@ -373,3 +373,13 @@ Negative
 - [ ] EditKind_BackspaceRtl
 - [ ] EditKind_RemoveTextNoBatching
 - [ ] EditKind_IndentLess
+
+====
+
+"start with the harder problems knock them out first"
+
+Nothing is ever certain.
+I feel like garbage.
+I am NOT starting with the harder problems deliberately.
+I need to ATTEMPT to get some momentum with respect to motivation by knocking out these easier ones.
+

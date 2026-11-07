@@ -548,7 +548,63 @@ function EDI_render_do_DuplicateOrPaste() {
             linesInsertedCount = INTS[fEDI_cursor_EDI_paste_clipboardContent_totalLineEndCount];
         }
 
-        walkLineUntilIndexColumn();
+        // 1. Target the specific line row index where the typing is taking place
+        const activeLine = INTS[fEDI_cursor_indexLine];
+        let lineSpans = EDI_lineStringCache[activeLine];
+        
+        if (lineSpans === undefined) {
+            return;
+        }
+
+        // 2. Determine the column position where the *first character of this edit burst* began
+        // We use indexColumn minus the absolute total length of characters typed in this current edit session
+        const editStartColumn = INTS[fEDI_cursor_indexColumn];// - INTS[fEDI_cursor_editLength_characters];
+        
+        // Find the precise column location of the characters we are about to insert right now
+        const currentEditColumn = editStartColumn;// + INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue];
+
+        let runningColumnIdx = 0;
+        let targetedSpan = null;
+        let relativeInsertIndex = 0;
+
+        // 3. Scan the cached spans to find where currentEditColumn lands
+        for (let i = 0; i < lineSpans.length; i++) {
+            const span = lineSpans[i];
+            const spanLength = span.text.length;
+
+            // If the cursor lands completely inside this span, or exactly on its trailing right edge
+            if (currentEditColumn >= runningColumnIdx && currentEditColumn <= runningColumnIdx + spanLength) {
+                targetedSpan = span;
+                relativeInsertIndex = currentEditColumn - runningColumnIdx;
+                
+                // If the cursor hits exactly between two spans, your rule dictates targeting 
+                // the left span at its trailing length index. We break early to lock onto it.
+                break;
+            }
+            runningColumnIdx += spanLength;
+        }
+
+        // 4. If we successfully isolated the text slice segment inside the cache, modify it
+        if (targetedSpan !== null) {
+            // Decode only the new slice of un-drawn keys typed during this frame frame burst
+            const freshlyTypedString = EDI_decoder.decode(
+                EDI_cursor_textInsertionBuffer.subarray(
+                    INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue], 
+                    INTS[fEDI_cursor_editLength_characters]
+                )
+            );
+
+            // Splice the text inline directly into the string reference inside the cache array frame
+            targetedSpan.text = 
+                targetedSpan.text.slice(0, relativeInsertIndex) + 
+                freshlyTypedString + 
+                targetedSpan.text.slice(relativeInsertIndex);
+        }
+
+        // 5. Commit the continuation value forward so the next frame knows where to pick up
+        INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue] = INTS[fEDI_cursor_editLength_characters];
+
+        
         if (w_div === w_divNONE) {
             // TODO: silent error bad
             //alert('// EDI_paste TODO: silent error bad');
@@ -563,23 +619,6 @@ function EDI_render_do_DuplicateOrPaste() {
 
         // No need to consider '\r\n' and etc... only '\n'
         let linefeedLength = 0;
-
-        // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
-        let ringBufferIndex_current = INTS[fEDI_cursor_indexLine] - INTS[fEDI_virtualIndexLine];
-        if (ringBufferIndex_current >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_current < 0) ringBufferIndex_current = -1;
-        else ringBufferIndex_current = (ringBufferIndex_current + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
-
-        // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
-        let ringBufferIndex_first = INTS[fEDI_virtualIndexLine] - INTS[fEDI_virtualIndexLine]; // I found it 'INTS[fEDI_virtualIndexLine] - INTS[fEDI_virtualIndexLine]'
-        if (ringBufferIndex_first >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_first < 0) ringBufferIndex_first = -1;
-        else ringBufferIndex_first = (ringBufferIndex_first + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
-
-        // TODO: Use PREVIOUS here from 'ringBufferIndex_first'
-
-        // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
-        let ringBufferIndex_last = (INTS[fEDI_virtualIndexLine] + INTS[fEDI_virtualCount] - 1) - INTS[fEDI_virtualIndexLine];
-        if (ringBufferIndex_last >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex_last < 0) ringBufferIndex_last = -1;
-        else ringBufferIndex_last = (ringBufferIndex_last + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
 
         /** TODO: All this variable needs to be is a boolean for whether you're at the end of the line or not. */
         let last_valid_indexColumn_currentLine_isAt = INTS[fEDI_cursor_indexColumn] === EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_indexLine]);
@@ -660,6 +699,11 @@ function EDI_render_do_DuplicateOrPaste() {
     }
 
     INTS[fEDI_cursor_STORED_visualWidth] = INTS[fEDI_cursorVisualColumnIndex];
+
+    //// 6. Request a canvas redraw layout frame pass to force the changes onto the screen
+    EDI_render_request(RenderKind_Scroll);
+    //EDI_render_TextContent();
+    //EDI_render_Cursor();
 }
 
 /**
@@ -968,7 +1012,7 @@ function EDI_render_do_EnterKey() {
                         lineSpans[targetedSpanIndex].text = firstText;
                         let nextLineSpans = EDI_lineStringCache[INTS[fEDI_cursor_editIndexLine] + 1];
 
-                        for (let i = targetedSpanIndex + 1; i < lineSpans.length; i++) {
+                        for (let i = targetedSpanIndex; i < lineSpans.length; i++) {
                             nextLineSpans.unshift(lineSpans.pop());
                         }
 

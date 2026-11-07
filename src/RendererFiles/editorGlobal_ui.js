@@ -1275,7 +1275,7 @@ function EDI_render_do_Delete() {
                         lineSpans.length = 0; // Remove the empty string from the current
                         EDI_lineStringCache[activeLine] = NEXT_lineSpans; // current receives entirety of next's spans.
                         lineSpans = NEXT_lineSpans // update the local variable
-                        targetSpanIndex = 0;
+                        targetSpanIndex = 0; // if initial 'if (targetSpan === null)' then 'targetSpanIndex = lineSpans.length;' so you need to set to 0 here.
                     }
                     else {
                         for (let i = 0; i < NEXT_lineSpans_length; i++) {

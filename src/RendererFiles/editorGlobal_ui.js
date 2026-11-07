@@ -1277,6 +1277,11 @@ function EDI_render_do_Delete() {
                 // TODO: If final is just empty string don't
 
                 targetSpan = lineSpans[targetSpanIndex];
+
+                // (repeat of 5.) Commit the continuation value forward so the next frame knows where to pick up
+                INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue] += 1;
+                INTS[fEDI_cursor_edit_eventCount_drawn] += 1;
+                remainingCharacterRemovals -= 1;
             }
             else {
                 throw new Error('TODO: hit EOF');

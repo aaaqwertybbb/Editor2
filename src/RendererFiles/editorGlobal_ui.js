@@ -586,26 +586,26 @@ function EDI_render_do_DuplicateOrPaste() {
 
         // 4. If we successfully isolated the text slice segment inside the cache, modify it
         if (targetedSpan !== null) {
-            // Decode only the new slice of un-drawn keys typed during this frame frame burst
-            const freshlyTypedString = EDI_decoder.decode(
-                EDI_cursor_textInsertionBuffer.subarray(
-                    INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue], 
-                    INTS[fEDI_cursor_editLength_characters]
-                )
-            );
-
-            // Splice the text inline directly into the string reference inside the cache array frame
-            targetedSpan.text = 
-                targetedSpan.text.slice(0, relativeInsertIndex) + 
-                freshlyTypedString + 
-                targetedSpan.text.slice(relativeInsertIndex);
+            //// Decode only the new slice of un-drawn keys typed during this frame frame burst
+            //const freshlyTypedString = EDI_decoder.decode(
+            //    EDI_cursor_textInsertionBuffer.subarray(
+            //        INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue], 
+            //        INTS[fEDI_cursor_editLength_characters]
+            //    )
+            //);
+//
+            //// Splice the text inline directly into the string reference inside the cache array frame
+            //targetedSpan.text = 
+            //    targetedSpan.text.slice(0, relativeInsertIndex) + 
+            //    freshlyTypedString + 
+            //    targetedSpan.text.slice(relativeInsertIndex);
         }
 
         // 5. Commit the continuation value forward so the next frame knows where to pick up
         INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue] = INTS[fEDI_cursor_editLength_characters];
 
         
-        if (w_div === w_divNONE) {
+        if (targetedSpan === null) {
             // TODO: silent error bad
             //alert('// EDI_paste TODO: silent error bad');
             return;
@@ -636,9 +636,8 @@ function EDI_render_do_DuplicateOrPaste() {
         let characterKindNumber_NEEDS_WRITTEN = 0;
 
         let functionState = {
-            ringBufferIndex_current: ringBufferIndex_current,
-            ringBufferIndex_first: ringBufferIndex_first,
-            ringBufferIndex_last: ringBufferIndex_last,
+            targetedSpan: targetedSpan,
+            relativeInsertIndex: relativeInsertIndex,
             last_valid_indexColumn_currentLine_isAt: last_valid_indexColumn_currentLine_isAt,
         };
 
@@ -666,7 +665,7 @@ function EDI_render_do_DuplicateOrPaste() {
                     linefeedLength = 0;
                     break;
                 case 2/*wordLetterOrDigit*/:
-                    EDI_duplicate_and_paste_writeWord(wordLength, EDI_decoder.decode(byteArray.subarray(wordStart, wordStart + wordLength)));
+                    EDI_duplicate_and_paste_writeWord(wordLength, EDI_decoder.decode(byteArray.subarray(wordStart, wordStart + wordLength)), functionState);
                     wordStart = 0;
                     wordLength = 0;
                     break;
@@ -787,8 +786,24 @@ function DUPLICATE_writeLinefeed(functionState, linefeedLength) {
     }
 }
 
-function EDI_duplicate_and_paste_writeWord(wordLength, word) {
-    w_div.firstChild.insertData(INTS[fEDI_w_indexColumn_SpanTextContentRelative], word);
+function EDI_duplicate_and_paste_writeWord(wordLength, word, functionState) {
+
+    //// Decode only the new slice of un-drawn keys typed during this frame frame burst
+    //const freshlyTypedString = EDI_decoder.decode(
+    //    EDI_cursor_textInsertionBuffer.subarray(
+    //        INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue], 
+    //        INTS[fEDI_cursor_editLength_characters]
+    //    )
+    //);
+//
+    //// Splice the text inline directly into the string reference inside the cache array frame
+    functionState.targetedSpan.text = 
+        functionState.targetedSpan.text.slice(0, functionState.relativeInsertIndex) + 
+        word + 
+        functionState.targetedSpan.text.slice(functionState.relativeInsertIndex);
+
+    //targetedSpan.text = ;
+    //w_div.firstChild.insertData(INTS[fEDI_w_indexColumn_SpanTextContentRelative], word);
 
     INTS[fEDI_cursor_indexColumn] += wordLength;
     INTS[fEDI_cursorVisualColumnIndex] += wordLength;

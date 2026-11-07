@@ -961,6 +961,11 @@ function EDI_render_do_EnterKey() {
 
                         lineSpans[targetedSpanIndex].text = firstText;
                         let nextLineSpans = EDI_lineStringCache[targetedSpanIndex + 1];
+
+                        for (let i = targetedSpanIndex; i < lineSpans.length; i++) {
+                            nextLineSpans.unshift(lineSpans.pop());
+                        }
+
                         nextLineSpans.unshift({ text: lastText, color: EDI_tokenColors[0] });
                         //textNode.replaceData(0, textNode.length, firstText);
                         //spanText += lastText; // += due to the possibility of indentation

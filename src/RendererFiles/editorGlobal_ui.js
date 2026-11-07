@@ -1298,7 +1298,7 @@ function EDI_render_do_Backspace() {
     }
 
     // 2. Determine the column position where the *first character of this edit burst* began
-    const editStartColumn = INTS[fEDI_cursor_indexColumn];
+    const editStartColumn = INTS[fEDI_cursor_indexColumn] + remainingCharacterRemovals;
 
     // Find the precise column location of the characters we are about to remove right now
     const currentEditColumn = editStartColumn;

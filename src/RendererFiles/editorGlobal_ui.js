@@ -1267,6 +1267,10 @@ function EDI_render_do_RemoveSelection() {
         }
     }
 
+    if (linesRemovedCount > 1) {
+        EDI_lineStringCache.splice(smallLineAndColumnIndices_indexLine + 1, linesRemovedCount - 1);
+    }
+
     // Merge the first and last lines (if applicable)
     //
     // Four cases of existence (!... implies it does NOT exist, i.e.: it is not rendered on the UI)

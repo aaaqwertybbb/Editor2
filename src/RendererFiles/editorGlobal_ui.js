@@ -497,7 +497,7 @@ function EDI_render_do_IndentLess() {
             }
             let seenSpace = false;
             outer: for (var i = 0; i < upperLimitIndexColumn; i++) {
-                let c = String.fromCharCode(EDI_textByteList_bytes[line_start + i]);
+                let c = String.fromCharCode(EDI_textByteList_bytes[line_start + i]); // TODO: this should be using the bytes themselves no reason to use 'fromCharCode'
                 switch (c) {
                     case ' ':
                         seenSpace = true;
@@ -539,17 +539,91 @@ function EDI_render_do_IndentLess() {
             }
             /////////////////////// P_2
 
-            // Draw the line to reflect the edit, if it is being currently shown on screen.
-            // TODO: Use NEXT if the lines are one after another?
+            let targetSpanIndex = 0;
+            let runningColumnIdx = 0;
+            let targetSpan = null;
+            let relativeIndex = 0;
+            let remainingCharacterRemovals = innerRemoveCount;
 
-            // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
-            let ringBufferIndex = lineI - INTS[fEDI_virtualIndexLine];
-            if (ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex < 0) ringBufferIndex = -1;
-            else ringBufferIndex = (ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
+            // 1. Target the specific line row index where the typing is taking place
+            const activeLine = INTS[fEDI_cursor_indexLine];
+            let lineSpans = EDI_lineStringCache[activeLine];
+            if (lineSpans === undefined) {
+                return;
+            }
 
-            if (ringBufferIndex >= 0) {
-                const textNode = EDI_ringBuffer_text[ringBufferIndex].firstChild;
-                textNode.deleteData(0, innerRemoveCount);
+            // 2. Determine the column position where the *first character of this edit burst* began
+            const editStartColumn = 0;
+
+            // Find the precise column location of the characters we are about to remove right now
+            const currentEditColumn = 0;
+            let isAtEndOfLine = false;
+
+            // 3. Scan the cached spans to find where currentEditColumn lands
+            for (let i = 0; i < lineSpans.length; i++) {
+                const span = lineSpans[i];
+                const spanLength = span.text.length;
+
+                if (currentEditColumn >= runningColumnIdx && currentEditColumn < runningColumnIdx + spanLength) {
+                    targetSpanIndex = i;
+                    targetSpan = span;
+                    relativeIndex = currentEditColumn - runningColumnIdx;
+                    
+                    // If the cursor hits exactly between two spans, your rule dictates targeting 
+                    // the left span at its trailing length index. We break early to lock onto it.
+                    break;
+                }
+                runningColumnIdx += spanLength;
+                if (currentEditColumn === runningColumnIdx && i === lineSpans.length - 1) { // TODO: This if statement isn't well understood. I had 'currentEditColumn === runningColumnIdx' alone until I had a case that needed 'i === lineSpans.length - 1'... TODO: look into this (I just don't have the energy right now).
+                    isAtEndOfLine = true;
+                }
+            }
+
+            if (targetSpan === null) {
+                if (!isAtEndOfLine) {
+                    throw new Error();
+                }
+                else {
+                    targetSpanIndex = lineSpans.length;
+
+                    // NOTE: is undefined until 'if (isAtEndOfLine)' block runs
+                    //targetSpan = lineSpans[targetSpanIndex];
+
+                    relativeIndex = 0;
+                }
+            }
+
+            while (remainingCharacterRemovals > 0) {
+                //INTS[fEDI_cursor_edit_eventCount_drawn] = INTS[fEDI_cursor_edit_eventCount_occurred];
+                // you can't do the INTS[fEDI_cursor_edit_eventCount_drawn] immediately cause you need to determine how much of the current span can actually be deleted then move to the next span etc...
+                
+                if (isAtEndOfLine) {
+                    throw new Error();
+                }
+
+                // 4. If we successfully isolated the text slice segment inside the cache, modify it
+                const possibleCharacterRemovals = targetSpan.text.length - relativeIndex;
+                const actualCharacterRemovals = remainingCharacterRemovals <= possibleCharacterRemovals ? remainingCharacterRemovals : possibleCharacterRemovals;
+
+                // ...the text inline directly into the string reference inside the cache array frame
+                if (actualCharacterRemovals === targetSpan.text.length && lineSpans.length > 1) {
+                    lineSpans.splice(targetSpanIndex, 1);
+                }
+                else {
+                    targetSpan.text = targetSpan.text.slice(0, relativeIndex) + targetSpan.text.slice(relativeIndex + actualCharacterRemovals);
+                }
+                
+                remainingCharacterRemovals -= actualCharacterRemovals;
+
+                if (remainingCharacterRemovals > 0) {
+                    if (targetSpanIndex < lineSpans.length) {
+                        targetSpan = lineSpans[targetSpanIndex];
+                        relativeIndex = 0;
+                    }
+                    else {
+                        isAtEndOfLine = true;
+                    }
+                }
             }
         }
 
@@ -558,6 +632,11 @@ function EDI_render_do_IndentLess() {
         INTS[fEDI_cursor_DRAWN_selectionEnd] = INTS[fEDI_cursor_selectionEnd];
         /////////////////////// P_3
     }
+
+    // 6. Request a canvas redraw layout frame pass to force the changes onto the screen
+    EDI_render_request(RenderKind_Scroll);
+    //EDI_render_TextContent();
+    //EDI_render_Cursor();
 }
 
 function EDI_render_do_DuplicateOrPaste() {

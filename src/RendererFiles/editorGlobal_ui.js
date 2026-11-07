@@ -1264,7 +1264,12 @@ function EDI_render_do_Delete() {
                 relativeIndex = 0;
             }
             else {
-                throw new Error('TODO: remove line ending (or hit EOF)');
+                if (activeLine < INTS[fEDI_lineEndPositionList_count]) {
+                    throw new Error('TODO: remove line ending');
+                }
+                else {
+                    throw new Error('TODO: hit EOF');
+                }
             }
         }
     }
@@ -1352,10 +1357,12 @@ function EDI_render_do_Backspace() {
                 relativeIndex = targetSpan.text.length;
             }
             else {
-                //if () {
-                //    
-                //}
-                throw new Error('TODO: remove line ending (or hit StartOF)');
+                if (activeLine > 0) {
+                    throw new Error('TODO: remove line ending');
+                }
+                else {
+                    throw new Error('TODO: hit StartOF');
+                }
             }
         }
     }

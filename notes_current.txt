@@ -364,8 +364,10 @@ Positive
 - [/] EditKind_Enter
     - [ ] I looked at it
 - [x] EditKind_Tab
-- [ ] EditKind_Paste
-- [ ] EditKind_Duplicate
+- [/] EditKind_Paste
+    - [ ] I looked at it
+- [/] EditKind_Duplicate
+    - [ ] I looked at it
 - [ ] EditKind_IndentMore
 
 Negative

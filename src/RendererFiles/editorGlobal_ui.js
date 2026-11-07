@@ -385,29 +385,67 @@ function EDI_render_do_IndentMore() {
     let SMALL_lineAndColumnIndices_indexLine = INTS[fEDI_indent_SMALL_lineAndColumnIndices_indexLine];
 
     // TODO: Consider having this string available rather than making it everytime this function is invoked.
-    let EDI_on_tab_string = EDI_decoder.decode(EDI_on_tab_bytes);
+    //let EDI_on_tab_string = EDI_decoder.decode(EDI_on_tab_bytes);
+    let EDI_on_tab_string = '    '; // you need spaces for the UI to render correctly, regardless of if user has tabs or spaces
+
+    // 1. Target the specific line row index where the typing is taking place
+    const activeLine = INTS[SMALL_lineAndColumnIndices_indexLine];
+    let lineSpans = EDI_lineStringCache[activeLine];
+    if (lineSpans === undefined) {
+        return;
+    }
+
+    // 2. Determine the column position where the *first character of this edit burst* began
+    // We use indexColumn minus the absolute total length of characters typed in this current edit session
+    const editStartColumn = 0;
     
+    // Find the precise column location of the characters we are about to insert right now
+    const currentEditColumn = editStartColumn;
+
+    let runningColumnIdx = 0;
+    let targetedSpan = null;
+    let relativeInsertIndex = 0;
+
+    // TODO: you might want to undefined the cached entries that are not in view I'm not sure.
+
     // TODO: create 'EDI_on_tab_string' based on the amount of remaining eventCount to be drawn.
     while (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
         INTS[fEDI_cursor_edit_eventCount_drawn]++;
         for (var lineI = startingIndex; lineI >= SMALL_lineAndColumnIndices_indexLine; lineI--) {
+
             // Draw the line to reflect the edit, if it is being currently shown on screen.
             // TODO: Use NEXT if the lines are one after another?
+
+            //targetedSpan = EDI_lineStringCache[lineI][0];
+            EDI_lineStringCache[lineI].unshift({ text: EDI_on_tab_string, color: EDI_tokenColors[0] });
+
+            //if (targetedSpan !== null) {
+            //    // Splice the text inline directly into the string reference inside the cache array frame
+            //    targetedSpan.text = 
+            //        targetedSpan.text.slice(0, relativeInsertIndex) + 
+            //        EDI_on_tab_string + 
+            //        targetedSpan.text.slice(relativeInsertIndex);
+            //}
             
             // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
-            let ringBufferIndex = lineI - INTS[fEDI_virtualIndexLine];
-            if (ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex < 0) ringBufferIndex = -1;
-            else ringBufferIndex = (ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
-
-            if (ringBufferIndex >= 0) {
-                const div = EDI_ringBuffer_text[ringBufferIndex];
-                div.firstChild.insertData(0, EDI_on_tab_string);
-            }
+            //let ringBufferIndex = lineI - INTS[fEDI_virtualIndexLine];
+            //if (ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex < 0) ringBufferIndex = -1;
+            //else ringBufferIndex = (ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
+//
+            //if (ringBufferIndex >= 0) {
+            //    const div = EDI_ringBuffer_text[ringBufferIndex];
+            //    div.firstChild.insertData(0, EDI_on_tab_string);
+            //}
         }
 
         // # Draw the cursor
-        EDI_createStyleForSelection_indentMore();
+        //EDI_createStyleForSelection_indentMore();
     }
+
+    //// 6. Request a canvas redraw layout frame pass to force the changes onto the screen
+    EDI_render_request(RenderKind_Scroll);
+    //EDI_render_TextContent();
+    //EDI_render_Cursor();
 }
 
 function EDI_render_do_IndentLess() {

@@ -83,6 +83,82 @@ let EDI_lastReadNumber_scrollLeft = 0;
 /** decimal */
 let EDI_lastReadNumber_scrollTop = 0;
 
+let EDI_characterWidth = 8;
+
+//let EDI_verticalCenterPadding = 0;
+let EDI_textTopPadding = 3;
+
+let EDI_cursor_cursorTranslateXValue = 0;
+
+/**
+ * Depending on 'BYTES[byteEDI_cursor_enterKeyEventKind]' this may either start OR end with '\n'.
+ * 
+ * Upon an enter keystroke this is inserted onto the newly added line.
+ * 
+ * The value is stored here to avoid high overhead from indentation matching when holding down the Enter key.
+ * 
+ * TODO: ^ that being said, you preferably wouldn't store this string allocation long term. If a more "localized" caching can be implemented, that would be preferable. (or the timing upon which this is set to null)
+ * 
+ * TODO: Don't null this just change the count to 0 and use a separate bool to indicate "nullness". UNLESS if clearing cache and this is for some reason MASSIVE idk maybe > 256 then maybe clear it idk
+ * 
+ * TODO: clear these when setting text, if not already? My code isn't working so I can't give a better TODO than this
+ * 
+ * @type {ByteList | null}
+ */
+let EDI_cursor_enterKey_newLinePlusIndentation_byteList = null;
+
+/** Depending on 'BYTES[byteEDI_cursor_enterKeyEventKind]' this may either start OR end with '\n'. */
+let EDI_cursor_cached_indentation_string = null;
+
+// see: 'const byteEDI_clipboard_may_have_changed' in fieldBuffer.js
+/**
+ * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
+ */
+let EDI_cursor_EDI_paste_clipboardContent_string = null;
+/**
+ * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
+ */
+let EDI_cursor_EDI_paste_clipboardContent_bytes = null;
+// see: 'const fEDI_cursor_EDI_paste_clipboardContent_totalLineEndCount' in fieldBuffer.js
+/**
+ * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
+ * editPosition + this[i]
+ * EOF style
+ */
+let EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = null;
+/**
+ * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
+ * EOF style
+ * 
+ * !!!! The first index of this has to be visual lengthed relative to the column index that you insert at as it cannot be known ahead of time, after the first tab or upon hitting a tab stop.
+ */
+let EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = null;
+
+
+// see: 'const byteEDI_duplication_may_have_changed' in fieldBuffer.js
+/**
+ * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
+ */
+//let EDI_cursor_EDI_duplication_string = null;
+/**
+ * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
+ */
+let EDI_cursor_EDI_duplication_bytes = null;
+// see: 'const fEDI_cursor_EDI_duplication_totalLineEndCount' in fieldBuffer.js
+/**
+ * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
+ * 
+ * editPosition + this[i]
+ * 
+ * EOF style
+ */
+let EDI_cursor_EDI_duplication_arrayLinePositions_OFFSETS = null;
+/**
+ * When reading the clipboard use 'await EDI_read_clipboard();' and then read the result from this variable.
+ * EOF style
+ */
+let EDI_cursor_EDI_duplication_arrayLineVisualLengths = null;
+
 //// Find-All for "EDI_debug_optimization" to find all the commented out logic that was related to this.
 // let EDI_debug_optimization_has_logged_disassembleFunction = false;
 // let EDI_debug_optimization_last_seen_code = -1;

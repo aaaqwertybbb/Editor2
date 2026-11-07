@@ -1215,6 +1215,7 @@ function EDI_render_do_Delete() {
 
     // Find the precise column location of the characters we are about to remove right now
     const currentEditColumn = editStartColumn;
+    let isAtEndOfLine = false;
 
     // 3. Scan the cached spans to find where currentEditColumn lands
     for (let i = 0; i < lineSpans.length; i++) {
@@ -1231,10 +1232,16 @@ function EDI_render_do_Delete() {
             break;
         }
         runningColumnIdx += spanLength;
+        if (currentEditColumn === runningColumnIdx) {
+            isAtEndOfLine = true;
+        }
     }
 
-    if (targetSpan === null) {
+    if (targetSpan === null && !isAtEndOfLine) {
         throw new Error();
+    }
+    else {
+        throw new Error('aaa');
     }
 
     while (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {

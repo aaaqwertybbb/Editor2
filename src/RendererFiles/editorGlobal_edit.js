@@ -69,14 +69,14 @@ let EDI_styleBuffer = new Uint8Array(0);
 // Quick index token to color assignment map
 const EDI_tokenColors = [
     '#d4d4d4', // Token 0: standardText
-    '#6A9955', // Token 1: string
-    '#766b63', // Token 2: comment
-    '#ca6c6c', // Token 3: keyword
-    '#c867d2', // Token 4: keywordControl
-    '#CECE84', // Token 5: identifier
+    '#CE9178', // Token 1: string
+    '#6A9955', // Token 2: comment
+    '#569CD6', // Token 3: keyword
+    '#C586C0', // Token 4: keywordControl
+    '#9CDCFE', // Token 5: identifier
     '#4EC9B0', // Token 6: type
-    '#CE9178', // Token 7: member
-    '#4FC1FF', // Token 8: function
+    '#4FC1FF', // Token 7: member
+    '#CECE84', // Token 8: function
     // 9 is hardcoded throughout the app to force write if you add another you need to start using 10 instead of 9 or etc...
 ];
 

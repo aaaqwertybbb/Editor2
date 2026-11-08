@@ -654,7 +654,7 @@ Here are top web results for exploring this topic:
 
 >
 I'm not sure how to word the question. In a car I assume if you start at 0 mph and then fully press the pedal you'll hit that "red zone" of "wear and tear".
-Versus something more reasonable such as lightly  pressing the pedal and continuing to press more and more over time to keep the engine from "wear and tearing".
+Versus something more reasonable such as lightly pressing the pedal and continuing to press more and more over time to keep the engine from "wear and tearing".
 
 
 
@@ -694,6 +694,37 @@ it was about preventing the app from acting like a gas-guzzler that stutters and
 
 Does this relieve some of the anxiety about breaking or overloading the system,
 or do you want to look at how frequent garbage collection (creating and destroying objects too fast) can cause a different kind of performance "stutter"?
+
+
+
+
+>
+Hypothetically if I implemented a rope datastructure.
+
+How much garbage collection overhead would I incur?
+
+With my current implementation, I have various moments of incurring that "162,509 byte shift".
+
+If I implemented a rope datastructure I'd have different overhead. But I'm not talking about the recreation of the leaf nodes.
+
+I'm talking more abstractly about the garbage collection overhead incurred on the app. When performing a collection is there more than a "162,509 byte shift"
+of overhead being incurred?
+
+When performing heap defragmentation is there more than a "162,509 byte shift" of overhead being incurred? etc...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

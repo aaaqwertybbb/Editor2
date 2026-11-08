@@ -366,8 +366,8 @@ function EDI_render_do_Scroll() {
     //const local_lineHeight = INTS[fEDI_lineHeight];
     const lineCount = INTS[fEDI_lineEndPositionList_count];
     
-    const startLineIndex = INTS[fEDI_virtualIndexLine];
-    const upperLineIndexExclusive = startLineIndex + INTS[fEDI_virtualCount];
+    const view_startLineIndex = INTS[fEDI_virtualIndexLine];
+    const view_upperLineIndexExclusive = view_startLineIndex + INTS[fEDI_virtualCount];
 
     const topPadding = EDI_textTopPadding;
 
@@ -378,7 +378,7 @@ function EDI_render_do_Scroll() {
     let original_vertical = -(EDI_lastReadNumber_scrollTop % local_lineHeight);
     let vertical = original_vertical;
 
-    const local_loopLimit = new_lowerBound + diff;
+    const new_loopLimit = new_lowerBound + diff;
 
     // 3. Let your context handle the scroll natively inside the static window
     const ctxGutter = EDI_gutter_canvas.getContext('2d');
@@ -394,7 +394,7 @@ function EDI_render_do_Scroll() {
     ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1;
     
     // Render pure line numbers
-    for (let i = startLineIndex; i < upperLineIndexExclusive; i++) {
+    for (let i = view_startLineIndex; i < view_upperLineIndexExclusive; i++) {
         // (faster than modulo given this context)
         ringBufferIndex++;
         if (ringBufferIndex >= local_ArrayFrom_textElement_children_length) {
@@ -403,7 +403,7 @@ function EDI_render_do_Scroll() {
 
         const lineSpans = cache[ringBufferIndex];
 
-        if (i >= new_lowerBound && i < local_loopLimit) {
+        if (i >= new_lowerBound && i < new_loopLimit) {
             // THIS WILL CALCULATE THE TEXT OF THE LINENUMBER AND THE LINE OF TEXT ITSELF
             // AND ONLY DO SO FOR THE NEWLY SCROLLED INTO VIEW LINES
                 
@@ -511,15 +511,15 @@ function EDI_render_do_Scroll() {
 
     if (EDI_cursor_hasSelection()) {
         vertical = original_vertical;
-        EDI_createStyleForSelection(ctx, vertical, local_lineHeight, startLineIndex);
+        EDI_createStyleForSelection(ctx, vertical, local_lineHeight, view_startLineIndex);
     }
 
     // --- STEP 2: RENDER ACTIVE SOLID CURSOR LINE ---
     ctx.fillStyle = '#f2a72f'; // Solid cursor accent color
     const cursorLine = INTS[fEDI_cursor_indexLine];
-    if (cursorLine >= startLineIndex && cursorLine < upperLineIndexExclusive) {
+    if (cursorLine >= view_startLineIndex && cursorLine < view_upperLineIndexExclusive) {
         const cursorX = INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth;
-        const cursorY = -(EDI_lastReadNumber_scrollTop % local_lineHeight) + ((cursorLine - startLineIndex) * local_lineHeight);
+        const cursorY = -(EDI_lastReadNumber_scrollTop % local_lineHeight) + ((cursorLine - view_startLineIndex) * local_lineHeight);
         
         EDI_cursor_cursorTranslateXValue = cursorX;
         ctx.fillRect(cursorX, cursorY, 2, local_lineHeight);

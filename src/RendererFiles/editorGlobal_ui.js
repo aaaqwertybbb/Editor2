@@ -248,6 +248,7 @@ function EDI_resizeCanvases() {
     ctxCursor.fillStyle = '#528bff'; // A nice modern blue cursor, or white (#ffffff)
 
     EDI_lineStringCache = new Array(INTS[fEDI_virtualCount]);
+    EDI_line_NUMBER_StringCache = new Array(INTS[fEDI_virtualCount]);
     INTS[fEDI_ArrayFrom_textElement_children_length] = INTS[fEDI_virtualCount];
     
     EDI_render_force_fullscreen_redraw();
@@ -366,8 +367,9 @@ function EDI_render_do_Scroll() {
 
     const local_styles = EDI_styleBuffer; // Your matching parallel array
     const cache = EDI_lineStringCache;
+    const cacheNUMBERS = EDI_line_NUMBER_StringCache;
 
-    const splitIndex = Math.min(upperLineIndexExclusive, lineCount);
+    //const splitIndex = Math.min(upperLineIndexExclusive, lineCount);
     const local_EDI_textTopPadding = EDI_textTopPadding;
     
     let original_vertical = -(EDI_lastReadNumber_scrollTop % local_lineHeight);
@@ -384,25 +386,7 @@ function EDI_render_do_Scroll() {
     ctxGutter.fillRect(0, 0, EDI_gutter_canvas.width, EDI_gutter_canvas.height); 
     ctxGutter.fillStyle = '#858585';
 
-    let lineIndex = INTS[fEDI_virtualIndexLine];
     
-    // Render pure line numbers
-    for (let i = lineIndex; i < splitIndex; i++) {
-        //// (faster than modulo given this context)
-        //ringBufferIndex++;
-        //if (ringBufferIndex >= local_ArrayFrom_textElement_children_length) {
-        //    ringBufferIndex = 0;
-        //}
-
-        ctxGutter.fillText(i + 1, 0, vertical + local_EDI_textTopPadding);
-        vertical += local_lineHeight;
-    }
-
-    // Render buffer tildes
-    for (let i = splitIndex; i < upperLineIndexExclusive; i++) {
-        ctxGutter.fillText('~', 0, vertical + local_EDI_textTopPadding);
-        vertical += local_lineHeight;
-    }
     
     ctxText.clearRect(0, 0, EDI_text_canvas.width, EDI_text_canvas.height);
 
@@ -425,6 +409,8 @@ function EDI_render_do_Scroll() {
             
         // IF THE LINE CONTAINS CHARACTERS
         if (lineStart !== lineEnd) {
+            cacheNUMBERS[ringBufferIndex] = String(indexLine + 1);
+
             let currentTokenStart = lineStart;
             let currentTokenId = local_styles[lineStart];
             let currentLineColumn = 0; 
@@ -459,6 +445,7 @@ function EDI_render_do_Scroll() {
         }
         // FIXED BOUNDARY: IF THE LINE IS COMPLETELY EMPTY (0 Bytes)
         else {
+            cacheNUMBERS[ringBufferIndex] = '~';
             lineSpans.push({
                 text: '',
                 color: EDI_tokenColors[0] || '#ffffff' // Fallback to standard color
@@ -466,9 +453,37 @@ function EDI_render_do_Scroll() {
         }
         
         cache[ringBufferIndex] = lineSpans; // Properly cached structure!
+        
 
         //vertical += local_lineHeight;
     }
+
+
+
+
+    let lineIndex = INTS[fEDI_virtualIndexLine];
+    
+    // Render pure line numbers
+    for (let i = lineIndex; i < upperLineIndexExclusive; i++) {
+        // (faster than modulo given this context)
+        ringBufferIndex++;
+        if (ringBufferIndex >= local_ArrayFrom_textElement_children_length) {
+            ringBufferIndex = 0;
+        }
+
+        ctxGutter.fillText(EDI_line_NUMBER_StringCache[ringBufferIndex], 0, vertical + local_EDI_textTopPadding);
+        vertical += local_lineHeight;
+    }
+
+    //// Render buffer tildes
+    //for (let i = splitIndex; i < upperLineIndexExclusive; i++) {
+    //    ctxGutter.fillText('~', 0, vertical + local_EDI_textTopPadding);
+    //    vertical += local_lineHeight;
+    //}
+
+
+
+
 
     lineStart = 0;
     lineEnd = -1;

@@ -18,6 +18,7 @@ let EDI_findOverlay_searchResultPositionList = null;
 let EDI_textByteList_bytes = new Uint8Array(INTS[fEDI_textByteList_capacity]);
 
 let EDI_lineStringCache = [];
+let EDI_line_NUMBER_StringCache = [];
 //let EDI_lineStringCache_capacity = [];
 //let EDI_lineStringCache_count = [];
 

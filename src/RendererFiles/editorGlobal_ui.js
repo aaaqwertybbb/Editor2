@@ -533,7 +533,7 @@ function EDI_render_TextContent(ringBufferIndex, lowerBound, loopLimit, lineStar
         lineEnd = local_EDI_lineEndPositionList_data[startLineIndex - 1];
     }
 
-    ringBufferIndex = INTS[fEDI_ringBuffer_indexZero];
+    ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1;
 
     for (let i = startLineIndex; i < upperLineIndexExclusive; i++) {
         

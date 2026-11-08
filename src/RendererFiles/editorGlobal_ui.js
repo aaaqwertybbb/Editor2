@@ -385,11 +385,7 @@ function EDI_render_do_Scroll() {
 
     ctxText.clearRect(0, 0, EDI_text_canvas.width, EDI_text_canvas.height);
 
-    
-
     ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1;
-
-
 
     let lineIndex = INTS[fEDI_virtualIndexLine];
     
@@ -402,7 +398,8 @@ function EDI_render_do_Scroll() {
         }
 
         if (i >= lowerBound && i < local_loopLimit) {
-            // calculate the text of the newly scrolled into view lines
+            // THIS WILL CALCULATE THE TEXT OF THE LINENUMBER AND THE LINE OF TEXT ITSELF
+            // AND ONLY DO SO FOR THE NEWLY SCROLLED INTO VIEW LINES
                 
                 const indexLine = i;
                 lineStart = lineEnd + 1;

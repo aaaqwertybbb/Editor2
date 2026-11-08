@@ -329,23 +329,19 @@ function EDI_render_do_Scroll() {
     const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
 
     let new_lowerBound = 0;
-    let ringBufferIndex = 0; // The 0th loop will immediately increment this variable, thus all the assignments to this have a '- 1' on them.
 
     if (diff >= local_ArrayFrom_textElement_children_length || diff <= -local_ArrayFrom_textElement_children_length) {
         new_lowerBound = local_currVli;
         diff = local_ArrayFrom_textElement_children_length; // Bound the loop run to the size of your screen viewport
-        ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1;
     }
     else if (diff > 0) {
         new_lowerBound = local_prevVli + local_ArrayFrom_textElement_children_length;
-        ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1; // Moving down: Capture index BEFORE updating indexZero
         INTS[fEDI_ringBuffer_indexZero] = (INTS[fEDI_ringBuffer_indexZero] + diff) % local_ArrayFrom_textElement_children_length;
     }
     else {
         new_lowerBound = local_currVli;
         diff *= -1;
         INTS[fEDI_ringBuffer_indexZero] = (INTS[fEDI_ringBuffer_indexZero] - diff + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
-        ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1; // Moving up: Capture index AFTER updating indexZero
     }
 
     const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
@@ -391,7 +387,7 @@ function EDI_render_do_Scroll() {
 
     ctxText.clearRect(0, 0, EDI_text_canvas.width, EDI_text_canvas.height);
 
-    ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1;
+    let ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1;
     
     // Render pure line numbers
     for (let i = view_startLineIndex; i < view_upperLineIndexExclusive; i++) {

@@ -1002,6 +1002,61 @@ Knowing how both extremes behave, if you want, let's explore:
 
 
 
+>
+When it comes to `"Bounded Cache" (Sliding Window)`
+
+How do you handle someone scrolling "so fast" that you have 100% cache miss every frame?
+
+
+
+
+<
+If a user scrolls "so fast" that you get a 100% cache miss every single frame, a naive sliding window cache will absolutely buckle.
+
+What happens mechanically is a "cache thrashing storm": every frame, the scroll position jumps completely past your buffer window.
+The app spends precious milliseconds evicting 50 old lines, allocating 50 brand-new strings via TextDecoder across the C++ bridge, painting them to the canvas,
+and then immediately throwing them away on the very next frame.
+
+This will crater your frame rate from 60 FPS down to a stuttering mess. High-performance editors (like Monaco/VS Code) use two elegant engineering strategies to handle this exact
+velocity spike.
+
+Strategy 1: The "Asynchronous Frame Drop" (Debouncing the Decoder)
+
+When scrolling at extreme speeds, the human eye cannot read the text anyway—it just sees a blur of text shapes moving vertically.
+
+If the scroll velocity crosses a certain threshold (e.g., jumping more lines per frame than the size of your viewport),
+you stop decoding text entirely during the physics phase of the scroll.
+1. The Scroll Event: The user flings the mouse wheel. Your app tracks the new scrollTop immediately.
+2. The Canvas Paint: Your canvas text loop runs, but it checks the cache and sees a miss. Instead of calling TextDecoder, it says "We are moving too fast, don't decode."
+3. The Visual Representation: You paint blank placeholder lines or simple grey layout rectangles matching the line widths to indicate text structure.
+   The gutter canvas still draws the changing line numbers (which is just fast math, no text decoding needed), and the text canvas shows a fast, smooth "blur" of placeholders.
+4. The Settle: The moment the user's scroll slows down or stops for even a fraction of a frame (e.g., debounced by 16–30ms),
+   you fire a single batch TextDecoder pass for the exact lines currently on screen and snap the real text into view.
+
+This keeps the scrolling at a buttery 60 FPS because you are doing zero heavy memory allocation or C++ bridging while the view is moving fast.
+
+Strategy 2: Upgrading to a "Two-Tiered Cache"
+
+If you absolutely must render text even during a high-speed scroll, you cannot rely solely on a sliding window of strings.
+You have to introduce a much cheaper, low-level cache layer below your string cache.
+
+Instead of caching the fully inflated JavaScript string wrappers, you cache the binary line pointers (byte offsets and lengths) inside your primary Uint8Array.
+- Tier 1 (String Cache): Your sliding window of TextDecoder strings. It is small (maybe 3x the viewport size).
+- Tier 2 (Line Pointer Cache): A flat Int32Array or Uint32Array storing pairs of [start_byte_offset, byte_length] for every line in the file.
+
+Why Tier 2 Saves You:
+
+When a 100% cache miss occurs in Tier 1 during a massive scroll fling, your app doesn't have to scan the entire 10MB byte array looking for \n characters to figure
+out where the line starts and ends.
+
+1. It looks at the line number (e.g., line 5,400).
+2. It does an O(1) lookup into the flat Int32Array to instantly get the exact byte slice [987210, 180].
+3. It passes only that exact slice to TextDecoder.
+
+By offloading the "structural discovery" of lines to a flat binary array, you reduce a 100% cache miss down to only the cost of the TextDecoder allocation storm,
+removing the massive CPU overhead of parsing text byte-by-byte on every frame.
+
+When the user scrolls, are you currently parsing the Uint8Array to find newlines (\n) on the fly, or do you already have a secondary array tracking where each line begins and ends?
 
 
 
@@ -1021,7 +1076,10 @@ Knowing how both extremes behave, if you want, let's explore:
 
 
 
+note to self: use web assembly to in bulk decode or?
 
+if lines are one after another maybe you can ask it once to decode that chunk of lines of text
+then substring it in JavaScript to avoid the constant C++ boundary hopping?
 
-
+Is there a specific API that is made to avoid constant C++ boundary hopping?
 

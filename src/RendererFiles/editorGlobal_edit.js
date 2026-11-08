@@ -86,6 +86,7 @@ let EDI_lastReadNumber_scrollLeft = 0;
 let EDI_lastReadNumber_scrollTop = 0;
 
 let EDI_characterWidth = 8;
+//let EDI_character_count_that_fits_view = 100;
 
 //let EDI_verticalCenterPadding = 0;
 let EDI_textTopPadding = 3;

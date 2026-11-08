@@ -227,10 +227,12 @@ function EDI_resizeCanvases() {
 
     // If local_lineHeight is 24px and fontActualHeight is 14px, your vertical midpoint padding is 12px
 
-    INTS[fEXPLORER_lastReadNumber_offsetWidth] = Math.floor(EDI_text.offsetWidth);
+    INTS[fEDI_lastReadNumber_offsetWidth] = Math.floor(EDI_text.offsetWidth);
     INTS[fEDI_lastReadNumber_offsetHeight] = Math.floor(EDI_text.offsetHeight);
 
     INTS[fEDI_virtualCount] = Math.ceil(INTS[fEDI_lastReadNumber_offsetHeight] / INTS[fEDI_lineHeight]);
+
+    //EDI_character_count_that_fits_view = Math.ceil(INTS[fEDI_lastReadNumber_offsetWidth] / EDI_characterWidth);
 
 
 
@@ -359,7 +361,6 @@ function EDI_render_do_Scroll() {
 
     const ctxText = EDI_text_canvas.getContext('2d');
 
-    //const local_lineHeight = INTS[fEDI_lineHeight];
     const lineCount = INTS[fEDI_lineEndPositionList_count];
     
     const view_startLineIndex = INTS[fEDI_virtualIndexLine];
@@ -490,6 +491,10 @@ function EDI_render_do_Scroll() {
             
             // Fast cell tracking: add characters multiplied by character width
             currentX += span.text.length * EDI_characterWidth;
+
+            if (currentX > INTS[fEDI_lastReadNumber_offsetWidth]) {
+                break;
+            }
         }
 
         vertical += local_lineHeight;

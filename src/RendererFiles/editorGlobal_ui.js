@@ -250,6 +250,12 @@ function EDI_resizeCanvases() {
     EDI_lineStringCache = new Array(INTS[fEDI_virtualCount]);
     EDI_line_NUMBER_StringCache = new Array(INTS[fEDI_virtualCount]);
     INTS[fEDI_ArrayFrom_textElement_children_length] = INTS[fEDI_virtualCount];
+
+    const aaa = INTS[fEDI_virtualCount];
+    for (let i = 0; i < aaa; i++) {
+        EDI_lineStringCache[i] = [];
+        //EDI_line_NUMBER_StringCache[i] = 0;
+    }
     
     EDI_render_force_fullscreen_redraw();
 }
@@ -409,7 +415,8 @@ function EDI_render_do_Scroll() {
                     lineEnd = lineStart;
                 }
 
-                let lineSpans = [];
+                const lineSpans = cache[ringBufferIndex];
+                lineSpans.length = 0; // TODO: try to pool the existing objects that are inside.
                     
                 // IF THE LINE CONTAINS CHARACTERS
                 if (lineStart !== lineEnd) {
@@ -430,14 +437,14 @@ function EDI_render_do_Scroll() {
                 }
                 // FIXED BOUNDARY: IF THE LINE IS COMPLETELY EMPTY (0 Bytes)
                 else {
-                    
+                    //if (lineSpans.length) {
+//
+                    //}
                     lineSpans.push({
                         text: '',
                         color: EDI_tokenColors[0] || '#ffffff' // Fallback to standard color
                     });
                 }
-                
-                cache[ringBufferIndex] = lineSpans; // Properly cached structure!
         }
 
         ctxGutter.fillText(EDI_line_NUMBER_StringCache[ringBufferIndex], 0, vertical + topPadding);
@@ -3726,7 +3733,7 @@ function EDI_onKeyDown_keyLengthEqualsOne_altKey(event) {
 function EDI_render_do_ResetSyntaxHighlighting() {
     const EDI_lineStringCache_length = EDI_lineStringCache.length;
     for (let i = 0; i < EDI_lineStringCache_length; i++) {
-        EDI_lineStringCache[i] = undefined;
+        EDI_lineStringCache[i].length = 0;
     }
     EDI_render_force_fullscreen_redraw();
 }

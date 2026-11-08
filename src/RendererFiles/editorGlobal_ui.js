@@ -401,6 +401,8 @@ function EDI_render_do_Scroll() {
             ringBufferIndex = 0;
         }
 
+        const lineSpans = cache[ringBufferIndex];
+
         if (i >= lowerBound && i < local_loopLimit) {
             // THIS WILL CALCULATE THE TEXT OF THE LINENUMBER AND THE LINE OF TEXT ITSELF
             // AND ONLY DO SO FOR THE NEWLY SCROLLED INTO VIEW LINES
@@ -415,7 +417,7 @@ function EDI_render_do_Scroll() {
                     lineEnd = lineStart;
                 }
 
-                const lineSpans = cache[ringBufferIndex];
+                
                 let spanIndex = 0;
                 //lineSpans.length = 0; // TODO: try to pool the existing objects that are inside.
                     
@@ -483,20 +485,6 @@ function EDI_render_do_Scroll() {
         }
 
         ctxGutter.fillText(cacheNUMBERS[ringBufferIndex], 0, vertical + topPadding);
-        vertical += local_lineHeight;
-    }
-
-    vertical = original_vertical;
-    for (let i = startLineIndex; i < upperLineIndexExclusive; i++) {
-        
-        // (faster than modulo given this context)
-        ringBufferIndex++;
-        if (ringBufferIndex >= local_ArrayFrom_textElement_children_length) {
-            ringBufferIndex = 0;
-        }
-
-        // --- 1. RESOLVE TOKEN SLICES FROM THE CACHE ---
-        let lineSpans = cache[ringBufferIndex];
         
         // --- 2. DRAW SPANS CONSECUTIVELY USING THE MONOSPACE GRID ---
         let currentX = 0; // Track the running horizontal offset for the line row
@@ -511,8 +499,38 @@ function EDI_render_do_Scroll() {
             currentX += span.text.length * EDI_characterWidth;
         }
 
+        //vertical += local_lineHeight;
+
         vertical += local_lineHeight;
     }
+
+    //vertical = original_vertical;
+    //for (let i = startLineIndex; i < upperLineIndexExclusive; i++) {
+    //    
+    //    // (faster than modulo given this context)
+    //    ringBufferIndex++;
+    //    if (ringBufferIndex >= local_ArrayFrom_textElement_children_length) {
+    //        ringBufferIndex = 0;
+    //    }
+//
+    //    // --- 1. RESOLVE TOKEN SLICES FROM THE CACHE ---
+    //    let lineSpans = cache[ringBufferIndex];
+    //    
+    //    // --- 2. DRAW SPANS CONSECUTIVELY USING THE MONOSPACE GRID ---
+    //    let currentX = 0; // Track the running horizontal offset for the line row
+    //    const yCoord = vertical + topPadding;
+//
+    //    for (let j = 0; j < lineSpans.length; j++) {
+    //        const span = lineSpans[j];
+    //        ctxText.fillStyle = span.color;
+    //        ctxText.fillText(span.text, currentX, yCoord);
+    //        
+    //        // Fast cell tracking: add characters multiplied by character width
+    //        currentX += span.text.length * EDI_characterWidth;
+    //    }
+//
+    //    vertical += local_lineHeight;
+    //}
 
     // I'm just experimenting because tons of variables are shared.
     //EDI_render_SelectionAndCursor();

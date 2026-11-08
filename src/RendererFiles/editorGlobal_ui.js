@@ -351,8 +351,8 @@ function EDI_render_do_Scroll() {
     const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
     const local_EDI_lineEndPositionList_count = INTS[fEDI_lineEndPositionList_count];
 
-    // If you intend to use the variables 'lineStart' or 'lineEnd': Important detail to consider: the lines that are >= INTS[fEDI_lineEndPositionList_count] will continually increment lineStart by 1 So if you expect this to accurately represent the EOF position when it is in view, it probably does NOT.
-    let lineStart = 0;
+    // If you intend to use the variables 'new_lineStart' or 'lineEnd': Important detail to consider: the lines that are >= INTS[fEDI_lineEndPositionList_count] will continually increment new_lineStart by 1 So if you expect this to accurately represent the EOF position when it is in view, it probably does NOT.
+    let new_lineStart = 0;
     let lineEnd = -1;
     if (new_lowerBound < local_EDI_lineEndPositionList_count && new_lowerBound !== 0) {
         lineEnd = local_EDI_lineEndPositionList_data[new_lowerBound - 1];
@@ -408,25 +408,25 @@ function EDI_render_do_Scroll() {
             // AND ONLY DO SO FOR THE NEWLY SCROLLED INTO VIEW LINES
                 
                 const indexLine = i;
-                lineStart = lineEnd + 1;
+                new_lineStart = lineEnd + 1;
                 if (indexLine < lineCount) {
                     cacheNUMBERS[ringBufferIndex] = String(indexLine + 1);
                     lineEnd = local_EDI_lineEndPositionList_data[indexLine];
                 } else {
                     cacheNUMBERS[ringBufferIndex] = '~';
-                    lineEnd = lineStart;
+                    lineEnd = new_lineStart;
                 }
 
                 let spanIndex = 0;
                     
                 // IF THE LINE CONTAINS CHARACTERS
-                if (lineStart !== lineEnd) {
-                    let currentTokenStart = lineStart;
-                    let currentTokenId = local_styles[lineStart];
+                if (new_lineStart !== lineEnd) {
+                    let currentTokenStart = new_lineStart;
+                    let currentTokenId = local_styles[new_lineStart];
                     let currentLineColumn = 0; 
                     const tabSize = 4;
 
-                    for (let byteIndex = lineStart + 1; byteIndex <= lineEnd; byteIndex++) {
+                    for (let byteIndex = new_lineStart + 1; byteIndex <= lineEnd; byteIndex++) {
                         const styleId = byteIndex !== lineEnd ? local_styles[byteIndex] : 9;
                         if (styleId !== currentTokenId) {
                             const rawStr = local_EDI_decoder.decode(local_bytes.subarray(currentTokenStart, byteIndex));

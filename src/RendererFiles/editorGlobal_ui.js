@@ -100,7 +100,7 @@ function EDI_render_do() {
                 EDI_render_do_CreateViewport();
                 break;
             case RenderKind_SyntaxHighlighting:
-                EDI_render_do_SyntaxHighlighting();
+                EDI_render_do_ResetSyntaxHighlighting();
                 break;
             case RenderKind_Cursor_flag_scrollIntoViewExplicit:
                 EDI_render_do_cursor_flag_scrollIntoViewExplicit();
@@ -330,7 +330,7 @@ function EDI_render_do_Scroll() {
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1;
     }
     else if (diff > 0) {
-        lowerBound = local_prevVli + INTS[fEDI_ONSCROLLvirtualCount];
+        lowerBound = local_prevVli + local_ArrayFrom_textElement_children_length;
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1; // Moving down: Capture index BEFORE updating indexZero
         INTS[fEDI_ringBuffer_indexZero] = (INTS[fEDI_ringBuffer_indexZero] + diff) % local_ArrayFrom_textElement_children_length;
     }
@@ -3587,4 +3587,12 @@ function EDI_onKeyDown_keyLengthEqualsOne_altKey(event) {
     
 }
 //#endregion
+
+function EDI_render_do_ResetSyntaxHighlighting() {
+    const EDI_lineStringCache_length = EDI_lineStringCache.length;
+    for (let i = 0; i < EDI_lineStringCache_length; i++) {
+        EDI_lineStringCache[i] = undefined;
+    }
+    EDI_render_force_fullscreen_redraw();
+}
 

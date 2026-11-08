@@ -399,6 +399,7 @@ const fEDI_ArrayFrom_textElement_children_length = 4;
 // And this -1
 const fEDI_ringBuffer_indexZero = 5;
 
+/** TODO: obsolete? just use 'INTS[fEDI_ArrayFrom_textElement_children_length]' */
 const fEDI_ONSCROLLvirtualCount = 6;
 
 const fEDI_lineEndPositionList_count = 7;

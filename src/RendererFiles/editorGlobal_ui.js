@@ -420,32 +420,15 @@ function EDI_render_do_Scroll() {
                     let currentLineColumn = 0; 
                     const tabSize = 4;
 
-                    const pushExpandedToken = (startByte, endByte, tokenId) => {
-                        const rawStr = local_EDI_decoder.decode(local_bytes.subarray(startByte, endByte));
-                        let expandedStr = '';
-                        for (let charIndex = 0; charIndex < rawStr.length; charIndex++) {
-                            const char = rawStr[charIndex];
-                            if (char === '\t') {
-                                const spacesNeeded = tabSize - (currentLineColumn % tabSize);
-                                expandedStr += ' '.repeat(spacesNeeded);
-                                currentLineColumn += spacesNeeded;
-                            } else {
-                                expandedStr += char;
-                                currentLineColumn++;
-                            }
-                        }
-                        lineSpans.push({ text: expandedStr, color: EDI_tokenColors[tokenId] });
-                    };
-
                     for (let byteIndex = lineStart + 1; byteIndex < lineEnd; byteIndex++) {
                         const styleId = local_styles[byteIndex];
                         if (styleId !== currentTokenId) {
-                            pushExpandedToken(currentTokenStart, byteIndex, currentTokenId);
+                            EDI_pushExpandedToken(currentTokenStart, byteIndex, currentTokenId, currentLineColumn, lineSpans, local_EDI_decoder, local_bytes, tabSize);
                             currentTokenStart = byteIndex;
                             currentTokenId = styleId;
                         }
                     }
-                    pushExpandedToken(currentTokenStart, lineEnd, currentTokenId);
+                    EDI_pushExpandedToken(currentTokenStart, lineEnd, currentTokenId, currentLineColumn, lineSpans, local_EDI_decoder, local_bytes, tabSize);
                 }
                 // FIXED BOUNDARY: IF THE LINE IS COMPLETELY EMPTY (0 Bytes)
                 else {
@@ -480,19 +463,9 @@ function EDI_render_do_Scroll() {
             ringBufferIndex = 0;
         }
 
-        lineStart = lineEnd + 1;
-        if (i < lineCount) {
-            lineEnd = local_EDI_lineEndPositionList_data[i];
-        } else {
-            lineEnd = lineStart;
-        }
-
         // --- 1. RESOLVE TOKEN SLICES FROM THE CACHE ---
         let lineSpans = cache[ringBufferIndex];
-        if (lineSpans === undefined) {
-            
-        }
-
+        
         // --- 2. DRAW SPANS CONSECUTIVELY USING THE MONOSPACE GRID ---
         let currentX = 0; // Track the running horizontal offset for the line row
         const yCoord = vertical + topPadding;
@@ -535,6 +508,23 @@ function EDI_render_do_Scroll() {
         EDI_cursor_cursorTranslateXValue = cursorX;
         ctx.fillRect(cursorX, cursorY, 2, local_lineHeight);
     }
+}
+
+function EDI_pushExpandedToken(startByte, endByte, tokenId, currentLineColumn, lineSpans, local_EDI_decoder, local_bytes, tabSize) {
+    const rawStr = local_EDI_decoder.decode(local_bytes.subarray(startByte, endByte));
+    let expandedStr = '';
+    for (let charIndex = 0; charIndex < rawStr.length; charIndex++) {
+        const char = rawStr[charIndex];
+        if (char === '\t') {
+            const spacesNeeded = tabSize - (currentLineColumn % tabSize);
+            expandedStr += ' '.repeat(spacesNeeded);
+            currentLineColumn += spacesNeeded;
+        } else {
+            expandedStr += char;
+            currentLineColumn++;
+        }
+    }
+    lineSpans.push({ text: expandedStr, color: EDI_tokenColors[tokenId] });
 }
 
 function EDI_render_Gutter(ringBufferIndex) {

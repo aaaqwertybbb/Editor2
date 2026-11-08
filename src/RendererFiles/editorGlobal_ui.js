@@ -416,7 +416,8 @@ function EDI_render_do_Scroll() {
                 }
 
                 const lineSpans = cache[ringBufferIndex];
-                lineSpans.length = 0; // TODO: try to pool the existing objects that are inside.
+                let spanIndex = 0;
+                //lineSpans.length = 0; // TODO: try to pool the existing objects that are inside.
                     
                 // IF THE LINE CONTAINS CHARACTERS
                 if (lineStart !== lineEnd) {
@@ -428,23 +429,36 @@ function EDI_render_do_Scroll() {
                     for (let byteIndex = lineStart + 1; byteIndex < lineEnd; byteIndex++) {
                         const styleId = local_styles[byteIndex];
                         if (styleId !== currentTokenId) {
-                            EDI_pushExpandedToken(currentTokenStart, byteIndex, currentTokenId, currentLineColumn, lineSpans, local_EDI_decoder, local_bytes, tabSize);
+                            EDI_pushExpandedToken(currentTokenStart, byteIndex, currentTokenId, currentLineColumn, lineSpans, local_EDI_decoder, local_bytes, tabSize, spanIndex);
+                            spanIndex++;
                             currentTokenStart = byteIndex;
                             currentTokenId = styleId;
                         }
                     }
-                    EDI_pushExpandedToken(currentTokenStart, lineEnd, currentTokenId, currentLineColumn, lineSpans, local_EDI_decoder, local_bytes, tabSize);
+                    EDI_pushExpandedToken(currentTokenStart, lineEnd, currentTokenId, currentLineColumn, lineSpans, local_EDI_decoder, local_bytes, tabSize, spanIndex);
+                    spanIndex++;
                 }
                 // FIXED BOUNDARY: IF THE LINE IS COMPLETELY EMPTY (0 Bytes)
                 else {
                     //if (lineSpans.length) {
 //
                     //}
-                    lineSpans.push({
-                        text: '',
-                        color: EDI_tokenColors[0] || '#ffffff' // Fallback to standard color
-                    });
+                    if (spanIndex < lineSpans.length) {
+                        const existingSpan = lineSpans[spanIndex++];
+                        existingSpan.text = '';
+                        existingSpan.color = EDI_tokenColors[0] || '#ffffff'; // Fallback to standard color
+                    }
+                    else {
+                        lineSpans.push({
+                            text: '',
+                            color: EDI_tokenColors[0] || '#ffffff' // Fallback to standard color
+                        });
+                        spanIndex++;
+                    }
+                    
                 }
+
+            lineSpans.length = spanIndex;
         }
 
         ctxGutter.fillText(EDI_line_NUMBER_StringCache[ringBufferIndex], 0, vertical + topPadding);
@@ -514,7 +528,7 @@ function EDI_render_do_Scroll() {
     }
 }
 
-function EDI_pushExpandedToken(startByte, endByte, tokenId, currentLineColumn, lineSpans, local_EDI_decoder, local_bytes, tabSize) {
+function EDI_pushExpandedToken(startByte, endByte, tokenId, currentLineColumn, lineSpans, local_EDI_decoder, local_bytes, tabSize, spanIndex) {
     const rawStr = local_EDI_decoder.decode(local_bytes.subarray(startByte, endByte));
     let expandedStr = '';
     for (let charIndex = 0; charIndex < rawStr.length; charIndex++) {
@@ -528,7 +542,18 @@ function EDI_pushExpandedToken(startByte, endByte, tokenId, currentLineColumn, l
             currentLineColumn++;
         }
     }
-    lineSpans.push({ text: expandedStr, color: EDI_tokenColors[tokenId] });
+    if (spanIndex < lineSpans.length) {
+        const existingSpan = lineSpans[spanIndex++];
+        existingSpan.text = expandedStr;
+        existingSpan.color = EDI_tokenColors[tokenId]; // Fallback to standard color
+    }
+    else {
+        lineSpans.push({
+            text: expandedStr,
+            color: EDI_tokenColors[tokenId] // Fallback to standard color
+        });
+        spanIndex++;
+    }
 }
 
 function EDI_render_Gutter(ringBufferIndex) {

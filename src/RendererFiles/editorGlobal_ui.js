@@ -377,6 +377,7 @@ function EDI_render_do_Scroll() {
 
     // 3. Let your context handle the scroll natively inside the static window
     const ctxGutter = EDI_gutter_canvas.getContext('2d');
+
     ctxGutter.clearRect(0, 0, EDI_gutter_canvas.width, EDI_gutter_canvas.height);
 
     ctxGutter.fillStyle = 'rgb(30, 45, 45)';
@@ -515,7 +516,32 @@ function EDI_render_do_Scroll() {
         vertical += local_lineHeight;
     }
 
-    EDI_render_SelectionAndCursor();
+    // I'm just experimenting because tons of variables are shared.
+    //EDI_render_SelectionAndCursor();
+    const canvas = EDI_cursor_canvas;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    vertical = original_vertical;
+
+    // --- STEP 1: RENDER SELECTION BOX BACKGROUND SPANS ---
+    // (Assuming you track a selection range from anchorLine/Col to focusLine/Col)
+    ctx.fillStyle = 'rgba(197, 198, 140, 0.25)'; // Highlight tint color
+
+    if (EDI_cursor_hasSelection()) {
+        EDI_createStyleForSelection(ctx, vertical, local_lineHeight, startLineIndex);
+    }
+
+    // --- STEP 2: RENDER ACTIVE SOLID CURSOR LINE ---
+    ctx.fillStyle = '#f2a72f'; // Solid cursor accent color
+    const cursorLine = INTS[fEDI_cursor_indexLine];
+    if (cursorLine >= startLineIndex && cursorLine < upperLineIndexExclusive) {
+        const cursorX = INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth;
+        const cursorY = -(EDI_lastReadNumber_scrollTop % local_lineHeight) + ((cursorLine - startLineIndex) * local_lineHeight);
+        
+        EDI_cursor_cursorTranslateXValue = cursorX;
+        ctx.fillRect(cursorX, cursorY, 2, local_lineHeight);
+    }
 }
 
 function EDI_render_Gutter(ringBufferIndex) {

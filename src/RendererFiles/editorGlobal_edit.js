@@ -77,6 +77,7 @@ const EDI_tokenColors = [
     '#4EC9B0', // Token 6: type
     '#CE9178', // Token 7: member
     '#4FC1FF', // Token 8: function
+    // 9 is hardcoded throughout the app to force write if you add another you need to start using 10 instead of 9 or etc...
 ];
 
 /** decimal */

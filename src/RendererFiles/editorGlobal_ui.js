@@ -427,10 +427,34 @@ function EDI_render_do_Scroll() {
                     const tabSize = 4;
 
                     for (let byteIndex = lineStart + 1; byteIndex <= lineEnd; byteIndex++) {
-                        const styleId = byteIndex !== lineEnd ? local_styles[byteIndex] : 0;
+                        const styleId = byteIndex !== lineEnd ? local_styles[byteIndex] : 9;
                         if (styleId !== currentTokenId) {
-                            EDI_pushExpandedToken(currentTokenStart, byteIndex, currentTokenId, currentLineColumn, lineSpans, local_EDI_decoder, local_bytes, tabSize, spanIndex);
-                            spanIndex++;
+                            const rawStr = local_EDI_decoder.decode(local_bytes.subarray(currentTokenStart, byteIndex));
+                            let expandedStr = '';
+                            for (let charIndex = 0; charIndex < rawStr.length; charIndex++) {
+                                const char = rawStr[charIndex];
+                                if (char === '\t') {
+                                    const spacesNeeded = tabSize - (currentLineColumn % tabSize);
+                                    expandedStr += ' '.repeat(spacesNeeded);
+                                    currentLineColumn += spacesNeeded;
+                                } else {
+                                    expandedStr += char;
+                                    currentLineColumn++;
+                                }
+                            }
+                            if (spanIndex < lineSpans.length) {
+                                const existingSpan = lineSpans[spanIndex++];
+                                existingSpan.text = expandedStr;
+                                existingSpan.color = EDI_tokenColors[currentTokenId]; // Fallback to standard color
+                            }
+                            else {
+                                lineSpans.push({
+                                    text: expandedStr,
+                                    color: EDI_tokenColors[currentTokenId] // Fallback to standard color
+                                });
+                                spanIndex++;
+                            }
+
                             currentTokenStart = byteIndex;
                             currentTokenId = styleId;
                         }
@@ -517,34 +541,6 @@ function EDI_render_do_Scroll() {
         
         EDI_cursor_cursorTranslateXValue = cursorX;
         ctx.fillRect(cursorX, cursorY, 2, local_lineHeight);
-    }
-}
-
-function EDI_pushExpandedToken(startByte, endByte, tokenId, currentLineColumn, lineSpans, local_EDI_decoder, local_bytes, tabSize, spanIndex) {
-    const rawStr = local_EDI_decoder.decode(local_bytes.subarray(startByte, endByte));
-    let expandedStr = '';
-    for (let charIndex = 0; charIndex < rawStr.length; charIndex++) {
-        const char = rawStr[charIndex];
-        if (char === '\t') {
-            const spacesNeeded = tabSize - (currentLineColumn % tabSize);
-            expandedStr += ' '.repeat(spacesNeeded);
-            currentLineColumn += spacesNeeded;
-        } else {
-            expandedStr += char;
-            currentLineColumn++;
-        }
-    }
-    if (spanIndex < lineSpans.length) {
-        const existingSpan = lineSpans[spanIndex++];
-        existingSpan.text = expandedStr;
-        existingSpan.color = EDI_tokenColors[tokenId]; // Fallback to standard color
-    }
-    else {
-        lineSpans.push({
-            text: expandedStr,
-            color: EDI_tokenColors[tokenId] // Fallback to standard color
-        });
-        spanIndex++;
     }
 }
 

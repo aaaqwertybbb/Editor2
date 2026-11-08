@@ -328,21 +328,21 @@ function EDI_render_do_Scroll() {
 
     const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
 
-    let lowerBound = 0;
+    let new_lowerBound = 0;
     let ringBufferIndex = 0; // The 0th loop will immediately increment this variable, thus all the assignments to this have a '- 1' on them.
 
     if (diff >= local_ArrayFrom_textElement_children_length || diff <= -local_ArrayFrom_textElement_children_length) {
-        lowerBound = local_currVli;
+        new_lowerBound = local_currVli;
         diff = local_ArrayFrom_textElement_children_length; // Bound the loop run to the size of your screen viewport
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1;
     }
     else if (diff > 0) {
-        lowerBound = local_prevVli + local_ArrayFrom_textElement_children_length;
+        new_lowerBound = local_prevVli + local_ArrayFrom_textElement_children_length;
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1; // Moving down: Capture index BEFORE updating indexZero
         INTS[fEDI_ringBuffer_indexZero] = (INTS[fEDI_ringBuffer_indexZero] + diff) % local_ArrayFrom_textElement_children_length;
     }
     else {
-        lowerBound = local_currVli;
+        new_lowerBound = local_currVli;
         diff *= -1;
         INTS[fEDI_ringBuffer_indexZero] = (INTS[fEDI_ringBuffer_indexZero] - diff + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
         ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1; // Moving up: Capture index AFTER updating indexZero
@@ -354,8 +354,8 @@ function EDI_render_do_Scroll() {
     // If you intend to use the variables 'lineStart' or 'lineEnd': Important detail to consider: the lines that are >= INTS[fEDI_lineEndPositionList_count] will continually increment lineStart by 1 So if you expect this to accurately represent the EOF position when it is in view, it probably does NOT.
     let lineStart = 0;
     let lineEnd = -1;
-    if (lowerBound < local_EDI_lineEndPositionList_count && lowerBound !== 0) {
-        lineEnd = local_EDI_lineEndPositionList_data[lowerBound - 1];
+    if (new_lowerBound < local_EDI_lineEndPositionList_count && new_lowerBound !== 0) {
+        lineEnd = local_EDI_lineEndPositionList_data[new_lowerBound - 1];
     }
 
     const local_bytes = EDI_textByteList_bytes;
@@ -378,7 +378,7 @@ function EDI_render_do_Scroll() {
     let original_vertical = -(EDI_lastReadNumber_scrollTop % local_lineHeight);
     let vertical = original_vertical;
 
-    const local_loopLimit = lowerBound + diff;
+    const local_loopLimit = new_lowerBound + diff;
 
     // 3. Let your context handle the scroll natively inside the static window
     const ctxGutter = EDI_gutter_canvas.getContext('2d');
@@ -403,7 +403,7 @@ function EDI_render_do_Scroll() {
 
         const lineSpans = cache[ringBufferIndex];
 
-        if (i >= lowerBound && i < local_loopLimit) {
+        if (i >= new_lowerBound && i < local_loopLimit) {
             // THIS WILL CALCULATE THE TEXT OF THE LINENUMBER AND THE LINE OF TEXT ITSELF
             // AND ONLY DO SO FOR THE NEWLY SCROLLED INTO VIEW LINES
                 
@@ -417,9 +417,7 @@ function EDI_render_do_Scroll() {
                     lineEnd = lineStart;
                 }
 
-                
                 let spanIndex = 0;
-                //lineSpans.length = 0; // TODO: try to pool the existing objects that are inside.
                     
                 // IF THE LINE CONTAINS CHARACTERS
                 if (lineStart !== lineEnd) {
@@ -461,8 +459,6 @@ function EDI_render_do_Scroll() {
                             currentTokenId = styleId;
                         }
                     }
-                    //EDI_pushExpandedToken(currentTokenStart, lineEnd, currentTokenId, currentLineColumn, lineSpans, local_EDI_decoder, local_bytes, tabSize, spanIndex);
-                    //spanIndex++;
                 }
                 // FIXED BOUNDARY: IF THE LINE IS COMPLETELY EMPTY (0 Bytes)
                 else {
@@ -478,7 +474,6 @@ function EDI_render_do_Scroll() {
                         });
                         spanIndex++;
                     }
-                    
                 }
 
             lineSpans.length = spanIndex;
@@ -486,6 +481,8 @@ function EDI_render_do_Scroll() {
 
         ctxGutter.fillText(cacheNUMBERS[ringBufferIndex], 0, vertical + topPadding);
         
+        // TODO: Horizontal virtualization
+
         // --- 2. DRAW SPANS CONSECUTIVELY USING THE MONOSPACE GRID ---
         let currentX = 0; // Track the running horizontal offset for the line row
         const yCoord = vertical + topPadding;
@@ -499,38 +496,8 @@ function EDI_render_do_Scroll() {
             currentX += span.text.length * EDI_characterWidth;
         }
 
-        //vertical += local_lineHeight;
-
         vertical += local_lineHeight;
     }
-
-    //vertical = original_vertical;
-    //for (let i = startLineIndex; i < upperLineIndexExclusive; i++) {
-    //    
-    //    // (faster than modulo given this context)
-    //    ringBufferIndex++;
-    //    if (ringBufferIndex >= local_ArrayFrom_textElement_children_length) {
-    //        ringBufferIndex = 0;
-    //    }
-//
-    //    // --- 1. RESOLVE TOKEN SLICES FROM THE CACHE ---
-    //    let lineSpans = cache[ringBufferIndex];
-    //    
-    //    // --- 2. DRAW SPANS CONSECUTIVELY USING THE MONOSPACE GRID ---
-    //    let currentX = 0; // Track the running horizontal offset for the line row
-    //    const yCoord = vertical + topPadding;
-//
-    //    for (let j = 0; j < lineSpans.length; j++) {
-    //        const span = lineSpans[j];
-    //        ctxText.fillStyle = span.color;
-    //        ctxText.fillText(span.text, currentX, yCoord);
-    //        
-    //        // Fast cell tracking: add characters multiplied by character width
-    //        currentX += span.text.length * EDI_characterWidth;
-    //    }
-//
-    //    vertical += local_lineHeight;
-    //}
 
     // I'm just experimenting because tons of variables are shared.
     //EDI_render_SelectionAndCursor();

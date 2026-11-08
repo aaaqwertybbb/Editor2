@@ -461,17 +461,9 @@ function EDI_render_do_Scroll() {
             lineSpans.length = spanIndex;
         }
 
-        ctxGutter.fillText(EDI_line_NUMBER_StringCache[ringBufferIndex], 0, vertical + topPadding);
+        ctxGutter.fillText(cacheNUMBERS[ringBufferIndex], 0, vertical + topPadding);
         vertical += local_lineHeight;
     }
-
-    lineStart = 0;
-    lineEnd = -1;
-    if (startLineIndex < lineCount && startLineIndex !== 0) {
-        lineEnd = local_EDI_lineEndPositionList_data[startLineIndex - 1];
-    }
-
-    //ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1;
 
     vertical = original_vertical;
     for (let i = startLineIndex; i < upperLineIndexExclusive; i++) {

@@ -426,8 +426,8 @@ function EDI_render_do_Scroll() {
                     let currentLineColumn = 0; 
                     const tabSize = 4;
 
-                    for (let byteIndex = lineStart + 1; byteIndex < lineEnd; byteIndex++) {
-                        const styleId = local_styles[byteIndex];
+                    for (let byteIndex = lineStart + 1; byteIndex <= lineEnd; byteIndex++) {
+                        const styleId = byteIndex !== lineEnd ? local_styles[byteIndex] : 0;
                         if (styleId !== currentTokenId) {
                             EDI_pushExpandedToken(currentTokenStart, byteIndex, currentTokenId, currentLineColumn, lineSpans, local_EDI_decoder, local_bytes, tabSize, spanIndex);
                             spanIndex++;
@@ -435,8 +435,8 @@ function EDI_render_do_Scroll() {
                             currentTokenId = styleId;
                         }
                     }
-                    EDI_pushExpandedToken(currentTokenStart, lineEnd, currentTokenId, currentLineColumn, lineSpans, local_EDI_decoder, local_bytes, tabSize, spanIndex);
-                    spanIndex++;
+                    //EDI_pushExpandedToken(currentTokenStart, lineEnd, currentTokenId, currentLineColumn, lineSpans, local_EDI_decoder, local_bytes, tabSize, spanIndex);
+                    //spanIndex++;
                 }
                 // FIXED BOUNDARY: IF THE LINE IS COMPLETELY EMPTY (0 Bytes)
                 else {

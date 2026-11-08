@@ -485,6 +485,7 @@ There were notes to myself can you make anything of them?
 
 
 
+
 <
 I can absolutely make sense of these. This is a classic internal debate between premature optimization (overly worrying about V8's Garbage Collector) and
 architectural usability (how easy it is to manage your text data).
@@ -524,3 +525,66 @@ Your notes are screaming at you to simplify. If I were rewriting this core data 
 Now that we've deciphered your notes, let me know:
 - How large are the files you expect this editor to handle smoothly?
 - Do you want to sketch out the structure for the CachedLine token storage or explore how a tree structure would replace your byte array?
+
+
+
+
+>
+If I have a file that is 162,509 bytes. (assume that encoding BOMs aren't involved) and at byte 0 I insert the letter 'a'.
+
+More information:
+My underlying UInt8Array has the capacity to store this newly inserted character.
+
+Then I'd shift 162,509 bytes to the right by 1.
+This then lets me write the byte for letter 'a' at index 0.
+
+How long did that "shift 162,509 bytes" take?
+
+
+
+
+<
+It took roughly 15 to 40 microseconds (0.015 to 0.04 milliseconds).
+
+To modern hardware and V8's highly optimized engine, shifting ~162 KB in a sequential Uint8Array (using a method like .copyWithin()) is trivial.
+It boils down to a native memmove operation at the C++ level.
+
+To put that time into perspective for a text editor:
+- The human perception threshold for instantaneous visual feedback is about 100 milliseconds.
+- One frame at 60 FPS gives you a budget of 16.67 milliseconds.
+- At ~0.03 milliseconds, this shift consumes less than 0.2% of a single frame's budget.
+
+The Catch
+
+If you are typing a single character, doing this once per keystroke feels completely instantaneous.
+However, your past self was right to flag this as a problem for a scaling text editor because of how this operation scales linearly (O(N)):
+
+1. If the file grows to 10MB, that shift jumps to around 2-3 milliseconds.
+2. If the user holds down a key (triggering repeat keystrokes at 30Hz), you are forcing a massive memory-shuffling operation 30 times a second.
+   If you bundle tokenization and rendering into that same loop, you'll start dropping frames.
+
+So for a 162KB file? It's incredibly fast, and your byte-shifting approach works flawlessly.
+But if you want to support multi-megabyte files smoothly, this exact memory bottleneck is why people switch to trees or line arrays.
+
+Would you like to see the exact JavaScript code using copyWithin to handle this byte shift properly, or should we talk about how a Linked List or Tree bypasses this shift entirely?
+Show Code
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

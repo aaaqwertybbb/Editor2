@@ -1086,3 +1086,8 @@ Is there a specific API that is made to avoid constant C++ boundary hopping?
 
 wasted some time on a "this is halloween" lookin *** color theme
 
+
+I gotta cook/eat a lb of chicken and exercise
+
+- [ ] horizontal scrolling
+- [ ] I don't think any editing works unless your scrollTop is 0 and even then...

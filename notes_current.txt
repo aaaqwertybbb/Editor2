@@ -436,3 +436,11 @@ Remove the byte array for line end positions.
 Track the relative distance from one line to another
 
 Trees?
+
+====
+
+TODO:
+your concern about garbage collection is overly concerned.
+and you need to balance the cost of computation over bytes
+against having an object that perfectly stores the data
+and can just spit it out without issue.

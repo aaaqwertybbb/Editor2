@@ -70,7 +70,7 @@ let EDI_styleBuffer = new Uint8Array(0);
 const EDI_tokenColors = [
     '#d4d4d4', // Token 0: standardText
     '#6A9955', // Token 1: string
-    '#c5d7e1', // Token 2: comment
+    '#766b63', // Token 2: comment
     '#ca6c6c', // Token 3: keyword
     '#c867d2', // Token 4: keywordControl
     '#CECE84', // Token 5: identifier

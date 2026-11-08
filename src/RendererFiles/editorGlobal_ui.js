@@ -464,9 +464,6 @@ function EDI_render_do_Scroll() {
                 }
                 // FIXED BOUNDARY: IF THE LINE IS COMPLETELY EMPTY (0 Bytes)
                 else {
-                    //if (lineSpans.length) {
-//
-                    //}
                     if (spanIndex < lineSpans.length) {
                         const existingSpan = lineSpans[spanIndex++];
                         existingSpan.text = '';

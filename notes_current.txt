@@ -607,6 +607,27 @@ Are you trying to calculate the maximum array size or layout bounds for your can
 
 
 
+>
+I'd describe my current implementation as a "piece tree that forgets".
 
+In the "If I have a file that is 162,509 bytes. (assume that encoding BOMs aren't involved) and at byte 0 I insert the letter 'a'." scenario.
+
+I can change the action in order to illustrate my implementation. So I'll insert not 'a', but 'abc'.
+
+The UI is virtualized. So you have the text for line index 0 being displayed on screen.
+
+As the user types 'a', then 'b', and 'c'.
+
+You only update the text for line index 0.
+
+Back when I had the UI written with divs, each div represented a line of text.
+So I would find the div that contains the text for line index 0.
+Then I get the div's TextNode, and I replaced its data so the user saw the UI change as they typed each character.
+
+Then behind the scenes there is a UInt8Array which is variable named something like "transactionBuffer".
+
+So the "transactionBuffer" knows the user typed 'abc'. And the UI is showing that they typed 'abc', but the actual bytes of the entire text have not changed.
+
+At this point, if the user tries to insert text at a different location in the file, that pending "insertion" is "finalized". At that point I shift the existing bytes to make room for the bytes representing 'abc'. 
 
 

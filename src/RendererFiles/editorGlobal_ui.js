@@ -149,6 +149,100 @@ function EDI_render_request(renderKind) {
     }
 }
 
+function EDI_resizeCanvases() {
+    const dpr = window.devicePixelRatio || 1;
+
+    // 1. Get the real bounding dimensions of your visible viewport frame
+    const viewportRect = EDI_viewport.getBoundingClientRect();
+    const viewWidth = viewportRect.width;
+    const viewHeight = viewportRect.height;
+
+    // Define a fixed layout width for your gutter
+    const gutterLayoutWidth = 60;
+
+    // --- 2. CONFIG DIGEST FOR GUTTER CANVAS ---
+    const gutterCanvas = EDI_gutter_canvas;
+    // Set the CSS display size (how much room it occupies on screen)
+    gutterCanvas.style.width = gutterLayoutWidth + 'px';
+    gutterCanvas.style.height = viewHeight + 'px';
+    // Set the internal hardware drawing resolution (multiplied by DPR)
+    gutterCanvas.width = gutterLayoutWidth * dpr;
+    gutterCanvas.height = viewHeight * dpr;
+
+    // --- 3. CONFIG DIGEST FOR TEXT CANVAS ---
+    const textCanvas = document.getElementById('EDI_text_canvas');
+    const textLayoutWidth = viewWidth - gutterLayoutWidth;
+    textCanvas.style.width = textLayoutWidth + 'px';
+    textCanvas.style.height = viewHeight + 'px';
+    textCanvas.width = textLayoutWidth * dpr;
+    textCanvas.height = viewHeight * dpr;
+
+    // --- 4. SCALE THE DRAWING CONTEXTS ---
+    // This step ensures your drawing coordinates (like fillText X/Y) 
+    // remain working in standard layout pixels, while the engine handles the high-DPI pixel math
+    const ctxGutter = gutterCanvas.getContext('2d');
+    ctxGutter.scale(dpr, dpr);
+    // Re-apply your styles here since changing width/height resets canvas states!
+    ctxGutter.font = '16px monospace';
+    ctxGutter.textBaseline = 'top';
+    ctxGutter.fillStyle = '#007036';
+    ctxGutter.fillRect(0, 0, gutterCanvas.width, gutterCanvas.height); 
+    ctxGutter.fillStyle = '#858585';
+    //ctxGutter.;
+
+    const ctxText = textCanvas.getContext('2d');
+    ctxText.scale(dpr, dpr);
+    ctxText.font = '16px monospace';
+    ctxText.textBaseline = 'top';
+    ctxText.fillStyle = '#ffffff';
+    
+
+
+    const metrics = ctxGutter.measureText('M'); // 'M' or '1' are great standard height references
+    const textHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+
+    //console.log('The exact height of the text is:', textHeight);
+
+    const fontHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+    const linePadding = 6; // Total padding between lines
+    INTS[fEDI_lineHeight] = fontHeight + linePadding;
+
+
+
+    // The exact pixel width of every single character in a monospace font
+    const charWidth = ctxText.measureText('M').width; 
+    EDI_characterWidth = charWidth;
+
+    // Run once during setup / font configuration
+    //ctx.font = '16px monospace';
+
+    //const metrics = ctx.measureText('M');
+    const fontActualHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+
+    // If local_lineHeight is 24px and fontActualHeight is 14px, your vertical midpoint padding is 12px
+
+    INTS[fEXPLORER_lastReadNumber_offsetWidth] = Math.floor(EDI_text.offsetWidth);
+    INTS[fEDI_lastReadNumber_offsetHeight] = Math.floor(EDI_text.offsetHeight);
+
+    INTS[fEDI_virtualCount] = Math.ceil(INTS[fEDI_lastReadNumber_offsetHeight] / INTS[fEDI_lineHeight]);
+
+
+
+    // --- CONFIG DIGEST FOR CURSOR CANVAS ---
+    const cursorCanvas = document.getElementById('EDI_cursor_canvas');
+    cursorCanvas.style.width = textLayoutWidth + 'px';
+    cursorCanvas.style.height = viewHeight + 'px';
+    cursorCanvas.width = textLayoutWidth * dpr;
+    cursorCanvas.height = viewHeight * dpr;
+
+    const ctxCursor = cursorCanvas.getContext('2d');
+    ctxCursor.scale(dpr, dpr);
+    
+    // Set your editor's cursor color profile
+    ctxCursor.fillStyle = '#528bff'; // A nice modern blue cursor, or white (#ffffff)
+
+}
+
 /**
  * TODO: This logic is very unfortunate.
  * ...
@@ -219,6 +313,10 @@ function EDI_render_do_Scroll() {
     // 3. Let your context handle the scroll natively inside the static window
     const ctxGutter = EDI_gutter_canvas.getContext('2d');
     ctxGutter.clearRect(0, 0, EDI_gutter_canvas.width, EDI_gutter_canvas.height);
+
+    ctxGutter.fillStyle = 'rgb(30, 45, 45)';
+    ctxGutter.fillRect(0, 0, EDI_gutter_canvas.width, EDI_gutter_canvas.height); 
+    ctxGutter.fillStyle = '#858585';
 
     let lineIndex = INTS[fEDI_virtualIndexLine];
     
@@ -2173,14 +2271,14 @@ function EDI_render_SelectionAndCursor() {
 
     // --- STEP 1: RENDER SELECTION BOX BACKGROUND SPANS ---
     // (Assuming you track a selection range from anchorLine/Col to focusLine/Col)
-    ctx.fillStyle = 'rgba(82, 139, 255, 0.25)'; // Highlight tint color
+    ctx.fillStyle = 'rgba(197, 198, 140, 0.25)'; // Highlight tint color
 
     if (EDI_cursor_hasSelection()) {
         EDI_createStyleForSelection(ctx, viewportY, local_lineHeight, startLineIndex);
     }
 
     // --- STEP 2: RENDER ACTIVE SOLID CURSOR LINE ---
-    ctx.fillStyle = '#528bff'; // Solid cursor accent color
+    ctx.fillStyle = '#f2a72f'; // Solid cursor accent color
     const cursorLine = INTS[fEDI_cursor_indexLine];
     if (cursorLine >= startLineIndex && cursorLine < upperLineIndexExclusive) {
         const cursorX = INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth;

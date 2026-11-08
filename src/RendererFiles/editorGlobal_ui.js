@@ -368,9 +368,6 @@ function EDI_render_do_Scroll() {
     const local_styles = EDI_styleBuffer; // Your matching parallel array
     const cache = EDI_lineStringCache;
     const cacheNUMBERS = EDI_line_NUMBER_StringCache;
-
-    //const splitIndex = Math.min(upperLineIndexExclusive, lineCount);
-    const local_EDI_textTopPadding = EDI_textTopPadding;
     
     let original_vertical = -(EDI_lastReadNumber_scrollTop % local_lineHeight);
     let vertical = original_vertical;
@@ -386,79 +383,9 @@ function EDI_render_do_Scroll() {
     ctxGutter.fillRect(0, 0, EDI_gutter_canvas.width, EDI_gutter_canvas.height); 
     ctxGutter.fillStyle = '#858585';
 
-    
-    
     ctxText.clearRect(0, 0, EDI_text_canvas.width, EDI_text_canvas.height);
 
-    // calculate the text of the newly scrolled into view lines
-    for (let indexLine = lowerBound; indexLine < local_loopLimit; ++indexLine) {
-        // (faster than modulo given this context)
-        ringBufferIndex++;
-        if (ringBufferIndex >= local_ArrayFrom_textElement_children_length) {
-            ringBufferIndex = 0;
-        }
-
-        lineStart = lineEnd + 1;
-        if (indexLine < lineCount) {
-            cacheNUMBERS[ringBufferIndex] = String(indexLine + 1);
-            lineEnd = local_EDI_lineEndPositionList_data[indexLine];
-        } else {
-            cacheNUMBERS[ringBufferIndex] = '~';
-            lineEnd = lineStart;
-        }
-
-        let lineSpans = [];
-            
-        // IF THE LINE CONTAINS CHARACTERS
-        if (lineStart !== lineEnd) {
-            
-
-            let currentTokenStart = lineStart;
-            let currentTokenId = local_styles[lineStart];
-            let currentLineColumn = 0; 
-            const tabSize = 4;
-
-            const pushExpandedToken = (startByte, endByte, tokenId) => {
-                const rawStr = local_EDI_decoder.decode(local_bytes.subarray(startByte, endByte));
-                let expandedStr = '';
-                for (let charIndex = 0; charIndex < rawStr.length; charIndex++) {
-                    const char = rawStr[charIndex];
-                    if (char === '\t') {
-                        const spacesNeeded = tabSize - (currentLineColumn % tabSize);
-                        expandedStr += ' '.repeat(spacesNeeded);
-                        currentLineColumn += spacesNeeded;
-                    } else {
-                        expandedStr += char;
-                        currentLineColumn++;
-                    }
-                }
-                lineSpans.push({ text: expandedStr, color: EDI_tokenColors[tokenId] });
-            };
-
-            for (let byteIndex = lineStart + 1; byteIndex < lineEnd; byteIndex++) {
-                const styleId = local_styles[byteIndex];
-                if (styleId !== currentTokenId) {
-                    pushExpandedToken(currentTokenStart, byteIndex, currentTokenId);
-                    currentTokenStart = byteIndex;
-                    currentTokenId = styleId;
-                }
-            }
-            pushExpandedToken(currentTokenStart, lineEnd, currentTokenId);
-        }
-        // FIXED BOUNDARY: IF THE LINE IS COMPLETELY EMPTY (0 Bytes)
-        else {
-            
-            lineSpans.push({
-                text: '',
-                color: EDI_tokenColors[0] || '#ffffff' // Fallback to standard color
-            });
-        }
-        
-        cache[ringBufferIndex] = lineSpans; // Properly cached structure!
-        
-
-        //vertical += local_lineHeight;
-    }
+    
 
     ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1;
 
@@ -474,19 +401,70 @@ function EDI_render_do_Scroll() {
             ringBufferIndex = 0;
         }
 
-        ctxGutter.fillText(EDI_line_NUMBER_StringCache[ringBufferIndex], 0, vertical + local_EDI_textTopPadding);
+        if (i >= lowerBound && i < local_loopLimit) {
+            // calculate the text of the newly scrolled into view lines
+                
+                const indexLine = i;
+                lineStart = lineEnd + 1;
+                if (indexLine < lineCount) {
+                    cacheNUMBERS[ringBufferIndex] = String(indexLine + 1);
+                    lineEnd = local_EDI_lineEndPositionList_data[indexLine];
+                } else {
+                    cacheNUMBERS[ringBufferIndex] = '~';
+                    lineEnd = lineStart;
+                }
+
+                let lineSpans = [];
+                    
+                // IF THE LINE CONTAINS CHARACTERS
+                if (lineStart !== lineEnd) {
+                    let currentTokenStart = lineStart;
+                    let currentTokenId = local_styles[lineStart];
+                    let currentLineColumn = 0; 
+                    const tabSize = 4;
+
+                    const pushExpandedToken = (startByte, endByte, tokenId) => {
+                        const rawStr = local_EDI_decoder.decode(local_bytes.subarray(startByte, endByte));
+                        let expandedStr = '';
+                        for (let charIndex = 0; charIndex < rawStr.length; charIndex++) {
+                            const char = rawStr[charIndex];
+                            if (char === '\t') {
+                                const spacesNeeded = tabSize - (currentLineColumn % tabSize);
+                                expandedStr += ' '.repeat(spacesNeeded);
+                                currentLineColumn += spacesNeeded;
+                            } else {
+                                expandedStr += char;
+                                currentLineColumn++;
+                            }
+                        }
+                        lineSpans.push({ text: expandedStr, color: EDI_tokenColors[tokenId] });
+                    };
+
+                    for (let byteIndex = lineStart + 1; byteIndex < lineEnd; byteIndex++) {
+                        const styleId = local_styles[byteIndex];
+                        if (styleId !== currentTokenId) {
+                            pushExpandedToken(currentTokenStart, byteIndex, currentTokenId);
+                            currentTokenStart = byteIndex;
+                            currentTokenId = styleId;
+                        }
+                    }
+                    pushExpandedToken(currentTokenStart, lineEnd, currentTokenId);
+                }
+                // FIXED BOUNDARY: IF THE LINE IS COMPLETELY EMPTY (0 Bytes)
+                else {
+                    
+                    lineSpans.push({
+                        text: '',
+                        color: EDI_tokenColors[0] || '#ffffff' // Fallback to standard color
+                    });
+                }
+                
+                cache[ringBufferIndex] = lineSpans; // Properly cached structure!
+        }
+
+        ctxGutter.fillText(EDI_line_NUMBER_StringCache[ringBufferIndex], 0, vertical + topPadding);
         vertical += local_lineHeight;
     }
-
-    //// Render buffer tildes
-    //for (let i = splitIndex; i < upperLineIndexExclusive; i++) {
-    //    ctxGutter.fillText('~', 0, vertical + local_EDI_textTopPadding);
-    //    vertical += local_lineHeight;
-    //}
-
-
-
-
 
     lineStart = 0;
     lineEnd = -1;

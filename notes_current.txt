@@ -572,15 +572,37 @@ Show Code
 
 
 
+>
+In a file that has 180 single-byte-characters exactly on every line.
+
+How many lines of text would make up a 10MB file?
 
 
 
 
+<
+Depending on how you define a 10MB file and how you handle newlines, a 10MB file would contain between 54,945 and 58,254 lines of text.
 
+Because text editors and OS memory buffers generally rely on binary megabytes ((10 * 1024 * 1024 = 10,485,760) bytes), here is the exact breakdown based on how line endings are counted:
 
+1. Binary Megabytes (10,485,760 bytes)
+- 58,254 lines – If the 180 characters include the line ending, or if there are no line breaks at all (just text).
+- 57,932 lines – If there are 180 visible characters + 1 newline byte (\n for Linux/macOS) per line (181 bytes total per line).
+- 57,614 lines – If there are 180 visible characters + 2 newline bytes (\r\n for Windows) per line (182 bytes total per line).
 
+2. Decimal Megabytes (10,000,000 bytes)
 
+If you measure file size the way drive manufacturers do (exactly 10 million bytes):
+- 55,555 lines – 180 bytes total per line.
+- 55,248 lines – 180 characters + \n.
+- 54,945 lines – 180 characters + \r\n.
 
+The Performance Reality
+
+If your editor uses your current monolithic approach, holding down a key at line 1 of a file this size means shifting roughly 10,485,759 bytes to the right inside your array with every
+single keystroke. At 10MB, that array copy takes long enough that it will choke your 16.67ms frame budget and cause noticeable UI stutter.
+
+Are you trying to calculate the maximum array size or layout bounds for your canvas editor, or are you working out the math for a line-index lookup table?
 
 
 

@@ -203,7 +203,7 @@ function EDI_state_clear(trackingUint32MaxHeap_initialCapacity) {
     // TODO: This placement is slightly odd because the styleBuffer is made asynchronously and whether there could be a race condition that clears the styleBuffer you just received is uncertain (I just have not checked recently maybe I did when I first wrote it, it just looks odd though, need to check this).
     INTS[fEDI_styleBuffer_count] = 0;
 
-    EDI_lineStringCache = new Array(trackingUint32MaxHeap_initialCapacity);
+    //EDI_lineStringCache = new Array(trackingUint32MaxHeap_initialCapacity);
 }
 
 function EDI_clear() {

@@ -433,6 +433,10 @@ TODO: maybe don't nearly-duplicate these classes.
   border: 1px solid var(--primary-border-color);
 }
 
+#EDI_gutter {
+  
+}
+
 #EDI_gutter_container {
   position: sticky;
   left: 0;

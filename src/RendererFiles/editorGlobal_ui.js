@@ -247,6 +247,10 @@ function EDI_resizeCanvases() {
     // Set your editor's cursor color profile
     ctxCursor.fillStyle = '#528bff'; // A nice modern blue cursor, or white (#ffffff)
 
+    EDI_lineStringCache = new Array(INTS[fEDI_virtualCount]);
+    INTS[fEDI_ArrayFrom_textElement_children_length] = INTS[fEDI_virtualCount];
+    
+    EDI_render_force_fullscreen_redraw();
 }
 
 /**
@@ -299,12 +303,6 @@ function EDI_scrollViewport_scroll() {
 }
 
 function EDI_render_do_Scroll() {
-    // ONLY shift horizontally on the X-axis. Leave Y and Z locked to 0!
-    EDI_text.style.transform = 'translate3d(-' + EDI_lastReadNumber_scrollLeft + 'px, 0px, 0px)';
-    
-    // Gutter stays completely locked in place
-    EDI_gutter.style.transform = 'translate3d(0px, 0px, 0px)';
-
     const local_lineHeight = INTS[fEDI_lineHeight];
     INTS[fEDI_virtualIndexLine] = EDI_lastReadNumber_scrollTop / local_lineHeight | 0;
 
@@ -315,6 +313,83 @@ function EDI_render_do_Scroll() {
     if (INTS[fEDI_cursor_editKind] !== EditKind_None) {
         EDI_finalizeEdit();
     }
+
+    let diff = local_currVli - local_prevVli;
+    // TODO: You can't return here you need to just redraw with the cached state
+    if (diff === 0) return;
+
+    const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
+
+    let lowerBound = 0;
+    let ringBufferIndex = 0; // The 0th loop will immediately increment this variable, thus all the assignments to this have a '- 1' on them.
+
+    if (diff >= local_ArrayFrom_textElement_children_length || diff <= -local_ArrayFrom_textElement_children_length) {
+        lowerBound = local_currVli;
+        diff = local_ArrayFrom_textElement_children_length; // Bound the loop run to the size of your screen viewport
+        ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1;
+    }
+    else if (diff > 0) {
+        lowerBound = local_prevVli + INTS[fEDI_ONSCROLLvirtualCount];
+        ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1; // Moving down: Capture index BEFORE updating indexZero
+        INTS[fEDI_ringBuffer_indexZero] = (INTS[fEDI_ringBuffer_indexZero] + diff) % local_ArrayFrom_textElement_children_length;
+    }
+    else {
+        lowerBound = local_currVli;
+        diff *= -1;
+        INTS[fEDI_ringBuffer_indexZero] = (INTS[fEDI_ringBuffer_indexZero] - diff + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
+        ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1; // Moving up: Capture index AFTER updating indexZero
+    }
+
+    const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
+    const local_EDI_lineEndPositionList_count = INTS[fEDI_lineEndPositionList_count];
+
+    // If you intend to use the variables 'lineStart' or 'lineEnd': Important detail to consider: the lines that are >= INTS[fEDI_lineEndPositionList_count] will continually increment lineStart by 1 So if you expect this to accurately represent the EOF position when it is in view, it probably does NOT.
+    let lineStart = 0;
+    let lineEnd = -1;
+    if (lowerBound < local_EDI_lineEndPositionList_count && lowerBound !== 0) {
+        lineEnd = local_EDI_lineEndPositionList_data[lowerBound - 1];
+    }
+
+    //const local_bytes = EDI_textByteList_bytes;
+    //const local_EDI_ringBuffer_gutter = EDI_ringBuffer_gutter;
+    //const local_EDI_ringBuffer_text = EDI_ringBuffer_text;
+    //const local_EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine = EDI_ringBuffer_ringBufferIndex_to_arrayOfRangeObjectsOnLine;
+    //const local_EDI_decoder = EDI_decoder;
+//
+    //const local_identifierHighlight = identifierHighlight;
+    //const local_keywordHighlight = keywordHighlight;
+    //const local_memberHighlight = memberHighlight;
+    //const local_keywordControlHighlight = keywordControlHighlight;
+    //const local_functionHighlight = functionHighlight;
+    //const local_commentHighlight = commentHighlight;
+    //const local_stringHighlight = stringHighlight;
+    //const local_typeHighlight = typeHighlight;
+//
+    //const local_EDI_styleBuffer = EDI_styleBuffer;
+//
+    //const local_EDI_rangeInit = EDI_rangeInit;
+    //
+    //let vertical = lowerBound * local_lineHeight;
+
+    const local_loopLimit = lowerBound + diff;
+
+    //for (let indexLine = lowerBound; indexLine < local_loopLimit; ++indexLine) {
+    //    // (faster than modulo given this context)
+    //    ringBufferIndex++;
+    //    if (ringBufferIndex >= local_ArrayFrom_textElement_children_length) {
+    //        ringBufferIndex = 0;
+    //    }
+//
+    //    vertical += local_lineHeight;
+    //}
+
+    EDI_render_Gutter(ringBufferIndex);
+    EDI_render_TextContent(ringBufferIndex, lowerBound, local_loopLimit, lineStart, lineEnd);
+    EDI_render_SelectionAndCursor();
+}
+
+function EDI_render_Gutter(ringBufferIndex) {
+    const local_lineHeight = INTS[fEDI_lineHeight];
 
     // 3. Let your context handle the scroll natively inside the static window
     const ctxGutter = EDI_gutter_canvas.getContext('2d');
@@ -335,24 +410,34 @@ function EDI_render_do_Scroll() {
     const splitIndex = Math.min(upperLineIndexExclusive, lineCount);
     const local_EDI_textTopPadding = EDI_textTopPadding;
 
+    //const original_ringBufferIndex = ringBufferIndex;
+    //const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
+
     // Render pure line numbers
     for (let i = lineIndex; i < splitIndex; i++) {
+        //// (faster than modulo given this context)
+        //ringBufferIndex++;
+        //if (ringBufferIndex >= local_ArrayFrom_textElement_children_length) {
+        //    ringBufferIndex = 0;
+        //}
+
         ctxGutter.fillText(i + 1, 0, vertical + local_EDI_textTopPadding);
         vertical += local_lineHeight;
     }
+
+    
+    //for (let i = lineIndex; i < splitIndex; i++) {
+    //    
+    //}
 
     // Render buffer tildes
     for (let i = splitIndex; i < upperLineIndexExclusive; i++) {
         ctxGutter.fillText('~', 0, vertical + local_EDI_textTopPadding);
         vertical += local_lineHeight;
     }
-
-    EDI_render_TextContent();
-
-    EDI_render_SelectionAndCursor();
 }
 
-function EDI_render_TextContent() {
+function EDI_render_TextContent(ringBufferIndex, lowerBound, loopLimit, lineStart, lineEnd) {
     const ctxText = EDI_text_canvas.getContext('2d');
     ctxText.clearRect(0, 0, EDI_text_canvas.width, EDI_text_canvas.height);
 
@@ -371,13 +456,92 @@ function EDI_render_TextContent() {
     const local_styles = EDI_styleBuffer; // Your matching parallel array
     const cache = EDI_lineStringCache;
 
-    let lineStart = 0;
-    let lineEnd = -1;
+    let virtualIndex = -1;
+
+    const original_ringBufferIndex = ringBufferIndex;
+    const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
+
+    // calculate the text of the newly scrolled into view lines
+    const local_loopLimit = loopLimit;
+    for (let indexLine = lowerBound; indexLine < local_loopLimit; ++indexLine) {
+        // (faster than modulo given this context)
+        ringBufferIndex++;
+        if (ringBufferIndex >= local_ArrayFrom_textElement_children_length) {
+            ringBufferIndex = 0;
+        }
+
+        lineStart = lineEnd + 1;
+        if (indexLine < lineCount) {
+            lineEnd = local_EDI_lineEndPositionList_data[indexLine];
+        } else {
+            lineEnd = lineStart;
+        }
+
+        let lineSpans = [];
+            
+        // IF THE LINE CONTAINS CHARACTERS
+        if (lineStart !== lineEnd) {
+            let currentTokenStart = lineStart;
+            let currentTokenId = local_styles[lineStart];
+            let currentLineColumn = 0; 
+            const tabSize = 4;
+
+            const pushExpandedToken = (startByte, endByte, tokenId) => {
+                const rawStr = local_EDI_decoder.decode(local_bytes.subarray(startByte, endByte));
+                let expandedStr = '';
+                for (let charIndex = 0; charIndex < rawStr.length; charIndex++) {
+                    const char = rawStr[charIndex];
+                    if (char === '\t') {
+                        const spacesNeeded = tabSize - (currentLineColumn % tabSize);
+                        expandedStr += ' '.repeat(spacesNeeded);
+                        currentLineColumn += spacesNeeded;
+                    } else {
+                        expandedStr += char;
+                        currentLineColumn++;
+                    }
+                }
+                lineSpans.push({ text: expandedStr, color: EDI_tokenColors[tokenId] });
+            };
+
+            for (let byteIndex = lineStart + 1; byteIndex < lineEnd; byteIndex++) {
+                const styleId = local_styles[byteIndex];
+                if (styleId !== currentTokenId) {
+                    pushExpandedToken(currentTokenStart, byteIndex, currentTokenId);
+                    currentTokenStart = byteIndex;
+                    currentTokenId = styleId;
+                }
+            }
+            pushExpandedToken(currentTokenStart, lineEnd, currentTokenId);
+        }
+        // FIXED BOUNDARY: IF THE LINE IS COMPLETELY EMPTY (0 Bytes)
+        else {
+            lineSpans.push({
+                text: '',
+                color: EDI_tokenColors[0] || '#ffffff' // Fallback to standard color
+            });
+        }
+        
+        cache[ringBufferIndex] = lineSpans; // Properly cached structure!
+
+        //vertical += local_lineHeight;
+    }
+
+    lineStart = 0;
+    lineEnd = -1;
     if (startLineIndex < lineCount && startLineIndex !== 0) {
         lineEnd = local_EDI_lineEndPositionList_data[startLineIndex - 1];
     }
 
+    ringBufferIndex = INTS[fEDI_ringBuffer_indexZero];
+
     for (let i = startLineIndex; i < upperLineIndexExclusive; i++) {
+        
+        // (faster than modulo given this context)
+        ringBufferIndex++;
+        if (ringBufferIndex >= local_ArrayFrom_textElement_children_length) {
+            ringBufferIndex = 0;
+        }
+
         lineStart = lineEnd + 1;
         if (i < lineCount) {
             lineEnd = local_EDI_lineEndPositionList_data[i];
@@ -386,53 +550,9 @@ function EDI_render_TextContent() {
         }
 
         // --- 1. RESOLVE TOKEN SLICES FROM THE CACHE ---
-        let lineSpans = cache[i];
+        let lineSpans = cache[ringBufferIndex];
         if (lineSpans === undefined) {
-            lineSpans = [];
             
-            // IF THE LINE CONTAINS CHARACTERS
-            if (lineStart !== lineEnd) {
-                let currentTokenStart = lineStart;
-                let currentTokenId = local_styles[lineStart];
-                let currentLineColumn = 0; 
-                const tabSize = 4;
-
-                const pushExpandedToken = (startByte, endByte, tokenId) => {
-                    const rawStr = local_EDI_decoder.decode(local_bytes.subarray(startByte, endByte));
-                    let expandedStr = '';
-                    for (let charIndex = 0; charIndex < rawStr.length; charIndex++) {
-                        const char = rawStr[charIndex];
-                        if (char === '\t') {
-                            const spacesNeeded = tabSize - (currentLineColumn % tabSize);
-                            expandedStr += ' '.repeat(spacesNeeded);
-                            currentLineColumn += spacesNeeded;
-                        } else {
-                            expandedStr += char;
-                            currentLineColumn++;
-                        }
-                    }
-                    lineSpans.push({ text: expandedStr, color: EDI_tokenColors[tokenId] });
-                };
-
-                for (let byteIndex = lineStart + 1; byteIndex < lineEnd; byteIndex++) {
-                    const styleId = local_styles[byteIndex];
-                    if (styleId !== currentTokenId) {
-                        pushExpandedToken(currentTokenStart, byteIndex, currentTokenId);
-                        currentTokenStart = byteIndex;
-                        currentTokenId = styleId;
-                    }
-                }
-                pushExpandedToken(currentTokenStart, lineEnd, currentTokenId);
-            } 
-            // FIXED BOUNDARY: IF THE LINE IS COMPLETELY EMPTY (0 Bytes)
-            else {
-                lineSpans.push({
-                    text: '',
-                    color: EDI_tokenColors[0] || '#ffffff' // Fallback to standard color
-                });
-            }
-            
-            cache[i] = lineSpans; // Properly cached structure!
         }
 
         // --- 2. DRAW SPANS CONSECUTIVELY USING THE MONOSPACE GRID ---
@@ -2229,9 +2349,9 @@ function EDI_drawHorizontalScrollbar() {
 
         EDI_virtualization_horizontal.style.width = virtualization_horizontal_style_width_attribute;
 
-        for (let i = 0; i < INTS[fEDI_ArrayFrom_textElement_children_length]; i++) {
-            EDI_ringBuffer_text[i].style.width = virtualization_horizontal_style_width_attribute;
-        }
+        //for (let i = 0; i < INTS[fEDI_ArrayFrom_textElement_children_length]; i++) {
+        //    EDI_ringBuffer_text[i].style.width = virtualization_horizontal_style_width_attribute;
+        //}
 
         //EDI_cursor_caretRow.style.width = virtualization_horizontal_style_width_attribute;
     }

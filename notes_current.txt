@@ -444,3 +444,13 @@ your concern about garbage collection is overly concerned.
 and you need to balance the cost of computation over bytes
 against having an object that perfectly stores the data
 and can just spit it out without issue.
+
+I can tell you're overly worried about GC
+given your insane desire to avoid Smis at the module
+level scope because they'll in your head
+assumedly end up as "root nodes" in "gen 2"
+that need to be visited by the GC when doing a "gen 2" collection.
+This visit is solely a matter of determining whether
+the module variable is truly a primitive because it is
+mutable so you need to verify the tag incase it changed.
+All in all it is all speculation and you look kinda goofy.

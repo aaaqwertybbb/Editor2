@@ -697,6 +697,7 @@ select:focus {
   --editor-syntax-type-color: #4EC9B0;
   --editor-syntax-member-color: #4FC1FF;
   --editor-cursor-color-focused: rgb(6, 138, 255);
+  --my-debug-color: red;
 }
 
 .light-theme {
@@ -722,4 +723,5 @@ select:focus {
   --editor-syntax-type-color: #267f99;
   --editor-syntax-member-color: #0070C1;
   --editor-cursor-color-focused: rgb(0, 0, 255);
+  --my-debug-color: red;
 }

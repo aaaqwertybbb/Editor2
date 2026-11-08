@@ -1,4 +1,10 @@
 /**
+ * !!!!
+ * Keep any variables in editorGlobal_edit.js at the top of the file.
+ * !!!!
+ */
+
+/**
  * 
  * Google AI:
  * ==========

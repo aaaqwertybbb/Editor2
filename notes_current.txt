@@ -454,3 +454,11 @@ This visit is solely a matter of determining whether
 the module variable is truly a primitive because it is
 mutable so you need to verify the tag incase it changed.
 All in all it is all speculation and you look kinda goofy.
+
+And yes I used C# generational collection terminology
+I have no idea what the terms are in JavaScript they're probably
+similar in some way that you can get what I'm saying.
+All in all I'm assuming they end up in the oldest generation
+cuz they're always alive and will eventually be promoted
+to an older generation and then repeat until they're at the oldest
+is the assumption.

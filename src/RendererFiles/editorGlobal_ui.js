@@ -361,7 +361,7 @@ function EDI_render_do_Scroll() {
     const lineCount = INTS[fEDI_lineEndPositionList_count];
     
     const startLineIndex = INTS[fEDI_virtualIndexLine];
-    const upperLineIndexExclusive = Math.min(startLineIndex + INTS[fEDI_virtualCount], lineCount);
+    const upperLineIndexExclusive = startLineIndex + INTS[fEDI_virtualCount];
 
     const topPadding = EDI_textTopPadding;
 
@@ -386,11 +386,9 @@ function EDI_render_do_Scroll() {
     ctxText.clearRect(0, 0, EDI_text_canvas.width, EDI_text_canvas.height);
 
     ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1;
-
-    let lineIndex = INTS[fEDI_virtualIndexLine];
     
     // Render pure line numbers
-    for (let i = lineIndex; i < upperLineIndexExclusive; i++) {
+    for (let i = startLineIndex; i < upperLineIndexExclusive; i++) {
         // (faster than modulo given this context)
         ringBufferIndex++;
         if (ringBufferIndex >= local_ArrayFrom_textElement_children_length) {
@@ -452,7 +450,7 @@ function EDI_render_do_Scroll() {
         lineEnd = local_EDI_lineEndPositionList_data[startLineIndex - 1];
     }
 
-    ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1;
+    //ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1;
 
     vertical = original_vertical;
     for (let i = startLineIndex; i < upperLineIndexExclusive; i++) {

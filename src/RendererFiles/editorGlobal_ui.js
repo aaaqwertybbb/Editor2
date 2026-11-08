@@ -484,17 +484,16 @@ function EDI_render_do_Scroll() {
 
     // I'm just experimenting because tons of variables are shared.
     //EDI_render_SelectionAndCursor();
-    const canvas = EDI_cursor_canvas;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    vertical = original_vertical;
+    const cursorCanvas = EDI_cursor_canvas;
+    const ctx = cursorCanvas.getContext('2d');
+    ctx.clearRect(0, 0, cursorCanvas.width, cursorCanvas.height);
 
     // --- STEP 1: RENDER SELECTION BOX BACKGROUND SPANS ---
     // (Assuming you track a selection range from anchorLine/Col to focusLine/Col)
     ctx.fillStyle = 'rgba(197, 198, 140, 0.25)'; // Highlight tint color
 
     if (EDI_cursor_hasSelection()) {
+        vertical = original_vertical;
         EDI_createStyleForSelection(ctx, vertical, local_lineHeight, startLineIndex);
     }
 

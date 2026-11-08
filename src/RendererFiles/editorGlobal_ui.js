@@ -2856,8 +2856,9 @@ function EDI_draw_cursor_debug() {
 
 function EDI_render_do_Resize() {
     EDI_resizeCanvases();
-    EDI_render_do_Scroll();
-    //set_EDI_recentBoundingClientRect_isNull_intFalsey(1);
+    set_EDI_recentBoundingClientRect_isNull_intFalsey(1);
+    //EDI_render_do_Scroll();
+    
 
     //INTS[fEDI_longestLine_length_PreviousValueWhenLastDrewHorizontalScrollbar] = 1; // necessary for the first render, otherwise the if statement sees 0 !== 0.
     //EDI_drawHorizontalScrollbar();

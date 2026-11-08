@@ -862,7 +862,7 @@ or look at how your canvas coordinates map to these fast virtual strings?
 
 >
 If there exists a variable at the top module-level scope.
-And this variable is holds a reference to an object.
+And this variable holds a reference to an object.
 And that object has a field of which there only ever is stored a number (primitive).
 Let's say the name of this field is "id".
 
@@ -871,25 +871,51 @@ Will the GC tag check the field 'id'?
 
 
 
+<
+No, the GC will not tag check the field id during a Major GC cycle, unless it already decided to scan the rest of that parent object.
 
+This is where V8’s generational design and Write Barriers completely change the game.
+This separation of concerns is exactly why wrapping your state inside an object behaves differently than keeping mutable numbers floating freely at the module root scope.
 
+Here is the exact step-by-step breakdown of what V8 does under the hood with your parent object and its "id" field.
 
+Phase 1: The Root Scan (Visiting the Module Scope)
 
+When the GC boots up a collection cycle, it scans the module-level scope.
+1. It reads the variable holding your parent object.
+2. It performs a tag check on that variable, sees it is a valid heap pointer, and pushes the parent object onto its "marking worklist" (a queue of objects it needs to process).
+3. At this moment, it has not looked at the "id" field at all. It just marked the parent object as alive.
 
+Phase 2: Processing the Object (The Gen 2 / Old Space Rule)
 
+Once the parent object is pushed to the Old Generation (your "Gen 2"), V8 relies on a crucial optimization:
+The engine assumes that objects in the Old Generation do not change unless a script actively writes to them.
 
+To enforce this, V8 uses a low-level mechanism called a Write Barrier:
+- If your JavaScript code updates an object field with a raw primitive (like parentObject.id = 5), the engine executes a blistering fast, inline assembly check.
+- Because you are storing a Smi (Small Integer), the Write Barrier instantly detects that no new heap pointer was introduced.
+- As a result, V8 does not flag this object as "dirty" (it doesn't record it in the store buffer or remember set).
 
+Because the object wasn't flagged as modified by a heap pointer, during subsequent garbage collection cycles, the GC completely bypasses scanning the contents of that parent object.
+It knows the object is alive because the module scope points to it, but it has no reason to peer inside and inspect fields like "id". The tag check on "id" never happens.
 
+When Would It Inspect "id"?
 
+The GC will only look at the layout of your parent object (and subsequently encounter the "id" field) under two conditions:
+1. When the object is young: If the parent object was just created and is still sitting in the Scavenger space (New Space), the GC evacuates it by copying it.
+   During that copy, it iterates through the object's memory slots to move them.
+2. If the object points to something dead: If the parent object had another field (e.g., parentObject.child) that pointed to a heap object, and that child object was modified,
+   the write barrier would flag the parent. The GC would then have to look inside the parent to update pointers—and while doing so, it would step past the "id" slot,
+   see its Smi tag, and move on.
 
+The Architectural Takeaway
 
+By wrapping your primitive values inside an object, you are leveraging V8's card tables and write barriers.
+Instead of forcing the GC to perform a manual root tag check on a dozen loose module-level numbers every single cycle, you give it one object reference.
+Once that object settles into the Old Generation, the GC stops looking inside it entirely for primitives, making your application's memory footprint incredibly quiet.
 
-
-
-
-
-
-
+Does this behavior of the Write Barrier explain why your notes mentioned separating the text data into an instance of a CachedLine object?
+If you'd like, we can talk about how keeping your layout cache in objects like this minimizes GC pressure.
 
 
 

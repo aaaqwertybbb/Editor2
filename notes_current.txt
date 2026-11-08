@@ -860,7 +860,13 @@ or look at how your canvas coordinates map to these fast virtual strings?
 
 
 
+>
+If there exists a variable at the top module-level scope.
+And this variable is holds a reference to an object.
+And that object has a field of which there only ever is stored a number (primitive).
+Let's say the name of this field is "id".
 
+Will the GC tag check the field 'id'?
 
 
 

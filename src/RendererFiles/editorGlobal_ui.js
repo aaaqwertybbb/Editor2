@@ -400,8 +400,10 @@ function EDI_render_do_Scroll() {
 
         lineStart = lineEnd + 1;
         if (indexLine < lineCount) {
+            cacheNUMBERS[ringBufferIndex] = String(indexLine + 1);
             lineEnd = local_EDI_lineEndPositionList_data[indexLine];
         } else {
+            cacheNUMBERS[ringBufferIndex] = '~';
             lineEnd = lineStart;
         }
 
@@ -409,7 +411,7 @@ function EDI_render_do_Scroll() {
             
         // IF THE LINE CONTAINS CHARACTERS
         if (lineStart !== lineEnd) {
-            cacheNUMBERS[ringBufferIndex] = String(indexLine + 1);
+            
 
             let currentTokenStart = lineStart;
             let currentTokenId = local_styles[lineStart];
@@ -445,7 +447,7 @@ function EDI_render_do_Scroll() {
         }
         // FIXED BOUNDARY: IF THE LINE IS COMPLETELY EMPTY (0 Bytes)
         else {
-            cacheNUMBERS[ringBufferIndex] = '~';
+            
             lineSpans.push({
                 text: '',
                 color: EDI_tokenColors[0] || '#ffffff' // Fallback to standard color
@@ -458,6 +460,7 @@ function EDI_render_do_Scroll() {
         //vertical += local_lineHeight;
     }
 
+    ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1;
 
 
 

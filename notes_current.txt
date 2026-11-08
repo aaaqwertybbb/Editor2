@@ -920,6 +920,44 @@ If you'd like, we can talk about how keeping your layout cache in objects like t
 
 
 
+>
+In an editor where I have an underlying UInt8Array I need to decode the bytes in order to display the characters in the UI.
+
+There exists a spectrum of thought: no-caching to maximum-caching.
+
+To make sense of the problem I need to add some constraints:
+There will NOT be any syntax highlighting in this hypothetical scenario.
+
+I can start by mapping out the two extreme ends of the spectrum:
+
+no-caching:
+everytime you scroll, every line of text is decoded.
+
+maximum-caching:
+The cache: you allocate an array equal to the amount of lines in the text file.
+When you attempt to display the text for a given line you use the index of that line to look into the aformentioned cache.
+If the cache at that index contains undefined, you need to decode the text and then cache it in that array entry for next time.
+What does this mean? If you have a file with 8,000 lines of text, and you scroll from line number 1 to line number 8,000
+you now have 8,000 strings stored.
+The manual interning of strings is not permitted in this example. You have 8,000 decode returned strings.
+If internally TextDecoder interned the returned string that is fine, but you are not allowed in this example to intern them youself.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

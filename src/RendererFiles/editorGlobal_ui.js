@@ -316,7 +316,8 @@ function EDI_render_do_Scroll() {
 
     let diff = local_currVli - local_prevVli;
     // TODO: You can't return here you need to just redraw with the cached state
-    if (diff === 0) return;
+    // ^ Actually maybe you can return I'm wondering about scrolling though
+    if (diff === 0) return; 
 
     const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
 

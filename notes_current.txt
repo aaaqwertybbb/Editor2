@@ -423,3 +423,16 @@ I don't always do that though it is bad for its own reasons it is a toolbox
 ====
 
 I saw "The Breakfast Club" for the first time today it is good
+
+====
+
+ideas:
+remove byte array entirely
+store every lines text as a single string in a linked list
+have a separate list that contains an instance of "CachedLine"
+CachedLine has all the tokenized strings stored on it as a list or something
+
+Remove the byte array for line end positions.
+Track the relative distance from one line to another
+
+Trees?

@@ -879,10 +879,16 @@ function EDI_render_do_IndentLess() {
 
             // 1. Target the specific line row index where the typing is taking place
             const activeLine = lineI;
-            let lineSpans = EDI_lineStringCache[activeLine];
-            if (lineSpans === undefined) {
-                return;
+
+            // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
+            let ringBufferIndex = activeLine - INTS[fEDI_virtualIndexLine];
+            if (ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex < 0) ringBufferIndex = -1;
+            else ringBufferIndex = (ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
+            if (ringBufferIndex < 0) {
+                continue;
             }
+
+            let lineSpans = EDI_lineStringCache[ringBufferIndex];
 
             // 2. Determine the column position where the *first character of this edit burst* began
             const editStartColumn = 0;

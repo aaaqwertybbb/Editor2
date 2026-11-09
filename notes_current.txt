@@ -1143,7 +1143,7 @@ Negative
 - [/] EditKind_DeleteLtr
 - [/] EditKind_BackspaceRtl
 - [/] EditKind_RemoveTextNoBatching
-- [ ] EditKind_IndentLess
+- [/] EditKind_IndentLess
 
 
 ====

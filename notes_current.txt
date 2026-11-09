@@ -1100,6 +1100,8 @@ I gotta cook/eat a lb of chicken and exercise
             - [ ] so you don't show any further strings if any
             - [ ] BUT your horizontal viewport was probably like 200 characters?
             - [ ] and yet you're still showing all 9999... characters.
+    - [ ] Does the horizontal scroll logic attempt to draw from column index 0?
+
 
 - [ ] Selection logic needs to draw 1 character beyond the final if you have entire line selected to signify that you've selected the line ending of that line
 - [ ] tab expansion logic is probably extremely expensive

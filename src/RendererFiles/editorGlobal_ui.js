@@ -360,7 +360,7 @@ function EDI_render_do_Scroll() {
     }
 
     const local_bytes = EDI_textByteList_bytes;
-    const local_EDI_decoder = EDI_decoder;
+    const local_EDI_decoder_CUSTOM = EDI_decoder_CUSTOM;
 
     const ctxText = EDI_text_canvas.getContext('2d');
 
@@ -423,33 +423,47 @@ function EDI_render_do_Scroll() {
                 if (new_lineStart !== new_lineEnd) {
                     let currentTokenStart = new_lineStart;
                     let currentTokenId = local_styles[new_lineStart];
-                    let currentLineColumn = 0; 
+                    let currentLineColumn = 0;
                     const tabSize = 4;
 
                     for (let byteIndex = new_lineStart + 1; byteIndex <= new_lineEnd; byteIndex++) {
                         const styleId = byteIndex !== new_lineEnd ? local_styles[byteIndex] : 9;
                         if (styleId !== currentTokenId) {
-                            const rawStr = local_EDI_decoder.decode(local_bytes.subarray(currentTokenStart, byteIndex));
-                            let expandedStr = '';
-                            for (let charIndex = 0; charIndex < rawStr.length; charIndex++) {
-                                const char = rawStr[charIndex];
-                                if (char === '\t') {
-                                    const spacesNeeded = tabSize - (currentLineColumn % tabSize);
-                                    expandedStr += ' '.repeat(spacesNeeded);
-                                    currentLineColumn += spacesNeeded;
-                                } else {
-                                    expandedStr += char;
-                                    currentLineColumn++;
-                                }
-                            }
+
+
+                            // RUN CUSTOM COMBINED DECODER & TAB EXPANDER
+                            const processedStr = local_EDI_decoder_CUSTOM.decodeAndExpandTabs(
+                                local_bytes, 
+                                currentTokenStart, 
+                                byteIndex, 
+                                EDI_columnTracker, 
+                                tabSize
+                            );
+
+
+                            //const rawStr = local_EDI_decoder_CUSTOM.decodeRange(local_bytes, currentTokenStart, byteIndex);
+                            ////const rawStr = local_EDI_decoder.decode(local_bytes.subarray(currentTokenStart, byteIndex));
+                            //let expandedStr = '';
+                            //for (let charIndex = 0; charIndex < rawStr.length; charIndex++) {
+                            //    const char = rawStr[charIndex];
+                            //    if (char === '\t') {
+                            //        const spacesNeeded = tabSize - (currentLineColumn % tabSize);
+                            //        expandedStr += ' '.repeat(spacesNeeded);
+                            //        currentLineColumn += spacesNeeded;
+                            //    } else {
+                            //        expandedStr += char;
+                            //        currentLineColumn++;
+                            //    }
+                            //}
+
                             if (spanIndex < lineSpans.length) {
                                 const existingSpan = lineSpans[spanIndex++];
-                                existingSpan.text = expandedStr;
+                                existingSpan.text = processedStr;
                                 existingSpan.color = EDI_tokenColors[currentTokenId]; // Fallback to standard color
                             }
                             else {
                                 lineSpans.push({
-                                    text: expandedStr,
+                                    text: processedStr,
                                     color: EDI_tokenColors[currentTokenId] // Fallback to standard color
                                 });
                                 spanIndex++;
@@ -595,7 +609,7 @@ function EDI_render_TextContent(ringBufferIndex, lowerBound, loopLimit, lineStar
     const topPadding = EDI_textTopPadding;
 
     const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
-    const local_EDI_decoder = EDI_decoder;
+    const local_EDI_decoder_CUSTOM = EDI_decoder_CUSTOM;
     const local_bytes = EDI_textByteList_bytes;
     const local_styles = EDI_styleBuffer; // Your matching parallel array
     const cache = EDI_lineStringCache;
@@ -631,7 +645,8 @@ function EDI_render_TextContent(ringBufferIndex, lowerBound, loopLimit, lineStar
             const tabSize = 4;
 
             const pushExpandedToken = (startByte, endByte, tokenId) => {
-                const rawStr = local_EDI_decoder.decode(local_bytes.subarray(startByte, endByte));
+                const rawStr = local_EDI_decoder_CUSTOM.decodeRange(local_bytes, startByte, endByte);
+                //const rawStr = local_EDI_decoder.decode(local_bytes.subarray(startByte, endByte));
                 let expandedStr = '';
                 for (let charIndex = 0; charIndex < rawStr.length; charIndex++) {
                     const char = rawStr[charIndex];

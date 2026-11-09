@@ -167,14 +167,13 @@ class EDI_CustomDecoder {
   }
 
   /**
-   * Scans bytes using internal object-bound array references.
+   * Scans bytes using fully encapsulated object state data.
    */
-  decodeNextToken(start, lineEnd, columnTracker, tabSize, tokenResult) {
+  decodeNextToken(start, lineEnd, tabSize, tokenResult) {
     let outStr = '';
     let bufIdx = 0;
     const limit = this.chunkSize;
 
-    // Pull the shared array references bound to the state object
     const sharedBytes = tokenResult.bytes;
     const styles = tokenResult.styles;
 
@@ -183,15 +182,16 @@ class EDI_CustomDecoder {
 
     while (i < lineEnd) {
       if (styles[i] !== initialStyleId) {
-        break; // Style changed, drop back to loop
+        break; 
       }
 
       let codePoint = sharedBytes[i++];
 
       // FAST PATH: Horizontal tab (ASCII 9)
       if (codePoint === 0x09) {
-        const spacesNeeded = tabSize - (columnTracker.col % tabSize);
-        columnTracker.col += spacesNeeded;
+        // Read and update the column tracker state inside the object directly
+        const spacesNeeded = tabSize - (tokenResult.col % tabSize);
+        tokenResult.col += spacesNeeded;
         
         for (let s = 0; s < spacesNeeded; s++) {
           this.charBuffer[bufIdx++] = 32; 
@@ -225,7 +225,8 @@ class EDI_CustomDecoder {
         }
       }
 
-      columnTracker.col++;
+      // Increment visual cell position
+      tokenResult.col++;
 
       if (codePoint <= 0xFFFF) {
         this.charBuffer[bufIdx++] = codePoint;
@@ -251,6 +252,7 @@ class EDI_CustomDecoder {
   }
 }
 
+
 const EDI_encoder = new TextEncoder();
 const EDI_decoder = new TextDecoder();
 const EDI_decoder_CUSTOM = new EDI_CustomDecoder();
@@ -260,7 +262,9 @@ const EDI_ReusableTokenResult = {
     styleId: 0,
     nextStart: 0, // Single-assignment buffers for the duration of the scroll loop
     bytes: null,
-    styles: null
+    styles: null,
+    // Combined column state variable
+    col: 0 
 };
 
 //// Find-All for "EDI_debug_optimization" to find all the commented out logic that was related to this.

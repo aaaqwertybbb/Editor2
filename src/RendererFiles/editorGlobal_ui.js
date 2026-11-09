@@ -1401,6 +1401,7 @@ function EDI_render_do_EnterKey() {
             // pending line feeds use them for the line numbers eventually
 
             let loop_ringBufferIndex = final_ringBufferIndex;
+            let final_lineSpans = EDI_lineStringCache[final_ringBufferIndex];
 
             while (true) {
                 let previous_ringBufferIndex = loop_ringBufferIndex - 1;
@@ -1410,12 +1411,14 @@ function EDI_render_do_EnterKey() {
 
                 EDI_lineStringCache[loop_ringBufferIndex] = EDI_lineStringCache[previous_ringBufferIndex];
 
-                if (loop_ringBufferIndex === current_ringBufferIndex) {
+                if (previous_ringBufferIndex === current_ringBufferIndex) {
                     break;
                 }
 
                 loop_ringBufferIndex = previous_ringBufferIndex;
             }
+
+            EDI_lineStringCache[current_ringBufferIndex] = final_lineSpans;
 
             let currentLineSpans = EDI_lineStringCache[current_ringBufferIndex];
             if (currentLineSpans.length > 0) {

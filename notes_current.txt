@@ -1124,3 +1124,27 @@ I gave it the entire function
 
 I'm gonna go cook and eat a lb of 98% fat free ground chicken with sriracha to celebrate
 (yes the chicken is part of my diet for the day its the one thing I have left to eat I've already eaten all my energy calories just the 1 lb of chicken with sriracha is left for the day)
+
+====
+
+Edits:
+
+Positive
+========
+- [ ] EditKind_InsertLtr
+- [ ] EditKind_Enter
+- [ ] EditKind_Tab
+- [ ] EditKind_Paste
+- [ ] EditKind_Duplicate
+- [ ] EditKind_IndentMore
+
+Negative
+========
+- [ ] EditKind_DeleteLtr
+- [ ] EditKind_BackspaceRtl
+- [ ] EditKind_RemoveTextNoBatching
+- [ ] EditKind_IndentLess
+
+
+
+

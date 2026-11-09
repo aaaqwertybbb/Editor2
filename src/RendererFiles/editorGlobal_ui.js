@@ -428,25 +428,8 @@ function EDI_render_do_Scroll() {
                 // IF THE LINE CONTAINS CHARACTERS
                 if (new_lineStart !== new_lineEnd) {
                     EDI_ReusableTokenResult.col = 0;
-                    EDI_ReusableTokenResult.text = '';
-                    EDI_ReusableTokenResult.styleId = 0;
-                    EDI_ReusableTokenResult.nextStart = 0;
                     let bytePointer = new_lineStart;
 
-                    // > are you able to combine the 'local_styles[byteIndex]' into the decodeAndExpandTabs so that you only loop the bytes a single time?
-                    //
-                    //
-                    // Keep chewing through the line bytes sequentially
-                    /**
-                     * I'd like to modify 'EDI_ReusableTokenResult' so that I can a single time put a reference on 'EDI_ReusableTokenResult' for the 'local_bytes'
-                     * that is being passed into the 'decodeNextToken' function.
-                     * Since the 'EDI_ReusableTokenResult' is a global variable I'm open to also nulling out this field after the scroll logic finishes.
-                     * 
-                     * 
-                     * Can 'EDI_columnTracker' and 'EDI_ReusableTokenResult' be combined to reduce an argument for 'decodeNextToken'?
-                     * 
-                     * I'd like to remove the 'tabSize' parameter
-                     */
                     while (bytePointer < new_lineEnd) {
                         // RUN CUSTOM COMBINED DECODER & TAB EXPANDER
                         local_EDI_decoder_CUSTOM.decodeNextToken(

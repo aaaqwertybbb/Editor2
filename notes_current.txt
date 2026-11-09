@@ -1146,5 +1146,9 @@ Negative
 - [ ] EditKind_IndentLess
 
 
+====
 
+"if you don't use AI you'll be left behind"
+
+I actually feel left behind while I'm using it in a weird way
 

@@ -360,6 +360,13 @@ function EDI_render_do_Scroll() {
     }
 
     const local_bytes = EDI_textByteList_bytes;
+    const local_styles = EDI_styleBuffer; // Your matching parallel array
+
+
+    // BIND THE LARGE MEMORY REFERENCES ONCE BEFORE LOOPS START
+    EDI_ReusableTokenResult.bytes = local_bytes;
+    EDI_ReusableTokenResult.styles = local_styles;
+
     const local_EDI_decoder_CUSTOM = EDI_decoder_CUSTOM;
 
     const ctxText = EDI_text_canvas.getContext('2d');
@@ -371,7 +378,6 @@ function EDI_render_do_Scroll() {
 
     const topPadding = EDI_textTopPadding;
 
-    const local_styles = EDI_styleBuffer; // Your matching parallel array
     const cache = EDI_lineStringCache;
     const cacheNUMBERS = EDI_line_NUMBER_StringCache;
     
@@ -432,11 +438,14 @@ function EDI_render_do_Scroll() {
                     //
                     //
                     // Keep chewing through the line bytes sequentially
+                    /**
+                     * I'd like to modify 'EDI_ReusableTokenResult' so that I can a single time put a reference on 'EDI_ReusableTokenResult' for the 'local_bytes'
+                     * that is being passed into the 'decodeNextToken' function.
+                     * Since the 'EDI_ReusableTokenResult' is a global variable I'm open to also nulling out this field after the scroll logic finishes.
+                     */
                     while (bytePointer < new_lineEnd) {
                         // RUN CUSTOM COMBINED DECODER & TAB EXPANDER
                         local_EDI_decoder_CUSTOM.decodeNextToken(
-                            local_bytes,
-                            local_styles,
                             bytePointer,
                             new_lineEnd,
                             EDI_columnTracker,
@@ -506,6 +515,10 @@ function EDI_render_do_Scroll() {
 
         vertical += local_lineHeight;
     }
+
+    // NULL OUT THE PERSISTENT REFERENCES TO PREVENT LEAK HOOKS AFTER REDRAW FINISHES
+    EDI_ReusableTokenResult.bytes = null;
+    EDI_ReusableTokenResult.styles = null;
 
     // I'm just experimenting because tons of variables are shared.
     //EDI_render_SelectionAndCursor();

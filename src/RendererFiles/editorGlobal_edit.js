@@ -167,28 +167,23 @@ class EDI_CustomDecoder {
   }
 
   /**
-   * Scans bytes, detects style transitions, and expands tabs in a single pass.
-   * 
-   * @param {Uint8Array} sharedBytes - EDI_textByteList_bytes
-   * @param {Uint8Array} styles - EDI_styleBuffer
-   * @param {number} start - Beginning byte index of the token scan
-   * @param {number} lineEnd - The absolute end of the current line
-   * @param {object} columnTracker - { col: currentLineColumn }
-   * @param {number} tabSize - Size of tab expansion
-   * @param {object} tokenResult - Out parameter: { text: "", styleId: 0, nextStart: 0 }
+   * Scans bytes using internal object-bound array references.
    */
-  decodeNextToken(sharedBytes, styles, start, lineEnd, columnTracker, tabSize, tokenResult) {
+  decodeNextToken(start, lineEnd, columnTracker, tabSize, tokenResult) {
     let outStr = '';
     let bufIdx = 0;
     const limit = this.chunkSize;
+
+    // Pull the shared array references bound to the state object
+    const sharedBytes = tokenResult.bytes;
+    const styles = tokenResult.styles;
 
     const initialStyleId = styles[start];
     let i = start;
 
     while (i < lineEnd) {
-      // Peek ahead to check if the style has changed
       if (styles[i] !== initialStyleId) {
-        break; // Stop processing immediately; we reached a style boundary
+        break; // Style changed, drop back to loop
       }
 
       let codePoint = sharedBytes[i++];
@@ -199,7 +194,7 @@ class EDI_CustomDecoder {
         columnTracker.col += spacesNeeded;
         
         for (let s = 0; s < spacesNeeded; s++) {
-          this.charBuffer[bufIdx++] = 32; // Space ' '
+          this.charBuffer[bufIdx++] = 32; 
           if (bufIdx >= limit - 1) {
             outStr += String.fromCharCode.apply(null, this.charBuffer.subarray(0, bufIdx));
             bufIdx = 0;
@@ -250,19 +245,23 @@ class EDI_CustomDecoder {
       outStr += String.fromCharCode.apply(null, this.charBuffer.subarray(0, bufIdx));
     }
 
-    // Populate our persistent, reusable out-object
     tokenResult.text = outStr;
     tokenResult.styleId = initialStyleId;
     tokenResult.nextStart = i; 
   }
 }
 
-
 const EDI_encoder = new TextEncoder();
 const EDI_decoder = new TextDecoder();
 const EDI_decoder_CUSTOM = new EDI_CustomDecoder();
 const EDI_columnTracker = { col: 0 };
-const EDI_ReusableTokenResult = { text: '', styleId: 0, nextStart: 0 };
+const EDI_ReusableTokenResult = {
+    text: '',
+    styleId: 0,
+    nextStart: 0, // Single-assignment buffers for the duration of the scroll loop
+    bytes: null,
+    styles: null
+};
 
 //// Find-All for "EDI_debug_optimization" to find all the commented out logic that was related to this.
 // let EDI_debug_optimization_has_logged_disassembleFunction = false;

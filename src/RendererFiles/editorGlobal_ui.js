@@ -421,56 +421,45 @@ function EDI_render_do_Scroll() {
                     
                 // IF THE LINE CONTAINS CHARACTERS
                 if (new_lineStart !== new_lineEnd) {
-                    let currentTokenStart = new_lineStart;
-                    let currentTokenId = local_styles[new_lineStart];
-                    let currentLineColumn = 0;
+                    EDI_columnTracker.col = 0;
+                    EDI_ReusableTokenResult.text = '';
+                    EDI_ReusableTokenResult.styleId = 0;
+                    EDI_ReusableTokenResult.nextStart = 0;
                     const tabSize = 4;
+                    let bytePointer = new_lineStart;
 
-                    for (let byteIndex = new_lineStart + 1; byteIndex <= new_lineEnd; byteIndex++) {
-                        const styleId = byteIndex !== new_lineEnd ? local_styles[byteIndex] : 9;
-                        if (styleId !== currentTokenId) {
+                    // > are you able to combine the 'local_styles[byteIndex]' into the decodeAndExpandTabs so that you only loop the bytes a single time?
+                    //
+                    //
+                    // Keep chewing through the line bytes sequentially
+                    while (bytePointer < new_lineEnd) {
+                        // RUN CUSTOM COMBINED DECODER & TAB EXPANDER
+                        local_EDI_decoder_CUSTOM.decodeNextToken(
+                            local_bytes,
+                            local_styles,
+                            bytePointer,
+                            new_lineEnd,
+                            EDI_columnTracker,
+                            tabSize,
+                            EDI_ReusableTokenResult
+                        );
 
+                        // Pull values from the single static memory object
+                        const processedStr = EDI_ReusableTokenResult.text;
+                        const currentTokenId = EDI_ReusableTokenResult.styleId;
+                        bytePointer = EDI_ReusableTokenResult.nextStart; // Advance past the decoded token
 
-                            // RUN CUSTOM COMBINED DECODER & TAB EXPANDER
-                            const processedStr = local_EDI_decoder_CUSTOM.decodeAndExpandTabs(
-                                local_bytes, 
-                                currentTokenStart, 
-                                byteIndex, 
-                                EDI_columnTracker, 
-                                tabSize
-                            );
-
-
-                            //const rawStr = local_EDI_decoder_CUSTOM.decodeRange(local_bytes, currentTokenStart, byteIndex);
-                            ////const rawStr = local_EDI_decoder.decode(local_bytes.subarray(currentTokenStart, byteIndex));
-                            //let expandedStr = '';
-                            //for (let charIndex = 0; charIndex < rawStr.length; charIndex++) {
-                            //    const char = rawStr[charIndex];
-                            //    if (char === '\t') {
-                            //        const spacesNeeded = tabSize - (currentLineColumn % tabSize);
-                            //        expandedStr += ' '.repeat(spacesNeeded);
-                            //        currentLineColumn += spacesNeeded;
-                            //    } else {
-                            //        expandedStr += char;
-                            //        currentLineColumn++;
-                            //    }
-                            //}
-
-                            if (spanIndex < lineSpans.length) {
-                                const existingSpan = lineSpans[spanIndex++];
-                                existingSpan.text = processedStr;
-                                existingSpan.color = EDI_tokenColors[currentTokenId]; // Fallback to standard color
-                            }
-                            else {
-                                lineSpans.push({
-                                    text: processedStr,
-                                    color: EDI_tokenColors[currentTokenId] // Fallback to standard color
-                                });
-                                spanIndex++;
-                            }
-
-                            currentTokenStart = byteIndex;
-                            currentTokenId = styleId;
+                        if (spanIndex < lineSpans.length) {
+                            const existingSpan = lineSpans[spanIndex++];
+                            existingSpan.text = processedStr;
+                            existingSpan.color = EDI_tokenColors[currentTokenId]; // Fallback to standard color
+                        }
+                        else {
+                            lineSpans.push({
+                                text: processedStr,
+                                color: EDI_tokenColors[currentTokenId] // Fallback to standard color
+                            });
+                            spanIndex++;
                         }
                     }
                 }

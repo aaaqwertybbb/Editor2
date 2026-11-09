@@ -162,39 +162,44 @@ let EDI_cursor_EDI_duplication_arrayLineVisualLengths = null;
 /** Google AI: "I want to make a Custom TextDecoder" */
 class EDI_CustomDecoder {
   constructor() {
-    this.chunkSize = 2048; // Bumped slightly to handle lines with massive tab expansions safely
+    this.chunkSize = 2048;
     this.charBuffer = new Uint16Array(this.chunkSize);
   }
 
   /**
-   * Decodes bytes and expands tabs into spaces on-the-fly.
-   * Modifies currentLineColumn object reference inside your loop.
+   * Scans bytes, detects style transitions, and expands tabs in a single pass.
    * 
    * @param {Uint8Array} sharedBytes - EDI_textByteList_bytes
-   * @param {number} start - currentTokenStart
-   * @param {number} end - byteIndex
-   * @param {object} columnTracker - Ref object { col: currentLineColumn }
-   * @param {number} tabSize - Column size for tabs (usually 4)
-   * @returns {string} Fully expanded line token string
+   * @param {Uint8Array} styles - EDI_styleBuffer
+   * @param {number} start - Beginning byte index of the token scan
+   * @param {number} lineEnd - The absolute end of the current line
+   * @param {object} columnTracker - { col: currentLineColumn }
+   * @param {number} tabSize - Size of tab expansion
+   * @param {object} tokenResult - Out parameter: { text: "", styleId: 0, nextStart: 0 }
    */
-  decodeAndExpandTabs(sharedBytes, start, end, columnTracker, tabSize) {
+  decodeNextToken(sharedBytes, styles, start, lineEnd, columnTracker, tabSize, tokenResult) {
     let outStr = '';
     let bufIdx = 0;
     const limit = this.chunkSize;
 
+    const initialStyleId = styles[start];
     let i = start;
-    while (i < end) {
+
+    while (i < lineEnd) {
+      // Peek ahead to check if the style has changed
+      if (styles[i] !== initialStyleId) {
+        break; // Stop processing immediately; we reached a style boundary
+      }
+
       let codePoint = sharedBytes[i++];
 
-      // FAST PATH: Single-byte horizontal tab (ASCII 9)
+      // FAST PATH: Horizontal tab (ASCII 9)
       if (codePoint === 0x09) {
         const spacesNeeded = tabSize - (columnTracker.col % tabSize);
         columnTracker.col += spacesNeeded;
         
-        // Inject spaces directly into our static buffer
         for (let s = 0; s < spacesNeeded; s++) {
-          this.charBuffer[bufIdx++] = 32; // Space character ' '
-          
+          this.charBuffer[bufIdx++] = 32; // Space ' '
           if (bufIdx >= limit - 1) {
             outStr += String.fromCharCode.apply(null, this.charBuffer.subarray(0, bufIdx));
             bufIdx = 0;
@@ -203,20 +208,20 @@ class EDI_CustomDecoder {
         continue;
       }
 
-      // Standard multi-byte UTF-8 checks
+      // Standard multi-byte UTF-8 parsing
       if ((codePoint & 0x80) !== 0) {
         if ((codePoint & 0xE0) === 0xC0) {
-          if (i < end) codePoint = ((codePoint & 0x1F) << 6) | (sharedBytes[i++] & 0x3F);
+          if (i < lineEnd) codePoint = ((codePoint & 0x1F) << 6) | (sharedBytes[i++] & 0x3F);
         }
         else if ((codePoint & 0xF0) === 0xE0) {
-          if (i + 1 < end) {
+          if (i + 1 < lineEnd) {
             codePoint = ((codePoint & 0x0F) << 12) | 
                         ((sharedBytes[i++] & 0x3F) << 6) | 
                         (sharedBytes[i++] & 0x3F);
           }
         }
         else if ((codePoint & 0xF8) === 0xF0) {
-          if (i + 2 < end) {
+          if (i + 2 < lineEnd) {
             codePoint = ((codePoint & 0x07) << 18) | 
                         ((sharedBytes[i++] & 0x3F) << 12) | 
                         ((sharedBytes[i++] & 0x3F) << 6) | 
@@ -225,10 +230,8 @@ class EDI_CustomDecoder {
         }
       }
 
-      // Advance column position tracker (handles multi-byte tokens as 1 visual cell)
       columnTracker.col++;
 
-      // Handle standard BMP vs UTF-16 Surrogate pairs (Emojis)
       if (codePoint <= 0xFFFF) {
         this.charBuffer[bufIdx++] = codePoint;
       } else {
@@ -247,14 +250,19 @@ class EDI_CustomDecoder {
       outStr += String.fromCharCode.apply(null, this.charBuffer.subarray(0, bufIdx));
     }
 
-    return outStr;
+    // Populate our persistent, reusable out-object
+    tokenResult.text = outStr;
+    tokenResult.styleId = initialStyleId;
+    tokenResult.nextStart = i; 
   }
 }
+
 
 const EDI_encoder = new TextEncoder();
 const EDI_decoder = new TextDecoder();
 const EDI_decoder_CUSTOM = new EDI_CustomDecoder();
 const EDI_columnTracker = { col: 0 };
+const EDI_ReusableTokenResult = { text: '', styleId: 0, nextStart: 0 };
 
 //// Find-All for "EDI_debug_optimization" to find all the commented out logic that was related to this.
 // let EDI_debug_optimization_has_logged_disassembleFunction = false;

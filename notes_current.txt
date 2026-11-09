@@ -1091,3 +1091,12 @@ I gotta cook/eat a lb of chicken and exercise
 
 - [ ] horizontal scrolling
 - [ ] I don't think any editing works unless your scrollTop is 0 and even then...
+
+- [ ] Horizontal Virtualization
+    - [ ] do it at the string generation level rather than generating strings that won't actually be shown
+    - [ ] currently, the strings that starts in view, and goes offscreen will render in its entirely
+        - [ ] Long strings might benefit from being substring'd further
+        - [ ] or else you could have a single string with 9999... characters and you'd see that it puts you past the horizontal viewport
+            - [ ] so you don't show any further strings if any
+            - [ ] BUT your horizontal viewport was probably like 200 characters?
+            - [ ] and yet you're still showing all 9999... characters.

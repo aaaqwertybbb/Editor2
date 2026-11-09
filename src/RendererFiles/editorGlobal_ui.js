@@ -431,7 +431,6 @@ function EDI_render_do_Scroll() {
                     EDI_ReusableTokenResult.text = '';
                     EDI_ReusableTokenResult.styleId = 0;
                     EDI_ReusableTokenResult.nextStart = 0;
-                    const tabSize = 4;
                     let bytePointer = new_lineStart;
 
                     // > are you able to combine the 'local_styles[byteIndex]' into the decodeAndExpandTabs so that you only loop the bytes a single time?
@@ -445,13 +444,14 @@ function EDI_render_do_Scroll() {
                      * 
                      * 
                      * Can 'EDI_columnTracker' and 'EDI_ReusableTokenResult' be combined to reduce an argument for 'decodeNextToken'?
+                     * 
+                     * I'd like to remove the 'tabSize' parameter
                      */
                     while (bytePointer < new_lineEnd) {
                         // RUN CUSTOM COMBINED DECODER & TAB EXPANDER
                         local_EDI_decoder_CUSTOM.decodeNextToken(
                             bytePointer,
                             new_lineEnd,
-                            tabSize,
                             EDI_ReusableTokenResult
                         );
 

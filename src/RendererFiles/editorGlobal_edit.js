@@ -167,9 +167,9 @@ class EDI_CustomDecoder {
   }
 
   /**
-   * Scans bytes using fully encapsulated object state data.
+   * Scans bytes using a hardcoded tab matrix layout size of 4.
    */
-  decodeNextToken(start, lineEnd, tabSize, tokenResult) {
+  decodeNextToken(start, lineEnd, tokenResult) {
     let outStr = '';
     let bufIdx = 0;
     const limit = this.chunkSize;
@@ -187,10 +187,13 @@ class EDI_CustomDecoder {
 
       let codePoint = sharedBytes[i++];
 
-      // FAST PATH: Horizontal tab (ASCII 9)
+      // FAST PATH: Horizontal tab (ASCII 9) with hardcoded tab size of 4
       if (codePoint === 0x09) {
-        // Read and update the column tracker state inside the object directly
-        const spacesNeeded = tabSize - (tokenResult.col % tabSize);
+        // Fast-path bitwise replacement for: 4 - (tokenResult.col % 4)
+        /**
+         * (Optimization Note: Using tokenResult.col & 3 instead of tokenResult.col % 4 is a bitwise optimization that is faster for calculating modulo on powers of two, making it perfect here).
+        */
+        const spacesNeeded = 4 - (tokenResult.col & 3);
         tokenResult.col += spacesNeeded;
         
         for (let s = 0; s < spacesNeeded; s++) {
@@ -225,7 +228,6 @@ class EDI_CustomDecoder {
         }
       }
 
-      // Increment visual cell position
       tokenResult.col++;
 
       if (codePoint <= 0xFFFF) {
@@ -252,11 +254,9 @@ class EDI_CustomDecoder {
   }
 }
 
-
 const EDI_encoder = new TextEncoder();
 const EDI_decoder = new TextDecoder();
 const EDI_decoder_CUSTOM = new EDI_CustomDecoder();
-const EDI_columnTracker = { col: 0 };
 const EDI_ReusableTokenResult = {
     text: '',
     styleId: 0,

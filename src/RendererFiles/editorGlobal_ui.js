@@ -1960,10 +1960,13 @@ function EDI_render_do_Delete() {
 
     // 1. Target the specific line row index where the typing is taking place
     const activeLine = INTS[fEDI_cursor_indexLine];
-    let lineSpans = EDI_lineStringCache[activeLine];
-    if (lineSpans === undefined) {
-        return;
-    }
+
+    // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
+    let activeLine_ringBufferIndex = activeLine - INTS[fEDI_virtualIndexLine];
+    if (activeLine_ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length] || activeLine_ringBufferIndex < 0) activeLine_ringBufferIndex = -1;
+    else activeLine_ringBufferIndex = (activeLine_ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
+    if (activeLine_ringBufferIndex < 0) { return; } // line is not in viewport
+    let lineSpans = EDI_lineStringCache[activeLine_ringBufferIndex];
 
     // 2. Determine the column position where the *first character of this edit burst* began
     const editStartColumn = INTS[fEDI_cursor_indexColumn];
@@ -2014,11 +2017,12 @@ function EDI_render_do_Delete() {
             isAtEndOfLine = false;
             if (activeLine < INTS[fEDI_lineEndPositionList_count]) {
                 // append 'next line' to 'current line'
-                const NEXT_lineSpans = EDI_lineStringCache[activeLine + 1];
-                if (NEXT_lineSpans === undefined) {
-                    EDI_lineStringCache[activeLine] = undefined;
-                    throw new Error('TODO: finalize edit?');
+                const NEXT_ringBufferIndex = activeLine_ringBufferIndex + 1;
+                if (NEXT_ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length]) {
+                    NEXT_ringBufferIndex -= INTS[fEDI_ArrayFrom_textElement_children_length];
                 }
+
+                const NEXT_lineSpans = EDI_lineStringCache[NEXT_ringBufferIndex];
                 const NEXT_lineSpans_length = NEXT_lineSpans.length;
                 
                 if (NEXT_lineSpans_length === 1 && NEXT_lineSpans[0].text.length === 0) { // (do not append if next line is just an empty string)
@@ -2028,7 +2032,7 @@ function EDI_render_do_Delete() {
                     
                     if (lineSpans.length === 1 && lineSpans[0].text.length === 0) {
                         lineSpans.length = 0; // Remove the empty string from the current
-                        EDI_lineStringCache[activeLine] = NEXT_lineSpans; // current receives entirety of next's spans.
+                        EDI_lineStringCache[activeLine_ringBufferIndex] = NEXT_lineSpans; // current receives entirety of next's spans.
                         lineSpans = NEXT_lineSpans // update the local variable
                         targetSpanIndex = 0; // if initial 'if (targetSpan === null)' then 'targetSpanIndex = lineSpans.length;' so you need to set to 0 here.
                     }
@@ -2040,12 +2044,26 @@ function EDI_render_do_Delete() {
                     targetSpan = lineSpans[targetSpanIndex];
                 }
 
-                // shift existing cache
-                const upperLimit = INTS[fEDI_lineEndPositionList_count] - 1;
-                for (let i = activeLine + 1; i < upperLimit; i++) {
-                    EDI_lineStringCache[i] = EDI_lineStringCache[i + 1];
+                // See comment "Awkward explicit inlining of 'EXPLORER_indexItemTo_ringBufferIndexItem'" for more information.
+                let final_ringBufferIndexItem = INTS[fEDI_ArrayFrom_textElement_children_length] - 1;
+                if (final_ringBufferIndexItem >= INTS[fEDI_ArrayFrom_textElement_children_length] || final_ringBufferIndexItem < 0) final_ringBufferIndexItem = -1;
+                else final_ringBufferIndexItem = (final_ringBufferIndexItem + INTS[fEDI_ArrayFrom_textElement_children_length]) % INTS[fEDI_ArrayFrom_textElement_children_length];
+                if (final_ringBufferIndexItem < 0) { return; }
+
+                let current_ringBufferIndex = NEXT_ringBufferIndex;
+                
+                while (current_ringBufferIndex !== final_ringBufferIndexItem) {
+                    let srcLineSpansRingBufferIndex = current_ringBufferIndex + 1;
+                    if (srcLineSpansRingBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length]) {
+                        srcLineSpansRingBufferIndex -= INTS[fEDI_ArrayFrom_textElement_children_length];
+                    }
+
+                    lineSpans[current_ringBufferIndex] = lineSpans[srcLineSpansRingBufferIndex];
+
+                    current_ringBufferIndex = srcLineSpansRingBufferIndex;
                 }
-                EDI_lineStringCache[INTS[fEDI_lineEndPositionList_count]] = undefined;
+
+                // TODO: Tell scroll to recalculate cache for final_ringBufferIndexItem, ..., n for times backspace hit a line end in this function.
 
                 // (copy of 5.) Commit the continuation value forward so the next frame knows where to pick up
                 INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue] += 1;

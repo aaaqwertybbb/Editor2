@@ -1132,7 +1132,7 @@ Edits:
 Positive
 ========
 - [/] EditKind_InsertLtr
-- [ ] EditKind_Enter
+- [/] EditKind_Enter
 - [/] EditKind_Tab
 - [/] EditKind_Paste
 - [/] EditKind_Duplicate

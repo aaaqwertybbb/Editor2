@@ -1402,13 +1402,17 @@ function EDI_render_do_EnterKey() {
 
             let loop_ringBufferIndex = final_ringBufferIndex;
 
-            while (loop_ringBufferIndex !== current_ringBufferIndex) {
+            while (true) {
                 let previous_ringBufferIndex = loop_ringBufferIndex - 1;
                 if (previous_ringBufferIndex < 0) {
                     previous_ringBufferIndex = INTS[fEDI_ArrayFrom_textElement_children_length] - 1;
                 }
 
                 EDI_lineStringCache[loop_ringBufferIndex] = EDI_lineStringCache[previous_ringBufferIndex];
+
+                if (loop_ringBufferIndex === current_ringBufferIndex) {
+                    break;
+                }
 
                 loop_ringBufferIndex = previous_ringBufferIndex;
             }
@@ -1429,11 +1433,28 @@ function EDI_render_do_EnterKey() {
             let lastValidIndexColumn = EDI_getLastValidIndexColumn_raw(INTS[fEDI_cursor_editIndexLine]);
 
             if (lastValidIndexColumn === INTS[fEDI_cursor_editIndexColumn]) { // end of line
-                EDI_lineStringCache.push(undefined); // TODO: don't do this (allocate a newly sized one if necessary in one go than inside this loop (push probably is amortized in and of itself but idk).)
-                for (let i = INTS[fEDI_lineEndPositionList_count]; i >= INTS[fEDI_cursor_editIndexLine] + 1; i--) {
-                    EDI_lineStringCache[i + 1] = EDI_lineStringCache[i];
+                let loop_ringBufferIndex = final_ringBufferIndex;
+
+                while (loop_ringBufferIndex !== current_ringBufferIndex) {
+                    let previous_ringBufferIndex = loop_ringBufferIndex - 1;
+                    if (previous_ringBufferIndex < 0) {
+                        previous_ringBufferIndex = INTS[fEDI_ArrayFrom_textElement_children_length] - 1;
+                    }
+
+                    EDI_lineStringCache[loop_ringBufferIndex] = EDI_lineStringCache[previous_ringBufferIndex];
+
+                    loop_ringBufferIndex = previous_ringBufferIndex;
                 }
-                EDI_lineStringCache[INTS[fEDI_cursor_editIndexLine] + 1] = [{ text: '', color: EDI_tokenColors[0] }];
+
+                let currentLineSpans = EDI_lineStringCache[current_ringBufferIndex];
+                if (currentLineSpans.length > 0) {
+                    currentLineSpans.length = 1;
+                    currentLineSpans[0].text = '';
+                    currentLineSpans[0].color = EDI_tokenColors[0];
+                }
+                else {
+                    currentLineSpans.push({ text: '', color: EDI_tokenColors[0] });
+                }
             }
             else { // among a line
 

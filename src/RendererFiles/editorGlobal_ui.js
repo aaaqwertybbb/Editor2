@@ -1385,13 +1385,43 @@ function EDI_render_do_EnterKey() {
 
         //if (isASingledOutCase) { throw new Error(); } // "isASingledOutCase case"
 
+        // See comment "Awkward explicit inlining of 'EXPLORER_indexItemTo_ringBufferIndexItem'" for more information.
+        let current_ringBufferIndex = INTS[fEDI_cursor_editIndexLine] - INTS[fEDI_virtualIndexLine];
+        if (current_ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length] || current_ringBufferIndex < 0) current_ringBufferIndex = -1;
+        else current_ringBufferIndex = (current_ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
+        if (current_ringBufferIndex < 0) { return; } // TODO: line is not in viewport (for enter key it still needs to be handled maybe probably)
+
+        // See comment "Awkward explicit inlining of 'EXPLORER_indexItemTo_ringBufferIndexItem'" for more information.
+        let final_ringBufferIndex = INTS[fEDI_ArrayFrom_textElement_children_length] - 1;
+        if (final_ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length] || final_ringBufferIndex < 0) final_ringBufferIndex = -1;
+        else final_ringBufferIndex = (final_ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
+        if (final_ringBufferIndex < 0) { return; } // ???
+
         if (INTS[fEDI_cursor_editIndexColumn] === 0) { // start of line
             // pending line feeds use them for the line numbers eventually
-            EDI_lineStringCache.push(undefined); // TODO: don't do this (allocate a newly sized one if necessary in one go than inside this loop (push probably is amortized in and of itself but idk).)
-            for (let i = INTS[fEDI_lineEndPositionList_count]; i >= INTS[fEDI_cursor_editIndexLine]; i--) {
-                EDI_lineStringCache[i + 1] = EDI_lineStringCache[i];
+
+            let loop_ringBufferIndex = final_ringBufferIndex;
+
+            while (loop_ringBufferIndex !== current_ringBufferIndex) {
+                let previous_ringBufferIndex = loop_ringBufferIndex - 1;
+                if (previous_ringBufferIndex < 0) {
+                    previous_ringBufferIndex = INTS[fEDI_ArrayFrom_textElement_children_length] - 1;
+                }
+
+                EDI_lineStringCache[loop_ringBufferIndex] = EDI_lineStringCache[previous_ringBufferIndex];
+
+                loop_ringBufferIndex = previous_ringBufferIndex;
             }
-            EDI_lineStringCache[INTS[fEDI_cursor_editIndexLine]] = { text: '', color: EDI_tokenColors[0] };
+
+            let currentLineSpans = EDI_lineStringCache[current_ringBufferIndex];
+            if (currentLineSpans.length > 0) {
+                currentLineSpans.length = 1;
+                currentLineSpans[0].text = '';
+                currentLineSpans[0].color = EDI_tokenColors[0];
+            }
+            else {
+                currentLineSpans.push({ text: '', color: EDI_tokenColors[0] });
+            }
             //EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, ringBufferIndex_current);
             //EDI_lineWasInsertedValidateGutter(INTS[fEDI_lineEndPositionList_count] + INTS[fEDI_cursor_editLineFeedCount]);
         }
@@ -2033,7 +2063,7 @@ function EDI_render_do_Delete() {
                 // See comment "Awkward explicit inlining of 'EXPLORER_indexItemTo_ringBufferIndexItem'" for more information.
                 let final_ringBufferIndexItem = INTS[fEDI_ArrayFrom_textElement_children_length] - 1;
                 if (final_ringBufferIndexItem >= INTS[fEDI_ArrayFrom_textElement_children_length] || final_ringBufferIndexItem < 0) final_ringBufferIndexItem = -1;
-                else final_ringBufferIndexItem = (final_ringBufferIndexItem + INTS[fEDI_ArrayFrom_textElement_children_length]) % INTS[fEDI_ArrayFrom_textElement_children_length];
+                else final_ringBufferIndexItem = (final_ringBufferIndexItem + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_ArrayFrom_textElement_children_length];
                 if (final_ringBufferIndexItem < 0) { return; }
 
                 let current_ringBufferIndex = NEXT_ringBufferIndex;
@@ -2204,7 +2234,7 @@ function EDI_render_do_Backspace() {
                 // See comment "Awkward explicit inlining of 'EXPLORER_indexItemTo_ringBufferIndexItem'" for more information.
                 let final_ringBufferIndexItem = INTS[fEDI_ArrayFrom_textElement_children_length] - 1;
                 if (final_ringBufferIndexItem >= INTS[fEDI_ArrayFrom_textElement_children_length] || final_ringBufferIndexItem < 0) final_ringBufferIndexItem = -1;
-                else final_ringBufferIndexItem = (final_ringBufferIndexItem + INTS[fEDI_ArrayFrom_textElement_children_length]) % INTS[fEDI_ArrayFrom_textElement_children_length];
+                else final_ringBufferIndexItem = (final_ringBufferIndexItem + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_ArrayFrom_textElement_children_length];
                 if (final_ringBufferIndexItem < 0) { return; }
 
                 let current_ringBufferIndex = NEXT_ringBufferIndex;

@@ -1397,6 +1397,8 @@ function EDI_render_do_EnterKey() {
         else final_ringBufferIndex = (final_ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
         if (final_ringBufferIndex < 0) { return; } // ???
 
+        // TODO: EDI_cursor_cached_indentation_string ensure post rewrite that it is in each conditional branch (as of writing this comment I know it isn't)
+
         if (INTS[fEDI_cursor_editIndexColumn] === 0) { // start of line
             // pending line feeds use them for the line numbers eventually
 
@@ -1495,11 +1497,10 @@ function EDI_render_do_EnterKey() {
 
                 // 1. Target the specific line row index where the typing is taking place
                 const activeLine = INTS[fEDI_cursor_indexLine];
-                let lineSpans = EDI_lineStringCache[activeLine];
+
+                let lineSpans = EDI_lineStringCache[current_ringBufferIndex];
 
                 {
-                    
-                    
                     if (lineSpans === undefined) {
                         return;
                     }
@@ -1532,38 +1533,52 @@ function EDI_render_do_EnterKey() {
                     }
                 }
 
-                //if (w_div === w_divNONE) {
-                //    throw new Error();
-                //}
-
-                EDI_lineStringCache.push(undefined); // TODO: don't do this (allocate a newly sized one if necessary in one go than inside this loop (push probably is amortized in and of itself but idk).)
-                for (let i = EDI_lineStringCache.length - 2; i >= INTS[fEDI_cursor_editIndexLine] + 1; i--) {
-                    EDI_lineStringCache[i + 1] = EDI_lineStringCache[i];
+                let next_ringBufferIndex = current_ringBufferIndex + 1;
+                if (next_ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length]) {
+                    next_ringBufferIndex -= INTS[fEDI_ArrayFrom_textElement_children_length];
                 }
-                EDI_lineStringCache[INTS[fEDI_cursor_editIndexLine] + 1] = [{ text: '', color: EDI_tokenColors[0] }];
-                
-                //if (INTS[fEDI_w_indexColumn_Goal] > 0) {
-                    //if (INTS[fEDI_w_indexColumn_Goal] !== INTS[fEDI_w_indexColumn_Sum] + w_div.textContent.length) {
-                        //const textNode = w_div.firstChild;
-                        const data = targetedSpan.text;
 
-                        let firstText = data.substring(0, relativeInsertIndex);
-                        let lastText = data.substring(relativeInsertIndex);
+                let final_lineSpans = EDI_lineStringCache[final_ringBufferIndex];
 
-                        lineSpans[targetedSpanIndex].text = firstText;
-                        let nextLineSpans = EDI_lineStringCache[INTS[fEDI_cursor_editIndexLine] + 1];
+                let loop_ringBufferIndex = final_ringBufferIndex;
 
-                        for (let i = targetedSpanIndex; i < lineSpans.length; i++) {
-                            nextLineSpans.unshift(lineSpans.pop());
-                        }
+                while (loop_ringBufferIndex !== next_ringBufferIndex) {
+                    let previous_ringBufferIndex = loop_ringBufferIndex - 1;
+                    if (previous_ringBufferIndex < 0) {
+                        previous_ringBufferIndex = INTS[fEDI_ArrayFrom_textElement_children_length] - 1;
+                    }
 
-                        nextLineSpans.unshift({ text: lastText, color: EDI_tokenColors[0] });
-                        //textNode.replaceData(0, textNode.length, firstText);
-                        //spanText += lastText; // += due to the possibility of indentation
-                    //}
-                //}
+                    EDI_lineStringCache[loop_ringBufferIndex] = EDI_lineStringCache[previous_ringBufferIndex];
 
-                
+                    loop_ringBufferIndex = previous_ringBufferIndex;
+                }
+
+                EDI_lineStringCache[next_ringBufferIndex] = final_lineSpans;
+
+                const data = targetedSpan.text;
+
+                let firstText = data.substring(0, relativeInsertIndex);
+                let lastText = data.substring(relativeInsertIndex);
+
+                let nextLineSpans = EDI_lineStringCache[next_ringBufferIndex];
+                if (nextLineSpans.length > 0) {
+                    nextLineSpans.length = 1;
+                    nextLineSpans[0].text = lastText;
+                    nextLineSpans[0].color = targetedSpan.color;
+                }
+                else {
+                    nextLineSpans.push({ text: lastText, color: targetedSpan.color });
+                }
+
+                lineSpans[targetedSpanIndex].text = firstText;
+
+                for (let i = lineSpans.length - 1; i > targetedSpanIndex; i--) {
+                    nextLineSpans.unshift(lineSpans.pop());
+                }
+
+                // move tail to head?
+                nextLineSpans.unshift(nextLineSpans.pop());
+
 
                 // Prior to returning from this function restore the original 'indexLine', and 'indexColumn'. (2 of 2)
                 INTS[fEDI_cursor_indexLine] = remember_cursorIndexLine;

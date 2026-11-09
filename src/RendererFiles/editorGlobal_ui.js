@@ -2256,17 +2256,12 @@ function EDI_render_do_InsertLtr() {
     if (INTS[fEDI_cursor_edit_eventCount_drawn] < INTS[fEDI_cursor_edit_eventCount_occurred]) {
         INTS[fEDI_cursor_edit_eventCount_drawn] = INTS[fEDI_cursor_edit_eventCount_occurred];
 
-        // 1. Target the specific line row index where the typing is taking place
-        const activeLine = INTS[fEDI_cursor_indexLine];
-
         // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
-        let ringBufferIndex = activeLine - INTS[fEDI_virtualIndexLine];
+        let ringBufferIndex = INTS[fEDI_cursor_indexLine] - INTS[fEDI_virtualIndexLine];
         if (ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex < 0) ringBufferIndex = -1;
         else ringBufferIndex = (ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
-        if (ringBufferIndex < 0) { return; }
-
+        if (ringBufferIndex < 0) { return; } // line is not in viewport
         let lineSpans = EDI_lineStringCache[ringBufferIndex];
-        if (lineSpans === undefined) { return; }
 
         // 2. Determine the column position where the *first character of this edit burst* began
         // We use indexColumn minus the absolute total length of characters typed in this current edit session

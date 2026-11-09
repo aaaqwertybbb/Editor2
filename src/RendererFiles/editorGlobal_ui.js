@@ -324,26 +324,29 @@ function EDI_render_do_Scroll() {
     }
 
     let diff = local_currVli - local_prevVli;
-    // TODO: You can't return here you need to just redraw with the cached state
-    // ^ Actually maybe you can return I'm wondering about scrolling though
-    if (diff === 0) return; 
 
     const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
-
     let new_lowerBound = 0;
 
-    if (diff >= local_ArrayFrom_textElement_children_length || diff <= -local_ArrayFrom_textElement_children_length) {
-        new_lowerBound = local_currVli;
-        diff = local_ArrayFrom_textElement_children_length; // Bound the loop run to the size of your screen viewport
-    }
-    else if (diff > 0) {
-        new_lowerBound = local_prevVli + local_ArrayFrom_textElement_children_length;
-        INTS[fEDI_ringBuffer_indexZero] = (INTS[fEDI_ringBuffer_indexZero] + diff) % local_ArrayFrom_textElement_children_length;
+    if (diff !== 0) {
+        if (diff >= local_ArrayFrom_textElement_children_length || diff <= -local_ArrayFrom_textElement_children_length) {
+            new_lowerBound = local_currVli;
+            diff = local_ArrayFrom_textElement_children_length; // Bound the loop run to the size of your screen viewport
+        }
+        else if (diff > 0) {
+            new_lowerBound = local_prevVli + local_ArrayFrom_textElement_children_length;
+            INTS[fEDI_ringBuffer_indexZero] = (INTS[fEDI_ringBuffer_indexZero] + diff) % local_ArrayFrom_textElement_children_length;
+        }
+        else {
+            new_lowerBound = local_currVli;
+            diff *= -1;
+            INTS[fEDI_ringBuffer_indexZero] = (INTS[fEDI_ringBuffer_indexZero] - diff + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
+        }
     }
     else {
-        new_lowerBound = local_currVli;
-        diff *= -1;
-        INTS[fEDI_ringBuffer_indexZero] = (INTS[fEDI_ringBuffer_indexZero] - diff + local_ArrayFrom_textElement_children_length) % local_ArrayFrom_textElement_children_length;
+        // If diff is 0 (like a pure horizontal scroll), no newly visible lines need decoding
+        new_lowerBound = 0;
+        diff = 0;
     }
 
     const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
@@ -481,7 +484,8 @@ function EDI_render_do_Scroll() {
         // TODO: Horizontal virtualization
 
         // --- 2. DRAW SPANS CONSECUTIVELY USING THE MONOSPACE GRID ---
-        let currentX = 0; // Track the running horizontal offset for the line row
+        // Subtract the horizontal scroll position from your starting x offset
+        let currentX = -EDI_lastReadNumber_scrollLeft; // Track the running horizontal offset for the line row
         const yCoord = vertical + topPadding;
 
         for (let j = 0; j < lineSpans.length; j++) {
@@ -512,6 +516,7 @@ function EDI_render_do_Scroll() {
 
     if (EDI_cursor_hasSelection()) {
         vertical = original_vertical;
+        // (Note: Make sure your EDI_createStyleForSelection utility also takes horizontal scrolling into account when drawing selection backgrounds!)
         EDI_createStyleForSelection(ctx, vertical, local_lineHeight, view_startLineIndex);
     }
 
@@ -519,7 +524,7 @@ function EDI_render_do_Scroll() {
     ctx.fillStyle = '#f2a72f'; // Solid cursor accent color
     const cursorLine = INTS[fEDI_cursor_indexLine];
     if (cursorLine >= view_startLineIndex && cursorLine < view_upperLineIndexExclusive) {
-        const cursorX = INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth;
+        const cursorX = (INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth) - EDI_lastReadNumber_scrollLeft;
         const cursorY = -(EDI_lastReadNumber_scrollTop % local_lineHeight) + ((cursorLine - view_startLineIndex) * local_lineHeight);
         
         EDI_cursor_cursorTranslateXValue = cursorX;

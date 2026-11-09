@@ -159,7 +159,26 @@ let EDI_cursor_EDI_duplication_arrayLinePositions_OFFSETS = null;
  */
 let EDI_cursor_EDI_duplication_arrayLineVisualLengths = null;
 
-/** Google AI: "I want to make a Custom TextDecoder" */
+/**
+ * Google AI: "I want to make a Custom TextDecoder"
+ * 
+ * Lol I'm sitting here reading back the EDI_CustomDecoder while trying to find something to watch on youtube.
+ * 
+ * I saw `outStr += String.fromCharCode.apply(null, this.charBuffer.subarray(0, bufIdx));` and thought
+ * "wtf is going on in this line".
+ * 
+ * New Thread with Google AI:
+ * 
+ * >
+ * You generated the code that I'll put at the bottom of this prompt. It is MUCH faster than using TextDecoder for certain. But nevertheless I have a question about it.
+ * ... (I put the entire class here)
+ * 
+ * <
+ * The core issue with your code lies in how V8 handles argument passing for native builtins. Using String.fromCharCode.apply(null, typedArray)
+ * is a hidden performance trap in V8 because it forces the engine to unpack the elements of your typed array onto the JavaScript call stack.
+ * ...
+ * 
+ */
 class EDI_CustomDecoder {
   constructor() {
     this.chunkSize = 2048;

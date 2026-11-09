@@ -1435,7 +1435,14 @@ function EDI_render_do_EnterKey() {
             if (lastValidIndexColumn === INTS[fEDI_cursor_editIndexColumn]) { // end of line
                 let loop_ringBufferIndex = final_ringBufferIndex;
 
-                while (loop_ringBufferIndex !== current_ringBufferIndex) {
+                let final_lineSpans = EDI_lineStringCache[final_ringBufferIndex];
+
+                let next_ringBufferIndex = current_ringBufferIndex + 1;
+                if (next_ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length]) {
+                    next_ringBufferIndex -= INTS[fEDI_ArrayFrom_textElement_children_length];
+                }
+
+                while (loop_ringBufferIndex !== next_ringBufferIndex) {
                     let previous_ringBufferIndex = loop_ringBufferIndex - 1;
                     if (previous_ringBufferIndex < 0) {
                         previous_ringBufferIndex = INTS[fEDI_ArrayFrom_textElement_children_length] - 1;
@@ -1446,14 +1453,16 @@ function EDI_render_do_EnterKey() {
                     loop_ringBufferIndex = previous_ringBufferIndex;
                 }
 
-                let currentLineSpans = EDI_lineStringCache[current_ringBufferIndex];
-                if (currentLineSpans.length > 0) {
-                    currentLineSpans.length = 1;
-                    currentLineSpans[0].text = '';
-                    currentLineSpans[0].color = EDI_tokenColors[0];
+                EDI_lineStringCache[next_ringBufferIndex] = final_lineSpans;
+
+                let nextLineSpans = EDI_lineStringCache[next_ringBufferIndex];
+                if (nextLineSpans.length > 0) {
+                    nextLineSpans.length = 1;
+                    nextLineSpans[0].text = '';
+                    nextLineSpans[0].color = EDI_tokenColors[0];
                 }
                 else {
-                    currentLineSpans.push({ text: '', color: EDI_tokenColors[0] });
+                    nextLineSpans.push({ text: '', color: EDI_tokenColors[0] });
                 }
             }
             else { // among a line

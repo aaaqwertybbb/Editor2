@@ -1156,3 +1156,13 @@ Maybe that's just the chronic fomo
 
 "patient has fear of abandonment as discerned from his diary descriptions of how feels while working with AI"
 
+====
+
+newlines don't work
+tabs don't work cause they're 4 spaces and when walking it you see them as spaces when the edit has them tracked as a single tab
+
+etc... etc...
+nothing works... nothing is working... etc...
+
+Just shut up and type
+

@@ -1134,10 +1134,9 @@ Positive
 - [/] EditKind_InsertLtr
 - [ ] EditKind_Enter
 - [/] EditKind_Tab
-    - [ ] idk it works once then it doesn't if you move teh curzor, positive thoughts just trust the process
 - [/] EditKind_Paste
 - [/] EditKind_Duplicate
-- [ ] EditKind_IndentMore
+- [/] EditKind_IndentMore
 
 Negative
 ========

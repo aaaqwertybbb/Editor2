@@ -185,6 +185,15 @@ class EDI_CustomDecoder {
     this.charBuffer = new Uint16Array(this.chunkSize);
   }
 
+  // High-performance V8 string builder helper
+  _flushBuffer(bufIdx) {
+    let chunkStr = '';
+    for (let j = 0; j < bufIdx; j++) {
+      chunkStr += String.fromCharCode(this.charBuffer[j]);
+    }
+    return chunkStr;
+  }
+
   /**
    * Scans bytes using a hardcoded tab matrix layout size of 4.
    */
@@ -208,17 +217,14 @@ class EDI_CustomDecoder {
 
       // FAST PATH: Horizontal tab (ASCII 9) with hardcoded tab size of 4
       if (codePoint === 0x09) {
-        // Fast-path bitwise replacement for: 4 - (tokenResult.col % 4)
-        /**
-         * (Optimization Note: Using tokenResult.col & 3 instead of tokenResult.col % 4 is a bitwise optimization that is faster for calculating modulo on powers of two, making it perfect here).
-        */
         const spacesNeeded = 4 - (tokenResult.col & 3);
         tokenResult.col += spacesNeeded;
         
         for (let s = 0; s < spacesNeeded; s++) {
           this.charBuffer[bufIdx++] = 32; 
           if (bufIdx >= limit - 1) {
-            outStr += String.fromCharCode.apply(null, this.charBuffer.subarray(0, bufIdx));
+            // REPLACEMENT 1
+            outStr += this._flushBuffer(bufIdx);
             bufIdx = 0;
           }
         }
@@ -258,13 +264,15 @@ class EDI_CustomDecoder {
       }
 
       if (bufIdx >= limit - 1) {
-        outStr += String.fromCharCode.apply(null, this.charBuffer.subarray(0, bufIdx));
+        // REPLACEMENT 2
+        outStr += this._flushBuffer(bufIdx);
         bufIdx = 0;
       }
     }
 
     if (bufIdx > 0) {
-      outStr += String.fromCharCode.apply(null, this.charBuffer.subarray(0, bufIdx));
+      // REPLACEMENT 3
+      outStr += this._flushBuffer(bufIdx);
     }
 
     tokenResult.text = outStr;

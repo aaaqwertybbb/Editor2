@@ -183,7 +183,9 @@ class EDI_CustomDecoder {
   constructor() {
     /**
      * TODO: Make chunkSize the amount of characters that can fit from viewport_0_pixel to viewport_whateverTheTotalPixelWidthOrWhatever_pixel but in character units of the monospace form...
-     * ...just make sure you add a minimum so a small width screen doesn't thrash tokens.
+     * ...just make sure you add a minimum so a small width screen doesn't thrash tokens...
+     * ...actually... can you put a minimum cause then single character identifiers are gonna break...
+     * ...I'll just trust your future judgement, good luck.
      */
     this.chunkSize = 2048;
     this.charBuffer = new Uint16Array(this.chunkSize);

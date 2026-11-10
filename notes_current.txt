@@ -1315,7 +1315,13 @@ Are you seeing any slowdowns specifically when opening massive, single-line mini
 =====
 
 - [ ] Handle tabs
-
+    - [ ] in order to render the tabs in the canvas they're "expanded" to 4 space characters.
+    - [ ] in order to insert text the editor will visually update the text being displayed but not actually modify the backing bytes until later.
+    - [ ] thus when updating the text for an insert it is walking each cached character on the UI line
+    - [ ] but tabs being expanded to 4 space characters is breaking this walking logic
+    - [ ] idea:
+        - [ ] each line currently maps to a ring buffer cache that stores an array
+        - [ ] change this so that you store an object that contains the array that currently exists but additionally an array of position indices where the tab expansions occurred when decoding the text.
 
 
 

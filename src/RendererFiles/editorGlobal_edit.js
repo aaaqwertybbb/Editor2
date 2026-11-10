@@ -185,99 +185,112 @@ class EDI_CustomDecoder {
     this.charBuffer = new Uint16Array(this.chunkSize);
   }
 
-  // High-performance V8 string builder helper
-  _flushBuffer(bufIdx) {
-    let chunkStr = '';
-    for (let j = 0; j < bufIdx; j++) {
-      chunkStr += String.fromCharCode(this.charBuffer[j]);
-    }
-    return chunkStr;
-  }
-
   /**
-   * Scans bytes using a hardcoded tab matrix layout size of 4.
+   * Decodes an entire line's tokens, processes tabs, and populates lineSpans in a single method invocation.
+   * 
+   * @param {number} start - new_lineStart
+   * @param {number} lineEnd - new_lineEnd
+   * @param {Array} lineSpans - Cache array for this line's spans
+   * @param {number} spanIndex - The starting span index to write to
+   * @param {Array} tokenColors - EDI_tokenColors array/map
+   * @param {object} tokenResult - Persistent state holder (for .bytes and .styles references)
+   * @returns {number} The updated spanIndex count for the line
    */
-  decodeNextToken(start, lineEnd, tokenResult) {
-    let outStr = '';
-    let bufIdx = 0;
-    const limit = this.chunkSize;
-
+  decodeLineTokens(start, lineEnd, lineSpans, spanIndex, tokenColors, tokenResult) {
     const sharedBytes = tokenResult.bytes;
     const styles = tokenResult.styles;
+    const limit = this.chunkSize;
 
-    const initialStyleId = styles[start];
     let i = start;
+    let col = 0; // Completely local counter now, no object tracking property needed!
 
     while (i < lineEnd) {
-      if (styles[i] !== initialStyleId) {
-        break; 
-      }
+      let outStr = '';
+      let bufIdx = 0;
 
-      let codePoint = sharedBytes[i++];
+      const initialStyleId = styles[i];
 
-      // FAST PATH: Horizontal tab (ASCII 9) with hardcoded tab size of 4
-      if (codePoint === 0x09) {
-        const spacesNeeded = 4 - (tokenResult.col & 3);
-        tokenResult.col += spacesNeeded;
-        
-        for (let s = 0; s < spacesNeeded; s++) {
-          this.charBuffer[bufIdx++] = 32; 
-          if (bufIdx >= limit - 1) {
-            // REPLACEMENT 1
-            outStr += this._flushBuffer(bufIdx);
-            bufIdx = 0;
+      // Inner token consumption loop: runs entirely inside local registers
+      while (i < lineEnd) {
+        if (styles[i] !== initialStyleId) {
+          break; // Hit a token boundary, drop out to push this span
+        }
+
+        let codePoint = sharedBytes[i++];
+
+        // FAST PATH: Horizontal tab (ASCII 9)
+        if (codePoint === 0x09) {
+          const spacesNeeded = 4 - (col & 3);
+          col += spacesNeeded;
+          
+          for (let s = 0; s < spacesNeeded; s++) {
+            this.charBuffer[bufIdx++] = 32; 
+            if (bufIdx >= limit - 1) {
+              outStr += String.fromCharCode.apply(null, this.charBuffer.subarray(0, bufIdx));
+              bufIdx = 0;
+            }
+          }
+          continue;
+        }
+
+        // Multi-byte UTF-8 parsing
+        if ((codePoint & 0x80) !== 0) {
+          if ((codePoint & 0xE0) === 0xC0) {
+            if (i < lineEnd) codePoint = ((codePoint & 0x1F) << 6) | (sharedBytes[i++] & 0x3F);
+          }
+          else if ((codePoint & 0xF0) === 0xE0) {
+            if (i + 1 < lineEnd) {
+              codePoint = ((codePoint & 0x0F) << 12) | 
+                          ((sharedBytes[i++] & 0x3F) << 6) | 
+                          (sharedBytes[i++] & 0x3F);
+            }
+          }
+          else if ((codePoint & 0xF8) === 0xF0) {
+            if (i + 2 < lineEnd) {
+              codePoint = ((codePoint & 0x07) << 18) | 
+                          ((sharedBytes[i++] & 0x3F) << 12) | 
+                          ((sharedBytes[i++] & 0x3F) << 6) | 
+                          (sharedBytes[i++] & 0x3F);
+            }
           }
         }
-        continue;
-      }
 
-      // Standard multi-byte UTF-8 parsing
-      if ((codePoint & 0x80) !== 0) {
-        if ((codePoint & 0xE0) === 0xC0) {
-          if (i < lineEnd) codePoint = ((codePoint & 0x1F) << 6) | (sharedBytes[i++] & 0x3F);
+        col++;
+
+        if (codePoint <= 0xFFFF) {
+          this.charBuffer[bufIdx++] = codePoint;
+        } else {
+          codePoint -= 0x10000;
+          this.charBuffer[bufIdx++] = (codePoint >> 10) + 0xD800;
+          this.charBuffer[bufIdx++] = (codePoint & 0x3FF) + 0xDC00;
         }
-        else if ((codePoint & 0xF0) === 0xE0) {
-          if (i + 1 < lineEnd) {
-            codePoint = ((codePoint & 0x0F) << 12) | 
-                        ((sharedBytes[i++] & 0x3F) << 6) | 
-                        (sharedBytes[i++] & 0x3F);
-          }
-        }
-        else if ((codePoint & 0xF8) === 0xF0) {
-          if (i + 2 < lineEnd) {
-            codePoint = ((codePoint & 0x07) << 18) | 
-                        ((sharedBytes[i++] & 0x3F) << 12) | 
-                        ((sharedBytes[i++] & 0x3F) << 6) | 
-                        (sharedBytes[i++] & 0x3F);
-          }
+
+        if (bufIdx >= limit - 1) {
+          outStr += String.fromCharCode.apply(null, this.charBuffer.subarray(0, bufIdx));
+          bufIdx = 0;
         }
       }
 
-      tokenResult.col++;
+      // Flush remaining data for this token
+      if (bufIdx > 0) {
+        outStr += String.fromCharCode.apply(null, this.charBuffer.subarray(0, bufIdx));
+      }
 
-      if (codePoint <= 0xFFFF) {
-        this.charBuffer[bufIdx++] = codePoint;
+      // Write token output directly into your line spans array record
+      if (spanIndex < lineSpans.length) {
+        const existingSpan = lineSpans[spanIndex++];
+        existingSpan.text = outStr;
+        existingSpan.color = tokenColors[initialStyleId];
       } else {
-        codePoint -= 0x10000;
-        this.charBuffer[bufIdx++] = (codePoint >> 10) + 0xD800;
-        this.charBuffer[bufIdx++] = (codePoint & 0x3FF) + 0xDC00;
-      }
-
-      if (bufIdx >= limit - 1) {
-        // REPLACEMENT 2
-        outStr += this._flushBuffer(bufIdx);
-        bufIdx = 0;
+        lineSpans.push({
+          text: outStr,
+          color: tokenColors[initialStyleId]
+        });
+        spanIndex++;
       }
     }
 
-    if (bufIdx > 0) {
-      // REPLACEMENT 3
-      outStr += this._flushBuffer(bufIdx);
-    }
-
-    tokenResult.text = outStr;
-    tokenResult.styleId = initialStyleId;
-    tokenResult.nextStart = i; 
+    return spanIndex; // Return total parsed spans count for line cleanup
   }
 }
 

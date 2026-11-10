@@ -427,35 +427,15 @@ function EDI_render_do_Scroll() {
                     
                 // IF THE LINE CONTAINS CHARACTERS
                 if (new_lineStart !== new_lineEnd) {
-                    EDI_ReusableTokenResult.col = 0;
-                    let bytePointer = new_lineStart;
-
-                    while (bytePointer < new_lineEnd) {
-                        // RUN CUSTOM COMBINED DECODER & TAB EXPANDER
-                        local_EDI_decoder_CUSTOM.decodeNextToken(
-                            bytePointer,
-                            new_lineEnd,
-                            EDI_ReusableTokenResult
-                        );
-
-                        // Pull values from the single static memory object
-                        const processedStr = EDI_ReusableTokenResult.text;
-                        const currentTokenId = EDI_ReusableTokenResult.styleId;
-                        bytePointer = EDI_ReusableTokenResult.nextStart; // Advance past the decoded token
-
-                        if (spanIndex < lineSpans.length) {
-                            const existingSpan = lineSpans[spanIndex++];
-                            existingSpan.text = processedStr;
-                            existingSpan.color = EDI_tokenColors[currentTokenId]; // Fallback to standard color
-                        }
-                        else {
-                            lineSpans.push({
-                                text: processedStr,
-                                color: EDI_tokenColors[currentTokenId] // Fallback to standard color
-                            });
-                            spanIndex++;
-                        }
-                    }
+                    // Execute a single loop invocation for the entire line text data
+                    spanIndex = local_EDI_decoder_CUSTOM.decodeLineTokens(
+                        new_lineStart,
+                        new_lineEnd,
+                        lineSpans,
+                        spanIndex,
+                        EDI_tokenColors,
+                        EDI_ReusableTokenResult
+                    );
                 }
                 // FIXED BOUNDARY: IF THE LINE IS COMPLETELY EMPTY (0 Bytes)
                 else {

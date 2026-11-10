@@ -1585,6 +1585,13 @@ Negative
 - [x] EditKind_IndentLess
 }
 
+Get an empty file (or the null filename when you first open the app)
+- [ ] Hit 'tab' (with tab causes tab insertion)
+- [ ] Hit the letter 'a'
+- [ ] Notice that it inserts at the first visual column index.
+- [ ] Get this to correctly insert at the 4th visual column index.
+- [ ] that's it for the day
+
 # WithTab
 {
 Positive

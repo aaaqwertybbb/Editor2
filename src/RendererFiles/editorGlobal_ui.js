@@ -267,6 +267,8 @@ function EDI_resizeCanvases() {
             // character index of the tab on the line then the next index is the tabWidth of that specific tab
             //
             // TODO: typed array?
+            //
+            // TODO: If you have to read this by starting from col 0 and looping then you could just not store the tabWidth and calculate it as needed but that would require modulo operations.
             tab_twoIndices_oneImplicitObject_startCol_tabWidth: []
         };
         //EDI_line_NUMBER_StringCache[i] = 0;

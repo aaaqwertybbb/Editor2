@@ -181,7 +181,10 @@ let EDI_cursor_EDI_duplication_arrayLineVisualLengths = null;
  */
 class EDI_CustomDecoder {
   constructor() {
-    /** TODO: Make chunkSize the amount of characters that can fit from viewport_0_pixel to viewport_whateverTheTotalPixelWidthOrWhatever_pixel but in character units of the monospace form */
+    /**
+     * TODO: Make chunkSize the amount of characters that can fit from viewport_0_pixel to viewport_whateverTheTotalPixelWidthOrWhatever_pixel but in character units of the monospace form...
+     * ...just make sure you add a minimum so a small width screen doesn't thrash tokens.
+     */
     this.chunkSize = 2048;
     this.charBuffer = new Uint16Array(this.chunkSize);
   }

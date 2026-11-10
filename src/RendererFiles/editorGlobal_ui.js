@@ -3083,6 +3083,188 @@ function EDI_onMouseDownDetailRankOne(event_button, event_shiftKey, indexLineCli
     EDI_render_request(RenderKind_Cursor_n);
 }
 
+function EDI_onMouseDownDetailRankTwo(event_button, event_shiftKey, indexLineClicked, indexColumnClicked, indexColumnVisual) {
+    if (event_shiftKey) {
+        EDI_onMouseDownDetailRankOne(event_button, event_shiftKey, indexLineClicked, indexColumnClicked);
+        return;
+    }
+
+    INTS[fEDI_cursor_indexLine] = indexLineClicked;
+    INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
+    INTS[fEDI_cursorVisualColumnIndex] = indexColumnVisual;
+    let positionIndex = EDI_getPositionIndex_cursor_raw();
+    
+    EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+    const line_start = INTS[fEDI_ret_getLineBoundaryPositions_start];
+    const line_end = INTS[fEDI_ret_getLineBoundaryPositions_end];
+
+    let leftCharacterKind = EDI_getCharacterPrevious_KIND(INTS[fEDI_cursor_indexColumn], positionIndex);
+    let rightCharacterKind = EDI_getCharacterCurrent_KIND(INTS[fEDI_cursor_indexColumn], positionIndex, line_end);
+
+    if (leftCharacterKind === rightCharacterKind) {
+        let goalCharacterKind = rightCharacterKind;
+
+        let tempIndexColumn = INTS[fEDI_cursor_indexColumn];
+        let tempIndexColumnVisual = INTS[fEDI_cursorVisualColumnIndex];
+        let tempPositionIndex = EDI_getPositionIndex_Overload(INTS[fEDI_cursor_indexLine], tempIndexColumn);
+        while (tempIndexColumn > 0) {
+            tempIndexColumn--;
+            tempIndexColumnVisual--; // TODO: if '\t'
+            tempPositionIndex--;
+            leftCharacterKind = EDI_getCharacterPrevious_KIND(tempIndexColumn, tempPositionIndex);
+            if (leftCharacterKind !== goalCharacterKind) {
+                INTS[fEDI_cursor_selectionAnchor] = tempPositionIndex;
+                INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = tempIndexColumnVisual;
+                break;
+            }
+        }
+
+        let lineLength = line_end - line_start;
+        let rightWasFound = false;
+        tempIndexColumn = INTS[fEDI_cursor_indexColumn];
+        tempIndexColumnVisual = INTS[fEDI_cursorVisualColumnIndex];
+        tempPositionIndex = EDI_getPositionIndex_Overload(INTS[fEDI_cursor_indexLine], tempIndexColumn);
+        while (tempIndexColumn < lineLength) {
+            tempIndexColumn++;
+            tempIndexColumnVisual++; // TODO: if '\t'
+            tempPositionIndex++;
+            rightCharacterKind = EDI_getCharacterCurrent_KIND(tempIndexColumn, tempPositionIndex, line_end);
+            if (rightCharacterKind !== goalCharacterKind) {
+                INTS[fEDI_cursor_indexColumn] = tempIndexColumn;
+                INTS[fEDI_cursor_selectionEnd] = tempPositionIndex;
+                INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = tempIndexColumnVisual;
+                INTS[fEDI_cursorVisualColumnIndex] = tempIndexColumnVisual;
+                rightWasFound = true;
+                break;
+            }
+        }
+
+        if (!rightWasFound) {
+            // end of line
+            INTS[fEDI_cursor_indexColumn] = tempIndexColumn;
+            INTS[fEDI_cursor_selectionEnd] = tempPositionIndex;
+            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = tempIndexColumnVisual;
+            INTS[fEDI_cursorVisualColumnIndex] = tempIndexColumnVisual;
+        }
+
+        EDI_render_request(RenderKind_Cursor_n);
+    }
+    else if (leftCharacterKind > rightCharacterKind) {
+        let goalCharacterKind = leftCharacterKind;
+
+        let tempIndexColumn = INTS[fEDI_cursor_indexColumn];
+        let tempIndexColumnVisual = INTS[fEDI_cursorVisualColumnIndex];
+        let originalPositionIndex = EDI_getPositionIndex_Overload(INTS[fEDI_cursor_indexLine], tempIndexColumn);
+        let tempPositionIndex = originalPositionIndex;
+
+        while (INTS[fEDI_cursor_indexColumn] > 0) {
+            tempIndexColumn--;
+            tempIndexColumnVisual--; // TODO: if '\t'
+            tempPositionIndex--;
+            leftCharacterKind = EDI_getCharacterPrevious_KIND(tempIndexColumn, tempPositionIndex);
+            if (leftCharacterKind !== goalCharacterKind) {
+                INTS[fEDI_cursor_selectionAnchor] = tempPositionIndex;
+                INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = tempIndexColumnVisual;
+                break;
+            }
+        }
+
+        INTS[fEDI_cursor_selectionEnd] = originalPositionIndex;
+        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+
+        EDI_render_request(RenderKind_Cursor_n);
+    }
+    else {
+        let goalCharacterKind = rightCharacterKind;
+
+        let positionIndex = EDI_getPositionIndex_Overload(INTS[fEDI_cursor_indexLine], INTS[fEDI_cursor_indexColumn]);
+        INTS[fEDI_cursor_selectionAnchor] = positionIndex;
+        INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+
+        let lineLength = line_end - line_start;
+        let rightWasFound = false;
+
+        while (INTS[fEDI_cursor_indexColumn] < lineLength) {
+            INTS[fEDI_cursor_indexColumn]++;
+            INTS[fEDI_cursorVisualColumnIndex]++;
+            positionIndex++;
+            rightCharacterKind = EDI_getCharacterCurrent_KIND(INTS[fEDI_cursor_indexColumn], positionIndex, line_end);
+            if (rightCharacterKind !== goalCharacterKind) {
+                INTS[fEDI_cursor_selectionEnd] = positionIndex;
+                INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+                rightWasFound = true;
+                break;
+            }
+        }
+
+        if (!rightWasFound) {
+            // end of line
+            INTS[fEDI_cursor_selectionEnd] = positionIndex;
+            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+        }
+
+        EDI_render_request(RenderKind_Cursor_n);
+    }
+
+    if (INTS[fEDI_cursor_selectionAnchor] < INTS[fEDI_cursor_selectionEnd]) {
+        INTS[fEDI_detail_smallPosition] = INTS[fEDI_cursor_selectionAnchor];
+        INTS[fEDI_detail_largePosition] = INTS[fEDI_cursor_selectionEnd];
+        INTS[fEDI_detail_smallColumnVisual] = INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL];
+        INTS[fEDI_detail_largeColumnVisual] = INTS[fEDI_cursor_selectionIndexEndColumnVISUAL];
+    }
+    else {
+        INTS[fEDI_detail_smallPosition] = INTS[fEDI_cursor_selectionEnd];
+        INTS[fEDI_detail_largePosition] = INTS[fEDI_cursor_selectionAnchor];
+        INTS[fEDI_detail_smallColumnVisual] = INTS[fEDI_cursor_selectionIndexEndColumnVISUAL];
+        INTS[fEDI_detail_largeColumnVisual] = INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL];
+    }
+}
+
+function EDI_onMouseDownDetailRankThree(event_button, event_shiftKey, indexLineClicked, indexColumnClicked) {
+    if (event_shiftKey) {
+        EDI_onMouseDownDetailRankOne(event_button, event_shiftKey, indexLineClicked, indexColumnClicked);
+        return;
+    }
+
+    INTS[fEDI_cursor_indexLine] = indexLineClicked;
+    INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
+    INTS[fEDI_cursorVisualColumnIndex] = indexColumnClicked;
+    
+    INTS[fEDI_cursor_selectionAnchor] = EDI_getPositionIndex_Overload(INTS[fEDI_cursor_indexLine], 0);
+    INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = 0;
+    
+    INTS[fEDI_detailRank3OriginLine] = INTS[fEDI_cursor_indexLine];
+
+    if (INTS[fEDI_cursor_indexLine] === INTS[fEDI_lineEndPositionList_count] - 1) {
+        EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+        INTS[fEDI_cursor_selectionEnd] = INTS[fEDI_ret_getLineBoundaryPositions_end];
+        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = EDI_getEntireLineVisualWidth(INTS[fEDI_ret_getLineBoundaryPositions_start], INTS[fEDI_ret_getLineBoundaryPositions_end]);
+        EDI_render_request(RenderKind_Cursor_n);
+    }
+    else {
+        INTS[fEDI_cursor_indexLine]++;
+        INTS[fEDI_cursor_indexColumn] = 0;
+        INTS[fEDI_cursorVisualColumnIndex] = 0;
+        EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+        INTS[fEDI_cursor_selectionEnd] = INTS[fEDI_ret_getLineBoundaryPositions_start];
+        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+        EDI_render_request(RenderKind_Cursor_n);
+    }
+
+    if (INTS[fEDI_cursor_selectionAnchor] < INTS[fEDI_cursor_selectionEnd]) {
+        INTS[fEDI_detail_smallPosition] = INTS[fEDI_cursor_selectionAnchor];
+        INTS[fEDI_detail_largePosition] = INTS[fEDI_cursor_selectionEnd];
+        INTS[fEDI_detail_smallColumnVisual] = INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL];
+        INTS[fEDI_detail_largeColumnVisual] = INTS[fEDI_cursor_selectionIndexEndColumnVISUAL];
+    }
+    else {
+        INTS[fEDI_detail_smallPosition] = INTS[fEDI_cursor_selectionEnd];
+        INTS[fEDI_detail_largePosition] = INTS[fEDI_cursor_selectionAnchor];
+        INTS[fEDI_detail_smallColumnVisual] = INTS[fEDI_cursor_selectionIndexEndColumnVISUAL];
+        INTS[fEDI_detail_largeColumnVisual] = INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL];
+    }
+}
+
 function EDI_onMouseMove_WRAPIT(event) {
     if ((event.buttons & 1) && get_EDI_recentBoundingClientRect_isNull_intFalsey() === 0) {
         // TODO: Consider short circuiting at via event.clientX and clientY by tracking the necessary thresholds for the cursor position to pass rather than the previous and current indices. (you can possibly thereby skip the calculation of the indices entirely for the redundant events).
@@ -3154,6 +3336,200 @@ function EDI_onMouseMoveDetailRankOne(indexLineClicked, indexColumnClicked, inde
     INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
 
     EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
+}
+
+function EDI_onMouseMoveDetailRankTwo(indexLineClicked, indexColumnClicked, indexColumnVisual) {
+    let nextPositionIndex = EDI_getPositionIndex_Overload(indexLineClicked, indexColumnClicked);
+
+    if (nextPositionIndex < INTS[fEDI_detail_smallPosition]) {
+        if (INTS[fEDI_cursor_selectionAnchor] < INTS[fEDI_cursor_selectionEnd]) {
+            INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_detail_largePosition];
+            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_detail_largeColumnVisual];
+        }
+
+        INTS[fEDI_cursor_indexLine] = indexLineClicked;
+        INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
+        INTS[fEDI_cursorVisualColumnIndex] = indexColumnClicked;
+        let positionIndex = nextPositionIndex;
+
+        INTS[fEDI_cursor_selectionEnd] = positionIndex;
+        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+
+        let goalCharacterKind = EDI_getCharacterCurrent_KIND(INTS[fEDI_cursor_indexColumn], positionIndex, EDI_getLineEnd_pos_raw(INTS[fEDI_cursor_indexLine]));
+        let leftWasFound = false;
+        let tempPositionIndex = positionIndex;
+
+        while (INTS[fEDI_cursor_indexColumn] > 0) {
+            let leftCharacterKind = EDI_getCharacterPrevious_KIND(INTS[fEDI_cursor_indexColumn], tempPositionIndex);
+            if (leftCharacterKind !== goalCharacterKind) {
+                INTS[fEDI_cursor_selectionEnd] = tempPositionIndex;
+                INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+                leftWasFound = true;
+                break;
+            }
+            tempPositionIndex--;
+            INTS[fEDI_cursor_indexColumn]--;
+            INTS[fEDI_cursorVisualColumnIndex]--;
+        }
+
+        if (!leftWasFound) {
+            INTS[fEDI_cursor_selectionEnd] = tempPositionIndex;
+            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+        }
+    }
+    else if (nextPositionIndex > INTS[fEDI_detail_largePosition]) {
+        if (INTS[fEDI_cursor_selectionAnchor] > INTS[fEDI_cursor_selectionEnd]) {
+            INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_detail_smallPosition];
+            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_detail_smallColumnVisual];
+        }
+
+        INTS[fEDI_cursor_indexLine] = indexLineClicked;
+        INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
+        INTS[fEDI_cursorVisualColumnIndex] = indexColumnVisual;
+        let positionIndex = nextPositionIndex;
+
+        INTS[fEDI_cursor_selectionEnd] = positionIndex;
+        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+
+        let leftCharacterKind = EDI_getCharacterPrevious_KIND(INTS[fEDI_cursor_indexColumn], positionIndex);
+        let goalCharacterKind = leftCharacterKind;
+
+        EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+        const line_end = INTS[fEDI_ret_getLineBoundaryPositions_end];
+        let lineLength = line_end - INTS[fEDI_ret_getLineBoundaryPositions_start];
+        let rightWasFound = false;
+
+        let tempPositionIndex = positionIndex;
+        while (INTS[fEDI_cursor_indexColumn] < lineLength) {
+            let rightCharacterKind = EDI_getCharacterCurrent_KIND(INTS[fEDI_cursor_indexColumn], tempPositionIndex, line_end);
+            if (rightCharacterKind !== goalCharacterKind) {
+                INTS[fEDI_cursor_selectionEnd] = tempPositionIndex;
+                //INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+                rightWasFound = true;
+                break;
+            }
+            tempPositionIndex++;
+            INTS[fEDI_cursor_indexColumn]++;
+            INTS[fEDI_cursorVisualColumnIndex]++;
+            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL]++; // TODO: '\t'
+        }
+
+        if (!rightWasFound) {
+            // end of line
+            INTS[fEDI_cursor_selectionEnd] = tempPositionIndex;
+            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+        }
+    }
+    else {
+        if (INTS[fEDI_cursor_selectionAnchor] > INTS[fEDI_cursor_selectionEnd]) {
+            INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_detail_smallPosition];
+            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_detail_smallColumnVisual];
+        }
+
+        EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_detail_largePosition]);
+        let largeLineAndColumnIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
+        let largeLineAndColumnIndices_indexColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
+        INTS[fEDI_cursor_indexLine] = largeLineAndColumnIndices_indexLine;
+        INTS[fEDI_cursor_indexColumn] = largeLineAndColumnIndices_indexColumn;
+        INTS[fEDI_cursorVisualColumnIndex] = INTS[fEDI_detail_largeColumnVisual];
+        INTS[fEDI_cursor_selectionEnd] = INTS[fEDI_detail_largePosition];
+        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+    }
+
+    EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
+}
+
+function EDI_onMouseMoveDetailRankThree(indexLineClicked, indexColumnClicked) {
+    // TODO: I remember this being bugged I think it makes sense why. You're checking if the cursor is exactly at the threshold rather than determining if the distance from previous event to this one puts you past the threshold.
+    if (indexLineClicked === INTS[fEDI_detailRank3OriginLine]) {
+        // TODO: 'cursor.positionIndex' is incorrect there is no such field, but was this referring to the clicked position or the position that the cursor currently is at...
+        // ...it is presumed to be the position that the cursor is currently at because it would explain the bug where if you move the cursor somewhere that the mouse move events don't get
+        // sent then bring your mouse back into a place where they do you'll snap ahead by some indices and skip the threshold and it visually bugs.
+        // You could attach to I think it is window? but then I'm wondering if a race condition could ever occur.
+        // so you'd probably want to do both attach to window and protect against large movements that skip the exact threshold when transitioning.
+        //
+        if (EDI_getPositionIndex_cursor_raw() !== INTS[fEDI_detail_smallPosition]) {
+            EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_detail_smallPosition]);
+            let smallLineAndColumnPositionIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
+            let smallLineAndColumnPositionIndices_indexColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
+            INTS[fEDI_cursor_indexLine] = smallLineAndColumnPositionIndices_indexLine;
+            INTS[fEDI_cursor_indexColumn] = smallLineAndColumnPositionIndices_indexColumn;
+            INTS[fEDI_cursorVisualColumnIndex] = smallLineAndColumnPositionIndices_indexColumn;
+        }
+
+        if (INTS[fEDI_cursor_selectionEnd] !== INTS[fEDI_detail_smallPosition]) {
+            INTS[fEDI_cursor_selectionEnd] = INTS[fEDI_detail_smallPosition];
+            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+        }
+
+        if (INTS[fEDI_cursor_selectionAnchor] !== INTS[fEDI_detail_largePosition]) {
+            INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_detail_largePosition];
+            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+        }
+
+        EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
+    }
+    else if (indexLineClicked < INTS[fEDI_detailRank3OriginLine]) {
+        if (INTS[fEDI_cursor_selectionAnchor] < INTS[fEDI_cursor_selectionEnd]) {
+            EDI_ret_getLineAndColumnIndices_raw(INTS[fEDI_detail_smallPosition]);
+            let smallLineAndColumnPositionIndices_indexLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
+            let smallLineAndColumnPositionIndices_indexColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
+
+            INTS[fEDI_cursor_indexLine] = smallLineAndColumnPositionIndices_indexLine;
+            INTS[fEDI_cursor_indexColumn] = smallLineAndColumnPositionIndices_indexColumn;
+            INTS[fEDI_cursorVisualColumnIndex] = smallLineAndColumnPositionIndices_indexColumn;
+
+            INTS[fEDI_cursor_selectionEnd] = INTS[fEDI_detail_smallPosition];
+            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+
+            EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
+        }
+
+        INTS[fEDI_cursor_indexLine] = indexLineClicked;
+        INTS[fEDI_cursor_indexColumn] = 0;
+        INTS[fEDI_cursorVisualColumnIndex] = 0;
+
+        INTS[fEDI_cursor_selectionEnd] = EDI_getPositionIndex_Overload(indexLineClicked, 0);
+        INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+
+        EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
+    }
+    else if (indexLineClicked > INTS[fEDI_detailRank3OriginLine]) {
+
+        if (INTS[fEDI_cursor_selectionAnchor] !== INTS[fEDI_detail_smallPosition]) {
+            INTS[fEDI_cursor_selectionAnchor] = INTS[fEDI_detail_smallPosition];
+            INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+        }
+
+        INTS[fEDI_cursor_indexLine] = indexLineClicked;
+        INTS[fEDI_cursor_indexColumn] = indexColumnClicked;
+        INTS[fEDI_cursorVisualColumnIndex] = indexColumnClicked;
+        let positionIndex = EDI_getPositionIndex_Overload(indexLineClicked, indexColumnClicked);
+
+        // move to end of line...
+        EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+        let lineLength = INTS[fEDI_ret_getLineBoundaryPositions_end] - INTS[fEDI_ret_getLineBoundaryPositions_start];
+        positionIndex += lineLength - INTS[fEDI_cursor_indexColumn];
+
+        if (INTS[fEDI_cursor_indexLine] === INTS[fEDI_lineEndPositionList_count] - 1) {
+            INTS[fEDI_cursor_indexColumn] = lineLength;
+            INTS[fEDI_cursorVisualColumnIndex] = lineLength;
+            INTS[fEDI_cursor_selectionEnd] = positionIndex;
+            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+        }
+        else {
+            // wrap to the next line
+            INTS[fEDI_cursor_indexLine]++;
+            INTS[fEDI_cursor_indexColumn] = 0;
+            INTS[fEDI_cursorVisualColumnIndex] = 0;
+            positionIndex++;
+
+            INTS[fEDI_cursor_selectionEnd] = positionIndex;
+            INTS[fEDI_cursor_selectionIndexEndColumnVISUAL] = INTS[fEDI_cursorVisualColumnIndex];
+        }
+
+        EDI_render_request(RenderKind_Cursor_flag_doNotScrollIntoView);
+    }
 }
 
 /**

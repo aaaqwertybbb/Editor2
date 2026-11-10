@@ -1440,7 +1440,11 @@ function getCharWidth(char, currentVisualCol, tabSize = 4) {
 
 Would you like to see how to implement this dynamic width loop within your current cursor positioning or canvas rendering functions?
 
+====
 
+I feel extremely sad and everything is heavy
+I'm trying to do something this feeling is like a spell cast on me I can't sit up I the keyboard keys are hard to press because I have lost all the energy
+and I feel like I can't move
 
 
 

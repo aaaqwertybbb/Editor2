@@ -310,15 +310,6 @@ class EDI_CustomDecoder {
 const EDI_encoder = new TextEncoder();
 const EDI_decoder = new TextDecoder();
 const EDI_decoder_CUSTOM = new EDI_CustomDecoder();
-const EDI_ReusableTokenResult = {
-    text: '',
-    styleId: 0,
-    nextStart: 0, // Single-assignment buffers for the duration of the scroll loop
-    bytes: null,
-    styles: null,
-    // Combined column state variable
-    col: 0 
-};
 
 //// Find-All for "EDI_debug_optimization" to find all the commented out logic that was related to this.
 // let EDI_debug_optimization_has_logged_disassembleFunction = false;

@@ -362,11 +362,6 @@ function EDI_render_do_Scroll() {
     const local_bytes = EDI_textByteList_bytes;
     const local_styles = EDI_styleBuffer; // Your matching parallel array
 
-
-    // BIND THE LARGE MEMORY REFERENCES ONCE BEFORE LOOPS START
-    EDI_ReusableTokenResult.bytes = local_bytes;
-    EDI_ReusableTokenResult.styles = local_styles;
-
     const local_EDI_decoder_CUSTOM = EDI_decoder_CUSTOM;
 
     const ctxText = EDI_text_canvas.getContext('2d');
@@ -434,7 +429,8 @@ function EDI_render_do_Scroll() {
                         lineSpans,
                         spanIndex,
                         EDI_tokenColors,
-                        EDI_ReusableTokenResult
+                        local_bytes,
+                        local_styles
                     );
                 }
                 // FIXED BOUNDARY: IF THE LINE IS COMPLETELY EMPTY (0 Bytes)
@@ -480,10 +476,6 @@ function EDI_render_do_Scroll() {
 
         vertical += local_lineHeight;
     }
-
-    // NULL OUT THE PERSISTENT REFERENCES TO PREVENT LEAK HOOKS AFTER REDRAW FINISHES
-    EDI_ReusableTokenResult.bytes = null;
-    EDI_ReusableTokenResult.styles = null;
 
     // I'm just experimenting because tons of variables are shared.
     //EDI_render_SelectionAndCursor();

@@ -1453,7 +1453,114 @@ I think I want to keep the tab expansion logic.
 
 To move it from the cached calculation to the rendering means a fairly significant overhead everytime I render the text.
 
+====
 
+TODO: Why is this using  different logic for // consume continuation byte vs the previous?
+```javascript
+  decodeLineTokens(start, lineEnd, lineCacheObj, spanIndex, tokenColors, bytesParam, stylesParam) {
+    const sharedBytes = bytesParam;
+    const styles = stylesParam;
+    const limit = this.chunkSize;
+
+    let i = start;
+    let col = 0; 
+    
+    // Clear out or initialize the source index map for this line
+    if (!lineCacheObj.sourceIndexMap) {
+      lineCacheObj.sourceIndexMap = [];
+    }
+    const sourceIndexMap = lineCacheObj.sourceIndexMap;
+    sourceIndexMap.length = 0; 
+    
+    const lineSpans = lineCacheObj.spans || [];
+
+    while (i < lineEnd) {
+      let outStr = '';
+      let bufIdx = 0;
+
+      const initialStyleId = styles[i];
+
+      while (i < lineEnd) {
+        if (styles[i] !== initialStyleId) {
+          break; 
+        }
+
+        // Calculate the current logical index relative to the line start
+        const logicalIndexOnLine = i - start;
+        let codePoint = sharedBytes[i++];
+
+        // FAST PATH: Horizontal tab (ASCII 9)
+        if (codePoint === 0x09) {
+          const spacesNeeded = 4 - (col & 3);
+          col += spacesNeeded;
+
+          for (let s = 0; s < spacesNeeded; s++) {
+            this.charBuffer[bufIdx++] = 32;
+            
+            // Map each of these visual spaces back to the single logical tab character
+            sourceIndexMap.push(logicalIndexOnLine);
+
+            if (bufIdx >= limit - 1) {
+              outStr += this._flushBuffer(bufIdx);
+              bufIdx = 0;
+            }
+          }
+          continue;
+        }
+
+        // Multi-byte UTF-8 parsing
+        if ((codePoint & 0x80) !== 0) {
+          if ((codePoint & 0xE0) === 0xC0) {
+            if (i < lineEnd) i++; // consume continuation byte
+          }
+          else if ((codePoint & 0xF0) === 0xE0) {
+            if (i + 1 < lineEnd) i += 2;
+          }
+          else if ((codePoint & 0xF8) === 0xF0) {
+            if (i + 2 < lineEnd) i += 3;
+          }
+        }
+
+        col++;
+        
+        // Map this visual character directly to its logical position
+        sourceIndexMap.push(logicalIndexOnLine);
+
+        if (codePoint <= 0xFFFF) {
+          this.charBuffer[bufIdx++] = codePoint;
+        } else {
+          codePoint -= 0x10000;
+          this.charBuffer[bufIdx++] = (codePoint >> 10) + 0xD800;
+          this.charBuffer[bufIdx++] = (codePoint & 0x3FF) + 0xDC00;
+        }
+
+        if (bufIdx >= limit - 1) {
+          outStr += this._flushBuffer(bufIdx);
+          bufIdx = 0;
+        }
+      }
+
+      if (bufIdx > 0) {
+        outStr += this._flushBuffer(bufIdx);
+      }
+
+      if (spanIndex < lineSpans.length) {
+        const existingSpan = lineSpans[spanIndex++];
+        existingSpan.text = outStr;
+        existingSpan.color = tokenColors[initialStyleId];
+      } else {
+        lineSpans.push({
+          text: outStr,
+          color: tokenColors[initialStyleId]
+        });
+        spanIndex++;
+      }
+    }
+
+    lineCacheObj.spans = lineSpans;
+    return spanIndex; 
+  }
+```
 
 
 

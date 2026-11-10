@@ -255,7 +255,20 @@ function EDI_resizeCanvases() {
 
     const aaa = INTS[fEDI_virtualCount];
     for (let i = 0; i < aaa; i++) {
-        EDI_lineStringCache[i] = [];
+        EDI_lineStringCache[i] = {
+            // TODO: Maybe pre-allocate 'sourceIndexMap' to something that reduces extreme amounts of initial resizing of the array if that even is a case
+            // TODO: Maybe now that you have 'sourceIndexMap: []' you might benefit from caching some in a global pool rather than pooling the current ones in the spans wait this is for the line that's not an issue.
+            //     - [ ] you have the 'span' allocation which is text/color that you are re-using the ones that existed within 'spans' array from the previous render.
+            //     - [ ] sourceIndexMap is always re-used though?
+            //     - [ ] (the spans array is also always re-used)
+            //     - [ ] you get this to work for insert and then you're done for the day
+            spans: [],
+            // TODO: This means if you modify something on a line you gotta modify all this cached information...
+            // character index of the tab on the line then the next index is the tabWidth of that specific tab
+            //
+            // TODO: typed array?
+            tab_twoIndices_oneImplicitObject_startCol_tabWidth: []
+        };
         //EDI_line_NUMBER_StringCache[i] = 0;
     }
     
@@ -402,7 +415,8 @@ function EDI_render_do_Scroll() {
             ringBufferIndex = 0;
         }
 
-        const lineSpans = cache[ringBufferIndex];
+        const lineObject = cache[ringBufferIndex];
+        const lineSpans = lineObject.spans;
 
         if (i >= new_lowerBound && i < new_loopLimit) {
             // THIS WILL CALCULATE THE TEXT OF THE LINENUMBER AND THE LINE OF TEXT ITSELF
@@ -426,7 +440,7 @@ function EDI_render_do_Scroll() {
                     spanIndex = local_EDI_decoder_CUSTOM.decodeLineTokens(
                         new_lineStart,
                         new_lineEnd,
-                        lineSpans,
+                        lineObject,
                         spanIndex,
                         EDI_tokenColors,
                         local_bytes,
@@ -3808,7 +3822,9 @@ function EDI_onKeyDown_keyLengthEqualsOne_altKey(event) {
 function EDI_render_do_ResetSyntaxHighlighting() {
     const EDI_lineStringCache_length = EDI_lineStringCache.length;
     for (let i = 0; i < EDI_lineStringCache_length; i++) {
-        EDI_lineStringCache[i].length = 0;
+        const lineObject = EDI_lineStringCache[i];
+        lineObject.spans.length = 0;
+        lineObject.tab_twoIndices_oneImplicitObject_startCol_tabWidth.length = 0;
     }
     EDI_render_force_fullscreen_redraw();
 }

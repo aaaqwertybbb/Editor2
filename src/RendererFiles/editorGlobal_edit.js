@@ -19,8 +19,6 @@ let EDI_textByteList_bytes = new Uint8Array(INTS[fEDI_textByteList_capacity]);
 
 let EDI_lineStringCache = [];
 let EDI_line_NUMBER_StringCache = [];
-//let EDI_lineStringCache_capacity = [];
-//let EDI_lineStringCache_count = [];
 
 /**
  * When this is cleared the information is not removed, only 'gapBufferCount' is set to 0.
@@ -207,19 +205,24 @@ class EDI_CustomDecoder {
    * 
    * @param {number} start - new_lineStart
    * @param {number} lineEnd - new_lineEnd
-   * @param {Array} lineSpans - Cache array for this line's spans
+   * @param {Object} lineCacheObj - (outdated comment): Cache array for this line's spans
    * @param {number} spanIndex - The starting span index to write to
    * @param {Array} tokenColors - EDI_tokenColors array/map
    * @param {object} tokenResult - Persistent state holder (for .bytes and .styles references)
    * @returns {number} The updated spanIndex count for the line
    */
-  decodeLineTokens(start, lineEnd, lineSpans, spanIndex, tokenColors, bytesParam, stylesParam) {
+  decodeLineTokens(start, lineEnd, lineCacheObj, spanIndex, tokenColors, bytesParam, stylesParam) {
     const sharedBytes = bytesParam;
     const styles = stylesParam;
     const limit = this.chunkSize;
 
     let i = start;
     let col = 0; // Completely local counter now, no object tracking property needed!
+
+    const tab_twoIndices_oneImplicitObject_startCol_tabWidth = lineCacheObj.tab_twoIndices_oneImplicitObject_startCol_tabWidth;
+    tab_twoIndices_oneImplicitObject_startCol_tabWidth.length = 0;
+
+    const lineSpans = lineCacheObj.spans;
 
     while (i < lineEnd) {
       let outStr = '';
@@ -239,9 +242,13 @@ class EDI_CustomDecoder {
         if (codePoint === 0x09) {
           const spacesNeeded = 4 - (col & 3);
           col += spacesNeeded;
+
+          const logicalIndexOnLine = i - start;
+          tab_twoIndices_oneImplicitObject_startCol_tabWidth.push(logicalIndexOnLine);
+          tab_twoIndices_oneImplicitObject_startCol_tabWidth.push(spacesNeeded);
           
           for (let s = 0; s < spacesNeeded; s++) {
-            this.charBuffer[bufIdx++] = 32; 
+            this.charBuffer[bufIdx++] = 32;
             if (bufIdx >= limit - 1) {
               outStr += this._flushBuffer(bufIdx);
               bufIdx = 0;
@@ -358,8 +365,6 @@ function EDI_state_clear(trackingUint32MaxHeap_initialCapacity) {
     
     // TODO: This placement is slightly odd because the styleBuffer is made asynchronously and whether there could be a race condition that clears the styleBuffer you just received is uncertain (I just have not checked recently maybe I did when I first wrote it, it just looks odd though, need to check this).
     INTS[fEDI_styleBuffer_count] = 0;
-
-    //EDI_lineStringCache = new Array(trackingUint32MaxHeap_initialCapacity);
 }
 
 function EDI_clear() {

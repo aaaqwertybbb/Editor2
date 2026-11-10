@@ -1391,13 +1391,19 @@ function EDI_render_do_EnterKey() {
             // pending line feeds use them for the line numbers eventually
 
             let loop_ringBufferIndex = final_ringBufferIndex;
-            let final_lineSpans = EDI_lineStringCache[final_ringBufferIndex];
+            let final_lineObject = EDI_lineStringCache[final_ringBufferIndex];
 
             while (true) {
                 let previous_ringBufferIndex = loop_ringBufferIndex - 1;
                 if (previous_ringBufferIndex < 0) {
                     previous_ringBufferIndex = INTS[fEDI_ArrayFrom_textElement_children_length] - 1;
                 }
+
+                //const loop_lineObject = EDI_lineStringCache[loop_ringBufferIndex];
+                //const previous_lineObject = EDI_lineStringCache[previous_ringBufferIndex];
+//
+                //loop_lineObject.tab_twoIndices_oneImplicitObject_startCol_tabWidth = previous_lineObject.tab_twoIndices_oneImplicitObject_startCol_tabWidth;
+                //loop_lineObject.spans = previous_lineObject.spans;
 
                 EDI_lineStringCache[loop_ringBufferIndex] = EDI_lineStringCache[previous_ringBufferIndex];
 
@@ -1408,9 +1414,11 @@ function EDI_render_do_EnterKey() {
                 loop_ringBufferIndex = previous_ringBufferIndex;
             }
 
-            EDI_lineStringCache[current_ringBufferIndex] = final_lineSpans;
+            EDI_lineStringCache[current_ringBufferIndex] = final_lineObject;
 
-            let currentLineSpans = EDI_lineStringCache[current_ringBufferIndex];
+            const currentLineObject = EDI_lineStringCache[current_ringBufferIndex];
+            const currentLineSpans = currentLineObject.spans;
+            currentLineObject.tab_twoIndices_oneImplicitObject_startCol_tabWidth.length = 0;
             if (currentLineSpans.length > 0) {
                 currentLineSpans.length = 1;
                 currentLineSpans[0].text = '';
@@ -1428,7 +1436,7 @@ function EDI_render_do_EnterKey() {
             if (lastValidIndexColumn === INTS[fEDI_cursor_editIndexColumn]) { // end of line
                 let loop_ringBufferIndex = final_ringBufferIndex;
 
-                let final_lineSpans = EDI_lineStringCache[final_ringBufferIndex];
+                let final_lineObject = EDI_lineStringCache[final_ringBufferIndex];
 
                 let next_ringBufferIndex = current_ringBufferIndex + 1;
                 if (next_ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length]) {
@@ -1446,9 +1454,11 @@ function EDI_render_do_EnterKey() {
                     loop_ringBufferIndex = previous_ringBufferIndex;
                 }
 
-                EDI_lineStringCache[next_ringBufferIndex] = final_lineSpans;
+                EDI_lineStringCache[next_ringBufferIndex] = final_lineObject;
 
-                let nextLineSpans = EDI_lineStringCache[next_ringBufferIndex];
+                const nextLineObject = EDI_lineStringCache[next_ringBufferIndex];
+                const nextLineSpans = nextLineObject.spans;
+                nextLineObject.tab_twoIndices_oneImplicitObject_startCol_tabWidth.length = 0;
                 if (nextLineSpans.length > 0) {
                     nextLineSpans.length = 1;
                     nextLineSpans[0].text = '';
@@ -1486,7 +1496,10 @@ function EDI_render_do_EnterKey() {
                 // 1. Target the specific line row index where the typing is taking place
                 const activeLine = INTS[fEDI_cursor_indexLine];
 
-                let lineSpans = EDI_lineStringCache[current_ringBufferIndex];
+                const lineObject = EDI_lineStringCache[current_ringBufferIndex];
+                const lineSpans = lineObject.spans;
+
+                // TODO: You'll have to determine whether "a tab" within tab_twoIndices_oneImplicitObject_startCol_tabWidth corresponds to the first or last split.
 
                 {
                     if (lineSpans === undefined) {
@@ -1526,7 +1539,7 @@ function EDI_render_do_EnterKey() {
                     next_ringBufferIndex -= INTS[fEDI_ArrayFrom_textElement_children_length];
                 }
 
-                let final_lineSpans = EDI_lineStringCache[final_ringBufferIndex];
+                let final_lineObject = EDI_lineStringCache[final_ringBufferIndex];
 
                 let loop_ringBufferIndex = final_ringBufferIndex;
 
@@ -1541,14 +1554,16 @@ function EDI_render_do_EnterKey() {
                     loop_ringBufferIndex = previous_ringBufferIndex;
                 }
 
-                EDI_lineStringCache[next_ringBufferIndex] = final_lineSpans;
+                EDI_lineStringCache[next_ringBufferIndex] = final_lineObject;
 
                 const data = targetedSpan.text;
 
                 let firstText = data.substring(0, relativeInsertIndex);
                 let lastText = data.substring(relativeInsertIndex);
 
-                let nextLineSpans = EDI_lineStringCache[next_ringBufferIndex];
+                const nextLineObject = EDI_lineStringCache[next_ringBufferIndex];
+                const nextLineSpans = nextLineObject.spans;
+                nextLineObject.tab_twoIndices_oneImplicitObject_startCol_tabWidth.length = 0;
                 if (nextLineSpans.length > 0) {
                     nextLineSpans.length = 1;
                     nextLineSpans[0].text = lastText;

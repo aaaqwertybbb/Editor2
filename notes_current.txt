@@ -1570,8 +1570,8 @@ You can restore the functionality you had yesterday for NonTab lines by just fix
 {
 Positive
 ========
-- [ ] EditKind_InsertLtr
-- [ ] EditKind_Enter
+- [x] EditKind_InsertLtr
+- [x] EditKind_Enter
 - [ ] EditKind_Tab
 - [ ] EditKind_Paste
 - [ ] EditKind_Duplicate

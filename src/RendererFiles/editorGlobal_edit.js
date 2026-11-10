@@ -37,6 +37,8 @@ INTS[fEDI_ontab_visualWidth_perCharacter] = 4;
 
 /**
  * When a cursor removes a line end the position of the line end is stored in this list until the edit is finalized.
+ * 
+ * TODO: If you insert more than 128 line endings your code breaks?
  */
 const EDI_lineEndPositionList_PENDING = new UInt32List(128);
 

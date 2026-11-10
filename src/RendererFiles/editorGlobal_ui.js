@@ -1002,7 +1002,8 @@ function EDI_render_do_DuplicateOrPaste() {
         else activeLine_ringBufferIndex = (activeLine_ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
         if (activeLine_ringBufferIndex < 0) { return; } // line is not in viewport
 
-        let lineSpans = EDI_lineStringCache[activeLine_ringBufferIndex];
+        let lineObject = EDI_lineStringCache[activeLine_ringBufferIndex];
+        let lineSpans = lineObject.spans;
 
         // 2. Determine the column position where the *first character of this edit burst* began
         // We use indexColumn minus the absolute total length of characters typed in this current edit session
@@ -1282,7 +1283,10 @@ function EDI_render_do_TabKey() {
         else activeLine_ringBufferIndex = (activeLine_ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
         if (activeLine_ringBufferIndex < 0) { return; } // line is not in viewport
         
-        let lineSpans = EDI_lineStringCache[activeLine_ringBufferIndex];
+        const lineObject = EDI_lineStringCache[activeLine_ringBufferIndex];
+        const lineSpans = lineObject.spans;
+
+        // TODO: When inserting a '\t' due to on tab being tabs you need to track the col and width in the lineObject...
 
         // 2. Determine the column position where the *first character of this edit burst* began
         // We use indexColumn minus the absolute total length of characters typed in this current edit session

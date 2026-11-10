@@ -1564,6 +1564,10 @@ TODO: Why is this using  different logic for // consume continuation byte vs the
 
 ====
 
+You can restore the functionality you had yesterday for NonTab lines by just fixing what the variables are pointing to.
+
+# NonTab
+{
 Positive
 ========
 - [ ] EditKind_InsertLtr
@@ -1579,7 +1583,26 @@ Negative
 - [ ] EditKind_BackspaceRtl
 - [ ] EditKind_RemoveTextNoBatching
 - [ ] EditKind_IndentLess
+}
 
+# WithTab
+{
+Positive
+========
+- [ ] EditKind_InsertLtr
+- [ ] EditKind_Enter
+- [ ] EditKind_Tab
+- [ ] EditKind_Paste
+- [ ] EditKind_Duplicate
+- [ ] EditKind_IndentMore
+
+Negative
+========
+- [ ] EditKind_DeleteLtr
+- [ ] EditKind_BackspaceRtl
+- [ ] EditKind_RemoveTextNoBatching
+- [ ] EditKind_IndentLess
+}
 
 
 

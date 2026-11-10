@@ -185,7 +185,9 @@ class EDI_CustomDecoder {
      * TODO: Make chunkSize the amount of characters that can fit from viewport_0_pixel to viewport_whateverTheTotalPixelWidthOrWhatever_pixel but in character units of the monospace form...
      * ...just make sure you add a minimum so a small width screen doesn't thrash tokens...
      * ...actually... can you put a minimum cause then single character identifiers are gonna break...
-     * ...I'll just trust your future judgement, good luck.
+     * ...I'll just trust your future judgement, good luck...
+     * ...I said I'll trust "your" future judgement. I clearly can't trust my own cause my previous commit broke the entire app...
+     * ...but you probably have a minimumDueToScreenWidth and that has a minimum of its own and you can still separately have 1 character identifiers.
      */
     this.chunkSize = 2048;
     this.charBuffer = new Uint16Array(this.chunkSize);
@@ -211,9 +213,9 @@ class EDI_CustomDecoder {
    * @param {object} tokenResult - Persistent state holder (for .bytes and .styles references)
    * @returns {number} The updated spanIndex count for the line
    */
-  decodeLineTokens(start, lineEnd, lineSpans, spanIndex, tokenColors, tokenResult) {
-    const sharedBytes = tokenResult.bytes;
-    const styles = tokenResult.styles;
+  decodeLineTokens(start, lineEnd, lineSpans, spanIndex, tokenColors, bytesParam, stylesParam) {
+    const sharedBytes = bytesParam;
+    const styles = stylesParam;
     const limit = this.chunkSize;
 
     let i = start;

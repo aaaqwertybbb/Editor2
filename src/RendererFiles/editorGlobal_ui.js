@@ -754,7 +754,9 @@ function EDI_render_do_IndentMore() {
             else ringBufferIndex = (ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
 
             if (ringBufferIndex >= 0) {
-                EDI_lineStringCache[ringBufferIndex].unshift({ text: EDI_on_tab_string, color: EDI_tokenColors[0] });
+                EDI_lineStringCache[ringBufferIndex].spans.unshift({ text: EDI_on_tab_string, color: EDI_tokenColors[0] });
+                // TODO: When inserting a '\t' due to on tab being tabs you need to track the col and width in the lineObject...
+                // TODO: when inserting ANYTHING you need to update any existing tabs on the line their column position the even indices.
             }
         }
 
@@ -876,7 +878,8 @@ function EDI_render_do_IndentLess() {
                 continue;
             }
 
-            let lineSpans = EDI_lineStringCache[ringBufferIndex];
+            let lineObject = EDI_lineStringCache[ringBufferIndex];
+            let lineSpans = lineObject.spans;
 
             // 2. Determine the column position where the *first character of this edit burst* began
             const editStartColumn = 0;

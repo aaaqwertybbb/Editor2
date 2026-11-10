@@ -1575,14 +1575,14 @@ Positive
 - [x] EditKind_Tab
 - [x] EditKind_Paste
 - [x] EditKind_Duplicate
-- [ ] EditKind_IndentMore
+- [x] EditKind_IndentMore
 
 Negative
 ========
 - [ ] EditKind_DeleteLtr
 - [ ] EditKind_BackspaceRtl
 - [ ] EditKind_RemoveTextNoBatching
-- [ ] EditKind_IndentLess
+- [x] EditKind_IndentLess
 }
 
 # WithTab

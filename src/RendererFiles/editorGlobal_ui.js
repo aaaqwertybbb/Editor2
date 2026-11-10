@@ -1721,7 +1721,8 @@ function EDI_render_do_RemoveSelection() {
         
         if (activeLine_ringBufferIndex >= 0) { // line IS not in viewport
 
-            let lineSpans = EDI_lineStringCache[activeLine_ringBufferIndex];
+            let lineObject = EDI_lineStringCache[activeLine_ringBufferIndex];
+            let lineSpans = lineObject.spans;
             smallLineSpans = lineSpans;
 
             // 2. Determine the column position where the *first character of this edit burst* began
@@ -2040,7 +2041,9 @@ function EDI_render_do_Delete() {
     if (activeLine_ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length] || activeLine_ringBufferIndex < 0) activeLine_ringBufferIndex = -1;
     else activeLine_ringBufferIndex = (activeLine_ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
     if (activeLine_ringBufferIndex < 0) { return; } // line is not in viewport
-    let lineSpans = EDI_lineStringCache[activeLine_ringBufferIndex];
+    
+    let lineObject = EDI_lineStringCache[activeLine_ringBufferIndex];
+    let lineSpans = lineObject.spans;
 
     // 2. Determine the column position where the *first character of this edit burst* began
     const editStartColumn = INTS[fEDI_cursor_indexColumn];
@@ -2211,7 +2214,9 @@ function EDI_render_do_Backspace() {
     if (activeLine_ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length] || activeLine_ringBufferIndex < 0) activeLine_ringBufferIndex = -1;
     else activeLine_ringBufferIndex = (activeLine_ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
     if (activeLine_ringBufferIndex < 0) { return; } // line is not in viewport
-    let lineSpans = EDI_lineStringCache[activeLine_ringBufferIndex];
+    
+    let lineObject = EDI_lineStringCache[activeLine_ringBufferIndex];
+    let lineSpans = lineObject.spans;
 
     // 2. Determine the column position where the *first character of this edit burst* began
     const editStartColumn = INTS[fEDI_cursor_indexColumn];

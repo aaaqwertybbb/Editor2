@@ -1579,9 +1579,9 @@ Positive
 
 Negative
 ========
-- [ ] EditKind_DeleteLtr
-- [ ] EditKind_BackspaceRtl
-- [ ] EditKind_RemoveTextNoBatching
+- [/] EditKind_DeleteLtr
+- [/] EditKind_BackspaceRtl
+- [x] EditKind_RemoveTextNoBatching
 - [x] EditKind_IndentLess
 }
 

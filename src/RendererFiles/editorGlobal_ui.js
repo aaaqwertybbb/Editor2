@@ -255,22 +255,7 @@ function EDI_resizeCanvases() {
 
     const aaa = INTS[fEDI_virtualCount];
     for (let i = 0; i < aaa; i++) {
-        EDI_lineStringCache[i] = {
-            // TODO: Maybe pre-allocate 'sourceIndexMap' to something that reduces extreme amounts of initial resizing of the array if that even is a case
-            // TODO: Maybe now that you have 'sourceIndexMap: []' you might benefit from caching some in a global pool rather than pooling the current ones in the spans wait this is for the line that's not an issue.
-            //     - [ ] you have the 'span' allocation which is text/color that you are re-using the ones that existed within 'spans' array from the previous render.
-            //     - [ ] sourceIndexMap is always re-used though?
-            //     - [ ] (the spans array is also always re-used)
-            //     - [ ] you get this to work for insert and then you're done for the day
-            spans: [],
-            // TODO: This means if you modify something on a line you gotta modify all this cached information...
-            // character index of the tab on the line then the next index is the tabWidth of that specific tab
-            //
-            // TODO: typed array?
-            //
-            // TODO: If you have to read this by starting from col 0 and looping then you could just not store the tabWidth and calculate it as needed but that would require modulo operations.
-            tab_twoIndices_oneImplicitObject_startCol_tabWidth: []
-        };
+        EDI_lineStringCache[i] = [];
         //EDI_line_NUMBER_StringCache[i] = 0;
     }
     
@@ -417,8 +402,7 @@ function EDI_render_do_Scroll() {
             ringBufferIndex = 0;
         }
 
-        const lineObject = cache[ringBufferIndex];
-        const lineSpans = lineObject.spans;
+        const lineSpans = cache[ringBufferIndex];
 
         if (i >= new_lowerBound && i < new_loopLimit) {
             // THIS WILL CALCULATE THE TEXT OF THE LINENUMBER AND THE LINE OF TEXT ITSELF
@@ -442,7 +426,7 @@ function EDI_render_do_Scroll() {
                     spanIndex = local_EDI_decoder_CUSTOM.decodeLineTokens(
                         new_lineStart,
                         new_lineEnd,
-                        lineObject,
+                        lineSpans,
                         spanIndex,
                         EDI_tokenColors,
                         local_bytes,
@@ -754,9 +738,7 @@ function EDI_render_do_IndentMore() {
             else ringBufferIndex = (ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
 
             if (ringBufferIndex >= 0) {
-                EDI_lineStringCache[ringBufferIndex].spans.unshift({ text: EDI_on_tab_string, color: EDI_tokenColors[0] });
-                // TODO: When inserting a '\t' due to on tab being tabs you need to track the col and width in the lineObject...
-                // TODO: when inserting ANYTHING you need to update any existing tabs on the line their column position the even indices.
+                EDI_lineStringCache[ringBufferIndex].unshift({ text: EDI_on_tab_string, color: EDI_tokenColors[0] });
             }
         }
 
@@ -878,8 +860,7 @@ function EDI_render_do_IndentLess() {
                 continue;
             }
 
-            let lineObject = EDI_lineStringCache[ringBufferIndex];
-            let lineSpans = lineObject.spans;
+            let lineSpans = EDI_lineStringCache[ringBufferIndex];
 
             // 2. Determine the column position where the *first character of this edit burst* began
             const editStartColumn = 0;
@@ -1005,8 +986,7 @@ function EDI_render_do_DuplicateOrPaste() {
         else activeLine_ringBufferIndex = (activeLine_ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
         if (activeLine_ringBufferIndex < 0) { return; } // line is not in viewport
 
-        let lineObject = EDI_lineStringCache[activeLine_ringBufferIndex];
-        let lineSpans = lineObject.spans;
+        let lineSpans = EDI_lineStringCache[activeLine_ringBufferIndex];
 
         // 2. Determine the column position where the *first character of this edit burst* began
         // We use indexColumn minus the absolute total length of characters typed in this current edit session
@@ -1286,10 +1266,7 @@ function EDI_render_do_TabKey() {
         else activeLine_ringBufferIndex = (activeLine_ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
         if (activeLine_ringBufferIndex < 0) { return; } // line is not in viewport
         
-        const lineObject = EDI_lineStringCache[activeLine_ringBufferIndex];
-        const lineSpans = lineObject.spans;
-
-        // TODO: When inserting a '\t' due to on tab being tabs you need to track the col and width in the lineObject...
+        let lineSpans = EDI_lineStringCache[activeLine_ringBufferIndex];
 
         // 2. Determine the column position where the *first character of this edit burst* began
         // We use indexColumn minus the absolute total length of characters typed in this current edit session
@@ -1398,19 +1375,13 @@ function EDI_render_do_EnterKey() {
             // pending line feeds use them for the line numbers eventually
 
             let loop_ringBufferIndex = final_ringBufferIndex;
-            let final_lineObject = EDI_lineStringCache[final_ringBufferIndex];
+            let final_lineSpans = EDI_lineStringCache[final_ringBufferIndex];
 
             while (true) {
                 let previous_ringBufferIndex = loop_ringBufferIndex - 1;
                 if (previous_ringBufferIndex < 0) {
                     previous_ringBufferIndex = INTS[fEDI_ArrayFrom_textElement_children_length] - 1;
                 }
-
-                //const loop_lineObject = EDI_lineStringCache[loop_ringBufferIndex];
-                //const previous_lineObject = EDI_lineStringCache[previous_ringBufferIndex];
-//
-                //loop_lineObject.tab_twoIndices_oneImplicitObject_startCol_tabWidth = previous_lineObject.tab_twoIndices_oneImplicitObject_startCol_tabWidth;
-                //loop_lineObject.spans = previous_lineObject.spans;
 
                 EDI_lineStringCache[loop_ringBufferIndex] = EDI_lineStringCache[previous_ringBufferIndex];
 
@@ -1421,11 +1392,9 @@ function EDI_render_do_EnterKey() {
                 loop_ringBufferIndex = previous_ringBufferIndex;
             }
 
-            EDI_lineStringCache[current_ringBufferIndex] = final_lineObject;
+            EDI_lineStringCache[current_ringBufferIndex] = final_lineSpans;
 
-            const currentLineObject = EDI_lineStringCache[current_ringBufferIndex];
-            const currentLineSpans = currentLineObject.spans;
-            currentLineObject.tab_twoIndices_oneImplicitObject_startCol_tabWidth.length = 0;
+            let currentLineSpans = EDI_lineStringCache[current_ringBufferIndex];
             if (currentLineSpans.length > 0) {
                 currentLineSpans.length = 1;
                 currentLineSpans[0].text = '';
@@ -1443,7 +1412,7 @@ function EDI_render_do_EnterKey() {
             if (lastValidIndexColumn === INTS[fEDI_cursor_editIndexColumn]) { // end of line
                 let loop_ringBufferIndex = final_ringBufferIndex;
 
-                let final_lineObject = EDI_lineStringCache[final_ringBufferIndex];
+                let final_lineSpans = EDI_lineStringCache[final_ringBufferIndex];
 
                 let next_ringBufferIndex = current_ringBufferIndex + 1;
                 if (next_ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length]) {
@@ -1461,11 +1430,9 @@ function EDI_render_do_EnterKey() {
                     loop_ringBufferIndex = previous_ringBufferIndex;
                 }
 
-                EDI_lineStringCache[next_ringBufferIndex] = final_lineObject;
+                EDI_lineStringCache[next_ringBufferIndex] = final_lineSpans;
 
-                const nextLineObject = EDI_lineStringCache[next_ringBufferIndex];
-                const nextLineSpans = nextLineObject.spans;
-                nextLineObject.tab_twoIndices_oneImplicitObject_startCol_tabWidth.length = 0;
+                let nextLineSpans = EDI_lineStringCache[next_ringBufferIndex];
                 if (nextLineSpans.length > 0) {
                     nextLineSpans.length = 1;
                     nextLineSpans[0].text = '';
@@ -1503,10 +1470,7 @@ function EDI_render_do_EnterKey() {
                 // 1. Target the specific line row index where the typing is taking place
                 const activeLine = INTS[fEDI_cursor_indexLine];
 
-                const lineObject = EDI_lineStringCache[current_ringBufferIndex];
-                const lineSpans = lineObject.spans;
-
-                // TODO: You'll have to determine whether "a tab" within tab_twoIndices_oneImplicitObject_startCol_tabWidth corresponds to the first or last split.
+                let lineSpans = EDI_lineStringCache[current_ringBufferIndex];
 
                 {
                     if (lineSpans === undefined) {
@@ -1546,7 +1510,7 @@ function EDI_render_do_EnterKey() {
                     next_ringBufferIndex -= INTS[fEDI_ArrayFrom_textElement_children_length];
                 }
 
-                let final_lineObject = EDI_lineStringCache[final_ringBufferIndex];
+                let final_lineSpans = EDI_lineStringCache[final_ringBufferIndex];
 
                 let loop_ringBufferIndex = final_ringBufferIndex;
 
@@ -1561,16 +1525,14 @@ function EDI_render_do_EnterKey() {
                     loop_ringBufferIndex = previous_ringBufferIndex;
                 }
 
-                EDI_lineStringCache[next_ringBufferIndex] = final_lineObject;
+                EDI_lineStringCache[next_ringBufferIndex] = final_lineSpans;
 
                 const data = targetedSpan.text;
 
                 let firstText = data.substring(0, relativeInsertIndex);
                 let lastText = data.substring(relativeInsertIndex);
 
-                const nextLineObject = EDI_lineStringCache[next_ringBufferIndex];
-                const nextLineSpans = nextLineObject.spans;
-                nextLineObject.tab_twoIndices_oneImplicitObject_startCol_tabWidth.length = 0;
+                let nextLineSpans = EDI_lineStringCache[next_ringBufferIndex];
                 if (nextLineSpans.length > 0) {
                     nextLineSpans.length = 1;
                     nextLineSpans[0].text = lastText;
@@ -1721,8 +1683,7 @@ function EDI_render_do_RemoveSelection() {
         
         if (activeLine_ringBufferIndex >= 0) { // line IS not in viewport
 
-            let lineObject = EDI_lineStringCache[activeLine_ringBufferIndex];
-            let lineSpans = lineObject.spans;
+            let lineSpans = EDI_lineStringCache[activeLine_ringBufferIndex];
             smallLineSpans = lineSpans;
 
             // 2. Determine the column position where the *first character of this edit burst* began
@@ -2041,9 +2002,7 @@ function EDI_render_do_Delete() {
     if (activeLine_ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length] || activeLine_ringBufferIndex < 0) activeLine_ringBufferIndex = -1;
     else activeLine_ringBufferIndex = (activeLine_ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
     if (activeLine_ringBufferIndex < 0) { return; } // line is not in viewport
-    
-    let lineObject = EDI_lineStringCache[activeLine_ringBufferIndex];
-    let lineSpans = lineObject.spans;
+    let lineSpans = EDI_lineStringCache[activeLine_ringBufferIndex];
 
     // 2. Determine the column position where the *first character of this edit burst* began
     const editStartColumn = INTS[fEDI_cursor_indexColumn];
@@ -2214,9 +2173,7 @@ function EDI_render_do_Backspace() {
     if (activeLine_ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length] || activeLine_ringBufferIndex < 0) activeLine_ringBufferIndex = -1;
     else activeLine_ringBufferIndex = (activeLine_ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
     if (activeLine_ringBufferIndex < 0) { return; } // line is not in viewport
-    
-    let lineObject = EDI_lineStringCache[activeLine_ringBufferIndex];
-    let lineSpans = lineObject.spans;
+    let lineSpans = EDI_lineStringCache[activeLine_ringBufferIndex];
 
     // 2. Determine the column position where the *first character of this edit burst* began
     const editStartColumn = INTS[fEDI_cursor_indexColumn];
@@ -2376,12 +2333,10 @@ function EDI_render_do_InsertLtr() {
         if (ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex < 0) ringBufferIndex = -1;
         else ringBufferIndex = (ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
         if (ringBufferIndex < 0) { return; } // line is not in viewport
-        const lineObject = EDI_lineStringCache[ringBufferIndex];
-        const lineSpans = lineObject.spans;
+        let lineSpans = EDI_lineStringCache[ringBufferIndex];
 
         // 2. Determine the column position where the *first character of this edit burst* began
         // We use indexColumn minus the absolute total length of characters typed in this current edit session
-        // bruh
         const editStartColumn = INTS[fEDI_cursorVisualColumnIndex] - INTS[fEDI_cursor_editLength_characters];
         
         // Find the precise column location of the characters we are about to insert right now
@@ -2390,14 +2345,6 @@ function EDI_render_do_InsertLtr() {
         let runningColumnIdx = 0;
         let targetedSpan = null;
         let relativeInsertIndex = 0;
-
-        let nextTabIndex = 0;
-        let nextTabCol = -1;
-
-        /**
-         * 
-         * none of this matters? you have a visual column index of 4?
-         */
 
         // 3. Scan the cached spans to find where currentEditColumn lands
         for (let i = 0; i < lineSpans.length; i++) {
@@ -3861,10 +3808,7 @@ function EDI_onKeyDown_keyLengthEqualsOne_altKey(event) {
 function EDI_render_do_ResetSyntaxHighlighting() {
     const EDI_lineStringCache_length = EDI_lineStringCache.length;
     for (let i = 0; i < EDI_lineStringCache_length; i++) {
-        const lineObject = EDI_lineStringCache[i];
-        lineObject.spans.length = 0;
-        lineObject.tab_twoIndices_oneImplicitObject_startCol_tabWidth.length = 0;
+        EDI_lineStringCache[i].length = 0;
     }
     EDI_render_force_fullscreen_redraw();
 }
-

@@ -1617,7 +1617,7 @@ You can cache the tabs that exist on the left or right of the cursor or etc...
 and regardless you can do this per EditKind it all works out (any data you need to cache just cache it when starting the edit)
 no matter how complex an EditKind needs it its all isolated and is simple within that constraint or whatever
 
-
+aaa
 
 
 

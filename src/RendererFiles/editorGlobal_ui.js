@@ -2390,6 +2390,14 @@ function EDI_render_do_InsertLtr() {
         let targetedSpan = null;
         let relativeInsertIndex = 0;
 
+        let nextTabIndex = 0;
+        let nextTabCol = -1;
+
+        /**
+         * 
+         * none of this matters? you have a visual column index of 4?
+         */
+
         // 3. Scan the cached spans to find where currentEditColumn lands
         for (let i = 0; i < lineSpans.length; i++) {
             const span = lineSpans[i];

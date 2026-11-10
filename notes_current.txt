@@ -1201,3 +1201,64 @@ Ssssssssssssssssssssssssssssssssssssssssssss
 
 I gotta go to the bathroom if you need me just text me cuz I might be a while
 
+======
+
+Lol I'm sitting here reading back the EDI_CustomDecoder while trying to find something to watch on youtube.
+
+I saw `outStr += String.fromCharCode.apply(null, this.charBuffer.subarray(0, bufIdx));` and thought
+"wtf is going on in this line".
+
+New Thread with Google AI:
+
+>
+You generated the code that I'll put at the bottom of this prompt. It is MUCH faster than using TextDecoder for certain. But nevertheless I have a question about it.
+... (I put the entire class here)
+
+
+
+
+<
+The core issue with your code lies in how V8 handles argument passing for native builtins. Using String.fromCharCode.apply(null, typedArray)
+is a hidden performance trap in V8 because it forces the engine to unpack the elements of your typed array onto the JavaScript call stack.
+
+When your bufIdx reaches its limit, apply tries to pass up to 2,048 individual arguments to a function.
+V8 cannot optimize this cleanly via the TurboFan JIT pipeline; it often drops down to a slower, generalized runtime setup to manipulate the arguments list,
+completely erasing the gains you made by avoiding TextDecoder.
+
+The Optimal Replacement: String.fromCodePoint Loop or Direct Slicing
+
+To fix this, you should replace the String.fromCharCode.apply calls entirely.
+There are two highly optimized ways to convert your chunked typed array into a string depending on your V8 version, but for an Electron environment,
+a standard iterative batching approach or leveraging a small helper function is significantly faster.
+
+Here is the most performance-optimized rewrite of your chunk flush logic:
+
+// REPLACE THIS:
+// outStr += String.fromCharCode.apply(null, this.charBuffer.subarray(0, bufIdx));
+
+// WITH THIS (High-Performance V8 Loop):
+let chunkStr = '';
+for (let j = 0; j < bufIdx; j++) {
+  chunkStr += String.fromCharCode(this.charBuffer[j]);
+}
+outStr += chunkStr;
+
+Why a loop is faster than .apply() in V8
+• No Stack Overhead: It doesn't stress the call stack or run the risk of a "Maximum call stack size exceeded" error if chunkSize is ever bumped up.
+• Inlinable: V8's TurboFan compiler can easily inline and optimize a tight for loop executing a highly optimized builtin like String.fromCharCode sequentially.
+• Flat Memory Access: It reads directly from sequential indices of the Uint16Array without creating an intermediate subarray view object on every chunk boundary.
+
+Two Additional Performance Fine-Tuning Tips
+1. Avoid Subarray Allocation: Every time you call .subarray(0, bufIdx), JavaScript allocates a new lightweight view object. The loop above completely bypasses this object creation.
+2. Double Check tokenResult.col with Multi-byte Characters: In your custom multi-byte UTF-8 parsing logic,
+   you increment tokenResult.col++ exactly once per code point (which is correct for actual character counts).
+   However, if your editor relies on col matching string indices or byte offsets later on for cursor positioning,
+   remember that a surrogate pair (code points > 0xFFFF) takes up two JS string characters, even though it is only 1 code point.
+
+To ensure this fits perfectly into your line rendering engine, let me know:
+• Is tokenResult.col tracking visual character columns, JS string length, or raw byte offsets?
+• What average line length (or chunk size) do your files usually have?
+
+I can help you tweak the buffer flush strategy based on your typical token sizes.
+
+

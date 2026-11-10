@@ -1446,7 +1446,12 @@ I feel extremely sad and everything is heavy
 I'm trying to do something this feeling is like a spell cast on me I can't sit up I the keyboard keys are hard to press because I have lost all the energy
 and I feel like I can't move
 
+====
 
+>
+I think I want to keep the tab expansion logic.
+
+To move it from the cached calculation to the rendering means a fairly significant overhead everytime I render the text.
 
 
 

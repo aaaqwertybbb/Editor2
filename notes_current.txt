@@ -1312,7 +1312,9 @@ your chunked string append method utilizing ConsString logic is exactly what a h
 
 Are you seeing any slowdowns specifically when opening massive, single-line minified files, or is the app primarily processing standard, newline-broken source code files right now?
 
+=====
 
+- [ ] Handle tabs
 
 
 

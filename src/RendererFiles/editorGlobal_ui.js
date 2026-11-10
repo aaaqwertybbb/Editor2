@@ -2349,7 +2349,8 @@ function EDI_render_do_InsertLtr() {
         if (ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex < 0) ringBufferIndex = -1;
         else ringBufferIndex = (ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
         if (ringBufferIndex < 0) { return; } // line is not in viewport
-        let lineSpans = EDI_lineStringCache[ringBufferIndex];
+        const lineObject = EDI_lineStringCache[ringBufferIndex];
+        const lineSpans = lineObject.spans;
 
         // 2. Determine the column position where the *first character of this edit burst* began
         // We use indexColumn minus the absolute total length of characters typed in this current edit session

@@ -185,6 +185,15 @@ class EDI_CustomDecoder {
     this.charBuffer = new Uint16Array(this.chunkSize);
   }
 
+  // High-performance V8 string builder helper
+  _flushBuffer(bufIdx) {
+    let chunkStr = '';
+    for (let j = 0; j < bufIdx; j++) {
+      chunkStr += String.fromCharCode(this.charBuffer[j]);
+    }
+    return chunkStr;
+  }
+
   /**
    * Decodes an entire line's tokens, processes tabs, and populates lineSpans in a single method invocation.
    * 
@@ -226,7 +235,7 @@ class EDI_CustomDecoder {
           for (let s = 0; s < spacesNeeded; s++) {
             this.charBuffer[bufIdx++] = 32; 
             if (bufIdx >= limit - 1) {
-              outStr += String.fromCharCode.apply(null, this.charBuffer.subarray(0, bufIdx));
+              outStr += this._flushBuffer(bufIdx);
               bufIdx = 0;
             }
           }
@@ -266,14 +275,14 @@ class EDI_CustomDecoder {
         }
 
         if (bufIdx >= limit - 1) {
-          outStr += String.fromCharCode.apply(null, this.charBuffer.subarray(0, bufIdx));
+          outStr += this._flushBuffer(bufIdx);
           bufIdx = 0;
         }
       }
 
       // Flush remaining data for this token
       if (bufIdx > 0) {
-        outStr += String.fromCharCode.apply(null, this.charBuffer.subarray(0, bufIdx));
+        outStr += this._flushBuffer(bufIdx);
       }
 
       // Write token output directly into your line spans array record

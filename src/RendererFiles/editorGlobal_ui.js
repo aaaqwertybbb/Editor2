@@ -1922,9 +1922,14 @@ function EDI_render_do_RemoveSelection() {
                 else {
 
                     // Step 1, create a valid base state before swapping
-                    if (recipientLineSpans.length !== 1 || recipientLineSpans[0].text.length !== 0) {
-                        recipientLineSpans.length = 1;
-                        recipientLineSpans[0].text = '';
+                    if (recipientLineSpans.length === 1 || recipientLineSpans[0].text.length === 0) {
+                        EDI_lineStringCache[smallLineSpans_RINGBUFFERINDEX] = largeLineSpans; // current receives entirety of next's spans.
+                        EDI_lineStringCache[largeLineSpans_RINGBUFFERINDEX] = smallLineSpans; // current receives entirety of next's spans.
+                    }
+                    else {
+                        for (let i = takeFromLineSpans.length - 1; i >= 0; i--) {
+                            recipientLineSpans.push(takeFromLineSpans[i]);
+                        }
                     }
 
                     // ugh the key is that I wasn't maintaining a valid entry in the ring buffer for the other states.
@@ -1934,28 +1939,27 @@ function EDI_render_do_RemoveSelection() {
                     // remove recipient's empty span before moving the known to exist content from takeFromLineSpans
                     //recipientLineSpans.length = 0; // Remove the empty string from the small
                     // ^ you don't remove it cuz u need to give it to the one you're receiving...
-                    EDI_lineStringCache[smallLineSpans_RINGBUFFERINDEX] = largeLineSpans; // current receives entirety of next's spans.
-                    EDI_lineStringCache[largeLineSpans_RINGBUFFERINDEX] = smallLineSpans; // current receives entirety of next's spans.
+                    
                     //smallLineSpans = largeLineSpans // update the local variable
                 }
-                
-                if (largeLineSpans_length === 1 && largeLineSpans[0].text.length === 0) { // (do not append if large line is just an empty string)
-                    isAtEndOfLine = true;
-                }
-                else {
-                    
-                    if (smallLineSpans.length === 1 && smallLineSpans[0].text.length === 0) {
-                        smallLineSpans.length = 0; // Remove the empty string from the small
-                        EDI_lineStringCache[smallLineAndColumnIndices_indexLine] = largeLineSpans; // current receives entirety of next's spans.
-                        smallLineSpans = largeLineSpans // update the local variable
-                    }
-                    else {
-                        for (let i = 0; i < largeLineSpans_length; i++) {
-                            smallLineSpans.push(largeLineSpans[i]);
-                        }
-                    }
-                }
-                
+                //
+                //if (largeLineSpans_length === 1 && largeLineSpans[0].text.length === 0) { // (do not append if large line is just an empty string)
+                //    isAtEndOfLine = true;
+                //}
+                //else {
+                //    
+                //    if (smallLineSpans.length === 1 && smallLineSpans[0].text.length === 0) {
+                //        smallLineSpans.length = 0; // Remove the empty string from the small
+                //        EDI_lineStringCache[smallLineAndColumnIndices_indexLine] = largeLineSpans; // current receives entirety of next's spans.
+                //        smallLineSpans = largeLineSpans // update the local variable
+                //    }
+                //    else {
+                //        for (let i = 0; i < largeLineSpans_length; i++) {
+                //            smallLineSpans.push(largeLineSpans[i]);
+                //        }
+                //    }
+                //}
+                //
                 visibleLinesRemovedCount++;
             }
             else { // - [ ] keeping, !removing

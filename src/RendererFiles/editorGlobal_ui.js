@@ -990,7 +990,7 @@ function EDI_render_do_DuplicateOrPaste() {
 
         // 2. Determine the column position where the *first character of this edit burst* began
         // We use indexColumn minus the absolute total length of characters typed in this current edit session
-        const editStartColumn = INTS[fEDI_cursor_indexColumn];// - INTS[fEDI_cursor_editLength_characters];
+        const editStartColumn = INTS[fEDI_cursorVisualColumnIndex];// - INTS[fEDI_cursor_editLength_characters];
         
         // Find the precise column location of the characters we are about to insert right now
         const currentEditColumn = editStartColumn;// + INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue];
@@ -1656,6 +1656,7 @@ function EDI_render_do_RemoveSelection() {
 
     // Remove selection on small position line
     let smallLineSpans = null;
+    let smallLineSpans_RINGBUFFERINDEX = 0;
     {
         INTS[fEDI_cursor_indexLine] = smallLineAndColumnIndices_indexLine;
         INTS[fEDI_cursor_indexColumn] = smallLineAndColumnIndices_indexColumn;
@@ -1679,16 +1680,17 @@ function EDI_render_do_RemoveSelection() {
 
         // 1. Target the specific line row index where the typing is taking place
         const activeLine = INTS[fEDI_cursor_indexLine];
+        
 
         // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
-        let activeLine_ringBufferIndex = activeLine - INTS[fEDI_virtualIndexLine];
-        if (activeLine_ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length] || activeLine_ringBufferIndex < 0) activeLine_ringBufferIndex = -1;
-        else activeLine_ringBufferIndex = (activeLine_ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
+        smallLineSpans_RINGBUFFERINDEX = activeLine - INTS[fEDI_virtualIndexLine];
+        if (smallLineSpans_RINGBUFFERINDEX >= INTS[fEDI_ArrayFrom_textElement_children_length] || smallLineSpans_RINGBUFFERINDEX < 0) smallLineSpans_RINGBUFFERINDEX = -1;
+        else smallLineSpans_RINGBUFFERINDEX = (smallLineSpans_RINGBUFFERINDEX + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
         //if (activeLine_ringBufferIndex < 0) { return; } // line is not in viewport
         
-        if (activeLine_ringBufferIndex >= 0) { // line IS not in viewport
+        if (smallLineSpans_RINGBUFFERINDEX >= 0) { // line IS not in viewport
 
-            let lineSpans = EDI_lineStringCache[activeLine_ringBufferIndex];
+            let lineSpans = EDI_lineStringCache[smallLineSpans_RINGBUFFERINDEX];
             smallLineSpans = lineSpans;
 
             // 2. Determine the column position where the *first character of this edit burst* began
@@ -1773,6 +1775,7 @@ function EDI_render_do_RemoveSelection() {
 
     // Remove selection on large position line
     let largeLineSpans = null;
+    let largeLineSpans_RINGBUFFERINDEX = 0;
     if (linesRemovedCount > 0) {
         INTS[fEDI_cursor_indexLine] = INTS[fEDI_cursor_indexLine] + linesRemovedCount;
         INTS[fEDI_cursor_indexColumn] = 0;
@@ -1791,7 +1794,15 @@ function EDI_render_do_RemoveSelection() {
         // 1. Target the specific line row index where the typing is taking place
         const activeLine = INTS[fEDI_cursor_indexLine];
         let lineSpans = EDI_lineStringCache[activeLine];
-        if (lineSpans !== undefined) {
+
+
+        // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
+        largeLineSpans_RINGBUFFERINDEX = activeLine - INTS[fEDI_virtualIndexLine];
+        if (largeLineSpans_RINGBUFFERINDEX >= INTS[fEDI_ArrayFrom_textElement_children_length] || largeLineSpans_RINGBUFFERINDEX < 0) largeLineSpans_RINGBUFFERINDEX = -1;
+        else largeLineSpans_RINGBUFFERINDEX = (largeLineSpans_RINGBUFFERINDEX + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
+        //if (activeLine_ringBufferIndex < 0) { return; } // line is not in viewport
+        
+        if (largeLineSpans_RINGBUFFERINDEX >= 0) {
             
             largeLineSpans = lineSpans;
 
@@ -1897,10 +1908,30 @@ function EDI_render_do_RemoveSelection() {
 
                 // append 'largeLineSpans' to 'smallLineSpans'
 
+                var recipientLineSpans = smallLineSpans;
+                var takeFromLineSpans = largeLineSpans;
+
                 const largeLineSpans_length = largeLineSpans.length;
                 const smallLineSpans_length = smallLineSpans.length;
 
                 let isAtEndOfLine = false;
+
+                if (takeFromLineSpans.length === 1 && takeFromLineSpans[0].text.length === 0) {
+                    // do not takeFromLineSpans anything
+                }
+                else {
+
+                    if (recipientLineSpans.length === 1 && recipientLineSpans[0].text.length === 0) {
+                        
+                    }
+
+                    // remove recipient's empty span before moving the known to exist content from takeFromLineSpans
+                    //recipientLineSpans.length = 0; // Remove the empty string from the small
+                    // ^ you don't remove it cuz u need to give it to the one you're receiving...
+                    EDI_lineStringCache[smallLineSpans_RINGBUFFERINDEX] = largeLineSpans; // current receives entirety of next's spans.
+                    EDI_lineStringCache[largeLineSpans_RINGBUFFERINDEX] = smallLineSpans; // current receives entirety of next's spans.
+                    //smallLineSpans = largeLineSpans // update the local variable
+                }
                 
                 if (largeLineSpans_length === 1 && largeLineSpans[0].text.length === 0) { // (do not append if large line is just an empty string)
                     isAtEndOfLine = true;
@@ -2010,7 +2041,7 @@ function EDI_render_do_Delete() {
     let lineSpans = EDI_lineStringCache[activeLine_ringBufferIndex];
 
     // 2. Determine the column position where the *first character of this edit burst* began
-    const editStartColumn = INTS[fEDI_cursor_indexColumn];
+    const editStartColumn = INTS[fEDI_cursorVisualColumnIndex];
 
     // Find the precise column location of the characters we are about to remove right now
     const currentEditColumn = editStartColumn;
@@ -2181,7 +2212,7 @@ function EDI_render_do_Backspace() {
     let lineSpans = EDI_lineStringCache[activeLine_ringBufferIndex];
 
     // 2. Determine the column position where the *first character of this edit burst* began
-    const editStartColumn = INTS[fEDI_cursor_indexColumn];
+    const editStartColumn = INTS[fEDI_cursorVisualColumnIndex];
 
     // Find the precise column location of the characters we are about to remove right now
     const currentEditColumn = editStartColumn;

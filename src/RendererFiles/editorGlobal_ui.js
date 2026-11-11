@@ -2141,7 +2141,8 @@ function EDI_render_do_RemoveSelection() {
                 */
             }
             else { // - [ ] !keeping, !removing
-                
+                // if neither are in view the only option is to fully recache the UI cause no surviving lines will exist.
+                // furthermore, you're probably gonna get hit with a scroll event to the small line/column
             }
         }
     }

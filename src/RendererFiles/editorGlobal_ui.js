@@ -2104,6 +2104,12 @@ function EDI_render_do_RemoveSelection() {
         }
     }
 
+    /*
+    Move cursor end of 'aaaa' and start of 'bbbb' do remove.
+    It puts 'HHHH' on the end of 'aaaa' same line
+    and removes 'bbbb' completely( the line is replaced by 'cccc' and etc... cause everything got shifted up. which is partially true? the only issue is that 'HHHH' is supposed to say 'bbbb')
+    */
+
     if (linesRemovedCount > 0) {
         INTS[fEDI_cursor_indexLine] = smallLineAndColumnIndices_indexLine;
         INTS[fEDI_cursor_indexColumn] = smallLineAndColumnIndices_indexColumn;

@@ -2283,10 +2283,15 @@ function EDI_render_do_RemoveSelection() {
     // TODO: This happens too late for the 'EDI_render_specific_recache' invocations to have it ready it, for now am duplicating this line above the invocations.
     INTS[fEDI_cursor_editLength_characters] = original_edit_length;
 
-    // 6. Request a canvas redraw layout frame pass to force the changes onto the screen
-    EDI_render_request(RenderKind_Scroll);
-    //EDI_render_TextContent();
-    //EDI_render_Cursor();
+    if (!shouldSkipSpecificRecache) {
+        // 6. Request a canvas redraw layout frame pass to force the changes onto the screen
+        EDI_render_request(RenderKind_Scroll);
+        //EDI_render_TextContent();
+        //EDI_render_Cursor();
+    }
+    else {
+        EDI_render_force_fullscreen_redraw();
+    }
 }
 
 // Helper to reverse a segment inside the ring buffer in-place

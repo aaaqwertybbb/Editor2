@@ -1940,20 +1940,66 @@ function EDI_render_do_RemoveSelection() {
     // Otherwise all you need to do is tell the UI to include the smallLine as part of what needs to be re-cached.
     // There is the case where the smallLine is not in view but I think I want to focus on having that be a given for a moment.
     if (linesRemovedCount > 0) {
-        //// shift existing cache
-        //const activeLine = smallLineAndColumnIndices_indexLine;
-        //const largeLineAndColumnIndices_indexLine = INTS[fEDI_cursor_indexLine] + linesRemovedCount;
-        //const upperLimit = INTS[fEDI_lineEndPositionList_count] - 1;
-        //for (let i = 0; i < linesRemovedCount; i++) {
-        //    EDI_lineStringCache[smallLineAndColumnIndices_indexLine + (i + 1)] = EDI_lineStringCache[largeLineAndColumnIndices_indexLine + (i)];
-        //}
-        //const EDI_lineStringCache_length = EDI_lineStringCache.length;
-        //for (let i = largeLineAndColumnIndices_indexLine; i < EDI_lineStringCache_length; i++) {
-        //    EDI_lineStringCache[i] = undefined;
-        //}
-        ////EDI_lineStringCache[INTS[fEDI_lineEndPositionList_count]] = undefined;
-//
-        ////EDI_lineStringCache.splice(smallLineAndColumnIndices_indexLine + 1, linesRemovedCount - 1);
+
+        if (smallLineSpans === null) {
+            throw new Error('TODO: handle smallLine is not in view');
+        }
+        
+        const final_ringBufferIndex = get_final_ringBufferIndex();
+
+        // This case doesn't make sense, it means the virtualCount === 0
+        if (final_ringBufferIndex < 0) { EDI_render_force_fullscreen_redraw(); return; }
+        // you can just "do nothing" so to speak (you need to "update the scrollbar" still / etc...) and you've already "update the scrollbar"ed so you just return.
+        if (smallLineSpans_RINGBUFFERINDEX === final_ringBufferIndex) { return; }
+
+        let availableRingBufferNodesVisuallyAfterCollapsedOne = 0;
+        for (let n_index = smallLineSpans_RINGBUFFERINDEX;;) {
+            availableRingBufferNodesVisuallyAfterCollapsedOne++;
+            n_index = n_index + 1;
+            if (n_index >= INTS[fEDI_ArrayFrom_textElement_children_length]) {
+                n_index -= INTS[fEDI_ArrayFrom_textElement_children_length];
+            }
+            if (n_index === final_ringBufferIndex) {
+                break;
+            }
+        }
+
+        if (linesRemovedCount >= availableRingBufferNodesVisuallyAfterCollapsedOne) {
+            const next_ringBufferIndex = smallLineSpans_RINGBUFFERINDEX + 1;
+            if (next_ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length]) {
+                next_ringBufferIndex -= INTS[fEDI_ArrayFrom_textElement_children_length];
+            }
+
+            // This is going to be slightly different then because you haven't finalized yet whereas the explorer did
+            // TODO: 'EDI_render_specific_redraw' function does not exist
+            // !!!! There is no specific redraw you are just specific recalculating cache
+            EDI_render_specific_redraw(smallLineAndColumnIndices_indexLine + 1, availableRingBufferNodesVisuallyAfterCollapsedOne, 3, next_ringBufferIndex);
+        }
+        else {
+            EDI_handleRingBufferNodesThatAreOffscreen_RemoveSelection(
+                final_ringBufferIndex,
+                smallLineAndColumnIndices_indexLine,
+                smallLineSpans_RINGBUFFERINDEX,
+                linesRemovedCount,
+                availableRingBufferNodesVisuallyAfterCollapsedOne);
+
+            let recycled_itemIndex = smallLineAndColumnIndices_indexLine;
+            let recycled_ringBufferIndex = smallLineSpans_RINGBUFFERINDEX;
+            const displaced_count = availableRingBufferNodesVisuallyAfterCollapsedOne - linesRemovedCount;
+            // TODO: calculate the earliest displaced node faster than just "looping a minus 1 over and over"
+            for (let i = 0; i < (displaced_count + 1); i++) {
+                recycled_itemIndex++;
+                recycled_ringBufferIndex++;
+                if (recycled_ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length]) {
+                    recycled_ringBufferIndex -= INTS[fEDI_ArrayFrom_textElement_children_length];
+                }
+            }
+
+            // This is going to be slightly different then because you haven't finalized yet whereas the explorer did
+            // TODO: 'EDI_render_specific_redraw' function does not exist
+            // !!!! There is no specific redraw you are just specific recalculating cache
+            EDI_render_specific_redraw(recycled_itemIndex, linesRemovedCount, 3, recycled_ringBufferIndex);
+        }
     }
 
     if (linesRemovedCount > 0) {
@@ -2067,6 +2113,16 @@ function EDI_render_do_RemoveSelection() {
     //EDI_render_Cursor();
 }
 
+function get_final_ringBufferIndex() {
+    // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
+    let final_ringBufferIndex = INTS[fEDI_ArrayFrom_textElement_children_length] - 1;
+    if (final_ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length] || final_ringBufferIndex < 0) final_ringBufferIndex = -1;
+    else final_ringBufferIndex = (final_ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_ArrayFrom_textElement_children_length];
+    if (final_ringBufferIndex < 0) { return -1; }
+
+    return final_ringBufferIndex;
+}
+
 function EDI_handleRingBufferNodesThatAreOffscreen_RemoveSelection(final_ringBufferIndex, indexItem_of_collapsed_node, ringBufferIndex_of_collapsed_node, recycleCount, availableRingBufferNodesVisuallyAfterCollapsedOne) {
     let displaced_itemIndex = indexItem_of_collapsed_node;
     let displaced_ringBufferIndex = ringBufferIndex_of_collapsed_node;
@@ -2074,15 +2130,15 @@ function EDI_handleRingBufferNodesThatAreOffscreen_RemoveSelection(final_ringBuf
     for (let i = 0; i < (recycleCount + 1); i++) {
         displaced_itemIndex++;
         displaced_ringBufferIndex++;
-        if (displaced_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
-            displaced_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
+        if (displaced_ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length]) {
+            displaced_ringBufferIndex -= INTS[fEDI_ArrayFrom_textElement_children_length];
         }
     }
 
     let recycle_itemIndex = indexItem_of_collapsed_node + 1;
     let recycle_ringBufferIndex = ringBufferIndex_of_collapsed_node + 1;
-    if (recycle_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
-        recycle_ringBufferIndex -= INTS[fEXPLORER_virtualCount]
+    if (recycle_ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length]) {
+        recycle_ringBufferIndex -= INTS[fEDI_ArrayFrom_textElement_children_length]
     }
 
     // 3. Perform a block rotation via triple-reversal 
@@ -2092,7 +2148,7 @@ function EDI_handleRingBufferNodesThatAreOffscreen_RemoveSelection(final_ringBuf
 
     const end_of_recycle_block = displaced_ringBufferIndex - 1;
     if (end_of_recycle_block < 0) {
-        end_of_recycle_block = INTS[fEXPLORER_virtualCount] - 1;
+        end_of_recycle_block = INTS[fEDI_ArrayFrom_textElement_children_length] - 1;
     }
 
     const endOfDisplacedBlock = final_ringBufferIndex;
@@ -2109,18 +2165,18 @@ function EDI_handleRingBufferNodesThatAreOffscreen_RemoveSelection(final_ringBuf
     const displacedCount = availableRingBufferNodesVisuallyAfterCollapsedOne - recycleCount;
 
     for (let i = 0; i < displacedCount; i++) {
-        let depth = 0;
-        if (displaced_itemIndex < EXPLORER_treeViewNodes.count_abstract) {
-            depth = EXPLORER_treeViewNodes.getDepth(displaced_itemIndex);
-        }
+        //let depth = 0;
+        //if (displaced_itemIndex < EXPLORER_treeViewNodes.count_abstract) {
+        //    depth = EXPLORER_treeViewNodes.getDepth(displaced_itemIndex);
+        //}
 
-        EXPLORER_ringBuffer[displaced_ringBufferIndex].style.transform = `translate(${CONST_EXPLORER_offsetPerDepth * depth}px, ${INTS[fEXPLORER_itemHeightNumber] * displaced_itemIndex}px)`;
+        //EXPLORER_ringBuffer[displaced_ringBufferIndex].style.transform = `translate(${CONST_EXPLORER_offsetPerDepth * depth}px, ${INTS[fEXPLORER_itemHeightNumber] * displaced_itemIndex}px)`;
 
         displaced_itemIndex++;
 
         displaced_ringBufferIndex++;
-        if (displaced_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
-            displaced_ringBufferIndex -= INTS[fEXPLORER_virtualCount]
+        if (displaced_ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length]) {
+            displaced_ringBufferIndex -= INTS[fEDI_ArrayFrom_textElement_children_length]
         }
     }
 }

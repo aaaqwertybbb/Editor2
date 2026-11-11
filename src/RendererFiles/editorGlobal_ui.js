@@ -1895,6 +1895,23 @@ function EDI_render_do_RemoveSelection() {
     //
     // - [ ] Ensure all 4 cases of existence handle 'EDI_stopTrackingIfTrackedSyntaxMadeToSpanSingleLine(cursor);'
     //
+
+    /*
+    This problem can be broken into two steps:
+    Step 1: it is the collapse logic from 'EXPLORER_expandCollapseIconWasClicked'
+    Step 2: if at least one line was removed, you need to merge the "large line index" with the "small line index"
+            i.e.: a selection that spans multiple lines has 3 parts
+            - "the small line"
+            - "the lines between"
+            - "the large line"
+                And then lastly the specific details that pertain to merging the "large line index" with the "small line index" need to be handled.
+                Because you're not just merging them blindly you need to merge only the remaining content after handling:
+                - the removal of selected text on the small line
+                - the removal of selected text on the large line
+
+
+    So if you get the entiret of Step 1 to work then you should easily solve this
+    */
     if (linesRemovedCount > 0) {
         INTS[fEDI_cursor_indexLine] = smallLineAndColumnIndices_indexLine;
         INTS[fEDI_cursor_indexColumn] = smallLineAndColumnIndices_indexColumn;

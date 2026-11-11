@@ -1935,6 +1935,8 @@ function EDI_render_do_RemoveSelection() {
     }
     */
 
+    // If the largeLine is not fully selected (minus the line ending) then you probably need to do 1 less linesRemovedCount so you can "manually" handle that largeLine case.
+
     // It makes more sense to remove the middle lines first.
     // And then if you had the largeLine in the viewport then 'largeLineSpans' is not null and you can merge the "large line index" onto the end of the "small line index"
     // Otherwise all you need to do is tell the UI to include the smallLine as part of what needs to be re-cached.
@@ -1998,7 +2000,13 @@ function EDI_render_do_RemoveSelection() {
             // This is going to be slightly different then because you haven't finalized yet whereas the explorer did
             // TODO: 'EDI_render_specific_redraw' function does not exist
             // !!!! There is no specific redraw you are just specific recalculating cache
-            EDI_render_specific_redraw(recycled_itemIndex, linesRemovedCount, 3, recycled_ringBufferIndex);
+            //EDI_render_specific_redraw(recycled_itemIndex, linesRemovedCount, 3, recycled_ringBufferIndex);
+
+            // So then if you didn't do 'EDI_render_specific_redraw' it just wouldn't cache the lines of text that fell into view is all?
+            // So this should still bring all the latter and in view lines up 1 line if you remove from end of small to end of large (minus line ending)
+            // 
+            // it did
+            EDI_render_do_Scroll();
         }
     }
 
@@ -2113,6 +2121,30 @@ function EDI_render_do_RemoveSelection() {
     //EDI_render_Cursor();
 }
 
+// Helper to reverse a segment inside the ring buffer in-place
+// This allows us to perform block rotations without element-by-element shifting loops
+function EDI_reverseBufferSegment(start, end) {
+    let left = start;
+    let right = end;
+    while (left !== right) {
+        const temp = EDI_lineStringCache[left];
+        EDI_lineStringCache[left] = EDI_lineStringCache[right];
+        EDI_lineStringCache[right] = temp;
+
+        if (left === right) break;
+        left++;
+        if (left >= INTS[fEDI_ArrayFrom_textElement_children_length]) {
+            left -= INTS[fEDI_ArrayFrom_textElement_children_length]
+        }
+
+        if (left === right) break;
+        right--;
+        if (right < 0) {
+            right = INTS[fEDI_ArrayFrom_textElement_children_length] - 1;
+        }
+    }
+}
+
 function get_final_ringBufferIndex() {
     // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
     let final_ringBufferIndex = INTS[fEDI_ArrayFrom_textElement_children_length] - 1;
@@ -2153,9 +2185,9 @@ function EDI_handleRingBufferNodesThatAreOffscreen_RemoveSelection(final_ringBuf
 
     const endOfDisplacedBlock = final_ringBufferIndex;
 
-    EXPLORER_reverseBufferSegment(inclusive_earliest_recycle_ringBufferIndex, end_of_recycle_block); // Reverse Recycle(s)
-    EXPLORER_reverseBufferSegment(displaced_ringBufferIndex, endOfDisplacedBlock);                   // Reverse Displaced(s)
-    EXPLORER_reverseBufferSegment(recycle_ringBufferIndex, endOfDisplacedBlock);                     // Reverse entire window
+    EDI_reverseBufferSegment(inclusive_earliest_recycle_ringBufferIndex, end_of_recycle_block); // Reverse Recycle(s)
+    EDI_reverseBufferSegment(displaced_ringBufferIndex, endOfDisplacedBlock);                   // Reverse Displaced(s)
+    EDI_reverseBufferSegment(recycle_ringBufferIndex, endOfDisplacedBlock);                     // Reverse entire window
 
     // The 'recycles' will be drawn with their text, depth, and translateY immediately after this function so you can skip them.
     // Since everything was reversed in earlier steps this is the way to do exactly that.
@@ -2170,7 +2202,7 @@ function EDI_handleRingBufferNodesThatAreOffscreen_RemoveSelection(final_ringBuf
         //    depth = EXPLORER_treeViewNodes.getDepth(displaced_itemIndex);
         //}
 
-        //EXPLORER_ringBuffer[displaced_ringBufferIndex].style.transform = `translate(${CONST_EXPLORER_offsetPerDepth * depth}px, ${INTS[fEXPLORER_itemHeightNumber] * displaced_itemIndex}px)`;
+        //EDI_lineStringCache[displaced_ringBufferIndex].style.transform = `translate(${CONST_EXPLORER_offsetPerDepth * depth}px, ${INTS[fEXPLORER_itemHeightNumber] * displaced_itemIndex}px)`;
 
         displaced_itemIndex++;
 

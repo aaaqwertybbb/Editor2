@@ -1911,6 +1911,10 @@ function EDI_render_do_RemoveSelection() {
 
 
     So if you get the entiret of Step 1 to work then you should easily solve this
+
+    One thing that was extremely confusing:
+    LanguageServer2 wasn't forgetting the state of the previous websocket connection so to speak.
+    So I was getting these "weird" errors but I fixed that just now.
     */
     if (linesRemovedCount > 0) {
         INTS[fEDI_cursor_indexLine] = smallLineAndColumnIndices_indexLine;

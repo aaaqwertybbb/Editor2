@@ -2147,6 +2147,10 @@ function EDI_render_do_RemoveSelection() {
                 // you can "synchronously force the scroll cursor into view" so that the last read scrollLeft and scrollTop are updated.
                 // I think the scroll event handler in and of itself is async though but I could set that myself and then force a full screen re render
                 // and then asynchrononusly when the scroll event handler is handled it will see that nothing has changed and re-render the existing cache
+                //
+                // I don't think the event handler is async necessarily. maybe the better wording is that it is a different category of the event loop I think.
+                //EDI_scrollCursorIntoView();
+                //EDI_scrollCursorIntoView();
             }
         }
     }
@@ -3179,7 +3183,10 @@ function EDI_drawCursor(NOTscrollCursorIntoView) {
     const newY = INTS[fEDI_cursor_indexLine] * INTS[fEDI_lineHeight];
     const newX = INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth;
 
-    EDI_scrollCursorIntoView();
+    if (!NOTscrollCursorIntoView) {
+        EDI_scrollCursorIntoView();
+    }
+    
     EDI_render_SelectionAndCursor();
     
 

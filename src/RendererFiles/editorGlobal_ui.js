@@ -2065,6 +2065,7 @@ function EDI_render_do_RemoveSelection() {
             // TODO: 'EDI_render_specific_recache' function does not exist
             // !!!! There is no specific redraw you are just specific recalculating cache
             INTS[fEDI_cursor_editLength_characters] = original_edit_length;
+            // select end of 'aaaa' line start there then end of 'YYYY' line including line end then scroll 'aaaa' back into view then remove selection it doesn't currently work because you need to offset lines by linesRemovedCount which is not the available etc...
             EDI_render_specific_recache(smallLineAndColumnIndices_indexLine + 1, availableRingBufferNodesVisuallyAfterCollapsedOne, next_ringBufferIndex);
         }
         else {

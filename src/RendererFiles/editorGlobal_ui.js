@@ -1922,7 +1922,7 @@ function EDI_render_do_RemoveSelection() {
                 else {
 
                     // Step 1, create a valid base state before swapping
-                    if (recipientLineSpans.length === 1 || recipientLineSpans[0].text.length === 0) {
+                    if (recipientLineSpans.length === 1 && recipientLineSpans[0].text.length === 0) {
                         EDI_lineStringCache[smallLineSpans_RINGBUFFERINDEX] = largeLineSpans; // current receives entirety of next's spans.
                         EDI_lineStringCache[largeLineSpans_RINGBUFFERINDEX] = smallLineSpans; // current receives entirety of next's spans.
                     }

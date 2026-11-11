@@ -2006,6 +2006,7 @@ function EDI_render_do_RemoveSelection() {
             // So this should still bring all the latter and in view lines up 1 line if you remove from end of small to end of large (minus line ending)
             // 
             // it did
+            // I gotta flip my laundry
             EDI_render_do_Scroll();
         }
     }

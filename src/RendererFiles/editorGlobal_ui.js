@@ -1270,10 +1270,15 @@ function EDI_render_do_TabKey() {
 
         // 2. Determine the column position where the *first character of this edit burst* began
         // We use indexColumn minus the absolute total length of characters typed in this current edit session
-        const editStartColumn = INTS[fEDI_cursor_indexColumn] - INTS[fEDI_cursor_editLength_characters];
+        //const editStartColumn = INTS[fEDI_cursor_indexColumn] - INTS[fEDI_cursor_editLength_characters];
+        const editStartColumn = INTS[fEDI_cursorVisualColumnIndex] - INTS[fEDI_cursor_editLengthVisual];// - INTS[fEDI_cursor_editLength_characters];
+
+        if (INTS[fEDI_cursor_edit_eventCount_occurred] > 1) {
+            editStartColumn -= (4 * (INTS[fEDI_cursor_edit_eventCount_occurred] - 1));
+        }
         
         // Find the precise column location of the characters we are about to insert right now
-        const currentEditColumn = editStartColumn + INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue];
+        const currentEditColumn = editStartColumn;// + INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue];
 
         let runningColumnIdx = 0;
         let targetedSpan = null;

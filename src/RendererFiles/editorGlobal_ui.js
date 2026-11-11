@@ -2143,6 +2143,10 @@ function EDI_render_do_RemoveSelection() {
             else { // - [ ] !keeping, !removing
                 // if neither are in view the only option is to fully recache the UI cause no surviving lines will exist.
                 // furthermore, you're probably gonna get hit with a scroll event to the small line/column
+
+                // you can "synchronously force the scroll cursor into view" so that the last read scrollLeft and scrollTop are updated.
+                // I think the scroll event handler in and of itself is async though but I could set that myself and then force a full screen re render
+                // and then asynchrononusly when the scroll event handler is handled it will see that nothing has changed and re-render the existing cache
             }
         }
     }

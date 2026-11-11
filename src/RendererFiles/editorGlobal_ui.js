@@ -1864,6 +1864,7 @@ function EDI_render_do_RemoveSelection() {
     // Remove selection on large position line
     let largeLineSpans = null;
     let largeLineSpans_RINGBUFFERINDEX = 0;
+    let whenHandlingSmallAndLargeMerge_shouldSwapLineSpansIfApplicable = false;
     if (linesRemovedCount > 0) {
         INTS[fEDI_cursor_indexLine] = INTS[fEDI_cursor_indexLine] + linesRemovedCount;
         INTS[fEDI_cursor_indexColumn] = 0;
@@ -1888,85 +1889,133 @@ function EDI_render_do_RemoveSelection() {
         else largeLineSpans_RINGBUFFERINDEX = (largeLineSpans_RINGBUFFERINDEX + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
         //if (activeLine_ringBufferIndex < 0) { return; } // line is not in viewport
         
+        let lineSpans;
+
         if (largeLineSpans_RINGBUFFERINDEX >= 0) {
-            let lineSpans = EDI_lineStringCache[largeLineSpans_RINGBUFFERINDEX];
+            lineSpans = EDI_lineStringCache[largeLineSpans_RINGBUFFERINDEX];
             largeLineSpans = lineSpans;
+            whenHandlingSmallAndLargeMerge_shouldSwapLineSpansIfApplicable = true;
+        }
+        else {
+            //const indexLine = largeLineAndColumnIndices_indexLine;
+            EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine]);
+            const lineStart = INTS[fEDI_ret_getLineBoundaryPositions_start];
+            const lineEnd = INTS[fEDI_ret_getLineBoundaryPositions_end];
 
-            // 2. Determine the column position where the *first character of this edit burst* began
-            const editStartColumn = INTS[fEDI_cursor_indexColumn];
+            lineSpans = [];
 
-            // Find the precise column location of the characters we are about to remove right now
-            const currentEditColumn = editStartColumn;
-            let isAtEndOfLine = false;
-
-            // 3. Scan the cached spans to find where currentEditColumn lands
-            for (let i = 0; i < lineSpans.length; i++) {
-                const span = lineSpans[i];
-                const spanLength = span.text.length;
-
-                if (currentEditColumn >= runningColumnIdx && currentEditColumn < runningColumnIdx + spanLength) {
-                    targetSpanIndex = i;
-                    targetSpan = span;
-                    relativeIndex = currentEditColumn - runningColumnIdx;
-                    
-                    // If the cursor hits exactly between two spans, your rule dictates targeting 
-                    // the left span at its trailing length index. We break early to lock onto it.
-                    break;
+            let spanIndex = 0;
+                
+            // IF THE LINE CONTAINS CHARACTERS
+            if (lineStart !== lineEnd) {
+                // 'aaaa' and then one 'Z' doesn't work you need to create the largeLineSpans so they can be edited by the earlier step
+                // Execute a single loop invocation for the entire line text data
+                spanIndex = EDI_decoder_CUSTOM.decodeLineTokens(
+                    lineStart,
+                    lineEnd,
+                    lineSpans,
+                    spanIndex,
+                    EDI_tokenColors,
+                    EDI_textByteList_bytes,
+                    EDI_styleBuffer
+                );
+            }
+            // FIXED BOUNDARY: IF THE LINE IS COMPLETELY EMPTY (0 Bytes)
+            else {
+                if (spanIndex < lineSpans.length) {
+                    const existingSpan = lineSpans[spanIndex++];
+                    existingSpan.text = '';
+                    existingSpan.color = EDI_tokenColors[0] || '#ffffff'; // Fallback to standard color
                 }
-                runningColumnIdx += spanLength;
-                if (currentEditColumn === runningColumnIdx && i === lineSpans.length - 1) { // TODO: This if statement isn't well understood. I had 'currentEditColumn === runningColumnIdx' alone until I had a case that needed 'i === lineSpans.length - 1'... TODO: look into this (I just don't have the energy right now).
-                    isAtEndOfLine = true;
+                else {
+                    lineSpans.push({
+                        text: '',
+                        color: EDI_tokenColors[0] || '#ffffff' // Fallback to standard color
+                    });
+                    spanIndex++;
                 }
             }
 
-            if (targetSpan === null) {
-                if (!isAtEndOfLine) {
-                    throw new Error();
-                }
-                else {
-                    targetSpanIndex = lineSpans.length;
+            lineSpans.length = spanIndex;
 
-                    // NOTE: is undefined until 'if (isAtEndOfLine)' block runs
-                    //targetSpan = lineSpans[targetSpanIndex];
+            largeLineSpans = lineSpans;
+            whenHandlingSmallAndLargeMerge_shouldSwapLineSpansIfApplicable = false;
+        }
 
+        // 2. Determine the column position where the *first character of this edit burst* began
+        const editStartColumn = INTS[fEDI_cursor_indexColumn];
+
+        // Find the precise column location of the characters we are about to remove right now
+        const currentEditColumn = editStartColumn;
+        let isAtEndOfLine = false;
+
+        // 3. Scan the cached spans to find where currentEditColumn lands
+        for (let i = 0; i < lineSpans.length; i++) {
+            const span = lineSpans[i];
+            const spanLength = span.text.length;
+
+            if (currentEditColumn >= runningColumnIdx && currentEditColumn < runningColumnIdx + spanLength) {
+                targetSpanIndex = i;
+                targetSpan = span;
+                relativeIndex = currentEditColumn - runningColumnIdx;
+                
+                // If the cursor hits exactly between two spans, your rule dictates targeting 
+                // the left span at its trailing length index. We break early to lock onto it.
+                break;
+            }
+            runningColumnIdx += spanLength;
+            if (currentEditColumn === runningColumnIdx && i === lineSpans.length - 1) { // TODO: This if statement isn't well understood. I had 'currentEditColumn === runningColumnIdx' alone until I had a case that needed 'i === lineSpans.length - 1'... TODO: look into this (I just don't have the energy right now).
+                isAtEndOfLine = true;
+            }
+        }
+
+        if (targetSpan === null) {
+            if (!isAtEndOfLine) {
+                throw new Error();
+            }
+            else {
+                targetSpanIndex = lineSpans.length;
+
+                // NOTE: is undefined until 'if (isAtEndOfLine)' block runs
+                //targetSpan = lineSpans[targetSpanIndex];
+
+                relativeIndex = 0;
+            }
+        }
+
+        while (remainingCharacterRemovals > 0) {
+            //INTS[fEDI_cursor_edit_eventCount_drawn] = INTS[fEDI_cursor_edit_eventCount_occurred];
+            // you can't do the INTS[fEDI_cursor_edit_eventCount_drawn] immediately cause you need to determine how much of the current span can actually be deleted then move to the next span etc...
+            
+            if (isAtEndOfLine) {
+                throw new Error('TODO: hit EOF');
+            }
+
+            // 4. If we successfully isolated the text slice segment inside the cache, modify it
+            const possibleCharacterRemovals = targetSpan.text.length - relativeIndex;
+            const actualCharacterRemovals = remainingCharacterRemovals <= possibleCharacterRemovals ? remainingCharacterRemovals : possibleCharacterRemovals;
+
+            // ...the text inline directly into the string reference inside the cache array frame
+            if (actualCharacterRemovals === targetSpan.text.length && lineSpans.length > 1) {
+                lineSpans.splice(targetSpanIndex, 1);
+            }
+            else {
+                targetSpan.text = targetSpan.text.slice(0, relativeIndex) + targetSpan.text.slice(relativeIndex + actualCharacterRemovals);
+            }
+            
+            // 5. Commit the continuation value forward so the next frame knows where to pick up
+            // (this step has a copy in the 'if (isAtEndOfLine)' block, the text is not completely equivalent)
+            INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue] += actualCharacterRemovals;
+            INTS[fEDI_cursor_edit_eventCount_drawn] += actualCharacterRemovals;
+            remainingCharacterRemovals -= actualCharacterRemovals;
+
+            if (remainingCharacterRemovals > 0) {
+                if (targetSpanIndex < lineSpans.length) {
+                    targetSpan = lineSpans[targetSpanIndex];
                     relativeIndex = 0;
                 }
-            }
-
-            while (remainingCharacterRemovals > 0) {
-                //INTS[fEDI_cursor_edit_eventCount_drawn] = INTS[fEDI_cursor_edit_eventCount_occurred];
-                // you can't do the INTS[fEDI_cursor_edit_eventCount_drawn] immediately cause you need to determine how much of the current span can actually be deleted then move to the next span etc...
-                
-                if (isAtEndOfLine) {
-                    throw new Error('TODO: hit EOF');
-                }
-
-                // 4. If we successfully isolated the text slice segment inside the cache, modify it
-                const possibleCharacterRemovals = targetSpan.text.length - relativeIndex;
-                const actualCharacterRemovals = remainingCharacterRemovals <= possibleCharacterRemovals ? remainingCharacterRemovals : possibleCharacterRemovals;
-
-                // ...the text inline directly into the string reference inside the cache array frame
-                if (actualCharacterRemovals === targetSpan.text.length && lineSpans.length > 1) {
-                    lineSpans.splice(targetSpanIndex, 1);
-                }
                 else {
-                    targetSpan.text = targetSpan.text.slice(0, relativeIndex) + targetSpan.text.slice(relativeIndex + actualCharacterRemovals);
-                }
-                
-                // 5. Commit the continuation value forward so the next frame knows where to pick up
-                // (this step has a copy in the 'if (isAtEndOfLine)' block, the text is not completely equivalent)
-                INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue] += actualCharacterRemovals;
-                INTS[fEDI_cursor_edit_eventCount_drawn] += actualCharacterRemovals;
-                remainingCharacterRemovals -= actualCharacterRemovals;
-
-                if (remainingCharacterRemovals > 0) {
-                    if (targetSpanIndex < lineSpans.length) {
-                        targetSpan = lineSpans[targetSpanIndex];
-                        relativeIndex = 0;
-                    }
-                    else {
-                        isAtEndOfLine = true;
-                    }
+                    isAtEndOfLine = true;
                 }
             }
         }
@@ -2034,64 +2083,18 @@ function EDI_render_do_RemoveSelection() {
             var recipientLineSpans = smallLineSpans;
 
             let takeFromLineSpans = null;
-            let shouldSwapLineSpansIfApplicable = false;
 
             if (largeLineSpans) { // - [x] keeping, removing
 
                 // append 'largeLineSpans' to 'smallLineSpans'
                 
                 takeFromLineSpans = largeLineSpans;
-                shouldSwapLineSpansIfApplicable = true;
+                whenHandlingSmallAndLargeMerge_shouldSwapLineSpansIfApplicable = true;
 
                 const largeLineSpans_length = largeLineSpans.length;
                 const smallLineSpans_length = smallLineSpans.length;
 
                 let isAtEndOfLine = false;
-            }
-            else { // - [ ] keeping, !removing
-                //const indexLine = largeLineAndColumnIndices_indexLine;
-                EDI_ret_getLineBoundaryPositions_raw(INTS[fEDI_cursor_indexLine] + linesRemovedCount);
-                const lineStart = INTS[fEDI_ret_getLineBoundaryPositions_start];
-                const lineEnd = INTS[fEDI_ret_getLineBoundaryPositions_end];
-
-                const lineSpans = [];
-
-                let spanIndex = 0;
-                    
-                // IF THE LINE CONTAINS CHARACTERS
-                if (lineStart !== lineEnd) {
-                    // 'aaaa' and then one 'Z' doesn't work you need to create the largeLineSpans so they can be edited by the earlier step
-                    // Execute a single loop invocation for the entire line text data
-                    spanIndex = EDI_decoder_CUSTOM.decodeLineTokens(
-                        lineStart,
-                        lineEnd,
-                        lineSpans,
-                        spanIndex,
-                        EDI_tokenColors,
-                        EDI_textByteList_bytes,
-                        EDI_styleBuffer
-                    );
-                }
-                // FIXED BOUNDARY: IF THE LINE IS COMPLETELY EMPTY (0 Bytes)
-                else {
-                    if (spanIndex < lineSpans.length) {
-                        const existingSpan = lineSpans[spanIndex++];
-                        existingSpan.text = '';
-                        existingSpan.color = local_EDI_tokenColors[0] || '#ffffff'; // Fallback to standard color
-                    }
-                    else {
-                        lineSpans.push({
-                            text: '',
-                            color: local_EDI_tokenColors[0] || '#ffffff' // Fallback to standard color
-                        });
-                        spanIndex++;
-                    }
-                }
-
-                lineSpans.length = spanIndex;
-
-                takeFromLineSpans = lineSpans;
-                shouldSwapLineSpansIfApplicable = false;
             }
 
             if (takeFromLineSpans.length === 1 && takeFromLineSpans[0].text.length === 0) {
@@ -2102,7 +2105,7 @@ function EDI_render_do_RemoveSelection() {
                 // Step 1, create a valid base state before swapping
                 if (recipientLineSpans.length === 1 && recipientLineSpans[0].text.length === 0) {
                     EDI_lineStringCache[smallLineSpans_RINGBUFFERINDEX] = takeFromLineSpans; // current receives entirety of next's spans.
-                    if (shouldSwapLineSpansIfApplicable) {
+                    if (whenHandlingSmallAndLargeMerge_shouldSwapLineSpansIfApplicable) {
                         EDI_lineStringCache[largeLineSpans_RINGBUFFERINDEX] = recipientLineSpans; // current receives entirety of next's spans.
                     }
                 }
@@ -2117,7 +2120,7 @@ function EDI_render_do_RemoveSelection() {
                     for (let i = takeFromLineSpans.length - 1; i >= 0; i--) {
                         recipientLineSpans.push(takeFromLineSpans[i]);
                         takeFromLineSpans.length = 0;
-                        if (shouldSwapLineSpansIfApplicable) {
+                        if (whenHandlingSmallAndLargeMerge_shouldSwapLineSpansIfApplicable) {
                             takeFromLineSpans.push({
                                 text: '',
                                 color: EDI_tokenColors[0] || '#ffffff' // Fallback to standard color

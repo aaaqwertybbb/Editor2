@@ -2007,6 +2007,7 @@ function EDI_render_do_RemoveSelection() {
             // 
             // it did
             // I gotta flip my laundry
+            // k I need to have an example that will bring text into view after the removal and get that to work
             EDI_render_do_Scroll();
         }
     }

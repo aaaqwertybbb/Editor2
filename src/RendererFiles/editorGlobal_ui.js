@@ -2072,6 +2072,8 @@ function EDI_render_do_RemoveSelection() {
     }
     */
 
+    let shouldSkipSpecificRecache = false;
+
     if (linesRemovedCount > 0) {
         INTS[fEDI_cursor_indexLine] = smallLineAndColumnIndices_indexLine;
         INTS[fEDI_cursor_indexColumn] = smallLineAndColumnIndices_indexColumn;
@@ -2139,6 +2141,11 @@ function EDI_render_do_RemoveSelection() {
                 I think you can determine which one of the middle lines is in view.
                 And then start the algorithm inclusively from that index.
                 */
+
+                EDI_scrollCursorIntoView();
+                shouldSkipSpecificRecache = true;
+
+                // TODO: You cannot hit the else because you're always grabbing the largeLineSpans... check whether you have the smallLineSpans before you forceable get the largeLineSpans in the case of them not being in the viewport.
             }
             else { // - [ ] !keeping, !removing
                 // if neither are in view the only option is to fully recache the UI cause no surviving lines will exist.
@@ -2149,7 +2156,8 @@ function EDI_render_do_RemoveSelection() {
                 // and then asynchrononusly when the scroll event handler is handled it will see that nothing has changed and re-render the existing cache
                 //
                 // I don't think the event handler is async necessarily. maybe the better wording is that it is a different category of the event loop I think.
-                //EDI_scrollCursorIntoView();
+                EDI_scrollCursorIntoView();
+                shouldSkipSpecificRecache = true;
                 //EDI_scrollCursorIntoView();
             }
         }
@@ -2169,7 +2177,7 @@ function EDI_render_do_RemoveSelection() {
     // And then if you had the largeLine in the viewport then 'largeLineSpans' is not null and you can merge the "large line index" onto the end of the "small line index"
     // Otherwise all you need to do is tell the UI to include the smallLine as part of what needs to be re-cached.
     // There is the case where the smallLine is not in view but I think I want to focus on having that be a given for a moment.
-    if (linesRemovedCount > 0) {
+    if (linesRemovedCount > 0 && !shouldSkipSpecificRecache) {
 
         if (smallLineSpans === null) {
             throw new Error('TODO: handle smallLine is not in view');
@@ -3253,6 +3261,7 @@ function EDI_drawCursor(NOTscrollCursorIntoView) {
 function EDI_scrollCursorIntoView() {
     const scrollContainer = EDI_scroll_viewport;
     
+    // TODO: is this synchronous layouting?
     // 1. Get the viewport's current physical layout dimensions
     const viewportWidth = scrollContainer.clientWidth;
     const viewportHeight = scrollContainer.clientHeight;

@@ -2060,6 +2060,7 @@ function EDI_render_do_RemoveSelection() {
                     
                 // IF THE LINE CONTAINS CHARACTERS
                 if (lineStart !== lineEnd) {
+                    // 'aaaa' and then one 'Z' doesn't work you need to create the largeLineSpans so they can be edited by the earlier step
                     // Execute a single loop invocation for the entire line text data
                     spanIndex = EDI_decoder_CUSTOM.decodeLineTokens(
                         lineStart,

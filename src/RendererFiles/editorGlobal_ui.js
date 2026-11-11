@@ -1921,9 +1921,15 @@ function EDI_render_do_RemoveSelection() {
                 }
                 else {
 
-                    if (recipientLineSpans.length === 1 && recipientLineSpans[0].text.length === 0) {
-                        
+                    // Step 1, create a valid base state before swapping
+                    if (recipientLineSpans.length !== 1 || recipientLineSpans[0].text.length !== 0) {
+                        recipientLineSpans.length = 1;
+                        recipientLineSpans[0].text = '';
                     }
+
+                    // ugh the key is that I wasn't maintaining a valid entry in the ring buffer for the other states.
+                    // I'm 100% serious that I understand it.
+                    // I just am so exhausted I need to sleep maybe
 
                     // remove recipient's empty span before moving the known to exist content from takeFromLineSpans
                     //recipientLineSpans.length = 0; // Remove the empty string from the small

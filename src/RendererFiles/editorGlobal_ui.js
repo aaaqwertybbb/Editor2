@@ -1975,22 +1975,23 @@ function EDI_render_do_RemoveSelection() {
             }
         }
     }
-
+// fk it's one of those timies of exhaustion where you literally have nothing left
+// I know how to do this I'm just so tired and my brain isn't braining
     if (linesRemovedCount > 0) {
-        // shift existing cache
-        const activeLine = smallLineAndColumnIndices_indexLine;
-        const largeLineAndColumnIndices_indexLine = INTS[fEDI_cursor_indexLine] + linesRemovedCount;
-        const upperLimit = INTS[fEDI_lineEndPositionList_count] - 1;
-        for (let i = 0; i < linesRemovedCount; i++) {
-            EDI_lineStringCache[smallLineAndColumnIndices_indexLine + (i + 1)] = EDI_lineStringCache[largeLineAndColumnIndices_indexLine + (i)];
-        }
-        const EDI_lineStringCache_length = EDI_lineStringCache.length;
-        for (let i = largeLineAndColumnIndices_indexLine; i < EDI_lineStringCache_length; i++) {
-            EDI_lineStringCache[i] = undefined;
-        }
-        //EDI_lineStringCache[INTS[fEDI_lineEndPositionList_count]] = undefined;
-
-        //EDI_lineStringCache.splice(smallLineAndColumnIndices_indexLine + 1, linesRemovedCount - 1);
+        //// shift existing cache
+        //const activeLine = smallLineAndColumnIndices_indexLine;
+        //const largeLineAndColumnIndices_indexLine = INTS[fEDI_cursor_indexLine] + linesRemovedCount;
+        //const upperLimit = INTS[fEDI_lineEndPositionList_count] - 1;
+        //for (let i = 0; i < linesRemovedCount; i++) {
+        //    EDI_lineStringCache[smallLineAndColumnIndices_indexLine + (i + 1)] = EDI_lineStringCache[largeLineAndColumnIndices_indexLine + (i)];
+        //}
+        //const EDI_lineStringCache_length = EDI_lineStringCache.length;
+        //for (let i = largeLineAndColumnIndices_indexLine; i < EDI_lineStringCache_length; i++) {
+        //    EDI_lineStringCache[i] = undefined;
+        //}
+        ////EDI_lineStringCache[INTS[fEDI_lineEndPositionList_count]] = undefined;
+//
+        ////EDI_lineStringCache.splice(smallLineAndColumnIndices_indexLine + 1, linesRemovedCount - 1);
     }
 
     // Remove middle line(s)

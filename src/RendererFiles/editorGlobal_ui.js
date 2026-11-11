@@ -2110,6 +2110,10 @@ function EDI_render_do_RemoveSelection() {
 
     /*
     end of 'aaaa' and start of 'ZZZZ' scroll 'aaaa' back into view then do remove it doesn't work until you scroll out and back into view because 'ZZZZ' wasn't in view.
+
+    dude wants to act tough I don't think in like a year he's ever handled either "small or large" being out of view.
+
+    "put me in coach"
     */
 
     // If the largeLine is not fully selected (minus the line ending) then you probably need to do 1 less linesRemovedCount so you can "manually" handle that largeLine case.

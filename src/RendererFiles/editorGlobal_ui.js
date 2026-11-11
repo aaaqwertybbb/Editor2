@@ -311,9 +311,9 @@ function EDI_scrollViewport_scroll() {
     EDI_render_request(RenderKind_Scroll);
 }
 
-function EDI_render_specific_recache(recycled_itemIndex, linesRemovedCount, recycled_ringBufferIndex) {
+function EDI_render_specific_recache(recycled_itemIndex, linesRemovedCount, recycled_ringBufferIndex, fakeLineIndices) {
     let ringBufferIndex = recycled_ringBufferIndex - 1;
-    let lineIndex = recycled_itemIndex;
+    let lineIndex = recycled_itemIndex + linesRemovedCount;
 
     const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
     const cache = EDI_lineStringCache;
@@ -353,7 +353,12 @@ function EDI_render_specific_recache(recycled_itemIndex, linesRemovedCount, recy
         const indexLine = i;
         new_lineStart = new_lineEnd + 1;
         if (indexLine < local_EDI_lineEndPositionList_count) {
-            cacheNUMBERS[ringBufferIndex] = String(indexLine + 1);
+            if (fakeLineIndices) {
+                cacheNUMBERS[ringBufferIndex] = String(indexLine + 1 - linesRemovedCount);
+            }
+            else {
+                cacheNUMBERS[ringBufferIndex] = String(indexLine + 1);
+            }
             new_lineEnd = local_EDI_lineEndPositionList_data[indexLine];
         } else {
             cacheNUMBERS[ringBufferIndex] = '~';
@@ -2084,7 +2089,7 @@ function EDI_render_do_RemoveSelection() {
             // This is going to be slightly different then because you haven't finalized yet whereas the explorer did
             // TODO: 'EDI_render_specific_recache' function does not exist
             // !!!! There is no specific redraw you are just specific recalculating cache
-            EDI_render_specific_recache(recycled_itemIndex, linesRemovedCount, recycled_ringBufferIndex);
+            EDI_render_specific_recache(recycled_itemIndex, linesRemovedCount, recycled_ringBufferIndex, /*fakeLineIndices*/ true);
 
             // So then if you didn't do 'EDI_render_specific_recache' it just wouldn't cache the lines of text that fell into view is all?
             // So this should still bring all the latter and in view lines up 1 line if you remove from end of small to end of large (minus line ending)

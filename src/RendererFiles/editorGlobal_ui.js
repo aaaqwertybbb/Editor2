@@ -1915,7 +1915,47 @@ function EDI_render_do_RemoveSelection() {
     One thing that was extremely confusing:
     LanguageServer2 wasn't forgetting the state of the previous websocket connection so to speak.
     So I was getting these "weird" errors but I fixed that just now.
+
+    if (nodeKind === TreeViewNodeKind_isExpandable_isExpanded)
+    
+    explorerGlobal.js:CollapseAnExpandedNode | editorGlobal_ui.js:RemoveSelection
+    -----------------------------------------------------------------------------
+    let countChildren = 0;                                                  | ...linesRemovedCount...
+    EXPLORER_treeViewNodes.removeAt(indexItem + 1, countChildren);          | this is the finalization step of the edit
+    get_final_ringBufferIndexItem()                                         | get_final_ringBufferIndexItem()
+    if (final_ringBufferIndexItem < 0)                                      | if (final_ringBufferIndexItem < 0)
+    if (ringBufferIndexItem === final_ringBufferIndexItem)                  | if (ringBufferIndexItem === final_ringBufferIndexItem)
+    let availableRingBufferNodesVisuallyAfterCollapsedOne = 0;              | 
+    if (countChildren >= availableRingBufferNodesVisuallyAfterCollapsedOne) | 
+        EXPLORER_draw_BATCH_request(indexItem + 1, availableRingBufferNodesVisuallyAfterCollapsedOne, 3, next_ringBufferIndex); | 
+    else {
+        handleRingBufferNodesThatAreOffscreen_collapse(final_ringBufferIndexItem, indexItem, ringBufferIndexItem, countChildren, availableRingBufferNodesVisuallyAfterCollapsedOne);
+        // calculate the earliest displaced node
+        EXPLORER_draw_BATCH_request(recycled_itemIndex, countChildren, 3, recycled_ringBufferIndex);
+    }
     */
+
+    // It makes more sense to remove the middle lines first.
+    // And then if you had the largeLine in the viewport then 'largeLineSpans' is not null and you can merge the "large line index" onto the end of the "small line index"
+    // Otherwise all you need to do is tell the UI to include the smallLine as part of what needs to be re-cached.
+    // There is the case where the smallLine is not in view but I think I want to focus on having that be a given for a moment.
+    if (linesRemovedCount > 0) {
+        //// shift existing cache
+        //const activeLine = smallLineAndColumnIndices_indexLine;
+        //const largeLineAndColumnIndices_indexLine = INTS[fEDI_cursor_indexLine] + linesRemovedCount;
+        //const upperLimit = INTS[fEDI_lineEndPositionList_count] - 1;
+        //for (let i = 0; i < linesRemovedCount; i++) {
+        //    EDI_lineStringCache[smallLineAndColumnIndices_indexLine + (i + 1)] = EDI_lineStringCache[largeLineAndColumnIndices_indexLine + (i)];
+        //}
+        //const EDI_lineStringCache_length = EDI_lineStringCache.length;
+        //for (let i = largeLineAndColumnIndices_indexLine; i < EDI_lineStringCache_length; i++) {
+        //    EDI_lineStringCache[i] = undefined;
+        //}
+        ////EDI_lineStringCache[INTS[fEDI_lineEndPositionList_count]] = undefined;
+//
+        ////EDI_lineStringCache.splice(smallLineAndColumnIndices_indexLine + 1, linesRemovedCount - 1);
+    }
+
     if (linesRemovedCount > 0) {
         INTS[fEDI_cursor_indexLine] = smallLineAndColumnIndices_indexLine;
         INTS[fEDI_cursor_indexColumn] = smallLineAndColumnIndices_indexColumn;
@@ -1994,24 +2034,7 @@ function EDI_render_do_RemoveSelection() {
             }
         }
     }
-// fk it's one of those timies of exhaustion where you literally have nothing left
-// I know how to do this I'm just so tired and my brain isn't braining
-    if (linesRemovedCount > 0) {
-        //// shift existing cache
-        //const activeLine = smallLineAndColumnIndices_indexLine;
-        //const largeLineAndColumnIndices_indexLine = INTS[fEDI_cursor_indexLine] + linesRemovedCount;
-        //const upperLimit = INTS[fEDI_lineEndPositionList_count] - 1;
-        //for (let i = 0; i < linesRemovedCount; i++) {
-        //    EDI_lineStringCache[smallLineAndColumnIndices_indexLine + (i + 1)] = EDI_lineStringCache[largeLineAndColumnIndices_indexLine + (i)];
-        //}
-        //const EDI_lineStringCache_length = EDI_lineStringCache.length;
-        //for (let i = largeLineAndColumnIndices_indexLine; i < EDI_lineStringCache_length; i++) {
-        //    EDI_lineStringCache[i] = undefined;
-        //}
-        ////EDI_lineStringCache[INTS[fEDI_lineEndPositionList_count]] = undefined;
-//
-        ////EDI_lineStringCache.splice(smallLineAndColumnIndices_indexLine + 1, linesRemovedCount - 1);
-    }
+
 
     // Remove middle line(s)
     if (linesRemovedCount > 0) {
@@ -2042,6 +2065,64 @@ function EDI_render_do_RemoveSelection() {
     EDI_render_request(RenderKind_Scroll);
     //EDI_render_TextContent();
     //EDI_render_Cursor();
+}
+
+function EDI_handleRingBufferNodesThatAreOffscreen_RemoveSelection(final_ringBufferIndex, indexItem_of_collapsed_node, ringBufferIndex_of_collapsed_node, recycleCount, availableRingBufferNodesVisuallyAfterCollapsedOne) {
+    let displaced_itemIndex = indexItem_of_collapsed_node;
+    let displaced_ringBufferIndex = ringBufferIndex_of_collapsed_node;
+    // TODO: calculate the earliest displaced node faster than just "looping a minus 1 over and over"
+    for (let i = 0; i < (recycleCount + 1); i++) {
+        displaced_itemIndex++;
+        displaced_ringBufferIndex++;
+        if (displaced_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
+            displaced_ringBufferIndex -= INTS[fEXPLORER_virtualCount];
+        }
+    }
+
+    let recycle_itemIndex = indexItem_of_collapsed_node + 1;
+    let recycle_ringBufferIndex = ringBufferIndex_of_collapsed_node + 1;
+    if (recycle_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
+        recycle_ringBufferIndex -= INTS[fEXPLORER_virtualCount]
+    }
+
+    // 3. Perform a block rotation via triple-reversal 
+    // This repositions all 'recycle(s)' and 'displaced(s)' in O(N) operations total, discarding the nested loops
+    
+    const inclusive_earliest_recycle_ringBufferIndex = recycle_ringBufferIndex;
+
+    const end_of_recycle_block = displaced_ringBufferIndex - 1;
+    if (end_of_recycle_block < 0) {
+        end_of_recycle_block = INTS[fEXPLORER_virtualCount] - 1;
+    }
+
+    const endOfDisplacedBlock = final_ringBufferIndex;
+
+    EXPLORER_reverseBufferSegment(inclusive_earliest_recycle_ringBufferIndex, end_of_recycle_block); // Reverse Recycle(s)
+    EXPLORER_reverseBufferSegment(displaced_ringBufferIndex, endOfDisplacedBlock);                   // Reverse Displaced(s)
+    EXPLORER_reverseBufferSegment(recycle_ringBufferIndex, endOfDisplacedBlock);                     // Reverse entire window
+
+    // The 'recycles' will be drawn with their text, depth, and translateY immediately after this function so you can skip them.
+    // Since everything was reversed in earlier steps this is the way to do exactly that.
+    displaced_ringBufferIndex = recycle_ringBufferIndex;
+    displaced_itemIndex = recycle_itemIndex;
+
+    const displacedCount = availableRingBufferNodesVisuallyAfterCollapsedOne - recycleCount;
+
+    for (let i = 0; i < displacedCount; i++) {
+        let depth = 0;
+        if (displaced_itemIndex < EXPLORER_treeViewNodes.count_abstract) {
+            depth = EXPLORER_treeViewNodes.getDepth(displaced_itemIndex);
+        }
+
+        EXPLORER_ringBuffer[displaced_ringBufferIndex].style.transform = `translate(${CONST_EXPLORER_offsetPerDepth * depth}px, ${INTS[fEXPLORER_itemHeightNumber] * displaced_itemIndex}px)`;
+
+        displaced_itemIndex++;
+
+        displaced_ringBufferIndex++;
+        if (displaced_ringBufferIndex >= INTS[fEXPLORER_virtualCount]) {
+            displaced_ringBufferIndex -= INTS[fEXPLORER_virtualCount]
+        }
+    }
 }
 
 /** TODO: this is nearly identical to backspace, the difference is the check 'if (INTS[fEDI_cursor_editKind] !== EditKind_DeleteLtr)', thus dedupe the logic or no? */

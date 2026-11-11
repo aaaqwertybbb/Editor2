@@ -2064,6 +2064,7 @@ function EDI_render_do_RemoveSelection() {
             // This is going to be slightly different then because you haven't finalized yet whereas the explorer did
             // TODO: 'EDI_render_specific_recache' function does not exist
             // !!!! There is no specific redraw you are just specific recalculating cache
+            INTS[fEDI_cursor_editLength_characters] = original_edit_length;
             EDI_render_specific_recache(smallLineAndColumnIndices_indexLine + 1, availableRingBufferNodesVisuallyAfterCollapsedOne, next_ringBufferIndex);
         }
         else {
@@ -2089,6 +2090,7 @@ function EDI_render_do_RemoveSelection() {
             // This is going to be slightly different then because you haven't finalized yet whereas the explorer did
             // TODO: 'EDI_render_specific_recache' function does not exist
             // !!!! There is no specific redraw you are just specific recalculating cache
+            INTS[fEDI_cursor_editLength_characters] = original_edit_length;
             EDI_render_specific_recache(recycled_itemIndex, linesRemovedCount, recycled_ringBufferIndex, /*fakeLineIndices*/ true);
 
             // So then if you didn't do 'EDI_render_specific_recache' it just wouldn't cache the lines of text that fell into view is all?
@@ -2204,6 +2206,7 @@ function EDI_render_do_RemoveSelection() {
         }
     }
 
+    // TODO: This happens too late for the 'EDI_render_specific_recache' invocations to have it ready it, for now am duplicating this line above the invocations.
     INTS[fEDI_cursor_editLength_characters] = original_edit_length;
 
     // 6. Request a canvas redraw layout frame pass to force the changes onto the screen

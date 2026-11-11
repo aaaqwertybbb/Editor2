@@ -2133,6 +2133,12 @@ function EDI_render_do_RemoveSelection() {
         else {
             if (largeLineSpans) { // - [ ] !keeping, removing
                 
+                /*
+                If you can't get both of these today then you're literally a sham
+
+                I think you can determine which one of the middle lines is in view.
+                And then start the algorithm inclusively from that index.
+                */
             }
             else { // - [ ] !keeping, !removing
                 

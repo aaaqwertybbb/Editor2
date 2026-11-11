@@ -311,7 +311,7 @@ function EDI_scrollViewport_scroll() {
     EDI_render_request(RenderKind_Scroll);
 }
 
-function EDI_render_specific_recache(recycled_itemIndex, linesRemovedCount, recycled_ringBufferIndex, fakeLineIndices) {
+function EDI_render_specific_recache(recycled_itemIndex, linesRemovedCount, availableRingBufferNodesVisuallyAfterCollapsedOne, recycled_ringBufferIndex, fakeLineIndices) {
     let ringBufferIndex = recycled_ringBufferIndex - 1;
     let lineIndex = recycled_itemIndex + linesRemovedCount;
 
@@ -337,8 +337,8 @@ function EDI_render_specific_recache(recycled_itemIndex, linesRemovedCount, recy
     }
 
     // Render pure line numbers
-    const upperLineIndexLimit = lineIndex + linesRemovedCount;
-    for (let i = lineIndex; i < upperLineIndexLimit; i++) {
+    const upperLimit = availableRingBufferNodesVisuallyAfterCollapsedOne;
+    for (let i = 0; i < upperLimit; i++) {
         // (faster than modulo given this context)
         ringBufferIndex++;
         if (ringBufferIndex >= local_ArrayFrom_textElement_children_length) {
@@ -350,7 +350,7 @@ function EDI_render_specific_recache(recycled_itemIndex, linesRemovedCount, recy
         // THIS WILL CALCULATE THE TEXT OF THE LINENUMBER AND THE LINE OF TEXT ITSELF
         // AND ONLY DO SO FOR THE NEWLY SCROLLED INTO VIEW LINES
             
-        const indexLine = i;
+        const indexLine = lineIndex + i;
         new_lineStart = new_lineEnd + 1;
         if (indexLine < local_EDI_lineEndPositionList_count) {
             if (fakeLineIndices) {
@@ -2066,7 +2066,7 @@ function EDI_render_do_RemoveSelection() {
             // !!!! There is no specific redraw you are just specific recalculating cache
             INTS[fEDI_cursor_editLength_characters] = original_edit_length;
             // select end of 'aaaa' line start there then end of 'YYYY' line including line end then scroll 'aaaa' back into view then remove selection it doesn't currently work because you need to offset lines by linesRemovedCount which is not the available etc...
-            EDI_render_specific_recache(smallLineAndColumnIndices_indexLine + 1, availableRingBufferNodesVisuallyAfterCollapsedOne, next_ringBufferIndex);
+            EDI_render_specific_recache(smallLineAndColumnIndices_indexLine + 1, linesRemovedCount, availableRingBufferNodesVisuallyAfterCollapsedOne, next_ringBufferIndex, /*fakeLineIndices*/ true);
         }
         else {
             EDI_handleRingBufferNodesThatAreOffscreen_RemoveSelection(
@@ -2092,7 +2092,7 @@ function EDI_render_do_RemoveSelection() {
             // TODO: 'EDI_render_specific_recache' function does not exist
             // !!!! There is no specific redraw you are just specific recalculating cache
             INTS[fEDI_cursor_editLength_characters] = original_edit_length;
-            EDI_render_specific_recache(recycled_itemIndex, linesRemovedCount, recycled_ringBufferIndex, /*fakeLineIndices*/ true);
+            EDI_render_specific_recache(recycled_itemIndex, linesRemovedCount, linesRemovedCount, recycled_ringBufferIndex, /*fakeLineIndices*/ true);
 
             // So then if you didn't do 'EDI_render_specific_recache' it just wouldn't cache the lines of text that fell into view is all?
             // So this should still bring all the latter and in view lines up 1 line if you remove from end of small to end of large (minus line ending)

@@ -1899,12 +1899,12 @@ function EDI_render_do_RemoveSelection() {
     /*
     This problem can be broken into two steps:
     Step 1: it is the collapse logic from 'EXPLORER_expandCollapseIconWasClicked'
-    Step 2: if at least one line was removed, you need to merge the "large line index" with the "small line index"
+    Step 2: if at least one line was removed, you need to merge the "large line index" onto the end of the "small line index"
             i.e.: a selection that spans multiple lines has 3 parts
             - "the small line"
             - "the lines between"
             - "the large line"
-                And then lastly the specific details that pertain to merging the "large line index" with the "small line index" need to be handled.
+                And then lastly the specific details that pertain to merging the "large line index" onto the end of the "small line index" need to be handled.
                 Because you're not just merging them blindly you need to merge only the remaining content after handling:
                 - the removal of selected text on the small line
                 - the removal of selected text on the large line

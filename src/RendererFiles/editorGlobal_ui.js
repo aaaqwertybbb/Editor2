@@ -311,6 +311,91 @@ function EDI_scrollViewport_scroll() {
     EDI_render_request(RenderKind_Scroll);
 }
 
+function EDI_render_specific_recache(recycled_itemIndex, linesRemovedCount, recycled_ringBufferIndex) {
+    let ringBufferIndex = recycled_ringBufferIndex - 1;
+    let lineIndex = recycled_itemIndex;
+
+    const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
+    const cache = EDI_lineStringCache;
+    const cacheNUMBERS = EDI_line_NUMBER_StringCache;
+
+    const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
+    const local_EDI_lineEndPositionList_count = INTS[fEDI_lineEndPositionList_count];
+
+    const local_bytes = EDI_textByteList_bytes;
+    const local_styles = EDI_styleBuffer; // Your matching parallel array
+    const local_EDI_tokenColors = EDI_tokenColors;
+
+    const local_EDI_decoder_CUSTOM = EDI_decoder_CUSTOM;
+
+    // If you intend to use the variables 'new_lineStart' or 'new_lineEnd': Important detail to consider: the lines that are >= INTS[fEDI_lineEndPositionList_count] will continually increment new_lineStart by 1 So if you expect this to accurately represent the EOF position when it is in view, it probably does NOT.
+    let new_lineStart = 0;
+    let new_lineEnd = -1;
+    let new_lowerBound = recycled_itemIndex;
+    if (new_lowerBound < local_EDI_lineEndPositionList_count && new_lowerBound !== 0) {
+        new_lineEnd = local_EDI_lineEndPositionList_data[new_lowerBound - 1];
+    }
+
+    // Render pure line numbers
+    const upperLineIndexLimit = lineIndex + linesRemovedCount;
+    for (let i = lineIndex; i < upperLineIndexLimit; i++) {
+        // (faster than modulo given this context)
+        ringBufferIndex++;
+        if (ringBufferIndex >= local_ArrayFrom_textElement_children_length) {
+            ringBufferIndex = 0;
+        }
+
+        const lineSpans = cache[ringBufferIndex];
+
+        // THIS WILL CALCULATE THE TEXT OF THE LINENUMBER AND THE LINE OF TEXT ITSELF
+        // AND ONLY DO SO FOR THE NEWLY SCROLLED INTO VIEW LINES
+            
+        const indexLine = i;
+        new_lineStart = new_lineEnd + 1;
+        if (indexLine < local_EDI_lineEndPositionList_count) {
+            cacheNUMBERS[ringBufferIndex] = String(indexLine + 1);
+            new_lineEnd = local_EDI_lineEndPositionList_data[indexLine];
+        } else {
+            cacheNUMBERS[ringBufferIndex] = '~';
+            new_lineEnd = new_lineStart;
+        }
+
+        let spanIndex = 0;
+            
+        // IF THE LINE CONTAINS CHARACTERS
+        if (new_lineStart !== new_lineEnd) {
+            // Execute a single loop invocation for the entire line text data
+            spanIndex = local_EDI_decoder_CUSTOM.decodeLineTokens(
+                new_lineStart,
+                new_lineEnd,
+                lineSpans,
+                spanIndex,
+                local_EDI_tokenColors,
+                local_bytes,
+                local_styles
+            );
+        }
+        // FIXED BOUNDARY: IF THE LINE IS COMPLETELY EMPTY (0 Bytes)
+        else {
+            if (spanIndex < lineSpans.length) {
+                const existingSpan = lineSpans[spanIndex++];
+                existingSpan.text = '';
+                existingSpan.color = local_EDI_tokenColors[0] || '#ffffff'; // Fallback to standard color
+            }
+            else {
+                lineSpans.push({
+                    text: '',
+                    color: local_EDI_tokenColors[0] || '#ffffff' // Fallback to standard color
+                });
+                spanIndex++;
+            }
+        }
+
+        lineSpans.length = spanIndex;
+    }
+    EDI_render_do_Scroll();
+}
+
 function EDI_render_do_Scroll() {
     const local_lineHeight = INTS[fEDI_lineHeight];
     INTS[fEDI_virtualIndexLine] = EDI_lastReadNumber_scrollTop / local_lineHeight | 0;
@@ -361,12 +446,11 @@ function EDI_render_do_Scroll() {
 
     const local_bytes = EDI_textByteList_bytes;
     const local_styles = EDI_styleBuffer; // Your matching parallel array
+    const local_EDI_tokenColors = EDI_tokenColors;
 
     const local_EDI_decoder_CUSTOM = EDI_decoder_CUSTOM;
 
     const ctxText = EDI_text_canvas.getContext('2d');
-
-    const lineCount = INTS[fEDI_lineEndPositionList_count];
     
     const view_startLineIndex = INTS[fEDI_virtualIndexLine];
     const view_upperLineIndexExclusive = view_startLineIndex + INTS[fEDI_virtualCount];
@@ -410,7 +494,7 @@ function EDI_render_do_Scroll() {
                 
                 const indexLine = i;
                 new_lineStart = new_lineEnd + 1;
-                if (indexLine < lineCount) {
+                if (indexLine < local_EDI_lineEndPositionList_count) {
                     cacheNUMBERS[ringBufferIndex] = String(indexLine + 1);
                     new_lineEnd = local_EDI_lineEndPositionList_data[indexLine];
                 } else {
@@ -428,7 +512,7 @@ function EDI_render_do_Scroll() {
                         new_lineEnd,
                         lineSpans,
                         spanIndex,
-                        EDI_tokenColors,
+                        local_EDI_tokenColors,
                         local_bytes,
                         local_styles
                     );
@@ -438,12 +522,12 @@ function EDI_render_do_Scroll() {
                     if (spanIndex < lineSpans.length) {
                         const existingSpan = lineSpans[spanIndex++];
                         existingSpan.text = '';
-                        existingSpan.color = EDI_tokenColors[0] || '#ffffff'; // Fallback to standard color
+                        existingSpan.color = local_EDI_tokenColors[0] || '#ffffff'; // Fallback to standard color
                     }
                     else {
                         lineSpans.push({
                             text: '',
-                            color: EDI_tokenColors[0] || '#ffffff' // Fallback to standard color
+                            color: local_EDI_tokenColors[0] || '#ffffff' // Fallback to standard color
                         });
                         spanIndex++;
                     }
@@ -1973,9 +2057,9 @@ function EDI_render_do_RemoveSelection() {
             }
 
             // This is going to be slightly different then because you haven't finalized yet whereas the explorer did
-            // TODO: 'EDI_render_specific_redraw' function does not exist
+            // TODO: 'EDI_render_specific_recache' function does not exist
             // !!!! There is no specific redraw you are just specific recalculating cache
-            EDI_render_specific_redraw(smallLineAndColumnIndices_indexLine + 1, availableRingBufferNodesVisuallyAfterCollapsedOne, 3, next_ringBufferIndex);
+            EDI_render_specific_recache(smallLineAndColumnIndices_indexLine + 1, availableRingBufferNodesVisuallyAfterCollapsedOne, next_ringBufferIndex);
         }
         else {
             EDI_handleRingBufferNodesThatAreOffscreen_RemoveSelection(
@@ -1998,17 +2082,17 @@ function EDI_render_do_RemoveSelection() {
             }
 
             // This is going to be slightly different then because you haven't finalized yet whereas the explorer did
-            // TODO: 'EDI_render_specific_redraw' function does not exist
+            // TODO: 'EDI_render_specific_recache' function does not exist
             // !!!! There is no specific redraw you are just specific recalculating cache
-            //EDI_render_specific_redraw(recycled_itemIndex, linesRemovedCount, 3, recycled_ringBufferIndex);
+            EDI_render_specific_recache(recycled_itemIndex, linesRemovedCount, recycled_ringBufferIndex);
 
-            // So then if you didn't do 'EDI_render_specific_redraw' it just wouldn't cache the lines of text that fell into view is all?
+            // So then if you didn't do 'EDI_render_specific_recache' it just wouldn't cache the lines of text that fell into view is all?
             // So this should still bring all the latter and in view lines up 1 line if you remove from end of small to end of large (minus line ending)
             // 
             // it did
             // I gotta flip my laundry
             // k I need to have an example that will bring text into view after the removal and get that to work
-            EDI_render_do_Scroll();
+            //EDI_render_do_Scroll();
         }
     }
 

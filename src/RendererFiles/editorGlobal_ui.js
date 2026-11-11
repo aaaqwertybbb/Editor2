@@ -331,7 +331,7 @@ function EDI_render_specific_recache(recycled_itemIndex, linesRemovedCount, recy
     // If you intend to use the variables 'new_lineStart' or 'new_lineEnd': Important detail to consider: the lines that are >= INTS[fEDI_lineEndPositionList_count] will continually increment new_lineStart by 1 So if you expect this to accurately represent the EOF position when it is in view, it probably does NOT.
     let new_lineStart = 0;
     let new_lineEnd = -1;
-    let new_lowerBound = recycled_itemIndex;
+    let new_lowerBound = lineIndex;
     if (new_lowerBound < local_EDI_lineEndPositionList_count && new_lowerBound !== 0) {
         new_lineEnd = local_EDI_lineEndPositionList_data[new_lowerBound - 1];
     }

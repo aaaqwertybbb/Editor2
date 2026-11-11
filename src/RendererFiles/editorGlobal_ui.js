@@ -2024,9 +2024,93 @@ function EDI_render_do_RemoveSelection() {
     }
     */
 
+    if (linesRemovedCount > 0) {
+        INTS[fEDI_cursor_indexLine] = smallLineAndColumnIndices_indexLine;
+        INTS[fEDI_cursor_indexColumn] = smallLineAndColumnIndices_indexColumn;
+        // TODO: this cursorVisualColumnIndex... logic here seems like it can be skipped here so long as you do it once by the end of the function to the correct indices.
+        INTS[fEDI_cursorVisualColumnIndex] = smallLineAndColumnIndices_indexColumn;
+
+        if (smallLineSpans) {
+            if (largeLineSpans) { // - [x] keeping, removing
+
+                // append 'largeLineSpans' to 'smallLineSpans'
+
+                var recipientLineSpans = smallLineSpans;
+                var takeFromLineSpans = largeLineSpans;
+
+                const largeLineSpans_length = largeLineSpans.length;
+                const smallLineSpans_length = smallLineSpans.length;
+
+                let isAtEndOfLine = false;
+
+                if (takeFromLineSpans.length === 1 && takeFromLineSpans[0].text.length === 0) {
+                    // do not takeFromLineSpans anything
+                }
+                else {
+
+                    // Step 1, create a valid base state before swapping
+                    if (recipientLineSpans.length === 1 && recipientLineSpans[0].text.length === 0) {
+                        EDI_lineStringCache[smallLineSpans_RINGBUFFERINDEX] = largeLineSpans; // current receives entirety of next's spans.
+                        EDI_lineStringCache[largeLineSpans_RINGBUFFERINDEX] = smallLineSpans; // current receives entirety of next's spans.
+                    }
+                    else {
+                        for (let i = takeFromLineSpans.length - 1; i >= 0; i--) {
+                            recipientLineSpans.push(takeFromLineSpans[i]);
+                            takeFromLineSpans.length = 0;
+                            takeFromLineSpans.push({
+                                text: '',
+                                color: EDI_tokenColors[0] || '#ffffff' // Fallback to standard color
+                            });
+                        }
+                    }
+
+                    // ugh the key is that I wasn't maintaining a valid entry in the ring buffer for the other states.
+                    // I'm 100% serious that I understand it.
+                    // I just am so exhausted I need to sleep maybe
+
+                    // remove recipient's empty span before moving the known to exist content from takeFromLineSpans
+                    //recipientLineSpans.length = 0; // Remove the empty string from the small
+                    // ^ you don't remove it cuz u need to give it to the one you're receiving...
+                    
+                    //smallLineSpans = largeLineSpans // update the local variable
+                }
+                //
+                //if (largeLineSpans_length === 1 && largeLineSpans[0].text.length === 0) { // (do not append if large line is just an empty string)
+                //    isAtEndOfLine = true;
+                //}
+                //else {
+                //    
+                //    if (smallLineSpans.length === 1 && smallLineSpans[0].text.length === 0) {
+                //        smallLineSpans.length = 0; // Remove the empty string from the small
+                //        EDI_lineStringCache[smallLineAndColumnIndices_indexLine] = largeLineSpans; // current receives entirety of next's spans.
+                //        smallLineSpans = largeLineSpans // update the local variable
+                //    }
+                //    else {
+                //        for (let i = 0; i < largeLineSpans_length; i++) {
+                //            smallLineSpans.push(largeLineSpans[i]);
+                //        }
+                //    }
+                //}
+                //
+                visibleLinesRemovedCount++;
+            }
+            else { // - [ ] keeping, !removing
+
+            }
+        }
+        else {
+            if (largeLineSpans) { // - [ ] !keeping, removing
+                
+            }
+            else { // - [ ] !keeping, !removing
+                
+            }
+        }
+    }
+
     // If the largeLine is not fully selected (minus the line ending) then you probably need to do 1 less linesRemovedCount so you can "manually" handle that largeLine case.
 
-    // It makes more sense to remove the middle lines first.
+    // It makes more sense to remove the middle lines first. (You have to do the thing first because it will be overwritten if you do this step first)
     // And then if you had the largeLine in the viewport then 'largeLineSpans' is not null and you can merge the "large line index" onto the end of the "small line index"
     // Otherwise all you need to do is tell the UI to include the smallLine as part of what needs to be re-cached.
     // There is the case where the smallLine is not in view but I think I want to focus on having that be a given for a moment.
@@ -2109,86 +2193,6 @@ function EDI_render_do_RemoveSelection() {
     It puts 'HHHH' on the end of 'aaaa' same line
     and removes 'bbbb' completely( the line is replaced by 'cccc' and etc... cause everything got shifted up. which is partially true? the only issue is that 'HHHH' is supposed to say 'bbbb')
     */
-
-    if (linesRemovedCount > 0) {
-        INTS[fEDI_cursor_indexLine] = smallLineAndColumnIndices_indexLine;
-        INTS[fEDI_cursor_indexColumn] = smallLineAndColumnIndices_indexColumn;
-        // TODO: this cursorVisualColumnIndex... logic here seems like it can be skipped here so long as you do it once by the end of the function to the correct indices.
-        INTS[fEDI_cursorVisualColumnIndex] = smallLineAndColumnIndices_indexColumn;
-
-        if (smallLineSpans) {
-            if (largeLineSpans) { // - [x] keeping, removing
-
-                // append 'largeLineSpans' to 'smallLineSpans'
-
-                var recipientLineSpans = smallLineSpans;
-                var takeFromLineSpans = largeLineSpans;
-
-                const largeLineSpans_length = largeLineSpans.length;
-                const smallLineSpans_length = smallLineSpans.length;
-
-                let isAtEndOfLine = false;
-
-                if (takeFromLineSpans.length === 1 && takeFromLineSpans[0].text.length === 0) {
-                    // do not takeFromLineSpans anything
-                }
-                else {
-
-                    // Step 1, create a valid base state before swapping
-                    if (recipientLineSpans.length === 1 && recipientLineSpans[0].text.length === 0) {
-                        EDI_lineStringCache[smallLineSpans_RINGBUFFERINDEX] = largeLineSpans; // current receives entirety of next's spans.
-                        EDI_lineStringCache[largeLineSpans_RINGBUFFERINDEX] = smallLineSpans; // current receives entirety of next's spans.
-                    }
-                    else {
-                        for (let i = takeFromLineSpans.length - 1; i >= 0; i--) {
-                            recipientLineSpans.push(takeFromLineSpans[i]);
-                        }
-                    }
-
-                    // ugh the key is that I wasn't maintaining a valid entry in the ring buffer for the other states.
-                    // I'm 100% serious that I understand it.
-                    // I just am so exhausted I need to sleep maybe
-
-                    // remove recipient's empty span before moving the known to exist content from takeFromLineSpans
-                    //recipientLineSpans.length = 0; // Remove the empty string from the small
-                    // ^ you don't remove it cuz u need to give it to the one you're receiving...
-                    
-                    //smallLineSpans = largeLineSpans // update the local variable
-                }
-                //
-                //if (largeLineSpans_length === 1 && largeLineSpans[0].text.length === 0) { // (do not append if large line is just an empty string)
-                //    isAtEndOfLine = true;
-                //}
-                //else {
-                //    
-                //    if (smallLineSpans.length === 1 && smallLineSpans[0].text.length === 0) {
-                //        smallLineSpans.length = 0; // Remove the empty string from the small
-                //        EDI_lineStringCache[smallLineAndColumnIndices_indexLine] = largeLineSpans; // current receives entirety of next's spans.
-                //        smallLineSpans = largeLineSpans // update the local variable
-                //    }
-                //    else {
-                //        for (let i = 0; i < largeLineSpans_length; i++) {
-                //            smallLineSpans.push(largeLineSpans[i]);
-                //        }
-                //    }
-                //}
-                //
-                visibleLinesRemovedCount++;
-            }
-            else { // - [ ] keeping, !removing
-
-            }
-        }
-        else {
-            if (largeLineSpans) { // - [ ] !keeping, removing
-                
-            }
-            else { // - [ ] !keeping, !removing
-                
-            }
-        }
-    }
-
 
     // Remove middle line(s)
     if (linesRemovedCount > 0) {

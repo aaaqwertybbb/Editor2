@@ -1793,8 +1793,6 @@ function EDI_render_do_RemoveSelection() {
 
         // 1. Target the specific line row index where the typing is taking place
         const activeLine = INTS[fEDI_cursor_indexLine];
-        let lineSpans = EDI_lineStringCache[activeLine];
-
 
         // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
         largeLineSpans_RINGBUFFERINDEX = activeLine - INTS[fEDI_virtualIndexLine];
@@ -1803,7 +1801,7 @@ function EDI_render_do_RemoveSelection() {
         //if (activeLine_ringBufferIndex < 0) { return; } // line is not in viewport
         
         if (largeLineSpans_RINGBUFFERINDEX >= 0) {
-            
+            let lineSpans = EDI_lineStringCache[largeLineSpans_RINGBUFFERINDEX];
             largeLineSpans = lineSpans;
 
             // 2. Determine the column position where the *first character of this edit burst* began

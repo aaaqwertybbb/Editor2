@@ -2072,6 +2072,8 @@ function EDI_render_do_RemoveSelection() {
     }
     */
 
+    // I gotta cook/eat chicken
+
     let shouldSkipSpecificRecache = false;
 
     if (linesRemovedCount > 0) {

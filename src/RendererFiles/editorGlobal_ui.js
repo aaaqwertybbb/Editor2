@@ -189,7 +189,7 @@ function EDI_resizeCanvases() {
     const ctxGutter = gutterCanvas.getContext('2d');
     ctxGutter.scale(dpr, dpr);
     // Re-apply your styles here since changing width/height resets canvas states!
-    ctxGutter.font = '12px monospace';
+    ctxGutter.font = '14px monospace';
     ctxGutter.textBaseline = 'top';
     ctxGutter.fillStyle = '#007036';
     ctxGutter.fillRect(0, 0, gutterCanvas.width, gutterCanvas.height); 
@@ -198,7 +198,7 @@ function EDI_resizeCanvases() {
 
     const ctxText = textCanvas.getContext('2d');
     ctxText.scale(dpr, dpr);
-    ctxText.font = '12px monospace';
+    ctxText.font = '14px monospace';
     ctxText.textBaseline = 'top';
     ctxText.fillStyle = '#ffffff';
     
@@ -220,7 +220,7 @@ function EDI_resizeCanvases() {
     EDI_characterWidth = charWidth;
 
     // Run once during setup / font configuration
-    //ctx.font = '12px monospace';
+    //ctx.font = '14px monospace';
 
     //const metrics = ctx.measureText('M');
     const fontActualHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;

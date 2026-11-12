@@ -4017,7 +4017,7 @@ function EDI_cacheIndentation(originalIndexLine, originalIndexColumn, lastValidI
     if (count > 0) {
         let subarray = EDI_textByteList_bytes.subarray(line_start, line_start + count);
         EDI_cursor_enterKey_newLinePlusIndentation_byteList.set(subarray, setOffset);
-        EDI_cursor_cached_indentation_string = EDI_decoder.decode(subarray);
+        EDI_cursor_cached_indentation_string = ' '.repeat(indentation_string_visualWidth);
     }
     else {
         EDI_cursor_cached_indentation_string = '';

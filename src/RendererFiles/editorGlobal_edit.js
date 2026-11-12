@@ -109,7 +109,12 @@ let EDI_cursor_cursorTranslateXValue = 0;
  */
 let EDI_cursor_enterKey_newLinePlusIndentation_byteList = null;
 
-/** Depending on 'BYTES[byteEDI_cursor_enterKeyEventKind]' this may either start OR end with '\n'. */
+/**
+ * (TODO: This doesn't contain the linefeed at all right? I removed the assumedly copy and pasted comment that said it contained a linefeed)
+ * 
+ * The UI needs this with the tabs changed to spaces equal to the respective tab's tabWidth
+ * i.e.: it isn't the same as the bytes.
+ */
 let EDI_cursor_cached_indentation_string = null;
 
 // see: 'const byteEDI_clipboard_may_have_changed' in fieldBuffer.js

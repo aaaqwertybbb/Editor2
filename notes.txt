@@ -36,3 +36,17 @@ Can you just "show up" and eventually get a PhD?
 I think the answer is no.
 But I also admit there are times where it just is about "showing up".
 So where is that deviation and by how much does it deviate, etc...
+
+====
+
+I don't feel well right now.
+But ultimately this is one of those moments where I need to "just show up".
+I've studied this material in an abstract way, I compared and contrasted the various means of creating such a UI.
+Whether it be many HTML dom elements or a canvas element.
+The overhead of garbage collection.
+The overhead of caching vs not caching and the balance between them.
+The ring buffer logic to avoid recaching everything but instead only caching what comes into view.
+
+And yet I don't want to be here right now typing this.
+So here is a blatant case of that similarity to an MMO.
+All I need to do is "show up" today and I'll "win".

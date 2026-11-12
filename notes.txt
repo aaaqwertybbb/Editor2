@@ -61,3 +61,13 @@ It hits deep and I think I feel so upset because deep down I know that laziness 
 ====
 
 I don't even only feel lazy, I feel dull, I think I feel sad.
+
+====
+
+This video's thumbnail hurts my feelings when I see it "Quin Reviews PirateSoftware's Code"
+It's a screenshot of an array that contains all kinds of data and the individual it is critiquing is generally considered
+a clown, and I don't want to so agressively agree but I do agree to a degree.
+I'm not a fan of PirateSoftware, I was there during the "do you see my mana" incident too.
+So it hurts my feelings to be compared to him.
+What I'm doing with the INTS and BYTES arrays are a result of attempting to solve a problem that requires a large understanding of performance.
+And when I started I lacked understanding of that to a great extent. And I went down a rabbit hole. That's all it is.

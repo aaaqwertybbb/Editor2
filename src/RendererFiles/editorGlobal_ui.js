@@ -216,7 +216,7 @@ function EDI_resizeCanvases() {
 
 
     // The exact pixel width of every single character in a monospace font
-    const charWidth = ctxText.measureText('M').width; 
+    const charWidth = ctxText.measureText('M').width;
     EDI_characterWidth = charWidth;
 
     // Run once during setup / font configuration
@@ -1463,6 +1463,13 @@ function EDI_render_do_EnterKey() {
         else final_ringBufferIndex = (final_ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
         if (final_ringBufferIndex < 0) { return; } // ???
 
+        // TODO: (when holding enter key) Among a line, where you have indentation will recreate the same 'spanText' over and over, very wasteful. This includes the wasteful steps of substringing...
+        // ...cache 'spanText'. (I think comment specifically refers to "among line" case. Where one might decide to concatenate the spanText and the split text over and over)
+        //
+        // TODO: The 'EDI_cursor_cached_indentation_string' needs to be changed to be '\t' => the amount of spaces for the given tab width so that the UI renders correctly (given the way it is written).
+        //
+        let spanText = EDI_cursor_cached_indentation_string;
+
         // TODO: EDI_cursor_cached_indentation_string ensure post rewrite that it is in each conditional branch (as of writing this comment I know it isn't)
 
         if (INTS[fEDI_cursor_editIndexColumn] === 0) { // start of line
@@ -1529,11 +1536,11 @@ function EDI_render_do_EnterKey() {
                 let nextLineSpans = EDI_lineStringCache[next_ringBufferIndex];
                 if (nextLineSpans.length > 0) {
                     nextLineSpans.length = 1;
-                    nextLineSpans[0].text = '';
+                    nextLineSpans[0].text = spanText;
                     nextLineSpans[0].color = EDI_tokenColors[0];
                 }
                 else {
-                    nextLineSpans.push({ text: '', color: EDI_tokenColors[0] });
+                    nextLineSpans.push({ text: spanText, color: EDI_tokenColors[0] });
                 }
             }
             else { // among a line
@@ -1552,10 +1559,7 @@ function EDI_render_do_EnterKey() {
                 INTS[fEDI_cursor_indexLine] = INTS[fEDI_cursor_editIndexLine];
                 INTS[fEDI_cursor_indexColumn] = INTS[fEDI_cursor_editIndexColumn];
 
-                // TODO: (when holding enter key) Among a line, where you have indentation will recreate the same 'spanText' over and over, very wasteful. This includes the wasteful steps of substringing...
-                // ...cache 'spanText'.
-                //
-                let spanText = EDI_cursor_cached_indentation_string;
+                
                 let relativeInsertIndex = 0;
 
                 let targetedSpan = null;

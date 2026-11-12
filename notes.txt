@@ -50,3 +50,7 @@ The ring buffer logic to avoid recaching everything but instead only caching wha
 And yet I don't want to be here right now typing this.
 So here is a blatant case of that similarity to an MMO.
 All I need to do is "show up" today and I'll "win".
+
+I say this because the Enter key isn't working. But why is it not working?
+I know exactly why but I feel an immense sensation of "laziness"?
+If I know how everything about this problem at hand, there is no metacognition necessary today, I simply show up and "defeat some boars until I level"

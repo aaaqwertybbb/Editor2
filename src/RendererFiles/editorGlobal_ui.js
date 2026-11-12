@@ -3134,7 +3134,7 @@ function EDI_createStyleForSelection(ctx, viewportY, local_lineHeight, firstVirt
         //
         // Fast Monospace Layout Math: Multiply columns directly by character width!
         const x = selStartCol * EDI_characterWidth;
-        const width = (selEndCol - selStartCol) * EDI_characterWidth;
+        const width = (selEndCol - selStartCol + 1) * EDI_characterWidth;
         //
         // Draw a background highlighting block behind the text positions
         ctx.fillRect(x, viewportY, width, local_lineHeight);
@@ -3156,7 +3156,7 @@ function EDI_createStyleForSelection(ctx, viewportY, local_lineHeight, firstVirt
             //
             // Fast Monospace Layout Math: Multiply columns directly by character width!
             const x = selStartCol * EDI_characterWidth;
-            const width = (selEndCol - selStartCol) * EDI_characterWidth;
+            const width = (selEndCol - selStartCol + 1) * EDI_characterWidth;
             //
             // Draw a background highlighting block behind the text positions
             ctx.fillRect(x, viewportY, width, local_lineHeight);

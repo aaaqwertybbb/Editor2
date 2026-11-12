@@ -1498,11 +1498,11 @@ function EDI_render_do_EnterKey() {
             let currentLineSpans = EDI_lineStringCache[current_ringBufferIndex];
             if (currentLineSpans.length > 0) {
                 currentLineSpans.length = 1;
-                currentLineSpans[0].text = '';
+                currentLineSpans[0].text = spanText;
                 currentLineSpans[0].color = EDI_tokenColors[0];
             }
             else {
-                currentLineSpans.push({ text: '', color: EDI_tokenColors[0] });
+                currentLineSpans.push({ text: spanText, color: EDI_tokenColors[0] });
             }
             //EDI_shiftLinesOfText_ToALarger_IndexLine_byOne(ringBufferIndex_last, ringBufferIndex_current);
             //EDI_lineWasInsertedValidateGutter(INTS[fEDI_lineEndPositionList_count] + INTS[fEDI_cursor_editLineFeedCount]);

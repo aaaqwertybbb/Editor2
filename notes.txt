@@ -2,4 +2,6 @@ okay I got 2 good applications
 - CVS (it is I think the one immediately next to the quickchek that I work at)
 - Shoprite one that is decently close
 
-
+I don't feel good.
+'Space' 'EnterKey' 'a' doesn't work.
+So I want it to work

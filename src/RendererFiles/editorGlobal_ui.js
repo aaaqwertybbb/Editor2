@@ -1633,7 +1633,7 @@ function EDI_render_do_EnterKey() {
                 let nextLineSpans = EDI_lineStringCache[next_ringBufferIndex];
                 if (nextLineSpans.length > 0) {
                     nextLineSpans.length = 1;
-                    nextLineSpans[0].text = lastText;
+                    nextLineSpans[0].text = spanText + lastText;
                     nextLineSpans[0].color = targetedSpan.color;
                 }
                 else {
@@ -1642,12 +1642,13 @@ function EDI_render_do_EnterKey() {
 
                 lineSpans[targetedSpanIndex].text = firstText;
 
-                for (let i = lineSpans.length - 1; i > targetedSpanIndex; i--) {
-                    nextLineSpans.unshift(lineSpans.pop());
+                for (let i = targetedSpanIndex + 1; i < lineSpans.length; i++) {
+                    nextLineSpans.push(lineSpans[i]);
                 }
+                lineSpans.length = targetedSpanIndex + 1;
 
-                // move tail to head?
-                nextLineSpans.unshift(nextLineSpans.pop());
+                //// move tail to head?
+                //nextLineSpans.unshift(nextLineSpans.pop());
 
 
                 // Prior to returning from this function restore the original 'indexLine', and 'indexColumn'. (2 of 2)

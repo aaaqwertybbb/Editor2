@@ -1268,7 +1268,7 @@ function EDI_render_do_DuplicateOrPaste() {
                 EDI_render_request(RenderKind_Scroll);
                 //EDI_render_specific_recache_INSERTION(activeLine + 1, insertionCount, availableRingBufferNodesVisuallyAfterExpandedOne, next_ringBufferIndex, false);
             }
-            return;
+            //return;
         }
 
 
@@ -1332,7 +1332,7 @@ function EDI_render_do_DuplicateOrPaste() {
             }
             switch (characterKindNumber_NEEDS_WRITTEN) {
                 case 1/*'\n'*/:
-                    DUPLICATE_writeLinefeed(functionState, linefeedLength);
+                    //DUPLICATE_writeLinefeed(functionState, linefeedLength);
                     linefeedLength = 0;
                     break;
                 case 2/*wordLetterOrDigit*/:

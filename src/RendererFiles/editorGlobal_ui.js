@@ -1148,12 +1148,17 @@ function EDI_render_do_DuplicateOrPaste() {
             byteArray = EDI_cursor_EDI_duplication_bytes;
             insert_character_count = byteArray.length;
             linesInsertedCount = INTS[fEDI_cursor_EDI_duplication_totalLineEndCount];
+            // TODO: for duplicate: (this never would cache too cause finalize clear edit state is if (true) for duplicate to clear state.)
+            // EDI_cursor_EDI_duplicationORpaste_cacheEachLineSubstringDecodedArray = new Array(EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS.length);
         }
         else if (INTS[fEDI_cursor_editKind] === EditKind_Paste) {
             INTS[fEDI_cursor_edit_eventCount_drawn]++;
             byteArray = EDI_cursor_EDI_paste_clipboardContent_bytes;
             insert_character_count = EDI_cursor_EDI_paste_clipboardContent_string.length;
             linesInsertedCount = INTS[fEDI_cursor_EDI_paste_clipboardContent_totalLineEndCount];
+            if (EDI_cursor_EDI_duplicationORpaste_cacheEachLineSubstringDecodedArray === null) {
+                EDI_cursor_EDI_duplicationORpaste_cacheEachLineSubstringDecodedArray = new Array(EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS.length);
+            }
         }
 
         // 1. Target the specific line row index where the typing is taking place
@@ -1310,6 +1315,7 @@ function EDI_render_do_DuplicateOrPaste() {
             targetedSpan: targetedSpan,
             relativeInsertIndex: relativeInsertIndex,
             last_valid_indexColumn_currentLine_isAt: last_valid_indexColumn_currentLine_isAt,
+            lineOffset: 0
         };
 
         while (true) {
@@ -1405,7 +1411,16 @@ function EDI_render_do_DuplicateOrPaste() {
                     linefeedLength = 0;
                     break;
                 case 2/*wordLetterOrDigit*/:
-                    EDI_duplicate_and_paste_writeWord(wordLength, EDI_decoder.decode(byteArray.subarray(wordStart, wordStart + wordLength)), functionState);
+                    if (EDI_cursor_EDI_duplicationORpaste_cacheEachLineSubstringDecodedArray !== null && EDI_cursor_EDI_duplicationORpaste_cacheEachLineSubstringDecodedArray[functionState.lineOffset] === undefined) {
+                        EDI_cursor_EDI_duplicationORpaste_cacheEachLineSubstringDecodedArray[functionState.lineOffset] = EDI_decoder.decode(byteArray.subarray(wordStart, wordStart + wordLength));
+                    }
+                    // TODO: for duplicate: (this never would cache too cause finalize clear edit state is if (true) for duplicate to clear state.)
+                    // EDI_cursor_EDI_duplicationORpaste_cacheEachLineSubstringDecodedArray = new Array(EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS.length);
+                    const word = EDI_cursor_EDI_duplicationORpaste_cacheEachLineSubstringDecodedArray !== null
+                        ? EDI_cursor_EDI_duplicationORpaste_cacheEachLineSubstringDecodedArray[functionState.lineOffset]
+                        : EDI_decoder.decode(byteArray.subarray(wordStart, wordStart + wordLength));
+                    functionState.lineOffset++;
+                    EDI_duplicate_and_paste_writeWord(wordLength, word, functionState);
                     wordStart = 0;
                     wordLength = 0;
                     break;

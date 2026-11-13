@@ -165,6 +165,8 @@ let EDI_cursor_EDI_duplication_arrayLinePositions_OFFSETS = null;
  * EOF style
  */
 let EDI_cursor_EDI_duplication_arrayLineVisualLengths = null;
+/** EOF style */
+let EDI_cursor_EDI_duplicationORpaste_cacheEachLineSubstringDecodedArray = null;
 
 /**
  * Google AI: "I want to make a Custom TextDecoder"
@@ -2265,6 +2267,7 @@ function EDI_finalizeEdit_ClearEditState() {
         EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = null;
         EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = null;
         BYTES[byteEDI_clipboard_may_have_changed] = 1;
+        EDI_cursor_EDI_duplicationORpaste_cacheEachLineSubstringDecodedArray = null;
     }
 
     if (true) { // if true to explicitly point out the pattern matching of the above and that this one intentionally will always clear.
@@ -2274,6 +2277,7 @@ function EDI_finalizeEdit_ClearEditState() {
         INTS[fEDI_cursor_EDI_duplication_totalLineEndCount] = 0;
         EDI_cursor_EDI_duplication_arrayLinePositions_OFFSETS = null;
         EDI_cursor_EDI_duplication_arrayLineVisualLengths = null;
+        //EDI_cursor_EDI_duplicationORpaste_cacheEachLineSubstringDecodedArray = null;
     }
 
     INTS[fEDI_cursor_editKind] = EditKind_None;
@@ -3067,6 +3071,7 @@ function EDI_cursor_clear() {
     EDI_cursor_EDI_paste_clipboardContent_bytes = null;
     EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = null;
     EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = null;
+    EDI_cursor_EDI_duplicationORpaste_cacheEachLineSubstringDecodedArray = null;
     BYTES[byteEDI_clipboard_may_have_changed] = 1;
 
     BYTES[byteEDI_duplication_may_have_changed] = 1;
@@ -3075,6 +3080,7 @@ function EDI_cursor_clear() {
     INTS[fEDI_cursor_EDI_duplication_totalLineEndCount] = 0;
     EDI_cursor_EDI_duplication_arrayLinePositions_OFFSETS = null;
     EDI_cursor_EDI_duplication_arrayLineVisualLengths = null;
+    // EDI_cursor_EDI_duplicationORpaste_cacheEachLineSubstringDecodedArray = null;
 
     INTS[fEDI_editret_cursor_EDI_duplicate_small] = 0;
     INTS[fEDI_editret_cursor_EDI_duplicate_length] = 0;
@@ -3135,6 +3141,7 @@ async function EDI_read_clipboard() {
         INTS[fEDI_cursor_EDI_paste_clipboardContent_totalLineEndCount] = countNewlines(EDI_cursor_EDI_paste_clipboardContent_string);
         EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS = new Array(1 + INTS[fEDI_cursor_EDI_paste_clipboardContent_totalLineEndCount]);
         EDI_cursor_EDI_paste_clipboardContent_arrayLineVisualLengths = new Array(1 + INTS[fEDI_cursor_EDI_paste_clipboardContent_totalLineEndCount]);
+        EDI_cursor_EDI_duplicationORpaste_cacheEachLineSubstringDecodedArray = null;
 
         let lineEndIndex = 0;
         let visualLength = 0;
@@ -3177,6 +3184,7 @@ function EDI_read_duplication() {
         INTS[fEDI_cursor_EDI_duplication_totalLineEndCount] = countNewlines(EDI_decoder.decode(EDI_cursor_EDI_duplication_bytes));
         EDI_cursor_EDI_duplication_arrayLinePositions_OFFSETS = new Array(1 + INTS[fEDI_cursor_EDI_duplication_totalLineEndCount]);
         EDI_cursor_EDI_duplication_arrayLineVisualLengths = new Array(1 + INTS[fEDI_cursor_EDI_duplication_totalLineEndCount]);
+        EDI_cursor_EDI_duplicationORpaste_cacheEachLineSubstringDecodedArray = null;
 
         let lineEndIndex = 0;
         let visualLength = 0;

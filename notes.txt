@@ -6,6 +6,7 @@ okay I got 2 good applications
 - [ ] 1:30 interview
 - [ ] Scroll horizontally click the cursor is drawing too far "on the right side" due to assumedly receiving idk but then you if it is fine when... etc...
 - [ ] Duplicate/Paste progress
+    - [ ] Do the available shift if shift
 
 
 

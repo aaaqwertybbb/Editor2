@@ -311,7 +311,97 @@ function EDI_scrollViewport_scroll() {
     EDI_render_request(RenderKind_Scroll);
 }
 
-function EDI_render_specific_recache(recycled_itemIndex, linesRemovedCount, availableRingBufferNodesVisuallyAfterCollapsedOne, recycled_ringBufferIndex, fakeLineIndices) {
+function EDI_render_specific_recache_REMOVAL(recycled_itemIndex, linesRemovedCount, availableRingBufferNodesVisuallyAfterCollapsedOne, recycled_ringBufferIndex, fakeLineIndices) {
+    let ringBufferIndex = recycled_ringBufferIndex - 1;
+    let lineIndex = recycled_itemIndex + linesRemovedCount;
+
+    const local_ArrayFrom_textElement_children_length = INTS[fEDI_ArrayFrom_textElement_children_length];
+    const cache = EDI_lineStringCache;
+    const cacheNUMBERS = EDI_line_NUMBER_StringCache;
+
+    const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
+    const local_EDI_lineEndPositionList_count = INTS[fEDI_lineEndPositionList_count];
+
+    const local_bytes = EDI_textByteList_bytes;
+    const local_styles = EDI_styleBuffer; // Your matching parallel array
+    const local_EDI_tokenColors = EDI_tokenColors;
+
+    const local_EDI_decoder_CUSTOM = EDI_decoder_CUSTOM;
+
+    // If you intend to use the variables 'new_lineStart' or 'new_lineEnd': Important detail to consider: the lines that are >= INTS[fEDI_lineEndPositionList_count] will continually increment new_lineStart by 1 So if you expect this to accurately represent the EOF position when it is in view, it probably does NOT.
+    let new_lineStart = 0;
+    let new_lineEnd = -1;
+    let new_lowerBound = lineIndex;
+    if (new_lowerBound < local_EDI_lineEndPositionList_count && new_lowerBound !== 0) {
+        new_lineEnd = local_EDI_lineEndPositionList_data[new_lowerBound - 1];
+    }
+
+    // Render pure line numbers
+    const upperLimit = availableRingBufferNodesVisuallyAfterCollapsedOne;
+    for (let i = 0; i < upperLimit; i++) {
+        // (faster than modulo given this context)
+        ringBufferIndex++;
+        if (ringBufferIndex >= local_ArrayFrom_textElement_children_length) {
+            ringBufferIndex = 0;
+        }
+
+        const lineSpans = cache[ringBufferIndex];
+
+        // THIS WILL CALCULATE THE TEXT OF THE LINENUMBER AND THE LINE OF TEXT ITSELF
+        // AND ONLY DO SO FOR THE NEWLY SCROLLED INTO VIEW LINES
+            
+        const indexLine = lineIndex + i;
+        new_lineStart = new_lineEnd + 1;
+        if (indexLine < local_EDI_lineEndPositionList_count) {
+            if (fakeLineIndices) {
+                cacheNUMBERS[ringBufferIndex] = String(indexLine + 1 - linesRemovedCount);
+            }
+            else {
+                cacheNUMBERS[ringBufferIndex] = String(indexLine + 1);
+            }
+            new_lineEnd = local_EDI_lineEndPositionList_data[indexLine];
+        } else {
+            cacheNUMBERS[ringBufferIndex] = '~';
+            new_lineEnd = new_lineStart;
+        }
+
+        let spanIndex = 0;
+            
+        // IF THE LINE CONTAINS CHARACTERS
+        if (new_lineStart !== new_lineEnd) {
+            // Execute a single loop invocation for the entire line text data
+            spanIndex = local_EDI_decoder_CUSTOM.decodeLineTokens(
+                new_lineStart,
+                new_lineEnd,
+                lineSpans,
+                spanIndex,
+                local_EDI_tokenColors,
+                local_bytes,
+                local_styles
+            );
+        }
+        // FIXED BOUNDARY: IF THE LINE IS COMPLETELY EMPTY (0 Bytes)
+        else {
+            if (spanIndex < lineSpans.length) {
+                const existingSpan = lineSpans[spanIndex++];
+                existingSpan.text = '';
+                existingSpan.color = local_EDI_tokenColors[0] || '#ffffff'; // Fallback to standard color
+            }
+            else {
+                lineSpans.push({
+                    text: '',
+                    color: local_EDI_tokenColors[0] || '#ffffff' // Fallback to standard color
+                });
+                spanIndex++;
+            }
+        }
+
+        lineSpans.length = spanIndex;
+    }
+    EDI_render_do_Scroll();
+}
+
+function EDI_render_specific_recache_INSERTION(recycled_itemIndex, linesRemovedCount, availableRingBufferNodesVisuallyAfterCollapsedOne, recycled_ringBufferIndex, fakeLineIndices) {
     let ringBufferIndex = recycled_ringBufferIndex - 1;
     let lineIndex = recycled_itemIndex + linesRemovedCount;
 
@@ -1105,32 +1195,89 @@ function EDI_render_do_DuplicateOrPaste() {
             runningColumnIdx += spanLength;
         }
 
-        // 4. If we successfully isolated the text slice segment inside the cache, modify it
-        if (targetedSpan !== null) {
-            //// Decode only the new slice of un-drawn keys typed during this frame frame burst
-            //const freshlyTypedString = EDI_decoder.decode(
-            //    EDI_cursor_textInsertionBuffer.subarray(
-            //        INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue], 
-            //        INTS[fEDI_cursor_editLength_characters]
-            //    )
-            //);
-//
-            //// Splice the text inline directly into the string reference inside the cache array frame
-            //targetedSpan.text = 
-            //    targetedSpan.text.slice(0, relativeInsertIndex) + 
-            //    freshlyTypedString + 
-            //    targetedSpan.text.slice(relativeInsertIndex);
-        }
-
         // 5. Commit the continuation value forward so the next frame knows where to pick up
         INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue] = INTS[fEDI_cursor_editLength_characters];
 
-        
         if (targetedSpan === null) {
             // TODO: silent error bad
             //alert('// EDI_paste TODO: silent error bad');
             return;
         }
+
+
+
+
+
+
+        // See comment "Awkward explicit inlining of 'EDI_indexLineTo_ringBufferIndex'" for more information.
+        let ringBufferIndex = activeLine - INTS[fEDI_virtualIndexLine];
+        if (ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length] || ringBufferIndex < 0) ringBufferIndex = -1;
+        else ringBufferIndex = (ringBufferIndex + INTS[fEDI_ringBuffer_indexZero]) % INTS[fEDI_virtualCount];
+        if (ringBufferIndex < 0) { return; } // line is not in viewport
+
+
+
+
+        const insertionCount = linesInsertedCount;
+        if (insertionCount === 0) { return; }
+
+        const final_ringBufferIndexItem = get_final_ringBufferIndex();
+
+        // This case doesn't make sense, it means the virtualCount === 0
+        if (final_ringBufferIndexItem < 0) { EDI_render_force_fullscreen_redraw(); return; }
+        // you can just "do nothing" so to speak (you need to "update the scrollbar" still / etc...) and you've already "update the scrollbar"ed so you just return.
+        if (ringBufferIndex === final_ringBufferIndexItem) { return; }
+
+        // If insertion count completely shifts visible TreeViewNodes that exist under the expanded TreeViewNode off screen you can just redraw every node below the one that was expanded.
+        // TODO: determine a more optimized way to calculate this than just looping over and over.
+        let availableRingBufferNodesVisuallyAfterExpandedOne = 0;
+        for (let n_index = ringBufferIndex;;) {
+            availableRingBufferNodesVisuallyAfterExpandedOne++;
+            n_index = n_index + 1;
+            if (n_index >= INTS[fEDI_ArrayFrom_textElement_children_length]) {
+                n_index -= INTS[fEDI_ArrayFrom_textElement_children_length];
+            }
+            if (n_index === final_ringBufferIndexItem) {
+                break;
+            }
+        }
+
+        const next_ringBufferIndex = ringBufferIndex + 1;
+        if (next_ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length]) {
+            next_ringBufferIndex -= INTS[fEDI_ArrayFrom_textElement_children_length];
+        }
+
+        if (insertionCount >= availableRingBufferNodesVisuallyAfterExpandedOne) {
+            // finalize edit?
+            throw new Error();
+            //EXPLORER_draw_BATCH_request(indexItem + 1, availableRingBufferNodesVisuallyAfterExpandedOne, 3, next_ringBufferIndex);
+        }
+        else {
+            const final_indexItem = activeLine + availableRingBufferNodesVisuallyAfterExpandedOne; // TODO: This is a weird way to get the 'final_indexItem'
+            EDI_handleRingBufferNodesThatAreOffscreen_DuplicateOrPaste(final_ringBufferIndexItem, final_indexItem, activeLine, ringBufferIndex, insertionCount);
+            let n_ringBufferIndex = next_ringBufferIndex;
+            for (let i = 0; i < insertionCount; i++) {
+                EDI_lineStringCache[n_ringBufferIndex].length = 1;
+                EDI_lineStringCache[n_ringBufferIndex][0].text = '';
+                n_ringBufferIndex = n_ringBufferIndex + 1;
+                if (n_ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length]) {
+                    n_ringBufferIndex -= INTS[fEDI_ArrayFrom_textElement_children_length];
+                }
+            }
+            EDI_render_request(RenderKind_Scroll);
+            //EDI_render_specific_recache_INSERTION(activeLine + 1, insertionCount, availableRingBufferNodesVisuallyAfterExpandedOne, next_ringBufferIndex, false);
+        }
+
+
+
+        return;
+
+
+
+
+
+
+
 
         let insertionLength = 0;
 
@@ -1224,6 +1371,70 @@ function EDI_render_do_DuplicateOrPaste() {
     EDI_render_request(RenderKind_Scroll);
     //EDI_render_TextContent();
     //EDI_render_Cursor();
+}
+
+function EDI_handleRingBufferNodesThatAreOffscreen_DuplicateOrPaste(final_ringBufferIndex, final_indexItem, indexItem_of_expanded_node, ringBufferIndex_of_expanded_node, recycleCount) {
+    let displaced_itemIndex = indexItem_of_expanded_node + 1;
+    let displaced_ringBufferIndex = ringBufferIndex_of_expanded_node + 1;
+    if (displaced_ringBufferIndex >= INTS[fEDI_virtualCount]) {
+        displaced_ringBufferIndex -= INTS[fEDI_virtualCount];
+    }
+
+    // TODO: calculate the earliest recycled node faster than just "looping a minus 1 over and over"
+    let recycle_itemIndex = final_indexItem;
+    let recycle_ringBufferIndex = final_ringBufferIndex;
+    for (let i = 1/* start at 1 so you skip a loop */; i < recycleCount; i++) {
+        recycle_itemIndex--;
+        recycle_ringBufferIndex--;
+        if (recycle_ringBufferIndex < 0) {
+            recycle_ringBufferIndex = INTS[fEDI_virtualCount] - 1;
+        }
+    }
+
+    const inclusive_earliest_recycle_ringBufferIndex = recycle_ringBufferIndex;
+
+    // 3. Perform a block rotation via triple-reversal 
+    // This repositions all 'displaced(s)' and 'recycle(s)' in O(N) operations total, discarding the nested loops
+    const end_of_recycle_block = final_ringBufferIndex;
+    
+    const endOfDisplacedBlock = inclusive_earliest_recycle_ringBufferIndex - 1;
+    if (endOfDisplacedBlock < 0) {
+        endOfDisplacedBlock = INTS[fEDI_virtualCount] - 1;
+    }
+
+    EDI_reverseBufferSegment(displaced_ringBufferIndex, endOfDisplacedBlock);                   // Reverse Displaced(s)
+    EDI_reverseBufferSegment(inclusive_earliest_recycle_ringBufferIndex, end_of_recycle_block); // Reverse Recycle(s)
+    EDI_reverseBufferSegment(displaced_ringBufferIndex, end_of_recycle_block);                  // Reverse entire window
+
+    // The 'recycles' will be drawn with their text, depth, and translateY immediately after this function so you can skip them.
+    // Since everything was reversed in earlier steps this is the way to do exactly that.
+    for (let i = 0; i < recycleCount; i++) {
+        displaced_ringBufferIndex++;
+        if (displaced_ringBufferIndex >= INTS[fEDI_virtualCount]) {
+            displaced_ringBufferIndex -= INTS[fEDI_virtualCount]
+        }
+        displaced_itemIndex++;
+    }
+
+    for (;;) {
+        //let depth = 0;
+        //if (displaced_itemIndex < EXPLORER_treeViewNodes.count_abstract) {
+        //    depth = EXPLORER_treeViewNodes.getDepth(displaced_itemIndex);
+        //}
+
+        //EXPLORER_ringBuffer[displaced_ringBufferIndex].style.transform = `translate(${CONST_EXPLORER_offsetPerDepth * depth}px, ${INTS[fEXPLORER_itemHeightNumber] * displaced_itemIndex}px)`;
+
+        if (displaced_ringBufferIndex === final_ringBufferIndex) {
+            break;
+        }
+
+        displaced_itemIndex++;
+
+        displaced_ringBufferIndex++;
+        if (displaced_ringBufferIndex >= INTS[fEDI_virtualCount]) {
+            displaced_ringBufferIndex -= INTS[fEDI_virtualCount]
+        }
+    }
 }
 
 /**
@@ -2216,11 +2427,11 @@ function EDI_render_do_RemoveSelection() {
             }
 
             // This is going to be slightly different then because you haven't finalized yet whereas the explorer did
-            // TODO: 'EDI_render_specific_recache' function does not exist
+            // TODO: 'EDI_render_specific_recache_REMOVAL' function does not exist
             // !!!! There is no specific redraw you are just specific recalculating cache
             INTS[fEDI_cursor_editLength_characters] = original_edit_length;
             // select end of 'aaaa' line start there then end of 'YYYY' line including line end then scroll 'aaaa' back into view then remove selection it doesn't currently work because you need to offset lines by linesRemovedCount which is not the available etc...
-            EDI_render_specific_recache(smallLineAndColumnIndices_indexLine + 1, linesRemovedCount, availableRingBufferNodesVisuallyAfterCollapsedOne, next_ringBufferIndex, /*fakeLineIndices*/ true);
+            EDI_render_specific_recache_REMOVAL(smallLineAndColumnIndices_indexLine + 1, linesRemovedCount, availableRingBufferNodesVisuallyAfterCollapsedOne, next_ringBufferIndex, /*fakeLineIndices*/ true);
         }
         else {
             EDI_handleRingBufferNodesThatAreOffscreen_RemoveSelection(
@@ -2243,12 +2454,12 @@ function EDI_render_do_RemoveSelection() {
             }
 
             // This is going to be slightly different then because you haven't finalized yet whereas the explorer did
-            // TODO: 'EDI_render_specific_recache' function does not exist
+            // TODO: 'EDI_render_specific_recache_REMOVAL' function does not exist
             // !!!! There is no specific redraw you are just specific recalculating cache
             INTS[fEDI_cursor_editLength_characters] = original_edit_length;
-            EDI_render_specific_recache(recycled_itemIndex, linesRemovedCount, linesRemovedCount, recycled_ringBufferIndex, /*fakeLineIndices*/ true);
+            EDI_render_specific_recache_REMOVAL(recycled_itemIndex, linesRemovedCount, linesRemovedCount, recycled_ringBufferIndex, /*fakeLineIndices*/ true);
 
-            // So then if you didn't do 'EDI_render_specific_recache' it just wouldn't cache the lines of text that fell into view is all?
+            // So then if you didn't do 'EDI_render_specific_recache_REMOVAL' it just wouldn't cache the lines of text that fell into view is all?
             // So this should still bring all the latter and in view lines up 1 line if you remove from end of small to end of large (minus line ending)
             // 
             // it did
@@ -2287,7 +2498,7 @@ function EDI_render_do_RemoveSelection() {
         }
     }
 
-    // TODO: This happens too late for the 'EDI_render_specific_recache' invocations to have it ready it, for now am duplicating this line above the invocations.
+    // TODO: This happens too late for the 'EDI_render_specific_recache_REMOVAL' invocations to have it ready it, for now am duplicating this line above the invocations.
     INTS[fEDI_cursor_editLength_characters] = original_edit_length;
 
     if (!shouldSkipSpecificRecache) {

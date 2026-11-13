@@ -473,7 +473,13 @@ function EDI_state_setText_byteArray(paddedUint8Array, textByteLength, fileStart
     EDI_lastReadNumber_scrollTop = 0;
     EDI_lastReadNumber_scrollLeft = 0;
 
-    EDI_state_clear(lineEndCount + 1);
+    let necessaryCapacity = lineEndCount + 1; // +1 for EOF
+    if (lineEndCount === 0) {
+        // TODO: Move this inside of 'EDI_lineEndPositionList_ensureCapacityForInsertion'?
+        necessaryCapacity = 16;
+    }
+
+    EDI_state_clear(necessaryCapacity);
     set_EDI_fileStartsWithBom(fileStartsWithBom);
     EDI_textSourceIdentifier = textSourceIdentifier;
     EDI_FORMATTED_textSourceIdentifier = FORMATTED_textSourceIdentifier;
@@ -489,11 +495,8 @@ function EDI_state_setText_byteArray(paddedUint8Array, textByteLength, fileStart
     INTS[fEDI_textByteList_count] = textByteLength;
     const local_EDI_textByteList_count = INTS[fEDI_textByteList_count];
 
-    if (lineEndCount === 0) {
-        // TODO: Move this inside of 'EDI_lineEndPositionList_ensureCapacityForInsertion'?
-        lineEndCount = 16;
-    }
-    EDI_lineEndPositionList_ensureCapacityForInsertion(0, lineEndCount);
+    
+    EDI_lineEndPositionList_ensureCapacityForInsertion(0, necessaryCapacity);
     const local_EDI_lineEndPositionList_data = EDI_lineEndPositionList_data;
 
     const local_EDI_trackingUint32MaxHeap = EDI_trackingUint32MaxHeap;

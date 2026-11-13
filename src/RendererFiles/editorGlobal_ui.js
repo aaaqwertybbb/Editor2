@@ -1420,7 +1420,7 @@ function EDI_render_do_DuplicateOrPaste() {
                         ? EDI_cursor_EDI_duplicationORpaste_cacheEachLineSubstringDecodedArray[functionState.lineOffset]
                         : EDI_decoder_CUSTOM.decodeLineWithTabs(byteArray, wordStart, wordStart + wordLength, 4, editStartColumn);
                     functionState.lineOffset++;
-                    EDI_duplicate_and_paste_writeWord(wordLength, word, functionState);
+                    EDI_duplicate_and_paste_writeWord(word, functionState);
                     wordStart = 0;
                     wordLength = 0;
                     break;
@@ -1532,7 +1532,7 @@ function DUPLICATE_writeLinefeed(functionState, linefeedLength) {
     
 }
 
-function EDI_duplicate_and_paste_writeWord(wordLength, word, functionState) {
+function EDI_duplicate_and_paste_writeWord(word, functionState) {
 
     //// Decode only the new slice of un-drawn keys typed during this frame frame burst
     //const freshlyTypedString = EDI_decoder.decode(
@@ -1542,6 +1542,7 @@ function EDI_duplicate_and_paste_writeWord(wordLength, word, functionState) {
     //    )
     //);
 //
+    const wordLength = word.length;
     //// Splice the text inline directly into the string reference inside the cache array frame
     functionState.targetedSpan.text = 
         functionState.targetedSpan.text.slice(0, functionState.relativeInsertIndex) + 

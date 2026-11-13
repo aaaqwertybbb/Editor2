@@ -58,7 +58,8 @@ TODO: rewrite the Explorer TreeView so that it uses treeViewComponent.js
 - [ ] because they're the most high overhead event bzzzzzzz. I mean like brrr as in the events happen a lot. So maybe the overhead is worthwhile.
 - [ ] Whereas you're rewriting the entirety each time? etc... the high frequency events?
 
-
+// (this comment was written from iPhone) lawl
+// (written from the npm run I mean). But
 
 
 

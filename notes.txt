@@ -49,3 +49,16 @@ getLength(lineIndex) {
 ====
 
 I actually want to set the fontSize to 13 I feel like it would be perfect but I'm afraid to do it because of the number
+
+TODO: rewrite the Explorer TreeView so that it uses treeViewComponent.js
+
+- [ ] I'm thinking, if you rewrite treeViewComponent.js to use a canvas element, your GC overhead will reduce drastically.
+- [ ] Furthermore, if you tie the events or...
+- [ ] something like instead of event listener being to treeViewComponent it is to the thing directly
+- [ ] because they're the most high overhead event bzzzzzzz. I mean like brrr as in the events happen a lot. So maybe the overhead is worthwhile.
+- [ ] Whereas you're rewriting the entirety each time? etc... the high frequency events?
+
+
+
+
+

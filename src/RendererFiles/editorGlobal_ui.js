@@ -191,6 +191,7 @@ function EDI_resizeCanvases() {
     // Re-apply your styles here since changing width/height resets canvas states!
     ctxGutter.font = '14px monospace';
     ctxGutter.textBaseline = 'top';
+    ctxGutter.textAlign = 'right'; // 1. Set alignment once before your line-drawing loop
     ctxGutter.fillStyle = '#007036';
     ctxGutter.fillRect(0, 0, gutterCanvas.width, gutterCanvas.height); 
     ctxGutter.fillStyle = '#858585';
@@ -572,6 +573,13 @@ function EDI_render_do_Scroll() {
     ctxText.clearRect(0, 0, EDI_text_canvas.width, EDI_text_canvas.height);
 
     let ringBufferIndex = INTS[fEDI_ringBuffer_indexZero] - 1;
+
+    // 2. Define your right margin (e.g., 8px or 12px away from the editor border)
+    const rightPadding = 10;
+
+    // Use logical CSS width if you scale your context by devicePixelRatio,
+    // otherwise use gutterCanvas.width
+    const rightEdgeX = 60/*gutterLogicalWidth*/ - rightPadding;
     
     // Render pure line numbers
     for (let i = view_startLineIndex; i < view_upperLineIndexExclusive; i++) {
@@ -631,7 +639,7 @@ function EDI_render_do_Scroll() {
             lineSpans.length = spanIndex;
         }
 
-        ctxGutter.fillText(cacheNUMBERS[ringBufferIndex], 0, vertical + topPadding);
+        ctxGutter.fillText(cacheNUMBERS[ringBufferIndex], rightEdgeX, vertical + topPadding);
         
         // TODO: Horizontal virtualization
 

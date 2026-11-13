@@ -3348,8 +3348,8 @@ function EDI_registerHandlers() {
     //EDI_baseElement.addEventListener('mouseover', EDI_mouseOver);
     //EDI_baseElement.addEventListener('mouseleave', EDI_mouseLeave);
     
-    //EDI_baseElement.addEventListener('focus', EDI_onfocus);
-    //EDI_baseElement.addEventListener('blur', EDI_onblur);
+    EDI_baseElement.addEventListener('focus', EDI_onfocus);
+    EDI_baseElement.addEventListener('blur', EDI_onblur);
 
     ////EDI_scroll_viewport.addEventListener('scroll', EDI_scrollViewport_scroll, { passive: true });
 

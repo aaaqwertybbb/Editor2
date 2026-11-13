@@ -1219,7 +1219,7 @@ function EDI_render_do_DuplicateOrPaste() {
 
 
         const insertionCount = linesInsertedCount;
-        if (insertionCount === 0) { return; }
+        //if (insertionCount === 0) { return; }
 
         const final_ringBufferIndexItem = get_final_ringBufferIndex();
 
@@ -1247,30 +1247,33 @@ function EDI_render_do_DuplicateOrPaste() {
             next_ringBufferIndex -= INTS[fEDI_ArrayFrom_textElement_children_length];
         }
 
-        if (insertionCount >= availableRingBufferNodesVisuallyAfterExpandedOne) {
-            // finalize edit?
-            throw new Error();
-            //EXPLORER_draw_BATCH_request(indexItem + 1, availableRingBufferNodesVisuallyAfterExpandedOne, 3, next_ringBufferIndex);
-        }
-        else {
-            const final_indexItem = activeLine + availableRingBufferNodesVisuallyAfterExpandedOne; // TODO: This is a weird way to get the 'final_indexItem'
-            EDI_handleRingBufferNodesThatAreOffscreen_DuplicateOrPaste(final_ringBufferIndexItem, final_indexItem, activeLine, ringBufferIndex, insertionCount);
-            let n_ringBufferIndex = next_ringBufferIndex;
-            for (let i = 0; i < insertionCount; i++) {
-                EDI_lineStringCache[n_ringBufferIndex].length = 1;
-                EDI_lineStringCache[n_ringBufferIndex][0].text = '';
-                n_ringBufferIndex = n_ringBufferIndex + 1;
-                if (n_ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length]) {
-                    n_ringBufferIndex -= INTS[fEDI_ArrayFrom_textElement_children_length];
-                }
+        if (insertionCount > 0) {
+            if (insertionCount >= availableRingBufferNodesVisuallyAfterExpandedOne) {
+                // finalize edit?
+                throw new Error();
+                //EXPLORER_draw_BATCH_request(indexItem + 1, availableRingBufferNodesVisuallyAfterExpandedOne, 3, next_ringBufferIndex);
             }
-            EDI_render_request(RenderKind_Scroll);
-            //EDI_render_specific_recache_INSERTION(activeLine + 1, insertionCount, availableRingBufferNodesVisuallyAfterExpandedOne, next_ringBufferIndex, false);
+            else {
+                const final_indexItem = activeLine + availableRingBufferNodesVisuallyAfterExpandedOne; // TODO: This is a weird way to get the 'final_indexItem'
+                EDI_handleRingBufferNodesThatAreOffscreen_DuplicateOrPaste(final_ringBufferIndexItem, final_indexItem, activeLine, ringBufferIndex, insertionCount);
+                let n_ringBufferIndex = next_ringBufferIndex;
+                for (let i = 0; i < insertionCount; i++) {
+                    EDI_lineStringCache[n_ringBufferIndex].length = 1;
+                    EDI_lineStringCache[n_ringBufferIndex][0].text = '';
+                    n_ringBufferIndex = n_ringBufferIndex + 1;
+                    if (n_ringBufferIndex >= INTS[fEDI_ArrayFrom_textElement_children_length]) {
+                        n_ringBufferIndex -= INTS[fEDI_ArrayFrom_textElement_children_length];
+                    }
+                }
+                EDI_render_request(RenderKind_Scroll);
+                //EDI_render_specific_recache_INSERTION(activeLine + 1, insertionCount, availableRingBufferNodesVisuallyAfterExpandedOne, next_ringBufferIndex, false);
+            }
+            return;
         }
 
 
 
-        return;
+        
 
 
 

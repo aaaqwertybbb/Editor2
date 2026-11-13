@@ -1174,10 +1174,10 @@ function EDI_render_do_DuplicateOrPaste() {
 
         // 2. Determine the column position where the *first character of this edit burst* began
         // We use indexColumn minus the absolute total length of characters typed in this current edit session
-        const editStartColumn = INTS[fEDI_cursorVisualColumnIndex];// - INTS[fEDI_cursor_editLength_characters];
+        let editStartColumn = INTS[fEDI_cursorVisualColumnIndex];// - INTS[fEDI_cursor_editLength_characters];
         
         // Find the precise column location of the characters we are about to insert right now
-        const currentEditColumn = editStartColumn;// + INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue];
+        let currentEditColumn = editStartColumn;// + INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue];
 
         let runningColumnIdx = 0;
         let targetedSpan = null;
@@ -1363,10 +1363,10 @@ function EDI_render_do_DuplicateOrPaste() {
 
                     // 2. Determine the column position where the *first character of this edit burst* began
                     // We use indexColumn minus the absolute total length of characters typed in this current edit session
-                    const editStartColumn = 0;// - INTS[fEDI_cursor_editLength_characters];
+                    editStartColumn = 0;// - INTS[fEDI_cursor_editLength_characters];
                     
                     // Find the precise column location of the characters we are about to insert right now
-                    const currentEditColumn = 0;// + INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue];
+                    currentEditColumn = 0;// + INTS[fEDI_cursor_edit_eventCount_drawingStateContinuationValue];
 
                     let runningColumnIdx = 0;
                     let targetedSpan = null;
@@ -1412,13 +1412,13 @@ function EDI_render_do_DuplicateOrPaste() {
                     break;
                 case 2/*wordLetterOrDigit*/:
                     if (EDI_cursor_EDI_duplicationORpaste_cacheEachLineSubstringDecodedArray !== null && EDI_cursor_EDI_duplicationORpaste_cacheEachLineSubstringDecodedArray[functionState.lineOffset] === undefined) {
-                        EDI_cursor_EDI_duplicationORpaste_cacheEachLineSubstringDecodedArray[functionState.lineOffset] = EDI_decoder.decode(byteArray.subarray(wordStart, wordStart + wordLength));
+                        EDI_cursor_EDI_duplicationORpaste_cacheEachLineSubstringDecodedArray[functionState.lineOffset] = EDI_decoder_CUSTOM.decodeLineWithTabs(byteArray, wordStart, wordStart + wordLength, 4, editStartColumn);
                     }
                     // TODO: for duplicate: (this never would cache too cause finalize clear edit state is if (true) for duplicate to clear state.)
                     // EDI_cursor_EDI_duplicationORpaste_cacheEachLineSubstringDecodedArray = new Array(EDI_cursor_EDI_paste_clipboardContent_arrayLinePositions_OFFSETS.length);
                     const word = EDI_cursor_EDI_duplicationORpaste_cacheEachLineSubstringDecodedArray !== null
                         ? EDI_cursor_EDI_duplicationORpaste_cacheEachLineSubstringDecodedArray[functionState.lineOffset]
-                        : EDI_decoder.decode(byteArray.subarray(wordStart, wordStart + wordLength));
+                        : EDI_decoder_CUSTOM.decodeLineWithTabs(byteArray, wordStart, wordStart + wordLength, 4, editStartColumn);
                     functionState.lineOffset++;
                     EDI_duplicate_and_paste_writeWord(wordLength, word, functionState);
                     wordStart = 0;

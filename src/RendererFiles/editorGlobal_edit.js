@@ -318,6 +318,92 @@ class EDI_CustomDecoder {
 
     return spanIndex; // Return total parsed spans count for line cleanup
   }
+
+    /**
+     * Google AI: 'I need this custom decoding logic in another place within my app. But this is specifically just so I can when handling paste events cache each line of text...'
+     * 
+     * Decodes a slice of UTF-8 bytes into a single string with tabs expanded to tab stops.
+     *
+     * @param {Uint8Array} bytes - The source byte array
+     * @param {number} start - Starting byte index (inclusive)
+     * @param {number} end - Ending byte index (exclusive)
+     * @param {number} [tabWidth=4] - Number of spaces per tab stop
+     * @param {number} [startCol=0] - Starting visual column (useful if pasting mid-line)
+     * @returns {string} The decoded, tab-expanded string
+     */
+    decodeLineWithTabs(bytes, start, end, tabWidth = 4, startCol = 0) {
+        const limit = this.chunkSize;
+        const charBuffer = this.charBuffer;
+
+        let i = start;
+        let col = startCol;
+        let outStr = '';
+        let bufIdx = 0;
+
+        while (i < end) {
+            let codePoint = bytes[i++];
+
+            // FAST PATH: Horizontal tab (ASCII 9)
+            if (codePoint === 0x09) {
+                const spacesNeeded = tabWidth - (col % tabWidth);
+                col += spacesNeeded;
+
+                for (let s = 0; s < spacesNeeded; s++) {
+                    charBuffer[bufIdx++] = 32; // ASCII space
+                    if (bufIdx >= limit - 1) {
+                        outStr += this._flushBuffer(bufIdx);
+                        bufIdx = 0;
+                    }
+                }
+                continue;
+            }
+
+            // Multi-byte UTF-8 parsing
+            if ((codePoint & 0x80) !== 0) {
+                if ((codePoint & 0xE0) === 0xC0) {
+                    if (i < end) {
+                        codePoint = ((codePoint & 0x1F) << 6) | (bytes[i++] & 0x3F);
+                    }
+                } else if ((codePoint & 0xF0) === 0xE0) {
+                    if (i + 1 < end) {
+                        codePoint = ((codePoint & 0x0F) << 12) |
+                            ((bytes[i++] & 0x3F) << 6) |
+                            (bytes[i++] & 0x3F);
+                    }
+                } else if ((codePoint & 0xF8) === 0xF0) {
+                    if (i + 2 < end) {
+                        codePoint = ((codePoint & 0x07) << 18) |
+                            ((bytes[i++] & 0x3F) << 12) |
+                            ((bytes[i++] & 0x3F) << 6) |
+                            (bytes[i++] & 0x3F);
+                    }
+                }
+            }
+
+            col++;
+
+            // Write UTF-16 code units to buffer
+            if (codePoint <= 0xFFFF) {
+                charBuffer[bufIdx++] = codePoint;
+            } else {
+                codePoint -= 0x10000;
+                charBuffer[bufIdx++] = (codePoint >> 10) + 0xD800;
+                charBuffer[bufIdx++] = (codePoint & 0x3FF) + 0xDC00;
+            }
+
+            if (bufIdx >= limit - 1) {
+                outStr += this._flushBuffer(bufIdx);
+                bufIdx = 0;
+            }
+        }
+
+        // Flush remaining characters
+        if (bufIdx > 0) {
+            outStr += this._flushBuffer(bufIdx);
+        }
+
+        return outStr;
+    }
 }
 
 const EDI_encoder = new TextEncoder();

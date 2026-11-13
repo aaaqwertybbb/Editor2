@@ -473,7 +473,7 @@ function EDI_state_setText_byteArray(paddedUint8Array, textByteLength, fileStart
     EDI_lastReadNumber_scrollTop = 0;
     EDI_lastReadNumber_scrollLeft = 0;
 
-    EDI_state_clear(lineEndCount);
+    EDI_state_clear(lineEndCount + 1);
     set_EDI_fileStartsWithBom(fileStartsWithBom);
     EDI_textSourceIdentifier = textSourceIdentifier;
     EDI_FORMATTED_textSourceIdentifier = FORMATTED_textSourceIdentifier;

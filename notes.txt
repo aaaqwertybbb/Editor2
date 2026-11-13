@@ -26,3 +26,26 @@ My life flashed before my eyes just now I'm so on edge cause the call dropped fo
 He called me back immediately after the call dropped like I said I just am still extremely on edge and uneasy lingering feeling
 Everything went fine I was just like "I don't know what was sorry about that" and he said like "yeah I don't know I think the call dropped"
 and then repeated the same thing he said before it dropped and I said yes
+
+Uncaught Error
+    at TrackingUint32MaxHeap.getLength (__COMPILEDbundle__.js:2442:13)
+    at EDI_finalizeEdit_Enter (__COMPILEDbundle__.js:3625:52)
+    at EDI_finalizeEdit (__COMPILEDbundle__.js:3547:34)
+    at EDI_render_do_Scroll (__COMPILEDbundle__.js:5249:5)
+    at EDI_render_do (__COMPILEDbundle__.js:4992:9)
+
+getLength(lineIndex) {
+    if (lineIndex >= this.lineIndexToHeapIndex.length) {
+      throw new Error();
+    }
+    const logicalIndex = this.lineIndexToHeapIndex[lineIndex];
+    if (logicalIndex === -1) {
+      throw new Error();
+    }
+    const bufferIndex = logicalIndex * 2;
+    return this.heap[bufferIndex];
+  }
+
+====
+
+I actually want to set the fontSize to 13 I feel like it would be perfect but I'm afraid to do it because of the number

@@ -3427,6 +3427,105 @@ function EDI_createStyleForSelection(ctx, viewportY, local_lineHeight, firstVirt
     }
 }
 
+/*
+Tired can't decide whether this code is an improvement or not; it probably is but nevertheless as I said I just don't feel like reading it right now and thus I can't in good faith just take this. It's such a small snippet of code, maybe you can't read every generated line of code but here it feels like a given that you'd read this one and I just can't do it right now.
+
+function EDI_createStyleForSelection(ctx, viewportY, local_lineHeight, firstVirtualIndexLine) {
+  const scrollLeft = EDI_lastReadNumber_scrollLeft;
+  const charWidth = EDI_characterWidth;
+
+  let start = INTS[fEDI_cursor_selectionAnchor];
+  EDI_ret_getLineAndColumnIndices_raw(start);
+  let startLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
+  let startColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
+  let start_visualColumnStart = INTS[fEDI_cursor_selectionIndexAnchorColumnVISUAL];
+
+  let end = INTS[fEDI_cursor_selectionEnd];
+  EDI_ret_getLineAndColumnIndices_raw(end);
+  let INCLUSIVEendLine = INTS[fEDI_ret_getLineAndColumnIndices_indexLine];
+  let INCLUSIVEendColumn = INTS[fEDI_ret_getLineAndColumnIndices_indexColumn];
+  let end_visualColumnStart = INTS[fEDI_cursor_selectionIndexEndColumnVISUAL];
+
+  // 1. Normalize backward selections FIRST before clamping to viewport
+  if (start > end) {
+    let temp = end;
+    end = start;
+    start = temp;
+
+    let tempLine = INCLUSIVEendLine;
+    INCLUSIVEendLine = startLine;
+    startLine = tempLine;
+
+    let tempColumn = INCLUSIVEendColumn;
+    INCLUSIVEendColumn = startColumn;
+    startColumn = tempColumn;
+
+    let tempVisualColumn = start_visualColumnStart;
+    start_visualColumnStart = end_visualColumnStart;
+    end_visualColumnStart = tempVisualColumn;
+  }
+
+  // 2. Clamp to visible vertical viewport AFTER normalization
+  const firstVisibleLine = INTS[fEDI_virtualIndexLine];
+  const lastIndexLineBeingShown = firstVisibleLine + INTS[fEDI_virtualCount] - 1;
+
+  if (startLine < firstVisibleLine) {
+    startLine = firstVisibleLine;
+    startColumn = 0;
+    start_visualColumnStart = 0;
+  }
+  if (INCLUSIVEendLine > lastIndexLineBeingShown) {
+    INCLUSIVEendLine = lastIndexLineBeingShown;
+    INCLUSIVEendColumn = EDI_getLastValidIndexColumn_raw(INCLUSIVEendLine);
+    EDI_ret_getLineBoundaryPositions_raw(INCLUSIVEendLine);
+    end_visualColumnStart = EDI_getEntireLineVisualWidth(
+      INTS[fEDI_ret_getLineBoundaryPositions_start],
+      INTS[fEDI_ret_getLineBoundaryPositions_end]
+    ) + 1;
+  }
+
+  if (startLine > firstVirtualIndexLine) {
+    viewportY += (local_lineHeight * (startLine - firstVirtualIndexLine));
+  }
+
+  if (startLine === INCLUSIVEendLine) {
+    // Single-line selection
+    const x = (start_visualColumnStart * charWidth) - scrollLeft;
+    const width = (end_visualColumnStart - start_visualColumnStart) * charWidth;
+    ctx.fillRect(x, viewportY, width, local_lineHeight);
+  } else {
+    // Start line
+    EDI_ret_getLineBoundaryPositions_raw(startLine);
+    const startLineVisualWidth = EDI_getEntireLineVisualWidth(
+      INTS[fEDI_ret_getLineBoundaryPositions_start],
+      INTS[fEDI_ret_getLineBoundaryPositions_end]
+    );
+    const startX = (start_visualColumnStart * charWidth) - scrollLeft;
+    const startWidth = (startLineVisualWidth - start_visualColumnStart + 1) * charWidth;
+    ctx.fillRect(startX, viewportY, startWidth, local_lineHeight);
+    viewportY += local_lineHeight;
+
+    // Middle lines
+    for (let lineI = startLine + 1; lineI < INCLUSIVEendLine; lineI++) {
+      EDI_ret_getLineBoundaryPositions_raw(lineI);
+      const lineVisualWidth = EDI_getEntireLineVisualWidth(
+        INTS[fEDI_ret_getLineBoundaryPositions_start],
+        INTS[fEDI_ret_getLineBoundaryPositions_end]
+      );
+      const midX = -scrollLeft;
+      const midWidth = (lineVisualWidth + 1) * charWidth;
+      ctx.fillRect(midX, viewportY, midWidth, local_lineHeight);
+      viewportY += local_lineHeight;
+    }
+
+    // End line
+    const endX = -scrollLeft;
+    const endWidth = end_visualColumnStart * charWidth;
+    ctx.fillRect(endX, viewportY, endWidth, local_lineHeight);
+  }
+}*/
+
+
 /**
  * This method will NOT "put a cursor on screen". You need to ensure
  * your cursor exists as a child by appendChild'ing to EDTIOR_cursorListElement.

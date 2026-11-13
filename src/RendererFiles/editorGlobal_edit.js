@@ -3182,9 +3182,9 @@ function EDI_cursorBlinkingTrailingEdge() {
     // ...that updates something more directly related to the text editor itself (i.e.: if you group this text modification with modifying the 'animationPlayState').
     EDI_draw_cursor_debug();
 
-    if (BYTES[byteDIALOG_currentDialogKind] === DialogKind_Debug) {
-        sendTransaction_MessageKind_custom_editorGetNodesAdjacentToCursor(EDI_getPositionIndex_cursor_raw());
-    }
+    //if (BYTES[byteDIALOG_currentDialogKind] === DialogKind_Debug) {
+    //    sendTransaction_MessageKind_custom_editorGetNodesAdjacentToCursor(EDI_getPositionIndex_cursor_raw());
+    //}
 }
 //#endregion
 

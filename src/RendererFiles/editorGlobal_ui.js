@@ -692,7 +692,7 @@ function EDI_render_do_Scroll() {
     }
 }
 
-function EDI_render_Gutter(ringBufferIndex) {
+/*function EDI_render_Gutter(ringBufferIndex) {
     const local_lineHeight = INTS[fEDI_lineHeight];
 
     // 3. Let your context handle the scroll natively inside the static window
@@ -739,9 +739,9 @@ function EDI_render_Gutter(ringBufferIndex) {
         ctxGutter.fillText('~', 0, vertical + local_EDI_textTopPadding);
         vertical += local_lineHeight;
     }
-}
+}*/
 
-function EDI_render_TextContent(ringBufferIndex, lowerBound, loopLimit, lineStart, lineEnd) {
+/*function EDI_render_TextContent(ringBufferIndex, lowerBound, loopLimit, lineStart, lineEnd) {
     const ctxText = EDI_text_canvas.getContext('2d');
     ctxText.clearRect(0, 0, EDI_text_canvas.width, EDI_text_canvas.height);
 
@@ -875,7 +875,7 @@ function EDI_render_TextContent(ringBufferIndex, lowerBound, loopLimit, lineStar
 
         viewportY += local_lineHeight;
     }
-}
+}*/
 
 function EDI_render_do_Clear() {
     //EDI_drawCursor(/*NOTscrollCursorIntoView*/ false);
@@ -3253,29 +3253,33 @@ function EDI_insertGapBufferSpan() {
 }
 
 function EDI_render_SelectionAndCursor() {
-    const canvas = EDI_cursor_canvas;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const local_lineHeight = INTS[fEDI_lineHeight];
-    const startLineIndex = INTS[fEDI_virtualIndexLine];
-    const upperLineIndexExclusive = startLineIndex + INTS[fEDI_virtualCount];
-    
-    let viewportY = -(EDI_lastReadNumber_scrollTop % local_lineHeight);
+
+    // I'm just experimenting because tons of variables are shared.
+    //EDI_render_SelectionAndCursor();
+    const cursorCanvas = EDI_cursor_canvas;
+    const ctx = cursorCanvas.getContext('2d');
+    ctx.clearRect(0, 0, cursorCanvas.width, cursorCanvas.height);
 
     // --- STEP 1: RENDER SELECTION BOX BACKGROUND SPANS ---
     // (Assuming you track a selection range from anchorLine/Col to focusLine/Col)
     ctx.fillStyle = 'rgba(197, 198, 140, 0.25)'; // Highlight tint color
 
+    const local_lineHeight = INTS[fEDI_lineHeight];
+    let vertical = -(EDI_lastReadNumber_scrollTop % local_lineHeight);
+    const startLineIndex = INTS[fEDI_virtualIndexLine];
+    const upperLineIndexExclusive = startLineIndex + INTS[fEDI_virtualCount];
+
     if (EDI_cursor_hasSelection()) {
-        EDI_createStyleForSelection(ctx, viewportY, local_lineHeight, startLineIndex);
+        // (Note: Make sure your EDI_createStyleForSelection utility also takes horizontal scrolling into account when drawing selection backgrounds!)
+        EDI_createStyleForSelection(ctx, vertical, local_lineHeight, startLineIndex);
     }
 
     // --- STEP 2: RENDER ACTIVE SOLID CURSOR LINE ---
     ctx.fillStyle = '#f2a72f'; // Solid cursor accent color
     const cursorLine = INTS[fEDI_cursor_indexLine];
     if (cursorLine >= startLineIndex && cursorLine < upperLineIndexExclusive) {
-        const cursorX = INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth;
+        const cursorX = (INTS[fEDI_cursorVisualColumnIndex] * EDI_characterWidth) - EDI_lastReadNumber_scrollLeft;
         const cursorY = -(EDI_lastReadNumber_scrollTop % local_lineHeight) + ((cursorLine - startLineIndex) * local_lineHeight);
         
         EDI_cursor_cursorTranslateXValue = cursorX;
@@ -3483,8 +3487,8 @@ function EDI_drawCursor(NOTscrollCursorIntoView) {
     // And maybe there is more to it than just an 'id' on the JavaScript side of things but I'm just modifying my assumptions a bit
     // based on new knowledge I've gained and seeing where it leads.
     //
-    //clearTimeout(INTS[fEDI_cursorBlinkingTrailingEdgeTimeoutId]);
-    //INTS[fEDI_cursorBlinkingTrailingEdgeTimeoutId] = setTimeout(EDI_cursorBlinkingTrailingEdge, 500);
+    clearTimeout(INTS[fEDI_cursorBlinkingTrailingEdgeTimeoutId]);
+    INTS[fEDI_cursorBlinkingTrailingEdgeTimeoutId] = setTimeout(EDI_cursorBlinkingTrailingEdge, 500);
 
 /*
 - [ ] Further necessary details:
